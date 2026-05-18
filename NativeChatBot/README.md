@@ -1,0 +1,91 @@
+# BRAINK Native Chat Bot
+
+A standalone **native macOS SwiftUI** chat bot with a deterministic local runtime and optional remote bridge.
+
+## What this build includes
+- Native UI (chat view + module trace view)
+- Deterministic module routing + route classification
+- Local fallback responses (no third-party service required)
+- Optional runtime bridge through `BRAINK_CHAT_RUNTIME`
+- Reproducible build script
+
+## Modules
+- `Router`: scores command routing keywords
+- `Reasoning`: scores reasoning intent
+- `Grammar`: simple lexical complexity score
+- `Persona`: tracks interaction style signals
+
+## Route map (deterministic local logic)
+- `auth.oauth` -> auth/login intent (`login`, `oauth`, `auth`)
+- `proof_packet` -> proof/falsifier/routing proof request (`proof`, `packet`, `falsifier`)
+- `runtime_trace` -> route/entrypoint/runtime tracing (`runtime`, `route`, `entrypoint`)
+- `build` -> build/compile/bundle request (`build`, `compile`, `bundle`)
+- `constraint_flags` -> machine-readable module delivery constraints and status flags (`constraints`, `flaggable`, `constraint`, `flag`)
+- `illlm_bundle` -> IL-LLM workspace intake and inventory (`il-llm`, `illlm`, `all my il`)
+- `illlm_bootstrap` -> explicit “have/load/want my data” bootstrap intent for immediate ingestion.
+- `align-check` -> alignment verification requests (`align`, `alignment`)
+- `module_manifest` -> module-link proof ledger (`module map`, `module status`, `manifest`)
+- `general` -> fallback when no explicit route match
+- Drag-and-drop: dropping a folder or file into the input area will rebind IL-LLM runtime immediately.
+- Drag-and-drop behavior: dropped IL-LLM files are also parsed into short in-memory snippets.
+  Ask questions that match filenames/contents (for example terms from your project) and the bot will
+  return matching loaded context in `illlm_query`.
+
+## Build
+```bash
+cd "/Users/ak/Documents/BRAINK THE ACTUAL APPLICATION/NativeChatBot"
+./build-native-chatbot.command
+```
+
+The script creates:
+- `/Users/ak/Documents/BRAINK THE ACTUAL APPLICATION/NativeChatBot/BRAINKChatBot.app`
+
+## Run
+```bash
+open "/Users/ak/Documents/BRAINK THE ACTUAL APPLICATION/NativeChatBot/BRAINKChatBot.app"
+```
+
+## Optional remote runtime
+Set an environment variable so the app calls a remote endpoint:
+```bash
+export BRAINK_CHAT_RUNTIME="https://your-runtime.example.com/chat"
+./build-native-chatbot.command
+```
+Payload sent: `{ "prompt": "..." }`.
+Response expected: `{ "response": "...", "route": "..." }`.
+
+## Provide IL-LLM workspace bundle
+Set this environment variable before building/running so the chatbot can enumerate and ingest your IL-LLM files:
+
+```bash
+export IL_LLM_RUNTIME_PATH="/Users/ak/Documents/New project"
+./build-native-chatbot.command
+```
+
+Then send:
+- `load all my IL-LLM`
+- `give it all IL-LLM`
+- `i want my chatbot to have my data`
+
+The bot responds with a context-loaded report (up to 200 files) and records a local module trace for every request.
+
+You can also skip env var setup by dragging an IL-LLM folder/file into the chat input strip; the runtime path updates live and inventory is re-read immediately.
+
+The bot also auto-loads IL-LLM snippets on startup from:
+1. `IL_LLM_RUNTIME_PATH` if set, otherwise
+2. `/Users/ak/Documents/New project`.
+
+Detected route for module/status checks:
+- `module_manifest` -> reports all module files and exact delivery state.
+
+System messages:
+- `system.runtime_drop` / `system.runtime_drop_indexed`: path binding + inventory status
+- `system.runtime_startup`: startup ingest status
+- `illlm_query` (from route `illlm_query`): data-grounded response from loaded snippets
+
+Detected route for IL-LLM bundle intake:
+- `illlm_bundle`
+- `illlm_bootstrap`
+
+## Reset
+Use **Clear** in the UI to reset conversation + trace.
