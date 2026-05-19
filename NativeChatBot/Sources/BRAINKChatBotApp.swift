@@ -70,6 +70,49 @@ struct TraceRow: View {
     }
 }
 
+struct DashboardRow: View {
+    let label: String
+    let value: String
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 8) {
+            Text(label)
+                .font(.caption.bold())
+                .foregroundStyle(.secondary)
+                .frame(width: 86, alignment: .leading)
+            Text(value)
+                .font(.caption2.monospaced())
+                .foregroundStyle(.primary)
+            Spacer()
+        }
+    }
+}
+
+struct DashboardCard<Content: View>: View {
+    let title: String
+    let content: Content
+
+    init(title: String, @ViewBuilder content: () -> Content) {
+        self.title = title
+        self.content = content()
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title)
+                .font(.subheadline.bold())
+            content
+        }
+        .padding(10)
+        .background(Color.black.opacity(0.22))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .overlay(
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(Color.white.opacity(0.08), lineWidth: 1)
+        )
+    }
+}
+
 struct ChatInputBar: View {
     @ObservedObject var engine: BRAINKChatEngine
     @Binding var input: String
@@ -103,6 +146,30 @@ struct ChatInputBar: View {
                 engine.reloadILLLMBundle()
             }
             .buttonStyle(.borderedProminent)
+            .disabled(engine.isBusy)
+
+            Button("Audit Stack") {
+                Task {
+                    await engine.send(userInput: "stack audit line for line module alignment")
+                }
+            }
+            .buttonStyle(.bordered)
+            .disabled(engine.isBusy)
+
+            Button("Learn Files") {
+                Task {
+                    await engine.send(userInput: "learn every last file and code and skill")
+                }
+            }
+            .buttonStyle(.bordered)
+            .disabled(engine.isBusy)
+
+            Button("Knowledge") {
+                Task {
+                    await engine.send(userInput: "knowledge center status")
+                }
+            }
+            .buttonStyle(.bordered)
             .disabled(engine.isBusy)
 
             if engine.isBusy {
@@ -146,10 +213,11 @@ struct BrainkNativeChatbotView: View {
     }
 
     var body: some View {
-        HStack(spacing: 0) {
+        ScreenContainer {
+            HStack(spacing: 0) {
                 VStack(spacing: 0) {
                 HStack {
-                    Text("BRAINK Native Chat Bot")
+                    Text(BRAINKConstants.productSignature)
                         .font(.title3.bold())
                     Spacer()
                     Text("Native deterministic path")
@@ -157,6 +225,14 @@ struct BrainkNativeChatbotView: View {
                         .foregroundStyle(.secondary)
                 }
                 .padding()
+
+                HStack {
+                    Text(BRAINKConstants.authorshipSignature)
+                        .font(.caption2.monospaced())
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                }
+                .padding(.horizontal)
 
                 Divider()
 
@@ -199,56 +275,69 @@ struct BrainkNativeChatbotView: View {
 
             Divider()
 
-            VStack(alignment: .leading, spacing: 8) {
-                HStack {
-                    Text("Module Trace")
-                        .font(.headline)
-                    Spacer()
-                    Button("Clear traces") {
-                        engine.clearTraces()
+            ThemedPanel {
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack {
+                        Text("Module Trace")
+                            .font(.headline)
+                        Spacer()
+                        Button("Clear traces") {
+                            engine.clearTraces()
+                        }
+                        .buttonStyle(.plain)
                     }
-                    .buttonStyle(.plain)
-                }
-                .padding([.horizontal, .top])
+                    .padding([.horizontal, .top])
 
-                List {
-                    ForEach(engine.traces) { trace in
-                        TraceRow(trace: trace)
+                    List {
+                        ForEach(engine.traces) { trace in
+                            TraceRow(trace: trace)
+                        }
+                    }
+
+                    ScrollView {
+                        VStack(alignment: .leading, spacing: 10) {
+                            DashboardCard(title: "User Dashboard") {
+                                DashboardRow(label: "Product", value: BRAINKConstants.productSignature)
+                                DashboardRow(label: "Author", value: BRAINKConstants.architectName)
+                                DashboardRow(label: "Org", value: BRAINKConstants.organizationName)
+                                DashboardRow(label: "Session", value: engine.dashboardLastRoute)
+                            }
+
+                            DashboardCard(title: "Runtime") {
+                                DashboardRow(label: "Mode", value: engine.runtimeModeLabel)
+                                DashboardRow(label: "Endpoint", value: engine.runtimeEndpointLabel)
+                                DashboardRow(label: "Path", value: engine.ilLlmRuntimePath)
+                                DashboardRow(label: "Docs", value: "\(engine.ilLlmLoadedCount)")
+                                DashboardRow(label: "Load", value: engine.ilLlmLoadedStatus)
+                            }
+
+                            DashboardCard(title: "Knowledge") {
+                                DashboardRow(label: "Growth", value: engine.ilLlmGrowthStatus)
+                                DashboardRow(label: "Memory", value: engine.ilLlmMemoryStatus)
+                                DashboardRow(label: "Concepts", value: engine.ilLlmTopConceptsText)
+                            }
+
+                            DashboardCard(title: "Activity") {
+                                DashboardRow(
+                                    label: "Messages",
+                                    value: "\(engine.messages.count) total | u:\(engine.dashboardUserMessageCount) a:\(engine.dashboardAssistantMessageCount) s:\(engine.dashboardSystemMessageCount)"
+                                )
+                                DashboardRow(label: "Traces", value: "\(engine.traces.count)")
+                                DashboardRow(label: "Next", value: engine.dashboardNextAction)
+                            }
+
+                            if isDraggingILLLMTarget {
+                                Text("Drop IL-LLM folder or file to rebind runtime.")
+                                    .font(.caption)
+                                    .foregroundStyle(.yellow)
+                            }
+                        }
+                        .padding()
                     }
                 }
-
-                Spacer()
-
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Runtime")
-                        .font(.subheadline.bold())
-                    Text("LOCAL_ONLY=\(ProcessInfo.processInfo.environment["BRAINK_CHAT_RUNTIME"] == nil ? "yes" : "no")")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                    if let endpoint = ProcessInfo.processInfo.environment["BRAINK_CHAT_RUNTIME"] {
-                        Text("endpoint: \(endpoint)")
-                            .font(.caption2.monospaced())
-                            .foregroundStyle(.secondary)
-                    }
-                    Text("IL_LLM_RUNTIME_PATH=\(engine.ilLlmRuntimePath)")
-                        .font(.caption2.monospaced())
-                        .foregroundStyle(.secondary)
-                    Text("IL-LLM loaded: \(engine.ilLlmLoadedCount) docs")
-                        .font(.caption2.monospaced())
-                        .foregroundStyle(.secondary)
-                    Text(engine.ilLlmLoadedStatus)
-                        .font(.caption2.monospaced())
-                        .foregroundStyle(.secondary)
-                    if isDraggingILLLMTarget {
-                        Text("Drop IL-LLM folder or file here to rebind runtime.")
-                            .font(.caption)
-                            .foregroundStyle(.yellow)
-                    }
-                }
-                .padding()
             }
             .frame(minWidth: 320)
-            .background(Color(NSColor.windowBackgroundColor).opacity(0.85))
+        }
         }
     }
 }

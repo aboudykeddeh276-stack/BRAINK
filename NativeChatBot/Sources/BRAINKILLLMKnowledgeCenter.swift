@@ -1,0 +1,305 @@
+import Foundation
+import CryptoKit
+
+struct BRAINKILLLMKnowledgeSnapshot: Codable {
+    let architect: String
+    let organization: String
+    let signature: String
+    let status: String
+    let statusReason: String?
+    let runtimePath: String
+    let indexedFileCount: Int
+    let loadedSnippetCount: Int
+    let memoryBudgetChars: Int
+    let memoryUsedChars: Int
+    let growthEventCount: Int
+    let topConcepts: [String]
+    let lastRefreshAt: String
+    let refreshedBy: String
+}
+
+struct BRAINKILLLMKnowledgeContext {
+    let preview: String
+    let matchedPaths: [String]
+    let snapshot: BRAINKILLLMKnowledgeSnapshot
+}
+
+private struct BRAINKILLLMSnippet {
+    let path: String
+    let text: String
+    let tokens: Set<String>
+}
+
+final class BRAINKILLLMKnowledgeCenter {
+    private(set) var runtimePath: String
+    private var snippets: [BRAINKILLLMSnippet] = []
+    private var conceptCounts: [String: Int] = [:]
+    private var lastFingerprint = ""
+    private var lastRefreshDate: Date?
+    private var growthEventCount = 0
+
+    private let supportedExtensions: Set<String> = [
+        "md", "txt", "json", "py", "ts", "tsx", "js", "swift",
+        "cpp", "c", "go", "java", "yaml", "yml", "toml"
+    ]
+    private let maxInventoryFiles = 5_000
+    private let maxSnippetFiles = 500
+    private let maxSnippetChars = 700
+    private let memoryBudgetChars = 120_000
+    private let refreshCooldownSeconds: TimeInterval = 6
+
+    init(runtimePath: String) {
+        self.runtimePath = runtimePath
+    }
+
+    func setRuntimePath(_ newPath: String) {
+        runtimePath = newPath.trimmingCharacters(in: .whitespacesAndNewlines)
+        snippets.removeAll()
+        lastFingerprint = ""
+        lastRefreshDate = nil
+    }
+
+    func refresh(force: Bool, reason: String) -> BRAINKILLLMKnowledgeSnapshot {
+        let trimmedPath = runtimePath.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedPath.isEmpty else {
+            let snapshot = makeSnapshot(
+                status: "BLOCKED",
+                statusReason: "runtime_path_missing",
+                indexedFileCount: 0,
+                refreshedBy: reason
+            )
+            persist(snapshot)
+            return snapshot
+        }
+
+        var isDirectory: ObjCBool = false
+        guard FileManager.default.fileExists(atPath: trimmedPath, isDirectory: &isDirectory) else {
+            let snapshot = makeSnapshot(
+                status: "BLOCKED",
+                statusReason: "runtime_path_not_found",
+                indexedFileCount: 0,
+                refreshedBy: reason
+            )
+            persist(snapshot)
+            return snapshot
+        }
+
+        if !force,
+           let lastRefreshDate,
+           Date().timeIntervalSince(lastRefreshDate) <= refreshCooldownSeconds,
+           !snippets.isEmpty {
+            let snapshot = makeSnapshot(
+                status: "DONE",
+                statusReason: nil,
+                indexedFileCount: snippets.count,
+                refreshedBy: reason
+            )
+            persist(snapshot)
+            return snapshot
+        }
+
+        let files = collectFiles(rootPath: trimmedPath, isDirectory: isDirectory.boolValue)
+        if files.isEmpty {
+            snippets = []
+            let snapshot = makeSnapshot(
+                status: "NOT DONE",
+                statusReason: "no_supported_files_found",
+                indexedFileCount: 0,
+                refreshedBy: reason
+            )
+            persist(snapshot)
+            return snapshot
+        }
+
+        let fingerprint = fingerprintFor(files: files)
+        if !lastFingerprint.isEmpty && fingerprint != lastFingerprint {
+            growthEventCount += 1
+        }
+        lastFingerprint = fingerprint
+
+        var loaded: [BRAINKILLLMSnippet] = []
+        var memoryUsed = 0
+        for path in files {
+            if loaded.count >= maxSnippetFiles || memoryUsed >= memoryBudgetChars { break }
+            guard let data = try? Data(contentsOf: URL(fileURLWithPath: path)),
+                  let text = String(data: data, encoding: .utf8) else {
+                continue
+            }
+            let trimmed = String(text.prefix(maxSnippetChars))
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !trimmed.isEmpty else { continue }
+            let remaining = max(0, memoryBudgetChars - memoryUsed)
+            let bounded = String(trimmed.prefix(remaining))
+            guard !bounded.isEmpty else { continue }
+            memoryUsed += bounded.count
+            loaded.append(BRAINKILLLMSnippet(path: path, text: bounded, tokens: Set(tokenize(bounded))))
+        }
+
+        snippets = loaded
+        lastRefreshDate = Date()
+
+        let status = loaded.isEmpty ? "NOT DONE" : "DONE"
+        let reasonText = loaded.isEmpty ? "supported_files_unreadable" : nil
+        let snapshot = makeSnapshot(
+            status: status,
+            statusReason: reasonText,
+            indexedFileCount: files.count,
+            refreshedBy: reason
+        )
+        persist(snapshot)
+        return snapshot
+    }
+
+    func context(for userInput: String) -> BRAINKILLLMKnowledgeContext {
+        let baseline = refresh(force: false, reason: "always_on_query")
+        guard baseline.status == "DONE", !snippets.isEmpty else {
+            return BRAINKILLLMKnowledgeContext(
+                preview: "",
+                matchedPaths: [],
+                snapshot: baseline
+            )
+        }
+
+        let queryTokens = tokenize(userInput).filter { $0.count > 2 }
+        let ranked = snippets.compactMap { snippet -> (BRAINKILLLMSnippet, Int)? in
+            guard !queryTokens.isEmpty else { return (snippet, 1) }
+            let score = queryTokens.reduce(0) { running, token in
+                running + (snippet.tokens.contains(token) ? 1 : 0)
+            }
+            return score > 0 ? (snippet, score) : nil
+        }
+        .sorted { lhs, rhs in
+            if lhs.1 == rhs.1 {
+                return lhs.0.path < rhs.0.path
+            }
+            return lhs.1 > rhs.1
+        }
+
+        for token in queryTokens.prefix(24) {
+            conceptCounts[token, default: 0] += 1
+        }
+        if let first = ranked.first {
+            for token in first.0.tokens.sorted().prefix(16) {
+                conceptCounts[token, default: 0] += 1
+            }
+        }
+
+        let top = ranked.prefix(3)
+        let preview = top.enumerated().map { index, item in
+            let file = URL(fileURLWithPath: item.0.path).lastPathComponent
+            let compact = item.0.text.replacingOccurrences(of: "\n", with: " ")
+            return "\(index + 1). \(file) [score=\(item.1)] \(compact)"
+        }.joined(separator: "\n")
+
+        let snapshot = makeSnapshot(
+            status: baseline.status,
+            statusReason: baseline.statusReason,
+            indexedFileCount: baseline.indexedFileCount,
+            refreshedBy: "always_on_query"
+        )
+        persist(snapshot)
+        return BRAINKILLLMKnowledgeContext(
+            preview: preview,
+            matchedPaths: top.map { $0.0.path },
+            snapshot: snapshot
+        )
+    }
+
+    private func collectFiles(rootPath: String, isDirectory: Bool) -> [String] {
+        if !isDirectory {
+            let ext = URL(fileURLWithPath: rootPath).pathExtension.lowercased()
+            if supportedExtensions.contains(ext) || ext.isEmpty {
+                return [rootPath]
+            }
+            return []
+        }
+
+        var paths: [String] = []
+        let rootURL = URL(fileURLWithPath: rootPath, isDirectory: true)
+        if let enumerator = FileManager.default.enumerator(
+            at: rootURL,
+            includingPropertiesForKeys: [.isRegularFileKey],
+            options: [.skipsHiddenFiles]
+        ) {
+            for case let fileURL as URL in enumerator {
+                let isFile = (try? fileURL.resourceValues(forKeys: [.isRegularFileKey]).isRegularFile) ?? false
+                guard isFile else { continue }
+                let ext = fileURL.pathExtension.lowercased()
+                if supportedExtensions.contains(ext) || ext.isEmpty {
+                    paths.append(fileURL.path)
+                }
+                if paths.count >= maxInventoryFiles { break }
+            }
+        }
+        return paths.sorted()
+    }
+
+    private func fingerprintFor(files: [String]) -> String {
+        var joined = ""
+        for path in files.prefix(maxInventoryFiles) {
+            let attrs = (try? FileManager.default.attributesOfItem(atPath: path)) ?? [:]
+            let size = (attrs[.size] as? NSNumber)?.intValue ?? 0
+            let date = (attrs[.modificationDate] as? Date)?.timeIntervalSince1970 ?? 0
+            joined.append(path)
+            joined.append("|")
+            joined.append("\(size)")
+            joined.append("|")
+            joined.append("\(date)")
+            joined.append("\n")
+        }
+        let digest = SHA256.hash(data: Data(joined.utf8))
+        return digest.map { String(format: "%02x", $0) }.joined()
+    }
+
+    private func makeSnapshot(
+        status: String,
+        statusReason: String?,
+        indexedFileCount: Int,
+        refreshedBy: String
+    ) -> BRAINKILLLMKnowledgeSnapshot {
+        let usedChars = snippets.reduce(0) { $0 + $1.text.count }
+        let topConcepts = conceptCounts
+            .sorted { lhs, rhs in
+                if lhs.value == rhs.value { return lhs.key < rhs.key }
+                return lhs.value > rhs.value
+            }
+            .prefix(12)
+            .map(\.key)
+
+        return BRAINKILLLMKnowledgeSnapshot(
+            architect: BRAINKConstants.architectName,
+            organization: BRAINKConstants.organizationName,
+            signature: BRAINKConstants.authorshipSignature,
+            status: status,
+            statusReason: statusReason,
+            runtimePath: runtimePath,
+            indexedFileCount: indexedFileCount,
+            loadedSnippetCount: snippets.count,
+            memoryBudgetChars: memoryBudgetChars,
+            memoryUsedChars: usedChars,
+            growthEventCount: growthEventCount,
+            topConcepts: topConcepts,
+            lastRefreshAt: ISO8601DateFormatter().string(from: Date()),
+            refreshedBy: refreshedBy
+        )
+    }
+
+    private func tokenize(_ text: String) -> [String] {
+        text.lowercased()
+            .components(separatedBy: CharacterSet.alphanumerics.inverted)
+            .filter { $0.count >= 3 }
+    }
+
+    private func persist(_ snapshot: BRAINKILLLMKnowledgeSnapshot) {
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+        guard let data = try? encoder.encode(snapshot) else { return }
+        let url = URL(fileURLWithPath: BRAINKConstants.illlmKnowledgeStatePath)
+        do {
+            try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
+            try data.write(to: url)
+        } catch {
+            return
+        }
+    }
+}
