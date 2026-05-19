@@ -111,6 +111,13 @@ final class BRAINKChatEngine: ObservableObject {
     @Published private(set) var ilLlmGrowthStatus: String = "growth_events=0"
     @Published private(set) var ilLlmMemoryStatus: String = "memory=0/0 chars"
     @Published private(set) var ilLlmTopConceptsText: String = "top_concepts=none"
+    @Published private(set) var dashboardAuditOutcome: String = "NOT RUN"
+    @Published private(set) var dashboardAuditCounts: String = "done=0, simulated=0, inferred=0, blocked=0, not_done=0"
+    @Published private(set) var dashboardAuditWeightedAlignment: String = "0.0000"
+    @Published private(set) var dashboardAuditAlignmentScore: Double = 0
+    @Published private(set) var dashboardAuditMathematicallyAligned: Bool = false
+    @Published private(set) var dashboardAuditGeneratedAt: String = "never"
+    @Published private(set) var dashboardAuditNextMove: String = "Run stack audit to generate deterministic alignment evidence."
 
     private let localOnly: Bool
     private let endpoint: String?
@@ -159,6 +166,7 @@ final class BRAINKChatEngine: ObservableObject {
         Task {
             self.refreshILLMContext()
             self.refreshKnowledgeCenter(force: true, reason: "startup", routeTag: "system.runtime_startup")
+            self.loadLatestAuditArtifact()
         }
     }
 
@@ -192,6 +200,9 @@ final class BRAINKChatEngine: ObservableObject {
     var dashboardNextAction: String {
         if isBusy {
             return "wait for active route to complete"
+        }
+        if dashboardAuditOutcome == "REPAIR_REQUIRED" {
+            return "run required repair query from audit card"
         }
         if ilLlmLoadedCount == 0 {
             return "load IL-LLM data or drop runtime path"
@@ -1324,6 +1335,7 @@ final class BRAINKChatEngine: ObservableObject {
     private func buildStackAuditResponse() -> String {
         do {
             let report = try BRAINKDeliveryAudit.writeReport()
+            applyAuditReport(report)
             let outcome = report.notDoneCount == 0 && report.blockedCount == 0 && report.simulatedCount == 0 && report.inferredCount == 0
                 ? "DONE"
                 : "REPAIR_REQUIRED"
@@ -1362,6 +1374,28 @@ final class BRAINKChatEngine: ObservableObject {
         } catch {
             return "Stack audit failed: \(error.localizedDescription)"
         }
+    }
+
+    private func loadLatestAuditArtifact() {
+        let url = URL(fileURLWithPath: BRAINKConstants.stackAuditReportPath)
+        guard let data = try? Data(contentsOf: url),
+              let report = try? JSONDecoder().decode(StackAlignmentReport.self, from: data) else {
+            return
+        }
+        applyAuditReport(report)
+    }
+
+    private func applyAuditReport(_ report: StackAlignmentReport) {
+        dashboardAuditWeightedAlignment = String(format: "%.4f", report.weightedAlignment)
+        dashboardAuditAlignmentScore = min(max(report.weightedAlignment, 0), 1)
+        dashboardAuditMathematicallyAligned = report.mathematicallyAligned
+        dashboardAuditGeneratedAt = report.generatedAt
+        dashboardAuditCounts = "done=\(report.doneCount), simulated=\(report.simulatedCount), inferred=\(report.inferredCount), blocked=\(report.blockedCount), not_done=\(report.notDoneCount)"
+        let hasRepairs = report.notDoneCount > 0 || report.blockedCount > 0 || report.simulatedCount > 0 || report.inferredCount > 0
+        dashboardAuditOutcome = hasRepairs ? "REPAIR_REQUIRED" : "DONE"
+        dashboardAuditNextMove = hasRepairs
+            ? "Patch all non-DONE modules until simulated/inferred/blocked/not_done are zero, then rerun stack audit."
+            : "Run runtime route validation after each patch and keep weighted alignment at 1.0000."
     }
 
     private func auditQueries(from report: StackAlignmentReport) -> [String] {

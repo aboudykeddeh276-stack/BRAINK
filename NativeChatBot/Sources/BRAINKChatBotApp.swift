@@ -113,6 +113,34 @@ struct DashboardCard<Content: View>: View {
     }
 }
 
+struct DashboardOutcomeBadge: View {
+    let outcome: String
+
+    private var tint: Color {
+        switch outcome {
+        case "DONE":
+            return .green
+        case "REPAIR_REQUIRED":
+            return .orange
+        default:
+            return .secondary
+        }
+    }
+
+    var body: some View {
+        Text(outcome)
+            .font(.caption.bold())
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
+            .background(tint.opacity(0.22))
+            .clipShape(Capsule())
+            .overlay(
+                Capsule()
+                    .stroke(tint.opacity(0.6), lineWidth: 1)
+            )
+    }
+}
+
 struct ChatInputBar: View {
     @ObservedObject var engine: BRAINKChatEngine
     @Binding var input: String
@@ -311,6 +339,21 @@ struct BrainkNativeChatbotView: View {
                                 DashboardRow(label: "Load", value: engine.ilLlmLoadedStatus)
                             }
 
+                            DashboardCard(title: "Audit Contract") {
+                                HStack {
+                                    DashboardRow(label: "Outcome", value: engine.dashboardAuditOutcome)
+                                    DashboardOutcomeBadge(outcome: engine.dashboardAuditOutcome)
+                                }
+                                DashboardRow(label: "Align", value: engine.dashboardAuditWeightedAlignment)
+                                ProgressView(value: engine.dashboardAuditAlignmentScore)
+                                    .tint(engine.dashboardAuditOutcome == "DONE" ? .green : .orange)
+                                DashboardRow(label: "Math", value: engine.dashboardAuditMathematicallyAligned ? "true" : "false")
+                                DashboardRow(label: "Counts", value: engine.dashboardAuditCounts)
+                                DashboardRow(label: "Report", value: BRAINKConstants.stackAuditReportPath)
+                                DashboardRow(label: "Next", value: engine.dashboardAuditNextMove)
+                                DashboardRow(label: "At", value: engine.dashboardAuditGeneratedAt)
+                            }
+
                             DashboardCard(title: "Knowledge") {
                                 DashboardRow(label: "Growth", value: engine.ilLlmGrowthStatus)
                                 DashboardRow(label: "Memory", value: engine.ilLlmMemoryStatus)
@@ -324,6 +367,25 @@ struct BrainkNativeChatbotView: View {
                                 )
                                 DashboardRow(label: "Traces", value: "\(engine.traces.count)")
                                 DashboardRow(label: "Next", value: engine.dashboardNextAction)
+                                HStack(spacing: 8) {
+                                    Button("Run Audit") {
+                                        Task { await engine.send(userInput: "stack audit line for line module alignment") }
+                                    }
+                                    .buttonStyle(.bordered)
+                                    .disabled(engine.isBusy)
+
+                                    Button("Run Proof") {
+                                        Task { await engine.send(userInput: "proof packet") }
+                                    }
+                                    .buttonStyle(.bordered)
+                                    .disabled(engine.isBusy)
+
+                                    Button("Run Compat") {
+                                        Task { await engine.send(userInput: "illlm compatibility") }
+                                    }
+                                    .buttonStyle(.bordered)
+                                    .disabled(engine.isBusy)
+                                }
                             }
 
                             if isDraggingILLLMTarget {
