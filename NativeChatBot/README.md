@@ -40,6 +40,19 @@ cd "/Users/ak/Documents/BRAINK THE ACTUAL APPLICATION/NativeChatBot"
 The script creates:
 - `/Users/ak/Documents/BRAINK THE ACTUAL APPLICATION/NativeChatBot/BRAINKChatBot.app`
 
+## Runtime smoke test
+Run deterministic route/function smoke tests without opening the UI:
+
+```bash
+cd "/Users/ak/Documents/BRAINK THE ACTUAL APPLICATION/NativeChatBot"
+./run-runtime-smoke.command
+```
+
+Expected markers:
+- `SMOKE_STATUS: DONE`
+- `SMOKE_AUDIT_OUTCOME: DONE`
+- `SMOKE_AUDIT_ALIGNMENT: 1.0000`
+
 ## Run
 ```bash
 open "/Users/ak/Documents/BRAINK THE ACTUAL APPLICATION/NativeChatBot/BRAINKChatBot.app"
