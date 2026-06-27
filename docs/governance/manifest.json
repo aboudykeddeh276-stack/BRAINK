@@ -1,0 +1,17 @@
+{
+  "ARTIFACT_GOVERNANCE_CHECKER": {
+    "path": "scripts/validate-governance.py",
+    "sha256": "542d1fc2e1348100222388d46f766d16dbbd859bbd6c7a4cfaee01295bc90e5d",
+    "state": "STATE_MODEL_LOCAL"
+  },
+  "ARTIFACT_GOVERNANCE_MANIFEST": {
+    "path": "docs/governance/manifest.json",
+    "sha256": "2f9541bbde5288e7cfbfa0d7bb8b5b6262ccdf6c25b8ef303e29b14e8d37809b",
+    "state": "STATE_MODEL_LOCAL"
+  },
+  "ARTIFACT_REPOSITORY_GOVERNANCE_STANDARD": {
+    "path": "docs/governance/repository-governance-standard.md",
+    "sha256": "6d43724e1c76ce3bc92725efdca69320bc99573d6acc4d2f3e9518c8bb00d156",
+    "state": "STATE_MODEL_LOCAL"
+  }
+}

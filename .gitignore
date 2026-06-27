@@ -1,4 +1,32 @@
-# Build artifacts
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# Editor/workspace files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Build outputs
+.build/
+build/
+dist/
+DerivedData/
+
+# Logs and local runtime output
+*.log
+*.tmp
+.env
+.env.*
+!.env.example
+
+# Python checker cache
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# NativeChatBot generated artifacts
 NativeChatBot/BRAINKChatBot.app/
 NativeChatBot/BRAINKChatBot.app.build.log
 NativeChatBot/build/
