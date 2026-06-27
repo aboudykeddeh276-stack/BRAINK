@@ -123,6 +123,9 @@ python3 tools/kex_self_sustain.py --root . --verify-packet reports/BRAINK_kex_se
 Status: COMPLETED locally for packet generation; PENDING for actual autonomous code execution across external/private repos because those repositories and their proof gates are not present in this checkout.
 
 ## 5. Pending tasks to reach maximum operational and logical runtime
+Status: COMPLETED locally for packet generation; PENDING for actual autonomous code execution across external/private repos because those repositories and their proof gates are not present in this checkout.
+
+## 4. Pending tasks to reach maximum operational and logical runtime
 
 ### Gate A: Portability and host-root correctness
 
@@ -219,6 +222,7 @@ This enforces creation because no claim is promoted to achieved until it has an 
 
 1. Implement configurable path roots and remove host-only defaults from proof/report paths.
 2. Use `tools/kex_self_sustain.py --verify-packet` as the current static Linux manifest drift check, then add route-level runtime assertions.
+2. Add a repo-level `verify-braink-runtime` script for static Linux checks.
 3. Add a manifest-hash generator and checker.
 4. Add KEX ethics checker from the provided model.
 5. Add route-by-route smoke assertions and fixture IL-LLM/KEX repository tests.

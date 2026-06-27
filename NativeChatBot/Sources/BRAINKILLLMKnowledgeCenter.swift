@@ -1,5 +1,7 @@
 import Foundation
+#if canImport(CryptoKit)
 import CryptoKit
+#endif
 
 struct BRAINKILLLMKnowledgeSnapshot: Codable {
     let architect: String
@@ -247,8 +249,21 @@ final class BRAINKILLLMKnowledgeCenter {
             joined.append("\(date)")
             joined.append("\n")
         }
-        let digest = SHA256.hash(data: Data(joined.utf8))
+        return stableHexDigest(Data(joined.utf8))
+    }
+
+    private func stableHexDigest(_ data: Data) -> String {
+        #if canImport(CryptoKit)
+        let digest = SHA256.hash(data: data)
         return digest.map { String(format: "%02x", $0) }.joined()
+        #else
+        var hash: UInt64 = 0xcbf29ce484222325
+        for byte in data {
+            hash ^= UInt64(byte)
+            hash = hash &* 0x100000001b3
+        }
+        return String(format: "%016llx", hash)
+        #endif
     }
 
     private func makeSnapshot(

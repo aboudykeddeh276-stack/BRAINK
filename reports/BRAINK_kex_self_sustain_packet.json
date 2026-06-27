@@ -7,6 +7,11 @@
       "path": "NativeChatBot/README.md",
       "role": "knowledge_binding",
       "sha256": "f7ca4bd518f3c97503556ac683edd9fe83c7ab812062a0679d9c3a3412802940",
+      "bytes": 4841,
+      "lines": 119,
+      "path": "NativeChatBot/README.md",
+      "role": "knowledge_binding",
+      "sha256": "f041311db49d2759cd78e80a5f27cc4c66b7633c2ae4db4633136fe53da52a5a",
       "status": "MODEL-LOCAL"
     },
     {
@@ -151,6 +156,11 @@
       "path": "docs/KEX_HYPERDRIVE_CALIBRATION_ANALYSIS.md",
       "role": "runtime_route_engine",
       "sha256": "32b12c5709ecbcef6bc305f43ca00192e13ef7c6cf61136b6dc91d37d8c523c1",
+      "bytes": 12200,
+      "lines": 230,
+      "path": "docs/KEX_HYPERDRIVE_CALIBRATION_ANALYSIS.md",
+      "role": "runtime_route_engine",
+      "sha256": "263bf7e5ff509de35ecafe437057b78a13074be3a7ae342bade1af1c72ab9c36",
       "status": "MODEL-LOCAL"
     },
     {
@@ -183,6 +193,11 @@
       "path": "tools/kex_self_sustain.py",
       "role": "self_sustain_tooling",
       "sha256": "2ed6e4adc411a9f6053a9ee01fe0473ab066484f072326fa189a51ecf2ba35e2",
+      "bytes": 13361,
+      "lines": 320,
+      "path": "tools/kex_self_sustain.py",
+      "role": "knowledge_binding",
+      "sha256": "ce3a505ee1903e54289c4918b8ea3a701a266c7d181a2eb236f23257e9f12a64",
       "status": "MODEL-LOCAL"
     }
   ],
@@ -198,6 +213,7 @@
     "RepairRouteAvailable",
     "BlockersPreserved"
   ],
+  "generated_at": "2026-06-27T04:22:51.313093+00:00",
   "objective": "Self-sustained KEX/BRAINK repo coding/task orchestration with proof gates.",
   "pending_tasks": [
     {
