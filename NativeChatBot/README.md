@@ -25,6 +25,8 @@ A standalone **native macOS SwiftUI** chat bot with a deterministic local runtim
 - `illlm_bootstrap` -> explicit “have/load/want my data” bootstrap intent for immediate ingestion.
 - `align-check` -> alignment verification requests (`align`, `alignment`)
 - `module_manifest` -> module-link proof ledger (`module map`, `module status`, `manifest`)
+- `kex_hyperdrive` -> KEX Hyperdrive transition/definition/state concept + full repo calibration report (`State OF transition`, `Transition OF state`, `Definition OF transition`, `calibration analysis`, `pending tasks`, `X OF X OF X OF X`)
+- `self_sustained_coder` -> bounded repo coding task packets using KEX self-existence design (`software that can code`, `task it to each repo`, `self existence design`)
 - `general` -> fallback when no explicit route match
 - Drag-and-drop: dropping a folder or file into the input area will rebind IL-LLM runtime immediately.
 - Drag-and-drop behavior: dropped IL-LLM files are also parsed into short in-memory snippets.
@@ -50,6 +52,9 @@ cd "/Users/ak/Documents/BRAINK THE ACTUAL APPLICATION/NativeChatBot"
 
 Expected markers:
 - `SMOKE_STATUS: DONE`
+- `SMOKE_ROUTES` includes `kex_hyperdrive`
+- `NativeChatBot/build/kex_hyperdrive_repo_calibration_report.json` is generated with repo evidence hashes and pending workloads
+- `NativeChatBot/build/kex_self_sustained_coding_report.json` is generated with repo targets, task packets, write scopes, command plans, and proof gates
 - `SMOKE_AUDIT_OUTCOME: DONE`
 - `SMOKE_AUDIT_ALIGNMENT: 1.0000`
 
