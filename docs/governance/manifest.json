@@ -1,17 +1,32 @@
 {
-  "ARTIFACT_GOVERNANCE_CHECKER": {
-    "path": "scripts/validate-governance.py",
-    "sha256": "542d1fc2e1348100222388d46f766d16dbbd859bbd6c7a4cfaee01295bc90e5d",
-    "state": "STATE_MODEL_LOCAL"
-  },
-  "ARTIFACT_GOVERNANCE_MANIFEST": {
+  "ARTIFACT_DOCS_GOVERNANCE_MANIFEST_JSON": {
     "path": "docs/governance/manifest.json",
-    "sha256": "2f9541bbde5288e7cfbfa0d7bb8b5b6262ccdf6c25b8ef303e29b14e8d37809b",
+    "sha256": "f645e633a8d4bff064244b4222bf869562a38d8746457060612eeb55d310a7b1",
     "state": "STATE_MODEL_LOCAL"
   },
-  "ARTIFACT_REPOSITORY_GOVERNANCE_STANDARD": {
+  "ARTIFACT_DOCS_GOVERNANCE_REPOSITORY_GOVERNANCE_STANDARD_MD": {
     "path": "docs/governance/repository-governance-standard.md",
     "sha256": "6d43724e1c76ce3bc92725efdca69320bc99573d6acc4d2f3e9518c8bb00d156",
+    "state": "STATE_MODEL_LOCAL"
+  },
+  "ARTIFACT_GITIGNORE": {
+    "path": ".gitignore",
+    "sha256": "3874f46f59f6fc83c24b855b99b9e1f6297f9029798fc5d3a97576cf8961982d",
+    "state": "STATE_MODEL_LOCAL"
+  },
+  "ARTIFACT_LICENSE": {
+    "path": "LICENSE",
+    "sha256": "57a6494e4c567565dc8a68ede27f7b54ae1d2a60424cbc6eff855e1a2cc5b910",
+    "state": "STATE_MODEL_LOCAL"
+  },
+  "ARTIFACT_README_MD": {
+    "path": "README.md",
+    "sha256": "f35a8825a25c04e601b623ea9319236582b34862a35dd220de8233535240ab62",
+    "state": "STATE_MODEL_LOCAL"
+  },
+  "ARTIFACT_SCRIPTS_VALIDATE_GOVERNANCE_PY": {
+    "path": "scripts/validate-governance.py",
+    "sha256": "281cdfc454d0eef33fc8c9c01a9b5733de5907a751eeb5b5447c27df5a405276",
     "state": "STATE_MODEL_LOCAL"
   }
 }
