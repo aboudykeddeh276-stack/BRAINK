@@ -1,0 +1,52 @@
+{
+  "ARTIFACT_DOCS_GOVERNANCE_AGENTIC_INTELLIGENCE_CLI_MD": {
+    "path": "docs/governance/agentic-intelligence-cli.md",
+    "sha256": "1edd4f944bde51fc4acb9d96a8291468fa8e8014f47fa05286c4e5471cd2ba4a",
+    "state": "STATE_MODEL_LOCAL"
+  },
+  "ARTIFACT_DOCS_GOVERNANCE_MANIFEST_JSON": {
+    "path": "docs/governance/manifest.json",
+    "sha256": "c3e9f605dcd7675b19b1ce119a3b03bb167d2fff912f3983787b0756662fbc8d",
+    "state": "STATE_MODEL_LOCAL"
+  },
+  "ARTIFACT_DOCS_GOVERNANCE_REPOSITORY_GOVERNANCE_STANDARD_MD": {
+    "path": "docs/governance/repository-governance-standard.md",
+    "sha256": "6d43724e1c76ce3bc92725efdca69320bc99573d6acc4d2f3e9518c8bb00d156",
+    "state": "STATE_MODEL_LOCAL"
+  },
+  "ARTIFACT_DOCS_GOVERNANCE_STRICT_DEEP_ANALYSIS_COMMENT_MD": {
+    "path": "docs/governance/strict-deep-analysis-comment.md",
+    "sha256": "39888c1c5b0878bf75ca987be9b33a7d2d475ca165b92b41d766b2168d95dbc3",
+    "state": "STATE_MODEL_LOCAL"
+  },
+  "ARTIFACT_GITIGNORE": {
+    "path": ".gitignore",
+    "sha256": "3874f46f59f6fc83c24b855b99b9e1f6297f9029798fc5d3a97576cf8961982d",
+    "state": "STATE_MODEL_LOCAL"
+  },
+  "ARTIFACT_LICENSE": {
+    "path": "LICENSE",
+    "sha256": "57a6494e4c567565dc8a68ede27f7b54ae1d2a60424cbc6eff855e1a2cc5b910",
+    "state": "STATE_MODEL_LOCAL"
+  },
+  "ARTIFACT_README_MD": {
+    "path": "README.md",
+    "sha256": "bb92a5796f5c755c002310755b6311cab606f663d7fb0d593603913045f4b89d",
+    "state": "STATE_MODEL_LOCAL"
+  },
+  "ARTIFACT_SCRIPTS_BOOTSTRAP_GENERAL_GOVERNANCE_SH": {
+    "path": "scripts/bootstrap-general-governance.sh",
+    "sha256": "9664a6c75c387fb571cf96a1cb6354947b806a0ed2660caa90dcc78690c19bc5",
+    "state": "STATE_MODEL_LOCAL"
+  },
+  "ARTIFACT_SCRIPTS_BRAINK_AGENT_CLI_PY": {
+    "path": "scripts/braink-agent-cli.py",
+    "sha256": "e20397cfb193bce8632f2e804b0b8cf642f19fc185491c4fc133f6366d8f5f5b",
+    "state": "STATE_MODEL_LOCAL"
+  },
+  "ARTIFACT_SCRIPTS_VALIDATE_GOVERNANCE_PY": {
+    "path": "scripts/validate-governance.py",
+    "sha256": "b04742ddd71d2d8d1c4d54339eac2e8b473bd1a9a20dfba81b407eeec454f051",
+    "state": "STATE_MODEL_LOCAL"
+  }
+}
