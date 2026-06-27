@@ -35,6 +35,25 @@ GENERAL-GOVERNANCE-
 A repository is governed only when the required artifacts exist and the checker passes locally.
 External adoption by other repositories remains pending until those repositories pull or copy the standard and pass their own checks.
 
+
+## GitHub repository bootstrap
+
+Use the executable bootstrap script when this governance working tree is ready to become the GitHub repository `GENERAL-GOVERNANCE-`:
+
+```bash
+./scripts/bootstrap-general-governance.sh
+```
+
+The script performs the explicit command-line route from GitHub's empty-repository instructions:
+
+```text
+git remote add origin https://github.com/aboudykeddeh276-stack/GENERAL-GOVERNANCE-.git
+git branch -M main
+git push -u origin main
+```
+
+If `origin` already exists, the script updates its URL instead of failing. The push still requires authenticated GitHub credentials.
+
 ## Status
 
 - Local governance artifact status: `MODEL-LOCAL`

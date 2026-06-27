@@ -16,6 +16,7 @@ REQUIRED_FILES = [
     "docs/governance/repository-governance-standard.md",
     "docs/governance/manifest.json",
     "scripts/validate-governance.py",
+    "scripts/bootstrap-general-governance.sh",
 ]
 MANIFEST_PATH = "docs/governance/manifest.json"
 

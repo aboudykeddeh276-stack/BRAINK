@@ -1,7 +1,7 @@
 {
   "ARTIFACT_DOCS_GOVERNANCE_MANIFEST_JSON": {
     "path": "docs/governance/manifest.json",
-    "sha256": "f645e633a8d4bff064244b4222bf869562a38d8746457060612eeb55d310a7b1",
+    "sha256": "caf57e914533dd41de0f0c49e361275d6c9428fc51e07fab7cd4c77d1379b09c",
     "state": "STATE_MODEL_LOCAL"
   },
   "ARTIFACT_DOCS_GOVERNANCE_REPOSITORY_GOVERNANCE_STANDARD_MD": {
@@ -21,12 +21,17 @@
   },
   "ARTIFACT_README_MD": {
     "path": "README.md",
-    "sha256": "f35a8825a25c04e601b623ea9319236582b34862a35dd220de8233535240ab62",
+    "sha256": "bb92a5796f5c755c002310755b6311cab606f663d7fb0d593603913045f4b89d",
+    "state": "STATE_MODEL_LOCAL"
+  },
+  "ARTIFACT_SCRIPTS_BOOTSTRAP_GENERAL_GOVERNANCE_SH": {
+    "path": "scripts/bootstrap-general-governance.sh",
+    "sha256": "9664a6c75c387fb571cf96a1cb6354947b806a0ed2660caa90dcc78690c19bc5",
     "state": "STATE_MODEL_LOCAL"
   },
   "ARTIFACT_SCRIPTS_VALIDATE_GOVERNANCE_PY": {
     "path": "scripts/validate-governance.py",
-    "sha256": "281cdfc454d0eef33fc8c9c01a9b5733de5907a751eeb5b5447c27df5a405276",
+    "sha256": "8f0df40f2539f66dddc48261b277a981fde8b06c0464066ee1c351c6c523640a",
     "state": "STATE_MODEL_LOCAL"
   }
 }
