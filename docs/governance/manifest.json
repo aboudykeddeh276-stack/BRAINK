@@ -1,7 +1,12 @@
 {
+  "ARTIFACT_DOCS_GOVERNANCE_AGENTIC_INTELLIGENCE_CLI_MD": {
+    "path": "docs/governance/agentic-intelligence-cli.md",
+    "sha256": "1edd4f944bde51fc4acb9d96a8291468fa8e8014f47fa05286c4e5471cd2ba4a",
+    "state": "STATE_MODEL_LOCAL"
+  },
   "ARTIFACT_DOCS_GOVERNANCE_MANIFEST_JSON": {
     "path": "docs/governance/manifest.json",
-    "sha256": "caf57e914533dd41de0f0c49e361275d6c9428fc51e07fab7cd4c77d1379b09c",
+    "sha256": "0e2246d1a63836da81f8996f15ca07d28ed709292e8f722803c1d139377fce71",
     "state": "STATE_MODEL_LOCAL"
   },
   "ARTIFACT_DOCS_GOVERNANCE_REPOSITORY_GOVERNANCE_STANDARD_MD": {
@@ -29,9 +34,14 @@
     "sha256": "9664a6c75c387fb571cf96a1cb6354947b806a0ed2660caa90dcc78690c19bc5",
     "state": "STATE_MODEL_LOCAL"
   },
+  "ARTIFACT_SCRIPTS_BRAINK_AGENT_CLI_PY": {
+    "path": "scripts/braink-agent-cli.py",
+    "sha256": "e20397cfb193bce8632f2e804b0b8cf642f19fc185491c4fc133f6366d8f5f5b",
+    "state": "STATE_MODEL_LOCAL"
+  },
   "ARTIFACT_SCRIPTS_VALIDATE_GOVERNANCE_PY": {
     "path": "scripts/validate-governance.py",
-    "sha256": "8f0df40f2539f66dddc48261b277a981fde8b06c0464066ee1c351c6c523640a",
+    "sha256": "1beff55dab143f4a32e0d4b70b7e77edb79d1a33f47bbc0981fbcefc3b78d0d2",
     "state": "STATE_MODEL_LOCAL"
   }
 }
