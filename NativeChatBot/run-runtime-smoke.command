@@ -1,4 +1,4 @@
-#!/usr/bin/env zsh
+#!/usr/bin/env bash
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")" && pwd)"
@@ -18,6 +18,8 @@ struct BRAINKSmokeRunner {
         await engine.send(userInput: "knowledge center status")
         await engine.send(userInput: "stack audit line for line module alignment")
         await engine.send(userInput: "proof packet")
+        await engine.send(userInput: "State OF transition + Transition OF state / Definition OF transition + Transition OF definitions / Definition OF state + State OF definitions / X OF X OF X OF X")
+        await engine.send(userInput: "software that can code using my software and task it to each repo using my self existence design")
         await engine.send(userInput: "learn every last file and code and skill")
 
         let total = engine.messages.count
@@ -39,7 +41,13 @@ struct BRAINKSmokeRunner {
 }
 SWIFT
 
+SWIFTC_FLAGS=()
+if [[ "$(uname -s)" == "Darwin" ]]; then
+  SWIFTC_FLAGS+=( -framework AppKit )
+fi
+
 swiftc \
+  "${SWIFTC_FLAGS[@]}" \
   "$TMP_SWIFT" \
   "$ROOT/Sources/BRAINKChatEngine.swift" \
   "$ROOT/Sources/BRAINKConstants.swift" \
@@ -49,12 +57,13 @@ swiftc \
   "$ROOT/Sources/BRAINKILLLMKnowledgeCenter.swift" \
   "$ROOT/Sources/BRAINKILLLMWorkflow.swift" \
   "$ROOT/Sources/BRAINKInnerRuntime.swift" \
+  "$ROOT/Sources/KEXHyperdriveConceptEngine.swift" \
+  "$ROOT/Sources/KEXSelfSustainedCodingEngine.swift" \
   "$ROOT/Sources/BRAINKOAuth.swift" \
   "$ROOT/Sources/BRAINKPlatformAPI.swift" \
   "$ROOT/Sources/BRAINKScraperTool.swift" \
   "$ROOT/Sources/BRAINKChromePlugin.swift" \
   "$ROOT/Sources/ModuleManifest.swift" \
-  -framework AppKit \
   -o "$TMP_BIN"
 
 "$TMP_BIN"

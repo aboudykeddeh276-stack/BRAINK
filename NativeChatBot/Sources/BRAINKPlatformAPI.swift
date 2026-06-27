@@ -1,5 +1,10 @@
 import Foundation
+#if canImport(CryptoKit)
 import CryptoKit
+#endif
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 
 struct Packet<Payload: Codable>: Codable {
     let packetType: String
@@ -769,8 +774,17 @@ final class BRAINKPlatformEngine: BRAINKEngine {
     }
 
     private static func sha256(_ data: Data) -> String {
+        #if canImport(CryptoKit)
         let digest = SHA256.hash(data: data)
         return digest.compactMap { String(format: "%02x", $0) }.joined()
+        #else
+        var hash: UInt64 = 0xcbf29ce484222325
+        for byte in data {
+            hash ^= UInt64(byte)
+            hash = hash &* 0x100000001b3
+        }
+        return String(format: "%016llx", hash)
+        #endif
     }
 
     private static func isoNow() -> String {

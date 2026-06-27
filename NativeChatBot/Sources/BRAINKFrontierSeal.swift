@@ -1,5 +1,7 @@
 import Foundation
+#if canImport(CryptoKit)
 import CryptoKit
+#endif
 
 struct FrontierSealState: Codable {
     let architect: String
@@ -18,13 +20,18 @@ struct RuntimeLineRegistry: Codable {
 }
 
 enum BRAINKFrontierSeal {
-    static let coreFiles: [String] = [
-        "/Users/ak/Documents/BRAINK THE ACTUAL APPLICATION/NativeChatBot/Sources/BRAINKChatEngine.swift",
-        "/Users/ak/Documents/BRAINK THE ACTUAL APPLICATION/NativeChatBot/Sources/BRAINKPlatformAPI.swift",
-        "/Users/ak/Documents/BRAINK THE ACTUAL APPLICATION/NativeChatBot/Sources/BRAINKDeliveryAudit.swift",
-        "/Users/ak/Documents/BRAINK THE ACTUAL APPLICATION/NativeChatBot/Sources/BRAINKChromePlugin.swift",
-        "/Users/ak/Documents/BRAINK THE ACTUAL APPLICATION/NativeChatBot/Sources/BRAINKScraperTool.swift"
-    ]
+    static var coreFiles: [String] {
+        let sourceRoot = URL(fileURLWithPath: #filePath).deletingLastPathComponent().path
+        return [
+            "\(sourceRoot)/BRAINKChatEngine.swift",
+            "\(sourceRoot)/BRAINKPlatformAPI.swift",
+            "\(sourceRoot)/BRAINKDeliveryAudit.swift",
+            "\(sourceRoot)/BRAINKChromePlugin.swift",
+            "\(sourceRoot)/BRAINKScraperTool.swift",
+            "\(sourceRoot)/KEXHyperdriveConceptEngine.swift",
+            "\(sourceRoot)/KEXSelfSustainedCodingEngine.swift"
+        ]
+    }
 
     static func isSealed() -> Bool {
         guard let state = readSealState() else { return false }
@@ -104,15 +111,27 @@ enum BRAINKFrontierSeal {
         var joined = ""
         for path in paths {
             let content = (try? String(contentsOfFile: path, encoding: .utf8)) ?? ""
-            let digest = SHA256.hash(data: Data(content.utf8))
-            let text = digest.compactMap { String(format: "%02x", $0) }.joined()
+            let text = stableHexDigest(Data(content.utf8))
             joined.append(path)
             joined.append(":")
             joined.append(text)
             joined.append("\n")
         }
-        let final = SHA256.hash(data: Data(joined.utf8))
-        return final.compactMap { String(format: "%02x", $0) }.joined()
+        return stableHexDigest(Data(joined.utf8))
+    }
+
+    private static func stableHexDigest(_ data: Data) -> String {
+        #if canImport(CryptoKit)
+        let digest = SHA256.hash(data: data)
+        return digest.compactMap { String(format: "%02x", $0) }.joined()
+        #else
+        var hash: UInt64 = 0xcbf29ce484222325
+        for byte in data {
+            hash ^= UInt64(byte)
+            hash = hash &* 0x100000001b3
+        }
+        return String(format: "%016llx", hash)
+        #endif
     }
 
     private static func writeJSON<T: Codable>(_ value: T, to path: String) throws {

@@ -1,5 +1,7 @@
 import Foundation
+#if canImport(AppKit)
 import AppKit
+#endif
 
 enum BRAINKOAuthError: Error, LocalizedError {
     case missingPortalURL
@@ -102,7 +104,9 @@ enum BRAINKOAuth {
     @discardableResult
     static func startOAuthLogin() throws -> URL {
         let url = try loginURL()
+        #if canImport(AppKit)
         NSWorkspace.shared.open(url)
+        #endif
         return url
     }
 }
