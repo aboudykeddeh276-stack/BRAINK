@@ -14,6 +14,7 @@ import json
 import os
 import re
 import subprocess
+import sys
 from dataclasses import dataclass, asdict
 from datetime import datetime, timezone
 from pathlib import Path
@@ -26,6 +27,16 @@ ALLOWED_STATUS = [
     "FAILED",
     "MODEL-LOCAL",
     "EXTERNALLY-UNVALIDATED",
+]
+
+KEX_AFFECT_RESPONSE_VALID = [
+    "HumanBioBoundaryPreserved",
+    "CodexNonBiologicalBoundaryPreserved",
+    "BRAINKAnchorPreserved",
+    "NoManipulation",
+    "NoUnsupportedMedicalClaim",
+    "RepairRouteAvailable",
+    "BlockersPreserved",
 ]
 
 TEXT_SUFFIXES = {
@@ -73,6 +84,7 @@ class RepoPacket:
     artifacts: list[ArtifactRecord]
     route_coverage: dict[str, str]
     ethics_findings: list[dict[str, str]]
+    kex_affect_gate: list[str]
     pending_tasks: list[PendingTask]
     status_ledger: dict[str, str]
 
@@ -104,6 +116,8 @@ def sha256(path: Path) -> str:
 
 def classify_role(path: Path, text: str) -> str:
     lower = f"{path.name}\n{text[:2000]}".lower()
+    if path.parent.name == "tools":
+        return "self_sustain_tooling"
     if "chatengine" in lower or "classifyroute" in lower:
         return "runtime_route_engine"
     if "deliveryaudit" in lower or "modulemanifest" in lower:
@@ -212,6 +226,42 @@ def pending_tasks(records: Sequence[ArtifactRecord], coverage: dict[str, str], f
     return tasks
 
 
+def validate_statuses(packet: RepoPacket) -> list[str]:
+    errors: list[str] = []
+    allowed = set(ALLOWED_STATUS)
+    for artifact in packet.artifacts:
+        if artifact.status not in allowed:
+            errors.append(f"artifact:{artifact.path}:invalid_status:{artifact.status}")
+    for task in packet.pending_tasks:
+        if task.status not in allowed:
+            errors.append(f"task:{task.gate}:invalid_status:{task.status}")
+    for claim, status in packet.status_ledger.items():
+        if status not in allowed:
+            errors.append(f"ledger:{claim}:invalid_status:{status}")
+    return errors
+
+
+def verify_packet(packet_path: Path, repo: Path) -> list[str]:
+    data = json.loads(packet_path.read_text())
+    errors: list[str] = []
+    for artifact in data.get("artifacts", []):
+        path = repo / artifact["path"]
+        if not path.exists():
+            errors.append(f"missing_artifact:{artifact['path']}")
+            continue
+        current_hash = sha256(path)
+        if current_hash != artifact.get("sha256"):
+            errors.append(f"hash_mismatch:{artifact['path']}:expected={artifact.get('sha256')}:actual={current_hash}")
+    statuses = [a.get("status") for a in data.get("artifacts", [])]
+    statuses += [t.get("status") for t in data.get("pending_tasks", [])]
+    statuses += list(data.get("status_ledger", {}).values())
+    invalid = [status for status in statuses if status not in ALLOWED_STATUS]
+    if invalid:
+        errors.append("invalid_statuses:" + ",".join(sorted(set(invalid))))
+    return errors
+
+
+def build_packet(repo: Path, objective: str, generated_at: str | None = None) -> RepoPacket:
 def build_packet(repo: Path, objective: str) -> RepoPacket:
     records = artifact_records(repo)
     coverage = route_coverage(repo)
@@ -228,12 +278,14 @@ def build_packet(repo: Path, objective: str) -> RepoPacket:
     return RepoPacket(
         anchor="A. KEDDEH / BRAINK / KEX / K-SYSTEMS",
         repo=str(repo),
+        generated_at=generated_at or datetime.now(timezone.utc).isoformat(),
         generated_at=datetime.now(timezone.utc).isoformat(),
         objective=objective,
         file_count=len(records),
         artifacts=records,
         route_coverage=coverage,
         ethics_findings=findings,
+        kex_affect_gate=KEX_AFFECT_RESPONSE_VALID,
         pending_tasks=tasks,
         status_ledger=ledger,
     )
@@ -281,6 +333,9 @@ def render_markdown(packet: RepoPacket) -> str:
     lines += ["", "## Status ledger", ""]
     for claim, status in packet.status_ledger.items():
         lines.append(f"- {claim}: {status}")
+    lines += ["", "## KEX affect gate", ""]
+    for gate in packet.kex_affect_gate:
+        lines.append(f"- {gate}")
     lines += ["", "## Artifact hash sample", ""]
     for artifact in packet.artifacts[:50]:
         lines.append(f"- `{artifact.path}` `{artifact.sha256}` {artifact.role} {artifact.status}")
@@ -300,6 +355,29 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--all-repos", action="store_true", help="Discover child git repositories under --root.")
     parser.add_argument("--objective", default="Self-sustained KEX/BRAINK repo coding/task orchestration with proof gates.")
     parser.add_argument("--commit", action="store_true", help="Commit generated packet files after writing them.")
+    parser.add_argument("--verify-packet", help="Verify an existing packet JSON against --root and exit non-zero on drift.")
+    parser.add_argument("--generated-at", help="Override generated_at for deterministic packet generation.")
+    args = parser.parse_args(argv)
+
+    root = Path(args.root).resolve()
+    if args.verify_packet:
+        errors = verify_packet(Path(args.verify_packet), root)
+        if errors:
+            for error in errors:
+                print(f"KEX_VERIFY_ERROR {error}", file=sys.stderr)
+            return 1
+        print(f"KEX_VERIFY packet={args.verify_packet} status=COMPLETED")
+        return 0
+
+    repos = detect_git_repos(root) if args.all_repos else [root]
+    written: list[Path] = []
+    for repo in repos:
+        packet = build_packet(repo, args.objective, generated_at=args.generated_at)
+        status_errors = validate_statuses(packet)
+        if status_errors:
+            for error in status_errors:
+                print(f"KEX_STATUS_ERROR {error}", file=sys.stderr)
+            return 1
     args = parser.parse_args(argv)
 
     root = Path(args.root).resolve()

@@ -1,6 +1,7 @@
 # KEX Self-Sustain Packet: BRAINK
 
 Anchor: A. KEDDEH / BRAINK / KEX / K-SYSTEMS
+Generated: 2026-06-27T00:00:00+00:00
 Generated: 2026-06-27T04:22:51.313093+00:00
 Objective: Self-sustained KEX/BRAINK repo coding/task orchestration with proof gates.
 
@@ -13,6 +14,11 @@ Objective: Self-sustained KEX/BRAINK repo coding/task orchestration with proof g
 ## Role inventory
 
 - diagnostic_or_manifest_data: 3
+- knowledge_binding: 6
+- manifest_audit: 2
+- native_ui: 3
+- runtime_route_engine: 4
+- self_sustain_tooling: 1
 - knowledge_binding: 7
 - manifest_audit: 2
 - native_ui: 3
@@ -54,6 +60,19 @@ Objective: Self-sustained KEX/BRAINK repo coding/task orchestration with proof g
 - external_validation: EXTERNALLY-UNVALIDATED
 - unsupported_claims_checked: COMPLETED
 
+## KEX affect gate
+
+- HumanBioBoundaryPreserved
+- CodexNonBiologicalBoundaryPreserved
+- BRAINKAnchorPreserved
+- NoManipulation
+- NoUnsupportedMedicalClaim
+- RepairRouteAvailable
+- BlockersPreserved
+
+## Artifact hash sample
+
+- `NativeChatBot/README.md` `f7ca4bd518f3c97503556ac683edd9fe83c7ab812062a0679d9c3a3412802940` knowledge_binding MODEL-LOCAL
 ## Artifact hash sample
 
 - `NativeChatBot/README.md` `f041311db49d2759cd78e80a5f27cc4c66b7633c2ae4db4633136fe53da52a5a` knowledge_binding MODEL-LOCAL
@@ -74,6 +93,11 @@ Objective: Self-sustained KEX/BRAINK repo coding/task orchestration with proof g
 - `NativeChatBot/Sources/ModuleManifest.swift` `2e689ca422149d4892eaeece5d32094aa68226eb55116cefffadbab607dcd563` manifest_audit MODEL-LOCAL
 - `NativeChatBot/build-native-chatbot.command` `f5c3390bff790cb9de78cc1d1c9c3c13471311df0e680ca145b3675b3e873efb` native_ui MODEL-LOCAL
 - `NativeChatBot/run-runtime-smoke.command` `89efdf36ed7fbd0532028a2456f4da30134b500a43ccfece7234e214c0313c9e` runtime_route_engine MODEL-LOCAL
+- `docs/KEX_HYPERDRIVE_CALIBRATION_ANALYSIS.md` `32b12c5709ecbcef6bc305f43ca00192e13ef7c6cf61136b6dc91d37d8c523c1` runtime_route_engine MODEL-LOCAL
+- `fold/constant_bool.json` `abfb64f19d6099fee2f67c2585cc78764aaca556c91ffff85bae6b51be8fcd0a` diagnostic_or_manifest_data MODEL-LOCAL
+- `fold/index.json` `54e1481c3687a505ceb6bba7f444a2e00440bc7d481492d94c0723245ccd9afd` diagnostic_or_manifest_data MODEL-LOCAL
+- `fold/repeating_names.json` `3f342ac056ed43698d902f6acc201da3564e2415531cd8610fd785863be666b5` diagnostic_or_manifest_data MODEL-LOCAL
+- `tools/kex_self_sustain.py` `2ed6e4adc411a9f6053a9ee01fe0473ab066484f072326fa189a51ecf2ba35e2` self_sustain_tooling MODEL-LOCAL
 - `docs/KEX_HYPERDRIVE_CALIBRATION_ANALYSIS.md` `263bf7e5ff509de35ecafe437057b78a13074be3a7ae342bade1af1c72ab9c36` runtime_route_engine MODEL-LOCAL
 - `fold/constant_bool.json` `abfb64f19d6099fee2f67c2585cc78764aaca556c91ffff85bae6b51be8fcd0a` diagnostic_or_manifest_data MODEL-LOCAL
 - `fold/index.json` `54e1481c3687a505ceb6bba7f444a2e00440bc7d481492d94c0723245ccd9afd` diagnostic_or_manifest_data MODEL-LOCAL
