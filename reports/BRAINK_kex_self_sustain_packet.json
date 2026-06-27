@@ -1,0 +1,275 @@
+{
+  "anchor": "A. KEDDEH / BRAINK / KEX / K-SYSTEMS",
+  "artifacts": [
+    {
+      "bytes": 4944,
+      "lines": 120,
+      "path": "NativeChatBot/README.md",
+      "role": "knowledge_binding",
+      "sha256": "f7ca4bd518f3c97503556ac683edd9fe83c7ab812062a0679d9c3a3412802940",
+      "status": "MODEL-LOCAL"
+    },
+    {
+      "bytes": 15486,
+      "lines": 418,
+      "path": "NativeChatBot/Sources/BRAINKChatBotApp.swift",
+      "role": "native_ui",
+      "sha256": "c9cf1aa860527455c2006961c67ebb9726425d946c1710e32d8f8625afc0b995",
+      "status": "MODEL-LOCAL"
+    },
+    {
+      "bytes": 84845,
+      "lines": 1890,
+      "path": "NativeChatBot/Sources/BRAINKChatEngine.swift",
+      "role": "runtime_route_engine",
+      "sha256": "2aa9404a3314b264017226d015e16f810137c8baca754fa437c176ad3d0dd2d5",
+      "status": "MODEL-LOCAL"
+    },
+    {
+      "bytes": 1855,
+      "lines": 49,
+      "path": "NativeChatBot/Sources/BRAINKChromePlugin.swift",
+      "role": "supporting_source",
+      "sha256": "50b8b282e8c361f53c13592d81f055c75286d49a8571632b45700d2ad72673a2",
+      "status": "MODEL-LOCAL"
+    },
+    {
+      "bytes": 2011,
+      "lines": 28,
+      "path": "NativeChatBot/Sources/BRAINKConstants.swift",
+      "role": "knowledge_binding",
+      "sha256": "b8157dc090eb169d8ef13bcd20998f7506e936c3a9d50155387b30ccbf855daa",
+      "status": "MODEL-LOCAL"
+    },
+    {
+      "bytes": 26306,
+      "lines": 539,
+      "path": "NativeChatBot/Sources/BRAINKDeliveryAudit.swift",
+      "role": "manifest_audit",
+      "sha256": "cb4f2cdefaf06fef9a5e5ab03498f265c7693e3805088fd006b55d4b75e67021",
+      "status": "MODEL-LOCAL"
+    },
+    {
+      "bytes": 5103,
+      "lines": 127,
+      "path": "NativeChatBot/Sources/BRAINKFrontierSeal.swift",
+      "role": "runtime_route_engine",
+      "sha256": "146a5bf4563adbe7b7080c3d41def81e5115f7f9b65ec5f3402e303257b9f79b",
+      "status": "MODEL-LOCAL"
+    },
+    {
+      "bytes": 11431,
+      "lines": 240,
+      "path": "NativeChatBot/Sources/BRAINKILLLMCompatibility.swift",
+      "role": "knowledge_binding",
+      "sha256": "a41f6db13b706a43f0d7d8137de5b21224a09522653d41fd4db436b1222a17ea",
+      "status": "MODEL-LOCAL"
+    },
+    {
+      "bytes": 11007,
+      "lines": 306,
+      "path": "NativeChatBot/Sources/BRAINKILLLMKnowledgeCenter.swift",
+      "role": "knowledge_binding",
+      "sha256": "f86b29d24083156eb571401df8af1e598be6ff834a91e7834d39f4457aa17e21",
+      "status": "MODEL-LOCAL"
+    },
+    {
+      "bytes": 6141,
+      "lines": 156,
+      "path": "NativeChatBot/Sources/BRAINKILLLMWorkflow.swift",
+      "role": "knowledge_binding",
+      "sha256": "7691117741e6a8c02a963497925203c66802230fc46554344d9ce869963f622a",
+      "status": "MODEL-LOCAL"
+    },
+    {
+      "bytes": 4828,
+      "lines": 123,
+      "path": "NativeChatBot/Sources/BRAINKInnerRuntime.swift",
+      "role": "knowledge_binding",
+      "sha256": "665b317ac1cccb0b6590aa6933c698080ee65b688ec63d3ed314374467909d0a",
+      "status": "MODEL-LOCAL"
+    },
+    {
+      "bytes": 3441,
+      "lines": 109,
+      "path": "NativeChatBot/Sources/BRAINKOAuth.swift",
+      "role": "supporting_source",
+      "sha256": "a47dfb51cef17f540cb7e0f3a50be29f4d01f80f877e7cb3cfac2c0ed671654b",
+      "status": "MODEL-LOCAL"
+    },
+    {
+      "bytes": 28782,
+      "lines": 794,
+      "path": "NativeChatBot/Sources/BRAINKPlatformAPI.swift",
+      "role": "supporting_source",
+      "sha256": "391ff87e035ba87083ecc197b23d53a0fdc69a327d8ee2e079d34efec3558a35",
+      "status": "MODEL-LOCAL"
+    },
+    {
+      "bytes": 6235,
+      "lines": 150,
+      "path": "NativeChatBot/Sources/BRAINKScraperTool.swift",
+      "role": "supporting_source",
+      "sha256": "a51dda37eb98af6013ec50033d13049b3726e6c0fe9b0b22a789afa736698012",
+      "status": "MODEL-LOCAL"
+    },
+    {
+      "bytes": 899,
+      "lines": 34,
+      "path": "NativeChatBot/Sources/BRAINKUIContainers.swift",
+      "role": "native_ui",
+      "sha256": "86c36c424e22c69081accbf900895773c5f80ca86de80760ca3cadd203a78cb4",
+      "status": "MODEL-LOCAL"
+    },
+    {
+      "bytes": 2878,
+      "lines": 91,
+      "path": "NativeChatBot/Sources/ModuleManifest.swift",
+      "role": "manifest_audit",
+      "sha256": "2e689ca422149d4892eaeece5d32094aa68226eb55116cefffadbab607dcd563",
+      "status": "MODEL-LOCAL"
+    },
+    {
+      "bytes": 1473,
+      "lines": 45,
+      "path": "NativeChatBot/build-native-chatbot.command",
+      "role": "native_ui",
+      "sha256": "f5c3390bff790cb9de78cc1d1c9c3c13471311df0e680ca145b3675b3e873efb",
+      "status": "MODEL-LOCAL"
+    },
+    {
+      "bytes": 2297,
+      "lines": 61,
+      "path": "NativeChatBot/run-runtime-smoke.command",
+      "role": "runtime_route_engine",
+      "sha256": "89efdf36ed7fbd0532028a2456f4da30134b500a43ccfece7234e214c0313c9e",
+      "status": "MODEL-LOCAL"
+    },
+    {
+      "bytes": 12405,
+      "lines": 236,
+      "path": "docs/KEX_HYPERDRIVE_CALIBRATION_ANALYSIS.md",
+      "role": "runtime_route_engine",
+      "sha256": "32b12c5709ecbcef6bc305f43ca00192e13ef7c6cf61136b6dc91d37d8c523c1",
+      "status": "MODEL-LOCAL"
+    },
+    {
+      "bytes": 90,
+      "lines": 7,
+      "path": "fold/constant_bool.json",
+      "role": "diagnostic_or_manifest_data",
+      "sha256": "abfb64f19d6099fee2f67c2585cc78764aaca556c91ffff85bae6b51be8fcd0a",
+      "status": "MODEL-LOCAL"
+    },
+    {
+      "bytes": 596,
+      "lines": 17,
+      "path": "fold/index.json",
+      "role": "diagnostic_or_manifest_data",
+      "sha256": "54e1481c3687a505ceb6bba7f444a2e00440bc7d481492d94c0723245ccd9afd",
+      "status": "MODEL-LOCAL"
+    },
+    {
+      "bytes": 79,
+      "lines": 6,
+      "path": "fold/repeating_names.json",
+      "role": "diagnostic_or_manifest_data",
+      "sha256": "3f342ac056ed43698d902f6acc201da3564e2415531cd8610fd785863be666b5",
+      "status": "MODEL-LOCAL"
+    },
+    {
+      "bytes": 16216,
+      "lines": 387,
+      "path": "tools/kex_self_sustain.py",
+      "role": "self_sustain_tooling",
+      "sha256": "2ed6e4adc411a9f6053a9ee01fe0473ab066484f072326fa189a51ecf2ba35e2",
+      "status": "MODEL-LOCAL"
+    }
+  ],
+  "ethics_findings": [],
+  "file_count": 23,
+  "generated_at": "2026-06-27T00:00:00+00:00",
+  "kex_affect_gate": [
+    "HumanBioBoundaryPreserved",
+    "CodexNonBiologicalBoundaryPreserved",
+    "BRAINKAnchorPreserved",
+    "NoManipulation",
+    "NoUnsupportedMedicalClaim",
+    "RepairRouteAvailable",
+    "BlockersPreserved"
+  ],
+  "objective": "Self-sustained KEX/BRAINK repo coding/task orchestration with proof gates.",
+  "pending_tasks": [
+    {
+      "gate": "A_PORTABLE_ROOTS",
+      "proof_required": "Unit/static check proving no required output path depends on /Users/ak.",
+      "status": "PENDING",
+      "task": "Replace host-only proof/report paths with configurable BRAINK_ROOT and BRAINK_BUILD_DIR providers."
+    },
+    {
+      "gate": "B_SELF_SUSTAIN_ORCHESTRATOR",
+      "proof_required": "JSON packet with SHA-256 artifacts and allowed status ledger.",
+      "status": "COMPLETED",
+      "task": "Use this tool to generate per-repo manifest and task packets before coding actions."
+    },
+    {
+      "gate": "C_ROUTE_PROOF",
+      "proof_required": "Executable route smoke report for every README route token.",
+      "status": "PENDING",
+      "task": "Add route-by-route assertions for classifier, resolver, payload, audit row, and smoke marker."
+    },
+    {
+      "gate": "D_MANIFEST_HASHES",
+      "proof_required": "Manifest checker exits non-zero on changed hashes or stale counters.",
+      "status": "PENDING",
+      "task": "Promote generated artifact hashes into a stable manifest verification gate."
+    },
+    {
+      "gate": "E_KEX_ETHICS",
+      "proof_required": "Checker report with no unsupported medical/body/sentience claims.",
+      "status": "MODEL-LOCAL",
+      "task": "Promote KEX affect/bioethics predicates into an executable checker and report gate."
+    },
+    {
+      "gate": "F_KEX_REPO_BINDING",
+      "proof_required": "Fixture repo produces anchor/theorem/constraint/action/proof/status packet.",
+      "status": "PENDING",
+      "task": "Define and test a fixture KEX hyperdrive repository adapter for theorem-lineage metadata."
+    },
+    {
+      "gate": "G_MACOS_RUNTIME_PROOF",
+      "proof_required": "SMOKE_STATUS:DONE plus generated JSON proof artifacts.",
+      "status": "BLOCKED",
+      "task": "Run SwiftUI/AppKit build and runtime smoke in a macOS environment."
+    },
+    {
+      "gate": "H_EXTERNAL_BOUNDARY",
+      "proof_required": "External source-backed validation package, measurements, or reproduction logs.",
+      "status": "EXTERNALLY-UNVALIDATED",
+      "task": "Require independent reproduction packages before promoting external scientific/hardware claims."
+    }
+  ],
+  "repo": "/workspace/BRAINK",
+  "route_coverage": {
+    "auth.oauth": "MODEL-LOCAL",
+    "chrome_browser": "MODEL-LOCAL",
+    "constraint_flags": "MODEL-LOCAL",
+    "general": "MODEL-LOCAL",
+    "illlm_bootstrap": "MODEL-LOCAL",
+    "illlm_bundle": "MODEL-LOCAL",
+    "illlm_query": "MODEL-LOCAL",
+    "inner_runtime": "MODEL-LOCAL",
+    "module_manifest": "MODEL-LOCAL",
+    "proof_packet": "MODEL-LOCAL",
+    "runtime_trace": "MODEL-LOCAL",
+    "scrape_tool": "MODEL-LOCAL"
+  },
+  "status_ledger": {
+    "anchor_preserved": "COMPLETED",
+    "artifact_hashes_generated": "COMPLETED",
+    "coding_actions_executed": "PENDING",
+    "external_validation": "EXTERNALLY-UNVALIDATED",
+    "macos_runtime_proof": "BLOCKED",
+    "unsupported_claims_checked": "COMPLETED"
+  }
+}

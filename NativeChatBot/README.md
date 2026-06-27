@@ -100,5 +100,20 @@ Detected route for IL-LLM bundle intake:
 - `illlm_bundle`
 - `illlm_bootstrap`
 
+
+## KEX hyperdrive calibration analysis
+A repo-level KEX/BRAINK calibration and pending-gate ledger is available at `docs/KEX_HYPERDRIVE_CALIBRATION_ANALYSIS.md`. It separates local proof, model logic, operational constraints, pending gates, and external-validation boundaries.
+
+## KEX self-sustain orchestration
+From the repository root, generate a local proof-bound packet that lets BRAINK/KEX task this repo, or each repo under a parent folder, without promoting unproved claims:
+
+```bash
+python3 tools/kex_self_sustain.py --root . --output-dir reports
+python3 tools/kex_self_sustain.py --root . --verify-packet reports/BRAINK_kex_self_sustain_packet.json
+python3 tools/kex_self_sustain.py --root /path/to/parent --all-repos --output-dir reports
+```
+
+The generated packet records artifact hashes, route coverage, ethics findings, pending gates, and allowed KEX statuses.
+
 ## Reset
 Use **Clear** in the UI to reset conversation + trace.
