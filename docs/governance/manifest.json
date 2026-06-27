@@ -6,12 +6,17 @@
   },
   "ARTIFACT_DOCS_GOVERNANCE_MANIFEST_JSON": {
     "path": "docs/governance/manifest.json",
-    "sha256": "0e2246d1a63836da81f8996f15ca07d28ed709292e8f722803c1d139377fce71",
+    "sha256": "c3e9f605dcd7675b19b1ce119a3b03bb167d2fff912f3983787b0756662fbc8d",
     "state": "STATE_MODEL_LOCAL"
   },
   "ARTIFACT_DOCS_GOVERNANCE_REPOSITORY_GOVERNANCE_STANDARD_MD": {
     "path": "docs/governance/repository-governance-standard.md",
     "sha256": "6d43724e1c76ce3bc92725efdca69320bc99573d6acc4d2f3e9518c8bb00d156",
+    "state": "STATE_MODEL_LOCAL"
+  },
+  "ARTIFACT_DOCS_GOVERNANCE_STRICT_DEEP_ANALYSIS_COMMENT_MD": {
+    "path": "docs/governance/strict-deep-analysis-comment.md",
+    "sha256": "39888c1c5b0878bf75ca987be9b33a7d2d475ca165b92b41d766b2168d95dbc3",
     "state": "STATE_MODEL_LOCAL"
   },
   "ARTIFACT_GITIGNORE": {
@@ -41,7 +46,7 @@
   },
   "ARTIFACT_SCRIPTS_VALIDATE_GOVERNANCE_PY": {
     "path": "scripts/validate-governance.py",
-    "sha256": "1beff55dab143f4a32e0d4b70b7e77edb79d1a33f47bbc0981fbcefc3b78d0d2",
+    "sha256": "b04742ddd71d2d8d1c4d54339eac2e8b473bd1a9a20dfba81b407eeec454f051",
     "state": "STATE_MODEL_LOCAL"
   }
 }

@@ -18,6 +18,7 @@ REQUIRED_FILES = [
     "scripts/validate-governance.py",
     "scripts/bootstrap-general-governance.sh",
     "docs/governance/agentic-intelligence-cli.md",
+    "docs/governance/strict-deep-analysis-comment.md",
     "scripts/braink-agent-cli.py",
 ]
 MANIFEST_PATH = "docs/governance/manifest.json"
