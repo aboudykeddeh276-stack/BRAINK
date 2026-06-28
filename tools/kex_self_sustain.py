@@ -173,6 +173,7 @@ def is_negated_boundary(text: str, start: int, end: int) -> bool:
         "does not claim", "do not claim", "never claim", "no specific", "no diagnosis",
         "not medical advice", "not prove", "not external proof", "without claiming",
         "unsupported", "boundary", "externally-unvalidated", "external-validation boundaries",
+        "defensive analysis only", "routes to defensive analysis",
     ]
     return any(token in window for token in negators)
 

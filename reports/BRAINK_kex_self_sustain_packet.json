@@ -2,6 +2,11 @@
   "anchor": "A. KEDDEH / BRAINK / KEX / K-SYSTEMS",
   "artifacts": [
     {
+      "bytes": 5026,
+      "lines": 121,
+      "path": "NativeChatBot/README.md",
+      "role": "knowledge_binding",
+      "sha256": "fee4f4156b3c0d139743f8ce3eb463c5a8d9dc45f294a42ea021c8c640fd0c69",
       "bytes": 4944,
       "lines": 120,
       "path": "NativeChatBot/README.md",
@@ -151,6 +156,19 @@
       "status": "MODEL-LOCAL"
     },
     {
+      "bytes": 2500,
+      "lines": 76,
+      "path": "docs/KEX_COMPLETE_CONSTRAINT_DOCUMENT.md",
+      "role": "proof_workflow",
+      "sha256": "924f4a4f179a00f6150eba93b78db3d1613162c794dbd65520f4bdc636290aff",
+      "status": "MODEL-LOCAL"
+    },
+    {
+      "bytes": 12709,
+      "lines": 243,
+      "path": "docs/KEX_HYPERDRIVE_CALIBRATION_ANALYSIS.md",
+      "role": "runtime_route_engine",
+      "sha256": "2c9ef1727a11d1ba8a3de108b61202914b8f682fde526eadcb5f47c733097503",
       "bytes": 12405,
       "lines": 236,
       "path": "docs/KEX_HYPERDRIVE_CALIBRATION_ANALYSIS.md",
@@ -188,6 +206,27 @@
       "status": "MODEL-LOCAL"
     },
     {
+      "bytes": 1948,
+      "lines": 50,
+      "path": "kex/kex_affect_ethics_model.json",
+      "role": "proof_workflow",
+      "sha256": "7f32d0cf2c3ec873a19293717da76cc4b34a042ce68a3b76eede4668e7f9e979",
+      "status": "MODEL-LOCAL"
+    },
+    {
+      "bytes": 5463,
+      "lines": 147,
+      "path": "tools/kex_ethics_check.py",
+      "role": "self_sustain_tooling",
+      "sha256": "d51ab39642cffb521705f2c99ebf72068ee902837c4a4c63869968cfccfaf336",
+      "status": "MODEL-LOCAL"
+    },
+    {
+      "bytes": 16283,
+      "lines": 388,
+      "path": "tools/kex_self_sustain.py",
+      "role": "self_sustain_tooling",
+      "sha256": "f053909516463c497b5ec522f1e98425c5c56b5eeb0b651e77025af3e23ce0f4",
       "bytes": 16216,
       "lines": 387,
       "path": "tools/kex_self_sustain.py",
@@ -202,6 +241,7 @@
     }
   ],
   "ethics_findings": [],
+  "file_count": 26,
   "file_count": 23,
   "generated_at": "2026-06-27T00:00:00+00:00",
   "kex_affect_gate": [

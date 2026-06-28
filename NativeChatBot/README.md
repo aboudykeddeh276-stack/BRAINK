@@ -115,6 +115,7 @@ From the repository root, generate a local proof-bound packet that lets BRAINK/K
 ```bash
 python3 tools/kex_self_sustain.py --root . --output-dir reports
 python3 tools/kex_self_sustain.py --root . --verify-packet reports/BRAINK_kex_self_sustain_packet.json
+python3 tools/kex_ethics_check.py --root . --output reports/kex_ethics_check.json
 python3 tools/kex_self_sustain.py --root /path/to/parent --all-repos --output-dir reports
 ```
 

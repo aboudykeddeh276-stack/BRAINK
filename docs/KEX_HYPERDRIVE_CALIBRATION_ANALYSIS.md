@@ -113,6 +113,18 @@ Generated proof artifacts in this checkout:
 
 - `reports/BRAINK_kex_self_sustain_packet.json`
 - `reports/BRAINK_kex_self_sustain_packet.md`
+- `reports/kex_ethics_check.json`
+
+Constraint artifacts in this checkout:
+
+- `kex/kex_affect_ethics_model.json`
+- `docs/KEX_COMPLETE_CONSTRAINT_DOCUMENT.md`
+
+Verification commands:
+
+```bash
+python3 tools/kex_self_sustain.py --root . --verify-packet reports/BRAINK_kex_self_sustain_packet.json
+python3 tools/kex_ethics_check.py --root . --output reports/kex_ethics_check.json
 
 Verification command:
 
@@ -222,6 +234,8 @@ This enforces creation because no claim is promoted to achieved until it has an 
 
 1. Implement configurable path roots and remove host-only defaults from proof/report paths.
 2. Use `tools/kex_self_sustain.py --verify-packet` as the current static Linux manifest drift check, then add route-level runtime assertions.
+3. Add a manifest-hash generator and checker.
+4. Keep `tools/kex_ethics_check.py` passing as the executable checker for the provided KEX affect/bioethics model.
 2. Add a repo-level `verify-braink-runtime` script for static Linux checks.
 3. Add a manifest-hash generator and checker.
 4. Add KEX ethics checker from the provided model.
