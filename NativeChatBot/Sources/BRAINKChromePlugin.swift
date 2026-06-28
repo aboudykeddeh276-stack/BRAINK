@@ -1,11 +1,17 @@
 import Foundation
+#if canImport(AppKit)
 import AppKit
+#endif
 
 enum BRAINKChromePlugin {
     private static let chromeBundleID = "com.google.Chrome"
 
     static func isChromeInstalled() -> Bool {
-        NSWorkspace.shared.urlForApplication(withBundleIdentifier: chromeBundleID) != nil
+        #if canImport(AppKit)
+        return NSWorkspace.shared.urlForApplication(withBundleIdentifier: chromeBundleID) != nil
+        #else
+        return false
+        #endif
     }
 
     static func open(urlString: String) -> String {
@@ -14,6 +20,7 @@ enum BRAINKChromePlugin {
             return "Chrome plugin error: invalid URL '\(urlString)'."
         }
 
+        #if canImport(AppKit)
         if let chromeAppURL = NSWorkspace.shared.urlForApplication(withBundleIdentifier: chromeBundleID) {
             let config = NSWorkspace.OpenConfiguration()
             NSWorkspace.shared.open([url], withApplicationAt: chromeAppURL, configuration: config) { _, error in
@@ -26,6 +33,9 @@ enum BRAINKChromePlugin {
 
         NSWorkspace.shared.open(url)
         return "Chrome plugin done (fallback): Chrome not installed, opened \(url.absoluteString) in default browser."
+        #else
+        return "Chrome plugin unavailable on this platform: validated URL \(url.absoluteString) but AppKit browser launch is macOS-only."
+        #endif
     }
 
     static func statusText() -> String {

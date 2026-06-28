@@ -132,6 +132,8 @@ def classify_role(path: Path, text: str) -> str:
         return "diagnostic_or_manifest_data"
     if path.suffix == ".md":
         return "documentation"
+    if path.parent.name == "tools":
+        return "self_sustain_tooling"
     return "supporting_source"
 
 
@@ -261,6 +263,7 @@ def verify_packet(packet_path: Path, repo: Path) -> list[str]:
 
 
 def build_packet(repo: Path, objective: str, generated_at: str | None = None) -> RepoPacket:
+def build_packet(repo: Path, objective: str) -> RepoPacket:
     records = artifact_records(repo)
     coverage = route_coverage(repo)
     findings = ethics_findings(repo)
@@ -277,6 +280,7 @@ def build_packet(repo: Path, objective: str, generated_at: str | None = None) ->
         anchor="A. KEDDEH / BRAINK / KEX / K-SYSTEMS",
         repo=str(repo),
         generated_at=generated_at or datetime.now(timezone.utc).isoformat(),
+        generated_at=datetime.now(timezone.utc).isoformat(),
         objective=objective,
         file_count=len(records),
         artifacts=records,
@@ -375,6 +379,13 @@ def main(argv: Sequence[str] | None = None) -> int:
             for error in status_errors:
                 print(f"KEX_STATUS_ERROR {error}", file=sys.stderr)
             return 1
+    args = parser.parse_args(argv)
+
+    root = Path(args.root).resolve()
+    repos = detect_git_repos(root) if args.all_repos else [root]
+    written: list[Path] = []
+    for repo in repos:
+        packet = build_packet(repo, args.objective)
         json_path, md_path = write_packet(packet, Path(args.output_dir))
         written.extend([json_path, md_path])
         print(f"KEX_PACKET repo={repo} json={json_path} markdown={md_path} status=COMPLETED")

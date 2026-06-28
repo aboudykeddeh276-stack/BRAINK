@@ -148,8 +148,8 @@ enum BRAINKRuntimeLearning {
 }
 
 enum BRAINKDeliveryAudit {
-    private static let rootPath = "/Users/ak/Documents/BRAINK THE ACTUAL APPLICATION"
-    private static let sourceRoot = "/Users/ak/Documents/BRAINK THE ACTUAL APPLICATION/NativeChatBot/Sources"
+    private static var rootPath: String { URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent().path }
+    private static var sourceRoot: String { URL(fileURLWithPath: #filePath).deletingLastPathComponent().path }
 
     private static let contracts: [StackModuleContract] = [
         StackModuleContract(
@@ -230,6 +230,38 @@ enum BRAINKDeliveryAudit {
             logicalLink: "BRAINKInnerRuntime.evolve",
             verification: "One dedicated runtime section updates thoughts/emotions/perception constraints.",
             requiredTokens: ["struct BRAINKInnerRuntimeState", "enum BRAINKInnerRuntime", "evolve(", "INNER RUNTIME CONSTRAINT CORE"],
+            weight: 1.3
+        ),
+        StackModuleContract(
+            moduleName: "service_kex_hyperdrive_transition_definition_module",
+            runningFile: "\(sourceRoot)/KEXHyperdriveConceptEngine.swift",
+            logicalLink: "KEXHyperdriveConceptEngine.writeReport/asText",
+            verification: "KEX Hyperdrive transition/definition/state concepts emit a deterministic report artifact with ethical and proof gates.",
+            requiredTokens: ["enum KEXHyperdriveConceptEngine", "KEX_HYPERDRIVE_TRANSITION_DEFINITION_REPORT_V1", "KEX_HYPERDRIVE_REPO_CALIBRATION_REPORT_V1", "State OF transition", "Transition OF state", "Definition OF transition", "X OF X OF X OF X", "ethicalBoundaryChecks", "pendingProofGates", "pendingWorkloads"],
+            weight: 1.3
+        ),
+        StackModuleContract(
+            moduleName: "route_kex_hyperdrive_wiring",
+            runningFile: "\(sourceRoot)/BRAINKChatEngine.swift",
+            logicalLink: "classifyRoute -> resolveLocally kex_hyperdrive",
+            verification: "Route classifier recognizes transition/definition/state language and writes the KEX Hyperdrive concept report.",
+            requiredTokens: ["return \"kex_hyperdrive\"", "case \"kex_hyperdrive\":", "KEXHyperdriveConceptEngine.writeReport(userText:", "KEXHyperdriveConceptEngine.writeCalibrationReport(userText:", "KEXHyperdriveConceptEngine.calibrationText(calibration)"],
+            weight: 1.3
+        ),
+        StackModuleContract(
+            moduleName: "service_kex_self_sustained_coding_module",
+            runningFile: "\(sourceRoot)/KEXSelfSustainedCodingEngine.swift",
+            logicalLink: "KEXSelfSustainedCodingEngine.writeReport/asText",
+            verification: "Self-sustained coding engine emits bounded repo task packets with write scopes, command plans, proof gates, and safety boundaries.",
+            requiredTokens: ["enum KEXSelfSustainedCodingEngine", "KEX_SELF_SUSTAINED_CODING_REPORT_V1", "KEXCodingTaskPacket", "writeScope", "proofGate", "selfExistenceDesign", "Autonomous code mutation remains bounded"],
+            weight: 1.3
+        ),
+        StackModuleContract(
+            moduleName: "route_self_sustained_coder_wiring",
+            runningFile: "\(sourceRoot)/BRAINKChatEngine.swift",
+            logicalLink: "classifyRoute -> resolveLocally self_sustained_coder",
+            verification: "Route classifier recognizes self-sustained coding intent and writes repo task packets.",
+            requiredTokens: ["return \"self_sustained_coder\"", "case \"self_sustained_coder\":", "KEXSelfSustainedCodingEngine.writeReport(userText:", "KEXSelfSustainedCodingEngine.asText(report)"],
             weight: 1.3
         ),
         StackModuleContract(

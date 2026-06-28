@@ -1,6 +1,8 @@
 import Foundation
 
 enum BRAINKConstants {
+    static var nativeChatBotRoot: String { URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().path }
+    static var buildRoot: String { URL(fileURLWithPath: nativeChatBotRoot).appendingPathComponent("build").path }
     static let architectName = "A. KEDDEH"
     static let organizationName = "K-SYSTEMS"
     static let productSignature = "BRAINK by K-SYSTEMS"
@@ -16,12 +18,15 @@ enum BRAINKConstants {
     static let defaultILLLMRuntimePath = "/Users/ak/Documents/New project"
     static let defaultProofPacketRunId = "smart_manager_0074"
     static let proofPacketCommand = "python3 -m il_llm.cli proof-packet --run-id \(defaultProofPacketRunId)"
-    static let stackAuditReportPath = "/Users/ak/Documents/BRAINK THE ACTUAL APPLICATION/NativeChatBot/build/braink_stack_alignment_report.json"
-    static let learningSnapshotReportPath = "/Users/ak/Documents/BRAINK THE ACTUAL APPLICATION/NativeChatBot/build/braink_learning_snapshot.json"
-    static let frontierSealPath = "/Users/ak/Documents/BRAINK THE ACTUAL APPLICATION/NativeChatBot/build/braink_frontier_seal.json"
-    static let runtimeLineRegistryPath = "/Users/ak/Documents/BRAINK THE ACTUAL APPLICATION/NativeChatBot/build/braink_runtime_line_registry.json"
-    static let illlmCompatibilityReportPath = "/Users/ak/Documents/BRAINK THE ACTUAL APPLICATION/NativeChatBot/build/braink_illlm_compatibility_report.json"
-    static let illlmWorkflowReportPath = "/Users/ak/Documents/BRAINK THE ACTUAL APPLICATION/NativeChatBot/build/braink_illlm_workflow_report.json"
-    static let illlmKnowledgeStatePath = "/Users/ak/Documents/BRAINK THE ACTUAL APPLICATION/NativeChatBot/build/braink_illlm_knowledge_state.json"
-    static let innerRuntimeStatePath = "/Users/ak/Documents/BRAINK THE ACTUAL APPLICATION/NativeChatBot/build/braink_inner_runtime_state.json"
+    static var stackAuditReportPath: String { URL(fileURLWithPath: buildRoot).appendingPathComponent("braink_stack_alignment_report.json").path }
+    static var learningSnapshotReportPath: String { URL(fileURLWithPath: buildRoot).appendingPathComponent("braink_learning_snapshot.json").path }
+    static var frontierSealPath: String { URL(fileURLWithPath: buildRoot).appendingPathComponent("braink_frontier_seal.json").path }
+    static var runtimeLineRegistryPath: String { URL(fileURLWithPath: buildRoot).appendingPathComponent("braink_runtime_line_registry.json").path }
+    static var illlmCompatibilityReportPath: String { URL(fileURLWithPath: buildRoot).appendingPathComponent("braink_illlm_compatibility_report.json").path }
+    static var illlmWorkflowReportPath: String { URL(fileURLWithPath: buildRoot).appendingPathComponent("braink_illlm_workflow_report.json").path }
+    static var illlmKnowledgeStatePath: String { URL(fileURLWithPath: buildRoot).appendingPathComponent("braink_illlm_knowledge_state.json").path }
+    static var innerRuntimeStatePath: String { URL(fileURLWithPath: buildRoot).appendingPathComponent("braink_inner_runtime_state.json").path }
+    static var kexHyperdriveConceptReportPath: String { URL(fileURLWithPath: buildRoot).appendingPathComponent("kex_hyperdrive_transition_definition_report.json").path }
+    static var kexHyperdriveCalibrationReportPath: String { URL(fileURLWithPath: buildRoot).appendingPathComponent("kex_hyperdrive_repo_calibration_report.json").path }
+    static var kexSelfSustainedCodingReportPath: String { URL(fileURLWithPath: buildRoot).appendingPathComponent("kex_self_sustained_coding_report.json").path }
 }

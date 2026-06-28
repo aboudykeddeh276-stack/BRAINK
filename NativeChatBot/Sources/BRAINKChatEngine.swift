@@ -1,4 +1,14 @@
 import Foundation
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
+#if !canImport(Combine)
+protocol ObservableObject: AnyObject {}
+@propertyWrapper struct Published<Value> {
+    var wrappedValue: Value
+    init(wrappedValue: Value) { self.wrappedValue = wrappedValue }
+}
+#endif
 
 struct ChatMessage: Identifiable, Hashable {
     enum Role: String, Codable {
@@ -451,6 +461,23 @@ final class BRAINKChatEngine: ObservableObject {
             response = buildILLLMWorkflowResponse(userText: text)
         case "inner_runtime":
             response = BRAINKInnerRuntime.asText(innerRuntimeState)
+        case "kex_hyperdrive":
+            do {
+                let report = try KEXHyperdriveConceptEngine.writeReport(userText: text)
+                let calibration = try KEXHyperdriveConceptEngine.writeCalibrationReport(userText: text)
+                response = KEXHyperdriveConceptEngine.asText(report)
+                    + "\n\n--- KEX HYPERDRIVE REPO CALIBRATION ---\n"
+                    + KEXHyperdriveConceptEngine.calibrationText(calibration)
+            } catch {
+                response = "KEX Hyperdrive concept/calibration report failed: \(error.localizedDescription)"
+            }
+        case "self_sustained_coder":
+            do {
+                let report = try KEXSelfSustainedCodingEngine.writeReport(userText: text)
+                response = KEXSelfSustainedCodingEngine.asText(report)
+            } catch {
+                response = "KEX self-sustained coding report failed: \(error.localizedDescription)"
+            }
         case "knowledge_center_status":
             response = buildKnowledgeCenterStatusResponse()
         case "illlm_bootstrap":
@@ -648,6 +675,27 @@ final class BRAINKChatEngine: ObservableObject {
             || lower.contains("perception core")
             || lower.contains("constraint core") {
             return "inner_runtime"
+        }
+        if lower.contains("self sustained coder")
+            || lower.contains("self-sustained coder")
+            || lower.contains("software that can code")
+            || lower.contains("task it to each repo")
+            || lower.contains("self existence design") {
+            return "self_sustained_coder"
+        }
+        if lower.contains("kex hyperdrive")
+            || lower.contains("state of transition")
+            || lower.contains("transition of state")
+            || lower.contains("definition of transition")
+            || lower.contains("transition of definitions")
+            || lower.contains("definition of state")
+            || lower.contains("state of definitions")
+            || lower.contains("x of x of x of x")
+            || lower.contains("calibration analysis")
+            || lower.contains("vision trajectory")
+            || lower.contains("pending tasks")
+            || lower.contains("operational and logical runtime") {
+            return "kex_hyperdrive"
         }
         if lower.contains("knowledge center")
             || lower.contains("knowledge centre")
@@ -1662,12 +1710,18 @@ final class BRAINKChatEngine: ObservableObject {
     }
 
     private func extractFirstURL(from text: String) -> String? {
+        #if canImport(AppKit)
         guard let detector = try? NSDataDetector(types: NSTextCheckingResult.CheckingType.link.rawValue) else {
             return nil
         }
         let range = NSRange(location: 0, length: (text as NSString).length)
         let matches = detector.matches(in: text, options: [], range: range)
         return matches.first?.url?.absoluteString
+        #else
+        let pattern = #"https?://[^\s]+"#
+        guard let range = text.range(of: pattern, options: .regularExpression) else { return nil }
+        return String(text[range]).trimmingCharacters(in: CharacterSet(charactersIn: ".,);]"))
+        #endif
     }
 
     private func callRemoteRuntime(_ text: String) async throws -> (text: String, route: String) {
