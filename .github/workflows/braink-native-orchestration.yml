@@ -40,8 +40,7 @@ jobs:
       BRAINK_RUNTIME_MODE: ${{ github.event.inputs.runtime_mode || vars.BRAINK_RUNTIME_MODE || 'bridged' }}
       BRAINK_CHAT_RUNTIME: ${{ secrets.BRAINK_API_ENDPOINT }}
       BRAINK_EXECUTION_POLICY: self_sustained_with_proofs
-      IL_LLM_RUNTIME_PATH: ${{ secrets.IL_LLM_RUNTIME_PATH }}
-      BRAINK_EFFECTIVE_IL_LLM_RUNTIME_PATH: ${{ secrets.IL_LLM_RUNTIME_PATH || github.workspace }}
+      IL_LLM_RUNTIME_PATH: ${{ secrets.IL_LLM_RUNTIME_PATH || github.workspace }}
       IL_LLM_MEMORY_BUDGET_CHARS: "2097152"
       BRAINK_PROOF_GENERATION: enabled
       BRAINK_ALIGNMENT_AUDIT: enabled
@@ -71,13 +70,9 @@ jobs:
         run: python3 scripts/braink-agent-cli.py status
 
       - name: Run deterministic runtime smoke test
-        env:
-          IL_LLM_RUNTIME_PATH: ${{ env.BRAINK_EFFECTIVE_IL_LLM_RUNTIME_PATH }}
         run: ./NativeChatBot/run-runtime-smoke.command
 
       - name: Orchestrate BRAINK native stack
-        env:
-          IL_LLM_RUNTIME_PATH: ${{ env.BRAINK_EFFECTIVE_IL_LLM_RUNTIME_PATH }}
         run: ./.github/scripts/braink-orchestration.sh
 
       - name: Upload BRAINK orchestration artifacts

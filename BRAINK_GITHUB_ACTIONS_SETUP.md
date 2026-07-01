@@ -19,7 +19,7 @@ Use `.github/workflows/braink-native-orchestration.yml` instead of Claude/Anthro
 
 | Environment variable | Required | Purpose |
 | --- | --- | --- |
-| `BRAINK_FALLBACK_PROBE_ENDPOINT` | No | Overrides the unreachable endpoint used to prove fallback behavior. Default: `http://127.0.0.1:9`. |
+| `BRAINK_FALLBACK_PROBE_ENDPOINT` | No | Overrides the unreachable endpoint used to prove fallback behavior. Default: `http://127.0.0.1:9`. If no port is supplied, standard HTTP/HTTPS ports are used. |
 | `BRAINK_FALLBACK_PROBE_TIMEOUT_SECONDS` | No | Socket timeout for validating that the fallback probe endpoint is unreachable. Default: `0.2`. |
 
 ## Runtime environment

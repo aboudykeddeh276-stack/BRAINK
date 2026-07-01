@@ -174,7 +174,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
     endpoint_is_reachable = sock.connect_ex((host, port)) == 0
 
 if endpoint_is_reachable:
-    raise SystemExit(f"Fallback probe endpoint is reachable: {sys.argv[1]}")
+    raise SystemExit(f"Fallback probe endpoint is unexpectedly reachable, so fallback proof would be invalid: {sys.argv[1]}")
 PY
 
 BRAINK_RUNTIME_MODE="bridged" \
@@ -184,6 +184,7 @@ BRAINK_ORCHESTRATION_OUTPUT="${FALLBACK_SUMMARY}" \
 IL_LLM_RUNTIME_PATH="${IL_LLM_RUNTIME_PATH}" \
 "${TMP_BIN}"
 
+[[ -f "${BUILD_DIR}/braink_stack_alignment_report.json" ]]
 ln -sfn "braink_stack_alignment_report.json" "${BUILD_DIR}/braink_module_alignment_audit.json"
 
 python3 - "${PRIMARY_SUMMARY}" "${FALLBACK_SUMMARY}" "${BUILD_DIR}" "${ROOT}" <<'PY'
