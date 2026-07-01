@@ -29,9 +29,6 @@ class KeddehZeroLessMatrix:
     - logical index 5 -> signed index 2
     - logical index 6 -> signed index 3
     """
-    
-    def __init__(self):
-        self.axis_map = {1: -1, 2: -2, 3: -3, 4: 1, 5: 2, 6: 3}
         
     @staticmethod
     def get_signed_index(logical_idx: int) -> int:
@@ -125,7 +122,6 @@ class NestedCoreRuntime:
         self.capacity_tbi = base_capacity_tbi
         self.depth = depth
         self.fs = WiredFATFileSystem()
-        self.matrix = KeddehZeroLessMatrix()
         self.inner_system: Optional['NestedCoreRuntime'] = None
         
         # Self-bootstrap the state into the zero-less space
