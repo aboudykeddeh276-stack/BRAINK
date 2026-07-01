@@ -110,13 +110,15 @@ struct DeadRouteRegistry {
         let occurrenceRate: Double
     }
 
+    static let defaultMetadata = Metadata(
+        sector: .sect_neg3_input,
+        cause: .cause_neg3_malformed,
+        recovery: .recovery_1_self_sustained,
+        occurrenceRate: 1.0
+    )
+
     static let deadRoutes: [DeadRouteIndex: Metadata] = [
-        .route_dead_claude_api: Metadata(
-            sector: .sect_neg3_input,
-            cause: .cause_neg3_malformed,
-            recovery: .recovery_1_self_sustained,
-            occurrenceRate: 1.0
-        ),
+        .route_dead_claude_api: defaultMetadata,
         .route_dead_mcp_server: Metadata(
             sector: .sect_neg3_input,
             cause: .cause_neg3_malformed,
@@ -313,19 +315,19 @@ final class BRAINKZeroLessRuntime {
 
     private func classifyRoute(_ input: String) -> ZeroLessRouteIdentifier {
         let lower = input.lowercased()
-        if containsPhrase("claude api", in: lower) || (containsWord("claude", in: lower) && containsWord("403", in: lower)) {
+        if lower.contains("claude api") || (containsWord("claude", in: lower) && containsWord("403", in: lower)) {
             return .route_dead_claude_api
         }
-        if containsPhrase("mcp server", in: lower) || containsWord("mcp", in: lower) {
+        if lower.contains("mcp server") || containsWord("mcp", in: lower) {
             return .route_dead_mcp_server
         }
-        if containsPhrase("copilot external", in: lower) || containsWord("copilot", in: lower) {
+        if lower.contains("copilot external") || containsWord("copilot", in: lower) {
             return .route_dead_copilot_external
         }
-        if containsPhrase("self sustained", in: lower) || containsPhrase("self-sustained", in: lower) {
+        if lower.contains("self sustained") || lower.contains("self-sustained") {
             return .route_engine_self_sustained
         }
-        if containsPhrase("il-llm", in: lower) || containsPhrase("il_llm", in: lower) {
+        if lower.contains("il-llm") || lower.contains("il_llm") {
             return .route_engine_il_llm_local
         }
         if containsWord("proof", in: lower) {
@@ -335,12 +337,7 @@ final class BRAINKZeroLessRuntime {
     }
 
     private func buildDeadRouteContext(_ route: DeadRouteIndex) -> ErrorContext {
-        let metadata = DeadRouteRegistry.deadRoutes[route] ?? DeadRouteRegistry.Metadata(
-            sector: .sect_neg3_input,
-            cause: .cause_neg3_malformed,
-            recovery: .recovery_1_self_sustained,
-            occurrenceRate: 1.0
-        )
+        let metadata = DeadRouteRegistry.deadRoutes[route] ?? DeadRouteRegistry.defaultMetadata
         return ErrorContext(
             processingStage: .stage_route_classification,
             errorSector: metadata.sector,
@@ -351,10 +348,6 @@ final class BRAINKZeroLessRuntime {
             occurrenceRate: metadata.occurrenceRate,
             timestamp: Date()
         )
-    }
-
-    private func containsPhrase(_ phrase: String, in text: String) -> Bool {
-        text.contains(phrase)
     }
 
     private func containsWord(_ token: String, in text: String) -> Bool {
