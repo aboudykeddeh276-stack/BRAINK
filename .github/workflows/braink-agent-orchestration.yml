@@ -95,7 +95,7 @@ jobs:
           summary = report['summary']
           assert summary['success'], summary
           assert summary['proof_packet_verified'], summary
-          assert abs(summary['alignment'] - 1.0) < 1e-9, summary
+          assert summary['alignment'] == 1.0, summary
           assert 'self_sustained_coder' in summary['routes'], summary
           assert 'kex_hyperdrive' in summary['routes'], summary
           PY

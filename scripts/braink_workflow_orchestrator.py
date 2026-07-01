@@ -24,6 +24,7 @@ DEFAULT_INTENT = (
     "software that can code using my software and task it to each repo "
     "using my self existence design"
 )
+ALIGNMENT_TOLERANCE = 1e-9
 
 ROUTE_ORDER = [
     "auth",
@@ -315,19 +316,20 @@ def artifact_summary() -> dict[str, bool]:
 
 
 
-def workflow_summary(plan: RoutePlan, steps: list[StepResult]) -> dict[str, Any]:
+def workflow_summary(plan: RoutePlan, steps: list[StepResult], halt_reason: str | None = None) -> dict[str, Any]:
     smoke_step = next((step for step in steps if step.name == "runtime_smoke"), None)
     smoke = smoke_validation(smoke_step.markers if smoke_step else {})
     artifacts = artifact_summary()
     success = all(step.returncode == 0 for step in steps)
     success = success and smoke["status_done"] and smoke["has_self_sustained_coder"] and smoke["has_kex_hyperdrive"]
-    success = success and abs(smoke["alignment"] - 1.0) < 1e-9
+    success = success and abs(smoke["alignment"] - 1.0) < ALIGNMENT_TOLERANCE
     success = success and all(artifacts.values())
     return {
         "success": success,
         "runtime_mode": plan.runtime_mode,
         "fallback_used": plan.runtime_mode == "deterministic_local",
         "fallback_reason": plan.fallback_reason,
+        "halt_reason": halt_reason,
         "alignment": smoke["alignment"],
         "proof_packet_verified": any(step.name == "self_sustain_verify" and step.returncode == 0 for step in steps),
         "routes": plan.routes,
@@ -359,16 +361,18 @@ def command_run(args: argparse.Namespace) -> int:
     child_env = prepare_child_env(plan, dict(os.environ))
 
     steps: list[StepResult] = []
+    halt_reason: str | None = None
     for name in ALLOWED_COMMANDS:
         step = run_named_command(name, output_dir, child_env)
         steps.append(step)
         if step.returncode != 0:
+            halt_reason = f"Stopped after {name} failed with exit code {step.returncode}."
             break
 
     report = {
         "plan": asdict(plan),
         "steps": [asdict(step) for step in steps],
-        "summary": workflow_summary(plan, steps),
+        "summary": workflow_summary(plan, steps, halt_reason=halt_reason),
     }
     write_json(output_dir / "workflow_report.json", report)
     print(json.dumps(report, indent=2, sort_keys=True))
