@@ -14,6 +14,9 @@ struct BRAINKSmokeRunner {
     @MainActor
     static func main() async {
         let engine = BRAINKChatEngine()
+        let zeroLessRuntime = BRAINKZeroLessRuntime()
+        let zeroLessAPI = BRAINKZeroLessAPIRuntime()
+        let zeroLessStateStorage = BRAINKZeroLessStateStorage()
 
         await engine.send(userInput: "knowledge center status")
         await engine.send(userInput: "stack audit line for line module alignment")
@@ -21,6 +24,20 @@ struct BRAINKSmokeRunner {
         await engine.send(userInput: "State OF transition + Transition OF state / Definition OF transition + Transition OF definitions / Definition OF state + State OF definitions / X OF X OF X OF X")
         await engine.send(userInput: "software that can code using my software and task it to each repo using my self existence design")
         await engine.send(userInput: "learn every last file and code and skill")
+
+        let zeroLessRecovery = await zeroLessRuntime.executeProcessChain(userInput: "Claude API 403")
+        let zeroLessSuccess = await zeroLessRuntime.executeProcessChain(userInput: "self sustained coder proof")
+        let zeroLessAPIResponse = await zeroLessAPI.handleHTTPRequest(path: "/zero-less/runtime", body: Data("proof packet".utf8))
+        let zeroLessProofState = zeroLessStateStorage.fetchState(index: .state_positive_three) ?? [:]
+        let zeroLessProofRoute = zeroLessProofState["route"] as? String ?? "MISSING"
+
+        guard zeroLessRecovery.output.contains("ZERO_LESS_RUNTIME_RECOVERY"),
+              zeroLessSuccess.success,
+              zeroLessSuccess.output.contains("ZERO_LESS_RUNTIME_SUCCESS"),
+              zeroLessAPIResponse.status == 200,
+              zeroLessProofRoute != "MISSING" else {
+            fatalError("Zero-less runtime smoke failed.")
+        }
 
         let total = engine.messages.count
         let users = engine.messages.filter { $0.role == .user }.count
@@ -37,6 +54,11 @@ struct BRAINKSmokeRunner {
         print("SMOKE_ILLLM_LOADED: \(engine.ilLlmLoadedCount)")
         print("SMOKE_ILLLM_STATUS: \(engine.ilLlmLoadedStatus)")
         print("SMOKE_NEXT_ACTION: \(engine.dashboardNextAction)")
+        print("SMOKE_ZERO_LESS_STATUS: DONE")
+        print("SMOKE_ZERO_LESS_RECOVERY: \(zeroLessRecovery.output)")
+        print("SMOKE_ZERO_LESS_CORE_SUCCESS: \(zeroLessSuccess.success)")
+        print("SMOKE_ZERO_LESS_API_STATUS: \(zeroLessAPIResponse.status)")
+        print("SMOKE_ZERO_LESS_STATE_ROUTE: \(zeroLessProofRoute)")
     }
 }
 SWIFT
@@ -63,6 +85,10 @@ swiftc \
   "$ROOT/Sources/BRAINKPlatformAPI.swift" \
   "$ROOT/Sources/BRAINKScraperTool.swift" \
   "$ROOT/Sources/BRAINKChromePlugin.swift" \
+  "$ROOT/Sources/BRAINKZeroLessCore.swift" \
+  "$ROOT/Sources/BRAINKZeroLessAPIRuntime.swift" \
+  "$ROOT/Sources/BRAINKZeroLessEngineOrchestration.swift" \
+  "$ROOT/Sources/BRAINKZeroLessStateStorage.swift" \
   "$ROOT/Sources/ModuleManifest.swift" \
   -o "$TMP_BIN"
 
