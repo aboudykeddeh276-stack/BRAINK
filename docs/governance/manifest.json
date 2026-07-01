@@ -6,7 +6,7 @@
   },
   "ARTIFACT_DOCS_GOVERNANCE_MANIFEST_JSON": {
     "path": "docs/governance/manifest.json",
-    "sha256": "c3e9f605dcd7675b19b1ce119a3b03bb167d2fff912f3983787b0756662fbc8d",
+    "sha256": "0d4825226c17223bb535352d7ce9310fe8c339f886927da462fa63978427492e",
     "state": "STATE_MODEL_LOCAL"
   },
   "ARTIFACT_DOCS_GOVERNANCE_REPOSITORY_GOVERNANCE_STANDARD_MD": {
@@ -21,7 +21,7 @@
   },
   "ARTIFACT_GITIGNORE": {
     "path": ".gitignore",
-    "sha256": "3874f46f59f6fc83c24b855b99b9e1f6297f9029798fc5d3a97576cf8961982d",
+    "sha256": "4e540b9bffa03f3154a3c59bdaa8cf3756ac617be2d25b1a73ba792d2977b9c5",
     "state": "STATE_MODEL_LOCAL"
   },
   "ARTIFACT_LICENSE": {

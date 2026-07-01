@@ -1,0 +1,35 @@
+name: BRAINK native CI/CD
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  braink-native-recovery:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run BRAINK native recovery orchestration
+        shell: bash
+        run: |
+          chmod +x .github/scripts/braink-recovery-orchestration.sh
+          .github/scripts/braink-recovery-orchestration.sh
+
+      - name: Upload BRAINK recovery artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: braink-native-ci-artifacts
+          path: |
+            reports/braink-native-ci/
+            reports/BRAINK_kex_self_sustain_packet.json
+            reports/BRAINK_kex_self_sustain_packet.md
+            reports/kex_ethics_check.json
+            NativeChatBot/build/braink_dead_route_registry.json
+            NativeChatBot/build/braink_error_context.json
+            NativeChatBot/build/braink_failure_analysis_report.json
