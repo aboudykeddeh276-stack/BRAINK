@@ -129,7 +129,7 @@ class TestNestedCoreRuntime:
     
     def test_bootstrap_state_creation(self):
         """Test that bootstrap creates initial state entries."""
-        system = NestedCoreRuntime("BOOT_TEST", base_capacity_tbi=5000, depth=1)
+        system = NestedCoreRuntime("BOOT_TEST", base_capacity_tbi=5000)
         
         # Check that states are bootstrapped
         meta_state = system.fs.fetch_state(1)
