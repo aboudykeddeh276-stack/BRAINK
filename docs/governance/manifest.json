@@ -6,7 +6,7 @@
   },
   "ARTIFACT_DOCS_GOVERNANCE_MANIFEST_JSON": {
     "path": "docs/governance/manifest.json",
-    "sha256": "c3e9f605dcd7675b19b1ce119a3b03bb167d2fff912f3983787b0756662fbc8d",
+    "sha256": "9677dea70e4f90d5c9477c5a2a6fb1b94fa97d43cf19a1fa93294ec2d5f8bc67",
     "state": "STATE_MODEL_LOCAL"
   },
   "ARTIFACT_DOCS_GOVERNANCE_REPOSITORY_GOVERNANCE_STANDARD_MD": {
@@ -19,6 +19,11 @@
     "sha256": "39888c1c5b0878bf75ca987be9b33a7d2d475ca165b92b41d766b2168d95dbc3",
     "state": "STATE_MODEL_LOCAL"
   },
+  "ARTIFACT_DOCS_GOVERNANCE_ZERO_LESS_GOVERNANCE_MD": {
+    "path": "docs/governance/zero-less-governance.md",
+    "sha256": "72558c6a72756acc1cb411e377c155f02ba695f9f33fd575da7395d06e23dd73",
+    "state": "STATE_MODEL_LOCAL"
+  },
   "ARTIFACT_GITIGNORE": {
     "path": ".gitignore",
     "sha256": "3874f46f59f6fc83c24b855b99b9e1f6297f9029798fc5d3a97576cf8961982d",
@@ -27,6 +32,21 @@
   "ARTIFACT_LICENSE": {
     "path": "LICENSE",
     "sha256": "57a6494e4c567565dc8a68ede27f7b54ae1d2a60424cbc6eff855e1a2cc5b910",
+    "state": "STATE_MODEL_LOCAL"
+  },
+  "ARTIFACT_NATIVECHATBOT_SOURCES_DEADROUTEREGISTRY_SWIFT": {
+    "path": "NativeChatBot/Sources/DeadRouteRegistry.swift",
+    "sha256": "3af0dbcafa6f34feae77d46ff9614258c1abae70403d06d9a0bd02e56f0d1170",
+    "state": "STATE_MODEL_LOCAL"
+  },
+  "ARTIFACT_NATIVECHATBOT_SOURCES_ERRORCONTEXT_SWIFT": {
+    "path": "NativeChatBot/Sources/ErrorContext.swift",
+    "sha256": "7669bde8a0c2abec0f7ef2d3e81570c32e730a4a58363ce5c1a4a79470799574",
+    "state": "STATE_MODEL_LOCAL"
+  },
+  "ARTIFACT_NATIVECHATBOT_SOURCES_ZEROLESSGOVERNANCE_SWIFT": {
+    "path": "NativeChatBot/Sources/ZeroLessGovernance.swift",
+    "sha256": "e999e7bcc1dbd70c96ef3b60caa8c6987467a9fd03587df38c3957b853a7a410",
     "state": "STATE_MODEL_LOCAL"
   },
   "ARTIFACT_README_MD": {
@@ -41,12 +61,12 @@
   },
   "ARTIFACT_SCRIPTS_BRAINK_AGENT_CLI_PY": {
     "path": "scripts/braink-agent-cli.py",
-    "sha256": "e20397cfb193bce8632f2e804b0b8cf642f19fc185491c4fc133f6366d8f5f5b",
+    "sha256": "45c6ddc036f1ee8d289d3a4bada6f670a9dc0ec3715fa742663f5e39ae68b8ad",
     "state": "STATE_MODEL_LOCAL"
   },
   "ARTIFACT_SCRIPTS_VALIDATE_GOVERNANCE_PY": {
     "path": "scripts/validate-governance.py",
-    "sha256": "b04742ddd71d2d8d1c4d54339eac2e8b473bd1a9a20dfba81b407eeec454f051",
+    "sha256": "dfa9deff666e2587e69571d10b3aaa4070d9d8b3c8aaef3cc13e5198545896e2",
     "state": "STATE_MODEL_LOCAL"
   }
 }

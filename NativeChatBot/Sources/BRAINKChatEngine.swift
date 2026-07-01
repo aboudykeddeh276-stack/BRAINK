@@ -249,9 +249,23 @@ final class BRAINKChatEngine: ObservableObject {
                 append(role: .assistant, text: local.text, route: local.route)
             }
         } catch {
+            let deadRoute = !localOnly && endpoint != nil ? DeadRouteRegistry.claudeAPIv1 : nil
+            let deadRouteResolution = DeadRouteRegistry.resolve(deadRoute: deadRoute)
+            let context = BRAINKErrorContextFactory.make(
+                sector: deadRouteResolution?.sector ?? .execution,
+                cause: deadRouteResolution?.cause ?? .fallback,
+                stage: "send",
+                message: error.localizedDescription,
+                deadRoute: deadRoute,
+                recoveryRoute: deadRouteResolution?.recoveryRoute.governanceRouteID,
+                metadata: [
+                    "runtime_mode": runtimeModeLabel,
+                    "endpoint_configured": endpoint == nil ? "false" : "true"
+                ]
+            )
             append(
                 role: .assistant,
-                text: "Runtime error: \(error.localizedDescription). Falling back to local deterministic BRAINK engine.",
+                text: "Runtime error: \(error.localizedDescription). Falling back to local deterministic BRAINK engine.\nerror_context=\(BRAINKErrorContextFactory.toCompactString(context))",
                 route: "system.fallback"
             )
             let local = await resolveLocally(message)
