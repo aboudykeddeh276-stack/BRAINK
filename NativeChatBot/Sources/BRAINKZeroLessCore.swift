@@ -143,6 +143,21 @@ struct DeadRouteRegistry {
 }
 
 final class BRAINKZeroLessRuntime {
+    private struct RoutePattern {
+        let route: ZeroLessRouteIdentifier
+        let phrases: [String]
+        let requiredTokens: [String]
+    }
+
+    private static let routePatterns: [RoutePattern] = [
+        RoutePattern(route: .route_dead_claude_api, phrases: ["claude api"], requiredTokens: ["claude", "403"]),
+        RoutePattern(route: .route_dead_mcp_server, phrases: ["mcp server"], requiredTokens: ["mcp"]),
+        RoutePattern(route: .route_dead_copilot_external, phrases: ["copilot external"], requiredTokens: ["copilot"]),
+        RoutePattern(route: .route_engine_self_sustained, phrases: ["self sustained", "self-sustained"], requiredTokens: []),
+        RoutePattern(route: .route_engine_il_llm_local, phrases: ["il-llm", "il_llm"], requiredTokens: []),
+        RoutePattern(route: .route_engine_deterministic_proof, phrases: [], requiredTokens: ["proof"])
+    ]
+
     private let orchestrator = BRAINKZeroLessEngineOrchestrator()
     private let stateStorage = BRAINKZeroLessStateStorage()
     private var errorHistory: [ErrorContext] = []
@@ -254,7 +269,7 @@ final class BRAINKZeroLessRuntime {
                 stage: .stage_output_serialization,
                 sector: .sect_2_output,
                 cause: .cause_2_serialization_failed,
-                message: "Unable to persist stage-2 serialized output.",
+                message: "Unable to persist stage-2 serialized output. \(stateStorage.lastPersistenceErrorMessage ?? "No storage error available.")",
                 recoveryStage: .stage_proof_generation,
                 recoveryRoute: .recovery_3_deterministic,
                 occurrenceRate: 0.15
@@ -275,7 +290,7 @@ final class BRAINKZeroLessRuntime {
                 stage: .stage_proof_generation,
                 sector: .sect_3_verification,
                 cause: .cause_3_proof_invalid,
-                message: "Unable to persist stage-3 proof artifact.",
+                message: "Unable to persist stage-3 proof artifact. \(stateStorage.lastPersistenceErrorMessage ?? "No storage error available.")",
                 recoveryStage: .stage_response_delivery,
                 recoveryRoute: .recovery_3_deterministic,
                 occurrenceRate: 0.10
@@ -315,23 +330,14 @@ final class BRAINKZeroLessRuntime {
 
     private func classifyRoute(_ input: String) -> ZeroLessRouteIdentifier {
         let lower = input.lowercased()
-        if lower.contains("claude api") || (containsWord("claude", in: lower) && containsWord("403", in: lower)) {
-            return .route_dead_claude_api
-        }
-        if lower.contains("mcp server") || containsWord("mcp", in: lower) {
-            return .route_dead_mcp_server
-        }
-        if lower.contains("copilot external") || containsWord("copilot", in: lower) {
-            return .route_dead_copilot_external
-        }
-        if lower.contains("self sustained") || lower.contains("self-sustained") {
-            return .route_engine_self_sustained
-        }
-        if lower.contains("il-llm") || lower.contains("il_llm") {
-            return .route_engine_il_llm_local
-        }
-        if containsWord("proof", in: lower) {
-            return .route_engine_deterministic_proof
+        let tokens = tokenSet(for: lower)
+        for pattern in Self.routePatterns {
+            if pattern.phrases.contains(where: lower.contains) {
+                return pattern.route
+            }
+            if !pattern.requiredTokens.isEmpty && pattern.requiredTokens.allSatisfy(tokens.contains) {
+                return pattern.route
+            }
         }
         return .route_engine_multi_observer
     }
@@ -350,9 +356,8 @@ final class BRAINKZeroLessRuntime {
         )
     }
 
-    private func containsWord(_ token: String, in text: String) -> Bool {
-        let pattern = "\\b" + NSRegularExpression.escapedPattern(for: token) + "\\b"
-        return text.range(of: pattern, options: .regularExpression) != nil
+    private func tokenSet(for text: String) -> Set<String> {
+        Set(text.split { !$0.isLetter && !$0.isNumber }.map { String($0).lowercased() })
     }
 
     private func liveRoute(for recovery: RecoveryRouteIndex) -> ZeroLessRouteIdentifier {

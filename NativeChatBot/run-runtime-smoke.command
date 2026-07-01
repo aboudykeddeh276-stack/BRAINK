@@ -31,11 +31,14 @@ struct BRAINKSmokeRunner {
         let zeroLessAPIResponse = await zeroLessAPI.handleHTTPRequest(path: "/zero-less/runtime", body: zeroLessAPIRequestBody)
         let zeroLessProofState = zeroLessStateStorage.fetchState(index: .state_positive_three) ?? [:]
         let zeroLessProofRoute = zeroLessProofState["route"] as? String ?? "MISSING"
+        let zeroLessErrorHistory = zeroLessRuntime.errorHistorySnapshot()
 
         guard zeroLessRecovery.output.contains("ZERO_LESS_RUNTIME_RECOVERY"),
               zeroLessSuccess.success,
               zeroLessSuccess.output.contains("ZERO_LESS_RUNTIME_SUCCESS"),
               zeroLessAPIResponse.status == 200,
+              zeroLessErrorHistory.count == 1,
+              zeroLessErrorHistory.first?.recoveryPath == "route:recovery:self_sustained_coder",
               zeroLessProofRoute != "MISSING" else {
             fatalError("Zero-less runtime smoke failed.")
         }
@@ -58,6 +61,7 @@ struct BRAINKSmokeRunner {
         print("SMOKE_ZERO_LESS_STATUS: DONE")
         print("SMOKE_ZERO_LESS_RECOVERY: \(zeroLessRecovery.output)")
         print("SMOKE_ZERO_LESS_CORE_SUCCESS: \(zeroLessSuccess.success)")
+        print("SMOKE_ZERO_LESS_ERROR_HISTORY: \(zeroLessErrorHistory.count)")
         print("SMOKE_ZERO_LESS_API_STATUS: \(zeroLessAPIResponse.status)")
         print("SMOKE_ZERO_LESS_STATE_ROUTE: \(zeroLessProofRoute)")
     }

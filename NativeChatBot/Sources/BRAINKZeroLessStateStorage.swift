@@ -1,19 +1,26 @@
 import Foundation
 
 final class BRAINKZeroLessStateStorage {
+    private(set) var lastPersistenceErrorMessage: String?
+
     private var storageRoot: URL {
         URL(fileURLWithPath: BRAINKConstants.buildRoot).appendingPathComponent("zero_less_state_storage", isDirectory: true)
     }
 
     @discardableResult
     func persistState(index: ZeroLessIndex, data: [String: Any]) -> String? {
-        guard let payload = encodedPayload(data, index: index) else { return nil }
+        guard let payload = encodedPayload(data, index: index) else {
+            lastPersistenceErrorMessage = "Unable to encode zero-less state payload for \(index.rawValue)."
+            return nil
+        }
         let targetURL = literalURL(for: index)
         do {
             try FileManager.default.createDirectory(at: storageRoot, withIntermediateDirectories: true)
             try payload.write(to: targetURL)
+            lastPersistenceErrorMessage = nil
             return targetURL.path
         } catch {
+            lastPersistenceErrorMessage = error.localizedDescription
             return nil
         }
     }
