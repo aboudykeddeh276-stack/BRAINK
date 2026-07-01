@@ -85,9 +85,9 @@ struct ErrorContext {
 }
 
 enum DeadRouteIndex: String {
-    case route_neg3_claude_api = "route:dead:claude_api_403"
-    case route_neg3_mcp_server = "route:dead:mcp_fragile"
-    case route_neg2_copilot_external = "route:dead:copilot_external"
+    case route_dead_claude_api = "route:dead:claude_api_403"
+    case route_dead_mcp_server = "route:dead:mcp_fragile"
+    case route_dead_copilot_external = "route:dead:copilot_external"
 }
 
 enum RecoveryRouteIndex: String {
@@ -111,19 +111,19 @@ struct DeadRouteRegistry {
     }
 
     static let deadRoutes: [DeadRouteIndex: Metadata] = [
-        .route_neg3_claude_api: Metadata(
+        .route_dead_claude_api: Metadata(
             sector: .sect_neg3_input,
             cause: .cause_neg3_malformed,
             recovery: .recovery_1_self_sustained,
             occurrenceRate: 1.0
         ),
-        .route_neg3_mcp_server: Metadata(
+        .route_dead_mcp_server: Metadata(
             sector: .sect_neg3_input,
             cause: .cause_neg3_malformed,
             recovery: .recovery_2_il_llm_local,
             occurrenceRate: 0.95
         ),
-        .route_neg2_copilot_external: Metadata(
+        .route_dead_copilot_external: Metadata(
             sector: .sect_neg2_routing,
             cause: .cause_neg2_invalid_route,
             recovery: .recovery_3_deterministic,
@@ -325,7 +325,7 @@ final class BRAINKZeroLessRuntime {
         if containsPhrase("self sustained", in: lower) || containsPhrase("self-sustained", in: lower) {
             return .route_engine_self_sustained
         }
-        if containsPhrase("il-llm", in: lower) || containsWord("illlm", in: lower) {
+        if containsPhrase("il-llm", in: lower) || containsPhrase("il_llm", in: lower) {
             return .route_engine_il_llm_local
         }
         if containsWord("proof", in: lower) {
