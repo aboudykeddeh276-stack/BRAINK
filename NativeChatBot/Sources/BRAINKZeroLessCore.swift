@@ -189,29 +189,25 @@ final class BRAINKZeroLessRuntime {
                 errorContext: nil
             )
         } catch let error as RuntimeError {
-            let errorContext = ErrorContext(
+            let errorContext = buildErrorContext(
                 processingStage: error.stage,
                 errorSector: error.sector,
                 failureCause: error.cause,
                 message: error.message,
-                hardwareSlotBoundary: ZeroLessIndexEngine.mapToUncompressedLiteralState(index: error.stage.toZeroLessIndex()),
                 recoveryPath: error.recoveryStage?.rawValue,
-                occurrenceRate: error.occurrenceRate,
-                timestamp: Date()
+                occurrenceRate: error.occurrenceRate
             )
             errorHistory.append(errorContext)
             let recoveryRoute = error.recoveryRoute ?? .recovery_1_self_sustained
             return await executeRecoveryChain(input: userInput, recovery: recoveryRoute, originatingContext: errorContext)
         } catch {
-            let errorContext = ErrorContext(
+            let errorContext = buildErrorContext(
                 processingStage: .stage_execution_dispatch,
                 errorSector: .sect_1_execution,
                 failureCause: .cause_1_execution_failed,
                 message: error.localizedDescription,
-                hardwareSlotBoundary: ZeroLessIndexEngine.mapToUncompressedLiteralState(index: ZeroLessIndex.observer_singular),
                 recoveryPath: RecoveryRouteIndex.recovery_1_self_sustained.rawValue,
-                occurrenceRate: 1.0,
-                timestamp: Date()
+                occurrenceRate: 1.0
             )
             errorHistory.append(errorContext)
             return await executeRecoveryChain(input: userInput, recovery: .recovery_1_self_sustained, originatingContext: errorContext)
@@ -344,20 +340,38 @@ final class BRAINKZeroLessRuntime {
 
     private func buildDeadRouteContext(_ route: DeadRouteIndex) -> ErrorContext {
         let metadata = DeadRouteRegistry.deadRoutes[route] ?? DeadRouteRegistry.defaultMetadata
-        return ErrorContext(
+        return buildErrorContext(
             processingStage: .stage_route_classification,
             errorSector: metadata.sector,
             failureCause: metadata.cause,
             message: "Dead route blocked: \(route.rawValue)",
-            hardwareSlotBoundary: ZeroLessIndexEngine.mapToUncompressedLiteralState(index: ZeroLessIndex.state_negative_two),
             recoveryPath: metadata.recovery.rawValue,
-            occurrenceRate: metadata.occurrenceRate,
-            timestamp: Date()
+            occurrenceRate: metadata.occurrenceRate
         )
     }
 
     private func tokenSet(for text: String) -> Set<String> {
         Set(text.split(whereSeparator: { !$0.isLetter && !$0.isNumber }).lazy.map { String($0).lowercased() })
+    }
+
+    private func buildErrorContext(
+        processingStage: RuntimeProcessStage,
+        errorSector: ErrorSectorIndex,
+        failureCause: FailureCauseIndex,
+        message: String,
+        recoveryPath: String?,
+        occurrenceRate: Double
+    ) -> ErrorContext {
+        ErrorContext(
+            processingStage: processingStage,
+            errorSector: errorSector,
+            failureCause: failureCause,
+            message: message,
+            hardwareSlotBoundary: ZeroLessIndexEngine.mapToUncompressedLiteralState(index: processingStage.toZeroLessIndex()),
+            recoveryPath: recoveryPath,
+            occurrenceRate: occurrenceRate,
+            timestamp: Date()
+        )
     }
 
     private func liveRoute(for recovery: RecoveryRouteIndex) -> ZeroLessRouteIdentifier {
