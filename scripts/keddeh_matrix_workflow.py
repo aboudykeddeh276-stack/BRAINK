@@ -891,7 +891,7 @@ def script_full_workflow(output_dir: str = "reports") -> Dict[str, Any]:
             "✓ Comprehensive test suite passes all tests",
             "✓ Visualization ready for publication",
             "✓ Nested Core Runtime system integrated with zero-less indexing",
-            "✓ Workflow orchestrator enriched with user interface creator skills",
+            "✓ Capacity management and structural audit capabilities added to workflow orchestrator",
         ],
     }
     
