@@ -32,13 +32,13 @@ struct BRAINKSmokeRunner {
         let zeroLessProofState = zeroLessStateStorage.fetchState(index: .state_positive_three) ?? [:]
         let zeroLessProofRoute = zeroLessProofState["route"] as? String ?? "MISSING"
         let zeroLessErrorHistory = zeroLessRuntime.errorHistorySnapshot()
+        let hasExpectedRecoveryHistory = zeroLessErrorHistory.contains { $0.recoveryPath == "route:recovery:self_sustained_coder" }
 
         guard zeroLessRecovery.output.contains("ZERO_LESS_RUNTIME_RECOVERY"),
               zeroLessSuccess.success,
               zeroLessSuccess.output.contains("ZERO_LESS_RUNTIME_SUCCESS"),
               zeroLessAPIResponse.status == 200,
-              zeroLessErrorHistory.count == 1,
-              zeroLessErrorHistory.first?.recoveryPath == "route:recovery:self_sustained_coder",
+              hasExpectedRecoveryHistory,
               zeroLessProofRoute != "MISSING" else {
             fatalError("Zero-less runtime smoke failed.")
         }

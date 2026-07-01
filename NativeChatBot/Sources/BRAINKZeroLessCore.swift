@@ -133,10 +133,6 @@ struct DeadRouteRegistry {
         )
     ]
 
-    static func isBanned(_ route: DeadRouteIndex) -> Bool {
-        deadRoutes[route] != nil
-    }
-
     static func getRecoveryPath(_ route: DeadRouteIndex) -> RecoveryRouteIndex? {
         deadRoutes[route]?.recovery
     }
@@ -145,17 +141,17 @@ struct DeadRouteRegistry {
 final class BRAINKZeroLessRuntime {
     private struct RoutePattern {
         let route: ZeroLessRouteIdentifier
-        let phrases: [String]
+        let phraseTokens: [[String]]
         let requiredTokens: [String]
     }
 
     private static let routePatterns: [RoutePattern] = [
-        RoutePattern(route: .route_dead_claude_api, phrases: ["claude api"], requiredTokens: ["claude", "403"]),
-        RoutePattern(route: .route_dead_mcp_server, phrases: ["mcp server"], requiredTokens: ["mcp"]),
-        RoutePattern(route: .route_dead_copilot_external, phrases: ["copilot external"], requiredTokens: ["copilot"]),
-        RoutePattern(route: .route_engine_self_sustained, phrases: ["self sustained", "self-sustained"], requiredTokens: []),
-        RoutePattern(route: .route_engine_il_llm_local, phrases: ["il-llm", "il_llm"], requiredTokens: []),
-        RoutePattern(route: .route_engine_deterministic_proof, phrases: [], requiredTokens: ["proof"])
+        RoutePattern(route: .route_dead_claude_api, phraseTokens: [["claude", "api"]], requiredTokens: ["claude", "403"]),
+        RoutePattern(route: .route_dead_mcp_server, phraseTokens: [["mcp", "server"]], requiredTokens: ["mcp"]),
+        RoutePattern(route: .route_dead_copilot_external, phraseTokens: [["copilot", "external"]], requiredTokens: ["copilot"]),
+        RoutePattern(route: .route_engine_self_sustained, phraseTokens: [["self", "sustained"]], requiredTokens: []),
+        RoutePattern(route: .route_engine_il_llm_local, phraseTokens: [["il", "llm"]], requiredTokens: []),
+        RoutePattern(route: .route_engine_deterministic_proof, phraseTokens: [], requiredTokens: ["proof"])
     ]
 
     private let orchestrator = BRAINKZeroLessEngineOrchestrator()
@@ -167,10 +163,9 @@ final class BRAINKZeroLessRuntime {
             let validatedInput = try await stage_inputReception(userInput)
             let selectedRoute = try await stage_routeClassification(validatedInput)
 
-            if let deadRoute = selectedRoute.deadRoute, DeadRouteRegistry.isBanned(deadRoute) {
+            if let deadRoute = selectedRoute.deadRoute, let recoveryRoute = DeadRouteRegistry.getRecoveryPath(deadRoute) {
                 let bannedRouteContext = buildDeadRouteContext(deadRoute)
                 errorHistory.append(bannedRouteContext)
-                let recoveryRoute = DeadRouteRegistry.getRecoveryPath(deadRoute) ?? .recovery_1_self_sustained
                 return await executeRecoveryChain(input: validatedInput, recovery: recoveryRoute, originatingContext: bannedRouteContext)
             }
 
@@ -328,7 +323,7 @@ final class BRAINKZeroLessRuntime {
         let lower = input.lowercased()
         let tokens = tokenSet(for: lower)
         for pattern in Self.routePatterns {
-            if pattern.phrases.contains(where: lower.contains) {
+            if pattern.phraseTokens.contains(where: { phrase in phrase.allSatisfy(tokens.contains) }) {
                 return pattern.route
             }
             if !pattern.requiredTokens.isEmpty && pattern.requiredTokens.allSatisfy(tokens.contains) {
