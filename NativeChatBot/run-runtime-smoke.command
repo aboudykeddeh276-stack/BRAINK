@@ -27,7 +27,8 @@ struct BRAINKSmokeRunner {
 
         let zeroLessRecovery = await zeroLessRuntime.executeProcessChain(userInput: "Claude API 403")
         let zeroLessSuccess = await zeroLessRuntime.executeProcessChain(userInput: "self sustained coder proof")
-        let zeroLessAPIResponse = await zeroLessAPI.handleHTTPRequest(path: "/zero-less/runtime", body: Data("proof packet".utf8))
+        let zeroLessAPIRequestBody = Data("proof packet".utf8)
+        let zeroLessAPIResponse = await zeroLessAPI.handleHTTPRequest(path: "/zero-less/runtime", body: zeroLessAPIRequestBody)
         let zeroLessProofState = zeroLessStateStorage.fetchState(index: .state_positive_three) ?? [:]
         let zeroLessProofRoute = zeroLessProofState["route"] as? String ?? "MISSING"
 

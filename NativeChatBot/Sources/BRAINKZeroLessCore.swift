@@ -103,10 +103,32 @@ enum ZeroLessIndexEngine {
 }
 
 struct DeadRouteRegistry {
-    static let deadRoutes: [DeadRouteIndex: (sector: ErrorSectorIndex, cause: FailureCauseIndex, recovery: RecoveryRouteIndex, occurrenceRate: Double)] = [
-        .route_neg3_claude_api: (.sect_neg3_input, .cause_neg3_malformed, .recovery_1_self_sustained, 1.0),
-        .route_neg3_mcp_server: (.sect_neg3_input, .cause_neg3_malformed, .recovery_2_il_llm_local, 0.95),
-        .route_neg2_copilot_external: (.sect_neg2_routing, .cause_neg2_invalid_route, .recovery_3_deterministic, 1.0)
+    struct Metadata {
+        let sector: ErrorSectorIndex
+        let cause: FailureCauseIndex
+        let recovery: RecoveryRouteIndex
+        let occurrenceRate: Double
+    }
+
+    static let deadRoutes: [DeadRouteIndex: Metadata] = [
+        .route_neg3_claude_api: Metadata(
+            sector: .sect_neg3_input,
+            cause: .cause_neg3_malformed,
+            recovery: .recovery_1_self_sustained,
+            occurrenceRate: 1.0
+        ),
+        .route_neg3_mcp_server: Metadata(
+            sector: .sect_neg3_input,
+            cause: .cause_neg3_malformed,
+            recovery: .recovery_2_il_llm_local,
+            occurrenceRate: 0.95
+        ),
+        .route_neg2_copilot_external: Metadata(
+            sector: .sect_neg2_routing,
+            cause: .cause_neg2_invalid_route,
+            recovery: .recovery_3_deterministic,
+            occurrenceRate: 1.0
+        )
     ]
 
     static func isBanned(_ route: DeadRouteIndex) -> Bool {
@@ -263,10 +285,19 @@ final class BRAINKZeroLessRuntime {
     private func executeRecoveryChain(input: String, recovery: RecoveryRouteIndex, originatingContext: ErrorContext?) async -> (success: Bool, output: String, errorContext: ErrorContext?) {
         let fallbackRoute = liveRoute(for: recovery)
         let recoveryExecution = await orchestrator.executeMultiEngine(route: fallbackRoute, input: input)
-        let serializedOutput = (try? await stage_outputGeneration("RECOVERY_EXECUTED::\(recovery.rawValue)::\(recoveryExecution)", route: fallbackRoute))
-            ?? "SERIALIZED_OUTPUT_STAGE_2::\(fallbackRoute.rawValue)::RECOVERY_FALLBACK"
-        let proofArtifact = (try? await stage_proofGeneration(serializedOutput, route: fallbackRoute))
-            ?? "PROOF_ARTIFACT_STAGE_3::\(fallbackRoute.rawValue)::RECOVERY_FALLBACK"
+        let serializedOutput: String
+        do {
+            serializedOutput = try await stage_outputGeneration("RECOVERY_EXECUTED::\(recovery.rawValue)::\(recoveryExecution)", route: fallbackRoute)
+        } catch {
+            serializedOutput = "SERIALIZED_OUTPUT_STAGE_2::\(fallbackRoute.rawValue)::RECOVERY_FALLBACK::ERROR=\(error.localizedDescription)"
+        }
+
+        let proofArtifact: String
+        do {
+            proofArtifact = try await stage_proofGeneration(serializedOutput, route: fallbackRoute)
+        } catch {
+            proofArtifact = "PROOF_ARTIFACT_STAGE_3::\(fallbackRoute.rawValue)::RECOVERY_FALLBACK::ERROR=\(error.localizedDescription)"
+        }
 
         return (
             success: true,
@@ -282,29 +313,34 @@ final class BRAINKZeroLessRuntime {
 
     private func classifyRoute(_ input: String) -> ZeroLessRouteIdentifier {
         let lower = input.lowercased()
-        if lower.contains("claude") || lower.contains("403") {
+        if containsPhrase("claude api", in: lower) || (containsWord("claude", in: lower) && containsWord("403", in: lower)) {
             return .route_dead_claude_api
         }
-        if lower.contains("mcp") {
+        if containsPhrase("mcp server", in: lower) || containsWord("mcp", in: lower) {
             return .route_dead_mcp_server
         }
-        if lower.contains("copilot") {
+        if containsPhrase("copilot external", in: lower) || containsWord("copilot", in: lower) {
             return .route_dead_copilot_external
         }
-        if lower.contains("self sustained") || lower.contains("self-sustained") {
+        if containsPhrase("self sustained", in: lower) || containsPhrase("self-sustained", in: lower) {
             return .route_engine_self_sustained
         }
-        if lower.contains("il-llm") || lower.contains("illlm") {
+        if containsPhrase("il-llm", in: lower) || containsWord("illlm", in: lower) {
             return .route_engine_il_llm_local
         }
-        if lower.contains("proof") {
+        if containsWord("proof", in: lower) {
             return .route_engine_deterministic_proof
         }
         return .route_engine_multi_observer
     }
 
     private func buildDeadRouteContext(_ route: DeadRouteIndex) -> ErrorContext {
-        let metadata = DeadRouteRegistry.deadRoutes[route] ?? (.sect_neg3_input, .cause_neg3_malformed, .recovery_1_self_sustained, 1.0)
+        let metadata = DeadRouteRegistry.deadRoutes[route] ?? DeadRouteRegistry.Metadata(
+            sector: .sect_neg3_input,
+            cause: .cause_neg3_malformed,
+            recovery: .recovery_1_self_sustained,
+            occurrenceRate: 1.0
+        )
         return ErrorContext(
             processingStage: .stage_route_classification,
             errorSector: metadata.sector,
@@ -315,6 +351,15 @@ final class BRAINKZeroLessRuntime {
             occurrenceRate: metadata.occurrenceRate,
             timestamp: Date()
         )
+    }
+
+    private func containsPhrase(_ phrase: String, in text: String) -> Bool {
+        text.contains(phrase)
+    }
+
+    private func containsWord(_ token: String, in text: String) -> Bool {
+        let pattern = "\\b" + NSRegularExpression.escapedPattern(for: token) + "\\b"
+        return text.range(of: pattern, options: .regularExpression) != nil
     }
 
     private func liveRoute(for recovery: RecoveryRouteIndex) -> ZeroLessRouteIdentifier {

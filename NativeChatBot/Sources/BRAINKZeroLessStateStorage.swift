@@ -7,12 +7,11 @@ final class BRAINKZeroLessStateStorage {
 
     @discardableResult
     func persistState(index: ZeroLessIndex, data: [String: Any]) -> String? {
-        guard JSONSerialization.isValidJSONObject(data) else { return nil }
-        let payload = uncompressedMapping(data, index: index)
+        guard let payload = encodedPayload(data, index: index) else { return nil }
         let targetURL = literalURL(for: index)
         do {
             try FileManager.default.createDirectory(at: storageRoot, withIntermediateDirectories: true)
-            try payload.write(to: targetURL, atomically: true, encoding: .utf8)
+            try payload.write(to: targetURL)
             return targetURL.path
         } catch {
             return nil
@@ -33,14 +32,10 @@ final class BRAINKZeroLessStateStorage {
         storageRoot.appendingPathComponent("state_\(index.rawValue).json")
     }
 
-    private func uncompressedMapping(_ data: [String: Any], index: ZeroLessIndex) -> String {
+    private func encodedPayload(_ data: [String: Any], index: ZeroLessIndex) -> Data? {
         let enrichedData = data.merging([
             "literal_index_boundary": ZeroLessIndexEngine.mapToUncompressedLiteralState(index: index)
         ]) { current, _ in current }
-        guard let encoded = try? JSONSerialization.data(withJSONObject: enrichedData, options: [.prettyPrinted, .sortedKeys]),
-              let text = String(data: encoded, encoding: .utf8) else {
-            return "{}"
-        }
-        return text
+        return try? JSONSerialization.data(withJSONObject: enrichedData, options: [.prettyPrinted, .sortedKeys])
     }
 }
