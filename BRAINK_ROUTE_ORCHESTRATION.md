@@ -8,7 +8,7 @@ The native workflow drives the existing BRAINK routes directly through `BRAINKCh
 | --- | --- | --- |
 | `knowledge center status` | `knowledge_center_status` | IL-LLM runtime status and memory snapshot |
 | `proof packet` | `proof_packet` | Local proof packet JSON when external proof tooling is unavailable |
-| transition / definition / state language | `kex_hyperdrive` | `NativeChatBot/build/kex_hyperdrive_repo_calibration_report.json` |
+| transition / definition / state language | `kex_hyperdrive` | `NativeChatBot/build/kex_hyperdrive_transition_definition_report.json` and `NativeChatBot/build/kex_hyperdrive_repo_calibration_report.json` |
 | self-sustained coding language | `self_sustained_coder` | `NativeChatBot/build/kex_self_sustained_coding_report.json` |
 | stack audit language | `stack_audit` | `NativeChatBot/build/braink_stack_alignment_report.json` and `NativeChatBot/build/braink_module_alignment_audit.json` |
 

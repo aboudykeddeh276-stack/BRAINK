@@ -135,19 +135,42 @@ swiftc \
 
 PRIMARY_SUMMARY="${BUILD_DIR}/braink_primary_orchestration_summary.json"
 FALLBACK_SUMMARY="${BUILD_DIR}/braink_fallback_orchestration_summary.json"
+FALLBACK_PROBE_ENDPOINT="${BRAINK_FALLBACK_PROBE_ENDPOINT:-http://127.0.0.1:9}"
 
 BRAINK_ORCHESTRATION_PROFILE="primary" \
 BRAINK_ORCHESTRATION_OUTPUT="${PRIMARY_SUMMARY}" \
 "${TMP_BIN}"
 
+python3 - "${FALLBACK_PROBE_ENDPOINT}" <<'PY'
+from __future__ import annotations
+
+import socket
+import sys
+from urllib.parse import urlparse
+
+endpoint = urlparse(sys.argv[1])
+host = endpoint.hostname
+port = endpoint.port or (443 if endpoint.scheme == "https" else 80)
+
+if not host:
+    raise SystemExit("Fallback probe endpoint is missing a hostname")
+
+with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+    sock.settimeout(0.2)
+    reachable = sock.connect_ex((host, port)) == 0
+
+if reachable:
+    raise SystemExit(f"Fallback probe endpoint is reachable: {sys.argv[1]}")
+PY
+
 BRAINK_RUNTIME_MODE="bridged" \
-BRAINK_CHAT_RUNTIME="${BRAINK_FALLBACK_PROBE_ENDPOINT:-http://127.0.0.1:9}" \
+BRAINK_CHAT_RUNTIME="${FALLBACK_PROBE_ENDPOINT}" \
 BRAINK_ORCHESTRATION_PROFILE="fallback_probe" \
 BRAINK_ORCHESTRATION_OUTPUT="${FALLBACK_SUMMARY}" \
 IL_LLM_RUNTIME_PATH="${IL_LLM_RUNTIME_PATH}" \
 "${TMP_BIN}"
 
-cp "${BUILD_DIR}/braink_stack_alignment_report.json" "${BUILD_DIR}/braink_module_alignment_audit.json"
+ln -sfn "braink_stack_alignment_report.json" "${BUILD_DIR}/braink_module_alignment_audit.json"
 
 python3 - "${PRIMARY_SUMMARY}" "${FALLBACK_SUMMARY}" "${BUILD_DIR}" <<'PY'
 from __future__ import annotations
@@ -164,7 +187,7 @@ build_dir = Path(sys.argv[3])
 
 primary = json.loads(primary_path.read_text())
 fallback = json.loads(fallback_path.read_text())
-module_audit = json.loads((build_dir / "braink_module_alignment_audit.json").read_text())
+module_audit = json.loads((build_dir / "braink_stack_alignment_report.json").read_text())
 
 proof_packet = {"raw": ""}
 for route in primary["routeResults"]:
