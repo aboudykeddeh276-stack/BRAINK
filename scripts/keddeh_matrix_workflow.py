@@ -25,7 +25,7 @@ import json
 import sys
 import traceback
 from pathlib import Path
-from typing import Dict, List, Any
+from typing import Callable, Dict, List, Any, Tuple
 from dataclasses import dataclass, asdict
 
 # ---------------------------------------------------------------------------
@@ -795,7 +795,7 @@ def script_full_workflow(output_dir: str = "reports") -> Dict[str, Any]:
 # Main Entry Point
 # ============================================================================
 
-def _print_usage(scripts: dict) -> None:
+def _print_usage(scripts: Dict[str, Tuple[str, Callable]]) -> None:
     """Emit the full parameter table so every failure surface carries context."""
     print("Usage: python3 keddeh_matrix_workflow.py <command> [output_dir]")
     print()
@@ -818,7 +818,7 @@ def _print_usage(scripts: dict) -> None:
 
 def main() -> int:
     """Command-line interface for workflow scripts."""
-    scripts: dict = {
+    scripts: Dict[str, Tuple[str, Callable]] = {
         "1": ("init_framework", script_init_keddeh_framework),
         "2": ("validate_arithmetic", script_validate_arithmetic_operations),
         "3": ("calibrate_physical", script_test_physical_calibration),
@@ -878,7 +878,7 @@ def main() -> int:
                         )
                 return EXIT_SCRIPT_FAILURE
         return EXIT_OK
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:  # noqa: BLE001 — intentional: any unhandled exception from a script function must be caught here so the CLI can emit a structured EXIT_CODE line and return a distinct code rather than propagating an uncontrolled traceback with exit code 1.
         print(
             f"EXIT_CODE={EXIT_UNEXPECTED_ERROR} REASON=UNHANDLED_EXCEPTION "
             f"command={command!r} alias={alias!r} "
