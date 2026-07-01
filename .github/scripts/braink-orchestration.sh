@@ -19,7 +19,9 @@ if [[ "${BRAINK_RUNTIME_MODE}" != "bridged" ]]; then
 fi
 
 if [[ -z "${BRAINK_CHAT_RUNTIME:-}" ]]; then
-  unset BRAINK_CHAT_RUNTIME || true
+  if [[ -v BRAINK_CHAT_RUNTIME ]]; then
+    unset BRAINK_CHAT_RUNTIME
+  fi
   export BRAINK_RUNTIME_MODE="deterministic"
 fi
 
@@ -157,6 +159,8 @@ from urllib.parse import urlparse
 endpoint = urlparse(sys.argv[1])
 timeout_seconds = float(sys.argv[2])
 host = endpoint.hostname
+if endpoint.scheme not in {"http", "https"}:
+    raise SystemExit(f"Fallback probe endpoint must use http or https: {sys.argv[1]}")
 if endpoint.port is not None:
     port = endpoint.port
 else:
@@ -167,9 +171,9 @@ if not host:
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
     sock.settimeout(timeout_seconds)
-    is_reachable = sock.connect_ex((host, port)) == 0
+    endpoint_is_reachable = sock.connect_ex((host, port)) == 0
 
-if is_reachable:
+if endpoint_is_reachable:
     raise SystemExit(f"Fallback probe endpoint is reachable: {sys.argv[1]}")
 PY
 
@@ -182,7 +186,7 @@ IL_LLM_RUNTIME_PATH="${IL_LLM_RUNTIME_PATH}" \
 
 ln -sfn "braink_stack_alignment_report.json" "${BUILD_DIR}/braink_module_alignment_audit.json"
 
-python3 - "${PRIMARY_SUMMARY}" "${FALLBACK_SUMMARY}" "${BUILD_DIR}" <<'PY'
+python3 - "${PRIMARY_SUMMARY}" "${FALLBACK_SUMMARY}" "${BUILD_DIR}" "${ROOT}" <<'PY'
 from __future__ import annotations
 
 import hashlib
@@ -194,6 +198,7 @@ from pathlib import Path
 primary_path = Path(sys.argv[1])
 fallback_path = Path(sys.argv[2])
 build_dir = Path(sys.argv[3])
+repo_root = Path(sys.argv[4])
 
 primary = json.loads(primary_path.read_text())
 fallback = json.loads(fallback_path.read_text())
@@ -225,7 +230,7 @@ for path in artifact_paths:
     data = path.read_bytes()
     artifacts.append(
         {
-            "path": str(path.relative_to(build_dir.parent.parent)),
+            "path": str(path.relative_to(repo_root)),
             "bytes": len(data),
             "sha256": hashlib.sha256(data).hexdigest(),
         }
