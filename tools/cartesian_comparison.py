@@ -416,9 +416,14 @@ class ComparisonHarness:
         import random
         random.seed(42)
 
+        # Range [0.1, 5.0] ensures all entries are non-zero KeddehValues and
+        # the sign is randomised to produce a realistic mixed-sign matrix.
+        _BENCH_MIN_VALUE: float = 0.1
+        _BENCH_MAX_VALUE: float = 5.0
+
         def rand_matrix(n: int) -> List[List[float]]:
             return [
-                [random.uniform(0.1, 5.0) * (1 if random.random() > 0.5 else -1)
+                [random.uniform(_BENCH_MIN_VALUE, _BENCH_MAX_VALUE) * (1 if random.random() > 0.5 else -1)
                  for _ in range(n)]
                 for _ in range(n)
             ]

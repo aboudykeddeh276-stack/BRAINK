@@ -325,8 +325,11 @@ class QuantumCalibrationTest:
 
         # Probability normalisation without zero
         # ∫ |ψ(x)|² dx ≈ 1 (discrete approximation)
+        # Sample range: -5.0 to +5.0 in steps of 0.01, skipping the boundary at 0.
+        _PROB_SAMPLE_START: int = -500
+        _PROB_SAMPLE_END: int = 501
         dx = 0.01
-        xs = [i * dx for i in range(-500, 501) if i != 0]   # skip zero
+        xs = [i * dx for i in range(_PROB_SAMPLE_START, _PROB_SAMPLE_END) if i != 0]
         prob_sum = sum(self._gaussian_amplitude(x, mu, sigma) ** 2 * dx for x in xs)
         results.append({
             "test": "probability_normalisation_without_zero",

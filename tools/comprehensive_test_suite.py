@@ -145,9 +145,9 @@ def suite_keddeh_arithmetic(core) -> TestSuite:
     ts.run("divide_pos", lambda: _assert_close(A.divide(V(6.0), V(2.0)).value, 3.0))
     ts.run("divide_neg_neg", lambda: _assert_close(A.divide(V(-6.0), V(-2.0)).value, 3.0))
     ts.run("divide_boundary_raises_on_zero_result", lambda: (
-        # Float underflow: 5e-324 / 1e300 produces 0.0 via IEEE-754 underflow,
-        # which the engine correctly identifies as a boundary event.
-        _assert_raises(core.BoundaryEvent, lambda: A.divide(V(5e-324), V(1e300)))
+        # 1e-15 is valid (exactly at epsilon boundary), and dividing by 2.0
+        # produces 5e-16 which is below _BOUNDARY_EPSILON, triggering BoundaryEvent.
+        _assert_raises(core.BoundaryEvent, lambda: A.divide(V(1e-15), V(2.0)))
     ))
     ts.run("boundary_distance", lambda: _assert_close(
         A.boundary_distance(V(2.0), V(5.0)), 3.0

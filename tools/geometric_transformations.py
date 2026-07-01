@@ -45,14 +45,9 @@ def rotation_2d_keddeh(angle_rad: float, epsilon: float = 1e-10) -> KeddehMatrix
     c = math.cos(angle_rad)
     s = math.sin(angle_rad)
 
-    def to_keddeh(v: float) -> float:
-        if v == 0.0:
-            return epsilon   # boundary nudge — documented design choice
-        return v
-
     return KeddehMatrix.from_values([
-        [to_keddeh(c), -to_keddeh(s) if s != 0 else -epsilon],
-        [to_keddeh(s),  to_keddeh(c)],
+        [_safe_keddeh(c, epsilon), -_safe_keddeh(s, epsilon)],
+        [_safe_keddeh(s, epsilon),  _safe_keddeh(c, epsilon)],
     ])
 
 
@@ -88,25 +83,40 @@ def rotation_3d_z_cartesian(angle_rad: float) -> CartesianMatrix:
     ])
 
 
+# Threshold below which a rotation component is treated as the observer boundary.
+# Must match KeddehValue._BOUNDARY_EPSILON.
+_KEDDEH_BOUNDARY_EPSILON = 1e-15
+
+
 def _safe_keddeh(v: float, eps: float = 1e-10) -> float:
-    return eps if v == 0.0 else v
+    """Return `v` if it is a valid KeddehValue, otherwise nudge to ±eps."""
+    return math.copysign(eps, v) if abs(v) < _KEDDEH_BOUNDARY_EPSILON else v
 
 
 def rotation_3d_x_keddeh(angle_rad: float) -> KeddehMatrix:
     c, s = math.cos(angle_rad), math.sin(angle_rad)
     return KeddehMatrix.from_values([
-        [_safe_keddeh(1.0), _safe_keddeh(0.0),  _safe_keddeh(0.0)],
-        [_safe_keddeh(0.0), _safe_keddeh(c),    _safe_keddeh(-s) if s != 0 else -1e-10],
-        [_safe_keddeh(0.0), _safe_keddeh(s),    _safe_keddeh(c)],
+        [_safe_keddeh(1.0), _safe_keddeh(0.0),   _safe_keddeh(0.0)],
+        [_safe_keddeh(0.0), _safe_keddeh(c),     -_safe_keddeh(s)],
+        [_safe_keddeh(0.0), _safe_keddeh(s),      _safe_keddeh(c)],
     ])
 
 
 def rotation_3d_y_keddeh(angle_rad: float) -> KeddehMatrix:
     c, s = math.cos(angle_rad), math.sin(angle_rad)
     return KeddehMatrix.from_values([
-        [_safe_keddeh(c),    _safe_keddeh(0.0), _safe_keddeh(s)],
-        [_safe_keddeh(0.0),  _safe_keddeh(1.0), _safe_keddeh(0.0)],
-        [_safe_keddeh(-s) if s != 0 else -1e-10, _safe_keddeh(0.0), _safe_keddeh(c)],
+        [ _safe_keddeh(c),    _safe_keddeh(0.0),  _safe_keddeh(s)],
+        [ _safe_keddeh(0.0),  _safe_keddeh(1.0),  _safe_keddeh(0.0)],
+        [-_safe_keddeh(s),    _safe_keddeh(0.0),  _safe_keddeh(c)],
+    ])
+
+
+def rotation_3d_z_keddeh(angle_rad: float) -> KeddehMatrix:
+    c, s = math.cos(angle_rad), math.sin(angle_rad)
+    return KeddehMatrix.from_values([
+        [ _safe_keddeh(c),  -_safe_keddeh(s),  _safe_keddeh(0.0)],
+        [ _safe_keddeh(s),   _safe_keddeh(c),  _safe_keddeh(0.0)],
+        [ _safe_keddeh(0.0), _safe_keddeh(0.0), _safe_keddeh(1.0)],
     ])
 
 
@@ -192,7 +202,7 @@ class GeometricTransformationTest:
             for axis, c_fn, k_fn in [
                 ("x", rotation_3d_x_cartesian, rotation_3d_x_keddeh),
                 ("y", rotation_3d_y_cartesian, rotation_3d_y_keddeh),
-                ("z", rotation_3d_z_cartesian, lambda r: rotation_3d_x_keddeh(r)),
+                ("z", rotation_3d_z_cartesian, rotation_3d_z_keddeh),
             ]:
                 cm = c_fn(rad)
                 c_det = cm.determinant()

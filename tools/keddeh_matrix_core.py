@@ -44,8 +44,11 @@ class KeddehValue:
     """
     value: float
 
+    # Smallest value considered distinguishable from the observer boundary.
+    _BOUNDARY_EPSILON: float = 1e-15
+
     def __post_init__(self) -> None:
-        if self.value == 0.0:
+        if abs(self.value) < self._BOUNDARY_EPSILON:
             raise ValueError(
                 "Zero is the observer boundary reference frame, not a Keddeh value. "
                 "Use ObserverState.BOUNDARY to represent the observer's position."
@@ -84,6 +87,13 @@ class KeddehArithmetic:
     - Inversion is instantaneous, not gradual.
     """
 
+    # Epsilon for detecting boundary proximity in arithmetic results.
+    _BOUNDARY_EPSILON: float = 1e-15
+
+    @staticmethod
+    def _is_boundary(v: float) -> bool:
+        return abs(v) < KeddehArithmetic._BOUNDARY_EPSILON
+
     @staticmethod
     def add(a: KeddehValue, b: KeddehValue) -> KeddehValue:
         """Add two Keddeh values.
@@ -92,7 +102,7 @@ class KeddehArithmetic:
         because the result is an observer-state event, not a natural number.
         """
         result = a.value + b.value
-        if result == 0.0:
+        if KeddehArithmetic._is_boundary(result):
             raise BoundaryEvent(
                 f"Addition {a.value} + {b.value} = 0: this is an observer-state "
                 "boundary crossing, not a natural number result. "
@@ -107,7 +117,7 @@ class KeddehArithmetic:
         Subtraction crossing the boundary (a = b) produces a BoundaryEvent.
         """
         result = a.value - b.value
-        if result == 0.0:
+        if KeddehArithmetic._is_boundary(result):
             raise BoundaryEvent(
                 f"Subtraction {a.value} - {b.value} = 0: observer boundary event. "
                 "Both values are at identical magnitudes on the same side."
@@ -124,7 +134,7 @@ class KeddehArithmetic:
         the observer boundary.
         """
         result = a.value * b.value
-        # Result cannot be zero because neither operand can be zero.
+        # Result cannot be boundary because neither operand can be boundary.
         return KeddehValue(result)
 
     @staticmethod
@@ -138,9 +148,9 @@ class KeddehArithmetic:
         is already prevented by the type system.
         """
         result = a.value / b.value
-        if result == 0.0:
+        if KeddehArithmetic._is_boundary(result):
             raise BoundaryEvent(
-                f"Division {a.value} / {b.value} = 0: observer boundary event."
+                f"Division {a.value} / {b.value} ≈ 0: observer boundary event."
             )
         return KeddehValue(result)
 
@@ -148,7 +158,7 @@ class KeddehArithmetic:
     def power(base: KeddehValue, exponent: KeddehValue) -> KeddehValue:
         """Raise base to the power of exponent."""
         result = base.value ** exponent.value
-        if result == 0.0:
+        if KeddehArithmetic._is_boundary(result):
             raise BoundaryEvent("Power result is the observer boundary — not a Keddeh value.")
         return KeddehValue(result)
 
@@ -248,7 +258,7 @@ class KeddehMatrix:
                     self.data[r][k].value * other.data[k][c].value
                     for k in range(self.cols)
                 )
-                if total == 0.0:
+                if abs(total) < KeddehArithmetic._BOUNDARY_EPSILON:
                     raise BoundaryEvent(
                         f"Matrix product at ({r+1},{c+1}) = 0: observer boundary event. "
                         "The Keddeh matrix preserves non-zero state across all products."
@@ -282,7 +292,7 @@ class KeddehMatrix:
         if self.rows != self.cols:
             raise ValueError("Only square matrices have inverses.")
         det = self.determinant()
-        if det == 0.0:
+        if abs(det) < KeddehArithmetic._BOUNDARY_EPSILON:
             raise BoundaryEvent(
                 "Determinant is 0 — observer boundary event. "
                 "This proves dimensional collapse in Cartesian space; in Keddeh "
@@ -297,7 +307,7 @@ class KeddehMatrix:
             row_vals: List[KeddehValue] = []
             for c in range(n):
                 v = inv_data[r][c]
-                if v == 0.0:
+                if abs(v) < KeddehArithmetic._BOUNDARY_EPSILON:
                     raise BoundaryEvent(
                         f"Inverse element at ({r+1},{c+1}) = 0: observer boundary event."
                     )
@@ -338,7 +348,7 @@ class KeddehVector:
         result = []
         for a, b in zip(self.components, other.components):
             total = a.value + b.value
-            if total == 0.0:
+            if abs(total) < KeddehArithmetic._BOUNDARY_EPSILON:
                 raise BoundaryEvent(
                     "Vector addition result component = 0: observer boundary event."
                 )
