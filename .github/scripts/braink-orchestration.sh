@@ -14,7 +14,11 @@ export BRAINK_ALIGNMENT_AUDIT="${BRAINK_ALIGNMENT_AUDIT:-enabled}"
 export IL_LLM_RUNTIME_PATH="${IL_LLM_RUNTIME_PATH:-${ROOT}}"
 export IL_LLM_MEMORY_BUDGET_CHARS="${IL_LLM_MEMORY_BUDGET_CHARS:-2097152}"
 
-if [[ "${BRAINK_RUNTIME_MODE}" != "bridged" || -z "${BRAINK_CHAT_RUNTIME:-}" ]]; then
+if [[ "${BRAINK_RUNTIME_MODE}" != "bridged" ]]; then
+  export BRAINK_RUNTIME_MODE="deterministic"
+fi
+
+if [[ -z "${BRAINK_CHAT_RUNTIME:-}" ]]; then
   unset BRAINK_CHAT_RUNTIME || true
   export BRAINK_RUNTIME_MODE="deterministic"
 fi
@@ -153,16 +157,19 @@ from urllib.parse import urlparse
 endpoint = urlparse(sys.argv[1])
 timeout_seconds = float(sys.argv[2])
 host = endpoint.hostname
-port = endpoint.port or (443 if endpoint.scheme == "https" else 80)
+if endpoint.port is not None:
+    port = endpoint.port
+else:
+    port = 443 if endpoint.scheme == "https" else 80
 
 if not host:
     raise SystemExit("Fallback probe endpoint is missing a hostname")
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
     sock.settimeout(timeout_seconds)
-    reachable = sock.connect_ex((host, port)) == 0
+    is_reachable = sock.connect_ex((host, port)) == 0
 
-if reachable:
+if is_reachable:
     raise SystemExit(f"Fallback probe endpoint is reachable: {sys.argv[1]}")
 PY
 
