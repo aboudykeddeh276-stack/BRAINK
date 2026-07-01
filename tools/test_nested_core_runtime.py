@@ -259,13 +259,6 @@ class TestIntegrationScenarios:
         # Verify no cartesian zero errors
         zero_errors = [r for r in audit_results if "CRITICAL EXCEPTION" in r]
         assert len(zero_errors) == 0
-        
-        print(f"\n✓ Complete workflow scenario passed")
-        print(f"  - Initial Parent:  {initial_parent_meta}")
-        print(f"  - Initial Child:   {initial_child_meta}")
-        print(f"  - Post Parent:     {post_parent_meta}")
-        print(f"  - Post Child:      {post_child_meta}")
-        print(f"  - Audit entries:   {len(audit_results)}")
 
 
 def run_all_tests():
