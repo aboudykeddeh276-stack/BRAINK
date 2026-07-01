@@ -12,6 +12,7 @@ export BRAINK_EXECUTION_POLICY="${BRAINK_EXECUTION_POLICY:-self_sustained_with_p
 export BRAINK_PROOF_GENERATION="${BRAINK_PROOF_GENERATION:-enabled}"
 export BRAINK_ALIGNMENT_AUDIT="${BRAINK_ALIGNMENT_AUDIT:-enabled}"
 export IL_LLM_RUNTIME_PATH="${IL_LLM_RUNTIME_PATH:-${ROOT}}"
+export IL_LLM_MEMORY_BUDGET_CHARS="${IL_LLM_MEMORY_BUDGET_CHARS:-2097152}"
 
 if [[ "${BRAINK_RUNTIME_MODE}" != "bridged" || -z "${BRAINK_CHAT_RUNTIME:-}" ]]; then
   unset BRAINK_CHAT_RUNTIME || true
@@ -136,12 +137,13 @@ swiftc \
 PRIMARY_SUMMARY="${BUILD_DIR}/braink_primary_orchestration_summary.json"
 FALLBACK_SUMMARY="${BUILD_DIR}/braink_fallback_orchestration_summary.json"
 FALLBACK_PROBE_ENDPOINT="${BRAINK_FALLBACK_PROBE_ENDPOINT:-http://127.0.0.1:9}"
+FALLBACK_PROBE_TIMEOUT_SECONDS="${BRAINK_FALLBACK_PROBE_TIMEOUT_SECONDS:-0.2}"
 
 BRAINK_ORCHESTRATION_PROFILE="primary" \
 BRAINK_ORCHESTRATION_OUTPUT="${PRIMARY_SUMMARY}" \
 "${TMP_BIN}"
 
-python3 - "${FALLBACK_PROBE_ENDPOINT}" <<'PY'
+python3 - "${FALLBACK_PROBE_ENDPOINT}" "${FALLBACK_PROBE_TIMEOUT_SECONDS}" <<'PY'
 from __future__ import annotations
 
 import socket
@@ -149,6 +151,7 @@ import sys
 from urllib.parse import urlparse
 
 endpoint = urlparse(sys.argv[1])
+timeout_seconds = float(sys.argv[2])
 host = endpoint.hostname
 port = endpoint.port or (443 if endpoint.scheme == "https" else 80)
 
@@ -156,7 +159,7 @@ if not host:
     raise SystemExit("Fallback probe endpoint is missing a hostname")
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-    sock.settimeout(0.2)
+    sock.settimeout(timeout_seconds)
     reachable = sock.connect_ex((host, port)) == 0
 
 if reachable:

@@ -15,8 +15,8 @@ The native workflow drives the existing BRAINK routes directly through `BRAINKCh
 ## Orchestration flow
 
 1. Start in `bridged` mode when `BRAINK_API_ENDPOINT` is configured; otherwise run deterministic local mode.
-2. Execute the primary route sequence and persist `braink_primary_orchestration_summary.json`.
-3. Execute a fallback probe against an unreachable local endpoint to confirm `system.fallback` behavior and persist `braink_fallback_orchestration_summary.json`.
+2. Execute the primary route sequence and persist `NativeChatBot/build/braink_primary_orchestration_summary.json`.
+3. Execute a fallback probe against an unreachable local endpoint to confirm `system.fallback` behavior and persist `NativeChatBot/build/braink_fallback_orchestration_summary.json`.
 4. Combine route outputs, proof packet content, and artifact hashes into `NativeChatBot/build/braink_delivery_evidence.json`.
 
 ## Proof and audit artifacts

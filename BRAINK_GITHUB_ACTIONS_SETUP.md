@@ -9,6 +9,19 @@ Use `.github/workflows/braink-native-orchestration.yml` instead of Claude/Anthro
 | `BRAINK_API_ENDPOINT` | No | Optional BRAINK bridge endpoint. Leave unset to force deterministic local execution. |
 | `IL_LLM_RUNTIME_PATH` | No | Optional absolute path for IL-LLM context loading. When unset, the workflow uses the checked-out repository root. |
 
+## Variables
+
+| Variable | Required | Purpose |
+| --- | --- | --- |
+| `BRAINK_RUNTIME_MODE` | No | Defaults to `bridged`. The script automatically falls back to deterministic local mode when no endpoint is configured. |
+
+## Advanced overrides
+
+| Environment variable | Required | Purpose |
+| --- | --- | --- |
+| `BRAINK_FALLBACK_PROBE_ENDPOINT` | No | Overrides the unreachable endpoint used to prove fallback behavior. Default: `http://127.0.0.1:9`. |
+| `BRAINK_FALLBACK_PROBE_TIMEOUT_SECONDS` | No | Socket timeout for validating that the fallback probe endpoint is unreachable. Default: `0.2`. |
+
 ## Runtime environment
 
 The workflow sets these environment variables:
