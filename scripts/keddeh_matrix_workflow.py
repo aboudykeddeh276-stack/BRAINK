@@ -23,9 +23,19 @@ Commands:
 
 import json
 import sys
+import traceback
 from pathlib import Path
 from typing import Dict, List, Any
 from dataclasses import dataclass, asdict
+
+# ---------------------------------------------------------------------------
+# Exit codes — explicit named constants so any failure surface carries context
+# ---------------------------------------------------------------------------
+EXIT_OK = 0
+EXIT_MISSING_COMMAND = 2      # no command argument supplied
+EXIT_UNKNOWN_COMMAND = 3      # supplied command is not in the dispatch table
+EXIT_SCRIPT_FAILURE = 4       # one or more pipeline scripts raised an exception
+EXIT_UNEXPECTED_ERROR = 5     # unhandled exception in main dispatch
 
 
 # ============================================================================
@@ -736,6 +746,12 @@ def script_full_workflow(output_dir: str = "reports") -> Dict[str, Any]:
                 "output_keys": list(result.keys()) if isinstance(result, dict) else "N/A",
             })
         except Exception as e:
+            print(
+                f"[LIVE] SCRIPT_FAILURE script={script_name!r} "
+                f"exception_type={type(e).__name__!r} "
+                f"exception_message={str(e)!r}",
+                file=sys.stderr,
+            )
             print(f"✗ {script_name} FAILED: {e}")
             workflow_log["scripts_executed"].append({
                 "name": script_name,
@@ -779,26 +795,30 @@ def script_full_workflow(output_dir: str = "reports") -> Dict[str, Any]:
 # Main Entry Point
 # ============================================================================
 
-def main():
+def _print_usage(scripts: dict) -> None:
+    """Emit the full parameter table so every failure surface carries context."""
+    print("Usage: python3 keddeh_matrix_workflow.py <command> [output_dir]")
+    print()
+    print("Parameters:")
+    print("  command     Required. One of the numeric keys or aliases listed below.")
+    print("  output_dir  Optional. Directory for output artefacts (default: 'reports').")
+    print()
+    print("Available commands:")
+    for key, (alias, _) in sorted(scripts.items()):
+        suffix = "  (runs all scripts in sequence)" if alias == "full_workflow" else ""
+        print(f"  {key}  {alias}{suffix}")
+    print()
+    print("Exit codes:")
+    print(f"  {EXIT_OK}  Success")
+    print(f"  {EXIT_MISSING_COMMAND}  No command argument supplied")
+    print(f"  {EXIT_UNKNOWN_COMMAND}  Supplied command is not recognised")
+    print(f"  {EXIT_SCRIPT_FAILURE}  One or more pipeline scripts raised an exception")
+    print(f"  {EXIT_UNEXPECTED_ERROR}  Unhandled exception in main dispatch")
+
+
+def main() -> int:
     """Command-line interface for workflow scripts."""
-    if len(sys.argv) < 2:
-        print("Usage: python3 keddeh_matrix_workflow.py [command] [output_dir]")
-        print("\nAvailable commands:")
-        print("  1. init_framework")
-        print("  2. validate_arithmetic")
-        print("  3. calibrate_physical")
-        print("  4. compare_systems")
-        print("  5. generate_proofs")
-        print("  6. integrate_memory")
-        print("  7. run_tests")
-        print("  8. visualize")
-        print("  9. full_workflow (runs all scripts)")
-        sys.exit(1)
-    
-    command = sys.argv[1]
-    output_dir = sys.argv[2] if len(sys.argv) > 2 else "reports"
-    
-    scripts = {
+    scripts: dict = {
         "1": ("init_framework", script_init_keddeh_framework),
         "2": ("validate_arithmetic", script_validate_arithmetic_operations),
         "3": ("calibrate_physical", script_test_physical_calibration),
@@ -809,14 +829,66 @@ def main():
         "8": ("visualize", script_generate_visualization),
         "9": ("full_workflow", script_full_workflow),
     }
-    
-    if command in scripts:
-        _, script_func = scripts[command]
-        script_func(output_dir)
-    else:
-        print(f"Unknown command: {command}")
-        sys.exit(1)
+
+    if len(sys.argv) < 2:
+        print(
+            f"EXIT_CODE={EXIT_MISSING_COMMAND} REASON=MISSING_REQUIRED_PARAMETER "
+            f"PARAMETER=command RECEIVED=<none>",
+            file=sys.stderr,
+        )
+        _print_usage(scripts)
+        return EXIT_MISSING_COMMAND
+
+    command = sys.argv[1]
+    output_dir = sys.argv[2] if len(sys.argv) > 2 else "reports"
+
+    if command not in scripts:
+        valid_keys = ", ".join(sorted(scripts.keys()))
+        print(
+            f"EXIT_CODE={EXIT_UNKNOWN_COMMAND} REASON=UNKNOWN_COMMAND "
+            f"PARAMETER=command RECEIVED={command!r} VALID=[{valid_keys}]",
+            file=sys.stderr,
+        )
+        _print_usage(scripts)
+        return EXIT_UNKNOWN_COMMAND
+
+    alias, script_func = scripts[command]
+    print(f"[LIVE] DISPATCH command={command!r} alias={alias!r} output_dir={output_dir!r}")
+    try:
+        result = script_func(output_dir)
+        # full_workflow returns a summary dict; surface failure count live
+        if isinstance(result, dict) and "summary" in result:
+            failed = result["summary"].get("failed", 0)
+            total = result["summary"].get("total_scripts", 0)
+            print(
+                f"[LIVE] WORKFLOW_RESULT scripts_total={total} "
+                f"scripts_failed={failed} "
+                f"exit_code={EXIT_SCRIPT_FAILURE if failed else EXIT_OK}"
+            )
+            if failed:
+                # Emit each individual failure with context so CI logs are self-describing
+                for entry in result.get("scripts_executed", []):
+                    if entry.get("status") == "FAILED":
+                        print(
+                            f"EXIT_CODE={EXIT_SCRIPT_FAILURE} "
+                            f"REASON=SCRIPT_FAILURE "
+                            f"SCRIPT={entry['name']!r} "
+                            f"ERROR={entry.get('error', 'unknown')!r}",
+                            file=sys.stderr,
+                        )
+                return EXIT_SCRIPT_FAILURE
+        return EXIT_OK
+    except Exception as exc:  # noqa: BLE001
+        print(
+            f"EXIT_CODE={EXIT_UNEXPECTED_ERROR} REASON=UNHANDLED_EXCEPTION "
+            f"command={command!r} alias={alias!r} "
+            f"exception_type={type(exc).__name__!r} "
+            f"exception_message={str(exc)!r}",
+            file=sys.stderr,
+        )
+        traceback.print_exc()
+        return EXIT_UNEXPECTED_ERROR
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
