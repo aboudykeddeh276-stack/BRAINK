@@ -263,7 +263,6 @@ def verify_packet(packet_path: Path, repo: Path) -> list[str]:
 
 
 def build_packet(repo: Path, objective: str, generated_at: str | None = None) -> RepoPacket:
-def build_packet(repo: Path, objective: str) -> RepoPacket:
     records = artifact_records(repo)
     coverage = route_coverage(repo)
     findings = ethics_findings(repo)
@@ -280,7 +279,6 @@ def build_packet(repo: Path, objective: str) -> RepoPacket:
         anchor="A. KEDDEH / BRAINK / KEX / K-SYSTEMS",
         repo=str(repo),
         generated_at=generated_at or datetime.now(timezone.utc).isoformat(),
-        generated_at=datetime.now(timezone.utc).isoformat(),
         objective=objective,
         file_count=len(records),
         artifacts=records,

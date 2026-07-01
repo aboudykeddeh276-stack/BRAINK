@@ -13,8 +13,6 @@ import argparse
 import json
 import os
 import re
-import shlex
-import shutil
 import subprocess
 import sys
 from dataclasses import asdict, dataclass
@@ -185,7 +183,7 @@ def resolve_runtime(env: dict[str, str]) -> tuple[str, str, str | None, bool]:
         return "bridged_runtime", endpoint.rstrip("/"), None, auth_ok
     if endpoint and not auth_ok:
         return "deterministic_local", "", "BRAINK runtime endpoint present without complete EXPO_PUBLIC auth mapping", auth_ok
-    return "deterministic_local", "", None, auth_ok
+    return "deterministic_local", "", "BRAINK_CHAT_RUNTIME not configured; using deterministic local runtime", auth_ok
 
 
 
@@ -260,12 +258,17 @@ def run_named_command(name: str, output_dir: Path, env: dict[str, str]) -> StepR
     markers: dict[str, Any] = {}
     if name == "runtime_smoke":
         markers = extract_smoke_markers(completed.stdout)
+    try:
+        display_log_path = str(log_path.relative_to(ROOT))
+    except ValueError:
+        display_log_path = str(log_path)
+
     return StepResult(
         name=name,
         command=command,
         returncode=completed.returncode,
         status=status,
-        log_path=str(log_path.relative_to(ROOT)),
+        log_path=display_log_path,
         markers=markers,
     )
 
@@ -373,17 +376,26 @@ def command_run(args: argparse.Namespace) -> int:
 
 
 
+def add_common_args(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument(
+        "--output-dir",
+        default=str(ROOT / "artifacts/braink-workflow"),
+        help="Directory for plan/report artifacts.",
+    )
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="BRAINK-native workflow orchestrator for GitHub Actions.")
-    parser.add_argument("--output-dir", default=str(ROOT / "artifacts/braink-workflow"), help="Directory for plan/report artifacts.")
     subcommands = parser.add_subparsers(dest="command", required=True)
 
     plan = subcommands.add_parser("plan", help="Emit the BRAINK route and execution plan.")
+    add_common_args(plan)
     plan.add_argument("--intent", default=DEFAULT_INTENT, help="BRAINK objective text for route classification.")
     plan.add_argument("--route", choices=ROUTE_ORDER, help="Optional explicit primary route.")
     plan.set_defaults(func=command_plan)
 
     run = subcommands.add_parser("run", help="Execute the BRAINK route plan locally for CI.")
+    add_common_args(run)
     run.add_argument("--intent", default=DEFAULT_INTENT, help="BRAINK objective text for route classification.")
     run.add_argument("--route", choices=ROUTE_ORDER, help="Optional explicit primary route.")
     run.set_defaults(func=command_run)
