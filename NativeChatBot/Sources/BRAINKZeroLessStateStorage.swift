@@ -9,8 +9,11 @@ final class BRAINKZeroLessStateStorage {
 
     @discardableResult
     func persistState(index: ZeroLessIndex, data: [String: Any]) -> String? {
-        guard let payload = encodedPayload(data, index: index) else {
-            lastPersistenceErrorMessage = "Unable to encode zero-less state payload for \(index.rawValue)."
+        let payload: Data
+        do {
+            payload = try encodedPayload(data, index: index)
+        } catch {
+            lastPersistenceErrorMessage = error.localizedDescription
             return nil
         }
         let targetURL = literalURL(for: index)
@@ -39,10 +42,10 @@ final class BRAINKZeroLessStateStorage {
         storageRoot.appendingPathComponent("state_\(index.rawValue).json")
     }
 
-    private func encodedPayload(_ data: [String: Any], index: ZeroLessIndex) -> Data? {
+    private func encodedPayload(_ data: [String: Any], index: ZeroLessIndex) throws -> Data {
         let enrichedData = data.merging([
             "literal_index_boundary": ZeroLessIndexEngine.mapToUncompressedLiteralState(index: index)
         ]) { current, _ in current }
-        return try? JSONSerialization.data(withJSONObject: enrichedData, options: [.prettyPrinted, .sortedKeys])
+        return try JSONSerialization.data(withJSONObject: enrichedData, options: [.prettyPrinted, .sortedKeys])
     }
 }

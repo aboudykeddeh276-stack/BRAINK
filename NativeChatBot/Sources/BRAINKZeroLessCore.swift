@@ -357,7 +357,7 @@ final class BRAINKZeroLessRuntime {
     }
 
     private func tokenSet(for text: String) -> Set<String> {
-        Set(text.split { !$0.isLetter && !$0.isNumber }.map { String($0).lowercased() })
+        Set(text.split(whereSeparator: { !$0.isLetter && !$0.isNumber }).lazy.map { String($0).lowercased() })
     }
 
     private func liveRoute(for recovery: RecoveryRouteIndex) -> ZeroLessRouteIdentifier {
