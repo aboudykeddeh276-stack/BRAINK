@@ -125,6 +125,12 @@ swiftc \
   "${TMP_SWIFT}" \
   "${NATIVE_ROOT}/Sources/BRAINKChatEngine.swift" \
   "${NATIVE_ROOT}/Sources/BRAINKConstants.swift" \
+  "${NATIVE_ROOT}/Sources/BRAINKNamingGovernance.swift" \
+  "${NATIVE_ROOT}/Sources/BRAINKErrorContext.swift" \
+  "${NATIVE_ROOT}/Sources/BRAINKDeadRouteManager.swift" \
+  "${NATIVE_ROOT}/Sources/ZeroLessGovernance.swift" \
+  "${NATIVE_ROOT}/Sources/ErrorContext.swift" \
+  "${NATIVE_ROOT}/Sources/DeadRouteRegistry.swift" \
   "${NATIVE_ROOT}/Sources/BRAINKDeliveryAudit.swift" \
   "${NATIVE_ROOT}/Sources/BRAINKFrontierSeal.swift" \
   "${NATIVE_ROOT}/Sources/BRAINKILLLMCompatibility.swift" \
@@ -137,6 +143,10 @@ swiftc \
   "${NATIVE_ROOT}/Sources/BRAINKPlatformAPI.swift" \
   "${NATIVE_ROOT}/Sources/BRAINKScraperTool.swift" \
   "${NATIVE_ROOT}/Sources/BRAINKChromePlugin.swift" \
+  "${NATIVE_ROOT}/Sources/BRAINKZeroLessCore.swift" \
+  "${NATIVE_ROOT}/Sources/BRAINKZeroLessAPIRuntime.swift" \
+  "${NATIVE_ROOT}/Sources/BRAINKZeroLessEngineOrchestration.swift" \
+  "${NATIVE_ROOT}/Sources/BRAINKZeroLessStateStorage.swift" \
   "${NATIVE_ROOT}/Sources/ModuleManifest.swift" \
   -o "${TMP_BIN}"
 

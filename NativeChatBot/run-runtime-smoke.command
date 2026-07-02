@@ -81,6 +81,9 @@ swiftc \
   "$ROOT/Sources/BRAINKNamingGovernance.swift" \
   "$ROOT/Sources/BRAINKErrorContext.swift" \
   "$ROOT/Sources/BRAINKDeadRouteManager.swift" \
+  "$ROOT/Sources/ZeroLessGovernance.swift" \
+  "$ROOT/Sources/ErrorContext.swift" \
+  "$ROOT/Sources/DeadRouteRegistry.swift" \
   "$ROOT/Sources/BRAINKDeliveryAudit.swift" \
   "$ROOT/Sources/BRAINKFrontierSeal.swift" \
   "$ROOT/Sources/BRAINKILLLMCompatibility.swift" \

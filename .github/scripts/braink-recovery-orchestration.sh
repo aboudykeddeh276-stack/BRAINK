@@ -120,6 +120,9 @@ SWIFT
     "$ROOT/NativeChatBot/Sources/BRAINKNamingGovernance.swift" \
     "$ROOT/NativeChatBot/Sources/BRAINKErrorContext.swift" \
     "$ROOT/NativeChatBot/Sources/BRAINKDeadRouteManager.swift" \
+    "$ROOT/NativeChatBot/Sources/ZeroLessGovernance.swift" \
+    "$ROOT/NativeChatBot/Sources/ErrorContext.swift" \
+    "$ROOT/NativeChatBot/Sources/DeadRouteRegistry.swift" \
     "$ROOT/NativeChatBot/Sources/BRAINKDeliveryAudit.swift" \
     "$ROOT/NativeChatBot/Sources/BRAINKFrontierSeal.swift" \
     "$ROOT/NativeChatBot/Sources/BRAINKILLLMCompatibility.swift" \
@@ -132,6 +135,10 @@ SWIFT
     "$ROOT/NativeChatBot/Sources/BRAINKPlatformAPI.swift" \
     "$ROOT/NativeChatBot/Sources/BRAINKScraperTool.swift" \
     "$ROOT/NativeChatBot/Sources/BRAINKChromePlugin.swift" \
+    "$ROOT/NativeChatBot/Sources/BRAINKZeroLessCore.swift" \
+    "$ROOT/NativeChatBot/Sources/BRAINKZeroLessAPIRuntime.swift" \
+    "$ROOT/NativeChatBot/Sources/BRAINKZeroLessEngineOrchestration.swift" \
+    "$ROOT/NativeChatBot/Sources/BRAINKZeroLessStateStorage.swift" \
     "$ROOT/NativeChatBot/Sources/ModuleManifest.swift" \
     -o "$tmp_bin"
 

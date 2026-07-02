@@ -15,6 +15,11 @@ A standalone **native macOS SwiftUI** chat bot with a deterministic local runtim
 - `Grammar`: simple lexical complexity score
 - `Persona`: tracks interaction style signals
 
+## Governance primitives
+- `ZeroLessGovernance.swift`: zero-less index validation (`[-3, -2, 1, 2, 3]`)
+- `ErrorContext.swift`: structured error context for runtime failures
+- `DeadRouteRegistry.swift`: explicit dead-route to recovery-route mappings
+
 ## Route map (deterministic local logic)
 - `auth.oauth` -> governed route `route:svc:oauth` for auth/login intent (`login`, `oauth`, `auth`)
 - `proof_packet` -> governed route `route:sys:deterministic_proof` for proof/falsifier/routing proof request (`proof`, `packet`, `falsifier`)

@@ -250,9 +250,25 @@ final class BRAINKChatEngine: ObservableObject {
             }
         } catch {
             let failure = BRAINKDeadRouteManager.captureFailureContext(error: error)
+            
+            let deadRoute = !localOnly && endpoint != nil ? BRAINKDeadRouteRegistry.claudeAPIv1 : nil
+            let deadRouteResolution = BRAINKDeadRouteRegistry.resolve(deadRoute: deadRoute)
+            let context = BRAINKErrorContextFactory.make(
+                sector: deadRouteResolution?.sector ?? .execution,
+                cause: deadRouteResolution?.cause ?? .fallback,
+                stage: "send",
+                message: error.localizedDescription,
+                deadRoute: deadRoute,
+                recoveryRoute: deadRouteResolution?.recoveryRoute.governanceRouteID,
+                metadata: [
+                    "runtime_mode": runtimeModeLabel,
+                    "endpoint_configured": endpoint == nil ? "false" : "true"
+                ]
+            )
+            
             append(
                 role: .assistant,
-                text: BRAINKDeadRouteManager.renderFailureSummary(context: failure.context, report: failure.report),
+                text: BRAINKDeadRouteManager.renderFailureSummary(context: failure.context, report: failure.report) + "\nerror_context=\(BRAINKErrorContextFactory.toCompactString(context))",
                 route: "system.fallback"
             )
             let local = await resolveLocally(message)

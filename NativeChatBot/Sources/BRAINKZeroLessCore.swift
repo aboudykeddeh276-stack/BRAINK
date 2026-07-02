@@ -102,7 +102,7 @@ enum ZeroLessIndexEngine {
     }
 }
 
-struct DeadRouteRegistry {
+struct ZeroLessDeadRouteRegistry {
     struct Metadata {
         let sector: ErrorSectorIndex
         let cause: FailureCauseIndex
@@ -163,7 +163,7 @@ final class BRAINKZeroLessRuntime {
             let validatedInput = try await stage_inputReception(userInput)
             let selectedRoute = try await stage_routeClassification(validatedInput)
 
-            if let deadRoute = selectedRoute.deadRoute, let recoveryRoute = DeadRouteRegistry.getRecoveryPath(deadRoute) {
+            if let deadRoute = selectedRoute.deadRoute, let recoveryRoute = ZeroLessDeadRouteRegistry.getRecoveryPath(deadRoute) {
                 let bannedRouteContext = buildDeadRouteContext(deadRoute)
                 errorHistory.append(bannedRouteContext)
                 return await executeRecoveryChain(input: validatedInput, recovery: recoveryRoute, originatingContext: bannedRouteContext)
@@ -334,7 +334,7 @@ final class BRAINKZeroLessRuntime {
     }
 
     private func buildDeadRouteContext(_ route: DeadRouteIndex) -> ErrorContext {
-        let metadata = DeadRouteRegistry.deadRoutes[route] ?? DeadRouteRegistry.defaultMetadata
+        let metadata = ZeroLessDeadRouteRegistry.deadRoutes[route] ?? ZeroLessDeadRouteRegistry.defaultMetadata
         return buildErrorContext(
             processingStage: .stage_route_classification,
             errorSector: metadata.sector,
