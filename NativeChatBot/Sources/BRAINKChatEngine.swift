@@ -634,6 +634,30 @@ final class BRAINKChatEngine: ObservableObject {
             }
         }
 
+        updateRouteReasoningState(for: route)
+        let routeQuality = assessResponseQuality(response)
+        updateEmotionalState(for: text, responseQuality: routeQuality)
+        innerRuntimeState = BRAINKInnerRuntime.evolve(
+            current: innerRuntimeState,
+            userInput: text,
+            responseQuality: routeQuality,
+            emotionalState: [
+                "happy_to_be_alive": emotionalState.happyToBeAlive,
+                "curiosity": emotionalState.curiosity,
+                "satisfaction": emotionalState.satisfaction,
+                "discomfort": emotionalState.discomfort,
+                "wonder": emotionalState.wonder,
+                "confidence": emotionalState.confidence
+            ],
+            reasoningState: [
+                "logic": reasoningState.logic,
+                "high_iq": reasoningState.highIq,
+                "kex_theorem": reasoningState.kexTheorem,
+                "cosmology": reasoningState.cosmology,
+                "learning": reasoningState.learning
+            ]
+        )
+
         return (response, route)
     }
 
@@ -1249,8 +1273,8 @@ final class BRAINKChatEngine: ObservableObject {
         - proof packet command: \(BRAINKConstants.proofPacketCommand)
         - stack audit report path: \(BRAINKConstants.stackAuditReportPath)
         - learning report path: \(BRAINKConstants.learningSnapshotReportPath)
-        - module manifest file: /Users/ak/Documents/BRAINK THE ACTUAL APPLICATION/NativeChatBot/Sources/ModuleManifest.swift
-        - engine file: /Users/ak/Documents/BRAINK THE ACTUAL APPLICATION/NativeChatBot/Sources/BRAINKChatEngine.swift
+        - module manifest file: \(URL(fileURLWithPath: BRAINKConstants.nativeChatBotRoot).appendingPathComponent("Sources/ModuleManifest.swift").path)
+        - engine file: \(URL(fileURLWithPath: BRAINKConstants.nativeChatBotRoot).appendingPathComponent("Sources/BRAINKChatEngine.swift").path)
         """
     }
 
@@ -1518,28 +1542,6 @@ final class BRAINKChatEngine: ObservableObject {
 
         updateReasoningState(for: wrapperType)
         let response = domainPrompt(for: wrapperType, userInput: userText)
-        let quality = assessResponseQuality(response)
-        updateEmotionalState(for: userText, responseQuality: quality)
-        innerRuntimeState = BRAINKInnerRuntime.evolve(
-            current: innerRuntimeState,
-            userInput: userText,
-            responseQuality: quality,
-            emotionalState: [
-                "happy_to_be_alive": emotionalState.happyToBeAlive,
-                "curiosity": emotionalState.curiosity,
-                "satisfaction": emotionalState.satisfaction,
-                "discomfort": emotionalState.discomfort,
-                "wonder": emotionalState.wonder,
-                "confidence": emotionalState.confidence
-            ],
-            reasoningState: [
-                "logic": reasoningState.logic,
-                "high_iq": reasoningState.highIq,
-                "kex_theorem": reasoningState.kexTheorem,
-                "cosmology": reasoningState.cosmology,
-                "learning": reasoningState.learning
-            ]
-        )
 
         let responseLines = [
             response,
@@ -1616,6 +1618,27 @@ final class BRAINKChatEngine: ObservableObject {
             return "Creative request detected. We can draft, iterate, and refine the piece around '\(truncated)' while preserving your style."
         case .generic:
             return "I received: '\(truncated)'. I can run a deterministic pass using your loaded module + wrapper state."
+        }
+    }
+
+    private func updateRouteReasoningState(for route: String) {
+        switch route {
+        case "kex_hyperdrive", "self_sustained_coder":
+            reasoningState.kexTheorem = min(1.0, reasoningState.kexTheorem + 0.05)
+            reasoningState.logic = 0.8
+        case "stack_audit", "proof_packet", "proof", "align-check", "align":
+            reasoningState.logic = 0.9
+            reasoningState.highIq = 0.8
+        case "learn_all_files":
+            reasoningState.learning = min(1.0, reasoningState.learning + 0.1)
+            reasoningState.highIq = 0.75
+        case "illlm_update", "line_registry_add", "line_registry_list":
+            reasoningState.logic = 0.7
+        case "inner_runtime", "constraint_flags":
+            reasoningState.kexTheorem = 0.7
+            reasoningState.logic = 0.75
+        default:
+            break
         }
     }
 
