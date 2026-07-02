@@ -249,9 +249,26 @@ final class BRAINKChatEngine: ObservableObject {
                 append(role: .assistant, text: local.text, route: local.route)
             }
         } catch {
+            let failure = BRAINKDeadRouteManager.captureFailureContext(error: error)
+            
+            let deadRoute = !localOnly && endpoint != nil ? BRAINKDeadRouteRegistry.claudeAPIv1 : nil
+            let deadRouteResolution = BRAINKDeadRouteRegistry.resolve(deadRoute: deadRoute)
+            let context = BRAINKErrorContextFactory.make(
+                sector: deadRouteResolution?.sector ?? .execution,
+                cause: deadRouteResolution?.cause ?? .fallback,
+                stage: "send",
+                message: error.localizedDescription,
+                deadRoute: deadRoute,
+                recoveryRoute: deadRouteResolution?.recoveryRoute.governanceRouteID,
+                metadata: [
+                    "runtime_mode": runtimeModeLabel,
+                    "endpoint_configured": endpoint == nil ? "false" : "true"
+                ]
+            )
+            
             append(
                 role: .assistant,
-                text: "Runtime error: \(error.localizedDescription). Falling back to local deterministic BRAINK engine.",
+                text: BRAINKDeadRouteManager.renderFailureSummary(context: failure.context, report: failure.report) + "\nerror_context=\(BRAINKErrorContextFactory.toCompactString(context))",
                 route: "system.fallback"
             )
             let local = await resolveLocally(message)
@@ -1726,10 +1743,12 @@ final class BRAINKChatEngine: ObservableObject {
 
     private func callRemoteRuntime(_ text: String) async throws -> (text: String, route: String) {
         guard let endpoint else {
-            throw NSError(domain: "BRAINKChat", code: 1)
+            throw BRAINKRemoteRuntimeError.missingEndpoint
         }
 
-        let url = URL(string: endpoint)!
+        guard let url = URL(string: endpoint) else {
+            throw BRAINKRemoteRuntimeError.invalidEndpoint(endpoint)
+        }
         var req = URLRequest(url: url)
         req.httpMethod = "POST"
         req.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -1739,10 +1758,22 @@ final class BRAINKChatEngine: ObservableObject {
 
         let (data, response) = try await URLSession.shared.data(for: req)
         guard let http = response as? HTTPURLResponse, 200..<300 ~= http.statusCode else {
-            throw NSError(domain: "BRAINKChat", code: 2)
+            let routePath = "POST \(url.path.isEmpty ? "/" : url.path)\(url.query.map { "?\($0)" } ?? "")"
+            let responseBody = String(data: data, encoding: .utf8)
+            if let http = response as? HTTPURLResponse, http.statusCode == 403 {
+                throw BRAINKRemoteRuntimeError.forbidden(endpoint: routePath)
+            }
+            throw BRAINKRemoteRuntimeError.http(
+                statusCode: (response as? HTTPURLResponse)?.statusCode ?? -1,
+                endpoint: routePath,
+                body: responseBody
+            )
         }
 
-        let decoded = try JSONDecoder().decode(RuntimeResponse.self, from: data)
+        guard let decoded = try? JSONDecoder().decode(RuntimeResponse.self, from: data) else {
+            let routePath = "POST \(url.path.isEmpty ? "/" : url.path)\(url.query.map { "?\($0)" } ?? "")"
+            throw BRAINKRemoteRuntimeError.invalidResponse(endpoint: routePath)
+        }
         let route = decoded.route ?? classifyRoute(text)
         return (decoded.response, route)
     }

@@ -15,19 +15,24 @@ A standalone **native macOS SwiftUI** chat bot with a deterministic local runtim
 - `Grammar`: simple lexical complexity score
 - `Persona`: tracks interaction style signals
 
+## Governance primitives
+- `ZeroLessGovernance.swift`: zero-less index validation (`[-3, -2, 1, 2, 3]`)
+- `ErrorContext.swift`: structured error context for runtime failures
+- `DeadRouteRegistry.swift`: explicit dead-route to recovery-route mappings
+
 ## Route map (deterministic local logic)
-- `auth.oauth` -> auth/login intent (`login`, `oauth`, `auth`)
-- `proof_packet` -> proof/falsifier/routing proof request (`proof`, `packet`, `falsifier`)
+- `auth.oauth` -> governed route `route:svc:oauth` for auth/login intent (`login`, `oauth`, `auth`)
+- `proof_packet` -> governed route `route:sys:deterministic_proof` for proof/falsifier/routing proof request (`proof`, `packet`, `falsifier`)
 - `runtime_trace` -> route/entrypoint/runtime tracing (`runtime`, `route`, `entrypoint`)
 - `build` -> build/compile/bundle request (`build`, `compile`, `bundle`)
 - `constraint_flags` -> machine-readable module delivery constraints and status flags (`constraints`, `flaggable`, `constraint`, `flag`)
 - `illlm_bundle` -> IL-LLM workspace intake and inventory (`il-llm`, `illlm`, `all my il`)
 - `illlm_bootstrap` -> explicit “have/load/want my data” bootstrap intent for immediate ingestion.
-- `align-check` -> alignment verification requests (`align`, `alignment`)
+- `align-check` -> governed route `route:sys:stack_audit` for alignment verification requests (`align`, `alignment`)
 - `module_manifest` -> module-link proof ledger (`module map`, `module status`, `manifest`)
-- `kex_hyperdrive` -> KEX Hyperdrive transition/definition/state concept + full repo calibration report (`State OF transition`, `Transition OF state`, `Definition OF transition`, `calibration analysis`, `pending tasks`, `X OF X OF X OF X`)
-- `self_sustained_coder` -> bounded repo coding task packets using KEX self-existence design (`software that can code`, `task it to each repo`, `self existence design`)
-- `general` -> fallback when no explicit route match
+- `kex_hyperdrive` -> governed route `route:engine:hyperdrive` for KEX Hyperdrive transition/definition/state concept + full repo calibration report (`State OF transition`, `Transition OF state`, `Definition OF transition`, `calibration analysis`, `pending tasks`, `X OF X OF X OF X`)
+- `self_sustained_coder` -> governed route `route:engine:self_sustained` for bounded repo coding task packets using KEX self-existence design (`software that can code`, `task it to each repo`, `self existence design`)
+- `general` -> governed route `route:engine:il_llm_local` when no explicit route match
 - Drag-and-drop: dropping a folder or file into the input area will rebind IL-LLM runtime immediately.
 - Drag-and-drop behavior: dropped IL-LLM files are also parsed into short in-memory snippets.
   Ask questions that match filenames/contents (for example terms from your project) and the bot will
@@ -57,6 +62,8 @@ Expected markers:
 - `NativeChatBot/build/kex_self_sustained_coding_report.json` is generated with repo targets, task packets, write scopes, command plans, and proof gates
 - `SMOKE_AUDIT_OUTCOME: DONE`
 - `SMOKE_AUDIT_ALIGNMENT: 1.0000`
+- `SMOKE_ZERO_LESS_STATUS: DONE`
+- `SMOKE_ZERO_LESS_API_STATUS: 200`
 
 ## Run
 ```bash
@@ -120,6 +127,17 @@ python3 tools/kex_self_sustain.py --root /path/to/parent --all-repos --output-di
 ```
 
 The generated packet records artifact hashes, route coverage, ethics findings, pending gates, and allowed KEX statuses.
+
+## Explicit failure context governance
+Every governed fallback now records:
+- explicit route identifiers (`route:{category}:{service}`)
+- explicit sectors (`sect_{layer}:{component}`)
+- explicit causes (`cause:{domain}:{type}`)
+- dead-route blacklisting for `route:svc:claude_api_v1`
+- deterministic recovery artifacts at:
+  - `NativeChatBot/build/braink_dead_route_registry.json`
+  - `NativeChatBot/build/braink_error_context.json`
+  - `NativeChatBot/build/braink_failure_analysis_report.json`
 
 ## Reset
 Use **Clear** in the UI to reset conversation + trace.

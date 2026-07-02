@@ -30,3 +30,6 @@ __pycache__/
 NativeChatBot/BRAINKChatBot.app/
 NativeChatBot/BRAINKChatBot.app.build.log
 NativeChatBot/build/
+
+# CI recovery artifacts
+reports/braink-native-ci/

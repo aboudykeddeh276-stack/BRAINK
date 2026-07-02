@@ -20,6 +20,10 @@ REQUIRED_FILES = [
     "docs/governance/agentic-intelligence-cli.md",
     "docs/governance/strict-deep-analysis-comment.md",
     "scripts/braink-agent-cli.py",
+    "docs/governance/zero-less-governance.md",
+    "NativeChatBot/Sources/ZeroLessGovernance.swift",
+    "NativeChatBot/Sources/ErrorContext.swift",
+    "NativeChatBot/Sources/DeadRouteRegistry.swift",
 ]
 MANIFEST_PATH = "docs/governance/manifest.json"
 
