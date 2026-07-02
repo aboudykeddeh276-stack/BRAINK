@@ -1,13 +1,13 @@
 import Foundation
 
-enum ZeroLessIndex: String, CaseIterable {
+enum BRAINKZeroLessIndex: String, CaseIterable {
     case state_negative_three = "EXPLICIT_STATE_NEGATIVE_3"
     case state_negative_two = "EXPLICIT_STATE_NEGATIVE_2"
     case observer_singular = "EXPLICIT_OBSERVER_SINGULAR_1"
     case state_positive_two = "EXPLICIT_STATE_POSITIVE_2"
     case state_positive_three = "EXPLICIT_STATE_POSITIVE_3"
 
-    static let allowedIndices: [ZeroLessIndex] = ZeroLessIndex.allCases
+    static let allowedIndices: [BRAINKZeroLessIndex] = BRAINKZeroLessIndex.allCases
 
     var hardwareSlotBoundary: String {
         "HARDWARE_SLOT_BOUNDARY_\(rawValue)"
@@ -59,7 +59,7 @@ enum FailureCauseIndex: String {
     case cause_3_proof_invalid = "CAUSE_3_PROOF_INVALID"
 }
 
-struct ErrorContext {
+struct ZeroLessErrorContext {
     let processingStage: RuntimeProcessStage
     let errorSector: ErrorSectorIndex
     let failureCause: FailureCauseIndex
@@ -97,7 +97,7 @@ enum RecoveryRouteIndex: String {
 }
 
 enum ZeroLessIndexEngine {
-    static func mapToUncompressedLiteralState(index: ZeroLessIndex) -> String {
+    static func mapToUncompressedLiteralState(index: BRAINKZeroLessIndex) -> String {
         "TOTAL_METRIC_VALUE_STREAM::\(index.hardwareSlotBoundary)"
     }
 }
@@ -156,9 +156,9 @@ final class BRAINKZeroLessRuntime {
 
     private let orchestrator = BRAINKZeroLessEngineOrchestrator()
     private let stateStorage = BRAINKZeroLessStateStorage()
-    private var errorHistory: [ErrorContext] = []
+    private var errorHistory: [ZeroLessErrorContext] = []
 
-    func executeProcessChain(userInput: String) async -> (success: Bool, output: String, errorContext: ErrorContext?) {
+    func executeProcessChain(userInput: String) async -> (success: Bool, output: String, errorContext: ZeroLessErrorContext?) {
         do {
             let validatedInput = try await stage_inputReception(userInput)
             let selectedRoute = try await stage_routeClassification(validatedInput)
@@ -209,7 +209,7 @@ final class BRAINKZeroLessRuntime {
         }
     }
 
-    func errorHistorySnapshot() -> [ErrorContext] {
+    func errorHistorySnapshot() -> [ZeroLessErrorContext] {
         errorHistory
     }
 
@@ -290,7 +290,7 @@ final class BRAINKZeroLessRuntime {
         return proofArtifact
     }
 
-    private func executeRecoveryChain(input: String, recovery: RecoveryRouteIndex, originatingContext: ErrorContext?) async -> (success: Bool, output: String, errorContext: ErrorContext?) {
+    private func executeRecoveryChain(input: String, recovery: RecoveryRouteIndex, originatingContext: ZeroLessErrorContext?) async -> (success: Bool, output: String, errorContext: ZeroLessErrorContext?) {
         let fallbackRoute = liveRoute(for: recovery)
         let recoveryExecution = await orchestrator.executeMultiEngine(route: fallbackRoute, input: input)
         let serializedOutput: String
@@ -333,7 +333,7 @@ final class BRAINKZeroLessRuntime {
         return .route_engine_multi_observer
     }
 
-    private func buildDeadRouteContext(_ route: DeadRouteIndex) -> ErrorContext {
+    private func buildDeadRouteContext(_ route: DeadRouteIndex) -> ZeroLessErrorContext {
         let metadata = ZeroLessDeadRouteRegistry.deadRoutes[route] ?? ZeroLessDeadRouteRegistry.defaultMetadata
         return buildErrorContext(
             processingStage: .stage_route_classification,
@@ -356,8 +356,8 @@ final class BRAINKZeroLessRuntime {
         message: String,
         recoveryPath: String?,
         occurrenceRate: Double
-    ) -> ErrorContext {
-        ErrorContext(
+    ) -> ZeroLessErrorContext {
+        ZeroLessErrorContext(
             processingStage: processingStage,
             errorSector: errorSector,
             failureCause: failureCause,
@@ -382,7 +382,7 @@ final class BRAINKZeroLessRuntime {
 }
 
 extension RuntimeProcessStage {
-    func toZeroLessIndex() -> ZeroLessIndex {
+    func toZeroLessIndex() -> BRAINKZeroLessIndex {
         switch self {
         case .stage_input_reception, .stage_input_validation:
             return .state_negative_three

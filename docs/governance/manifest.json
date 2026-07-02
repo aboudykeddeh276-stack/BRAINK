@@ -6,7 +6,7 @@
   },
   "ARTIFACT_DOCS_GOVERNANCE_MANIFEST_JSON": {
     "path": "docs/governance/manifest.json",
-    "sha256": "0d4825226c17223bb535352d7ce9310fe8c339f886927da462fa63978427492e",
+    "sha256": "1e74b084187d3c4be012018cd1a5bb08ed5ccdcc5958c84364f68a4cd81dbd5b",
     "state": "STATE_MODEL_LOCAL"
   },
   "ARTIFACT_DOCS_GOVERNANCE_REPOSITORY_GOVERNANCE_STANDARD_MD": {
@@ -36,7 +36,7 @@
   },
   "ARTIFACT_NATIVECHATBOT_SOURCES_DEADROUTEREGISTRY_SWIFT": {
     "path": "NativeChatBot/Sources/DeadRouteRegistry.swift",
-    "sha256": "3af0dbcafa6f34feae77d46ff9614258c1abae70403d06d9a0bd02e56f0d1170",
+    "sha256": "8865c5073a447aa58a8db56481023becce1c3eed2676b2e01a6b9ac49fbdf5e4",
     "state": "STATE_MODEL_LOCAL"
   },
   "ARTIFACT_NATIVECHATBOT_SOURCES_ERRORCONTEXT_SWIFT": {

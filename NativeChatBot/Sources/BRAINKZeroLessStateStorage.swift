@@ -8,7 +8,7 @@ final class BRAINKZeroLessStateStorage {
     }
 
     @discardableResult
-    func persistState(index: ZeroLessIndex, data: [String: Any]) -> String? {
+    func persistState(index: BRAINKZeroLessIndex, data: [String: Any]) -> String? {
         let payload: Data
         do {
             payload = try encodedPayload(data, index: index)
@@ -28,7 +28,7 @@ final class BRAINKZeroLessStateStorage {
         }
     }
 
-    func fetchState(index: ZeroLessIndex) -> [String: Any]? {
+    func fetchState(index: BRAINKZeroLessIndex) -> [String: Any]? {
         let targetURL = literalURL(for: index)
         guard let data = try? Data(contentsOf: targetURL),
               let object = try? JSONSerialization.jsonObject(with: data),
@@ -38,11 +38,11 @@ final class BRAINKZeroLessStateStorage {
         return dictionary
     }
 
-    private func literalURL(for index: ZeroLessIndex) -> URL {
+    private func literalURL(for index: BRAINKZeroLessIndex) -> URL {
         storageRoot.appendingPathComponent("state_\(index.rawValue).json")
     }
 
-    private func encodedPayload(_ data: [String: Any], index: ZeroLessIndex) throws -> Data {
+    private func encodedPayload(_ data: [String: Any], index: BRAINKZeroLessIndex) throws -> Data {
         let enrichedData = data.merging([
             "literal_index_boundary": ZeroLessIndexEngine.mapToUncompressedLiteralState(index: index)
         ]) { current, _ in current }
