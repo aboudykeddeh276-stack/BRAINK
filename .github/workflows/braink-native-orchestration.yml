@@ -1,0 +1,92 @@
+name: BRAINK native orchestration
+
+on:
+  workflow_dispatch:
+    inputs:
+      runtime_mode:
+        description: BRAINK runtime mode
+        required: false
+        default: bridged
+        type: choice
+        options:
+          - bridged
+          - deterministic
+  pull_request:
+    paths:
+      - ".github/workflows/braink-native-orchestration.yml"
+      - ".github/scripts/braink-orchestration.sh"
+      - "NativeChatBot/**"
+      - "scripts/**"
+      - "BRAINK_GITHUB_ACTIONS_SETUP.md"
+      - "BRAINK_ROUTE_ORCHESTRATION.md"
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/braink-native-orchestration.yml"
+      - ".github/scripts/braink-orchestration.sh"
+      - "NativeChatBot/**"
+      - "scripts/**"
+      - "BRAINK_GITHUB_ACTIONS_SETUP.md"
+      - "BRAINK_ROUTE_ORCHESTRATION.md"
+
+permissions:
+  contents: read
+
+jobs:
+  braink-native-orchestration:
+    runs-on: ubuntu-latest
+    env:
+      BRAINK_RUNTIME_MODE: ${{ github.event.inputs.runtime_mode || vars.BRAINK_RUNTIME_MODE || 'bridged' }}
+      BRAINK_CHAT_RUNTIME: ${{ secrets.BRAINK_API_ENDPOINT }}
+      BRAINK_EXECUTION_POLICY: self_sustained_with_proofs
+      IL_LLM_RUNTIME_PATH: ${{ secrets.IL_LLM_RUNTIME_PATH || github.workspace }}
+      IL_LLM_MEMORY_BUDGET_CHARS: "2097152"
+      BRAINK_PROOF_GENERATION: enabled
+      BRAINK_ALIGNMENT_AUDIT: enabled
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Report runtime configuration
+        run: |
+          echo "BRAINK_RUNTIME_MODE=${BRAINK_RUNTIME_MODE}"
+          if [[ -n "${BRAINK_CHAT_RUNTIME}" ]]; then
+            echo "BRAINK_CHAT_RUNTIME=configured"
+          else
+            echo "BRAINK_CHAT_RUNTIME=not configured (local fallback will be used)"
+          fi
+          if [[ -n "${IL_LLM_RUNTIME_PATH}" ]]; then
+            echo "IL_LLM_RUNTIME_PATH=configured"
+          else
+            echo "IL_LLM_RUNTIME_PATH=not configured (repository root fallback will be used)"
+          fi
+
+      - name: Validate repository governance
+        run: python3 scripts/validate-governance.py
+
+      - name: Verify local BRAINK agent boundary
+        run: python3 scripts/braink-agent-cli.py status
+
+      - name: Run deterministic runtime smoke test
+        run: ./NativeChatBot/run-runtime-smoke.command
+
+      - name: Orchestrate BRAINK native stack
+        run: ./.github/scripts/braink-orchestration.sh
+
+      - name: Upload BRAINK orchestration artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: braink-native-orchestration-artifacts
+          path: |
+            NativeChatBot/build/braink_delivery_evidence.json
+            NativeChatBot/build/braink_module_alignment_audit.json
+            NativeChatBot/build/braink_stack_alignment_report.json
+            NativeChatBot/build/kex_hyperdrive_transition_definition_report.json
+            NativeChatBot/build/kex_hyperdrive_repo_calibration_report.json
+            NativeChatBot/build/kex_self_sustained_coding_report.json
+            NativeChatBot/build/braink_primary_orchestration_summary.json
+            NativeChatBot/build/braink_fallback_orchestration_summary.json
+          if-no-files-found: error
