@@ -2,21 +2,27 @@
   "anchor": "A. KEDDEH / BRAINK / KEX / K-SYSTEMS",
   "artifacts": [
     {
-      "bytes": 5026,
-      "lines": 121,
+      "bytes": 2168,
+      "lines": 72,
+      "path": ".kex/KEDDEH_ENGINEERING_STANDARD.md",
+      "role": "proof_workflow",
+      "sha256": "ce4a48867885860ae46e704cd2b97f5f8fa86dd5591b7b8ae889ee1a27043a83",
+      "status": "MODEL-LOCAL"
+    },
+    {
+      "bytes": 2008,
+      "lines": 39,
+      "path": "KEDDEH_IP_LICENSE.md",
+      "role": "documentation",
+      "sha256": "153be9b536843aa9d1ffa09f2bf400710ee706aab812f97660c8b30224e53c1c",
+      "status": "MODEL-LOCAL"
+    },
+    {
+      "bytes": 6504,
+      "lines": 148,
       "path": "NativeChatBot/README.md",
       "role": "knowledge_binding",
-      "sha256": "fee4f4156b3c0d139743f8ce3eb463c5a8d9dc45f294a42ea021c8c640fd0c69",
-      "bytes": 4944,
-      "lines": 120,
-      "path": "NativeChatBot/README.md",
-      "role": "knowledge_binding",
-      "sha256": "f7ca4bd518f3c97503556ac683edd9fe83c7ab812062a0679d9c3a3412802940",
-      "bytes": 4841,
-      "lines": 119,
-      "path": "NativeChatBot/README.md",
-      "role": "knowledge_binding",
-      "sha256": "f041311db49d2759cd78e80a5f27cc4c66b7633c2ae4db4633136fe53da52a5a",
+      "sha256": "9b7454f2a470fdea0cbbc62f9a4cbea01045b8a0de1310d25b4983d575737fda",
       "status": "MODEL-LOCAL"
     },
     {
@@ -28,43 +34,43 @@
       "status": "MODEL-LOCAL"
     },
     {
-      "bytes": 84845,
-      "lines": 1890,
+      "bytes": 86990,
+      "lines": 1944,
       "path": "NativeChatBot/Sources/BRAINKChatEngine.swift",
       "role": "runtime_route_engine",
-      "sha256": "2aa9404a3314b264017226d015e16f810137c8baca754fa437c176ad3d0dd2d5",
+      "sha256": "2bc98aa97b7fec47810e00ab91d7587e2baeb74db1107dfe0a450e34b868c115",
       "status": "MODEL-LOCAL"
     },
     {
-      "bytes": 1855,
-      "lines": 49,
+      "bytes": 2168,
+      "lines": 59,
       "path": "NativeChatBot/Sources/BRAINKChromePlugin.swift",
       "role": "supporting_source",
-      "sha256": "50b8b282e8c361f53c13592d81f055c75286d49a8571632b45700d2ad72673a2",
+      "sha256": "f4db0ab250c3b06163afcccb464cd3087cfcc9e260edd9b1fa9498047a3a8621",
       "status": "MODEL-LOCAL"
     },
     {
-      "bytes": 2011,
-      "lines": 28,
+      "bytes": 2801,
+      "lines": 36,
       "path": "NativeChatBot/Sources/BRAINKConstants.swift",
       "role": "knowledge_binding",
-      "sha256": "b8157dc090eb169d8ef13bcd20998f7506e936c3a9d50155387b30ccbf855daa",
+      "sha256": "941ee757224acd5bc798f670ad3da497a831228d101430d0a48eaaea704dd982",
       "status": "MODEL-LOCAL"
     },
     {
-      "bytes": 26306,
-      "lines": 539,
+      "bytes": 29061,
+      "lines": 571,
       "path": "NativeChatBot/Sources/BRAINKDeliveryAudit.swift",
       "role": "manifest_audit",
-      "sha256": "cb4f2cdefaf06fef9a5e5ab03498f265c7693e3805088fd006b55d4b75e67021",
+      "sha256": "46389daa925775b6784cfe4ee3dd99bdfafcd9d7eef57516fe061247daa53dd4",
       "status": "MODEL-LOCAL"
     },
     {
-      "bytes": 5103,
-      "lines": 127,
+      "bytes": 5399,
+      "lines": 146,
       "path": "NativeChatBot/Sources/BRAINKFrontierSeal.swift",
       "role": "runtime_route_engine",
-      "sha256": "146a5bf4563adbe7b7080c3d41def81e5115f7f9b65ec5f3402e303257b9f79b",
+      "sha256": "3a5f0c4788bd25308311b016c1b9e5b30286e62a90bbbbf51449fcd139a39b20",
       "status": "MODEL-LOCAL"
     },
     {
@@ -76,11 +82,11 @@
       "status": "MODEL-LOCAL"
     },
     {
-      "bytes": 11007,
-      "lines": 306,
+      "bytes": 11408,
+      "lines": 321,
       "path": "NativeChatBot/Sources/BRAINKILLLMKnowledgeCenter.swift",
       "role": "knowledge_binding",
-      "sha256": "f86b29d24083156eb571401df8af1e598be6ff834a91e7834d39f4457aa17e21",
+      "sha256": "861a5c29169cc0c6247c567cde22ad69c0be9df61abab64a2f1ac833f53207c7",
       "status": "MODEL-LOCAL"
     },
     {
@@ -100,27 +106,35 @@
       "status": "MODEL-LOCAL"
     },
     {
-      "bytes": 3441,
-      "lines": 109,
+      "bytes": 3515,
+      "lines": 113,
       "path": "NativeChatBot/Sources/BRAINKOAuth.swift",
       "role": "supporting_source",
-      "sha256": "a47dfb51cef17f540cb7e0f3a50be29f4d01f80f877e7cb3cfac2c0ed671654b",
+      "sha256": "d60fedb9070bf316999d8316caa2dc8fbaad4f8d87918b21fe9c6902527e0785",
       "status": "MODEL-LOCAL"
     },
     {
-      "bytes": 28782,
-      "lines": 794,
+      "bytes": 2911,
+      "lines": 70,
+      "path": "NativeChatBot/Sources/BRAINKPathProvider.swift",
+      "role": "knowledge_binding",
+      "sha256": "88600666215819fbb801fe6d2b6160d59c2a95096e5a5589f78de47db1173f5d",
+      "status": "MODEL-LOCAL"
+    },
+    {
+      "bytes": 29129,
+      "lines": 808,
       "path": "NativeChatBot/Sources/BRAINKPlatformAPI.swift",
       "role": "supporting_source",
-      "sha256": "391ff87e035ba87083ecc197b23d53a0fdc69a327d8ee2e079d34efec3558a35",
+      "sha256": "9b389716aeaf86b9c3bbe4ca860c4c3398f8c46749a606988b152ade329709a5",
       "status": "MODEL-LOCAL"
     },
     {
-      "bytes": 6235,
-      "lines": 150,
+      "bytes": 6306,
+      "lines": 153,
       "path": "NativeChatBot/Sources/BRAINKScraperTool.swift",
       "role": "supporting_source",
-      "sha256": "a51dda37eb98af6013ec50033d13049b3726e6c0fe9b0b22a789afa736698012",
+      "sha256": "3cfc64537b7493ae7de62a1e37d50c7cfe91395d0358c2fef98257e91bbd4781",
       "status": "MODEL-LOCAL"
     },
     {
@@ -132,6 +146,54 @@
       "status": "MODEL-LOCAL"
     },
     {
+      "bytes": 845,
+      "lines": 23,
+      "path": "NativeChatBot/Sources/BRAINKZeroLessAPIRuntime.swift",
+      "role": "supporting_source",
+      "sha256": "fd93c7cc80a68cfc682d4ef7a49e20107f2075f43e31116ae56c2c50faf3fc68",
+      "status": "MODEL-LOCAL"
+    },
+    {
+      "bytes": 17024,
+      "lines": 410,
+      "path": "NativeChatBot/Sources/BRAINKZeroLessCore.swift",
+      "role": "proof_workflow",
+      "sha256": "fdb159f29ac808e009c1fab7f47e21cd87fe98bc0c6dc9e56f0bf2922de7cbec",
+      "status": "MODEL-LOCAL"
+    },
+    {
+      "bytes": 1795,
+      "lines": 39,
+      "path": "NativeChatBot/Sources/BRAINKZeroLessEngineOrchestration.swift",
+      "role": "proof_workflow",
+      "sha256": "776fe96118f9433f88c15e14ddc37f9d38e8093eba44692ecf1d28a23d5f081a",
+      "status": "MODEL-LOCAL"
+    },
+    {
+      "bytes": 1934,
+      "lines": 52,
+      "path": "NativeChatBot/Sources/BRAINKZeroLessStateStorage.swift",
+      "role": "supporting_source",
+      "sha256": "615d69b3c90ff63c9ef38714bb21d98bef1e6795e45f053fb694bbc8a2f44e5e",
+      "status": "MODEL-LOCAL"
+    },
+    {
+      "bytes": 20671,
+      "lines": 413,
+      "path": "NativeChatBot/Sources/KEXHyperdriveConceptEngine.swift",
+      "role": "proof_workflow",
+      "sha256": "d8ba63ed0e274d1e3b78f52a68fe641f8e79cc4a0dac4287f6a48b12d059ea6d",
+      "status": "MODEL-LOCAL"
+    },
+    {
+      "bytes": 12835,
+      "lines": 268,
+      "path": "NativeChatBot/Sources/KEXSelfSustainedCodingEngine.swift",
+      "role": "proof_workflow",
+      "sha256": "cb4a583d71fb98c2e8ee18be3254656bbb0ed92bf67ffab53ca34650b94f947d",
+      "status": "MODEL-LOCAL"
+    },
+    {
       "bytes": 2878,
       "lines": 91,
       "path": "NativeChatBot/Sources/ModuleManifest.swift",
@@ -140,19 +202,27 @@
       "status": "MODEL-LOCAL"
     },
     {
-      "bytes": 1473,
+      "bytes": 1474,
       "lines": 45,
       "path": "NativeChatBot/build-native-chatbot.command",
       "role": "native_ui",
-      "sha256": "f5c3390bff790cb9de78cc1d1c9c3c13471311df0e680ca145b3675b3e873efb",
+      "sha256": "736de7ef74fdb191f8bc713c9603c26630fc6f5ecb24c224e698d14bf9486e0d",
       "status": "MODEL-LOCAL"
     },
     {
-      "bytes": 2297,
-      "lines": 61,
+      "bytes": 4845,
+      "lines": 101,
       "path": "NativeChatBot/run-runtime-smoke.command",
       "role": "runtime_route_engine",
-      "sha256": "89efdf36ed7fbd0532028a2456f4da30134b500a43ccfece7234e214c0313c9e",
+      "sha256": "d240699eaee81cdfa2a04a5f5dc3e95a73ff945c613971f4cfde246bd45ba65c",
+      "status": "MODEL-LOCAL"
+    },
+    {
+      "bytes": 2199,
+      "lines": 62,
+      "path": "README.md",
+      "role": "proof_workflow",
+      "sha256": "bb92a5796f5c755c002310755b6311cab606f663d7fb0d593603913045f4b89d",
       "status": "MODEL-LOCAL"
     },
     {
@@ -164,21 +234,43 @@
       "status": "MODEL-LOCAL"
     },
     {
-      "bytes": 12709,
-      "lines": 243,
+      "bytes": 13294,
+      "lines": 254,
       "path": "docs/KEX_HYPERDRIVE_CALIBRATION_ANALYSIS.md",
       "role": "runtime_route_engine",
-      "sha256": "2c9ef1727a11d1ba8a3de108b61202914b8f682fde526eadcb5f47c733097503",
-      "bytes": 12405,
-      "lines": 236,
-      "path": "docs/KEX_HYPERDRIVE_CALIBRATION_ANALYSIS.md",
-      "role": "runtime_route_engine",
-      "sha256": "32b12c5709ecbcef6bc305f43ca00192e13ef7c6cf61136b6dc91d37d8c523c1",
-      "bytes": 12200,
-      "lines": 230,
-      "path": "docs/KEX_HYPERDRIVE_CALIBRATION_ANALYSIS.md",
-      "role": "runtime_route_engine",
-      "sha256": "263bf7e5ff509de35ecafe437057b78a13074be3a7ae342bade1af1c72ab9c36",
+      "sha256": "5e9d9a6d7a7bfe0f8549fa188e9373c0733501b6fe9dcdde6516dbae657e5711",
+      "status": "MODEL-LOCAL"
+    },
+    {
+      "bytes": 1429,
+      "lines": 35,
+      "path": "docs/governance/agentic-intelligence-cli.md",
+      "role": "proof_workflow",
+      "sha256": "1edd4f944bde51fc4acb9d96a8291468fa8e8014f47fa05286c4e5471cd2ba4a",
+      "status": "MODEL-LOCAL"
+    },
+    {
+      "bytes": 2112,
+      "lines": 53,
+      "path": "docs/governance/manifest.json",
+      "role": "diagnostic_or_manifest_data",
+      "sha256": "4380fbca654da045b7b746d9abc55889bb1f0b80690417097377034026b1ad2f",
+      "status": "MODEL-LOCAL"
+    },
+    {
+      "bytes": 3894,
+      "lines": 123,
+      "path": "docs/governance/repository-governance-standard.md",
+      "role": "proof_workflow",
+      "sha256": "6d43724e1c76ce3bc92725efdca69320bc99573d6acc4d2f3e9518c8bb00d156",
+      "status": "MODEL-LOCAL"
+    },
+    {
+      "bytes": 2447,
+      "lines": 29,
+      "path": "docs/governance/strict-deep-analysis-comment.md",
+      "role": "proof_workflow",
+      "sha256": "39888c1c5b0878bf75ca987be9b33a7d2d475ca165b92b41d766b2168d95dbc3",
       "status": "MODEL-LOCAL"
     },
     {
@@ -190,11 +282,11 @@
       "status": "MODEL-LOCAL"
     },
     {
-      "bytes": 596,
-      "lines": 17,
+      "bytes": 798,
+      "lines": 19,
       "path": "fold/index.json",
       "role": "diagnostic_or_manifest_data",
-      "sha256": "54e1481c3687a505ceb6bba7f444a2e00440bc7d481492d94c0723245ccd9afd",
+      "sha256": "6662b9b616c80db2dc99499e13913086c6f56c24c800a96b07d64960d8c5593c",
       "status": "MODEL-LOCAL"
     },
     {
@@ -214,6 +306,46 @@
       "status": "MODEL-LOCAL"
     },
     {
+      "bytes": 36420,
+      "lines": 799,
+      "path": "modules/KeddehMathematicalTheorems.py",
+      "role": "proof_workflow",
+      "sha256": "77fd5b56cf12abfee661edbd3b6a7cd7e6f74fb1435b267bb7bf6d38e4264ba4",
+      "status": "MODEL-LOCAL"
+    },
+    {
+      "bytes": 1044,
+      "lines": 24,
+      "path": "scripts/bootstrap-general-governance.sh",
+      "role": "supporting_source",
+      "sha256": "9664a6c75c387fb571cf96a1cb6354947b806a0ed2660caa90dcc78690c19bc5",
+      "status": "MODEL-LOCAL"
+    },
+    {
+      "bytes": 4888,
+      "lines": 144,
+      "path": "scripts/braink-agent-cli.py",
+      "role": "supporting_source",
+      "sha256": "e20397cfb193bce8632f2e804b0b8cf642f19fc185491c4fc133f6366d8f5f5b",
+      "status": "MODEL-LOCAL"
+    },
+    {
+      "bytes": 33573,
+      "lines": 823,
+      "path": "scripts/keddeh_matrix_workflow.py",
+      "role": "proof_workflow",
+      "sha256": "a040ad2d6dfee1b98a4eb7c97448287539e093988c8e5a89f037f9382345f69a",
+      "status": "MODEL-LOCAL"
+    },
+    {
+      "bytes": 5761,
+      "lines": 153,
+      "path": "scripts/validate-governance.py",
+      "role": "proof_workflow",
+      "sha256": "b04742ddd71d2d8d1c4d54339eac2e8b473bd1a9a20dfba81b407eeec454f051",
+      "status": "MODEL-LOCAL"
+    },
+    {
       "bytes": 5463,
       "lines": 147,
       "path": "tools/kex_ethics_check.py",
@@ -222,28 +354,17 @@
       "status": "MODEL-LOCAL"
     },
     {
-      "bytes": 16283,
-      "lines": 388,
+      "bytes": 16601,
+      "lines": 397,
       "path": "tools/kex_self_sustain.py",
       "role": "self_sustain_tooling",
-      "sha256": "f053909516463c497b5ec522f1e98425c5c56b5eeb0b651e77025af3e23ce0f4",
-      "bytes": 16216,
-      "lines": 387,
-      "path": "tools/kex_self_sustain.py",
-      "role": "self_sustain_tooling",
-      "sha256": "2ed6e4adc411a9f6053a9ee01fe0473ab066484f072326fa189a51ecf2ba35e2",
-      "bytes": 13361,
-      "lines": 320,
-      "path": "tools/kex_self_sustain.py",
-      "role": "knowledge_binding",
-      "sha256": "ce3a505ee1903e54289c4918b8ea3a701a266c7d181a2eb236f23257e9f12a64",
+      "sha256": "dfb9894b48497caf8fb15cdcf1065d45c3988de9711f32fb91d4ae1380ee758b",
       "status": "MODEL-LOCAL"
     }
   ],
   "ethics_findings": [],
-  "file_count": 26,
-  "file_count": 23,
-  "generated_at": "2026-06-27T00:00:00+00:00",
+  "file_count": 45,
+  "generated_at": "2026-07-02T08:34:28.349835+00:00",
   "kex_affect_gate": [
     "HumanBioBoundaryPreserved",
     "CodexNonBiologicalBoundaryPreserved",
@@ -253,13 +374,12 @@
     "RepairRouteAvailable",
     "BlockersPreserved"
   ],
-  "generated_at": "2026-06-27T04:22:51.313093+00:00",
   "objective": "Self-sustained KEX/BRAINK repo coding/task orchestration with proof gates.",
   "pending_tasks": [
     {
       "gate": "A_PORTABLE_ROOTS",
       "proof_required": "Unit/static check proving no required output path depends on /Users/ak.",
-      "status": "PENDING",
+      "status": "COMPLETED",
       "task": "Replace host-only proof/report paths with configurable BRAINK_ROOT and BRAINK_BUILD_DIR providers."
     },
     {
@@ -305,7 +425,7 @@
       "task": "Require independent reproduction packages before promoting external scientific/hardware claims."
     }
   ],
-  "repo": "/workspace/BRAINK",
+  "repo": "/home/runner/work/BRAINK/BRAINK",
   "route_coverage": {
     "auth.oauth": "MODEL-LOCAL",
     "chrome_browser": "MODEL-LOCAL",

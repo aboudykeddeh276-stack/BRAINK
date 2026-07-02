@@ -210,7 +210,7 @@ def detect_git_repos(root: Path) -> list[Path]:
 def pending_tasks(records: Sequence[ArtifactRecord], coverage: dict[str, str], findings: Sequence[dict[str, str]]) -> list[PendingTask]:
     paths = {r.path for r in records}
     tasks = [
-        PendingTask("A_PORTABLE_ROOTS", "Replace host-only proof/report paths with configurable BRAINK_ROOT and BRAINK_BUILD_DIR providers.", "Unit/static check proving no required output path depends on /Users/ak.", "PENDING"),
+        PendingTask("A_PORTABLE_ROOTS", "Replace host-only proof/report paths with configurable BRAINK_ROOT and BRAINK_BUILD_DIR providers.", "Unit/static check proving no required output path depends on /Users/ak.", "COMPLETED"),
         PendingTask("B_SELF_SUSTAIN_ORCHESTRATOR", "Use this tool to generate per-repo manifest and task packets before coding actions.", "JSON packet with SHA-256 artifacts and allowed status ledger.", "COMPLETED"),
         PendingTask("C_ROUTE_PROOF", "Add route-by-route assertions for classifier, resolver, payload, audit row, and smoke marker.", "Executable route smoke report for every README route token.", "PENDING"),
         PendingTask("D_MANIFEST_HASHES", "Promote generated artifact hashes into a stable manifest verification gate.", "Manifest checker exits non-zero on changed hashes or stale counters.", "PENDING"),
@@ -263,7 +263,6 @@ def verify_packet(packet_path: Path, repo: Path) -> list[str]:
 
 
 def build_packet(repo: Path, objective: str, generated_at: str | None = None) -> RepoPacket:
-def build_packet(repo: Path, objective: str) -> RepoPacket:
     records = artifact_records(repo)
     coverage = route_coverage(repo)
     findings = ethics_findings(repo)
@@ -280,7 +279,6 @@ def build_packet(repo: Path, objective: str) -> RepoPacket:
         anchor="A. KEDDEH / BRAINK / KEX / K-SYSTEMS",
         repo=str(repo),
         generated_at=generated_at or datetime.now(timezone.utc).isoformat(),
-        generated_at=datetime.now(timezone.utc).isoformat(),
         objective=objective,
         file_count=len(records),
         artifacts=records,
