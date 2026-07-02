@@ -57,6 +57,8 @@ Expected markers:
 - `NativeChatBot/build/kex_self_sustained_coding_report.json` is generated with repo targets, task packets, write scopes, command plans, and proof gates
 - `SMOKE_AUDIT_OUTCOME: DONE`
 - `SMOKE_AUDIT_ALIGNMENT: 1.0000`
+- `SMOKE_ZERO_LESS_STATUS: DONE`
+- `SMOKE_ZERO_LESS_API_STATUS: 200`
 
 ## Run
 ```bash
