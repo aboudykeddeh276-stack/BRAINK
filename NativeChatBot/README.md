@@ -35,18 +35,18 @@ A standalone **native macOS SwiftUI** chat bot with a deterministic local runtim
 
 ## Build
 ```bash
-cd "/Users/ak/Documents/BRAINK THE ACTUAL APPLICATION/NativeChatBot"
+cd NativeChatBot
 ./build-native-chatbot.command
 ```
 
 The script creates:
-- `/Users/ak/Documents/BRAINK THE ACTUAL APPLICATION/NativeChatBot/BRAINKChatBot.app`
+- `NativeChatBot/build/BRAINKChatBot.app`
 
 ## Runtime smoke test
 Run deterministic route/function smoke tests without opening the UI:
 
 ```bash
-cd "/Users/ak/Documents/BRAINK THE ACTUAL APPLICATION/NativeChatBot"
+cd NativeChatBot
 ./run-runtime-smoke.command
 ```
 
@@ -60,14 +60,14 @@ Expected markers:
 
 ## Run
 ```bash
-open "/Users/ak/Documents/BRAINK THE ACTUAL APPLICATION/NativeChatBot/BRAINKChatBot.app"
+open NativeChatBot/build/BRAINKChatBot.app
 ```
 
 ## Optional remote runtime
 Set an environment variable so the app calls a remote endpoint:
 ```bash
 export BRAINK_CHAT_RUNTIME="https://your-runtime.example.com/chat"
-./build-native-chatbot.command
+cd NativeChatBot && ./build-native-chatbot.command
 ```
 Payload sent: `{ "prompt": "..." }`.
 Response expected: `{ "response": "...", "route": "..." }`.
@@ -76,8 +76,8 @@ Response expected: `{ "response": "...", "route": "..." }`.
 Set this environment variable before building/running so the chatbot can enumerate and ingest your IL-LLM files:
 
 ```bash
-export IL_LLM_RUNTIME_PATH="/Users/ak/Documents/New project"
-./build-native-chatbot.command
+export IL_LLM_RUNTIME_PATH="/path/to/your/project"
+cd NativeChatBot && ./build-native-chatbot.command
 ```
 
 Then send:

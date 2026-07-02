@@ -263,24 +263,22 @@ def verify_packet(packet_path: Path, repo: Path) -> list[str]:
 
 
 def build_packet(repo: Path, objective: str, generated_at: str | None = None) -> RepoPacket:
-def build_packet(repo: Path, objective: str) -> RepoPacket:
     records = artifact_records(repo)
     coverage = route_coverage(repo)
     findings = ethics_findings(repo)
     tasks = pending_tasks(records, coverage, findings)
     ledger = {
-        "anchor_preserved": "COMPLETED",
-        "artifact_hashes_generated": "COMPLETED",
-        "coding_actions_executed": "PENDING",
-        "macos_runtime_proof": "BLOCKED",
-        "external_validation": "EXTERNALLY-UNVALIDATED",
-        "unsupported_claims_checked": "COMPLETED" if not findings else "PENDING",
+       "anchor_preserved": "COMPLETED",
+       "artifact_hashes_generated": "COMPLETED",
+       "coding_actions_executed": "PENDING",
+       "macos_runtime_proof": "BLOCKED",
+       "external_validation": "EXTERNALLY-UNVALIDATED",
+       "unsupported_claims_checked": "COMPLETED" if not findings else "PENDING",
     }
     return RepoPacket(
-        anchor="A. KEDDEH / BRAINK / KEX / K-SYSTEMS",
-        repo=str(repo),
-        generated_at=generated_at or datetime.now(timezone.utc).isoformat(),
-        generated_at=datetime.now(timezone.utc).isoformat(),
+       anchor="A. KEDDEH / BRAINK / KEX / K-SYSTEMS",
+       repo=str(repo),
+       generated_at=generated_at or datetime.now(timezone.utc).isoformat(),
         objective=objective,
         file_count=len(records),
         artifacts=records,
@@ -293,6 +291,11 @@ def build_packet(repo: Path, objective: str) -> RepoPacket:
 
 
 def write_packet(packet: RepoPacket, output_dir: Path) -> tuple[Path, Path]:
+    """Write packet to JSON and Markdown, returning (json_path, md_path)."""
+    # Handle both directory and file path outputs
+    if output_dir.suffix == ".json":
+        output_dir = output_dir.parent
+    
     output_dir.mkdir(parents=True, exist_ok=True)
     repo_name = Path(packet.repo).name or "repo"
     json_path = output_dir / f"{repo_name}_kex_self_sustain_packet.json"
