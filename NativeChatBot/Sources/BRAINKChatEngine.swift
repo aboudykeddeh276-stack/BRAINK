@@ -949,7 +949,7 @@ final class BRAINKChatEngine: ObservableObject {
     private func buildLocalDeterministicProofPacket(path: String, externalReason: String?) -> String {
         let fileReads = localProofFileReads(path: path)
         let entrypointPath = localRuntimeEntrypointPath()
-        let routingPath = "/Users/ak/Documents/BRAINK THE ACTUAL APPLICATION/NativeChatBot/Sources/BRAINKChatEngine.swift"
+        let routingPath = BRAINKPathProvider.sourceFilePath("BRAINKChatEngine.swift")
         let routingSummary = localRuntimeRoutingSummary()
 
         let falsifierFields = [
@@ -1094,18 +1094,18 @@ final class BRAINKChatEngine: ObservableObject {
         }
 
         let fallback = [
-            "/Users/ak/Documents/BRAINK THE ACTUAL APPLICATION/NativeChatBot/Sources/BRAINKChatEngine.swift",
-            "/Users/ak/Documents/BRAINK THE ACTUAL APPLICATION/NativeChatBot/Sources/BRAINKPlatformAPI.swift",
-            "/Users/ak/Documents/BRAINK THE ACTUAL APPLICATION/NativeChatBot/Sources/BRAINKDeliveryAudit.swift",
-            "/Users/ak/Documents/BRAINK THE ACTUAL APPLICATION/NativeChatBot/Sources/ModuleManifest.swift"
+            BRAINKPathProvider.sourceFilePath("BRAINKChatEngine.swift"),
+            BRAINKPathProvider.sourceFilePath("BRAINKPlatformAPI.swift"),
+            BRAINKPathProvider.sourceFilePath("BRAINKDeliveryAudit.swift"),
+            BRAINKPathProvider.sourceFilePath("ModuleManifest.swift")
         ]
         return fallback.filter { FileManager.default.fileExists(atPath: $0) }
     }
 
     private func localRuntimeEntrypointPath() -> String {
         let candidates = [
-            "/Users/ak/Documents/BRAINK THE ACTUAL APPLICATION/NativeChatBot/Sources/BRAINKChatBotApp.swift",
-            "/Users/ak/Documents/BRAINK THE ACTUAL APPLICATION/NativeChatBot/Sources/BRAINKChatEngine.swift"
+            BRAINKPathProvider.sourceFilePath("BRAINKChatBotApp.swift"),
+            BRAINKPathProvider.sourceFilePath("BRAINKChatEngine.swift")
         ]
         return candidates.first(where: { FileManager.default.fileExists(atPath: $0) }) ?? "NOT FOUND"
     }
@@ -1249,8 +1249,8 @@ final class BRAINKChatEngine: ObservableObject {
         - proof packet command: \(BRAINKConstants.proofPacketCommand)
         - stack audit report path: \(BRAINKConstants.stackAuditReportPath)
         - learning report path: \(BRAINKConstants.learningSnapshotReportPath)
-        - module manifest file: /Users/ak/Documents/BRAINK THE ACTUAL APPLICATION/NativeChatBot/Sources/ModuleManifest.swift
-        - engine file: /Users/ak/Documents/BRAINK THE ACTUAL APPLICATION/NativeChatBot/Sources/BRAINKChatEngine.swift
+        - module manifest file: \(BRAINKPathProvider.sourceFilePath("ModuleManifest.swift"))
+        - engine file: \(BRAINKPathProvider.sourceFilePath("BRAINKChatEngine.swift"))
         """
     }
 
@@ -1348,8 +1348,8 @@ final class BRAINKChatEngine: ObservableObject {
 
     private func evaluateAlignmentStatus() -> String {
         let hasData = ilLlmLoadedCount > 0
-        let hasManifest = FileManager.default.fileExists(atPath: "/Users/ak/Documents/BRAINK THE ACTUAL APPLICATION/NativeChatBot/Sources/ModuleManifest.swift")
-        let hasEngine = FileManager.default.fileExists(atPath: "/Users/ak/Documents/BRAINK THE ACTUAL APPLICATION/NativeChatBot/Sources/BRAINKChatEngine.swift")
+        let hasManifest = FileManager.default.fileExists(atPath: BRAINKPathProvider.sourceFilePath("ModuleManifest.swift"))
+        let hasEngine = FileManager.default.fileExists(atPath: BRAINKPathProvider.sourceFilePath("BRAINKChatEngine.swift"))
         let score = Double([hasData, hasManifest, hasEngine].filter { $0 }.count) / 3.0
         return String(format: "Alignment status: %.2f. data_loaded=%d, manifest=%d, engine=%d. Route trace is deterministic and local: %@.",
                       score,

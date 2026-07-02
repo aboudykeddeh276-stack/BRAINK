@@ -1,8 +1,10 @@
 import Foundation
 
 enum BRAINKConstants {
-    static var nativeChatBotRoot: String { URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().path }
-    static var buildRoot: String { URL(fileURLWithPath: nativeChatBotRoot).appendingPathComponent("build").path }
+    // Use PathProvider for configurable paths
+    static var nativeChatBotRoot: String { BRAINKPathProvider.nativeChatBotRoot }
+    static var buildRoot: String { BRAINKPathProvider.buildRoot }
+    
     static let architectName = "A. KEDDEH"
     static let organizationName = "K-SYSTEMS"
     static let productSignature = "BRAINK by K-SYSTEMS"
@@ -15,7 +17,8 @@ enum BRAINKConstants {
     static let unauthedErrMsg = "Please login (10001)"
     static let notAdminErrMsg = "You do not have required permission (10002)"
 
-    static let defaultILLLMRuntimePath = "/Users/ak/Documents/New project"
+    // IL-LLM runtime path is now configurable via environment variable
+    static let defaultILLLMRuntimePath: String = BRAINKPathProvider.ilLlmRuntimePath
     static let defaultProofPacketRunId = "smart_manager_0074"
     static let proofPacketCommand = "python3 -m il_llm.cli proof-packet --run-id \(defaultProofPacketRunId)"
     static var stackAuditReportPath: String { URL(fileURLWithPath: buildRoot).appendingPathComponent("braink_stack_alignment_report.json").path }

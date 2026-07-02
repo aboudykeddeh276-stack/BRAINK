@@ -12,5 +12,7 @@
   ],
   "repeating_hashes_count": 0,
   "repeating_names_count": 0,
-  "repo": "/Users/ak/Documents/BRAINK THE ACTUAL APPLICATION"
+  "repo": "${BRAINK_ROOT:-.}",
+  "description": "Dynamic fold index with configurable repository root. Uses BRAINK_ROOT environment variable or defaults to current directory.",
+  "note": "Set BRAINK_ROOT environment variable to override the repository root path."
 }

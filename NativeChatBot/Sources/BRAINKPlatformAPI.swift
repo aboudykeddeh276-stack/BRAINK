@@ -412,7 +412,7 @@ final class BRAINKPlatformEngine: BRAINKEngine {
         return KexDnaReport(
             packetType: "KEX_DNA_ONBOARDING_REPORT_V1",
             createdAt: Self.isoNow(),
-            sourceRoot: "/Users/ak/Documents/BRAINK THE ACTUAL APPLICATION",
+            sourceRoot: BRAINKPathProvider.sourceRoot,
             filesFound: reportEntries.count,
             acceptedFiles: accepted,
             uniqueNormalizedGenomes: Set(reportEntries.map { $0.normalizedSha256 }).count,

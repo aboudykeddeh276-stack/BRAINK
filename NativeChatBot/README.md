@@ -8,6 +8,7 @@ A standalone **native macOS SwiftUI** chat bot with a deterministic local runtim
 - Local fallback responses (no third-party service required)
 - Optional runtime bridge through `BRAINK_CHAT_RUNTIME`
 - Reproducible build script
+- **Portable path configuration** for any development environment
 
 ## Modules
 - `Router`: scores command routing keywords
@@ -22,7 +23,7 @@ A standalone **native macOS SwiftUI** chat bot with a deterministic local runtim
 - `build` -> build/compile/bundle request (`build`, `compile`, `bundle`)
 - `constraint_flags` -> machine-readable module delivery constraints and status flags (`constraints`, `flaggable`, `constraint`, `flag`)
 - `illlm_bundle` -> IL-LLM workspace intake and inventory (`il-llm`, `illlm`, `all my il`)
-- `illlm_bootstrap` -> explicit “have/load/want my data” bootstrap intent for immediate ingestion.
+- `illlm_bootstrap` -> explicit "have/load/want my data" bootstrap intent for immediate ingestion.
 - `align-check` -> alignment verification requests (`align`, `alignment`)
 - `module_manifest` -> module-link proof ledger (`module map`, `module status`, `manifest`)
 - `kex_hyperdrive` -> KEX Hyperdrive transition/definition/state concept + full repo calibration report (`State OF transition`, `Transition OF state`, `Definition OF transition`, `calibration analysis`, `pending tasks`, `X OF X OF X OF X`)
@@ -33,20 +34,39 @@ A standalone **native macOS SwiftUI** chat bot with a deterministic local runtim
   Ask questions that match filenames/contents (for example terms from your project) and the bot will
   return matching loaded context in `illlm_query`.
 
+## Configuration
+
+The chat bot uses configurable paths via environment variables. This ensures portability across different machines and development environments.
+
+### Environment Variables
+
+- `BRAINK_ROOT`: Root directory for the BRAINK repository (default: auto-detected from NativeChatBot location)
+- `BRAINK_BUILD_DIR`: Build output directory for reports and artifacts (default: `$BRAINK_ROOT/build`)
+- `IL_LLM_RUNTIME_PATH`: Path to your IL-LLM workspace directory (default: `$BRAINK_ROOT/il_llm_runtime`)
+- `BRAINK_CHAT_RUNTIME`: Optional remote endpoint for chat requests
+
 ## Build
+
 ```bash
-cd "/Users/ak/Documents/BRAINK THE ACTUAL APPLICATION/NativeChatBot"
+# Navigate to NativeChatBot directory
+cd NativeChatBot
+
+# Build with auto-detected paths
+./build-native-chatbot.command
+
+# Or explicitly set the repository root
+export BRAINK_ROOT=/path/to/BRAINK
 ./build-native-chatbot.command
 ```
 
 The script creates:
-- `/Users/ak/Documents/BRAINK THE ACTUAL APPLICATION/NativeChatBot/BRAINKChatBot.app`
+- `$BRAINK_ROOT/NativeChatBot/BRAINKChatBot.app`
 
 ## Runtime smoke test
 Run deterministic route/function smoke tests without opening the UI:
 
 ```bash
-cd "/Users/ak/Documents/BRAINK THE ACTUAL APPLICATION/NativeChatBot"
+cd NativeChatBot
 ./run-runtime-smoke.command
 ```
 
@@ -57,17 +77,19 @@ Expected markers:
 - `NativeChatBot/build/kex_self_sustained_coding_report.json` is generated with repo targets, task packets, write scopes, command plans, and proof gates
 - `SMOKE_AUDIT_OUTCOME: DONE`
 - `SMOKE_AUDIT_ALIGNMENT: 1.0000`
+- `SMOKE_ZERO_LESS_STATUS: DONE`
+- `SMOKE_ZERO_LESS_API_STATUS: 200`
 
 ## Run
 ```bash
-open "/Users/ak/Documents/BRAINK THE ACTUAL APPLICATION/NativeChatBot/BRAINKChatBot.app"
+open NativeChatBot/BRAINKChatBot.app
 ```
 
 ## Optional remote runtime
 Set an environment variable so the app calls a remote endpoint:
 ```bash
 export BRAINK_CHAT_RUNTIME="https://your-runtime.example.com/chat"
-./build-native-chatbot.command
+./NativeChatBot/build-native-chatbot.command
 ```
 Payload sent: `{ "prompt": "..." }`.
 Response expected: `{ "response": "...", "route": "..." }`.
@@ -76,8 +98,8 @@ Response expected: `{ "response": "...", "route": "..." }`.
 Set this environment variable before building/running so the chatbot can enumerate and ingest your IL-LLM files:
 
 ```bash
-export IL_LLM_RUNTIME_PATH="/Users/ak/Documents/New project"
-./build-native-chatbot.command
+export IL_LLM_RUNTIME_PATH="/path/to/your/il_llm_workspace"
+./NativeChatBot/build-native-chatbot.command
 ```
 
 Then send:
@@ -91,7 +113,7 @@ You can also skip env var setup by dragging an IL-LLM folder/file into the chat 
 
 The bot also auto-loads IL-LLM snippets on startup from:
 1. `IL_LLM_RUNTIME_PATH` if set, otherwise
-2. `/Users/ak/Documents/New project`.
+2. Default location under `$BRAINK_ROOT/il_llm_runtime`.
 
 Detected route for module/status checks:
 - `module_manifest` -> reports all module files and exact delivery state.
