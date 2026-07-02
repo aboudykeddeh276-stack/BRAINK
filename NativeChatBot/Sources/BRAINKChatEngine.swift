@@ -635,12 +635,12 @@ final class BRAINKChatEngine: ObservableObject {
         }
 
         updateRouteReasoningState(for: route)
-        let routeQuality = assessResponseQuality(response)
-        updateEmotionalState(for: text, responseQuality: routeQuality)
+        let quality = assessResponseQuality(response)
+        updateEmotionalState(for: text, responseQuality: quality)
         innerRuntimeState = BRAINKInnerRuntime.evolve(
             current: innerRuntimeState,
             userInput: text,
-            responseQuality: routeQuality,
+            responseQuality: quality,
             emotionalState: [
                 "happy_to_be_alive": emotionalState.happyToBeAlive,
                 "curiosity": emotionalState.curiosity,
