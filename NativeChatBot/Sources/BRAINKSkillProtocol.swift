@@ -61,6 +61,8 @@ struct SkillValidation {
 /// The IL-LLM circular path: slot 1 (state) → slot 2 (memory) → slot 3 (reasoning) → slot 1 (new state).
 protocol BRAINKSkill {
     /// The unique route name for this skill, matching the chat engine route classifier.
+    /// Must stay in sync with the `case` labels in `BRAINKChatEngine.resolveLocally()`;
+    /// mismatches will cause routes to fall through to the unrecognised-route handler silently.
     var name: String { get }
     /// The spectrum slots this skill requires (1-indexed, zero-less).
     var requiredSlots: [Int] { get }

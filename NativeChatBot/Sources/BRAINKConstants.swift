@@ -38,8 +38,9 @@ enum BRAINKConstants {
     static let unauthedErrMsg = "Please login (10001)"
     static let notAdminErrMsg = "You do not have required permission (10002)"
 
-    // MARK: - IL-LLM defaults (configurable via environment; no host-specific fallback)
+    // MARK: - IL-LLM defaults (configurable via environment; portable source-relative fallback)
     /// Default IL-LLM runtime path. Override with IL_LLM_RUNTIME_PATH environment variable.
+    /// Fallback is derived from `#filePath` at compile time — portable across machines, never a host-specific path.
     /// Evaluated once on first access and cached (env vars do not change during a process lifetime).
     static let defaultILLLMRuntimePath: String = {
         ProcessInfo.processInfo.environment["IL_LLM_RUNTIME_PATH"]
