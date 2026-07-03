@@ -20,7 +20,7 @@ enum SkillStatus: String, Codable {
 ///   2 = memory  (illlm_query)
 ///   3 = reasoning (self_sustained_coder)
 ///   4 = governance (kex_hyperdrive)
-///   5 = orchestration (reserved for nested runtime)
+///   5 = orchestration (nested_runtime_orchestrator)
 struct SkillContext {
     let spectrumSlot: Int
     let runtimePath: String
