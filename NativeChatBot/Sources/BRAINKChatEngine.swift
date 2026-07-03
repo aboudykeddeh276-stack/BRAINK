@@ -478,6 +478,15 @@ final class BRAINKChatEngine: ObservableObject {
             } catch {
                 response = "KEX self-sustained coding report failed: \(error.localizedDescription)"
             }
+        case "skill_registry":
+            do {
+                try BRAINKSkillRegistry.writeRegistrationProof()
+                let proof = BRAINKSkillRegistry.validateRegistrationCompleteness()
+                response = BRAINKSkillRegistry.asText(proof)
+            } catch {
+                let proof = BRAINKSkillRegistry.validateRegistrationCompleteness()
+                response = BRAINKSkillRegistry.asText(proof)
+            }
         case "knowledge_center_status":
             response = buildKnowledgeCenterStatusResponse()
         case "illlm_bootstrap":
@@ -682,6 +691,17 @@ final class BRAINKChatEngine: ObservableObject {
             || lower.contains("task it to each repo")
             || lower.contains("self existence design") {
             return "self_sustained_coder"
+        }
+        if lower.contains("skill registry")
+            || lower.contains("registered skills")
+            || lower.contains("skill map")
+            || (lower.contains("spectrum") && lower.contains("slot"))
+            || lower.contains("1>2>3")
+            || lower.contains("1→2→3")
+            || lower.contains("il-llm path")
+            || lower.contains("illlm path")
+            || lower.contains("circular path") {
+            return "skill_registry"
         }
         if lower.contains("kex hyperdrive")
             || lower.contains("state of transition")

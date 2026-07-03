@@ -29,4 +29,5 @@ enum BRAINKConstants {
     static var kexHyperdriveConceptReportPath: String { URL(fileURLWithPath: buildRoot).appendingPathComponent("kex_hyperdrive_transition_definition_report.json").path }
     static var kexHyperdriveCalibrationReportPath: String { URL(fileURLWithPath: buildRoot).appendingPathComponent("kex_hyperdrive_repo_calibration_report.json").path }
     static var kexSelfSustainedCodingReportPath: String { URL(fileURLWithPath: buildRoot).appendingPathComponent("kex_self_sustained_coding_report.json").path }
+    static var skillRegistryReportPath: String { URL(fileURLWithPath: buildRoot).appendingPathComponent("braink_skill_registry_proof.json").path }
 }

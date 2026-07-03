@@ -392,6 +392,38 @@ enum BRAINKDeliveryAudit {
             requiredTokens: ["struct BrainkNativeChatbotView", "ChatInputBar", "TraceRow", "onDrop"],
             weight: 1.2
         ),
+        StackModuleContract(
+            moduleName: "ui_nested_runtime_dashboard_component",
+            runningFile: "\(sourceRoot)/BRAINKUIContainers.swift",
+            logicalLink: "NestedRuntimeDashboard",
+            verification: "NestedRuntimeDashboard renders spectrum slots [1..5] and IL-LLM circular path label.",
+            requiredTokens: ["struct NestedRuntimeDashboard", "spectrumSlots", "circularPathLabel", "NestedRuntimeSlotRow"],
+            weight: 1.2
+        ),
+        StackModuleContract(
+            moduleName: "service_skill_protocol_module",
+            runningFile: "\(sourceRoot)/BRAINKSkillProtocol.swift",
+            logicalLink: "protocol BRAINKSkill",
+            verification: "BRAINKSkill protocol defines name, requiredSlots, execute(context:), validate().",
+            requiredTokens: ["protocol BRAINKSkill", "var requiredSlots: [Int]", "func execute(context: SkillContext)", "func validate() -> SkillValidation", "struct SkillContext", "struct SkillResult", "struct SkillValidation"],
+            weight: 1.2
+        ),
+        StackModuleContract(
+            moduleName: "service_skill_registry_module",
+            runningFile: "\(sourceRoot)/BRAINKSkillRegistry.swift",
+            logicalLink: "BRAINKSkillRegistry.validateRegistrationCompleteness()",
+            verification: "Skill registry registers all 4 skills, maps slots [1..4], encodes 1→2→3→1 circular path, and proves all routes have skills.",
+            requiredTokens: ["enum BRAINKSkillRegistry", "allSkills", "slotMap", "dependencyGraph", "illlmCircularPath", "validateRegistrationCompleteness()", "isCircularFeedback"],
+            weight: 1.3
+        ),
+        StackModuleContract(
+            moduleName: "route_skill_registry_wiring",
+            runningFile: "\(sourceRoot)/BRAINKChatEngine.swift",
+            logicalLink: "classifyRoute -> resolveLocally skill_registry",
+            verification: "Route classifier emits skill_registry and resolver calls BRAINKSkillRegistry.validateRegistrationCompleteness and asText.",
+            requiredTokens: ["return \"skill_registry\"", "case \"skill_registry\":", "BRAINKSkillRegistry.writeRegistrationProof()", "BRAINKSkillRegistry.asText(proof)"],
+            weight: 1.2
+        ),
     ]
 
     static func moduleDefinitions() -> [ModuleDefinition] {
