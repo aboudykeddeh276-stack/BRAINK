@@ -334,9 +334,11 @@ class TestNestedCoreRuntime:
         assert "CHILD_Y" in parent.mirrors
         assert parent.inner_system.name == "CHILD_X"  # first mirror is inner_system for backward compatibility
         
-        # Verify both are registered with unique paths in parent filesystem
+        # Verify both are registered with unique paths and correct indexing in parent filesystem
         state_x = parent.fs.fetch_state(3)
         state_y = parent.fs.fetch_state(4)
+        assert state_x["path"] == "/sys/parent_multi/nested_link/child_x"
+        assert state_y["path"] == "/sys/parent_multi/nested_link/child_y"
         assert "CHILD_X" in state_x["data"]
         assert "CHILD_Y" in state_y["data"]
 
