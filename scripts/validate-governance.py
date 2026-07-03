@@ -8,6 +8,13 @@ import json
 import sys
 from pathlib import Path
 
+# ---------------------------------------------------------------------------
+# Exit codes — named constants so every failure surface carries context
+# ---------------------------------------------------------------------------
+EXIT_OK = 0
+EXIT_GOVERNANCE_FAILURE = 1   # one or more required files or manifest checks failed
+EXIT_MANIFEST_UPDATED = 0     # --write-manifest completed successfully (same as OK)
+
 ROOT = Path(__file__).resolve().parents[1]
 REQUIRED_FILES = [
     "README.md",
@@ -141,11 +148,16 @@ def main() -> int:
         print("GOVERNANCE_CHECK_STATUS: FAILED")
         for failure in failures:
             print(f"- {failure}")
-        return 1
+        print(
+            f"EXIT_CODE={EXIT_GOVERNANCE_FAILURE} REASON=GOVERNANCE_FAILURE "
+            f"failures_count={len(failures)}",
+            file=sys.stderr,
+        )
+        return EXIT_GOVERNANCE_FAILURE
 
     print("GOVERNANCE_CHECK_STATUS: COMPLETED")
     print(f"GOVERNANCE_REQUIRED_FILES: {len(REQUIRED_FILES)}")
-    return 0
+    return EXIT_OK
 
 
 if __name__ == "__main__":

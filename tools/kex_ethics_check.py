@@ -11,9 +11,16 @@ import argparse
 import json
 import os
 import re
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Iterable
+
+# ---------------------------------------------------------------------------
+# Exit codes — named constants so every failure surface carries context
+# ---------------------------------------------------------------------------
+EXIT_OK = 0
+EXIT_ETHICS_FAILURE = 1   # boundary violations or manifest errors detected
 
 SKIP_DIRS = {".git", ".build", "build", "reports", "node_modules", "vendor", "DerivedData", "__pycache__"}
 TEXT_SUFFIXES = {".swift", ".py", ".json", ".md", ".txt", ".command", ".sh", ".yml", ".yaml"}
@@ -139,7 +146,16 @@ def main() -> int:
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n")
     print(f"KEX_ETHICS_CHECK output={output} status={status}")
-    return 0 if status == "COMPLETED" else 1
+    if status != "COMPLETED":
+        total_findings = sum(len(f.get("matches", [])) for f in findings)
+        print(
+            f"EXIT_CODE={EXIT_ETHICS_FAILURE} REASON=ETHICS_BOUNDARY_FAILURE "
+            f"manifest_errors={len(manifest_errors)} repo_findings={len(findings)} "
+            f"total_matches={total_findings}",
+            file=sys.stderr,
+        )
+        return EXIT_ETHICS_FAILURE
+    return EXIT_OK
 
 
 if __name__ == "__main__":

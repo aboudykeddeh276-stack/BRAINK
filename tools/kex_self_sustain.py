@@ -20,6 +20,13 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Iterable, Sequence
 
+# ---------------------------------------------------------------------------
+# Exit codes — named constants so every failure surface carries context
+# ---------------------------------------------------------------------------
+EXIT_OK = 0
+EXIT_VERIFY_FAILURE = 1    # packet verification found errors
+EXIT_STATUS_FAILURE = 2    # packet status validation failed
+
 ALLOWED_STATUS = [
     "COMPLETED",
     "PENDING",
@@ -263,7 +270,6 @@ def verify_packet(packet_path: Path, repo: Path) -> list[str]:
 
 
 def build_packet(repo: Path, objective: str, generated_at: str | None = None) -> RepoPacket:
-def build_packet(repo: Path, objective: str) -> RepoPacket:
     records = artifact_records(repo)
     coverage = route_coverage(repo)
     findings = ethics_findings(repo)
@@ -280,7 +286,6 @@ def build_packet(repo: Path, objective: str) -> RepoPacket:
         anchor="A. KEDDEH / BRAINK / KEX / K-SYSTEMS",
         repo=str(repo),
         generated_at=generated_at or datetime.now(timezone.utc).isoformat(),
-        generated_at=datetime.now(timezone.utc).isoformat(),
         objective=objective,
         file_count=len(records),
         artifacts=records,
@@ -366,9 +371,14 @@ def main(argv: Sequence[str] | None = None) -> int:
         if errors:
             for error in errors:
                 print(f"KEX_VERIFY_ERROR {error}", file=sys.stderr)
-            return 1
+            print(
+                f"EXIT_CODE={EXIT_VERIFY_FAILURE} REASON=VERIFY_FAILURE "
+                f"packet={args.verify_packet!r} errors_count={len(errors)}",
+                file=sys.stderr,
+            )
+            return EXIT_VERIFY_FAILURE
         print(f"KEX_VERIFY packet={args.verify_packet} status=COMPLETED")
-        return 0
+        return EXIT_OK
 
     repos = detect_git_repos(root) if args.all_repos else [root]
     written: list[Path] = []
@@ -378,20 +388,18 @@ def main(argv: Sequence[str] | None = None) -> int:
         if status_errors:
             for error in status_errors:
                 print(f"KEX_STATUS_ERROR {error}", file=sys.stderr)
-            return 1
-    args = parser.parse_args(argv)
-
-    root = Path(args.root).resolve()
-    repos = detect_git_repos(root) if args.all_repos else [root]
-    written: list[Path] = []
-    for repo in repos:
-        packet = build_packet(repo, args.objective)
+            print(
+                f"EXIT_CODE={EXIT_STATUS_FAILURE} REASON=STATUS_VALIDATION_FAILURE "
+                f"repo={repo!r} errors_count={len(status_errors)}",
+                file=sys.stderr,
+            )
+            return EXIT_STATUS_FAILURE
         json_path, md_path = write_packet(packet, Path(args.output_dir))
         written.extend([json_path, md_path])
         print(f"KEX_PACKET repo={repo} json={json_path} markdown={md_path} status=COMPLETED")
     if args.commit:
         git_commit_if_requested(written, "Generate KEX self-sustain packets")
-    return 0
+    return EXIT_OK
 
 
 if __name__ == "__main__":
