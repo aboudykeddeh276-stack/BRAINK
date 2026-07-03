@@ -30,6 +30,9 @@ class KeddehZeroLessMatrix:
     - logical index 6 -> signed index 3
     """
     
+    # Split point dividing the zero-less spectrum mapping range.
+    # Logical indices <= HALFWAY (1, 2, 3) map to negative signed indices (-1, -2, -3).
+    # Logical indices > HALFWAY (4, 5, 6...) map to positive signed indices starting from 1.
     HALFWAY = 3
         
     @staticmethod
@@ -231,7 +234,7 @@ class NestedCoreRuntime:
     - Deep recursive state snapshotting and restoration
     """
     
-    def __init__(self, name: str, base_capacity_tbi: int, depth: int = 1):
+    def __init__(self, name: str, base_capacity_tbi: int, depth: int = 1, bootstrap: bool = True):
         """
         Initialize a NestedCoreRuntime system.
         
@@ -239,6 +242,7 @@ class NestedCoreRuntime:
             name: System identifier name
             base_capacity_tbi: Base capacity in TBi (tebi-bits)
             depth: Nesting depth level (default 1 for root)
+            bootstrap: If True, self-bootstrap the initial system states (default True)
         """
         self.name = name
         self.capacity_tbi = base_capacity_tbi
@@ -246,17 +250,18 @@ class NestedCoreRuntime:
         self.fs = WiredFATFileSystem()
         self.mirrors: Dict[str, 'NestedCoreRuntime'] = {}
         
-        # Self-bootstrap the state into the zero-less space
-        self.fs.assign_state(
-            1,
-            f"/sys/{self.name.lower()}/meta",
-            f"SYSTEM_NAME:{self.name}|CAPACITY:{self.capacity_tbi}TBi|DEPTH:{self.depth}"
-        )
-        self.fs.assign_state(
-            2,
-            f"/sys/{self.name.lower()}/status",
-            "BOOTED_STABLE"
-        )
+        if bootstrap:
+            # Self-bootstrap the state into the zero-less space
+            self.fs.assign_state(
+                1,
+                f"/sys/{self.name.lower()}/meta",
+                f"SYSTEM_NAME:{self.name}|CAPACITY:{self.capacity_tbi}TBi|DEPTH:{self.depth}"
+            )
+            self.fs.assign_state(
+                2,
+                f"/sys/{self.name.lower()}/status",
+                "BOOTED_STABLE"
+            )
 
     @property
     def inner_system(self) -> Optional['NestedCoreRuntime']:
@@ -296,8 +301,9 @@ class NestedCoreRuntime:
         self.mirrors[inner_name] = child
         
         # Register the child system state string into the parent's uncompressed filesystem
-        # First child goes to logical index 3 for exact backward compatibility
-        logical_idx = 3 + len(self.mirrors) - 1
+        # First child goes to logical index 3 for exact backward compatibility (2 + 1 = 3),
+        # subsequent children go to index 4, 5, etc.
+        logical_idx = 2 + len(self.mirrors)
         child_meta = f"EMBEDDED_MIRROR_SYSTEM_IDENTIFIER:{inner_name}|ALLOCATION:{inner_capacity_tbi}TBi"
         self.fs.assign_state(logical_idx, f"/sys/{self.name.lower()}/nested_link/{inner_name.lower()}", child_meta)
     
@@ -437,5 +443,5 @@ class NestedCoreRuntime:
         for name, mirror_snapshot in snapshot_mirrors.items():
             if name not in self.mirrors:
                 # Create a temporary empty mirror shell and let it restore itself
-                self.mirrors[name] = NestedCoreRuntime(name, mirror_snapshot["capacity_tbi"], depth=mirror_snapshot["depth"])
+                self.mirrors[name] = NestedCoreRuntime(name, mirror_snapshot["capacity_tbi"], depth=mirror_snapshot["depth"], bootstrap=False)
             self.mirrors[name].restore_snapshot(mirror_snapshot)
