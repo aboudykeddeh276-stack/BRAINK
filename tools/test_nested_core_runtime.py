@@ -56,6 +56,54 @@ class TestKeddehZeroLessMatrix:
         for logical_idx in range(1, 1000):
             signed_idx = KeddehZeroLessMatrix.get_signed_index(logical_idx)
             assert signed_idx != 0, f"Zero found in spectrum at logical index {logical_idx}"
+            
+    def test_get_logical_index_mapping(self):
+        """Test conversion from signed index back to logical index."""
+        assert KeddehZeroLessMatrix.get_logical_index(-1) == 1
+        assert KeddehZeroLessMatrix.get_logical_index(-2) == 2
+        assert KeddehZeroLessMatrix.get_logical_index(-3) == 3
+        assert KeddehZeroLessMatrix.get_logical_index(1) == 4
+        assert KeddehZeroLessMatrix.get_logical_index(2) == 5
+        assert KeddehZeroLessMatrix.get_logical_index(97) == 100
+
+    def test_get_logical_index_rejects_zero(self):
+        """Test that get_logical_index raises ValueError for 0."""
+        try:
+            KeddehZeroLessMatrix.get_logical_index(0)
+            assert False, "Should have raised ValueError for signed index 0"
+        except ValueError as e:
+            assert "Cartesian zero detected" in str(e)
+
+    def test_get_logical_index_rejects_out_of_bounds(self):
+        """Test that get_logical_index rejects negative indices smaller than -3."""
+        try:
+            KeddehZeroLessMatrix.get_logical_index(-4)
+            assert False, "Should have raised ValueError for -4"
+        except ValueError as e:
+            assert "out of bounds" in str(e)
+
+    def test_shift_index_bypasses_zero(self):
+        """Test index shifting with step-aware bypassing of 0."""
+        # Shift from negative to negative (no zero crossing)
+        assert KeddehZeroLessMatrix.shift_index(-3, 1) == -2
+        assert KeddehZeroLessMatrix.shift_index(-2, -1) == -3
+        
+        # Shift with zero crossing
+        assert KeddehZeroLessMatrix.shift_index(-1, 1) == 1
+        assert KeddehZeroLessMatrix.shift_index(1, -1) == -1
+        assert KeddehZeroLessMatrix.shift_index(-2, 3) == 2
+        assert KeddehZeroLessMatrix.shift_index(2, -3) == -2
+        
+        # Zero steps
+        assert KeddehZeroLessMatrix.shift_index(5, 0) == 5
+
+    def test_shift_index_rejects_zero(self):
+        """Test that shifting from zero index raises ValueError."""
+        try:
+            KeddehZeroLessMatrix.shift_index(0, 1)
+            assert False, "Should raise error starting from zero"
+        except ValueError as e:
+            assert "Cannot shift from Cartesian zero" in str(e)
 
 
 class TestWiredFATFileSystem:
@@ -113,6 +161,60 @@ class TestWiredFATFileSystem:
         state = fs.fetch_state(1)
         assert state["data"] == "updated_data"
         assert state["path"] == "/path1"
+
+    def test_delete_state(self):
+        """Test deleting a state cell."""
+        fs = WiredFATFileSystem()
+        fs.assign_state(1, "/path1", "data1")
+        assert fs.fetch_state(1)["data"] == "data1"
+        
+        fs.delete_state(1)
+        assert fs.fetch_state(1)["data"] == ""
+        assert fs.fetch_state(1)["path"] == "VOID"
+
+    def test_list_states(self):
+        """Test listing all states in sorted signed index order."""
+        fs = WiredFATFileSystem()
+        fs.assign_state(1, "/path1", "data1")
+        fs.assign_state(4, "/path4", "data4")
+        fs.assign_state(2, "/path2", "data2")
+        
+        states = fs.list_states()
+        assert len(states) == 3
+        # Sorted signed indices: -2, -1, 1
+        assert states[0]["signed_index"] == -2
+        assert states[1]["signed_index"] == -1
+        assert states[2]["signed_index"] == 1
+
+    def test_verify_integrity(self):
+        """Test integrity validation on storage cells."""
+        fs = WiredFATFileSystem()
+        fs.assign_state(1, "/path1", "data1")
+        assert fs.verify_integrity() is True
+        
+        # Manually corrupt data
+        fs.storage_cells[-1]["data"] = "corrupted_data"
+        assert fs.verify_integrity() is False
+
+    def test_export_state_manifest(self):
+        """Test exporting manifest metadata."""
+        fs = WiredFATFileSystem()
+        fs.assign_state(1, "/path1", "data1")
+        
+        manifest = fs.export_state_manifest()
+        assert "-1" in manifest
+        assert manifest["-1"]["path"] == "/path1"
+        assert manifest["-1"]["size_bytes"] == 5
+
+    def test_clear_state(self):
+        """Test clearing the filesystem cells."""
+        fs = WiredFATFileSystem()
+        fs.assign_state(1, "/path1", "data1")
+        fs.assign_state(2, "/path2", "data2")
+        assert len(fs.storage_cells) == 2
+        
+        fs.clear_state()
+        assert len(fs.storage_cells) == 0
 
 
 class TestNestedCoreRuntime:
@@ -213,6 +315,76 @@ class TestNestedCoreRuntime:
         # Verify no critical exceptions for zero
         zero_exceptions = [log for log in audit_logs if "Cartesian zero detected" in log]
         assert len(zero_exceptions) == 0
+
+    def test_multiple_mirrors(self):
+        """Test embedding multiple concurrent nested mirror systems."""
+        parent = NestedCoreRuntime("PARENT_MULTI", 10000)
+        parent.embed_mirror("CHILD_X", 3000)
+        parent.embed_mirror("CHILD_Y", 4000)
+        
+        assert len(parent.mirrors) == 2
+        assert "CHILD_X" in parent.mirrors
+        assert "CHILD_Y" in parent.mirrors
+        assert parent.inner_system.name == "CHILD_X"  # first mirror is inner_system for backward compatibility
+        
+        # Verify both are registered with unique paths in parent filesystem
+        state_x = parent.fs.fetch_state(3)
+        state_y = parent.fs.fetch_state(4)
+        assert "CHILD_X" in state_x["data"]
+        assert "CHILD_Y" in state_y["data"]
+
+    def test_scale_capacity(self):
+        """Test recursive capacity scaling with custom floating factors."""
+        parent = NestedCoreRuntime("PARENT_SCALE", 10000)
+        parent.embed_mirror("CHILD_SCALE", 5000)
+        
+        parent.scale_capacity(1.5)
+        assert parent.capacity_tbi == 15000
+        assert parent.inner_system.capacity_tbi == 7500
+        
+        try:
+            parent.scale_capacity(-1.0)
+            assert False, "Should reject negative scaling factor"
+        except ValueError as e:
+            assert "strictly positive" in str(e)
+
+    def test_get_system_report(self):
+        """Test generating deep recursive health and status reports."""
+        parent = NestedCoreRuntime("PARENT_REP", 10000)
+        parent.embed_mirror("CHILD_REP", 5000)
+        
+        report = parent.get_system_report()
+        assert report["name"] == "PARENT_REP"
+        assert report["capacity_tbi"] == 10000
+        assert report["filesystem_integrity"] is True
+        assert "CHILD_REP" in report["mirrors"]
+        assert report["mirrors"]["CHILD_REP"]["capacity_tbi"] == 5000
+
+    def test_capture_and_restore_snapshot(self):
+        """Test capturing and restoring deep system state snapshots."""
+        parent = NestedCoreRuntime("PARENT_SNAP", 10000)
+        parent.embed_mirror("CHILD_SNAP", 5000)
+        
+        # Write some extra states
+        parent.fs.assign_state(4, "/extra/parent", "parent_custom_state")
+        parent.inner_system.fs.assign_state(4, "/extra/child", "child_custom_state")
+        
+        # Capture snapshot
+        snapshot = parent.capture_snapshot()
+        
+        # Perform some modifications/updates
+        parent.double_capacity()
+        parent.fs.assign_state(4, "/extra/parent", "modified_parent_state")
+        parent.inner_system.fs.assign_state(4, "/extra/child", "modified_child_state")
+        
+        # Restore from snapshot
+        parent.restore_snapshot(snapshot)
+        
+        # Verify states restored to original
+        assert parent.capacity_tbi == 10000
+        assert parent.inner_system.capacity_tbi == 5000
+        assert parent.fs.fetch_state(4)["data"] == "parent_custom_state"
+        assert parent.inner_system.fs.fetch_state(4)["data"] == "child_custom_state"
 
 
 class TestIntegrationScenarios:

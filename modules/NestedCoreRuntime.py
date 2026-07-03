@@ -4,9 +4,9 @@ Nested Core Runtime Module
 
 Implements a rigorous zero-less index spectrum and nested runtime system.
 This module provides:
-- KeddehZeroLessMatrix: Zero-less indexing (bypasses 0 entirely)
-- WiredFATFileSystem: Uncompressed state database with zero-less indices
-- NestedCoreRuntime: Self-bootstrapping nested runtime system
+- KeddehZeroLessMatrix: Zero-less indexing (bypasses 0 entirely) with bidirectional and shift arithmetic
+- WiredFATFileSystem: Uncompressed state database with integrity verification
+- NestedCoreRuntime: Self-bootstrapping nested runtime system with arbitrary tree nesting and snapshotting
 
 Closes issue: aboudykeddeh276-stack/BRAINK#13
 """
@@ -29,6 +29,8 @@ class KeddehZeroLessMatrix:
     - logical index 5 -> signed index 2
     - logical index 6 -> signed index 3
     """
+    
+    HALFWAY = 3
         
     @staticmethod
     def get_signed_index(logical_idx: int) -> int:
@@ -48,11 +50,68 @@ class KeddehZeroLessMatrix:
             raise ValueError("Zero or negative logical indices strictly outlawed in Keddeh Matrix input.")
         
         # Bypasses 0: 1->-1, 2->-2, 3->-3, 4->1, 5->2, 6->3, etc.
-        halfway = 3
-        if logical_idx <= halfway:
+        if logical_idx <= KeddehZeroLessMatrix.HALFWAY:
             return -logical_idx
         else:
-            return (logical_idx - halfway)
+            return (logical_idx - KeddehZeroLessMatrix.HALFWAY)
+
+    @staticmethod
+    def get_logical_index(signed_idx: int) -> int:
+        """
+        Convert signed zero-less index back to logical index.
+        
+        Args:
+            signed_idx: Signed index (non-zero integer)
+            
+        Returns:
+            Positive integer logical index.
+            
+        Raises:
+            ValueError: If signed_idx is zero or out of bounds.
+        """
+        if signed_idx == 0:
+            raise ValueError("Cartesian zero detected. Zero-less spectrum does not contain zero index.")
+        
+        if signed_idx < 0:
+            if signed_idx < -KeddehZeroLessMatrix.HALFWAY:
+                raise ValueError(f"Signed index {signed_idx} is out of bounds for the defined zero-less spectrum.")
+            return -signed_idx
+        else:
+            return signed_idx + KeddehZeroLessMatrix.HALFWAY
+
+    @staticmethod
+    def shift_index(signed_idx: int, steps: int) -> int:
+        """
+        Shift a signed index by a given number of steps in the zero-less spectrum,
+        safely bypassing Cartesian zero.
+        
+        Args:
+            signed_idx: Starting signed index (non-zero integer)
+            steps: Number of steps to shift (integer, can be positive or negative)
+            
+        Returns:
+            New signed index in the zero-less spectrum.
+            
+        Raises:
+            ValueError: If starting signed_idx is zero.
+        """
+        if signed_idx == 0:
+            raise ValueError("Cannot shift from Cartesian zero index.")
+        
+        if steps == 0:
+            return signed_idx
+            
+        # Map signed_idx to continuous integer space where:
+        # negative indices remain negative, positive indices shift left by 1.
+        # e.g. -1 -> -1, 1 -> 0, 2 -> 1, etc.
+        seq = signed_idx if signed_idx < 0 else signed_idx - 1
+        new_seq = seq + steps
+        
+        # Map back from continuous space to zero-less space
+        if new_seq >= 0:
+            return new_seq + 1
+        else:
+            return new_seq
 
 
 class WiredFATFileSystem:
@@ -96,6 +155,68 @@ class WiredFATFileSystem:
         signed_idx = KeddehZeroLessMatrix.get_signed_index(logical_idx)
         return self.storage_cells.get(signed_idx, {"path": "VOID", "data": "", "hash": ""})
 
+    def delete_state(self, logical_idx: int) -> None:
+        """
+        Delete state from a storage cell.
+        
+        Args:
+            logical_idx: Logical index (positive integer)
+        """
+        signed_idx = KeddehZeroLessMatrix.get_signed_index(logical_idx)
+        if signed_idx in self.storage_cells:
+            del self.storage_cells[signed_idx]
+
+    def list_states(self) -> List[Dict[str, Any]]:
+        """
+        List all active storage states, sorted by signed index.
+        
+        Returns:
+            List of state cell dictionaries.
+        """
+        return [
+            {
+                "signed_index": idx,
+                "path": self.storage_cells[idx]["path"],
+                "data": self.storage_cells[idx]["data"],
+                "hash": self.storage_cells[idx]["hash"]
+            }
+            for idx in sorted(self.storage_cells.keys())
+        ]
+
+    def verify_integrity(self) -> bool:
+        """
+        Verify the SHA256 hash integrity of all stored cells.
+        
+        Returns:
+            True if all cells are integral, False otherwise.
+        """
+        for cell in self.storage_cells.values():
+            expected = cell["hash"]
+            actual = hashlib.sha256(cell["data"].encode('utf-8')).hexdigest()
+            if expected != actual:
+                return False
+        return True
+
+    def export_state_manifest(self) -> Dict[str, Any]:
+        """
+        Export a structural manifest of all stored states.
+        
+        Returns:
+            Dictionary mapping signed indices to metadata.
+        """
+        return {
+            str(idx): {
+                "path": cell["path"],
+                "hash": cell["hash"],
+                "size_bytes": len(cell["data"])
+            }
+            for idx, cell in self.storage_cells.items()
+        }
+
+    def clear_state(self) -> None:
+        """Clear all active storage cells."""
+        self.storage_cells.clear()
+
 
 class NestedCoreRuntime:
     """
@@ -104,9 +225,10 @@ class NestedCoreRuntime:
     
     Features:
     - Self-bootstrapping into zero-less space
-    - Nested layer runtime initialization
-    - Capacity doubling with state updates
-    - Structural audit of the system hierarchy
+    - Nested layer runtime initialization supporting multiple concurrent mirrors
+    - Capacity doubling/scaling with state updates
+    - Recursive structural audit of the system hierarchy
+    - Deep recursive state snapshotting and restoration
     """
     
     def __init__(self, name: str, base_capacity_tbi: int, depth: int = 1):
@@ -122,7 +244,7 @@ class NestedCoreRuntime:
         self.capacity_tbi = base_capacity_tbi
         self.depth = depth
         self.fs = WiredFATFileSystem()
-        self.inner_system: Optional['NestedCoreRuntime'] = None
+        self.mirrors: Dict[str, 'NestedCoreRuntime'] = {}
         
         # Self-bootstrap the state into the zero-less space
         self.fs.assign_state(
@@ -135,6 +257,31 @@ class NestedCoreRuntime:
             f"/sys/{self.name.lower()}/status",
             "BOOTED_STABLE"
         )
+
+    @property
+    def inner_system(self) -> Optional['NestedCoreRuntime']:
+        """
+        Backward compatible access to the first embedded mirror.
+        
+        Returns:
+            The first NestedCoreRuntime mirror system if any exist, else None.
+        """
+        if not self.mirrors:
+            return None
+        return next(iter(self.mirrors.values()))
+
+    @inner_system.setter
+    def inner_system(self, value: Optional['NestedCoreRuntime']) -> None:
+        """
+        Backward compatible setter for the first embedded mirror.
+        
+        Args:
+            value: A NestedCoreRuntime system to set as primary mirror or None to clear all.
+        """
+        if value is None:
+            self.mirrors.clear()
+        else:
+            self.mirrors[value.name] = value
     
     def embed_mirror(self, inner_name: str, inner_capacity_tbi: int) -> None:
         """
@@ -145,11 +292,38 @@ class NestedCoreRuntime:
             inner_capacity_tbi: Capacity of the inner system in TBi
         """
         # Nested layer runtime initialization
-        self.inner_system = NestedCoreRuntime(inner_name, inner_capacity_tbi, depth=self.depth + 1)
+        child = NestedCoreRuntime(inner_name, inner_capacity_tbi, depth=self.depth + 1)
+        self.mirrors[inner_name] = child
+        
         # Register the child system state string into the parent's uncompressed filesystem
+        # First child goes to logical index 3 for exact backward compatibility
+        logical_idx = 3 + len(self.mirrors) - 1
         child_meta = f"EMBEDDED_MIRROR_SYSTEM_IDENTIFIER:{inner_name}|ALLOCATION:{inner_capacity_tbi}TBi"
-        self.fs.assign_state(3, f"/sys/{self.name.lower()}/nested_link", child_meta)
+        self.fs.assign_state(logical_idx, f"/sys/{self.name.lower()}/nested_link/{inner_name.lower()}", child_meta)
     
+    def scale_capacity(self, factor: float) -> None:
+        """
+        Scale system capacity recursively across all nested layers.
+        
+        Args:
+            factor: Positive scaling factor (e.g. 2.0 to double)
+            
+        Raises:
+            ValueError: If factor <= 0
+        """
+        if factor <= 0:
+            raise ValueError("Capacity scaling factor must be strictly positive.")
+            
+        self.capacity_tbi = int(self.capacity_tbi * factor)
+        # Re-verify and write back updated literal state without standard variable compression
+        self.fs.assign_state(
+            1,
+            f"/sys/{self.name.lower()}/meta",
+            f"SYSTEM_NAME:{self.name}|CAPACITY:{self.capacity_tbi}TBi|DEPTH:{self.depth}"
+        )
+        for mirror in self.mirrors.values():
+            mirror.scale_capacity(factor)
+
     def double_capacity(self) -> None:
         """
         Double the system capacity and recursively update nested systems.
@@ -157,15 +331,7 @@ class NestedCoreRuntime:
         Re-verifies and writes back updated literal state without standard
         variable compression. Recursively doubles nested systems if present.
         """
-        self.capacity_tbi *= 2
-        # Re-verify and write back updated literal state without standard variable compression
-        self.fs.assign_state(
-            1,
-            f"/sys/{self.name.lower()}/meta",
-            f"SYSTEM_NAME:{self.name}|CAPACITY:{self.capacity_tbi}TBi|DEPTH:{self.depth}"
-        )
-        if self.inner_system:
-            self.inner_system.double_capacity()
+        self.scale_capacity(2.0)
     
     def run_structural_audit(self) -> List[str]:
         """
@@ -188,6 +354,88 @@ class NestedCoreRuntime:
                 )
         
         # Recursively audit child layer
-        if self.inner_system:
-            logs.extend(self.inner_system.run_structural_audit())
+        for mirror in self.mirrors.values():
+            logs.extend(mirror.run_structural_audit())
         return logs
+
+    def get_system_report(self) -> Dict[str, Any]:
+        """
+        Generate a complete deep recursive status report of the hierarchy.
+        
+        Returns:
+            Dictionary containing nested runtime structural status.
+        """
+        return {
+            "name": self.name,
+            "capacity_tbi": self.capacity_tbi,
+            "depth": self.depth,
+            "status": self.fs.fetch_state(2).get("data", "UNKNOWN"),
+            "filesystem_integrity": self.fs.verify_integrity(),
+            "active_cells_count": len(self.fs.storage_cells),
+            "mirrors": {name: mirror.get_system_report() for name, mirror in self.mirrors.items()}
+        }
+
+    def capture_snapshot(self) -> Dict[str, Any]:
+        """
+        Capture a deep, recursive state snapshot of the entire runtime tree.
+        
+        Returns:
+            A snapshot dictionary ready for backup or serialization.
+        """
+        return {
+            "name": self.name,
+            "capacity_tbi": self.capacity_tbi,
+            "depth": self.depth,
+            "storage_cells": {
+                str(idx): {
+                    "path": cell["path"],
+                    "data": cell["data"],
+                    "hash": cell["hash"]
+                }
+                for idx, cell in self.fs.storage_cells.items()
+            },
+            "mirrors": {name: mirror.capture_snapshot() for name, mirror in self.mirrors.items()}
+        }
+
+    def restore_snapshot(self, snapshot: Dict[str, Any]) -> None:
+        """
+        Deeply restore the entire runtime tree state from a captured snapshot,
+        re-verifying integrity of all cell hashes.
+        
+        Args:
+            snapshot: Snapshot dictionary previously generated by capture_snapshot.
+            
+        Raises:
+            ValueError: If integrity verification fails on restoration or structure mismatch.
+        """
+        if snapshot.get("name") != self.name:
+            raise ValueError(f"Snapshot name mismatch. Expected '{self.name}', got '{snapshot.get('name')}'")
+            
+        self.capacity_tbi = snapshot["capacity_tbi"]
+        self.depth = snapshot["depth"]
+        
+        # Re-populate filesystem
+        self.fs.clear_state()
+        for idx_str, cell_data in snapshot["storage_cells"].items():
+            idx = int(idx_str)
+            # Re-compute hash to verify integrity
+            computed_hash = hashlib.sha256(cell_data["data"].encode('utf-8')).hexdigest()
+            if computed_hash != cell_data["hash"]:
+                raise ValueError(f"Integrity check failed during snapshot restore for cell {idx}. Data has been corrupted.")
+            
+            self.fs.storage_cells[idx] = {
+                "path": cell_data["path"],
+                "data": cell_data["data"],
+                "hash": cell_data["hash"]
+            }
+            
+        # Re-populate and restore mirrors
+        snapshot_mirrors = snapshot.get("mirrors", {})
+        # Clear mirrors that are not in snapshot
+        self.mirrors = {name: m for name, m in self.mirrors.items() if name in snapshot_mirrors}
+        
+        for name, mirror_snapshot in snapshot_mirrors.items():
+            if name not in self.mirrors:
+                # Create a temporary empty mirror shell and let it restore itself
+                self.mirrors[name] = NestedCoreRuntime(name, mirror_snapshot["capacity_tbi"], depth=mirror_snapshot["depth"])
+            self.mirrors[name].restore_snapshot(mirror_snapshot)
