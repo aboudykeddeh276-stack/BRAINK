@@ -28,6 +28,14 @@ class KeddehZeroLessMatrix:
     - logical index 4 -> signed index 1
     - logical index 5 -> signed index 2
     - logical index 6 -> signed index 3
+    
+    The spectrum divides the indexing range at `HALFWAY = 3`.
+    Logical indices <= 3 map to negative signed indices [-3, -1].
+    Logical indices > 3 map to positive signed indices starting from 1.
+    Since logical indices must be positive integers, there are no logical
+    indices that can map to negative signed indices smaller than -3.
+    Therefore, the negative signed index range is strictly [-3, -1].
+    The positive signed index range is unbounded: [1, +infinity).
     """
     
     # Split point dividing the zero-less spectrum mapping range.
@@ -64,20 +72,25 @@ class KeddehZeroLessMatrix:
         Convert signed zero-less index back to logical index.
         
         Args:
-            signed_idx: Signed index (non-zero integer)
+            signed_idx: Signed index (non-zero integer). Valid ranges are
+                        [-3, -1] for negative spectrum and [1, +infinity)
+                        for positive spectrum.
             
         Returns:
             Positive integer logical index.
             
         Raises:
-            ValueError: If signed_idx is zero or out of bounds.
+            ValueError: If signed_idx is zero or out of valid bounds (smaller than -HALFWAY).
         """
         if signed_idx == 0:
             raise ValueError("Cartesian zero detected. Zero-less spectrum does not contain zero index.")
         
         if signed_idx < 0:
             if signed_idx < -KeddehZeroLessMatrix.HALFWAY:
-                raise ValueError(f"Signed index {signed_idx} is out of bounds for the defined zero-less spectrum.")
+                raise ValueError(
+                    f"Signed index {signed_idx} is out of bounds for the defined zero-less spectrum. "
+                    f"Negative signed indices are restricted to range [-{KeddehZeroLessMatrix.HALFWAY}, -1]."
+                )
             return -signed_idx
         else:
             return signed_idx + KeddehZeroLessMatrix.HALFWAY
@@ -249,6 +262,7 @@ class NestedCoreRuntime:
         self.depth = depth
         self.fs = WiredFATFileSystem()
         self.mirrors: Dict[str, 'NestedCoreRuntime'] = {}
+        self.next_mirror_idx = 3
         
         if bootstrap:
             # Self-bootstrap the state into the zero-less space
@@ -301,9 +315,11 @@ class NestedCoreRuntime:
         self.mirrors[inner_name] = child
         
         # Register the child system state string into the parent's uncompressed filesystem
-        # First child goes to logical index 3 for exact backward compatibility (2 + 1 = 3),
-        # subsequent children go to index 4, 5, etc.
-        logical_idx = 2 + len(self.mirrors)
+        # Use collision-free indexing with an auto-incrementing index tracker.
+        # First child goes to logical index 3 for exact backward compatibility,
+        # subsequent children go to index 4, 5, etc. even if some mirrors are deleted.
+        logical_idx = self.next_mirror_idx
+        self.next_mirror_idx += 1
         child_meta = f"EMBEDDED_MIRROR_SYSTEM_IDENTIFIER:{inner_name}|ALLOCATION:{inner_capacity_tbi}TBi"
         self.fs.assign_state(logical_idx, f"/sys/{self.name.lower()}/nested_link/{inner_name.lower()}", child_meta)
     
@@ -392,6 +408,7 @@ class NestedCoreRuntime:
             "name": self.name,
             "capacity_tbi": self.capacity_tbi,
             "depth": self.depth,
+            "next_mirror_idx": self.next_mirror_idx,
             "storage_cells": {
                 str(idx): {
                     "path": cell["path"],
@@ -419,8 +436,11 @@ class NestedCoreRuntime:
             
         self.capacity_tbi = snapshot["capacity_tbi"]
         self.depth = snapshot["depth"]
+        self.next_mirror_idx = snapshot.get("next_mirror_idx", 3)
         
         # Re-populate filesystem
+        # Note: self.fs.clear_state() is called here to ensure no orphan files or stale entries
+        # from deleted/removed mirrors are left over after restoration.
         self.fs.clear_state()
         for idx_str, cell_data in snapshot["storage_cells"].items():
             idx = int(idx_str)

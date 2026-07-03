@@ -82,6 +82,13 @@ class TestKeddehZeroLessMatrix:
         except ValueError as e:
             assert "out of bounds" in str(e)
 
+    def test_get_logical_index_unbounded_positive(self):
+        """Test that get_logical_index has no upper limit on positive signed indices."""
+        # Confirming positive spectrum supports arbitrarily large integer indices
+        large_signed = 1000000
+        expected_logical = large_signed + 3
+        assert KeddehZeroLessMatrix.get_logical_index(large_signed) == expected_logical
+
     def test_shift_index_bypasses_zero(self):
         """Test index shifting with step-aware bypassing of 0."""
         # Shift from negative to negative (no zero crossing)
