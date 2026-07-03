@@ -41,7 +41,7 @@ struct ThemedPanel<Content: View>: View {
 ///   2 = memory  (illlm_query)   — knowledge retrieval context
 ///   3 = reasoning (self_sustained_coder) — self-existence coding output
 ///   4 = governance (kex_hyperdrive)     — transition/definition governance
-///   5 = orchestration (reserved)        — native orchestration layer
+///   5 = orchestration (nested_runtime_orchestrator) — native orchestration layer
 ///
 /// IL-LLM circular path: slot 1 → slot 2 → slot 3 → slot 1 (3 becomes 1).
 /// State bindings will be wired once Copilot's NestedRuntimeCore (PR #14) merges.
@@ -52,7 +52,7 @@ struct NestedRuntimeDashboard: View {
     var slot2Status: String = "PENDING"   // memory
     var slot3Status: String = "PENDING"   // reasoning
     var slot4Status: String = "PENDING"   // governance
-    var slot5Status: String = "PENDING"   // orchestration (reserved)
+    var slot5Status: String = "PENDING"   // orchestration (nested_runtime_orchestrator)
 
     /// Circular path label, updated when slot 3 feeds back to slot 1.
     var circularPathLabel: String = "1 → 2 → 3 → 1"
@@ -62,7 +62,7 @@ struct NestedRuntimeDashboard: View {
         (2, "Memory",        "illlm_query"),
         (3, "Reasoning",     "self_sustained_coder"),
         (4, "Governance",    "kex_hyperdrive"),
-        (5, "Orchestration", "reserved")
+        (5, "Orchestration", "nested_runtime_orchestrator")
     ]
 
     var body: some View {

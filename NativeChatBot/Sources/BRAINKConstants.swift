@@ -40,9 +40,11 @@ enum BRAINKConstants {
 
     // MARK: - IL-LLM defaults (configurable via environment; no host-specific fallback)
     /// Default IL-LLM runtime path. Override with IL_LLM_RUNTIME_PATH environment variable.
-    static var defaultILLLMRuntimePath: String {
-        ProcessInfo.processInfo.environment["IL_LLM_RUNTIME_PATH"] ?? nativeChatBotRoot
-    }
+    /// Evaluated once on first access and cached (env vars do not change during a process lifetime).
+    static let defaultILLLMRuntimePath: String = {
+        ProcessInfo.processInfo.environment["IL_LLM_RUNTIME_PATH"]
+            ?? URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().path
+    }()
     static let defaultProofPacketRunId = "smart_manager_0074"
     static let proofPacketCommand = "python3 -m il_llm.cli proof-packet --run-id \(defaultProofPacketRunId)"
 
