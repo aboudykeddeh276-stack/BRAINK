@@ -26,6 +26,10 @@ GOVERNANCE_FILES = [
     "scripts/bootstrap-general-governance.sh",
     "scripts/braink-agent-cli.py",
     "docs/governance/agentic-intelligence-cli.md",
+    "docs/governance/zero-less-governance.md",
+    "NativeChatBot/Sources/ZeroLessGovernance.swift",
+    "NativeChatBot/Sources/ErrorContext.swift",
+    "NativeChatBot/Sources/DeadRouteRegistry.swift",
 ]
 
 

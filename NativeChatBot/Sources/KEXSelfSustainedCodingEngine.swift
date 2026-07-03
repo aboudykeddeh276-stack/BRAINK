@@ -84,7 +84,18 @@ enum KEXSelfSustainedCodingEngine {
         let targetText = report.targets.map { target in
             "- \(target.id) [\(target.detectedKind)] path=\(target.relativePath) evidence=\(target.evidenceFiles.joined(separator: ", "))"
         }.joined(separator: "\n")
-        let packetText = report.taskPackets.map { packet in
+
+        // Sort packets by priority: BLOCKED > PENDING > MODEL-LOCAL > COMPLETED,
+        // with KEX_CONTROL_LANE weighted 1.5× and evidence weight applied.
+        let evidenceWeightMap = Dictionary(uniqueKeysWithValues: report.targets.map {
+            ($0.id, evidenceWeight(for: $0))
+        })
+        let prioritized = report.taskPackets.sorted { lhs, rhs in
+            priorityScore(for: lhs, evidenceWeightMap: evidenceWeightMap) >
+            priorityScore(for: rhs, evidenceWeightMap: evidenceWeightMap)
+        }
+
+        let packetText = prioritized.map { packet in
             """
             [\(packet.status)] \(packet.taskId)
             repo: \(packet.repoId)
@@ -99,6 +110,8 @@ enum KEXSelfSustainedCodingEngine {
             """
         }.joined(separator: "\n")
 
+        let proofChainText = buildProofChainText(from: report.taskPackets)
+
         return """
         packet_type: \(report.packetType)
         architect: \(report.architect)
@@ -112,8 +125,11 @@ enum KEXSelfSustainedCodingEngine {
         self_existence_design:
         - \(report.selfExistenceDesign.joined(separator: "\n- "))
 
-        task_packets:
+        task_packets (priority-ordered):
         \(packetText)
+
+        proof_chain (MAP → CODE/DATA within each target):
+        \(proofChainText)
 
         escalation_rules:
         - \(report.escalationRules.joined(separator: "\n- "))
@@ -257,6 +273,64 @@ enum KEXSelfSustainedCodingEngine {
         }
         gates.append("Autonomous code mutation remains bounded by writeScope, smoke tests, audit, and explicit operator route.")
         return gates
+    }
+
+    // MARK: – Evidence-weighted prioritisation and proof-chain dependency model
+
+    /// Scores a target by its evidence quality.  Swift source files carry the most
+    /// operational weight; executable scripts next; JSON artifacts; then docs.
+    private static func evidenceWeight(for target: KEXCodingRepoTarget) -> Double {
+        guard !target.evidenceFiles.isEmpty else { return 0.0 }
+        let total = target.evidenceFiles.reduce(0.0) { acc, path in
+            let lower = path.lowercased()
+            if lower.hasSuffix(".swift")   { return acc + 2.0 }
+            if lower.hasSuffix(".command") { return acc + 1.8 }
+            if lower.hasSuffix(".json")    { return acc + 1.5 }
+            if lower.hasSuffix(".md")      { return acc + 1.0 }
+            return acc + 0.5
+        }
+        return total / Double(target.evidenceFiles.count)
+    }
+
+    /// Computes a sortable priority score for a task packet.
+    /// BLOCKED tasks are most urgent; KEX_CONTROL_LANE is weighted 1.5×;
+    /// higher evidence weight on the owning target increases urgency.
+    private static func priorityScore(
+        for packet: KEXCodingTaskPacket,
+        evidenceWeightMap: [String: Double]
+    ) -> Double {
+        let urgency: Double
+        switch packet.status {
+        case "BLOCKED":     urgency = 3.0
+        case "PENDING":     urgency = 2.0
+        case "MODEL-LOCAL": urgency = 1.0
+        default:            urgency = 0.5
+        }
+        let laneBoost: Double = packet.lane == "KEX_CONTROL_LANE" ? 1.5 : 1.0
+        let weight = evidenceWeightMap[packet.repoId] ?? 1.0
+        return urgency * laneBoost * max(weight, 0.1)
+    }
+
+    /// Builds a textual proof-chain showing the MAP → CODE/DATA dependency order
+    /// within each repository target.  This makes implicit dependency explicit and
+    /// traceable: a CODE packet may not proceed before its MAP packet is COMPLETED.
+    private static func buildProofChainText(from packets: [KEXCodingTaskPacket]) -> String {
+        var byRepo: [String: [KEXCodingTaskPacket]] = [:]
+        for packet in packets {
+            byRepo[packet.repoId, default: []].append(packet)
+        }
+        return byRepo.sorted { $0.key < $1.key }.map { repoId, repoPackets in
+            let ordered = repoPackets.sorted { lhs, rhs in
+                let phase: (KEXCodingTaskPacket) -> Int = { p in
+                    if p.taskId.contains("MAP")  { return 0 }
+                    if p.taskId.contains("CODE") { return 1 }
+                    return 2
+                }
+                return phase(lhs) < phase(rhs)
+            }
+            let chain = ordered.map { "[\($0.status)] \($0.taskId)" }.joined(separator: " → ")
+            return "  \(repoId): \(chain)"
+        }.joined(separator: "\n")
     }
 
     private static func normalizedId(_ value: String) -> String {

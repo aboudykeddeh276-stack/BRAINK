@@ -1,5 +1,31 @@
 import Foundation
 
+// MARK: – Formal typed relation graph for the KEX "OF" composition operator
+
+struct KEXRelationNode: Codable {
+    let subject: String
+    let operationalDefinition: String
+    let proofGate: String
+}
+
+struct KEXRelationEdge: Codable {
+    let from: String
+    let predicate: String          // always "OF"
+    let to: String
+    let resolved: Bool             // true when the "from OF to" chain appears in the prompt
+    let resolvedValue: String      // what the edge concretely means once resolved
+}
+
+struct KEXRelationGraph: Codable {
+    let nodes: [KEXRelationNode]
+    let edges: [KEXRelationEdge]
+    let resolvedEdgeCount: Int
+    let totalEdgeCount: Int
+    let coverageRatio: Double      // resolvedEdgeCount / totalEdgeCount
+    let recursiveDepth: Int        // deepest resolved "X OF Y OF Z …" chain
+    let resolvedChains: [String]   // human-readable resolved compositions
+}
+
 struct KEXHyperdriveConceptReport: Codable {
     let packetType: String
     let architect: String
@@ -10,6 +36,7 @@ struct KEXHyperdriveConceptReport: Codable {
     let instantiatedWorkloads: [String]
     let ethicalBoundaryChecks: [String]
     let pendingProofGates: [String]
+    let relationGraph: KEXRelationGraph
     let generatedAt: String
 }
 
@@ -76,9 +103,11 @@ enum KEXHyperdriveConceptEngine {
     ]
 
     static func buildReport(userText: String) -> KEXHyperdriveConceptReport {
+        let graph = resolveCompositionGraph(userText: userText)
         let present = requiredTokens.filter { userText.localizedCaseInsensitiveContains($0) }
         let missing = requiredTokens.filter { !userText.localizedCaseInsensitiveContains($0) }
-        let coverageStatus = missing.isEmpty ? "COMPLETED" : "MODEL-LOCAL"
+        // Status is driven by the formal relation-graph coverage ratio, not only token presence.
+        let coverageStatus = (graph.coverageRatio >= 0.7 || missing.isEmpty) ? "COMPLETED" : "MODEL-LOCAL"
 
         return KEXHyperdriveConceptReport(
             packetType: "KEX_HYPERDRIVE_TRANSITION_DEFINITION_REPORT_V1",
@@ -95,7 +124,8 @@ enum KEXHyperdriveConceptEngine {
                 "Definition OF state = explicit criteria for naming an operational condition.",
                 "State OF definitions = current health, scope, and proof status of definitions themselves.",
                 "Transition OF state OF X = for any core X, identify X_state, transition_operator, evidence_gate, and resulting_status.",
-                "X OF X OF X OF X = recursive composition rule; each OF edge must resolve to a typed relation, not decoration."
+                "X OF X OF X OF X = recursive composition rule; each OF edge must resolve to a typed relation, not decoration.",
+                "KEX RELATION GRAPH = formal computation of OF-edges: coverage_ratio=\(String(format: "%.2f", graph.coverageRatio)), resolved=\(graph.resolvedEdgeCount)/\(graph.totalEdgeCount), depth=\(graph.recursiveDepth)."
             ],
             instantiatedWorkloads: [
                 "Add deterministic KEX Hyperdrive route for transition/definition/state prompts.",
@@ -107,11 +137,14 @@ enum KEXHyperdriveConceptEngine {
             ethicalBoundaryChecks: ethicalBoundaryChecks,
             pendingProofGates: present.isEmpty ? [
                 "User concept text was not present in this prompt at runtime; route remains available for future concept payloads.",
+                "Relation graph coverage: \(String(format: "%.0f%%", graph.coverageRatio * 100)) (\(graph.resolvedEdgeCount)/\(graph.totalEdgeCount) edges resolved).",
                 "External scientific acceptance remains EXTERNALLY-UNVALIDATED."
             ] : missing.map { "Token not present in runtime prompt: \($0)" } + [
+                "Relation graph coverage: \(String(format: "%.0f%%", graph.coverageRatio * 100)) (\(graph.resolvedEdgeCount)/\(graph.totalEdgeCount) edges resolved).",
                 "External scientific acceptance remains EXTERNALLY-UNVALIDATED.",
                 "Hardware/biology claims require measured evidence before promotion."
             ],
+            relationGraph: graph,
             generatedAt: ISO8601DateFormatter().string(from: Date())
         )
     }
@@ -180,7 +213,16 @@ enum KEXHyperdriveConceptEngine {
     }
 
     static func asText(_ report: KEXHyperdriveConceptReport) -> String {
-        """
+        let graph = report.relationGraph
+        let resolvedEdgeLines = graph.edges.filter(\.resolved).map {
+            "    [\($0.from) OF \($0.to)] \($0.resolvedValue)"
+        }.joined(separator: "\n")
+        let resolvedEdgesText = resolvedEdgeLines.isEmpty ? "    none" : resolvedEdgeLines
+        let chainText = graph.resolvedChains.isEmpty
+            ? "    none"
+            : graph.resolvedChains.map { "    \($0)" }.joined(separator: "\n")
+
+        return """
         packet_type: \(report.packetType)
         architect: \(report.architect)
         anchor: \(report.anchor)
@@ -198,6 +240,16 @@ enum KEXHyperdriveConceptEngine {
 
         pending_proof_gates:
         - \(report.pendingProofGates.joined(separator: "\n- "))
+
+        kex_relation_graph:
+          nodes: \(graph.nodes.count) core subjects
+          edges: \(graph.resolvedEdgeCount)/\(graph.totalEdgeCount) OF-edges resolved
+          coverage_ratio: \(String(format: "%.2f", graph.coverageRatio))
+          recursive_depth: \(graph.recursiveDepth)
+          resolved_edges:
+        \(resolvedEdgesText)
+          resolved_chains:
+        \(chainText)
 
         artifact: \(BRAINKConstants.kexHyperdriveConceptReportPath)
         """
@@ -390,6 +442,156 @@ enum KEXHyperdriveConceptEngine {
         if path.hasSuffix(".command") { return "executable_entrypoint" }
         if path.hasSuffix(".json") { return "json_data" }
         return "repo_file"
+    }
+
+    // MARK: – Formal KEX relation-graph resolver
+
+    /// Resolves the KEX "OF" composition operator into a typed directed graph.
+    /// Each edge `X OF Y` is checked for presence in the user prompt and, when
+    /// found, is expanded into a concrete operational meaning.  Recursive chains
+    /// of depth > 1 are discovered via DFS over resolved edges.
+    static func resolveCompositionGraph(userText: String) -> KEXRelationGraph {
+        let nodes = buildCoreNodes()
+        let edges = buildRelationEdges(nodes: nodes, userText: userText)
+        let resolvedCount = edges.filter(\.resolved).count
+        let chains = resolveRecursiveChains(nodes: nodes, edges: edges, maxDepth: 4)
+        let coverageRatio = Double(resolvedCount) / Double(max(edges.count, 1))
+        return KEXRelationGraph(
+            nodes: nodes,
+            edges: edges,
+            resolvedEdgeCount: resolvedCount,
+            totalEdgeCount: edges.count,
+            coverageRatio: coverageRatio,
+            recursiveDepth: chains.maxDepth,
+            resolvedChains: chains.descriptions
+        )
+    }
+
+    private static func buildCoreNodes() -> [KEXRelationNode] {
+        [
+            KEXRelationNode(
+                subject: "state",
+                operationalDefinition: "The current operational condition of a system, process, or entity at a measured instant.",
+                proofGate: "State is named, timestamped, and distinguishable from adjacent states by at least one observable criterion."
+            ),
+            KEXRelationNode(
+                subject: "transition",
+                operationalDefinition: "A change operator that moves a state across a proof boundary when triggered by a named event or condition.",
+                proofGate: "Transition has a named trigger, a source state, a destination state, and a constraint-set that makes it checkable."
+            ),
+            KEXRelationNode(
+                subject: "definition",
+                operationalDefinition: "An explicit, falsifiable constraint-set that makes a term, state, or transition intelligible and auditable.",
+                proofGate: "Definition has at least one positive example, one falsifier, and a scope that limits its domain."
+            ),
+            KEXRelationNode(
+                subject: "proof",
+                operationalDefinition: "A derivation chain from axioms or evidence through rules to a conclusion, with every step traceable.",
+                proofGate: "Proof references artifact paths, rule applications, and conclusion status with no gap between steps."
+            ),
+            KEXRelationNode(
+                subject: "constraint",
+                operationalDefinition: "A boundary condition that limits valid states, transitions, or definitions and can be checked by a verifier.",
+                proofGate: "Constraint has a name, a domain, a truth condition, and a violation report format."
+            ),
+            KEXRelationNode(
+                subject: "identity",
+                operationalDefinition: "The stable, anchored designation of an actor, system, or artifact across state transitions.",
+                proofGate: "Identity is preserved across transitions if its anchor, signature, and core properties remain unchanged."
+            ),
+            KEXRelationNode(
+                subject: "ethics",
+                operationalDefinition: "The boundary predicates that govern which states, transitions, and definitions are permissible.",
+                proofGate: "Ethics gates produce PASS/FAIL per predicate and are included in every governed output."
+            ),
+            KEXRelationNode(
+                subject: "memory",
+                operationalDefinition: "A bounded, indexed store of past state-transition-definition events accessible to future reasoning steps.",
+                proofGate: "Memory has a capacity, a retrieval function, and a staleness measure; growth events are counted."
+            ),
+            KEXRelationNode(
+                subject: "route",
+                operationalDefinition: "A named, deterministic path from an input signal to an output handler, with explicit preconditions.",
+                proofGate: "Route has an identifier, trigger conditions, a handler function, and a proof-of-execution artifact."
+            ),
+            KEXRelationNode(
+                subject: "workload",
+                operationalDefinition: "A bounded, prioritized task packet with declared read/write scope, action plan, and proof gate.",
+                proofGate: "Workload has status (PENDING/COMPLETED/BLOCKED), writeScope, proofGate, and safety boundary."
+            )
+        ]
+    }
+
+    private static func buildRelationEdges(nodes: [KEXRelationNode], userText: String) -> [KEXRelationEdge] {
+        let canonicalPairs: [(String, String)] = [
+            ("state", "transition"),
+            ("transition", "state"),
+            ("definition", "transition"),
+            ("transition", "definition"),
+            ("definition", "state"),
+            ("state", "definition"),
+            ("proof", "constraint"),
+            ("constraint", "state"),
+            ("identity", "state"),
+            ("ethics", "constraint"),
+            ("memory", "state"),
+            ("route", "transition"),
+            ("workload", "proof")
+        ]
+        let subjects = Set(nodes.map(\.subject))
+        return canonicalPairs.compactMap { (from, to) -> KEXRelationEdge? in
+            guard subjects.contains(from), subjects.contains(to) else { return nil }
+            let token = "\(from) OF \(to)"
+            let resolved = userText.localizedCaseInsensitiveContains(token)
+            return KEXRelationEdge(
+                from: from,
+                predicate: "OF",
+                to: to,
+                resolved: resolved,
+                resolvedValue: resolved
+                    ? resolveEdgeMeaning(from: from, to: to, nodes: nodes)
+                    : "NOT YET RESOLVED — include '\(token)' in prompt to activate this edge."
+            )
+        }
+    }
+
+    private static func resolveEdgeMeaning(from: String, to: String, nodes: [KEXRelationNode]) -> String {
+        let toDef = nodes.first(where: { $0.subject == to })?.operationalDefinition ?? to
+        let snippet = String(toDef.prefix(72))
+        return "\(from.uppercased()) framing applied to \(to): the \(from) aspect of '\(snippet)…'"
+    }
+
+    private static func resolveRecursiveChains(
+        nodes: [KEXRelationNode],
+        edges: [KEXRelationEdge],
+        maxDepth: Int
+    ) -> (maxDepth: Int, descriptions: [String]) {
+        let resolvedEdges = edges.filter(\.resolved)
+        var adjacency: [String: [String]] = [:]
+        for edge in resolvedEdges {
+            adjacency[edge.from, default: []].append(edge.to)
+        }
+
+        var chains: [String] = []
+        var deepest = 0
+
+        func dfs(current: String, path: [String]) {
+            if path.count > 1 {
+                chains.append("CHAIN(\(path.count)): " + path.joined(separator: " OF "))
+                if path.count > deepest { deepest = path.count }
+            }
+            guard path.count < maxDepth else { return }
+            for next in (adjacency[current] ?? []) where !path.contains(next) {
+                dfs(current: next, path: path + [next])
+            }
+        }
+
+        for node in nodes {
+            dfs(current: node.subject, path: [node.subject])
+        }
+
+        let unique = Array(Set(chains)).sorted().prefix(16)
+        return (deepest, Array(unique))
     }
 
     private static func writeJSON<T: Codable>(_ value: T, to path: String) throws {

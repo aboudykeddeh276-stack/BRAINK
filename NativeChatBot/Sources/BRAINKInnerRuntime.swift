@@ -71,6 +71,50 @@ enum BRAINKInnerRuntime {
         next.governanceConstraints["frontier_seal_priority"] = sealed ? 1.0 : 0.0
         next.governanceConstraints["illlm_update_only_mode"] = sealed ? 1.0 : 0.6
         next.governanceConstraints["runtime_mutation_allowed"] = sealed ? 0.0 : 1.0
+
+        // Bidirectional coupling — reasoning → emotional
+        // High logic reinforces confidence; high learning feeds curiosity;
+        // high cosmology deepens wonder; high kex_theorem lifts satisfaction.
+        let logicR = reasoningState["logic"] ?? 0.5
+        let learningR = reasoningState["learning"] ?? 0.5
+        let cosmologyR = reasoningState["cosmology"] ?? 0.4
+        let kexTheoremR = reasoningState["kex_theorem"] ?? reasoningState["kexTheorem"] ?? 0.5
+        if logicR > 0.7 {
+            let boost = (logicR - 0.7) * 0.15
+            next.emotionalConstraints["confidence"] = min(1.0, (next.emotionalConstraints["confidence"] ?? 0.5) + boost)
+        }
+        if learningR > 0.7 {
+            let boost = (learningR - 0.7) * 0.12
+            next.emotionalConstraints["curiosity"] = min(1.0, (next.emotionalConstraints["curiosity"] ?? 0.5) + boost)
+        }
+        if cosmologyR > 0.6 {
+            let boost = (cosmologyR - 0.6) * 0.10
+            next.emotionalConstraints["wonder"] = min(1.0, (next.emotionalConstraints["wonder"] ?? 0.4) + boost)
+        }
+        if kexTheoremR > 0.7 {
+            let boost = (kexTheoremR - 0.7) * 0.10
+            next.emotionalConstraints["satisfaction"] = min(1.0, (next.emotionalConstraints["satisfaction"] ?? 0.5) + boost)
+        }
+
+        // Bidirectional coupling — emotional → perception
+        // Discomfort degrades evidence focus; confidence deepens context; wonder
+        // tightens precision (lowers ambiguity tolerance).
+        let discomfortE = next.emotionalConstraints["discomfort"] ?? 0.2
+        let confidenceE = next.emotionalConstraints["confidence"] ?? 0.5
+        let wonderE = next.emotionalConstraints["wonder"] ?? 0.4
+        if discomfortE > 0.5 {
+            let penalty = (discomfortE - 0.5) * 0.20
+            next.perceptionConstraints["evidence_focus"] = max(0.0, (next.perceptionConstraints["evidence_focus"] ?? evidenceFocus) - penalty)
+        }
+        if confidenceE > 0.7 {
+            let boost = (confidenceE - 0.7) * 0.15
+            next.perceptionConstraints["context_depth"] = min(1.0, (next.perceptionConstraints["context_depth"] ?? responseQuality) + boost)
+        }
+        if wonderE > 0.7 {
+            let reduction = (wonderE - 0.7) * 0.10
+            next.perceptionConstraints["ambiguity_tolerance"] = max(0.0, (next.perceptionConstraints["ambiguity_tolerance"] ?? 0.45) - reduction)
+        }
+
         next.updatedAt = ISO8601DateFormatter().string(from: Date())
 
         try? writeState(next)
@@ -92,6 +136,19 @@ enum BRAINKInnerRuntime {
             .map { "\($0.key)=\(String(format: "%.3f", $0.value))" }
             .joined(separator: ", ")
 
+        // Surface the bidirectional coupling state
+        let confidence    = state.emotionalConstraints["confidence"]          ?? 0.5
+        let discomfort    = state.emotionalConstraints["discomfort"]          ?? 0.2
+        let wonder        = state.emotionalConstraints["wonder"]              ?? 0.4
+        let evidenceFocus = state.perceptionConstraints["evidence_focus"]     ?? 0.5
+        // Named constants for coupling multipliers
+        let confidenceLogicBoost:   Double = 1.1
+        let discomfortFocusPenalty: Double = 0.20
+        let discomfortThreshold:    Double = 0.5
+        let wonderAmbiguityTight:   Double = 0.10
+        let wonderThreshold:        Double = 0.7
+        let couplingNote = "confidence→logic:\(String(format: "%.2f", min(1.0, confidence * confidenceLogicBoost))), discomfort→focus_penalty:\(String(format: "%.2f", max(0, discomfort - discomfortThreshold) * discomfortFocusPenalty)), wonder→ambiguity_tight:\(String(format: "%.2f", max(0, wonder - wonderThreshold) * wonderAmbiguityTight)), evidence_focus:\(String(format: "%.3f", evidenceFocus))"
+
         return """
         INNER RUNTIME CONSTRAINT CORE
         state_path: \(BRAINKConstants.innerRuntimeStatePath)
@@ -101,7 +158,54 @@ enum BRAINKInnerRuntime {
         emotions: \(emotions)
         perception: \(perception)
         governance: \(governance)
+        coupling: \(couplingNote)
         """
+    }
+
+    /// Determines whether a named route is permitted given the current governance constraints.
+    /// Returns `(allowed, reason, constraintName)`.  This is the formal governance gate —
+    /// governance values set by `evolve` actually block route execution here.
+    static func shouldAllowRoute(
+        _ route: String,
+        given state: BRAINKInnerRuntimeState
+    ) -> (allowed: Bool, reason: String, constraintName: String) {
+        let gov = state.governanceConstraints
+        let mutationAllowed = gov["runtime_mutation_allowed"] ?? 1.0
+        let sealPriority = gov["frontier_seal_priority"] ?? 0.0
+        let illlmOnlyMode = gov["illlm_update_only_mode"] ?? 0.0
+
+        let destructiveRoutes: Set<String> = ["platform_execute", "build"]
+        let allowedUnderILLLMOnlyMode: Set<String> = [
+            "illlm_update", "illlm_bootstrap", "illlm_bundle", "illlm_query",
+            "illlm_compatibility", "illlm_workflow", "knowledge_center_status",
+            "runtime_trace", "stack_audit", "module_manifest", "constraint_flags",
+            "inner_runtime", "align-check", "learn_all_files", "general",
+            "line_registry_add", "line_registry_list", "frontier_seal",
+            "kex_hyperdrive", "self_sustained_coder", "proof_packet", "evidence"
+        ]
+
+        if destructiveRoutes.contains(route) && mutationAllowed < 0.5 {
+            return (
+                false,
+                "Route '\(route)' requires runtime_mutation_allowed ≥ 0.5. Current: \(String(format: "%.2f", mutationAllowed)).",
+                "runtime_mutation_allowed"
+            )
+        }
+        if sealPriority >= 1.0 && destructiveRoutes.contains(route) {
+            return (
+                false,
+                "Route '\(route)' blocked: frontier_seal_priority=\(String(format: "%.2f", sealPriority)) seals all mutation routes.",
+                "frontier_seal_priority"
+            )
+        }
+        if illlmOnlyMode >= 1.0 && !allowedUnderILLLMOnlyMode.contains(route) {
+            return (
+                false,
+                "Runtime is in IL-LLM-update-only mode (illlm_update_only_mode=1.0). Route '\(route)' is not permitted.",
+                "illlm_update_only_mode"
+            )
+        }
+        return (true, "ALLOWED", "none")
     }
 
     static func readState() -> BRAINKInnerRuntimeState? {

@@ -39,6 +39,8 @@ final class BRAINKILLLMKnowledgeCenter {
     private var lastFingerprint = ""
     private var lastRefreshDate: Date?
     private var growthEventCount = 0
+    private var idfTable: [String: Double] = [:]
+    private static let scoreTolerance: Double = 1e-9
 
     private let supportedExtensions: Set<String> = [
         "md", "txt", "json", "py", "ts", "tsx", "js", "swift",
@@ -139,6 +141,7 @@ final class BRAINKILLLMKnowledgeCenter {
 
         snippets = loaded
         lastRefreshDate = Date()
+        idfTable = buildIDF(from: loaded)
 
         let status = loaded.isEmpty ? "NOT DONE" : "DONE"
         let reasonText = loaded.isEmpty ? "supported_files_unreadable" : nil
@@ -163,17 +166,20 @@ final class BRAINKILLLMKnowledgeCenter {
         }
 
         let queryTokens = tokenize(userInput).filter { $0.count > 2 }
-        let ranked = snippets.compactMap { snippet -> (BRAINKILLLMSnippet, Int)? in
-            guard !queryTokens.isEmpty else { return (snippet, 1) }
-            let score = queryTokens.reduce(0) { running, token in
-                running + (snippet.tokens.contains(token) ? 1 : 0)
+        let ranked = snippets.compactMap { snippet -> (BRAINKILLLMSnippet, Double)? in
+            guard !queryTokens.isEmpty else { return (snippet, 1.0) }
+            // TF-IDF: sum(tf(t,d) * idf(t)) over query tokens found in the document.
+            // tf is normalised by document token count; idf uses smoothed corpus statistics.
+            let score = queryTokens.reduce(0.0) { running, token in
+                guard snippet.tokens.contains(token) else { return running }
+                let tf = 1.0 / Double(max(snippet.tokens.count, 1))
+                let idf = idfTable[token] ?? (log(Double(snippets.count + 2) / 2.0) + 1.0)
+                return running + tf * idf
             }
             return score > 0 ? (snippet, score) : nil
         }
         .sorted { lhs, rhs in
-            if lhs.1 == rhs.1 {
-                return lhs.0.path < rhs.0.path
-            }
+            if abs(lhs.1 - rhs.1) < BRAINKILLLMKnowledgeCenter.scoreTolerance { return lhs.0.path < rhs.0.path }
             return lhs.1 > rhs.1
         }
 
@@ -190,7 +196,7 @@ final class BRAINKILLLMKnowledgeCenter {
         let preview = top.enumerated().map { index, item in
             let file = URL(fileURLWithPath: item.0.path).lastPathComponent
             let compact = item.0.text.replacingOccurrences(of: "\n", with: " ")
-            return "\(index + 1). \(file) [score=\(item.1)] \(compact)"
+            return "\(index + 1). \(file) [tfidf=\(String(format: "%.4f", item.1))] \(compact)"
         }.joined(separator: "\n")
 
         let snapshot = makeSnapshot(
@@ -303,6 +309,20 @@ final class BRAINKILLLMKnowledgeCenter {
         text.lowercased()
             .components(separatedBy: CharacterSet.alphanumerics.inverted)
             .filter { $0.count >= 3 }
+    }
+
+    /// Builds an IDF (inverse document frequency) table from a corpus of snippets.
+    /// IDF(t) = log(N / df(t)) + 1 where N = number of documents and df(t) = document
+    /// frequency of token t.  The +1 smoothing prevents zero weights for common terms.
+    private func buildIDF(from snippets: [BRAINKILLLMSnippet]) -> [String: Double] {
+        let N = Double(max(snippets.count, 1))
+        var df: [String: Int] = [:]
+        for snippet in snippets {
+            for token in snippet.tokens {
+                df[token, default: 0] += 1
+            }
+        }
+        return df.mapValues { count in log(N / Double(max(count, 1))) + 1.0 }
     }
 
     private func persist(_ snapshot: BRAINKILLLMKnowledgeSnapshot) {

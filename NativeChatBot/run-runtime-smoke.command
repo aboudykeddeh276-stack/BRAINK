@@ -51,6 +51,9 @@ swiftc \
   "$TMP_SWIFT" \
   "$ROOT/Sources/BRAINKChatEngine.swift" \
   "$ROOT/Sources/BRAINKConstants.swift" \
+  "$ROOT/Sources/ZeroLessGovernance.swift" \
+  "$ROOT/Sources/ErrorContext.swift" \
+  "$ROOT/Sources/DeadRouteRegistry.swift" \
   "$ROOT/Sources/BRAINKDeliveryAudit.swift" \
   "$ROOT/Sources/BRAINKFrontierSeal.swift" \
   "$ROOT/Sources/BRAINKILLLMCompatibility.swift" \
