@@ -37,8 +37,8 @@
     "slot_1": { "name": "state",         "skill": "illlm_bundle",         "status": "SCAFFOLDED", "feeds": "slot_2" },
     "slot_2": { "name": "memory",        "skill": "illlm_query",          "status": "SCAFFOLDED", "feeds": "slot_3" },
     "slot_3": { "name": "reasoning",     "skill": "self_sustained_coder", "status": "SCAFFOLDED", "feeds": "slot_1", "circular": true },
-    "slot_4": { "name": "governance",    "skill": "kex_hyperdrive",       "status": "SCAFFOLDED", "feeds": null },
-    "slot_5": { "name": "orchestration", "skill": "reserved",             "status": "PENDING",    "feeds": null }
+    "slot_4": { "name": "governance",    "skill": "kex_hyperdrive",              "status": "COMPLETED", "feeds": "slot_5" },
+    "slot_5": { "name": "orchestration", "skill": "nested_runtime_orchestrator", "status": "COMPLETED", "feeds": null }
   },
 
   "il_llm_circular_path": {
