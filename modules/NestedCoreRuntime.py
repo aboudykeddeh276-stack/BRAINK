@@ -1,0 +1,740 @@
+#!/usr/bin/env python3
+"""
+Nested Core Runtime Module
+
+Implements a rigorous zero-less index spectrum and nested runtime system.
+This module provides:
+- KeddehZeroLessMatrix: Zero-less indexing (bypasses 0 entirely) with bidirectional and shift arithmetic
+- WiredFATFileSystem: Uncompressed state database with integrity verification
+- NestedCoreRuntime: Self-bootstrapping nested runtime system with arbitrary tree nesting and snapshotting
+
+Agent fleet extension:
+- embed_agent: typed agent mirror with role/constraint cells in the zero-less FS
+- clone_as_package: full deep-copy of the outer system as an isolated host package
+- dispatch_to_agent: task routing into a named agent and result collection
+- get_agent_fleet_report: recursive status report across all hosted agents
+
+Closes issue: aboudykeddeh276-stack/BRAINK#13
+"""
+
+import hashlib
+import sys
+from datetime import datetime, timezone
+from typing import Dict, Any, List, Optional, Tuple
+
+
+class KeddehZeroLessMatrix:
+    """
+    Implements a rigorous zero-less index spectrum: ... -2, -1, 1, 2, ...
+    Bypasses standard 0-indexing entirely.
+    
+    The mapping follows the pattern:
+    - logical index 1 -> signed index -1
+    - logical index 2 -> signed index -2
+    - logical index 3 -> signed index -3
+    - logical index 4 -> signed index 1
+    - logical index 5 -> signed index 2
+    - logical index 6 -> signed index 3
+    
+    The spectrum divides the indexing range at `HALFWAY = 3`.
+    Logical indices <= 3 map to negative signed indices [-3, -1].
+    Logical indices > 3 map to positive signed indices starting from 1.
+    Since logical indices must be positive integers, there are no logical
+    indices that can map to negative signed indices smaller than -3.
+    Therefore, the negative signed index range is strictly [-3, -1].
+    The positive signed index range is unbounded: [1, +infinity).
+    """
+    
+    # Split point dividing the zero-less spectrum mapping range.
+    # Logical indices <= HALFWAY (1, 2, 3) map to negative signed indices (-1, -2, -3).
+    # Logical indices > HALFWAY (4, 5, 6...) map to positive signed indices starting from 1.
+    HALFWAY = 3
+        
+    @staticmethod
+    def get_signed_index(logical_idx: int) -> int:
+        """
+        Convert logical index to signed index in zero-less spectrum.
+        
+        Args:
+            logical_idx: Positive integer logical index (1, 2, 3, ...)
+            
+        Returns:
+            Signed index avoiding zero: -3, -2, -1, 1, 2, 3, ...
+            
+        Raises:
+            ValueError: If logical_idx <= 0
+        """
+        if logical_idx <= 0:
+            raise ValueError("Zero or negative logical indices strictly outlawed in Keddeh Matrix input.")
+        
+        # Bypasses 0: 1->-1, 2->-2, 3->-3, 4->1, 5->2, 6->3, etc.
+        if logical_idx <= KeddehZeroLessMatrix.HALFWAY:
+            return -logical_idx
+        else:
+            return (logical_idx - KeddehZeroLessMatrix.HALFWAY)
+
+    @staticmethod
+    def get_logical_index(signed_idx: int) -> int:
+        """
+        Convert signed zero-less index back to logical index.
+        
+        Args:
+            signed_idx: Signed index (non-zero integer). Valid ranges are
+                        [-3, -1] for negative spectrum and [1, +infinity)
+                        for positive spectrum.
+            
+        Returns:
+            Positive integer logical index.
+            
+        Raises:
+            ValueError: If signed_idx is zero or out of valid bounds (smaller than -HALFWAY).
+        """
+        if signed_idx == 0:
+            raise ValueError("Cartesian zero detected. Zero-less spectrum does not contain zero index.")
+        
+        if signed_idx < 0:
+            if signed_idx < -KeddehZeroLessMatrix.HALFWAY:
+                raise ValueError(
+                    f"Signed index {signed_idx} is out of bounds for the defined zero-less spectrum. "
+                    f"Negative signed indices are restricted to range [-{KeddehZeroLessMatrix.HALFWAY}, -1]."
+                )
+            return -signed_idx
+        else:
+            return signed_idx + KeddehZeroLessMatrix.HALFWAY
+
+    @staticmethod
+    def shift_index(signed_idx: int, steps: int) -> int:
+        """
+        Shift a signed index by a given number of steps in the zero-less spectrum,
+        safely bypassing Cartesian zero.
+        
+        Args:
+            signed_idx: Starting signed index (non-zero integer)
+            steps: Number of steps to shift (integer, can be positive or negative)
+            
+        Returns:
+            New signed index in the zero-less spectrum.
+            
+        Raises:
+            ValueError: If starting signed_idx is zero.
+        """
+        if signed_idx == 0:
+            raise ValueError("Cannot shift from Cartesian zero index.")
+        
+        if steps == 0:
+            return signed_idx
+            
+        # Map signed_idx to continuous integer space where:
+        # negative indices remain negative, positive indices shift left by 1.
+        # e.g. -1 -> -1, 1 -> 0, 2 -> 1, etc.
+        seq = signed_idx if signed_idx < 0 else signed_idx - 1
+        new_seq = seq + steps
+        
+        # Map back from continuous space to zero-less space
+        if new_seq >= 0:
+            return new_seq + 1
+        else:
+            return new_seq
+
+
+class WiredFATFileSystem:
+    """
+    A literal uncompressed string database mapped via zero-less indices.
+    
+    Stores state data as uncompressed literal text blocks, with each
+    storage cell indexed using the Keddeh zero-less matrix.
+    """
+    
+    def __init__(self):
+        self.storage_cells: Dict[int, Dict[str, str]] = {}
+    
+    def assign_state(self, logical_idx: int, path: str, state_literal: str) -> None:
+        """
+        Assign state to a storage cell.
+        
+        Args:
+            logical_idx: Logical index (positive integer)
+            path: File path/location identifier
+            state_literal: Uncompressed state data as string
+        """
+        signed_idx = KeddehZeroLessMatrix.get_signed_index(logical_idx)
+        # Store as uncompressed literal text data block
+        self.storage_cells[signed_idx] = {
+            "path": path,
+            "data": state_literal,
+            "hash": hashlib.sha256(state_literal.encode('utf-8')).hexdigest()
+        }
+    
+    def fetch_state(self, logical_idx: int) -> Dict[str, str]:
+        """
+        Fetch state from a storage cell.
+        
+        Args:
+            logical_idx: Logical index (positive integer)
+            
+        Returns:
+            Dictionary containing path, data, and hash. Returns void entry if not found.
+        """
+        signed_idx = KeddehZeroLessMatrix.get_signed_index(logical_idx)
+        return self.storage_cells.get(signed_idx, {"path": "VOID", "data": "", "hash": ""})
+
+    def delete_state(self, logical_idx: int) -> None:
+        """
+        Delete state from a storage cell.
+        
+        Args:
+            logical_idx: Logical index (positive integer)
+        """
+        signed_idx = KeddehZeroLessMatrix.get_signed_index(logical_idx)
+        if signed_idx in self.storage_cells:
+            del self.storage_cells[signed_idx]
+
+    def list_states(self) -> List[Dict[str, Any]]:
+        """
+        List all active storage states, sorted by signed index.
+        
+        Returns:
+            List of state cell dictionaries.
+        """
+        return [
+            {
+                "signed_index": idx,
+                "path": self.storage_cells[idx]["path"],
+                "data": self.storage_cells[idx]["data"],
+                "hash": self.storage_cells[idx]["hash"]
+            }
+            for idx in sorted(self.storage_cells.keys())
+        ]
+
+    def verify_integrity(self) -> bool:
+        """
+        Verify the SHA256 hash integrity of all stored cells.
+        
+        Returns:
+            True if all cells are integral, False otherwise.
+        """
+        for cell in self.storage_cells.values():
+            expected = cell["hash"]
+            actual = hashlib.sha256(cell["data"].encode('utf-8')).hexdigest()
+            if expected != actual:
+                return False
+        return True
+
+    def export_state_manifest(self) -> Dict[str, Any]:
+        """
+        Export a structural manifest of all stored states.
+        
+        Returns:
+            Dictionary mapping signed indices to metadata.
+        """
+        return {
+            str(idx): {
+                "path": cell["path"],
+                "hash": cell["hash"],
+                "size_bytes": len(cell["data"])
+            }
+            for idx, cell in self.storage_cells.items()
+        }
+
+    def clear_state(self) -> None:
+        """Clear all active storage cells."""
+        self.storage_cells.clear()
+
+
+class NestedCoreRuntime:
+    """
+    The complete running system that contains a running booted state system
+    of itself running within, executing actual integer operations.
+    
+    Features:
+    - Self-bootstrapping into zero-less space
+    - Nested layer runtime initialization supporting multiple concurrent mirrors
+    - Capacity doubling/scaling with state updates
+    - Recursive structural audit of the system hierarchy
+    - Deep recursive state snapshotting and restoration
+    """
+    
+    def __init__(self, name: str, base_capacity_tbi: int, depth: int = 1, bootstrap: bool = True):
+        """
+        Initialize a NestedCoreRuntime system.
+        
+        Args:
+            name: System identifier name
+            base_capacity_tbi: Base capacity in TBi (tebi-bits)
+            depth: Nesting depth level (default 1 for root)
+            bootstrap: If True, self-bootstrap the initial system states (default True)
+        """
+        self.name = name
+        self.capacity_tbi = base_capacity_tbi
+        self.depth = depth
+        self.fs = WiredFATFileSystem()
+        self.mirrors: Dict[str, 'NestedCoreRuntime'] = {}
+        self.next_mirror_idx = 3
+        
+        if bootstrap:
+            # Self-bootstrap the state into the zero-less space
+            self.fs.assign_state(
+                1,
+                f"/sys/{self.name.lower()}/meta",
+                f"SYSTEM_NAME:{self.name}|CAPACITY:{self.capacity_tbi}TBi|DEPTH:{self.depth}"
+            )
+            self.fs.assign_state(
+                2,
+                f"/sys/{self.name.lower()}/status",
+                "BOOTED_STABLE"
+            )
+
+    @property
+    def inner_system(self) -> Optional['NestedCoreRuntime']:
+        """
+        Backward compatible access to the first embedded mirror.
+        
+        Returns:
+            The first NestedCoreRuntime mirror system if any exist, else None.
+        """
+        if not self.mirrors:
+            return None
+        return next(iter(self.mirrors.values()))
+
+    @inner_system.setter
+    def inner_system(self, value: Optional['NestedCoreRuntime']) -> None:
+        """
+        Backward compatible setter for the first embedded mirror.
+        
+        Args:
+            value: A NestedCoreRuntime system to set as primary mirror or None to clear all.
+        """
+        if value is None:
+            self.mirrors.clear()
+        else:
+            self.mirrors[value.name] = value
+    
+    def embed_mirror(self, inner_name: str, inner_capacity_tbi: int) -> None:
+        """
+        Embed a nested runtime system within this system.
+        
+        Args:
+            inner_name: Name of the inner system
+            inner_capacity_tbi: Capacity of the inner system in TBi
+        """
+        # Nested layer runtime initialization
+        child = NestedCoreRuntime(inner_name, inner_capacity_tbi, depth=self.depth + 1)
+        self.mirrors[inner_name] = child
+        
+        # Register the child system state string into the parent's uncompressed filesystem
+        # Use collision-free indexing with an auto-incrementing index tracker.
+        # First child goes to logical index 3 for exact backward compatibility,
+        # subsequent children go to index 4, 5, etc. even if some mirrors are deleted.
+        logical_idx = self.next_mirror_idx
+        self.next_mirror_idx += 1
+        child_meta = f"EMBEDDED_MIRROR_SYSTEM_IDENTIFIER:{inner_name}|ALLOCATION:{inner_capacity_tbi}TBi"
+        self.fs.assign_state(logical_idx, f"/sys/{self.name.lower()}/nested_link/{inner_name.lower()}", child_meta)
+    
+    def scale_capacity(self, factor: float) -> None:
+        """
+        Scale system capacity recursively across all nested layers.
+        
+        Args:
+            factor: Positive scaling factor (e.g. 2.0 to double)
+            
+        Raises:
+            ValueError: If factor <= 0
+        """
+        if factor <= 0:
+            raise ValueError("Capacity scaling factor must be strictly positive.")
+            
+        self.capacity_tbi = int(self.capacity_tbi * factor)
+        # Re-verify and write back updated literal state without standard variable compression
+        self.fs.assign_state(
+            1,
+            f"/sys/{self.name.lower()}/meta",
+            f"SYSTEM_NAME:{self.name}|CAPACITY:{self.capacity_tbi}TBi|DEPTH:{self.depth}"
+        )
+        for mirror in self.mirrors.values():
+            mirror.scale_capacity(factor)
+
+    def double_capacity(self) -> None:
+        """
+        Double the system capacity and recursively update nested systems.
+        
+        Re-verifies and writes back updated literal state without standard
+        variable compression. Recursively doubles nested systems if present.
+        """
+        self.scale_capacity(2.0)
+    
+    def run_structural_audit(self) -> List[str]:
+        """
+        Run a complete structural audit of the system and nested layers.
+        
+        Returns:
+            List of audit log entries for this system and nested systems.
+            Checks that no cartesian zero exists in cell alignment.
+        """
+        logs: List[str] = []
+        # Audit parent layer
+        for signed_idx, cell in self.fs.storage_cells.items():
+            if signed_idx == 0:
+                logs.append(
+                    f"[{self.name}] CRITICAL EXCEPTION: Cartesian zero detected in cell alignment."
+                )
+            else:
+                logs.append(
+                    f"[{self.name}] AUDIT PASS -> Relational Index ({signed_idx}) maps safely to path '{cell['path']}'."
+                )
+        
+        # Recursively audit child layer
+        for mirror in self.mirrors.values():
+            logs.extend(mirror.run_structural_audit())
+        return logs
+
+    def get_system_report(self) -> Dict[str, Any]:
+        """
+        Generate a complete deep recursive status report of the hierarchy.
+        
+        Returns:
+            Dictionary containing nested runtime structural status.
+        """
+        return {
+            "name": self.name,
+            "capacity_tbi": self.capacity_tbi,
+            "depth": self.depth,
+            "status": self.fs.fetch_state(2).get("data", "UNKNOWN"),
+            "filesystem_integrity": self.fs.verify_integrity(),
+            "active_cells_count": len(self.fs.storage_cells),
+            "mirrors": {name: mirror.get_system_report() for name, mirror in self.mirrors.items()}
+        }
+
+    def capture_snapshot(self) -> Dict[str, Any]:
+        """
+        Capture a deep, recursive state snapshot of the entire runtime tree.
+        
+        Returns:
+            A snapshot dictionary ready for backup or serialization.
+        """
+        return {
+            "name": self.name,
+            "capacity_tbi": self.capacity_tbi,
+            "depth": self.depth,
+            "next_mirror_idx": self.next_mirror_idx,
+            "storage_cells": {
+                str(idx): {
+                    "path": cell["path"],
+                    "data": cell["data"],
+                    "hash": cell["hash"]
+                }
+                for idx, cell in self.fs.storage_cells.items()
+            },
+            "mirrors": {name: mirror.capture_snapshot() for name, mirror in self.mirrors.items()}
+        }
+
+    def restore_snapshot(self, snapshot: Dict[str, Any]) -> None:
+        """
+        Deeply restore the entire runtime tree state from a captured snapshot,
+        re-verifying integrity of all cell hashes.
+        
+        Note: This is a destructive operation that completely wipes existing filesystem 
+        state (using self.fs.clear_state()) and replaces it with snapshot data to prevent 
+        orphaned entries and stale data from non-existent mirrors.
+        
+        Args:
+            snapshot: Snapshot dictionary previously generated by capture_snapshot.
+            
+        Raises:
+            ValueError: If integrity verification fails on restoration or structure mismatch.
+        """
+        if snapshot.get("name") != self.name:
+            raise ValueError(f"Snapshot name mismatch. Expected '{self.name}', got '{snapshot.get('name')}'")
+            
+        self.capacity_tbi = snapshot["capacity_tbi"]
+        self.depth = snapshot["depth"]
+        self.next_mirror_idx = snapshot.get("next_mirror_idx", 3)
+        
+        # Re-populate filesystem
+        # Note: self.fs.clear_state() is called here to ensure no orphan files or stale entries
+        # from deleted/removed mirrors are left over after restoration.
+        self.fs.clear_state()
+        for idx_str, cell_data in snapshot["storage_cells"].items():
+            idx = int(idx_str)
+            # Re-compute hash to verify integrity
+            computed_hash = hashlib.sha256(cell_data["data"].encode('utf-8')).hexdigest()
+            if computed_hash != cell_data["hash"]:
+                raise ValueError(f"Integrity check failed during snapshot restore for cell {idx}. Data has been corrupted.")
+            
+            self.fs.storage_cells[idx] = {
+                "path": cell_data["path"],
+                "data": cell_data["data"],
+                "hash": cell_data["hash"]
+            }
+            
+        # Re-populate and restore mirrors
+        snapshot_mirrors = snapshot.get("mirrors", {})
+        # Clear mirrors that are not in snapshot
+        self.mirrors = {name: m for name, m in self.mirrors.items() if name in snapshot_mirrors}
+        
+        for name, mirror_snapshot in snapshot_mirrors.items():
+            if name not in self.mirrors:
+                # Create a temporary empty mirror shell and let it restore itself
+                self.mirrors[name] = NestedCoreRuntime(name, mirror_snapshot["capacity_tbi"], depth=mirror_snapshot["depth"], bootstrap=False)
+            # This deeply restores state for both newly created and pre-existing mirrors.
+            self.mirrors[name].restore_snapshot(mirror_snapshot)
+
+    # -------------------------------------------------------------------------
+    # AGENT FLEET INTERFACE
+    # -------------------------------------------------------------------------
+
+    def embed_agent(self, agent_name: str, role: str, capacity_tbi: int) -> 'NestedCoreRuntime':
+        """
+        Embed a typed agent mirror inside this host system.
+
+        An agent is a fully-booted NestedCoreRuntime with two additional
+        state cells beyond the standard meta/status pair:
+
+          logical index 1 -> meta      (inherited from bootstrap)
+          logical index 2 -> status    (inherited from bootstrap)
+          logical index 3 -> agent_role
+          logical index 4 -> agent_constraints
+          logical index 5 -> task_inbox   (initially VOID/WAITING)
+          logical index 6 -> task_result  (initially VOID/WAITING)
+
+        The parent filesystem registers the agent link at its next available
+        mirror index (same as embed_mirror).
+
+        Args:
+            agent_name: Unique identifier for the agent inside this host.
+            role: Role string describing what the agent does.
+            capacity_tbi: Capacity allocation for this agent in TBi.
+
+        Returns:
+            The newly created agent NestedCoreRuntime instance.
+
+        Raises:
+            ValueError: If an agent with agent_name already exists.
+        """
+        if agent_name in self.mirrors:
+            raise ValueError(
+                f"Agent '{agent_name}' already exists inside '{self.name}'. "
+                "Use a unique name for each agent."
+            )
+
+        agent = NestedCoreRuntime(agent_name, capacity_tbi, depth=self.depth + 1, bootstrap=True)
+
+        # Write agent-specific state cells into the agent's own zero-less FS.
+        # Logical indices 1 and 2 are already written by bootstrap (meta, status).
+        # We start at 3 for the agent-typed cells.
+        agent.fs.assign_state(
+            3,
+            f"/sys/{agent_name.lower()}/agent_role",
+            f"AGENT_ROLE:{role}|HOST:{self.name}|DEPTH:{agent.depth}",
+        )
+        agent.fs.assign_state(
+            4,
+            f"/sys/{agent_name.lower()}/agent_constraints",
+            f"CONSTRAINT_KEX_LANE:KEX_CONTROL_LANE|CONSTRAINT_MUTATION:LOCKED|CONSTRAINT_PROOF:REQUIRED",
+        )
+        agent.fs.assign_state(
+            5,
+            f"/sys/{agent_name.lower()}/task_inbox",
+            "TASK_STATUS:WAITING|PAYLOAD:VOID",
+        )
+        agent.fs.assign_state(
+            6,
+            f"/sys/{agent_name.lower()}/task_result",
+            "RESULT_STATUS:WAITING|OUTPUT:VOID",
+        )
+
+        # Register agent in the parent's mirror dict and FS.
+        self.mirrors[agent_name] = agent
+        logical_idx = self.next_mirror_idx
+        self.next_mirror_idx += 1
+        self.fs.assign_state(
+            logical_idx,
+            f"/sys/{self.name.lower()}/agent_link/{agent_name.lower()}",
+            f"AGENT_MIRROR_IDENTIFIER:{agent_name}|ROLE:{role}|ALLOCATION:{capacity_tbi}TBi",
+        )
+
+        return agent
+
+    def clone_as_package(self, new_name: str) -> 'NestedCoreRuntime':
+        """
+        Clone the entire outer system (including all embedded agents/mirrors)
+        as a fully isolated host package under a new name.
+
+        The clone is produced by:
+          1. Capturing a deep snapshot of the current system tree.
+          2. Creating a new NestedCoreRuntime shell (bootstrap=False).
+          3. Restoring the snapshot into the shell.
+          4. Re-writing the top-level meta cell to carry the new_name so the
+             clone is self-identifying with its own identity.
+
+        The clone is completely independent: its WiredFATFileSystem and mirrors
+        share no references with the original. Mutations to either do not
+        affect the other.
+
+        Args:
+            new_name: Name for the cloned host package.
+
+        Returns:
+            A new, independent NestedCoreRuntime carrying the full state tree
+            of this system under new_name.
+
+        Raises:
+            ValueError: If new_name equals self.name (would produce identical identity).
+        """
+        if new_name == self.name:
+            raise ValueError(
+                f"Clone name '{new_name}' must differ from source name '{self.name}'."
+            )
+
+        snapshot = self.capture_snapshot()
+
+        # Patch the snapshot's name field before restoring so restore_snapshot
+        # name-check passes for the new shell.
+        snapshot["name"] = new_name
+
+        clone = NestedCoreRuntime(new_name, self.capacity_tbi, depth=self.depth, bootstrap=False)
+        clone.restore_snapshot(snapshot)
+
+        # Re-write the top-level meta cell to carry the new name identity.
+        clone.fs.assign_state(
+            1,
+            f"/sys/{new_name.lower()}/meta",
+            f"SYSTEM_NAME:{new_name}|CAPACITY:{clone.capacity_tbi}TBi|DEPTH:{clone.depth}|CLONED_FROM:{self.name}",
+        )
+
+        return clone
+
+    def dispatch_to_agent(
+        self,
+        agent_name: str,
+        task_payload: str,
+    ) -> Dict[str, Any]:
+        """
+        Route a task payload to a named agent inside this host.
+
+        The dispatch cycle:
+          1. Validates the agent exists and its filesystem is integral.
+          2. Writes the task payload into the agent's task_inbox cell (logical 5).
+          3. Sets the agent's status to TASK_ACTIVE.
+          4. Runs the agent's structural audit (proof gate).
+          5. Writes the audit result into the agent's task_result cell (logical 6).
+          6. Restores the agent's status to BOOTED_STABLE.
+
+        This is a synchronous, deterministic dispatch: the agent executes
+        the audit as its proof-of-work and the result is the audit log.
+
+        Args:
+            agent_name: Name of the target agent (must exist in self.mirrors).
+            task_payload: Uncompressed literal task descriptor string.
+
+        Returns:
+            Dictionary containing:
+                - agent: agent name
+                - task_payload: the payload dispatched
+                - audit_entries: list of audit log strings produced by the agent
+                - zero_errors: count of Cartesian zero violations found
+                - integrity_pre_dispatch: bool, filesystem integrity before dispatch
+                - result_cell: the data written to the result cell
+                - status: "TASK_COMPLETED" or "TASK_FAILED"
+                - dispatched_at: ISO-8601 timestamp
+
+        Raises:
+            KeyError: If agent_name is not found in self.mirrors.
+        """
+        if agent_name not in self.mirrors:
+            raise KeyError(
+                f"Agent '{agent_name}' not found in host '{self.name}'. "
+                f"Available agents: {list(self.mirrors.keys())}"
+            )
+
+        agent = self.mirrors[agent_name]
+        dispatched_at = datetime.now(timezone.utc).isoformat()
+
+        integrity_pre = agent.fs.verify_integrity()
+
+        # Write the task into inbox (logical 5).
+        agent.fs.assign_state(
+            5,
+            f"/sys/{agent_name.lower()}/task_inbox",
+            f"TASK_STATUS:ACTIVE|PAYLOAD:{task_payload}|DISPATCHED_AT:{dispatched_at}",
+        )
+
+        # Mark the agent active.
+        agent.fs.assign_state(
+            2,
+            f"/sys/{agent_name.lower()}/status",
+            "TASK_ACTIVE",
+        )
+
+        # Proof-of-work: structural audit.
+        audit_entries = agent.run_structural_audit()
+        zero_errors = sum(1 for e in audit_entries if "CRITICAL" in e)
+
+        task_status = "TASK_COMPLETED" if zero_errors == 0 else "TASK_FAILED"
+        result_literal = (
+            f"RESULT_STATUS:{task_status}|AUDIT_ENTRIES:{len(audit_entries)}"
+            f"|ZERO_ERRORS:{zero_errors}|COMPLETED_AT:{datetime.now(timezone.utc).isoformat()}"
+        )
+
+        # Write result and restore status.
+        agent.fs.assign_state(
+            6,
+            f"/sys/{agent_name.lower()}/task_result",
+            result_literal,
+        )
+        agent.fs.assign_state(
+            2,
+            f"/sys/{agent_name.lower()}/status",
+            "BOOTED_STABLE",
+        )
+
+        return {
+            "agent": agent_name,
+            "task_payload": task_payload,
+            "audit_entries": audit_entries,
+            "zero_errors": zero_errors,
+            "integrity_pre_dispatch": integrity_pre,
+            "result_cell": result_literal,
+            "status": task_status,
+            "dispatched_at": dispatched_at,
+        }
+
+    def get_agent_fleet_report(self) -> Dict[str, Any]:
+        """
+        Generate a recursive fleet-level status report for all agents
+        (mirrors) hosted inside this system.
+
+        Each agent entry includes:
+          - name, role, capacity_tbi, depth
+          - status (from cell 2)
+          - last task result (from cell 6)
+          - filesystem integrity
+          - active cell count
+          - nested agents (recursive)
+
+        Returns:
+            Dictionary with host identity and a 'fleet' dict keyed by agent name.
+        """
+        fleet: Dict[str, Any] = {}
+        for agent_name, agent in self.mirrors.items():
+            role_cell = agent.fs.fetch_state(3).get("data", "ROLE:UNKNOWN")
+            result_cell = agent.fs.fetch_state(6).get("data", "RESULT_STATUS:WAITING")
+            fleet[agent_name] = {
+                "name": agent_name,
+                "role": role_cell,
+                "capacity_tbi": agent.capacity_tbi,
+                "depth": agent.depth,
+                "status": agent.fs.fetch_state(2).get("data", "UNKNOWN"),
+                "last_result": result_cell,
+                "filesystem_integrity": agent.fs.verify_integrity(),
+                "active_cells_count": len(agent.fs.storage_cells),
+                "nested_agents": agent.get_agent_fleet_report().get("fleet", {}),
+            }
+
+        return {
+            "host": self.name,
+            "host_capacity_tbi": self.capacity_tbi,
+            "host_depth": self.depth,
+            "host_status": self.fs.fetch_state(2).get("data", "UNKNOWN"),
+            "total_agents": len(self.mirrors),
+            "fleet": fleet,
+        }

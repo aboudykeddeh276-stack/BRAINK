@@ -1,5 +1,66 @@
 {
-  "at": "2026-05-19T14:42:48Z",
-  "names": {},
+  "at": "2026-07-03T09:11:55.759151+00:00",
+  "names": {
+    "__init__": [
+      "modules/NestedCoreRuntime.py",
+      "modules/NestedCoreRuntime.py"
+    ],
+    "distinction_from_cartesian": [
+      "modules/KeddehMathematicalTheorems.py",
+      "modules/KeddehMathematicalTheorems.py"
+    ],
+    "formal_statement": [
+      "modules/KeddehMathematicalTheorems.py",
+      "modules/KeddehMathematicalTheorems.py",
+      "modules/KeddehMathematicalTheorems.py",
+      "modules/KeddehMathematicalTheorems.py",
+      "modules/KeddehMathematicalTheorems.py",
+      "modules/KeddehMathematicalTheorems.py",
+      "modules/KeddehMathematicalTheorems.py",
+      "modules/KeddehMathematicalTheorems.py"
+    ],
+    "inner_system": [
+      "modules/NestedCoreRuntime.py",
+      "modules/NestedCoreRuntime.py"
+    ],
+    "iter_files": [
+      "tools/kex_ethics_check.py",
+      "tools/kex_route_proof.py",
+      "tools/kex_self_sustain.py"
+    ],
+    "main": [
+      "scripts/braink-agent-cli.py",
+      "scripts/execute_nested_core_runtime.py",
+      "scripts/keddeh_matrix_workflow.py",
+      "scripts/regenerate_fold.py",
+      "scripts/validate-governance.py",
+      "tools/kex_ethics_check.py",
+      "tools/kex_route_proof.py",
+      "tools/kex_self_sustain.py"
+    ],
+    "mathematical_notation": [
+      "modules/KeddehMathematicalTheorems.py",
+      "modules/KeddehMathematicalTheorems.py",
+      "modules/KeddehMathematicalTheorems.py",
+      "modules/KeddehMathematicalTheorems.py",
+      "modules/KeddehMathematicalTheorems.py",
+      "modules/KeddehMathematicalTheorems.py"
+    ],
+    "proof_steps": [
+      "modules/KeddehMathematicalTheorems.py",
+      "modules/KeddehMathematicalTheorems.py",
+      "modules/KeddehMathematicalTheorems.py",
+      "modules/KeddehMathematicalTheorems.py"
+    ],
+    "read_text": [
+      "tools/kex_ethics_check.py",
+      "tools/kex_route_proof.py",
+      "tools/kex_self_sustain.py"
+    ],
+    "sha256": [
+      "scripts/validate-governance.py",
+      "tools/kex_self_sustain.py"
+    ]
+  },
   "type": "repeating_names"
 }

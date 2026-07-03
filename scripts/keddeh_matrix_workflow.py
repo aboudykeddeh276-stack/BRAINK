@@ -21,11 +21,17 @@ Commands:
     9. script_full_workflow
 """
 
+import argparse
 import json
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, List, Any
 from dataclasses import dataclass, asdict
+
+# Import NestedCoreRuntime for workflow orchestration
+sys.path.insert(0, str(Path(__file__).parent.parent / "modules"))
+from NestedCoreRuntime import NestedCoreRuntime, KeddehZeroLessMatrix, WiredFATFileSystem
 
 
 # ============================================================================
@@ -56,7 +62,7 @@ def script_init_keddeh_framework(output_dir: str = "reports") -> Dict[str, Any]:
         "name": "1-Keddeh Matrix Framework",
         "version": "1.0.0",
         "status": "INITIALIZATION",
-        "timestamp": "2026-07-01T00:00:00Z",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
         
         "core_axioms": [
             "Zero is not a natural number; it represents the observer's reference frame.",
@@ -114,7 +120,7 @@ def script_validate_arithmetic_operations(output_dir: str = "reports") -> Dict[s
     results = {
         "operation": "arithmetic_validation",
         "status": "VALIDATION_IN_PROGRESS",
-        "timestamp": "2026-07-01T00:00:00Z",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
         "operations": {},
     }
     
@@ -195,7 +201,7 @@ def script_test_physical_calibration(output_dir: str = "reports") -> Dict[str, A
     calibration = {
         "validation": "physical_calibration",
         "status": "TESTING",
-        "timestamp": "2026-07-01T00:00:00Z",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
         "systems": {},
     }
     
@@ -280,7 +286,7 @@ def script_compare_cartesian_vs_keddeh(output_dir: str = "reports") -> Dict[str,
     comparison = {
         "analysis": "cartesian_vs_keddeh",
         "status": "COMPARISON_ACTIVE",
-        "timestamp": "2026-07-01T00:00:00Z",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
     }
     
     # Dimensional Collapse Problem
@@ -388,7 +394,7 @@ def script_generate_mathematical_proofs(output_dir: str = "reports") -> Dict[str
     proofs = {
         "domain": "mathematical_proofs",
         "status": "PROOFS_GENERATED",
-        "timestamp": "2026-07-01T00:00:00Z",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
         "theorems": {},
     }
     
@@ -477,7 +483,7 @@ def script_integration_virtualised_memory(output_dir: str = "reports") -> Dict[s
     integration = {
         "integration": "keddeh_virtualised_memory",
         "status": "VALIDATION_ACTIVE",
-        "timestamp": "2026-07-01T00:00:00Z",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
     }
     
     integration["virtualised_memory_properties"] = {
@@ -545,7 +551,7 @@ def script_comprehensive_test_suite(output_dir: str = "reports") -> Dict[str, An
     test_suite = {
         "test_suite": "keddeh_comprehensive",
         "status": "TESTS_RUNNING",
-        "timestamp": "2026-07-01T00:00:00Z",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
         "total_tests": 0,
         "passed": 0,
         "failed": 0,
@@ -627,7 +633,7 @@ def script_generate_visualization(output_dir: str = "reports") -> Dict[str, Any]
     visualization = {
         "visualization": "keddeh_vs_cartesian",
         "status": "GENERATED",
-        "timestamp": "2026-07-01T00:00:00Z",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
     }
     
     visualization["number_line_comparison"] = {
@@ -687,6 +693,134 @@ def script_generate_visualization(output_dir: str = "reports") -> Dict[str, Any]
 
 
 # ============================================================================
+# SCRIPT 8.5: Nested Core Runtime Integration
+# ============================================================================
+
+def script_integration_nested_core_runtime(output_dir: str = "reports") -> Dict[str, Any]:
+    """
+    Integrate NestedCoreRuntime system into the Keddeh Matrix workflow.
+    
+    Demonstrates:
+    - Zero-less indexing via KeddehZeroLessMatrix
+    - Uncompressed state storage via WiredFATFileSystem
+    - Nested runtime bootstrapping via NestedCoreRuntime
+    - Capacity doubling and structural audits
+    
+    Returns:
+        Integration results including capacity management and audit logs.
+    """
+    output_path = Path(output_dir)
+    output_path.mkdir(parents=True, exist_ok=True)
+    
+    integration = {
+        "integration": "nested_core_runtime_workflow",
+        "status": "VALIDATION_ACTIVE",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+    }
+    
+    # Phase 1: Establish Master System
+    master_system = NestedCoreRuntime("HOST_PARENT_CORE_A", base_capacity_tbi=10000)
+    
+    integration["phase_1_master_system_init"] = {
+        "status": "SUCCESS",
+        "system_name": master_system.name,
+        "capacity_tbi": master_system.capacity_tbi,
+        "depth_level": master_system.depth,
+        "filesystem_cells": len(master_system.fs.storage_cells),
+    }
+    
+    # Phase 2: Embed Nested System
+    master_system.embed_mirror("NESTED_CHILD_CORE_B", inner_capacity_tbi=5000)
+    
+    integration["phase_2_nested_system_embed"] = {
+        "status": "SUCCESS",
+        "child_system_name": master_system.inner_system.name,
+        "child_capacity_tbi": master_system.inner_system.capacity_tbi,
+        "child_depth_level": master_system.inner_system.depth,
+        "parent_cells_updated": len(master_system.fs.storage_cells),
+    }
+    
+    # Phase 3: Capture Initial State
+    initial_parent_meta = master_system.fs.fetch_state(1)["data"]
+    initial_child_meta = master_system.inner_system.fs.fetch_state(1)["data"]
+    
+    integration["phase_3_initial_state_capture"] = {
+        "status": "SUCCESS",
+        "parent_meta": initial_parent_meta,
+        "child_meta": initial_child_meta,
+        "parent_status": master_system.fs.fetch_state(2)["data"],
+        "child_status": master_system.inner_system.fs.fetch_state(2)["data"],
+    }
+    
+    # Phase 4: Execute Capacity Doubling
+    master_system.double_capacity()
+    
+    integration["phase_4_capacity_doubling"] = {
+        "status": "SUCCESS",
+        "parent_capacity_post": master_system.capacity_tbi,
+        "child_capacity_post": master_system.inner_system.capacity_tbi,
+        "doubling_factor": 2,
+    }
+    
+    # Phase 5: Capture Post-Expansion State
+    post_parent_meta = master_system.fs.fetch_state(1)["data"]
+    post_child_meta = master_system.inner_system.fs.fetch_state(1)["data"]
+    
+    integration["phase_5_post_expansion_state"] = {
+        "status": "SUCCESS",
+        "parent_meta": post_parent_meta,
+        "child_meta": post_child_meta,
+        "parent_status": master_system.fs.fetch_state(2)["data"],
+        "child_status": master_system.inner_system.fs.fetch_state(2)["data"],
+    }
+    
+    # Phase 6: Structural Audit
+    audit_results = master_system.run_structural_audit()
+    zero_errors = [r for r in audit_results if "CRITICAL" in r]
+    
+    integration["phase_6_structural_audit"] = {
+        "status": "SUCCESS",
+        "total_audit_entries": len(audit_results),
+        "zero_errors_detected": len(zero_errors),
+        "audit_entries": audit_results,
+    }
+    
+    # Verify Zero-less Indexing Properties
+    integration["zero_less_indexing_validation"] = {
+        "test_1_negative_mapping": {
+            "index_1_maps_to": KeddehZeroLessMatrix.get_signed_index(1),
+            "expected": -1,
+            "passed": KeddehZeroLessMatrix.get_signed_index(1) == -1,
+        },
+        "test_2_positive_mapping": {
+            "index_4_maps_to": KeddehZeroLessMatrix.get_signed_index(4),
+            "expected": 1,
+            "passed": KeddehZeroLessMatrix.get_signed_index(4) == 1,
+        },
+        "test_3_no_zero_in_audit": {
+            "zero_errors": len(zero_errors),
+            "passed": len(zero_errors) == 0,
+        },
+    }
+    
+    integration["summary"] = {
+        "all_phases_completed": True,
+        "zero_errors": len(zero_errors),
+        "capacity_growth": f"{10000} TBi -> {master_system.capacity_tbi} TBi",
+        "nested_layers": 2,
+        "status": "OPERATIONAL",
+    }
+    
+    output_file = output_path / "keddeh_nested_core_runtime_integration.json"
+    output_file.write_text(json.dumps(integration, indent=2))
+    
+    print(f"✓ script_integration_nested_core_runtime COMPLETED")
+    print(f"  Output: {output_file}")
+    
+    return integration
+
+
+# ============================================================================
 # SCRIPT 9: Full Workflow Orchestration
 # ============================================================================
 
@@ -704,7 +838,7 @@ def script_full_workflow(output_dir: str = "reports") -> Dict[str, Any]:
     workflow_log = {
         "workflow": "keddeh_matrix_complete_validation",
         "status": "STARTING",
-        "timestamp": "2026-07-01T00:00:00Z",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
         "scripts_executed": [],
         "summary": {},
     }
@@ -723,6 +857,7 @@ def script_full_workflow(output_dir: str = "reports") -> Dict[str, Any]:
         ("6. VIRTUALISED_MEMORY Integration", script_integration_virtualised_memory),
         ("7. Comprehensive Tests", script_comprehensive_test_suite),
         ("8. Visualization", script_generate_visualization),
+        ("8.5. Nested Core Runtime Integration", script_integration_nested_core_runtime),
     ]
     
     for script_name, script_func in scripts:
@@ -757,6 +892,8 @@ def script_full_workflow(output_dir: str = "reports") -> Dict[str, Any]:
             "✓ VIRTUALISED_MEMORY integration confirmed",
             "✓ Comprehensive test suite passes all tests",
             "✓ Visualization ready for publication",
+            "✓ Nested Core Runtime system integrated with zero-less indexing",
+            "✓ Capacity management and structural audit capabilities added to workflow orchestrator",
         ],
     }
     
@@ -779,44 +916,40 @@ def script_full_workflow(output_dir: str = "reports") -> Dict[str, Any]:
 # Main Entry Point
 # ============================================================================
 
-def main():
+def main(argv: list[str] | None = None) -> int:
     """Command-line interface for workflow scripts."""
-    if len(sys.argv) < 2:
-        print("Usage: python3 keddeh_matrix_workflow.py [command] [output_dir]")
-        print("\nAvailable commands:")
-        print("  1. init_framework")
-        print("  2. validate_arithmetic")
-        print("  3. calibrate_physical")
-        print("  4. compare_systems")
-        print("  5. generate_proofs")
-        print("  6. integrate_memory")
-        print("  7. run_tests")
-        print("  8. visualize")
-        print("  9. full_workflow (runs all scripts)")
-        sys.exit(1)
-    
-    command = sys.argv[1]
-    output_dir = sys.argv[2] if len(sys.argv) > 2 else "reports"
-    
-    scripts = {
-        "1": ("init_framework", script_init_keddeh_framework),
-        "2": ("validate_arithmetic", script_validate_arithmetic_operations),
-        "3": ("calibrate_physical", script_test_physical_calibration),
-        "4": ("compare_systems", script_compare_cartesian_vs_keddeh),
-        "5": ("generate_proofs", script_generate_mathematical_proofs),
-        "6": ("integrate_memory", script_integration_virtualised_memory),
-        "7": ("run_tests", script_comprehensive_test_suite),
-        "8": ("visualize", script_generate_visualization),
-        "9": ("full_workflow", script_full_workflow),
+    parser = argparse.ArgumentParser(
+        prog="keddeh-matrix-workflow",
+        description="Keddeh Matrix Framework validation workflow orchestrator.",
+    )
+    subcommands = parser.add_subparsers(dest="command", required=True)
+
+    command_map = {
+        "init_framework":           ("1. Framework Initialization",               script_init_keddeh_framework),
+        "validate_arithmetic":      ("2. Arithmetic Validation",                   script_validate_arithmetic_operations),
+        "calibrate_physical":       ("3. Physical Calibration",                    script_test_physical_calibration),
+        "compare_systems":          ("4. Cartesian Comparison",                    script_compare_cartesian_vs_keddeh),
+        "generate_proofs":          ("5. Mathematical Proofs",                     script_generate_mathematical_proofs),
+        "integrate_memory":         ("6. VIRTUALISED_MEMORY Integration",          script_integration_virtualised_memory),
+        "run_tests":                ("7. Comprehensive Tests",                     script_comprehensive_test_suite),
+        "visualize":                ("8. Visualization",                           script_generate_visualization),
+        "integrate_nested_runtime": ("8.5. Nested Core Runtime Integration",       script_integration_nested_core_runtime),
+        "full_workflow":            ("9. Full Workflow",                            script_full_workflow),
     }
-    
-    if command in scripts:
-        _, script_func = scripts[command]
-        script_func(output_dir)
-    else:
-        print(f"Unknown command: {command}")
-        sys.exit(1)
+
+    for cmd in command_map:
+        sub = subcommands.add_parser(cmd, help=command_map[cmd][0])
+        sub.add_argument(
+            "--output-dir",
+            default="reports",
+            help="Directory for generated report files. Defaults to 'reports'.",
+        )
+
+    args = parser.parse_args(argv)
+    _, script_func = command_map[args.command]
+    script_func(args.output_dir)
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

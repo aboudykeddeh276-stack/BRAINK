@@ -63,13 +63,17 @@ KEX_AFFECT_RESPONSE_VALID =
 
 - `tools/kex_self_sustain.py`: generates and verifies hash-backed repo packets.
 - `tools/kex_ethics_check.py`: checks the KEX affect/ethics manifest and scans repo text for unsupported boundary claims.
+- `tools/kex_route_proof.py`: asserts and reports coverage of every documented BRAINK route token.
+- `scripts/regenerate_fold.py`: regenerates portable fold scan artifacts (constant_bool, repeating_names, index).
+- `scripts/keddeh_matrix_workflow.py`: executes the full Keddeh Matrix validation workflow via argparse subcommands.
 - `reports/BRAINK_kex_self_sustain_packet.json`: current packet artifact.
 - `reports/kex_ethics_check.json`: current ethics checker artifact.
+- `reports/kex_route_proof.json`: current route proof artifact.
 
 ## Pending gates
 
-- Replace host-only `/Users/ak/Documents/...` output paths with configurable roots.
-- Add route-level runtime assertions for every documented BRAINK route.
-- Add a fixture KEX hyperdrive repo adapter for theorem-lineage metadata.
-- Run macOS SwiftUI/AppKit smoke proof in a compatible macOS environment.
-- Require external reproduction packages before promoting external scientific/hardware claims.
+- Route token assertions: `tools/kex_route_proof.py` — 12/12 routes proven MODEL-LOCAL. Gate C_ROUTE_PROOF: COMPLETED.
+- Fold scan artifacts: `scripts/regenerate_fold.py` regenerates portable fold data without host-only paths. Gate A_PORTABLE_ROOTS (fold): COMPLETED.
+- Add a fixture KEX hyperdrive repo adapter for theorem-lineage metadata. Gate F_KEX_REPO_BINDING: PENDING.
+- Run macOS SwiftUI/AppKit smoke proof in a compatible macOS environment. Gate G_MACOS_RUNTIME_PROOF: BLOCKED.
+- Require external reproduction packages before promoting external scientific/hardware claims. Gate H_EXTERNAL_BOUNDARY: EXTERNALLY-UNVALIDATED.

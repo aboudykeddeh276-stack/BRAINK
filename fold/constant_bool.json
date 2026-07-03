@@ -1,6 +1,19 @@
 {
-  "at": "2026-05-19T14:42:48Z",
-  "count": 0,
-  "hits": [],
+  "at": "2026-07-03T09:11:55.759151+00:00",
+  "count": 3,
+  "hits": [
+    {
+      "file": "modules/NestedCoreRuntime.py",
+      "function": "verify_integrity"
+    },
+    {
+      "file": "scripts/execute_nested_core_runtime.py",
+      "function": "main"
+    },
+    {
+      "file": "scripts/regenerate_fold.py",
+      "function": "is_constant_bool_function"
+    }
+  ],
   "type": "constant_bool"
 }
