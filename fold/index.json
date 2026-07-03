@@ -1,9 +1,9 @@
 {
-  "at": "2026-07-03T09:04:40.528554+00:00",
+  "at": "2026-07-03T09:11:55.759151+00:00",
   "constant_bool_count": 3,
-  "files_scanned": 10,
-  "functions_found": 160,
-  "head": "63e6bbc647367179dbcfab395f5ed5d2ae4e88a1",
+  "files_scanned": 11,
+  "functions_found": 182,
+  "head": "e2c92eec7762f09cc6fcc6d6cf1f2bd831c98821",
   "layout_rule": "fold/file/folder/file",
   "notes": [
     "repeating_names = same literal function name across processes/files",

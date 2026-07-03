@@ -25,7 +25,7 @@ import re
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Iterable
+from typing import Iterable  # noqa: F401 (used in type hints)
 
 # Route tokens sourced from kex_self_sustain.py ROUTE_TOKENS and BRAINK source map.
 # Each entry defines the token to match, which file types to search, and a short
