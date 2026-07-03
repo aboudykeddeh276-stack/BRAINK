@@ -21,8 +21,10 @@ Commands:
     9. script_full_workflow
 """
 
+import argparse
 import json
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, List, Any
 from dataclasses import dataclass, asdict
@@ -60,7 +62,7 @@ def script_init_keddeh_framework(output_dir: str = "reports") -> Dict[str, Any]:
         "name": "1-Keddeh Matrix Framework",
         "version": "1.0.0",
         "status": "INITIALIZATION",
-        "timestamp": "2026-07-01T00:00:00Z",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
         
         "core_axioms": [
             "Zero is not a natural number; it represents the observer's reference frame.",
@@ -118,7 +120,7 @@ def script_validate_arithmetic_operations(output_dir: str = "reports") -> Dict[s
     results = {
         "operation": "arithmetic_validation",
         "status": "VALIDATION_IN_PROGRESS",
-        "timestamp": "2026-07-01T00:00:00Z",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
         "operations": {},
     }
     
@@ -199,7 +201,7 @@ def script_test_physical_calibration(output_dir: str = "reports") -> Dict[str, A
     calibration = {
         "validation": "physical_calibration",
         "status": "TESTING",
-        "timestamp": "2026-07-01T00:00:00Z",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
         "systems": {},
     }
     
@@ -284,7 +286,7 @@ def script_compare_cartesian_vs_keddeh(output_dir: str = "reports") -> Dict[str,
     comparison = {
         "analysis": "cartesian_vs_keddeh",
         "status": "COMPARISON_ACTIVE",
-        "timestamp": "2026-07-01T00:00:00Z",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
     }
     
     # Dimensional Collapse Problem
@@ -392,7 +394,7 @@ def script_generate_mathematical_proofs(output_dir: str = "reports") -> Dict[str
     proofs = {
         "domain": "mathematical_proofs",
         "status": "PROOFS_GENERATED",
-        "timestamp": "2026-07-01T00:00:00Z",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
         "theorems": {},
     }
     
@@ -481,7 +483,7 @@ def script_integration_virtualised_memory(output_dir: str = "reports") -> Dict[s
     integration = {
         "integration": "keddeh_virtualised_memory",
         "status": "VALIDATION_ACTIVE",
-        "timestamp": "2026-07-01T00:00:00Z",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
     }
     
     integration["virtualised_memory_properties"] = {
@@ -549,7 +551,7 @@ def script_comprehensive_test_suite(output_dir: str = "reports") -> Dict[str, An
     test_suite = {
         "test_suite": "keddeh_comprehensive",
         "status": "TESTS_RUNNING",
-        "timestamp": "2026-07-01T00:00:00Z",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
         "total_tests": 0,
         "passed": 0,
         "failed": 0,
@@ -631,7 +633,7 @@ def script_generate_visualization(output_dir: str = "reports") -> Dict[str, Any]
     visualization = {
         "visualization": "keddeh_vs_cartesian",
         "status": "GENERATED",
-        "timestamp": "2026-07-01T00:00:00Z",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
     }
     
     visualization["number_line_comparison"] = {
@@ -713,7 +715,7 @@ def script_integration_nested_core_runtime(output_dir: str = "reports") -> Dict[
     integration = {
         "integration": "nested_core_runtime_workflow",
         "status": "VALIDATION_ACTIVE",
-        "timestamp": "2026-07-01T00:00:00Z",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
     }
     
     # Phase 1: Establish Master System
@@ -836,7 +838,7 @@ def script_full_workflow(output_dir: str = "reports") -> Dict[str, Any]:
     workflow_log = {
         "workflow": "keddeh_matrix_complete_validation",
         "status": "STARTING",
-        "timestamp": "2026-07-01T00:00:00Z",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
         "scripts_executed": [],
         "summary": {},
     }
@@ -914,46 +916,40 @@ def script_full_workflow(output_dir: str = "reports") -> Dict[str, Any]:
 # Main Entry Point
 # ============================================================================
 
-def main():
+def main(argv: list[str] | None = None) -> int:
     """Command-line interface for workflow scripts."""
-    if len(sys.argv) < 2:
-        print("Usage: python3 keddeh_matrix_workflow.py [command] [output_dir]")
-        print("\nAvailable commands:")
-        print("  1. init_framework")
-        print("  2. validate_arithmetic")
-        print("  3. calibrate_physical")
-        print("  4. compare_systems")
-        print("  5. generate_proofs")
-        print("  6. integrate_memory")
-        print("  7. run_tests")
-        print("  8. visualize")
-        print("  8.5. integrate_nested_runtime")
-        print("  9. full_workflow (runs all scripts)")
-        sys.exit(1)
-    
-    command = sys.argv[1]
-    output_dir = sys.argv[2] if len(sys.argv) > 2 else "reports"
-    
-    scripts = {
-        "1": ("init_framework", script_init_keddeh_framework),
-        "2": ("validate_arithmetic", script_validate_arithmetic_operations),
-        "3": ("calibrate_physical", script_test_physical_calibration),
-        "4": ("compare_systems", script_compare_cartesian_vs_keddeh),
-        "5": ("generate_proofs", script_generate_mathematical_proofs),
-        "6": ("integrate_memory", script_integration_virtualised_memory),
-        "7": ("run_tests", script_comprehensive_test_suite),
-        "8": ("visualize", script_generate_visualization),
-        "8.5": ("integrate_nested_runtime", script_integration_nested_core_runtime),
-        "9": ("full_workflow", script_full_workflow),
+    parser = argparse.ArgumentParser(
+        prog="keddeh-matrix-workflow",
+        description="Keddeh Matrix Framework validation workflow orchestrator.",
+    )
+    subcommands = parser.add_subparsers(dest="command", required=True)
+
+    command_map = {
+        "init_framework":           ("1. Framework Initialization",               script_init_keddeh_framework),
+        "validate_arithmetic":      ("2. Arithmetic Validation",                   script_validate_arithmetic_operations),
+        "calibrate_physical":       ("3. Physical Calibration",                    script_test_physical_calibration),
+        "compare_systems":          ("4. Cartesian Comparison",                    script_compare_cartesian_vs_keddeh),
+        "generate_proofs":          ("5. Mathematical Proofs",                     script_generate_mathematical_proofs),
+        "integrate_memory":         ("6. VIRTUALISED_MEMORY Integration",          script_integration_virtualised_memory),
+        "run_tests":                ("7. Comprehensive Tests",                     script_comprehensive_test_suite),
+        "visualize":                ("8. Visualization",                           script_generate_visualization),
+        "integrate_nested_runtime": ("8.5. Nested Core Runtime Integration",       script_integration_nested_core_runtime),
+        "full_workflow":            ("9. Full Workflow",                            script_full_workflow),
     }
-    
-    if command in scripts:
-        _, script_func = scripts[command]
-        script_func(output_dir)
-    else:
-        print(f"Unknown command: {command}")
-        sys.exit(1)
+
+    for cmd in command_map:
+        sub = subcommands.add_parser(cmd, help=command_map[cmd][0])
+        sub.add_argument(
+            "--output-dir",
+            default="reports",
+            help="Directory for generated report files. Defaults to 'reports'.",
+        )
+
+    args = parser.parse_args(argv)
+    _, script_func = command_map[args.command]
+    script_func(args.output_dir)
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

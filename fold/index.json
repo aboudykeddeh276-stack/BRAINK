@@ -1,9 +1,9 @@
 {
-  "at": "2026-05-19T14:42:48Z",
-  "constant_bool_count": 0,
-  "files_scanned": 0,
-  "functions_found": 0,
-  "head": "e3920dcb1d777606c3e11e4d7fb60b80305c6eca",
+  "at": "2026-07-03T09:04:40.528554+00:00",
+  "constant_bool_count": 3,
+  "files_scanned": 10,
+  "functions_found": 160,
+  "head": "63e6bbc647367179dbcfab395f5ed5d2ae4e88a1",
   "layout_rule": "fold/file/folder/file",
   "notes": [
     "repeating_names = same literal function name across processes/files",
@@ -11,6 +11,6 @@
     "constant_bool = deterministic yes/no answers (env-invariant heuristic)"
   ],
   "repeating_hashes_count": 0,
-  "repeating_names_count": 0,
-  "repo": "/Users/ak/Documents/BRAINK THE ACTUAL APPLICATION"
+  "repeating_names_count": 10,
+  "repo": "/home/runner/work/BRAINK/BRAINK"
 }
