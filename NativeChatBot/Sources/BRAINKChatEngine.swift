@@ -1737,10 +1737,13 @@ final class BRAINKChatEngine: ObservableObject {
         }
         let coherenceScore = min(1.0, sqrt(max(0.0, variance)) / 10.0)
 
-        // Evidence-reference bonus: presence of file/artifact names signals grounded output
+        // Quality scoring weights
+        let weightBase:      Double = 0.40
+        let weightDomain:    Double = 0.35
+        let weightCoherence: Double = 0.10
         let evidenceBonus = (response.contains(".swift") || response.contains(".json") || response.contains(".md")) ? 0.15 : 0.0
 
-        return min(1.0, (0.40 * base) + (0.35 * domainScore) + (0.10 * coherenceScore) + evidenceBonus)
+        return min(1.0, (weightBase * base) + (weightDomain * domainScore) + (weightCoherence * coherenceScore) + evidenceBonus)
     }
 
     private func renderStateLine() -> String {

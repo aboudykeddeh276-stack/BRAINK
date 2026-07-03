@@ -137,11 +137,17 @@ enum BRAINKInnerRuntime {
             .joined(separator: ", ")
 
         // Surface the bidirectional coupling state
-        let confidence = state.emotionalConstraints["confidence"] ?? 0.5
-        let discomfort = state.emotionalConstraints["discomfort"] ?? 0.2
-        let wonder = state.emotionalConstraints["wonder"] ?? 0.4
-        let evidenceFocus = state.perceptionConstraints["evidence_focus"] ?? 0.5
-        let couplingNote = "confidence→logic:\(String(format: "%.2f", min(1.0, confidence * 1.1))), discomfort→focus_penalty:\(String(format: "%.2f", max(0, discomfort - 0.5) * 0.20)), wonder→ambiguity_tight:\(String(format: "%.2f", max(0, wonder - 0.7) * 0.10)), evidence_focus:\(String(format: "%.3f", evidenceFocus))"
+        let confidence    = state.emotionalConstraints["confidence"]          ?? 0.5
+        let discomfort    = state.emotionalConstraints["discomfort"]          ?? 0.2
+        let wonder        = state.emotionalConstraints["wonder"]              ?? 0.4
+        let evidenceFocus = state.perceptionConstraints["evidence_focus"]     ?? 0.5
+        // Named constants for coupling multipliers
+        let confidenceLogicBoost:   Double = 1.1
+        let discomfortFocusPenalty: Double = 0.20
+        let discomfortThreshold:    Double = 0.5
+        let wonderAmbiguityTight:   Double = 0.10
+        let wonderThreshold:        Double = 0.7
+        let couplingNote = "confidence→logic:\(String(format: "%.2f", min(1.0, confidence * confidenceLogicBoost))), discomfort→focus_penalty:\(String(format: "%.2f", max(0, discomfort - discomfortThreshold) * discomfortFocusPenalty)), wonder→ambiguity_tight:\(String(format: "%.2f", max(0, wonder - wonderThreshold) * wonderAmbiguityTight)), evidence_focus:\(String(format: "%.3f", evidenceFocus))"
 
         return """
         INNER RUNTIME CONSTRAINT CORE

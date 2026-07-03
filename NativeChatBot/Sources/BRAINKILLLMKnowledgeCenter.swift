@@ -40,6 +40,7 @@ final class BRAINKILLLMKnowledgeCenter {
     private var lastRefreshDate: Date?
     private var growthEventCount = 0
     private var idfTable: [String: Double] = [:]
+    private static let scoreTolerance: Double = 1e-9
 
     private let supportedExtensions: Set<String> = [
         "md", "txt", "json", "py", "ts", "tsx", "js", "swift",
@@ -178,7 +179,7 @@ final class BRAINKILLLMKnowledgeCenter {
             return score > 0 ? (snippet, score) : nil
         }
         .sorted { lhs, rhs in
-            if abs(lhs.1 - rhs.1) < 1e-9 { return lhs.0.path < rhs.0.path }
+            if abs(lhs.1 - rhs.1) < BRAINKILLLMKnowledgeCenter.scoreTolerance { return lhs.0.path < rhs.0.path }
             return lhs.1 > rhs.1
         }
 
