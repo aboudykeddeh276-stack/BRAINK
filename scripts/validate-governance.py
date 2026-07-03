@@ -13,7 +13,6 @@ from pathlib import Path
 # ---------------------------------------------------------------------------
 EXIT_OK = 0
 EXIT_GOVERNANCE_FAILURE = 1   # one or more required files or manifest checks failed
-EXIT_MANIFEST_UPDATED = 0     # --write-manifest completed successfully (same as OK)
 
 ROOT = Path(__file__).resolve().parents[1]
 REQUIRED_FILES = [

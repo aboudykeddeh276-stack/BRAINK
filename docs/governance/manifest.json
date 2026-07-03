@@ -6,7 +6,7 @@
   },
   "ARTIFACT_DOCS_GOVERNANCE_MANIFEST_JSON": {
     "path": "docs/governance/manifest.json",
-    "sha256": "9d22183e10be43f080956fe7b7b163c076d99011a353c00a9cbdd73507c3eff4",
+    "sha256": "f10eb4cbadad5e9ed028d066beff102190b6a3d44f4158d2c1f98273c7599c2c",
     "state": "STATE_MODEL_LOCAL"
   },
   "ARTIFACT_DOCS_GOVERNANCE_REPOSITORY_GOVERNANCE_STANDARD_MD": {
@@ -46,7 +46,7 @@
   },
   "ARTIFACT_SCRIPTS_VALIDATE_GOVERNANCE_PY": {
     "path": "scripts/validate-governance.py",
-    "sha256": "21281bc0bad8f8dcfe8f43f15ab90ed3b6285c3041068464c6f6e4139bbcee01",
+    "sha256": "5ea37f42f26bbbc017f228c9f413ffb9527b6979a2392e09367b46502ed879d8",
     "state": "STATE_MODEL_LOCAL"
   }
 }
