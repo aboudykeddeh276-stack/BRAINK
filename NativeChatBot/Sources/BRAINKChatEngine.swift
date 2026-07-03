@@ -429,6 +429,20 @@ final class BRAINKChatEngine: ObservableObject {
             )
         }
 
+        // Inner runtime governance gate: governance constraints set by evolve()
+        // are enforced here, making them operative rather than merely recorded.
+        let runtimeGate = BRAINKInnerRuntime.shouldAllowRoute(route, given: innerRuntimeState)
+        if !runtimeGate.allowed {
+            return (
+                """
+                Route '\(route)' blocked by inner runtime governance.
+                constraint: \(runtimeGate.constraintName)
+                reason: \(runtimeGate.reason)
+                """,
+                "system.governance_blocked"
+            )
+        }
+
         var response: String
         switch route {
         case "frontier_seal":
@@ -1531,8 +1545,8 @@ final class BRAINKChatEngine: ObservableObject {
         }
 
         updateReasoningState(for: wrapperType)
-        let response = domainPrompt(for: wrapperType, userInput: userText)
-        let quality = assessResponseQuality(response)
+        let response = domainPrompt(for: wrapperType, userInput: userText, evidence: context)
+        let quality = assessResponseQuality(response, for: wrapperType)
         updateEmotionalState(for: userText, responseQuality: quality)
         innerRuntimeState = BRAINKInnerRuntime.evolve(
             current: innerRuntimeState,
@@ -1615,21 +1629,49 @@ final class BRAINKChatEngine: ObservableObject {
         return (.generic, "general inquiry")
     }
 
-    private func domainPrompt(for wrapperType: WRAPType, userInput: String) -> String {
-        let truncated = String(userInput.prefix(50))
+    private func domainPrompt(for wrapperType: WRAPType, userInput: String, evidence: String) -> String {
+        let truncated = String(userInput.prefix(80))
+        // Attach up to 300 chars of the most relevant IL-LLM evidence so the domain
+        // response is grounded in loaded knowledge rather than generic placeholders.
+        let evidenceSuffix = evidence.isEmpty
+            ? ""
+            : "\nLoaded evidence:\n\(String(evidence.prefix(300)))"
         switch wrapperType {
         case .assignment:
-            return "I’ll help with this assignment: I can plan, structure, and check assumptions. What specific part of '\(truncated)' should I solve first?"
+            return """
+            Academic task detected: '\(truncated)'.
+            Structure: Claim → Evidence → Argument → Conclusion.
+            Required: identify the core claim, list supporting evidence, verify logical chain.\(evidenceSuffix)
+            """
         case .banking:
-            return "Banking context detected. For safe deterministic support, I can help structure your financial flow for: \(truncated). What is the transaction objective?"
+            return """
+            Financial flow detected: '\(truncated)'.
+            Structure: Source → Verification → Route → Destination → Proof.
+            Required: validate amounts, confirm parties, record transaction proof.\(evidenceSuffix)
+            """
         case .cosmology:
-            return "That looks like a cosmology/system query. Starting from evidence in your bundle, here is the most relevant framing: '\(truncated)'."
+            return """
+            Cosmological inquiry detected: '\(truncated)'.
+            Framework: State → Transition → Definition → Proof (KEX Hyperdrive pattern).
+            Required: identify observable states, name transitions, cite evidence.\(evidenceSuffix)
+            """
         case .logicPuzzle:
-            return "Great logic puzzle signal. I will test this chain: '\(truncated)'. Let me break it into rules, constraints, and inference steps."
+            return """
+            Logic puzzle detected: '\(truncated)'.
+            Decomposing into: Rules → Constraints → Inference Steps → Conclusion.
+            Required: list axioms, apply each rule, derive conclusion with no gaps.\(evidenceSuffix)
+            """
         case .creative:
-            return "Creative request detected. We can draft, iterate, and refine the piece around '\(truncated)' while preserving your style."
+            return """
+            Creative request detected: '\(truncated)'.
+            Approach: Theme → Voice → Structure → Craft → Iterative Refinement.
+            Required: anchor theme, establish voice, draft and refine.\(evidenceSuffix)
+            """
         case .generic:
-            return "I received: '\(truncated)'. I can run a deterministic pass using your loaded module + wrapper state."
+            return """
+            Processing: '\(truncated)'.
+            Running deterministic module + wrapper state across loaded context.\(evidenceSuffix)
+            """
         }
     }
 
@@ -1669,15 +1711,36 @@ final class BRAINKChatEngine: ObservableObject {
         emotionalState.confidence = min(1.0, emotionalState.confidence + responseQuality * 0.08)
     }
 
-    private func assessResponseQuality(_ response: String) -> Double {
-        let words = Set(response.lowercased().split(separator: " ").map(String.init))
-        let base = min(1.0, Double(response.count) / 200.0)
-        let keywords: Set<String> = [
-            "global", "system", "pattern", "scale", "evidence", "proof", "chain",
-            "constraint", "reason", "transform", "change", "implication", "consequence"
-        ]
-        let keywordScore = Double(words.intersection(keywords).count) / Double(max(keywords.count, 1))
-        return (0.6 * base) + (0.4 * keywordScore)
+    private func assessResponseQuality(_ response: String, for wrapperType: WRAPType) -> Double {
+        let words = response.lowercased().split(separator: " ").map(String.init)
+        let wordSet = Set(words)
+        let base = min(1.0, Double(response.count) / 300.0)
+
+        // Domain-specific keyword sets aligned to each WRAPType
+        let domainKeywords: Set<String>
+        switch wrapperType {
+        case .logicPuzzle:  domainKeywords = ["constraint", "rule", "proof", "therefore", "implies", "derives", "deduce", "conclude"]
+        case .banking:      domainKeywords = ["transaction", "amount", "verify", "secure", "route", "balance", "transfer", "audit"]
+        case .cosmology:    domainKeywords = ["state", "transition", "system", "definition", "boundary", "energy", "proof", "field"]
+        case .assignment:   domainKeywords = ["structure", "evidence", "argument", "thesis", "source", "conclusion", "claim", "support"]
+        case .creative:     domainKeywords = ["theme", "voice", "style", "imagery", "narrative", "craft", "refine", "iterate"]
+        case .generic:      domainKeywords = ["evidence", "proof", "constraint", "reason", "transform", "chain", "route", "status"]
+        }
+        let domainScore = Double(wordSet.intersection(domainKeywords).count) / Double(max(domainKeywords.count, 1))
+
+        // Structural coherence: sentence-length variance (varied sentences signal richer content)
+        let sentences = response.components(separatedBy: ". ").filter { !$0.isEmpty }
+        let lengths = sentences.map { $0.split(separator: " ").count }
+        let avgLen = lengths.isEmpty ? 0.0 : Double(lengths.reduce(0, +)) / Double(lengths.count)
+        let variance = lengths.reduce(0.0) { acc, len in
+            let d = Double(len) - avgLen; return acc + d * d
+        }
+        let coherenceScore = min(1.0, sqrt(max(0.0, variance)) / 10.0)
+
+        // Evidence-reference bonus: presence of file/artifact names signals grounded output
+        let evidenceBonus = (response.contains(".swift") || response.contains(".json") || response.contains(".md")) ? 0.15 : 0.0
+
+        return min(1.0, (0.40 * base) + (0.35 * domainScore) + (0.10 * coherenceScore) + evidenceBonus)
     }
 
     private func renderStateLine() -> String {
