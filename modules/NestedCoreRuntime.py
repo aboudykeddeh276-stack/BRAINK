@@ -8,12 +8,19 @@ This module provides:
 - WiredFATFileSystem: Uncompressed state database with integrity verification
 - NestedCoreRuntime: Self-bootstrapping nested runtime system with arbitrary tree nesting and snapshotting
 
+Agent fleet extension:
+- embed_agent: typed agent mirror with role/constraint cells in the zero-less FS
+- clone_as_package: full deep-copy of the outer system as an isolated host package
+- dispatch_to_agent: task routing into a named agent and result collection
+- get_agent_fleet_report: recursive status report across all hosted agents
+
 Closes issue: aboudykeddeh276-stack/BRAINK#13
 """
 
 import hashlib
 import sys
-from typing import Dict, Any, List, Optional
+from datetime import datetime, timezone
+from typing import Dict, Any, List, Optional, Tuple
 
 
 class KeddehZeroLessMatrix:
@@ -470,3 +477,264 @@ class NestedCoreRuntime:
                 self.mirrors[name] = NestedCoreRuntime(name, mirror_snapshot["capacity_tbi"], depth=mirror_snapshot["depth"], bootstrap=False)
             # This deeply restores state for both newly created and pre-existing mirrors.
             self.mirrors[name].restore_snapshot(mirror_snapshot)
+
+    # -------------------------------------------------------------------------
+    # AGENT FLEET INTERFACE
+    # -------------------------------------------------------------------------
+
+    def embed_agent(self, agent_name: str, role: str, capacity_tbi: int) -> 'NestedCoreRuntime':
+        """
+        Embed a typed agent mirror inside this host system.
+
+        An agent is a fully-booted NestedCoreRuntime with two additional
+        state cells beyond the standard meta/status pair:
+
+          logical index 1 -> meta      (inherited from bootstrap)
+          logical index 2 -> status    (inherited from bootstrap)
+          logical index 3 -> agent_role
+          logical index 4 -> agent_constraints
+          logical index 5 -> task_inbox   (initially VOID/WAITING)
+          logical index 6 -> task_result  (initially VOID/WAITING)
+
+        The parent filesystem registers the agent link at its next available
+        mirror index (same as embed_mirror).
+
+        Args:
+            agent_name: Unique identifier for the agent inside this host.
+            role: Role string describing what the agent does.
+            capacity_tbi: Capacity allocation for this agent in TBi.
+
+        Returns:
+            The newly created agent NestedCoreRuntime instance.
+
+        Raises:
+            ValueError: If an agent with agent_name already exists.
+        """
+        if agent_name in self.mirrors:
+            raise ValueError(
+                f"Agent '{agent_name}' already exists inside '{self.name}'. "
+                "Use a unique name for each agent."
+            )
+
+        agent = NestedCoreRuntime(agent_name, capacity_tbi, depth=self.depth + 1, bootstrap=True)
+
+        # Write agent-specific state cells into the agent's own zero-less FS.
+        # Logical indices 1 and 2 are already written by bootstrap (meta, status).
+        # We start at 3 for the agent-typed cells.
+        agent.fs.assign_state(
+            3,
+            f"/sys/{agent_name.lower()}/agent_role",
+            f"AGENT_ROLE:{role}|HOST:{self.name}|DEPTH:{agent.depth}",
+        )
+        agent.fs.assign_state(
+            4,
+            f"/sys/{agent_name.lower()}/agent_constraints",
+            f"CONSTRAINT_KEX_LANE:KEX_CONTROL_LANE|CONSTRAINT_MUTATION:LOCKED|CONSTRAINT_PROOF:REQUIRED",
+        )
+        agent.fs.assign_state(
+            5,
+            f"/sys/{agent_name.lower()}/task_inbox",
+            "TASK_STATUS:WAITING|PAYLOAD:VOID",
+        )
+        agent.fs.assign_state(
+            6,
+            f"/sys/{agent_name.lower()}/task_result",
+            "RESULT_STATUS:WAITING|OUTPUT:VOID",
+        )
+
+        # Register agent in the parent's mirror dict and FS.
+        self.mirrors[agent_name] = agent
+        logical_idx = self.next_mirror_idx
+        self.next_mirror_idx += 1
+        self.fs.assign_state(
+            logical_idx,
+            f"/sys/{self.name.lower()}/agent_link/{agent_name.lower()}",
+            f"AGENT_MIRROR_IDENTIFIER:{agent_name}|ROLE:{role}|ALLOCATION:{capacity_tbi}TBi",
+        )
+
+        return agent
+
+    def clone_as_package(self, new_name: str) -> 'NestedCoreRuntime':
+        """
+        Clone the entire outer system (including all embedded agents/mirrors)
+        as a fully isolated host package under a new name.
+
+        The clone is produced by:
+          1. Capturing a deep snapshot of the current system tree.
+          2. Creating a new NestedCoreRuntime shell (bootstrap=False).
+          3. Restoring the snapshot into the shell.
+          4. Re-writing the top-level meta cell to carry the new_name so the
+             clone is self-identifying with its own identity.
+
+        The clone is completely independent: its WiredFATFileSystem and mirrors
+        share no references with the original. Mutations to either do not
+        affect the other.
+
+        Args:
+            new_name: Name for the cloned host package.
+
+        Returns:
+            A new, independent NestedCoreRuntime carrying the full state tree
+            of this system under new_name.
+
+        Raises:
+            ValueError: If new_name equals self.name (would produce identical identity).
+        """
+        if new_name == self.name:
+            raise ValueError(
+                f"Clone name '{new_name}' must differ from source name '{self.name}'."
+            )
+
+        snapshot = self.capture_snapshot()
+
+        # Patch the snapshot's name field before restoring so restore_snapshot
+        # name-check passes for the new shell.
+        snapshot["name"] = new_name
+
+        clone = NestedCoreRuntime(new_name, self.capacity_tbi, depth=self.depth, bootstrap=False)
+        clone.restore_snapshot(snapshot)
+
+        # Re-write the top-level meta cell to carry the new name identity.
+        clone.fs.assign_state(
+            1,
+            f"/sys/{new_name.lower()}/meta",
+            f"SYSTEM_NAME:{new_name}|CAPACITY:{clone.capacity_tbi}TBi|DEPTH:{clone.depth}|CLONED_FROM:{self.name}",
+        )
+
+        return clone
+
+    def dispatch_to_agent(
+        self,
+        agent_name: str,
+        task_payload: str,
+    ) -> Dict[str, Any]:
+        """
+        Route a task payload to a named agent inside this host.
+
+        The dispatch cycle:
+          1. Validates the agent exists and its filesystem is integral.
+          2. Writes the task payload into the agent's task_inbox cell (logical 5).
+          3. Sets the agent's status to TASK_ACTIVE.
+          4. Runs the agent's structural audit (proof gate).
+          5. Writes the audit result into the agent's task_result cell (logical 6).
+          6. Restores the agent's status to BOOTED_STABLE.
+
+        This is a synchronous, deterministic dispatch: the agent executes
+        the audit as its proof-of-work and the result is the audit log.
+
+        Args:
+            agent_name: Name of the target agent (must exist in self.mirrors).
+            task_payload: Uncompressed literal task descriptor string.
+
+        Returns:
+            Dictionary containing:
+                - agent: agent name
+                - task_payload: the payload dispatched
+                - audit_entries: list of audit log strings produced by the agent
+                - zero_errors: count of Cartesian zero violations found
+                - integrity_pre_dispatch: bool, filesystem integrity before dispatch
+                - result_cell: the data written to the result cell
+                - status: "TASK_COMPLETED" or "TASK_FAILED"
+                - dispatched_at: ISO-8601 timestamp
+
+        Raises:
+            KeyError: If agent_name is not found in self.mirrors.
+        """
+        if agent_name not in self.mirrors:
+            raise KeyError(
+                f"Agent '{agent_name}' not found in host '{self.name}'. "
+                f"Available agents: {list(self.mirrors.keys())}"
+            )
+
+        agent = self.mirrors[agent_name]
+        dispatched_at = datetime.now(timezone.utc).isoformat()
+
+        integrity_pre = agent.fs.verify_integrity()
+
+        # Write the task into inbox (logical 5).
+        agent.fs.assign_state(
+            5,
+            f"/sys/{agent_name.lower()}/task_inbox",
+            f"TASK_STATUS:ACTIVE|PAYLOAD:{task_payload}|DISPATCHED_AT:{dispatched_at}",
+        )
+
+        # Mark the agent active.
+        agent.fs.assign_state(
+            2,
+            f"/sys/{agent_name.lower()}/status",
+            "TASK_ACTIVE",
+        )
+
+        # Proof-of-work: structural audit.
+        audit_entries = agent.run_structural_audit()
+        zero_errors = sum(1 for e in audit_entries if "CRITICAL" in e)
+
+        task_status = "TASK_COMPLETED" if zero_errors == 0 else "TASK_FAILED"
+        result_literal = (
+            f"RESULT_STATUS:{task_status}|AUDIT_ENTRIES:{len(audit_entries)}"
+            f"|ZERO_ERRORS:{zero_errors}|COMPLETED_AT:{datetime.now(timezone.utc).isoformat()}"
+        )
+
+        # Write result and restore status.
+        agent.fs.assign_state(
+            6,
+            f"/sys/{agent_name.lower()}/task_result",
+            result_literal,
+        )
+        agent.fs.assign_state(
+            2,
+            f"/sys/{agent_name.lower()}/status",
+            "BOOTED_STABLE",
+        )
+
+        return {
+            "agent": agent_name,
+            "task_payload": task_payload,
+            "audit_entries": audit_entries,
+            "zero_errors": zero_errors,
+            "integrity_pre_dispatch": integrity_pre,
+            "result_cell": result_literal,
+            "status": task_status,
+            "dispatched_at": dispatched_at,
+        }
+
+    def get_agent_fleet_report(self) -> Dict[str, Any]:
+        """
+        Generate a recursive fleet-level status report for all agents
+        (mirrors) hosted inside this system.
+
+        Each agent entry includes:
+          - name, role, capacity_tbi, depth
+          - status (from cell 2)
+          - last task result (from cell 6)
+          - filesystem integrity
+          - active cell count
+          - nested agents (recursive)
+
+        Returns:
+            Dictionary with host identity and a 'fleet' dict keyed by agent name.
+        """
+        fleet: Dict[str, Any] = {}
+        for agent_name, agent in self.mirrors.items():
+            role_cell = agent.fs.fetch_state(3).get("data", "ROLE:UNKNOWN")
+            result_cell = agent.fs.fetch_state(6).get("data", "RESULT_STATUS:WAITING")
+            fleet[agent_name] = {
+                "name": agent_name,
+                "role": role_cell,
+                "capacity_tbi": agent.capacity_tbi,
+                "depth": agent.depth,
+                "status": agent.fs.fetch_state(2).get("data", "UNKNOWN"),
+                "last_result": result_cell,
+                "filesystem_integrity": agent.fs.verify_integrity(),
+                "active_cells_count": len(agent.fs.storage_cells),
+                "nested_agents": agent.get_agent_fleet_report().get("fleet", {}),
+            }
+
+        return {
+            "host": self.name,
+            "host_capacity_tbi": self.capacity_tbi,
+            "host_depth": self.depth,
+            "host_status": self.fs.fetch_state(2).get("data", "UNKNOWN"),
+            "total_agents": len(self.mirrors),
+            "fleet": fleet,
+        }

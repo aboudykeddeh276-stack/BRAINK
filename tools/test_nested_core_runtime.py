@@ -442,6 +442,249 @@ class TestIntegrationScenarios:
         assert len(zero_errors) == 0
 
 
+class TestAgentFleet:
+    """Test suite for the agent fleet extension of NestedCoreRuntime."""
+
+    def test_embed_agent_creates_typed_mirror(self):
+        """embed_agent creates a mirror with 6 state cells: meta, status, role, constraints, inbox, result."""
+        host = NestedCoreRuntime("HOST", 10000)
+        agent = host.embed_agent("AGENT_ALPHA", role="PROOF_WORKER", capacity_tbi=2000)
+
+        assert agent.name == "AGENT_ALPHA"
+        assert agent.capacity_tbi == 2000
+        assert agent.depth == 2
+
+        # Standard bootstrap cells
+        assert "AGENT_ALPHA" in agent.fs.fetch_state(1)["data"]
+        assert agent.fs.fetch_state(2)["data"] == "BOOTED_STABLE"
+
+        # Agent-typed cells
+        assert "AGENT_ROLE:PROOF_WORKER" in agent.fs.fetch_state(3)["data"]
+        assert "CONSTRAINT_KEX_LANE" in agent.fs.fetch_state(4)["data"]
+        assert "TASK_STATUS:WAITING" in agent.fs.fetch_state(5)["data"]
+        assert "RESULT_STATUS:WAITING" in agent.fs.fetch_state(6)["data"]
+
+    def test_embed_agent_registers_in_host_fs(self):
+        """embed_agent writes an agent-link cell into the host's zero-less FS."""
+        host = NestedCoreRuntime("HOST_FS_TEST", 10000)
+        host.embed_agent("AGENT_BETA", role="AUDIT_WORKER", capacity_tbi=1000)
+
+        # Host registers the link at logical index 3 (first mirror slot)
+        link_cell = host.fs.fetch_state(3)
+        assert "AGENT_MIRROR_IDENTIFIER:AGENT_BETA" in link_cell["data"]
+        assert "ROLE:AUDIT_WORKER" in link_cell["data"]
+
+    def test_embed_agent_rejects_duplicate_name(self):
+        """embed_agent raises ValueError if agent name already exists."""
+        host = NestedCoreRuntime("HOST_DUP", 10000)
+        host.embed_agent("AGENT_X", role="WORKER", capacity_tbi=500)
+        try:
+            host.embed_agent("AGENT_X", role="WORKER_2", capacity_tbi=500)
+            assert False, "Should have raised ValueError for duplicate agent"
+        except ValueError as e:
+            assert "AGENT_X" in str(e)
+            assert "already exists" in str(e)
+
+    def test_embed_multiple_agents_unique_indices(self):
+        """Multiple agents each receive unique parent FS link indices."""
+        host = NestedCoreRuntime("HOST_MULTI_AGENT", 10000)
+        host.embed_agent("AGENT_1", role="ROLE_A", capacity_tbi=1000)
+        host.embed_agent("AGENT_2", role="ROLE_B", capacity_tbi=2000)
+        host.embed_agent("AGENT_3", role="ROLE_C", capacity_tbi=3000)
+
+        assert len(host.mirrors) == 3
+
+        link_3 = host.fs.fetch_state(3)["data"]
+        link_4 = host.fs.fetch_state(4)["data"]
+        link_5 = host.fs.fetch_state(5)["data"]
+
+        assert "AGENT_1" in link_3
+        assert "AGENT_2" in link_4
+        assert "AGENT_3" in link_5
+
+    def test_clone_as_package_produces_independent_copy(self):
+        """clone_as_package creates a fully independent system with no shared state."""
+        original = NestedCoreRuntime("ORIGINAL_HOST", 10000)
+        original.embed_agent("AGENT_IN_ORIGINAL", role="ANALYST", capacity_tbi=2000)
+
+        clone = original.clone_as_package("CLONE_HOST")
+
+        # New identity
+        assert clone.name == "CLONE_HOST"
+        assert "CLONE_HOST" in clone.fs.fetch_state(1)["data"]
+        assert "CLONED_FROM:ORIGINAL_HOST" in clone.fs.fetch_state(1)["data"]
+
+        # Structural copy: same capacity, same depth, same agent set
+        assert clone.capacity_tbi == original.capacity_tbi
+        assert clone.depth == original.depth
+        assert "AGENT_IN_ORIGINAL" in clone.mirrors
+
+        # Independence: mutate original, clone is unaffected
+        original.double_capacity()
+        assert clone.capacity_tbi != original.capacity_tbi
+
+        # Independence: mutate clone, original is unaffected
+        clone.embed_agent("CLONE_ONLY_AGENT", role="CLONE_WORKER", capacity_tbi=500)
+        assert "CLONE_ONLY_AGENT" not in original.mirrors
+
+    def test_clone_as_package_rejects_same_name(self):
+        """clone_as_package raises ValueError if new_name equals source name."""
+        host = NestedCoreRuntime("SAME_NAME_HOST", 5000)
+        try:
+            host.clone_as_package("SAME_NAME_HOST")
+            assert False, "Should have raised ValueError for identical name"
+        except ValueError as e:
+            assert "SAME_NAME_HOST" in str(e)
+
+    def test_clone_filesystem_integrity(self):
+        """clone_as_package produces a clone with intact SHA256 hashes."""
+        original = NestedCoreRuntime("INTEGRITY_ORIGIN", 8000)
+        original.embed_agent("WORKER_A", role="WORKER", capacity_tbi=1000)
+        original.embed_agent("WORKER_B", role="WORKER", capacity_tbi=1000)
+
+        clone = original.clone_as_package("INTEGRITY_CLONE")
+
+        assert clone.fs.verify_integrity() is True
+        for agent in clone.mirrors.values():
+            assert agent.fs.verify_integrity() is True
+
+    def test_dispatch_to_agent_completes_task(self):
+        """dispatch_to_agent writes payload, runs audit, writes result, restores status."""
+        host = NestedCoreRuntime("DISPATCH_HOST", 10000)
+        host.embed_agent("DISPATCH_AGENT", role="PROOF_WORKER", capacity_tbi=2000)
+
+        result = host.dispatch_to_agent("DISPATCH_AGENT", "TASK:VALIDATE_ZERO_LESS_SPECTRUM")
+
+        assert result["agent"] == "DISPATCH_AGENT"
+        assert result["task_payload"] == "TASK:VALIDATE_ZERO_LESS_SPECTRUM"
+        assert result["status"] == "TASK_COMPLETED"
+        assert result["zero_errors"] == 0
+        assert len(result["audit_entries"]) > 0
+        assert result["integrity_pre_dispatch"] is True
+        assert "TASK_COMPLETED" in result["result_cell"]
+
+        # Agent status restored to BOOTED_STABLE after dispatch
+        agent = host.mirrors["DISPATCH_AGENT"]
+        assert agent.fs.fetch_state(2)["data"] == "BOOTED_STABLE"
+
+        # Task inbox records the payload
+        inbox = agent.fs.fetch_state(5)["data"]
+        assert "TASK:VALIDATE_ZERO_LESS_SPECTRUM" in inbox
+
+    def test_dispatch_to_agent_raises_on_missing_agent(self):
+        """dispatch_to_agent raises KeyError for unknown agent name."""
+        host = NestedCoreRuntime("DISPATCH_KEYERROR_HOST", 5000)
+        try:
+            host.dispatch_to_agent("NONEXISTENT", "TASK:ANYTHING")
+            assert False, "Should have raised KeyError"
+        except KeyError as e:
+            assert "NONEXISTENT" in str(e)
+
+    def test_dispatch_sequential_tasks_to_same_agent(self):
+        """Sequential dispatches to the same agent each complete cleanly."""
+        host = NestedCoreRuntime("SEQUENTIAL_HOST", 10000)
+        host.embed_agent("SEQ_AGENT", role="SEQUENTIAL_WORKER", capacity_tbi=3000)
+
+        for i in range(1, 4):
+            result = host.dispatch_to_agent("SEQ_AGENT", f"TASK:STEP_{i}")
+            assert result["status"] == "TASK_COMPLETED"
+            assert result["zero_errors"] == 0
+
+        # Final status is stable
+        assert host.mirrors["SEQ_AGENT"].fs.fetch_state(2)["data"] == "BOOTED_STABLE"
+
+    def test_dispatch_to_multiple_agents_independently(self):
+        """Tasks dispatched to different agents do not interfere with each other."""
+        host = NestedCoreRuntime("MULTI_DISPATCH_HOST", 10000)
+        host.embed_agent("ALPHA", role="ROLE_ALPHA", capacity_tbi=2000)
+        host.embed_agent("BETA", role="ROLE_BETA", capacity_tbi=2000)
+        host.embed_agent("GAMMA", role="ROLE_GAMMA", capacity_tbi=2000)
+
+        result_alpha = host.dispatch_to_agent("ALPHA", "TASK:ALPHA_WORK")
+        result_beta = host.dispatch_to_agent("BETA", "TASK:BETA_WORK")
+        result_gamma = host.dispatch_to_agent("GAMMA", "TASK:GAMMA_WORK")
+
+        for result in (result_alpha, result_beta, result_gamma):
+            assert result["status"] == "TASK_COMPLETED"
+            assert result["zero_errors"] == 0
+
+        # Each agent's inbox holds its own payload
+        assert "TASK:ALPHA_WORK" in host.mirrors["ALPHA"].fs.fetch_state(5)["data"]
+        assert "TASK:BETA_WORK" in host.mirrors["BETA"].fs.fetch_state(5)["data"]
+        assert "TASK:GAMMA_WORK" in host.mirrors["GAMMA"].fs.fetch_state(5)["data"]
+
+    def test_get_agent_fleet_report_structure(self):
+        """get_agent_fleet_report returns a complete hierarchical report."""
+        host = NestedCoreRuntime("FLEET_HOST", 10000)
+        host.embed_agent("FLEET_AGENT_A", role="ANALYST", capacity_tbi=1000)
+        host.embed_agent("FLEET_AGENT_B", role="AUDITOR", capacity_tbi=1500)
+        host.dispatch_to_agent("FLEET_AGENT_A", "TASK:FLEET_PROOF")
+
+        report = host.get_agent_fleet_report()
+
+        assert report["host"] == "FLEET_HOST"
+        assert report["total_agents"] == 2
+        assert "FLEET_AGENT_A" in report["fleet"]
+        assert "FLEET_AGENT_B" in report["fleet"]
+
+        agent_a = report["fleet"]["FLEET_AGENT_A"]
+        assert "ANALYST" in agent_a["role"]
+        assert agent_a["capacity_tbi"] == 1000
+        assert agent_a["depth"] == 2
+        assert agent_a["status"] == "BOOTED_STABLE"
+        assert agent_a["filesystem_integrity"] is True
+        assert "TASK_COMPLETED" in agent_a["last_result"]
+
+    def test_full_agent_fleet_clone_and_dispatch(self):
+        """
+        Integration: build a full fleet, clone the outer system as a package,
+        deploy the clone independently, dispatch tasks to all agents in both.
+        """
+        # Build original fleet
+        original = NestedCoreRuntime("FLEET_ORIGINAL", 20000)
+        original.embed_agent("PROOF_AGENT", role="PROOF_WORKER", capacity_tbi=4000)
+        original.embed_agent("AUDIT_AGENT", role="AUDIT_WORKER", capacity_tbi=4000)
+        original.embed_agent("SYNC_AGENT", role="SYNC_WORKER", capacity_tbi=4000)
+
+        # Clone the full outer system as an isolated package
+        clone = original.clone_as_package("FLEET_CLONE")
+
+        # Both host and clone have independent agent fleets
+        assert len(original.mirrors) == 3
+        assert len(clone.mirrors) == 3
+        assert clone.name == "FLEET_CLONE"
+
+        # Dispatch to original fleet
+        for agent_name in list(original.mirrors.keys()):
+            result = original.dispatch_to_agent(agent_name, f"TASK:ORIGINAL_{agent_name}")
+            assert result["status"] == "TASK_COMPLETED"
+
+        # Dispatch to clone fleet independently
+        for agent_name in list(clone.mirrors.keys()):
+            result = clone.dispatch_to_agent(agent_name, f"TASK:CLONE_{agent_name}")
+            assert result["status"] == "TASK_COMPLETED"
+
+        # Clone fleet reports are structurally identical but carry clone payloads
+        original_report = original.get_agent_fleet_report()
+        clone_report = clone.get_agent_fleet_report()
+
+        assert original_report["host"] == "FLEET_ORIGINAL"
+        assert clone_report["host"] == "FLEET_CLONE"
+        assert original_report["total_agents"] == clone_report["total_agents"]
+
+        # No zero errors anywhere in either tree
+        for agent_name in original.mirrors:
+            assert original_report["fleet"][agent_name]["filesystem_integrity"] is True
+        for agent_name in clone.mirrors:
+            assert clone_report["fleet"][agent_name]["filesystem_integrity"] is True
+
+        # Verify structural audit on both full trees is clean
+        original_audit = original.run_structural_audit()
+        clone_audit = clone.run_structural_audit()
+        assert not any("CRITICAL" in e for e in original_audit)
+        assert not any("CRITICAL" in e for e in clone_audit)
+
+
 def run_all_tests():
     """Run all test classes and report results."""
     test_classes = [
@@ -449,6 +692,7 @@ def run_all_tests():
         TestWiredFATFileSystem,
         TestNestedCoreRuntime,
         TestIntegrationScenarios,
+        TestAgentFleet,
     ]
     
     total_tests = 0
@@ -486,3 +730,4 @@ def run_all_tests():
 if __name__ == "__main__":
     success = run_all_tests()
     sys.exit(0 if success else 1)
+
