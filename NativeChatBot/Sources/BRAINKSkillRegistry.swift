@@ -144,7 +144,7 @@ struct KEXHyperdriveSkill: BRAINKSkill {
             status: .pending,
             output: "kex_hyperdrive: Governance PENDING. Requires slots [1,2,3] to be COMPLETED before governance layer can validate. State OF transition + Transition OF state + Definition OF transition = governance proof.",
             artifactPath: BRAINKConstants.kexHyperdriveConceptReportPath,
-            nextRoute: nil,   // governance is the final layer before orchestration (slot 5)
+            nextRoute: "nested_runtime_orchestrator",   // slot 4 (governance) feeds slot 5 (orchestration)
             evidenceKeys: ["kex_hyperdrive.governance", "spectrum_slot_4"]
         )
     }

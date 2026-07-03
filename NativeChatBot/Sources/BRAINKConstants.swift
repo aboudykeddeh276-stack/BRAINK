@@ -7,7 +7,8 @@ enum BRAINKConstants {
     // MARK: - Root paths (self-locating, no host-specific hardcoding)
     static var nativeChatBotRoot: String { URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().path }
     static var buildRoot: String { URL(fileURLWithPath: nativeChatBotRoot).appendingPathComponent("build").path }
-    /// Source directory: NativeChatBot/Sources — derived at compile time, portable across machines.
+    /// Source directory: NativeChatBot/Sources — resolved at compile time via `#filePath`,
+    /// guaranteeing portability across all machines without any hardcoded host paths.
     static var sourceRoot: String { URL(fileURLWithPath: #filePath).deletingLastPathComponent().path }
 
     // MARK: - Authorship

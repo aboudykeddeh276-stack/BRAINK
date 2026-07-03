@@ -1165,8 +1165,8 @@ final class BRAINKChatEngine: ObservableObject {
             "platform_execute",
             "platform_packet",
             "build",
-            "illlm_bundle(fallback)",
-            "illlm_query(fallback)",
+            "illlm_bundle_fallback",
+            "illlm_query_fallback",
             "general"
         ]
         return routes.joined(separator: " -> ")
