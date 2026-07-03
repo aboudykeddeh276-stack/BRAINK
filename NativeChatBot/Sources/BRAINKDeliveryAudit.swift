@@ -172,8 +172,8 @@ enum BRAINKDeliveryAudit {
             moduleName: "config_constants_module",
             runningFile: "\(sourceRoot)/BRAINKConstants.swift",
             logicalLink: "BRAINKConstants",
-            verification: "Constants referenced by chat engine and audits.",
-            requiredTokens: ["enum BRAINKConstants", "cookieName", "axiosTimeoutMs", "proofPacketCommand"],
+            verification: "Constants include KEX engineering values, shared ISO8601 formatter, portable source paths, and shared digest utility. No hardcoded host paths.",
+            requiredTokens: ["enum BRAINKConstants", "cookieName", "axiosTimeoutMs", "proofPacketCommand", "kexResonance", "kexLatticeRoot", "kexAxis", "kexBaseline", "stableHexDigest", "sourceRoot", "iso8601"],
             weight: 1.0
         ),
         StackModuleContract(
@@ -412,8 +412,8 @@ enum BRAINKDeliveryAudit {
             moduleName: "service_skill_registry_module",
             runningFile: "\(sourceRoot)/BRAINKSkillRegistry.swift",
             logicalLink: "BRAINKSkillRegistry.validateRegistrationCompleteness()",
-            verification: "Skill registry registers all 4 skills, maps slots [1..4], encodes 1→2→3→1 circular path, and proves all routes have skills.",
-            requiredTokens: ["enum BRAINKSkillRegistry", "allSkills", "slotMap", "dependencyGraph", "illlmCircularPath", "validateRegistrationCompleteness()", "isCircularFeedback"],
+            verification: "Skill registry registers all 5 skills, maps slots [1..5], encodes 1→2→3→1 circular path + governance(4)→orchestration(5), and proves all routes have skills.",
+            requiredTokens: ["enum BRAINKSkillRegistry", "allSkills", "slotMap", "dependencyGraph", "illlmCircularPath", "validateRegistrationCompleteness()", "isCircularFeedback", "NestedRuntimeOrchestratorSkill"],
             weight: 1.3
         ),
         StackModuleContract(

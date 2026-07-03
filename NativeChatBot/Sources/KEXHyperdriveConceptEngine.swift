@@ -374,7 +374,7 @@ enum KEXHyperdriveConceptEngine {
             results.append(KEXRepoFileEvidence(
                 path: relative,
                 bytes: values?.fileSize ?? data.count,
-                digest: stableHexDigest(data),
+                digest: BRAINKConstants.stableHexDigest(data),
                 category: category(for: relative)
             ))
             if results.count >= 1_000 { break }
@@ -399,14 +399,5 @@ enum KEXHyperdriveConceptEngine {
         let outputURL = URL(fileURLWithPath: path)
         try FileManager.default.createDirectory(at: outputURL.deletingLastPathComponent(), withIntermediateDirectories: true)
         try data.write(to: outputURL)
-    }
-
-    private static func stableHexDigest(_ data: Data) -> String {
-        var hash: UInt64 = 0xcbf29ce484222325
-        for byte in data {
-            hash ^= UInt64(byte)
-            hash = hash &* 0x100000001b3
-        }
-        return String(format: "%016llx", hash)
     }
 }

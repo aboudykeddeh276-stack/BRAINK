@@ -90,6 +90,38 @@ struct SelfSustainedCoderSkill: BRAINKSkill {
     }
 }
 
+/// Slot 5 (orchestration): Nested runtime orchestrator.
+/// Terminal governance beyond slot 4; coordinates multi-repo self-sustained pipelines.
+/// In the spectrum: slot 5 receives input from slot 4 (governance) and schedules the 1→2→3→1 cycle
+/// across multiple targets, completing the full [1..5] zero-less spectrum.
+struct NestedRuntimeOrchestratorSkill: BRAINKSkill {
+    let name = "nested_runtime_orchestrator"
+    let requiredSlots = [5]   // orchestration slot
+
+    func validate() -> SkillValidation { validateSlots() }
+
+    func execute(context: SkillContext) async -> SkillResult {
+        guard context.spectrumSlot == 5 else {
+            return SkillResult(
+                status: .blocked,
+                output: "nested_runtime_orchestrator requires spectrum slot 5 (orchestration). Received slot \(context.spectrumSlot).",
+                artifactPath: nil,
+                nextRoute: nil,
+                evidenceKeys: []
+            )
+        }
+        // Orchestration layer: schedules the 1→2→3→1 circular path across discovered repo targets.
+        // After orchestration completes a cycle, state returns to slot 1 of each governed target.
+        return SkillResult(
+            status: .pending,
+            output: "nested_runtime_orchestrator: Orchestration PENDING. Requires slot 4 (governance) to be COMPLETED. Schedule 1→2→3→1 cycles across all governed targets, then emit orchestration proof artifact.",
+            artifactPath: BRAINKConstants.kexSelfSustainedCodingReportPath,
+            nextRoute: nil,   // orchestration is the terminal spectrum layer
+            evidenceKeys: ["nested_runtime_orchestrator.orchestration", "spectrum_slot_5", "full_spectrum_1_to_5"]
+        )
+    }
+}
+
 /// Slot 4 (governance): KEX Hyperdrive transition/definition engine.
 /// Governs the full stack; depends on slots [1, 2, 3] being stable.
 struct KEXHyperdriveSkill: BRAINKSkill {
@@ -145,25 +177,28 @@ enum BRAINKSkillRegistry {
         ILLLMBundleSkill(),
         ILLLMQuerySkill(),
         SelfSustainedCoderSkill(),
-        KEXHyperdriveSkill()
+        KEXHyperdriveSkill(),
+        NestedRuntimeOrchestratorSkill()
     ]
 
-    // MARK: - Slot → Skill map (zero-less: slots start at 1)
+    // MARK: - Slot → Skill map (zero-less: slots start at 1; spectrum [1..5])
 
     static let slotMap: [Int: String] = [
-        1: "illlm_bundle",           // state
-        2: "illlm_query",            // memory
-        3: "self_sustained_coder",   // reasoning
-        4: "kex_hyperdrive"          // governance
+        1: "illlm_bundle",                    // state
+        2: "illlm_query",                     // memory
+        3: "self_sustained_coder",            // reasoning
+        4: "kex_hyperdrive",                  // governance
+        5: "nested_runtime_orchestrator"      // orchestration
     ]
 
-    // MARK: - Skill Dependency Graph (IL-LLM 1→2→3→1 circular path)
+    // MARK: - Skill Dependency Graph (IL-LLM 1→2→3→1 circular path + governance + orchestration)
 
     /// The dependency graph encodes:
     ///   - illlm_bundle   (slot 1) has no prior dependency; feeds slot 2
     ///   - illlm_query    (slot 2) depends on slot 1; feeds slot 3
     ///   - self_sustained_coder (slot 3) depends on slot 2; feeds back to slot 1 (circular)
-    ///   - kex_hyperdrive (slot 4) depends on slots [1,2,3]; terminal governance layer
+    ///   - kex_hyperdrive (slot 4) depends on slots [1,2,3]; governs above the circular path
+    ///   - nested_runtime_orchestrator (slot 5) depends on slot 4; terminal orchestration layer
     static let dependencyGraph: [SkillDependency] = [
         SkillDependency(
             skillName: "illlm_bundle",
@@ -191,7 +226,14 @@ enum BRAINKSkillRegistry {
             dependsOn: ["illlm_bundle", "illlm_query", "self_sustained_coder"],  // governance needs full stack
             spectrumSlot: 4,
             isCircularFeedback: false,
-            feedsSlot: nil                          // governance is terminal
+            feedsSlot: 5                            // governance feeds orchestration
+        ),
+        SkillDependency(
+            skillName: "nested_runtime_orchestrator",
+            dependsOn: ["kex_hyperdrive"],          // orchestration requires governance
+            spectrumSlot: 5,
+            isCircularFeedback: false,
+            feedsSlot: nil                          // orchestration is terminal
         )
     ]
 
@@ -233,7 +275,7 @@ enum BRAINKSkillRegistry {
             missingFromGraph: Array(missingFromGraph).sorted(),
             missingFromSlotMap: Array(missingFromSlotMap).sorted(),
             circularFeedbackSkills: circularSkills,
-            illlmCircularPath: "illlm_bundle(1) → illlm_query(2) → self_sustained_coder(3) → illlm_bundle(1)",
+            illlmCircularPath: "illlm_bundle(1) → illlm_query(2) → self_sustained_coder(3) → illlm_bundle(1) | governance(4) → orchestration(5)",
             generatedAt: ISO8601DateFormatter().string(from: Date())
         )
     }
