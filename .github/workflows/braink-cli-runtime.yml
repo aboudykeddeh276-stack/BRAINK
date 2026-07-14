@@ -1,0 +1,127 @@
+name: BRAINK CLI Runtime
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [braink-cli-runtime-20260714]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  braink-cli:
+    name: BRAINK agent CLI
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Prepare receipt directory
+        run: mkdir -p reports/ci
+
+      - name: Compile CLI and governance checker
+        run: |
+          python3 -m py_compile \
+            scripts/braink-agent-cli.py \
+            scripts/validate-governance.py
+
+      - name: Run BRAINK CLI status
+        run: |
+          python3 scripts/braink-agent-cli.py status \
+            | tee reports/ci/braink-cli-status.txt
+
+      - name: Run BRAINK CLI repository scan
+        run: |
+          python3 scripts/braink-agent-cli.py scan --repo-root . \
+            | tee reports/ci/braink-cli-scan.json
+
+      - name: Validate governance baseline
+        run: |
+          python3 scripts/validate-governance.py \
+            | tee reports/ci/governance-validation.txt
+
+      - name: Upload CLI receipts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: braink-cli-receipts
+          path: reports/ci
+
+  self-sustain:
+    name: KEX self-sustain runtime
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Prepare receipt directory
+        run: mkdir -p reports/ci
+
+      - name: Compile self-sustain tools
+        run: |
+          python3 -m py_compile \
+            tools/kex_self_sustain.py \
+            tools/kex_ethics_check.py
+
+      - name: Generate self-sustain packet
+        run: |
+          python3 tools/kex_self_sustain.py \
+            --root . \
+            --output-dir reports/ci \
+            --generated-at 2026-07-14T00:00:00+00:00
+
+      - name: Verify generated packet
+        run: |
+          python3 tools/kex_self_sustain.py \
+            --root . \
+            --verify-packet reports/ci/BRAINK_kex_self_sustain_packet.json
+
+      - name: Run KEX ethics gate
+        run: |
+          python3 tools/kex_ethics_check.py \
+            --root . \
+            --output reports/ci/kex_ethics_check.json
+
+      - name: Upload self-sustain receipts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: braink-self-sustain-receipts
+          path: reports/ci
+
+  native-runtime-smoke:
+    name: BRAINK native runtime smoke
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Prepare receipt directory
+        run: mkdir -p reports/ci
+
+      - name: Inspect Swift toolchain
+        run: swift --version | tee reports/ci/swift-version.txt
+
+      - name: Execute native BRAINK smoke route
+        run: |
+          bash NativeChatBot/run-runtime-smoke.command \
+            | tee reports/ci/native-runtime-smoke.txt
+
+      - name: Upload native smoke receipts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: braink-native-runtime-receipts
+          path: reports/ci
