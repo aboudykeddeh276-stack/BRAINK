@@ -4,6 +4,7 @@ from __future__ import annotations
 import importlib.util
 import json
 import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -16,6 +17,9 @@ def load_module(name: str, relative: str):
     if spec is None or spec.loader is None:
         raise RuntimeError(f"cannot load {relative}")
     module = importlib.util.module_from_spec(spec)
+    # dataclasses and postponed annotations resolve the defining module through
+    # sys.modules while the class body is executed. Register it before exec.
+    sys.modules[name] = module
     spec.loader.exec_module(module)
     return module
 
