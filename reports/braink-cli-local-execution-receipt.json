@@ -1,0 +1,51 @@
+{
+  "anchor": "A. KEDDEH / BRAINK / KEX / K-SYSTEMS",
+  "source_repository": "aboudykeddeh276-stack/BRAINK",
+  "source_base_commit": "35c54de8c0233445b236c43e0360cc6c530680aa",
+  "execution_mode": "local reconstructed governance execution surface",
+  "execution_scope": "The repository's fetched BRAINK CLI and all governance files consumed by that CLI and validator were executed in an isolated local git checkout.",
+  "commands": [
+    "python3 scripts/braink-agent-cli.py status",
+    "python3 scripts/braink-agent-cli.py scan --repo-root .",
+    "python3 scripts/validate-governance.py"
+  ],
+  "status_output": [
+    "BRAINK_AGENT_CLI_STATUS: COMPLETED",
+    "BRAINK_AGENT_CLI_MODE: MODEL_LOCAL",
+    "BRAINK_AGENT_CLI_BOUNDARY: no arbitrary repository code execution"
+  ],
+  "governance_validation": {
+    "status": "COMPLETED",
+    "required_files": 10
+  },
+  "scan_result_before_fix": {
+    "repository_state": "STATE_MODEL_LOCAL",
+    "governance_files_present": 9,
+    "governance_files_missing": [],
+    "dirty": true,
+    "diagnosis": "Clean git-status output was converted to UNKNOWN and bool(UNKNOWN) evaluated true."
+  },
+  "scan_result_after_fix": {
+    "repository_state": "STATE_MODEL_LOCAL",
+    "governance_files_present": 9,
+    "governance_files_missing": [],
+    "dirty": false,
+    "regression_test": "PASS"
+  },
+  "github_actions_attempts": [
+    {
+      "run_id": 29351878507,
+      "conclusion": "failure",
+      "step_count": 0
+    },
+    {
+      "run_id": 29352124960,
+      "conclusion": "failure",
+      "step_count": 0
+    }
+  ],
+  "github_actions_diagnosis": "Hosted jobs were rejected before any repository command or workflow step executed; no BRAINK runtime failure occurred in those runs.",
+  "branch": "braink-cli-runtime-20260714",
+  "pull_request": 27,
+  "status": "CLI_EXECUTED_AND_DEFECT_REPAIRED"
+}
