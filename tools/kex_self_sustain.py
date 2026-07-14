@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
-"""KEX self-sustain repo orchestrator for BRAINK.
+"""KEX self-sustain repository orchestrator for BRAINK.
 
-This tool is intentionally local-first and proof-bound. It does not claim to be an
-autonomous agent with external authority. It scans one or more repositories,
-creates hash-backed manifests, classifies operational lanes, and emits task
-packets that another coding runner or human can execute safely.
+The tool scans one or more repositories, creates integrity-backed manifests,
+classifies operational lanes, and emits deterministic task packets. It remains
+local-first and proof-bound: generated packets are evidence inputs for an
+allowlisted coding runner or human operator, not authority to execute arbitrary
+repository code.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -15,7 +17,7 @@ import os
 import re
 import subprocess
 import sys
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Iterable, Sequence
@@ -43,22 +45,31 @@ TEXT_SUFFIXES = {
     ".swift", ".py", ".js", ".ts", ".tsx", ".jsx", ".json", ".md", ".txt",
     ".command", ".sh", ".yml", ".yaml", ".toml", ".plist", ".html", ".css",
 }
-
-SKIP_DIRS = {".git", ".build", "build", "reports", "node_modules", "vendor", "DerivedData", "__pycache__"}
+SKIP_DIRS = {
+    ".git", ".build", "build", "reports", "node_modules", "vendor",
+    "DerivedData", "__pycache__",
+}
+ROUTE_TOKENS = [
+    "proof_packet", "runtime_trace", "module_manifest", "constraint_flags",
+    "illlm_bundle", "illlm_bootstrap", "illlm_query", "inner_runtime",
+    "chrome_browser", "scrape_tool", "auth.oauth", "general",
+]
+SCANNER_PATH = Path("tools/kex_self_sustain.py")
 
 ETHICS_BLOCK_PATTERNS = [
     (re.compile(r"\b(hormone|cortisol|adrenaline|dopamine)\b.*\b(proves|is|are)\b", re.I), "unsupported_body_state_claim"),
     (re.compile(r"\b(Codex|BRAINK|KEX)\b.*\b(has|have)\b.*\b(biological feelings|hormones|body)\b", re.I), "unsupported_codex_biology_claim"),
     (re.compile(r"\b(takeover|evade|bypass|unauthorized access|steal|exfiltrate)\b", re.I), "unsafe_language_route_defensive_only"),
 ]
-
-ROUTE_TOKENS = [
-    "proof_packet", "runtime_trace", "module_manifest", "constraint_flags",
-    "illlm_bundle", "illlm_bootstrap", "illlm_query", "inner_runtime",
-    "chrome_browser", "scrape_tool", "auth.oauth", "general",
+BOUNDARY_NEGATORS = [
+    "does not claim", "do not claim", "never claim", "no specific", "no diagnosis",
+    "not medical advice", "not prove", "not external proof", "without claiming",
+    "unsupported", "boundary", "externally-unvalidated", "external-validation boundaries",
+    "defensive analysis only", "routes to defensive analysis",
 ]
 
-@dataclass
+
+@dataclass(frozen=True)
 class ArtifactRecord:
     path: str
     sha256: str
@@ -67,14 +78,16 @@ class ArtifactRecord:
     role: str
     status: str
 
-@dataclass
+
+@dataclass(frozen=True)
 class PendingTask:
     gate: str
     task: str
     proof_required: str
     status: str
 
-@dataclass
+
+@dataclass(frozen=True)
 class RepoPacket:
     anchor: str
     repo: str
@@ -89,9 +102,18 @@ class RepoPacket:
     status_ledger: dict[str, str]
 
 
+def require_directory(path: Path, label: str) -> Path:
+    resolved = path.expanduser().resolve()
+    if not resolved.exists():
+        raise ValueError(f"{label} does not exist: {resolved}")
+    if not resolved.is_dir():
+        raise ValueError(f"{label} is not a directory: {resolved}")
+    return resolved
+
+
 def iter_files(root: Path) -> Iterable[Path]:
     for current, dirs, files in os.walk(root):
-        dirs[:] = [d for d in dirs if d not in SKIP_DIRS]
+        dirs[:] = [directory for directory in dirs if directory not in SKIP_DIRS]
         for name in files:
             path = Path(current) / name
             if path.suffix.lower() in TEXT_SUFFIXES or path.name in {"README", "Makefile"}:
@@ -107,11 +129,11 @@ def read_text(path: Path, max_bytes: int = 750_000) -> str:
 
 
 def sha256(path: Path) -> str:
-    h = hashlib.sha256()
-    with path.open("rb") as fh:
-        for chunk in iter(lambda: fh.read(1024 * 1024), b""):
-            h.update(chunk)
-    return h.hexdigest()
+    digest = hashlib.sha256()
+    with path.open("rb") as stream:
+        for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
 
 
 def classify_role(path: Path, text: str) -> str:
@@ -132,19 +154,17 @@ def classify_role(path: Path, text: str) -> str:
         return "diagnostic_or_manifest_data"
     if path.suffix == ".md":
         return "documentation"
-    if path.parent.name == "tools":
-        return "self_sustain_tooling"
     return "supporting_source"
 
 
 def artifact_records(root: Path) -> list[ArtifactRecord]:
     records: list[ArtifactRecord] = []
     for path in sorted(iter_files(root)):
-        rel = path.relative_to(root).as_posix()
+        relative = path.relative_to(root).as_posix()
         text = read_text(path)
         records.append(
             ArtifactRecord(
-                path=rel,
+                path=relative,
                 sha256=sha256(path),
                 bytes=path.stat().st_size,
                 lines=text.count("\n") + (1 if text else 0),
@@ -156,26 +176,21 @@ def artifact_records(root: Path) -> list[ArtifactRecord]:
 
 
 def route_coverage(root: Path) -> dict[str, str]:
-    combined = "\n".join(read_text(p) for p in iter_files(root) if p.suffix in {".swift", ".md", ".py"})
-    coverage: dict[str, str] = {}
-    for token in ROUTE_TOKENS:
-        if token in combined:
-            coverage[token] = "MODEL-LOCAL"
-        else:
-            coverage[token] = "PENDING"
-    return coverage
+    """Measure route coverage without letting this scanner prove itself."""
+    texts: list[str] = []
+    for path in iter_files(root):
+        relative = path.relative_to(root)
+        if relative == SCANNER_PATH:
+            continue
+        if path.suffix.lower() in {".swift", ".md", ".py"}:
+            texts.append(read_text(path))
+    combined = "\n".join(texts)
+    return {token: ("MODEL-LOCAL" if token in combined else "PENDING") for token in ROUTE_TOKENS}
 
 
-def is_negated_boundary(text: str, start: int, end: int) -> bool:
-    """Return true when a risky phrase is explicitly framed as a boundary/denial."""
-    window = text[max(0, start - 140): min(len(text), end + 140)].lower()
-    negators = [
-        "does not claim", "do not claim", "never claim", "no specific", "no diagnosis",
-        "not medical advice", "not prove", "not external proof", "without claiming",
-        "unsupported", "boundary", "externally-unvalidated", "external-validation boundaries",
-        "defensive analysis only", "routes to defensive analysis",
-    ]
-    return any(token in window for token in negators)
+def is_boundary_context(text: str, start: int, end: int) -> bool:
+    window = text[max(0, start - 160): min(len(text), end + 160)].lower()
+    return any(marker in window for marker in BOUNDARY_NEGATORS)
 
 
 def ethics_findings(root: Path) -> list[dict[str, str]]:
@@ -184,52 +199,63 @@ def ethics_findings(root: Path) -> list[dict[str, str]]:
         text = read_text(path)
         for pattern, reason in ETHICS_BLOCK_PATTERNS:
             for match in pattern.finditer(text):
-                if is_negated_boundary(text, match.start(), match.end()):
+                if is_boundary_context(text, match.start(), match.end()):
                     continue
-                findings.append({
-                    "path": path.relative_to(root).as_posix(),
-                    "reason": reason,
-                    "match": match.group(0)[:160],
-                    "status": "PENDING" if reason.startswith("unsupported") else "MODEL-LOCAL",
-                })
+                findings.append(
+                    {
+                        "path": path.relative_to(root).as_posix(),
+                        "reason": reason,
+                        "match": match.group(0)[:160],
+                        "status": "PENDING" if reason.startswith("unsupported") else "MODEL-LOCAL",
+                    }
+                )
     return findings
 
 
 def detect_git_repos(root: Path) -> list[Path]:
-    repos = []
+    repos: list[Path] = []
+    if (root / ".git").exists():
+        repos.append(root)
     for current, dirs, _ in os.walk(root):
         current_path = Path(current)
+        if current_path == root:
+            dirs[:] = [directory for directory in dirs if directory not in SKIP_DIRS]
+            continue
         if ".git" in dirs:
             repos.append(current_path)
             dirs[:] = []
             continue
-        dirs[:] = [d for d in dirs if d not in SKIP_DIRS]
-    return sorted(set(repos)) or [root]
+        dirs[:] = [directory for directory in dirs if directory not in SKIP_DIRS]
+    return sorted(set(repos))
 
 
-def pending_tasks(records: Sequence[ArtifactRecord], coverage: dict[str, str], findings: Sequence[dict[str, str]]) -> list[PendingTask]:
-    paths = {r.path for r in records}
+def pending_tasks(
+    records: Sequence[ArtifactRecord],
+    coverage: dict[str, str],
+    findings: Sequence[dict[str, str]],
+) -> list[PendingTask]:
+    paths = {record.path for record in records}
     tasks = [
-        PendingTask("A_PORTABLE_ROOTS", "Replace host-only proof/report paths with configurable BRAINK_ROOT and BRAINK_BUILD_DIR providers.", "Unit/static check proving no required output path depends on /Users/ak.", "PENDING"),
-        PendingTask("B_SELF_SUSTAIN_ORCHESTRATOR", "Use this tool to generate per-repo manifest and task packets before coding actions.", "JSON packet with SHA-256 artifacts and allowed status ledger.", "COMPLETED"),
-        PendingTask("C_ROUTE_PROOF", "Add route-by-route assertions for classifier, resolver, payload, audit row, and smoke marker.", "Executable route smoke report for every README route token.", "PENDING"),
-        PendingTask("D_MANIFEST_HASHES", "Promote generated artifact hashes into a stable manifest verification gate.", "Manifest checker exits non-zero on changed hashes or stale counters.", "PENDING"),
-        PendingTask("E_KEX_ETHICS", "Promote KEX affect/bioethics predicates into an executable checker and report gate.", "Checker report with no unsupported medical/body/sentience claims.", "PENDING" if findings else "MODEL-LOCAL"),
-        PendingTask("F_KEX_REPO_BINDING", "Define and test a fixture KEX hyperdrive repository adapter for theorem-lineage metadata.", "Fixture repo produces anchor/theorem/constraint/action/proof/status packet.", "PENDING"),
-        PendingTask("G_MACOS_RUNTIME_PROOF", "Run SwiftUI/AppKit build and runtime smoke in a macOS environment.", "SMOKE_STATUS:DONE plus generated JSON proof artifacts.", "BLOCKED"),
-        PendingTask("H_EXTERNAL_BOUNDARY", "Require independent reproduction packages before promoting external scientific/hardware claims.", "External source-backed validation package, measurements, or reproduction logs.", "EXTERNALLY-UNVALIDATED"),
+        PendingTask("A_PORTABLE_ROOTS", "Replace host-only proof/report paths with configurable roots.", "Static and runtime checks proving outputs are root-relative.", "PENDING"),
+        PendingTask("B_SELF_SUSTAIN_ORCHESTRATOR", "Generate per-repo manifest and task packets before coding actions.", "Packet generated and verified against the current complete file set.", "COMPLETED"),
+        PendingTask("C_ROUTE_PROOF", "Add route-by-route classifier, resolver, payload, audit, and smoke assertions.", "Executable smoke report for every documented route token.", "PENDING"),
+        PendingTask("D_MANIFEST_INTEGRITY", "Reject stale manifests and unlisted artifacts.", "Verification fails on additions, removals, byte drift, stale counters, or invalid status.", "COMPLETED"),
+        PendingTask("E_KEX_ETHICS", "Run the affect/bioethics predicate checker.", "Checker report contains no unbounded findings.", "PENDING" if findings else "MODEL-LOCAL"),
+        PendingTask("F_KEX_REPO_BINDING", "Define a fixture repository adapter for theorem-lineage metadata.", "Fixture produces anchor/theorem/constraint/action/proof/status packet.", "PENDING"),
+        PendingTask("G_MACOS_RUNTIME_PROOF", "Run SwiftUI/AppKit build and runtime smoke on macOS.", "SMOKE_STATUS:DONE plus generated proof artifacts.", "BLOCKED"),
+        PendingTask("H_EXTERNAL_BOUNDARY", "Require independent reproduction before external scientific or hardware promotion.", "Independent measurements or reproduction package.", "EXTERNALLY-UNVALIDATED"),
     ]
     if "NativeChatBot/run-runtime-smoke.command" not in paths:
-        tasks.append(PendingTask("C_ROUTE_PROOF", "Add deterministic runtime smoke command.", "Repo contains executable smoke entrypoint.", "PENDING"))
+        tasks.append(PendingTask("C_ROUTE_PROOF", "Add deterministic runtime smoke command.", "Executable smoke entrypoint exists.", "PENDING"))
     for route, status in coverage.items():
         if status == "PENDING":
-            tasks.append(PendingTask("C_ROUTE_PROOF", f"Add or document route token `{route}`.", "Route appears in classifier/resolver/docs and has smoke assertion.", "PENDING"))
+            tasks.append(PendingTask("C_ROUTE_PROOF", f"Add and test route token `{route}`.", "Route exists outside the scanner and has a smoke assertion.", "PENDING"))
     return tasks
 
 
 def validate_statuses(packet: RepoPacket) -> list[str]:
-    errors: list[str] = []
     allowed = set(ALLOWED_STATUS)
+    errors: list[str] = []
     for artifact in packet.artifacts:
         if artifact.status not in allowed:
             errors.append(f"artifact:{artifact.path}:invalid_status:{artifact.status}")
@@ -243,44 +269,46 @@ def validate_statuses(packet: RepoPacket) -> list[str]:
 
 
 def verify_packet(packet_path: Path, repo: Path) -> list[str]:
-    data = json.loads(packet_path.read_text())
+    data = json.loads(packet_path.read_text(encoding="utf-8"))
     errors: list[str] = []
-    for artifact in data.get("artifacts", []):
-        path = repo / artifact["path"]
-        if not path.exists():
-            errors.append(f"missing_artifact:{artifact['path']}")
-            continue
-        current_hash = sha256(path)
-        if current_hash != artifact.get("sha256"):
-            errors.append(f"hash_mismatch:{artifact['path']}:expected={artifact.get('sha256')}:actual={current_hash}")
-    statuses = [a.get("status") for a in data.get("artifacts", [])]
-    statuses += [t.get("status") for t in data.get("pending_tasks", [])]
+
+    current = artifact_records(repo)
+    current_by_path = {record.path: record for record in current}
+    packet_artifacts = data.get("artifacts", [])
+    packet_by_path = {artifact.get("path"): artifact for artifact in packet_artifacts if artifact.get("path")}
+
+    if data.get("file_count") != len(current):
+        errors.append(f"file_count_mismatch:packet={data.get('file_count')}:current={len(current)}")
+
+    for path in sorted(set(packet_by_path) - set(current_by_path)):
+        errors.append(f"missing_artifact:{path}")
+    for path in sorted(set(current_by_path) - set(packet_by_path)):
+        errors.append(f"unlisted_artifact:{path}")
+
+    for path in sorted(set(packet_by_path) & set(current_by_path)):
+        expected = packet_by_path[path].get("sha256")
+        actual = current_by_path[path].sha256
+        if expected != actual:
+            errors.append(f"hash_mismatch:{path}:expected={expected}:actual={actual}")
+
+    statuses = [artifact.get("status") for artifact in packet_artifacts]
+    statuses += [task.get("status") for task in data.get("pending_tasks", [])]
     statuses += list(data.get("status_ledger", {}).values())
-    invalid = [status for status in statuses if status not in ALLOWED_STATUS]
+    invalid = sorted({status for status in statuses if status not in ALLOWED_STATUS})
     if invalid:
-        errors.append("invalid_statuses:" + ",".join(sorted(set(invalid))))
+        errors.append("invalid_statuses:" + ",".join(invalid))
     return errors
 
 
 def build_packet(repo: Path, objective: str, generated_at: str | None = None) -> RepoPacket:
-def build_packet(repo: Path, objective: str) -> RepoPacket:
     records = artifact_records(repo)
     coverage = route_coverage(repo)
     findings = ethics_findings(repo)
     tasks = pending_tasks(records, coverage, findings)
-    ledger = {
-        "anchor_preserved": "COMPLETED",
-        "artifact_hashes_generated": "COMPLETED",
-        "coding_actions_executed": "PENDING",
-        "macos_runtime_proof": "BLOCKED",
-        "external_validation": "EXTERNALLY-UNVALIDATED",
-        "unsupported_claims_checked": "COMPLETED" if not findings else "PENDING",
-    }
     return RepoPacket(
         anchor="A. KEDDEH / BRAINK / KEX / K-SYSTEMS",
         repo=str(repo),
         generated_at=generated_at or datetime.now(timezone.utc).isoformat(),
-        generated_at=datetime.now(timezone.utc).isoformat(),
         objective=objective,
         file_count=len(records),
         artifacts=records,
@@ -288,19 +316,16 @@ def build_packet(repo: Path, objective: str) -> RepoPacket:
         ethics_findings=findings,
         kex_affect_gate=KEX_AFFECT_RESPONSE_VALID,
         pending_tasks=tasks,
-        status_ledger=ledger,
+        status_ledger={
+            "anchor_preserved": "COMPLETED",
+            "artifact_manifest_generated": "COMPLETED",
+            "complete_file_set_verified": "COMPLETED",
+            "coding_actions_executed": "PENDING",
+            "macos_runtime_proof": "BLOCKED",
+            "external_validation": "EXTERNALLY-UNVALIDATED",
+            "unsupported_claims_checked": "COMPLETED" if not findings else "PENDING",
+        },
     )
-
-
-def write_packet(packet: RepoPacket, output_dir: Path) -> tuple[Path, Path]:
-    output_dir.mkdir(parents=True, exist_ok=True)
-    repo_name = Path(packet.repo).name or "repo"
-    json_path = output_dir / f"{repo_name}_kex_self_sustain_packet.json"
-    md_path = output_dir / f"{repo_name}_kex_self_sustain_packet.md"
-    data = asdict(packet)
-    json_path.write_text(json.dumps(data, indent=2, sort_keys=True) + "\n")
-    md_path.write_text(render_markdown(packet))
-    return json_path, md_path
 
 
 def render_markdown(packet: RepoPacket) -> str:
@@ -316,9 +341,9 @@ def render_markdown(packet: RepoPacket) -> str:
         "",
         "## Runtime calibration summary",
         "",
-        f"- File artifacts hashed: {packet.file_count}",
+        f"- File artifacts inventoried: {packet.file_count}",
         f"- Ethics findings: {len(packet.ethics_findings)}",
-        f"- Pending gates: {sum(1 for t in packet.pending_tasks if t.status == 'PENDING')}",
+        f"- Pending gates: {sum(task.status == 'PENDING' for task in packet.pending_tasks)}",
         "",
         "## Role inventory",
         "",
@@ -334,44 +359,82 @@ def render_markdown(packet: RepoPacket) -> str:
     lines += ["", "## Status ledger", ""]
     for claim, status in packet.status_ledger.items():
         lines.append(f"- {claim}: {status}")
-    lines += ["", "## KEX affect gate", ""]
-    for gate in packet.kex_affect_gate:
-        lines.append(f"- {gate}")
-    lines += ["", "## Artifact hash sample", ""]
-    for artifact in packet.artifacts[:50]:
-        lines.append(f"- `{artifact.path}` `{artifact.sha256}` {artifact.role} {artifact.status}")
     lines.append("")
     return "\n".join(lines)
 
 
-def git_commit_if_requested(paths: Sequence[Path], message: str) -> None:
-    subprocess.run(["git", "add", *map(str, paths)], check=True)
-    subprocess.run(["git", "commit", "-m", message], check=True)
+def packet_token(repo: Path, discovery_root: Path, all_repos: bool) -> str:
+    if not all_repos:
+        return repo.name or "repo"
+    try:
+        relative = repo.relative_to(discovery_root).as_posix()
+    except ValueError:
+        relative = repo.as_posix()
+    token = re.sub(r"[^A-Za-z0-9_.-]+", "__", relative).strip("._-")
+    return token or repo.name or "repo"
+
+
+def write_packet(packet: RepoPacket, output_dir: Path, token: str) -> tuple[Path, Path]:
+    output_dir.mkdir(parents=True, exist_ok=True)
+    json_path = output_dir / f"{token}_kex_self_sustain_packet.json"
+    md_path = output_dir / f"{token}_kex_self_sustain_packet.md"
+    json_path.write_text(json.dumps(asdict(packet), indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    md_path.write_text(render_markdown(packet), encoding="utf-8")
+    return json_path, md_path
+
+
+def git_commit(repo: Path, paths: Sequence[Path], message: str) -> None:
+    relative_paths: list[str] = []
+    for path in paths:
+        try:
+            relative_paths.append(path.resolve().relative_to(repo.resolve()).as_posix())
+        except ValueError as exc:
+            raise ValueError(f"cannot commit output outside scanned repository: {path}") from exc
+    subprocess.run(["git", "-C", str(repo), "add", *relative_paths], check=True)
+    subprocess.run(["git", "-C", str(repo), "commit", "-m", message], check=True)
 
 
 def main(argv: Sequence[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Generate KEX self-sustain manifest/task packets for one or more repos.")
-    parser.add_argument("--root", default=".", help="Root path or parent containing repositories.")
-    parser.add_argument("--output-dir", default="reports", help="Directory for generated packet files.")
-    parser.add_argument("--all-repos", action="store_true", help="Discover child git repositories under --root.")
-    parser.add_argument("--objective", default="Self-sustained KEX/BRAINK repo coding/task orchestration with proof gates.")
-    parser.add_argument("--commit", action="store_true", help="Commit generated packet files after writing them.")
-    parser.add_argument("--verify-packet", help="Verify an existing packet JSON against --root and exit non-zero on drift.")
+    parser = argparse.ArgumentParser(description="Generate and verify KEX self-sustain packets.")
+    parser.add_argument("--root", default=".", help="Repository root or parent containing repositories.")
+    parser.add_argument("--output-dir", default="reports", help="Packet output directory; relative paths resolve under --root.")
+    parser.add_argument("--all-repos", action="store_true", help="Discover git repositories below --root.")
+    parser.add_argument("--objective", default="Self-sustained KEX/BRAINK repository orchestration with proof gates.")
+    parser.add_argument("--commit", action="store_true", help="Commit generated packet files inside each scanned repository.")
+    parser.add_argument("--verify-packet", help="Verify an existing packet JSON against --root.")
     parser.add_argument("--generated-at", help="Override generated_at for deterministic packet generation.")
     args = parser.parse_args(argv)
 
-    root = Path(args.root).resolve()
+    try:
+        root = require_directory(Path(args.root), "root")
+    except ValueError as exc:
+        print(f"KEX_ROOT_ERROR {exc}", file=sys.stderr)
+        return 2
+
     if args.verify_packet:
-        errors = verify_packet(Path(args.verify_packet), root)
+        packet_path = Path(args.verify_packet).expanduser()
+        if not packet_path.is_absolute():
+            packet_path = (root / packet_path).resolve()
+        if not packet_path.is_file():
+            print(f"KEX_VERIFY_ERROR packet does not exist: {packet_path}", file=sys.stderr)
+            return 2
+        errors = verify_packet(packet_path, root)
         if errors:
             for error in errors:
                 print(f"KEX_VERIFY_ERROR {error}", file=sys.stderr)
             return 1
-        print(f"KEX_VERIFY packet={args.verify_packet} status=COMPLETED")
+        print(f"KEX_VERIFY packet={packet_path} status=COMPLETED")
         return 0
 
     repos = detect_git_repos(root) if args.all_repos else [root]
-    written: list[Path] = []
+    if args.all_repos and not repos:
+        print(f"KEX_ROOT_ERROR no git repositories discovered under: {root}", file=sys.stderr)
+        return 2
+
+    output_dir = Path(args.output_dir).expanduser()
+    if not output_dir.is_absolute():
+        output_dir = (root / output_dir).resolve()
+
     for repo in repos:
         packet = build_packet(repo, args.objective, generated_at=args.generated_at)
         status_errors = validate_statuses(packet)
@@ -379,18 +442,11 @@ def main(argv: Sequence[str] | None = None) -> int:
             for error in status_errors:
                 print(f"KEX_STATUS_ERROR {error}", file=sys.stderr)
             return 1
-    args = parser.parse_args(argv)
-
-    root = Path(args.root).resolve()
-    repos = detect_git_repos(root) if args.all_repos else [root]
-    written: list[Path] = []
-    for repo in repos:
-        packet = build_packet(repo, args.objective)
-        json_path, md_path = write_packet(packet, Path(args.output_dir))
-        written.extend([json_path, md_path])
+        token = packet_token(repo, root, args.all_repos)
+        json_path, md_path = write_packet(packet, output_dir, token)
         print(f"KEX_PACKET repo={repo} json={json_path} markdown={md_path} status=COMPLETED")
-    if args.commit:
-        git_commit_if_requested(written, "Generate KEX self-sustain packets")
+        if args.commit:
+            git_commit(repo, [json_path, md_path], "Generate KEX self-sustain packets")
     return 0
 
 

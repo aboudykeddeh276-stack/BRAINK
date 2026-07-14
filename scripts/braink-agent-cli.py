@@ -26,6 +26,7 @@ GOVERNANCE_FILES = [
     "scripts/bootstrap-general-governance.sh",
     "scripts/braink-agent-cli.py",
     "docs/governance/agentic-intelligence-cli.md",
+    "docs/governance/strict-deep-analysis-comment.md",
 ]
 
 
@@ -42,6 +43,12 @@ class RepositorySignal:
 
 
 def run_git(repo: Path, args: list[str]) -> str:
+    """Run a read-only git command and preserve valid empty stdout.
+
+    A clean `git status --porcelain` deliberately returns an empty string. The
+    earlier implementation replaced that empty result with `UNKNOWN`, which made
+    every clean repository appear dirty when converted to bool.
+    """
     result = subprocess.run(
         ["git", "-C", str(repo), *args],
         check=False,
@@ -51,10 +58,13 @@ def run_git(repo: Path, args: list[str]) -> str:
     )
     if result.returncode != 0:
         return "UNKNOWN"
-    return result.stdout.strip() or "UNKNOWN"
+    return result.stdout.strip()
 
 
 def discover_repositories(root: Path) -> list[Path]:
+    if not root.exists() or not root.is_dir():
+        raise ValueError(f"repository root does not exist or is not a directory: {root}")
+
     repositories: list[Path] = []
     for git_dir in root.rglob(".git"):
         if git_dir.is_dir():
@@ -67,11 +77,13 @@ def inspect_repository(repo: Path) -> RepositorySignal:
     missing = [relative for relative in GOVERNANCE_FILES if relative not in present]
     dirty = bool(run_git(repo, ["status", "--porcelain=v1"]))
     state = "STATE_MODEL_LOCAL" if not missing else "STATE_PENDING"
+    branch = run_git(repo, ["branch", "--show-current"]) or "DETACHED"
+    head = run_git(repo, ["rev-parse", "--short", "HEAD"]) or "UNKNOWN"
     return RepositorySignal(
         path=str(repo),
         name=repo.name,
-        branch=run_git(repo, ["branch", "--show-current"]),
-        head=run_git(repo, ["rev-parse", "--short", "HEAD"]),
+        branch=branch,
+        head=head,
         dirty=dirty,
         governance_files_present=present,
         governance_files_missing=missing,
@@ -105,7 +117,11 @@ def build_agent_plan(signals: list[RepositorySignal]) -> dict[str, object]:
 
 def command_scan(args: argparse.Namespace) -> int:
     root = Path(args.repo_root).expanduser().resolve()
-    signals = [inspect_repository(repo) for repo in discover_repositories(root)]
+    try:
+        signals = [inspect_repository(repo) for repo in discover_repositories(root)]
+    except ValueError as exc:
+        print(f"BRAINK_AGENT_CLI_ERROR: {exc}", file=sys.stderr)
+        return 2
     print(json.dumps(build_agent_plan(signals), indent=2, sort_keys=True))
     return 0
 

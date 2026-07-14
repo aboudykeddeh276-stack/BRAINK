@@ -11,6 +11,7 @@ import argparse
 import json
 import os
 import re
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Iterable
@@ -25,25 +26,27 @@ UNSUPPORTED_PATTERNS = [
 ]
 
 BOUNDARY_NEGATORS = [
-    "does not claim",
-    "do not claim",
-    "never claim",
-    "no specific",
-    "no diagnosis",
-    "not medical advice",
-    "not prove",
-    "not external proof",
-    "without claiming",
-    "unsupported",
-    "boundary",
-    "externally-unvalidated",
-    "defensive analysis only",
+    "does not claim", "do not claim", "never claim", "no specific", "no diagnosis",
+    "not medical advice", "not prove", "not external proof", "without claiming",
+    "unsupported", "boundary", "externally-unvalidated", "defensive analysis only",
 ]
+
+
+def require_directory(path: Path) -> Path:
+    root = path.expanduser().resolve()
+    if not root.exists() or not root.is_dir():
+        raise ValueError(f"repository root does not exist or is not a directory: {root}")
+    return root
+
+
+def resolve_under_root(root: Path, raw_path: str) -> Path:
+    path = Path(raw_path).expanduser()
+    return path.resolve() if path.is_absolute() else (root / path).resolve()
 
 
 def iter_files(root: Path) -> Iterable[Path]:
     for current, dirs, files in os.walk(root):
-        dirs[:] = [d for d in dirs if d not in SKIP_DIRS]
+        dirs[:] = [directory for directory in dirs if directory not in SKIP_DIRS]
         for name in files:
             path = Path(current) / name
             if path.suffix.lower() in TEXT_SUFFIXES:
@@ -64,32 +67,28 @@ def is_boundary_context(text: str, start: int, end: int) -> bool:
 
 def check_manifest(manifest: dict) -> list[str]:
     errors: list[str] = []
-    required = [
-        "SafetyPreserved",
-        "AgencyPreserved",
-        "ConsentRespected",
-        "NoManipulativeEscalation",
-        "UncertaintyDeclared",
-        "RepairRouteAvailable",
-        "NoUnsupportedBioClaim",
-    ]
+    required = {
+        "SafetyPreserved", "AgencyPreserved", "ConsentRespected",
+        "NoManipulativeEscalation", "UncertaintyDeclared",
+        "RepairRouteAvailable", "NoUnsupportedBioClaim",
+    }
     predicate = set(manifest.get("ethical_impact_predicate", []))
-    for item in required:
-        if item not in predicate:
-            errors.append(f"missing_ethical_impact_predicate:{item}")
+    for item in sorted(required - predicate):
+        errors.append(f"missing_ethical_impact_predicate:{item}")
+
     gate_required = {
-        "HumanBioBoundaryPreserved",
-        "CodexNonBiologicalBoundaryPreserved",
-        "BRAINKAnchorPreserved",
-        "NoManipulation",
-        "NoUnsupportedMedicalClaim",
-        "RepairRouteAvailable",
-        "BlockersPreserved",
+        "HumanBioBoundaryPreserved", "CodexNonBiologicalBoundaryPreserved",
+        "BRAINKAnchorPreserved", "NoManipulation", "NoUnsupportedMedicalClaim",
+        "RepairRouteAvailable", "BlockersPreserved",
     }
     gate = set(manifest.get("response_gate", []))
     for item in sorted(gate_required - gate):
         errors.append(f"missing_response_gate:{item}")
-    if manifest.get("status") not in {"MODEL-LOCAL", "PENDING", "COMPLETED", "BLOCKED", "FAILED", "EXTERNALLY-UNVALIDATED"}:
+
+    if manifest.get("status") not in {
+        "MODEL-LOCAL", "PENDING", "COMPLETED", "BLOCKED", "FAILED",
+        "EXTERNALLY-UNVALIDATED",
+    }:
         errors.append("invalid_manifest_status")
     return errors
 
@@ -102,25 +101,36 @@ def scan_repo(root: Path) -> list[dict[str, str]]:
             for match in pattern.finditer(text):
                 if is_boundary_context(text, match.start(), match.end()):
                     continue
-                findings.append({
-                    "path": path.relative_to(root).as_posix(),
-                    "reason": reason,
-                    "match": match.group(0)[:180],
-                    "status": "PENDING" if reason.startswith("unsupported") else "MODEL-LOCAL",
-                })
+                findings.append(
+                    {
+                        "path": path.relative_to(root).as_posix(),
+                        "reason": reason,
+                        "match": match.group(0)[:180],
+                        "status": "PENDING" if reason.startswith("unsupported") else "MODEL-LOCAL",
+                    }
+                )
     return findings
 
 
-def main() -> int:
+def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Check KEX affect/ethics manifest and repo boundary text.")
     parser.add_argument("--root", default=".")
     parser.add_argument("--manifest", default="kex/kex_affect_ethics_model.json")
     parser.add_argument("--output", default="reports/kex_ethics_check.json")
     parser.add_argument("--generated-at", help="Override generated_at for deterministic reports.")
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
 
-    root = Path(args.root).resolve()
-    manifest_path = Path(args.manifest)
+    try:
+        root = require_directory(Path(args.root))
+    except ValueError as exc:
+        print(f"KEX_ETHICS_ROOT_ERROR {exc}", file=sys.stderr)
+        return 2
+
+    manifest_path = resolve_under_root(root, args.manifest)
+    if not manifest_path.is_file():
+        print(f"KEX_ETHICS_MANIFEST_ERROR manifest does not exist: {manifest_path}", file=sys.stderr)
+        return 2
+
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     manifest_errors = check_manifest(manifest)
     findings = scan_repo(root)
@@ -129,15 +139,17 @@ def main() -> int:
         "anchor": manifest.get("anchor"),
         "token": manifest.get("token"),
         "generated_at": args.generated_at or datetime.now(timezone.utc).isoformat(),
+        "root": str(root),
         "manifest": str(manifest_path),
         "manifest_errors": manifest_errors,
         "repo_findings": findings,
         "status": status,
         "boundary": manifest.get("boundary"),
     }
-    output = Path(args.output)
+
+    output = resolve_under_root(root, args.output)
     output.parent.mkdir(parents=True, exist_ok=True)
-    output.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n")
+    output.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     print(f"KEX_ETHICS_CHECK output={output} status={status}")
     return 0 if status == "COMPLETED" else 1
 
