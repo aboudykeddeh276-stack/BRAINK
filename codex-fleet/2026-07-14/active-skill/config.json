@@ -1,0 +1,59 @@
+{
+  "architect": "A.KEDDEH",
+  "skill_id": "KEX_BRAINK_BILATERAL_POLYGON_ACTIVE_SKILL_V1",
+  "status": "ACTIVE",
+  "execution_policy": {
+    "artifact_first": true,
+    "report_after_action": true,
+    "report_only_is_invalid_when_action_is_available": true,
+    "no_symbolic_substitution": true,
+    "preserve_blocked_vectors": true,
+    "reuse_local_artifacts_before_rediscovery": true,
+    "safe_local_actions_proactive": true
+  },
+  "operating_loop": [
+    "anchor",
+    "factor",
+    "translate",
+    "act",
+    "validate",
+    "tokenize",
+    "preserve",
+    "return"
+  ],
+  "polygon": {
+    "axes": [
+      "anchor_fidelity",
+      "factor_completeness",
+      "translation_fidelity",
+      "action_execution",
+      "validation_strength",
+      "preservation_continuity"
+    ],
+    "baseline_average": 0.8166666666666668,
+    "pass_threshold": 0.8166666666666668,
+    "critical_axes": [
+      "anchor_fidelity",
+      "action_execution",
+      "preservation_continuity"
+    ],
+    "minimum_radius": 0.0,
+    "maximum_radius": 1.0,
+    "non_regression_tolerance": 1e-12
+  },
+  "learning": {
+    "mode": "route_scoped_bounded_bias",
+    "learning_rate": 0.2,
+    "bias_decay": 0.05,
+    "bias_bound": 0.15,
+    "neutral_uniform_inputs_bypass_bias": true,
+    "update_requires": [
+      "source_artifact",
+      "manifest_token",
+      "checker_route",
+      "evidence_class",
+      "boundary",
+      "next_route"
+    ]
+  }
+}
