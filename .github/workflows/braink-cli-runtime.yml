@@ -11,117 +11,112 @@ permissions:
   contents: read
 
 jobs:
-  braink-cli:
-    name: BRAINK agent CLI
+  execute-braink-stack:
+    name: Execute BRAINK CLI and native stack
     runs-on: ubuntu-latest
+    env:
+      BRAINK_BRANCH: braink-cli-runtime-20260714
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-
-      - name: Prepare receipt directory
-        run: mkdir -p reports/ci
-
-      - name: Compile CLI and governance checker
+      - name: Clone the BRAINK execution branch
+        shell: bash
         run: |
-          python3 -m py_compile \
-            scripts/braink-agent-cli.py \
-            scripts/validate-governance.py
+          set -euo pipefail
+          git clone --depth 1 --branch "$BRAINK_BRANCH" \
+            "https://github.com/${GITHUB_REPOSITORY}.git" braink
+          cd braink
+          echo "BRAINK_REPO=$PWD" >> "$GITHUB_ENV"
+          echo "BRAINK_HEAD=$(git rev-parse --short HEAD)" | tee "$GITHUB_STEP_SUMMARY"
 
-      - name: Run BRAINK CLI status
+      - name: Execute BRAINK runtime surfaces
+        shell: bash
         run: |
-          python3 scripts/braink-agent-cli.py status \
-            | tee reports/ci/braink-cli-status.txt
+          set +e
+          cd "$BRAINK_REPO"
+          mkdir -p reports/ci
 
-      - name: Run BRAINK CLI repository scan
-        run: |
-          python3 scripts/braink-agent-cli.py scan --repo-root . \
-            | tee reports/ci/braink-cli-scan.json
+          run_lane() {
+            local lane="$1"
+            shift
+            echo
+            echo "========== ${lane} =========="
+            "$@" 2>&1 | tee "reports/ci/${lane}.log"
+            local rc=${PIPESTATUS[0]}
+            echo "${lane}_RC=${rc}" | tee -a reports/ci/exit-codes.txt
+            return ${rc}
+          }
 
-      - name: Validate governance baseline
-        run: |
-          python3 scripts/validate-governance.py \
-            | tee reports/ci/governance-validation.txt
+          run_lane braink-cli-status python3 scripts/braink-agent-cli.py status
+          CLI_STATUS_RC=$?
 
-      - name: Upload CLI receipts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: braink-cli-receipts
-          path: reports/ci
+          run_lane braink-cli-scan python3 scripts/braink-agent-cli.py scan --repo-root .
+          CLI_SCAN_RC=$?
 
-  self-sustain:
-    name: KEX self-sustain runtime
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+          run_lane governance-validation python3 scripts/validate-governance.py
+          GOVERNANCE_RC=$?
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
+          run_lane braink-cli-compile python3 -m py_compile scripts/braink-agent-cli.py scripts/validate-governance.py
+          CLI_COMPILE_RC=$?
 
-      - name: Prepare receipt directory
-        run: mkdir -p reports/ci
+          run_lane self-sustain-compile python3 -m py_compile tools/kex_self_sustain.py tools/kex_ethics_check.py
+          SELF_COMPILE_RC=$?
 
-      - name: Compile self-sustain tools
-        run: |
-          python3 -m py_compile \
-            tools/kex_self_sustain.py \
-            tools/kex_ethics_check.py
+          if [ "$SELF_COMPILE_RC" -eq 0 ]; then
+            run_lane self-sustain-generate python3 tools/kex_self_sustain.py \
+              --root . \
+              --output-dir reports/ci \
+              --generated-at 2026-07-14T00:00:00+00:00
+            SELF_GENERATE_RC=$?
 
-      - name: Generate self-sustain packet
-        run: |
-          python3 tools/kex_self_sustain.py \
-            --root . \
-            --output-dir reports/ci \
-            --generated-at 2026-07-14T00:00:00+00:00
+            if [ -f reports/ci/BRAINK_kex_self_sustain_packet.json ]; then
+              run_lane self-sustain-verify python3 tools/kex_self_sustain.py \
+                --root . \
+                --verify-packet reports/ci/BRAINK_kex_self_sustain_packet.json
+              SELF_VERIFY_RC=$?
+            else
+              echo "self-sustain packet was not generated" | tee reports/ci/self-sustain-verify.log
+              SELF_VERIFY_RC=1
+            fi
+          else
+            SELF_GENERATE_RC=1
+            SELF_VERIFY_RC=1
+          fi
 
-      - name: Verify generated packet
-        run: |
-          python3 tools/kex_self_sustain.py \
-            --root . \
-            --verify-packet reports/ci/BRAINK_kex_self_sustain_packet.json
-
-      - name: Run KEX ethics gate
-        run: |
-          python3 tools/kex_ethics_check.py \
+          run_lane ethics-gate python3 tools/kex_ethics_check.py \
             --root . \
             --output reports/ci/kex_ethics_check.json
+          ETHICS_RC=$?
 
-      - name: Upload self-sustain receipts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: braink-self-sustain-receipts
-          path: reports/ci
+          run_lane swift-version swift --version
+          SWIFT_RC=$?
 
-  native-runtime-smoke:
-    name: BRAINK native runtime smoke
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+          if [ "$SWIFT_RC" -eq 0 ]; then
+            run_lane native-runtime-smoke bash NativeChatBot/run-runtime-smoke.command
+            SMOKE_RC=$?
+          else
+            SMOKE_RC=1
+          fi
 
-      - name: Prepare receipt directory
-        run: mkdir -p reports/ci
+          {
+            echo "# BRAINK runtime execution receipt"
+            echo
+            echo "- CLI status: $CLI_STATUS_RC"
+            echo "- CLI scan: $CLI_SCAN_RC"
+            echo "- Governance validation: $GOVERNANCE_RC"
+            echo "- CLI compilation: $CLI_COMPILE_RC"
+            echo "- Self-sustain compilation: $SELF_COMPILE_RC"
+            echo "- Self-sustain generation: $SELF_GENERATE_RC"
+            echo "- Self-sustain verification: $SELF_VERIFY_RC"
+            echo "- Ethics gate: $ETHICS_RC"
+            echo "- Swift toolchain: $SWIFT_RC"
+            echo "- Native runtime smoke: $SMOKE_RC"
+          } | tee reports/ci/runtime-receipt.md >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Inspect Swift toolchain
-        run: swift --version | tee reports/ci/swift-version.txt
+          CORE_FAILURE=$((CLI_STATUS_RC | CLI_SCAN_RC | GOVERNANCE_RC | CLI_COMPILE_RC))
+          STACK_FAILURE=$((SELF_COMPILE_RC | SELF_GENERATE_RC | SELF_VERIFY_RC | ETHICS_RC | SWIFT_RC | SMOKE_RC))
 
-      - name: Execute native BRAINK smoke route
-        run: |
-          bash NativeChatBot/run-runtime-smoke.command \
-            | tee reports/ci/native-runtime-smoke.txt
+          echo "CORE_FAILURE=$CORE_FAILURE"
+          echo "STACK_FAILURE=$STACK_FAILURE"
 
-      - name: Upload native smoke receipts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: braink-native-runtime-receipts
-          path: reports/ci
+          if [ "$CORE_FAILURE" -ne 0 ] || [ "$STACK_FAILURE" -ne 0 ]; then
+            exit 1
+          fi
