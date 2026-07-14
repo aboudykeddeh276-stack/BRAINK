@@ -25,11 +25,19 @@
     "dirty": true,
     "diagnosis": "Clean git-status output was converted to UNKNOWN and bool(UNKNOWN) evaluated true."
   },
-  "scan_result_after_fix": {
+  "scan_result_after_dirty_fix": {
     "repository_state": "STATE_MODEL_LOCAL",
     "governance_files_present": 9,
     "governance_files_missing": [],
     "dirty": false,
+    "regression_test": "PASS"
+  },
+  "scan_result_final": {
+    "repository_state": "STATE_MODEL_LOCAL",
+    "governance_files_present": 10,
+    "governance_files_missing": [],
+    "dirty": false,
+    "validator_alignment": "PASS",
     "regression_test": "PASS"
   },
   "github_actions_attempts": [
@@ -47,5 +55,5 @@
   "github_actions_diagnosis": "Hosted jobs were rejected before any repository command or workflow step executed; no BRAINK runtime failure occurred in those runs.",
   "branch": "braink-cli-runtime-20260714",
   "pull_request": 27,
-  "status": "CLI_EXECUTED_AND_DEFECT_REPAIRED"
+  "status": "CLI_EXECUTED_DEFECTS_REPAIRED_AND_GOVERNANCE_ALIGNED"
 }
