@@ -1,0 +1,51 @@
+name: BRAINK BTC Workload Substrate
+
+on:
+  push:
+    branches:
+      - run/btc-workload-substrate-20260724
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  execute:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Fetch BRAINK substrate revision
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          git init braink
+          cd braink
+          git remote add origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git fetch --depth=1 origin "${GITHUB_SHA}"
+          git checkout --detach FETCH_HEAD
+
+      - name: Fetch exact MINING workload branch
+        run: |
+          set -euo pipefail
+          git clone --depth=1 --branch fix/single-btc-workload-function-20260724 \
+            https://github.com/aboudykeddeh276-stack/MINING.git mining
+          git -C mining rev-parse HEAD
+
+      - name: Execute BTC workload function
+        env:
+          PYTHONPATH: ${{ github.workspace }}/mining/kex_btc_full_system
+          BTC_NETWORK: mainnet
+          KEX_ALLOW_LIVE_SUBMIT: "0"
+        run: |
+          set -o pipefail
+          python3 mining/kex_btc_full_system/execute_btc_workload.py 2>&1 | tee braink_btc_workload_output.json
+
+      - name: Print retained execution result
+        if: always()
+        run: |
+          if [ -f braink_btc_workload_output.json ]; then
+            cat braink_btc_workload_output.json
+          else
+            echo '{"execution_started":false,"reason":"no output file produced"}'
+            exit 1
+          fi
