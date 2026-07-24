@@ -9,6 +9,7 @@ on:
       - main
     paths:
       - .github/workflows/run-btc-workload-substrate.yml
+      - runtime/btc_workload_substrate.py
   workflow_dispatch:
 
 permissions:
@@ -29,23 +30,14 @@ jobs:
           git fetch --depth=1 origin "${GITHUB_SHA}"
           git checkout --detach FETCH_HEAD
 
-      - name: Fetch exact MINING workload branch
+      - name: Execute BTC workload function in BRAINK
         env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          set -euo pipefail
-          git clone --depth=1 --branch fix/single-btc-workload-function-20260724 \
-            "https://x-access-token:${GH_TOKEN}@github.com/aboudykeddeh276-stack/MINING.git" mining
-          git -C mining rev-parse HEAD
-
-      - name: Execute BTC workload function
-        env:
-          PYTHONPATH: ${{ github.workspace }}/mining/kex_btc_full_system
           BTC_NETWORK: mainnet
           KEX_ALLOW_LIVE_SUBMIT: "0"
+          KEX_BTC_STATE_DIR: ${{ github.workspace }}/braink/state/kex_btc
         run: |
           set -o pipefail
-          python3 mining/kex_btc_full_system/execute_btc_workload.py 2>&1 | tee braink_btc_workload_output.json
+          python3 braink/runtime/btc_workload_substrate.py 2>&1 | tee braink_btc_workload_output.json
 
       - name: Print retained execution result
         if: always()
