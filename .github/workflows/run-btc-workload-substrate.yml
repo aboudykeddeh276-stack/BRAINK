@@ -4,6 +4,11 @@ on:
   push:
     branches:
       - run/btc-workload-substrate-20260724
+  pull_request:
+    branches:
+      - main
+    paths:
+      - .github/workflows/run-btc-workload-substrate.yml
   workflow_dispatch:
 
 permissions:
