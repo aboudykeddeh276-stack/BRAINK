@@ -30,10 +30,12 @@ jobs:
           git checkout --detach FETCH_HEAD
 
       - name: Fetch exact MINING workload branch
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           git clone --depth=1 --branch fix/single-btc-workload-function-20260724 \
-            https://github.com/aboudykeddeh276-stack/MINING.git mining
+            "https://x-access-token:${GH_TOKEN}@github.com/aboudykeddeh276-stack/MINING.git" mining
           git -C mining rev-parse HEAD
 
       - name: Execute BTC workload function
