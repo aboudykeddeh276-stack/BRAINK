@@ -153,7 +153,7 @@ enum KEXHyperdriveConceptEngine {
             logicalRuntimeTargets: [
                 "LANGUAGE -> MEANING -> FUNCTION -> CONSTRAINT -> ACTION -> PROOF -> STATUS for every serious output.",
                 "CLAIM -> ARTIFACT -> EXECUTABLE/DERIVATION -> RESULT -> EVIDENCE -> STATUS for every promoted claim.",
-                "KEX_CONTROL, KEX_LOCAL_MEMORY, KEX_IO_REFLECTION, and KEX_DECAY_SHUNT lanes represented in reports.",
+                "KEX_CONTROL, KEX_LOCAL_MEMORY, KEX_IO_REFLECTION, KEX_DECAY_SHUNT, KEX_THOUGHT, KEX_THINKING, KEX_LEARNING, and KEX_UPDATE lanes represented in reports.",
                 "Recursive X OF X composition resolved into state, transition, definition, proof, and pending gates."
             ],
             pendingWorkloads: pending,
