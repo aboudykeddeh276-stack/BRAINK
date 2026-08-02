@@ -1,0 +1,41 @@
+name: KEDDEH V98 Task Milestone Monitor
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'v98_protocol_compliance_config/config/task_milestone_registry.json'
+      - 'v98_protocol_compliance_config/src/keddeh_task_milestone_monitor.py'
+      - 'v98_protocol_compliance_config/tests/test_task_milestone_monitor.py'
+      - 'v98_protocol_compliance_config/scripts/task_milestones.command'
+      - 'v98_protocol_compliance_config/docs/TASK_MILESTONE_MONITOR_SPEC.md'
+      - '.github/workflows/v98-task-milestone-monitor.yml'
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  task-milestone-monitor:
+    name: self-hosted M3 task milestone monitor
+    runs-on: [self-hosted, macOS, ARM64, KEDDEH-M3]
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Python version
+        run: python3 --version
+      - name: Execute task milestone monitor
+        run: |
+          cd v98_protocol_compliance_config
+          python3 -m compileall src tests
+          python3 src/keddeh_task_milestone_monitor.py --root . --emit-receipt
+          python3 -m unittest tests.test_task_milestone_monitor -v
+      - name: Upload task milestone evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: keddeh-v98-task-milestone-evidence
+          path: |
+            v98_protocol_compliance_config/evidence/task_milestone_monitor_receipt.json
+            v98_protocol_compliance_config/exports/task_milestone_matrix.csv
+            v98_protocol_compliance_config/runtime_volume/
