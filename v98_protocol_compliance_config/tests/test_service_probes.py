@@ -43,7 +43,6 @@ class ServiceProbeTests(unittest.TestCase):
         for service_id in [
             "zero_heap_compiler",
             "peer_ack_verifier",
-            "hyper_explicit_mesh_runtime",
             "hemos_family_of_five_runtime",
             "virtual_gpu_hci_dashboard",
         ]:
@@ -64,6 +63,24 @@ class ServiceProbeTests(unittest.TestCase):
         self.assertTrue(network.negative_test_passed)
         self.assertFalse(network.details["kernel_route_table_modified"])
         self.assertFalse(network.details["packets_transmitted"])
+
+    def test_mesh_btc_and_task_monitor_have_executable_receipt_backed_probes(self) -> None:
+        mesh = probes.probe_hyper_explicit_mesh_runtime(ROOT)
+        btc = probes.probe_btc_core_protocol_router(ROOT)
+        milestones = probes.probe_task_milestone_monitor(ROOT)
+        for result in [mesh, btc, milestones]:
+            self.assertEqual(result.classification, probes.LOCAL_PASS)
+            self.assertTrue(result.executed)
+            self.assertTrue(result.positive_test_passed)
+            self.assertTrue(result.negative_test_passed)
+        self.assertTrue(mesh.details["portable_model_only"])
+        self.assertFalse(mesh.details["os_threads_created"])
+        self.assertFalse(mesh.details["remote_workers_contacted"])
+        self.assertFalse(btc.details["rpc_enabled"])
+        self.assertTrue(btc.details["arbitrage_simulation_only"])
+        self.assertFalse(btc.details["real_order_submitted"])
+        self.assertEqual(milestones.details["total_tasks"], 100)
+        self.assertEqual(milestones.details["telemetry_only_rejection"], "telemetry_only_not_completion")
 
 
 if __name__ == "__main__":
