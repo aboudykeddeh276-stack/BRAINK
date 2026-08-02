@@ -1,0 +1,14 @@
+{
+  "version": "V98",
+  "protocols": [
+    {"protocol_id":"P01_AUTHORITY","name":"Non-human-alterable promotion authority","invariant":"only acceptance_harness_can_promote_pass","evidence":"authority_map.json + acceptance receipt"},
+    {"protocol_id":"P02_SERVICE_CONTRACT","name":"Uniform service lifecycle","invariant":"recognize execute verify write_receipt readback handoff","evidence":"service_execution_receipts.csv"},
+    {"protocol_id":"P03_VOLUME_CUSTODY","name":"Append-only VFS ledger custody","invariant":"accepted and rejected states are appended, not overwritten","evidence":"runtime_volume/proof_bundles.ledger"},
+    {"protocol_id":"P04_NEGATIVE_SPACE","name":"Falsifier execution before promotion","invariant":"invalid states must fail closed","evidence":"acceptance gate matrix and negative-vector reports"},
+    {"protocol_id":"P05_SECRET_BOUNDARY","name":"No hard-coded secrets or plaintext private key logs","invariant":"secret material is target-host injected and receipt-scoped","evidence":"secret-boundary guard output"},
+    {"protocol_id":"P06_PROVIDER_ATTESTATION","name":"No remote provider claim without envelope receipt","invariant":"Gemini/OpenAI/Drive/remote transport require signed acknowledgement","evidence":"peer_ack_verifier receipt"},
+    {"protocol_id":"P07_VCPU_VALIDATION","name":"Virtual CPU proof plane","invariant":"runtime tests and state transitions execute here","evidence":"service and gate receipts"},
+    {"protocol_id":"P08_VGPU_PROJECTION","name":"Virtual GPU display plane","invariant":"UI renders state; UI does not certify it","evidence":"dashboard state source and render receipt"},
+    {"protocol_id":"P09_TARGET_HOST","name":"M3/launchd/self-hosted runner proof","invariant":"host-dependent claims remain TARGET_HOST_REQUIRED until executed on host","evidence":"GitHub Actions self-hosted runner artifact and LaunchAgent receipt"}
+  ]
+}
