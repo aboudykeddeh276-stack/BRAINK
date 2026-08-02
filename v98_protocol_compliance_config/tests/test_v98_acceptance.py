@@ -23,23 +23,32 @@ class V98AcceptanceTests(unittest.TestCase):
 
     def test_services_are_classified_by_executable_probes(self) -> None:
         receipts = harness.evaluate_services(ROOT)
-        self.assertGreaterEqual(len(receipts), 14)
+        self.assertGreaterEqual(len(receipts), 16)
         by_id = {receipt.service_id: receipt for receipt in receipts}
 
-        self.assertEqual(by_id["agent_static_guard"].promotion_state, harness.LOCAL_PASS)
-        self.assertEqual(by_id["secret_boundary_guard"].promotion_state, harness.LOCAL_PASS)
-        self.assertEqual(by_id["safe_asset_receipt_pipeline"].promotion_state, harness.LOCAL_PASS)
-        self.assertEqual(by_id["vfs_volume_custody"].promotion_state, harness.LOCAL_PASS)
-        self.assertEqual(by_id["mirror_update_lane"].promotion_state, harness.LOCAL_PASS)
-        self.assertEqual(by_id["agent_registry_service"].promotion_state, harness.LOCAL_PASS)
-        self.assertEqual(by_id["agent_runtime_service"].promotion_state, harness.LOCAL_PASS)
+        for service_id in [
+            "agent_static_guard",
+            "secret_boundary_guard",
+            "hyper_explicit_mesh_runtime",
+            "indefinite_network_runtime",
+            "safe_asset_receipt_pipeline",
+            "vfs_volume_custody",
+            "orphan_service_reconciler",
+            "mirror_update_lane",
+            "agent_registry_service",
+            "agent_runtime_service",
+            "btc_core_protocol_router",
+            "task_milestone_monitor",
+        ]:
+            self.assertEqual(by_id[service_id].promotion_state, harness.LOCAL_PASS, service_id)
+            self.assertTrue(by_id[service_id].executed, service_id)
 
         self.assertEqual(
             by_id["zero_heap_compiler"].promotion_state,
             harness.UNSUPPORTED_IN_THIS_RUNTIME,
         )
         self.assertEqual(
-            by_id["hyper_explicit_mesh_runtime"].promotion_state,
+            by_id["hemos_family_of_five_runtime"].promotion_state,
             harness.UNSUPPORTED_IN_THIS_RUNTIME,
         )
         self.assertEqual(
@@ -64,13 +73,13 @@ class V98AcceptanceTests(unittest.TestCase):
     def test_manifest_flags_do_not_promote_unimplemented_services(self) -> None:
         protocols = harness.load_service_protocols(ROOT)
         declared = {service["service_id"]: service for service in protocols}
-        self.assertTrue(all(declared["hyper_explicit_mesh_runtime"]["stages"].values()))
+        self.assertTrue(all(declared["hemos_family_of_five_runtime"]["stages"].values()))
         receipts = {receipt.service_id: receipt for receipt in harness.evaluate_services(ROOT)}
         self.assertNotEqual(
-            receipts["hyper_explicit_mesh_runtime"].promotion_state,
+            receipts["hemos_family_of_five_runtime"].promotion_state,
             harness.LOCAL_PASS,
         )
-        self.assertFalse(receipts["hyper_explicit_mesh_runtime"].executed)
+        self.assertFalse(receipts["hemos_family_of_five_runtime"].executed)
 
     def test_standards_catalog_contains_required_packs_and_no_certification_claim(self) -> None:
         catalog = harness.validate_standards_catalog(ROOT)
