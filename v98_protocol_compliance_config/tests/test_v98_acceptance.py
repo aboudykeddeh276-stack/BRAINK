@@ -20,13 +20,56 @@ class V98AcceptanceTests(unittest.TestCase):
         self.assertTrue(checks["agent_cannot_promote"])
         self.assertTrue(checks["acceptance_harness_can_promote"])
 
-    def test_all_services_implement_full_contract(self) -> None:
+    def test_services_are_classified_by_executable_probes(self) -> None:
         receipts = harness.evaluate_services(ROOT)
-        self.assertGreaterEqual(len(receipts), 9)
+        self.assertGreaterEqual(len(receipts), 14)
+        by_id = {receipt.service_id: receipt for receipt in receipts}
+
+        self.assertEqual(by_id["agent_static_guard"].promotion_state, harness.LOCAL_PASS)
+        self.assertEqual(by_id["secret_boundary_guard"].promotion_state, harness.LOCAL_PASS)
+        self.assertEqual(by_id["safe_asset_receipt_pipeline"].promotion_state, harness.LOCAL_PASS)
+        self.assertEqual(by_id["vfs_volume_custody"].promotion_state, harness.LOCAL_PASS)
+        self.assertEqual(by_id["mirror_update_lane"].promotion_state, harness.LOCAL_PASS)
+        self.assertEqual(by_id["agent_registry_service"].promotion_state, harness.LOCAL_PASS)
+        self.assertEqual(by_id["agent_runtime_service"].promotion_state, harness.LOCAL_PASS)
+
+        self.assertEqual(
+            by_id["zero_heap_compiler"].promotion_state,
+            harness.UNSUPPORTED_IN_THIS_RUNTIME,
+        )
+        self.assertEqual(
+            by_id["hyper_explicit_mesh_runtime"].promotion_state,
+            harness.UNSUPPORTED_IN_THIS_RUNTIME,
+        )
+        self.assertEqual(
+            by_id["virtual_gpu_hci_dashboard"].promotion_state,
+            harness.TARGET_HOST_REQUIRED,
+        )
+        self.assertEqual(
+            by_id["peer_ack_verifier"].promotion_state,
+            harness.PROVIDER_REQUIRED,
+        )
+
         for receipt in receipts:
             self.assertEqual(set(receipt.stages), set(harness.SERVICE_STAGES))
-            self.assertTrue(all(receipt.stages.values()))
-            self.assertEqual(receipt.promotion_state, harness.LOCAL_PASS)
+            self.assertTrue(receipt.stages["recognize"])
+            self.assertTrue(receipt.stages["write_receipt"])
+            self.assertTrue(receipt.stages["readback"])
+            self.assertTrue(receipt.stages["handoff"])
+            if receipt.promotion_state == harness.LOCAL_PASS:
+                self.assertTrue(receipt.stages["execute"])
+                self.assertTrue(receipt.stages["verify"])
+
+    def test_manifest_flags_do_not_promote_unimplemented_services(self) -> None:
+        protocols = harness.load_service_protocols(ROOT)
+        declared = {service["service_id"]: service for service in protocols}
+        self.assertTrue(all(declared["hyper_explicit_mesh_runtime"]["stages"].values()))
+        receipts = {receipt.service_id: receipt for receipt in harness.evaluate_services(ROOT)}
+        self.assertNotEqual(
+            receipts["hyper_explicit_mesh_runtime"].promotion_state,
+            harness.LOCAL_PASS,
+        )
+        self.assertFalse(receipts["hyper_explicit_mesh_runtime"].executed)
 
     def test_standards_catalog_contains_required_packs_and_no_certification_claim(self) -> None:
         catalog = harness.validate_standards_catalog(ROOT)
@@ -34,15 +77,23 @@ class V98AcceptanceTests(unittest.TestCase):
         self.assertTrue(catalog["reference_alignment_only"])
         self.assertGreaterEqual(catalog["standards_count"], 10)
 
-    def test_acceptance_emits_receipt_ledger_and_outbox(self) -> None:
+    def test_acceptance_emits_probe_receipts_ledger_and_outbox(self) -> None:
         final = harness.run_acceptance(ROOT, emit_receipt=True)
         self.assertEqual(
             final["status"],
-            "PASS_WITH_PROTOCOL_COMPLIANCE_CONFIG_AND_TARGET_HOST_DEPLOYMENT_GATES",
+            "PASS_WITH_EXECUTABLE_SERVICE_PROBES_AND_TARGET_HOST_DEPLOYMENT_GATES",
         )
         self.assertTrue(final["authority_checks_passed"])
         self.assertTrue(final["ledger_readback"])
+        self.assertEqual(final["service_probe_failures"], [])
+        self.assertGreater(final["service_classification_counts"][harness.LOCAL_PASS], 0)
+        self.assertGreater(
+            final["service_classification_counts"][harness.UNSUPPORTED_IN_THIS_RUNTIME],
+            0,
+        )
         self.assertFalse(final["hash_used_as_functional_proof"])
+        self.assertFalse(final["manifest_used_as_functional_proof"])
+        self.assertFalse(final["telemetry_used_as_functional_proof"])
         self.assertFalse(final["certification_claimed"])
         outbox = Path(final["outbox_manifest"])
         self.assertTrue(outbox.exists())
