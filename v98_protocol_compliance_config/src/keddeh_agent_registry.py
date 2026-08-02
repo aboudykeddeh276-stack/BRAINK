@@ -86,17 +86,19 @@ def evaluate_registry(root: Path) -> List[AgentRegistryRow]:
     required_fields = list(registry["required_agent_fields"])
     rows: List[AgentRegistryRow] = []
     for agent in registry["agent_types"]:
-        rows.append(AgentRegistryRow(
-            agent_id=agent["agent_id"],
-            agent_type=agent["agent_type"],
-            owner_plane=agent["owner_plane"],
-            purpose=agent["purpose"],
-            service_bindings=";".join(agent["service_bindings"]),
-            telemetry_signals=";".join(agent["telemetry_signals"]),
-            deployment_target=agent["deployment_target"],
-            promotion_authority=bool(agent["promotion_authority"]),
-            valid=validate_agent(agent, required_fields),
-        ))
+        rows.append(
+            AgentRegistryRow(
+                agent_id=agent["agent_id"],
+                agent_type=agent["agent_type"],
+                owner_plane=agent["owner_plane"],
+                purpose=agent["purpose"],
+                service_bindings=";".join(agent["service_bindings"]),
+                telemetry_signals=";".join(agent["telemetry_signals"]),
+                deployment_target=agent["deployment_target"],
+                promotion_authority=bool(agent["promotion_authority"]),
+                valid=validate_agent(agent, required_fields),
+            )
+        )
     return rows
 
 
@@ -152,11 +154,20 @@ def run_agent_registry(root: Path, emit_receipt: bool = False) -> Dict[str, Any]
     }
     append_ledger(ledger, ledger_entry)
     ledger_readback = any(entry.get("entry_hash") == receipt_hash for entry in read_ledger(ledger))
+    status = "LOCAL_PASS" if all_valid and promotion_guard_passed and ledger_readback else "LOCAL_FAIL"
 
     final = {
         "version": registry["version"],
         "registry_id": registry["registry_id"],
-        "status": "LOCAL_PASS" if all_valid and promotion_guard_passed and ledger_readback else "LOCAL_FAIL",
+        "status": status,
+        "receipt": {
+            "promotion_state": status,
+            "agent_count": len(rows),
+            "all_agents_valid": all_valid,
+            "promotion_guard_passed": promotion_guard_passed,
+            "ledger_readback": ledger_readback,
+            "outbox_manifest": str(outbox_path),
+        },
         "agent_count": len(rows),
         "all_agents_valid": all_valid,
         "promotion_guard_passed": promotion_guard_passed,
