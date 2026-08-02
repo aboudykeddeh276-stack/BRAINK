@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import asyncio
 import ast
 import hashlib
 import json
@@ -308,6 +309,140 @@ def probe_indefinite_network_runtime(root: Path) -> ProbeCoreResult:
     )
 
 
+def probe_hyper_explicit_mesh_runtime(root: Path) -> ProbeCoreResult:
+    from keddeh_mesh_scheduler import run_mesh_scheduler_acceptance
+
+    result = run_mesh_scheduler_acceptance(root, emit_receipt=True)
+    receipt_path = Path(result["receipt_path"])
+    positive_passed = (
+        result["classification"] == LOCAL_PASS
+        and bool(result["positive_test_passed"])
+        and bool(result["ledger_readback"])
+        and receipt_path.exists()
+        and Path(result["outbox_manifest"]).exists()
+    )
+    negative_passed = (
+        bool(result["negative_test_passed"])
+        and bool(result["duplicate_worker_rejected"])
+        and bool(result["invalid_transition_rejected"])
+        and not bool(result["os_threads_created"])
+        and not bool(result["remote_workers_contacted"])
+        and not bool(result["host_resources_reserved"])
+    )
+    return ProbeCoreResult(
+        LOCAL_PASS if positive_passed and negative_passed else LOCAL_FAIL,
+        True,
+        positive_passed,
+        negative_passed,
+        {
+            "mesh_scheduler_receipt": str(receipt_path),
+            "allocation_map": result["allocation_map"],
+            "deferred_tasks": result["deferred_tasks"],
+            "timed_out_tasks": result["timed_out_tasks"],
+            "portable_model_only": True,
+            "os_threads_created": result["os_threads_created"],
+            "remote_workers_contacted": result["remote_workers_contacted"],
+            "host_resources_reserved": result["host_resources_reserved"],
+        },
+    )
+
+
+def probe_btc_core_protocol_router(root: Path) -> ProbeCoreResult:
+    from keddeh_btc_core_protocol_router import (
+        AtomicJsonlLedger,
+        BitcoinCoreRPCBridge,
+        BitcoinP2PMessageFactory,
+        HEMOSBitcoinCoreRouter,
+    )
+
+    rpc = BitcoinCoreRPCBridge("http://127.0.0.1:1", None, None, timeout=0.01)
+    receipt = asyncio.run(HEMOSBitcoinCoreRouter(root, rpc=rpc).run_once(emit_receipt=True))
+    evidence_path = root / "evidence" / "btc_core_protocol_router_receipt.json"
+    ledger_entries = AtomicJsonlLedger(Path(receipt.ledger_path)).read()
+    positive_passed = (
+        receipt.p2p_message_bytes > 24
+        and evidence_path.exists()
+        and Path(receipt.outbox_manifest).exists()
+        and any(entry.get("entry_hash") == receipt.receipt_id for entry in ledger_entries)
+        and receipt.rpc_enabled is False
+    )
+    invalid_command_rejected = False
+    try:
+        BitcoinP2PMessageFactory.build_message("command-name-too-long", b"")
+    except ValueError:
+        invalid_command_rejected = True
+    opportunity = receipt.simulated_opportunity or {}
+    negative_passed = (
+        invalid_command_rejected
+        and receipt.arbitrage_simulation_only is True
+        and opportunity.get("simulation_only") is True
+        and opportunity.get("real_order_submitted") is False
+    )
+    return ProbeCoreResult(
+        LOCAL_PASS if positive_passed and negative_passed else LOCAL_FAIL,
+        True,
+        positive_passed,
+        negative_passed,
+        {
+            "router_receipt": str(evidence_path),
+            "p2p_message_bytes": receipt.p2p_message_bytes,
+            "rpc_enabled": receipt.rpc_enabled,
+            "rpc_result_present": receipt.rpc_result_present,
+            "arbitrage_simulation_only": receipt.arbitrage_simulation_only,
+            "real_order_submitted": opportunity.get("real_order_submitted"),
+            "invalid_command_rejected": invalid_command_rejected,
+        },
+    )
+
+
+def probe_task_milestone_monitor(root: Path) -> ProbeCoreResult:
+    from keddeh_task_milestone_monitor import (
+        CompletionRecord,
+        expand_tasks,
+        load_config,
+        run_monitor,
+        validate_completion,
+    )
+
+    result = run_monitor(root, emit_receipt=True)
+    receipt = result["receipt"]
+    receipt_path = root / "evidence" / "task_milestone_monitor_receipt.json"
+    positive_passed = (
+        receipt["total_tasks"] == 100
+        and receipt["ledger_readback"] is True
+        and receipt_path.exists()
+        and Path(receipt["outbox_manifest"]).exists()
+        and result["manual_completion_allowed"] is False
+        and result["agent_self_promotion_allowed"] is False
+    )
+    config = load_config(root)
+    tasks = expand_tasks(config)
+    telemetry_record = CompletionRecord(
+        task_id=tasks[0].task_id,
+        state=LOCAL_PASS,
+        receipt_path=str(receipt_path),
+        completed_by="telemetry_probe",
+        completed_at=time.time(),
+        hash_used_as_functional_proof=False,
+        telemetry_only=True,
+    )
+    valid, reason = validate_completion(root, telemetry_record, {task.task_id for task in tasks}, config)
+    negative_passed = not valid and reason == "telemetry_only_not_completion"
+    return ProbeCoreResult(
+        LOCAL_PASS if positive_passed and negative_passed else LOCAL_FAIL,
+        True,
+        positive_passed,
+        negative_passed,
+        {
+            "monitor_receipt": str(receipt_path),
+            "total_tasks": receipt["total_tasks"],
+            "valid_completed_tasks": receipt["valid_completed_tasks"],
+            "milestones_reached": receipt["milestones_reached"],
+            "telemetry_only_rejection": reason,
+        },
+    )
+
+
 def gated_probe(classification: str, reason: str) -> ProbeCoreResult:
     return ProbeCoreResult(classification, False, False, False, {"gate_reason": reason})
 
@@ -323,13 +458,6 @@ def probe_peer_ack_verifier(root: Path) -> ProbeCoreResult:
     return gated_probe(
         PROVIDER_REQUIRED,
         "A real provider-signed acknowledgement envelope is required; local schema or HMAC data is insufficient.",
-    )
-
-
-def probe_hyper_explicit_mesh_runtime(root: Path) -> ProbeCoreResult:
-    return gated_probe(
-        UNSUPPORTED_IN_THIS_RUNTIME,
-        "No executable mesh scheduler/runtime probe is present in this package.",
     )
 
 
@@ -362,6 +490,8 @@ PROBES: Dict[str, Callable[[Path], ProbeCoreResult]] = {
     "mirror_update_lane": probe_mirror_update_lane,
     "agent_registry_service": probe_agent_registry_service,
     "agent_runtime_service": probe_agent_runtime_service,
+    "btc_core_protocol_router": probe_btc_core_protocol_router,
+    "task_milestone_monitor": probe_task_milestone_monitor,
 }
 
 
@@ -389,6 +519,16 @@ def execute_service_probe(root: Path, service: Dict[str, Any]) -> ServiceProbeRe
             )
     if core.classification not in ALLOWED_STATES:
         core = ProbeCoreResult(LOCAL_FAIL, True, False, False, {"invalid_classification": core.classification})
+    if core.classification == LOCAL_PASS and not (
+        core.executed and core.positive_test_passed and core.negative_test_passed
+    ):
+        core = ProbeCoreResult(
+            LOCAL_FAIL,
+            True,
+            core.positive_test_passed,
+            core.negative_test_passed,
+            {"invalid_local_pass": True, "original_details": core.details},
+        )
 
     evidence_path = root / "evidence" / "service_probes" / f"{service_id}.json"
     outbox_path = root / "runtime_volume" / "outbox" / "service_probes" / f"{service_id}.handoff.json"
