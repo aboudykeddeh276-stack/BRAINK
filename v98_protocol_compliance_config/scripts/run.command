@@ -6,4 +6,5 @@ mkdir -p evidence runtime_volume runtime_volume/outbox logs exports
 python3 -m compileall src tests
 python3 src/keddeh_v98_acceptance_harness.py --root "$ROOT" --emit-receipt
 python3 src/keddeh_mirror_update_lane.py --root "$ROOT" --emit-receipt
+python3 src/keddeh_agent_registry.py --root "$ROOT" --emit-receipt
 python3 -m unittest discover -s tests -v
