@@ -1,0 +1,17 @@
+{
+  "version": "V98",
+  "service_contract": ["recognize", "execute", "verify", "write_receipt", "readback", "handoff"],
+  "services": [
+    {"service_id":"agent_static_guard","owner_plane":"virtual_cpu","boundary":"local static scan; not external certification","stages":{"recognize":true,"execute":true,"verify":true,"write_receipt":true,"readback":true,"handoff":true}},
+    {"service_id":"secret_boundary_guard","owner_plane":"virtual_cpu","boundary":"reject hard-coded secrets; target-host secret store still gated","stages":{"recognize":true,"execute":true,"verify":true,"write_receipt":true,"readback":true,"handoff":true}},
+    {"service_id":"zero_heap_compiler","owner_plane":"virtual_cpu","boundary":"mechanical scanner; MISRA certification not claimed","stages":{"recognize":true,"execute":true,"verify":true,"write_receipt":true,"readback":true,"handoff":true}},
+    {"service_id":"peer_ack_verifier","owner_plane":"virtual_cpu","boundary":"local HMAC envelope; remote attestation provider-gated","stages":{"recognize":true,"execute":true,"verify":true,"write_receipt":true,"readback":true,"handoff":true}},
+    {"service_id":"hyper_explicit_mesh_runtime","owner_plane":"virtual_cpu","boundary":"local model/runtime; not physical hardware control","stages":{"recognize":true,"execute":true,"verify":true,"write_receipt":true,"readback":true,"handoff":true}},
+    {"service_id":"hemos_family_of_five_runtime","owner_plane":"virtual_cpu","boundary":"local consensus model; not external human governance proof","stages":{"recognize":true,"execute":true,"verify":true,"write_receipt":true,"readback":true,"handoff":true}},
+    {"service_id":"indefinite_network_runtime","owner_plane":"virtual_cpu_network_adapter","boundary":"local route controller; not public internet tunnel claim","stages":{"recognize":true,"execute":true,"verify":true,"write_receipt":true,"readback":true,"handoff":true}},
+    {"service_id":"safe_asset_receipt_pipeline","owner_plane":"virtual_cpu_volume_adapter","boundary":"non-secret receipt pipeline; no plaintext private-key logging","stages":{"recognize":true,"execute":true,"verify":true,"write_receipt":true,"readback":true,"handoff":true}},
+    {"service_id":"virtual_gpu_hci_dashboard","owner_plane":"virtual_gpu","boundary":"renders and visualizes state; does not promote pass state","stages":{"recognize":true,"execute":true,"verify":true,"write_receipt":true,"readback":true,"handoff":true}},
+    {"service_id":"vfs_volume_custody","owner_plane":"vfs","boundary":"append-only local custody trail; external archive/Drive provider-gated","stages":{"recognize":true,"execute":true,"verify":true,"write_receipt":true,"readback":true,"handoff":true}},
+    {"service_id":"orphan_service_reconciler","owner_plane":"virtual_cpu","boundary":"maps orphaned procedures to owners/gates; does not claim runtime execution where absent","stages":{"recognize":true,"execute":true,"verify":true,"write_receipt":true,"readback":true,"handoff":true}}
+  ]
+}
