@@ -1,0 +1,40 @@
+name: KEDDEH V98 Mirror Update Lane
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'v98_protocol_compliance_config/mirror_update_lane/**'
+      - 'v98_protocol_compliance_config/config/mirror_update_lane.json'
+      - 'v98_protocol_compliance_config/src/keddeh_mirror_update_lane.py'
+      - 'v98_protocol_compliance_config/tests/test_mirror_update_lane.py'
+      - '.github/workflows/v98-mirror-update-lane.yml'
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  mirror-update-lane:
+    name: self-hosted M3 mirror update lane deployment
+    runs-on: [self-hosted, macOS, ARM64, KEDDEH-M3]
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Python version
+        run: python3 --version
+      - name: Execute mirror update lane
+        run: |
+          cd v98_protocol_compliance_config
+          python3 -m compileall src tests
+          python3 src/keddeh_mirror_update_lane.py --root . --emit-receipt
+          python3 -m unittest tests.test_mirror_update_lane -v
+      - name: Upload mirror lane evidence artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: keddeh-v98-mirror-update-lane-evidence
+          path: |
+            v98_protocol_compliance_config/evidence/mirror_update_lane_receipt.json
+            v98_protocol_compliance_config/runtime_volume/
+            v98_protocol_compliance_config/exports/mirror_update_lane_matrix.csv
