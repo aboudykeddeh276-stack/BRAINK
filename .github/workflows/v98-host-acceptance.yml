@@ -7,6 +7,7 @@ on:
       - 'v98_protocol_compliance_config/**'
       - '.github/workflows/v98-host-acceptance.yml'
       - '.github/workflows/v98-mirror-update-lane.yml'
+      - '.github/workflows/v98-workflow-schema-guard.yml'
 
 permissions:
   contents: read
@@ -34,13 +35,14 @@ jobs:
         run: |
           cd v98_protocol_compliance_config
           python3 src/keddeh_target_host_receipts.py --root . --emit-receipt --require-all
-      - name: Execute acceptance, BTC router and task milestone monitor
+      - name: Execute acceptance, BTC router, task milestone and workflow schema guards
         if: always()
         run: |
           cd v98_protocol_compliance_config
           python3 src/keddeh_v98_acceptance_harness.py --root . --emit-receipt
           python3 src/keddeh_btc_core_protocol_router.py --root . --once --emit-receipt
           python3 src/keddeh_task_milestone_monitor.py --root . --emit-receipt
+          python3 src/keddeh_workflow_schema_guard.py --root . --emit-receipt
       - name: Run discovered unit tests
         if: always()
         run: |
