@@ -27,6 +27,9 @@ TARGET_GATE_CHECK_MAP = {
     "TG-02": "launchd_service",
     "TG-04": "iostat_sample",
 }
+LOCAL_GATE_SERVICE_MAP = {
+    "TG-08": "agent_runtime_service",
+}
 VALID_GATE_STATES = {
     LOCAL_PASS,
     LOCAL_FAIL,
@@ -192,15 +195,83 @@ def load_target_host_checks(root: Path) -> tuple[str, Dict[str, Dict[str, Any]]]
     }
 
 
-def evaluate_target_gates(root: Path) -> List[GateReceipt]:
+def evaluate_local_gate(
+    root: Path,
+    gate: Dict[str, Any],
+    service_receipts: List[ServiceReceipt],
+) -> GateReceipt | None:
+    """Resolve repository-local gates from executed receipts, never configuration flags."""
+    gate_id = gate["gate_id"]
+    if gate_id == "TG-03":
+        ledger_path = root / "runtime_volume" / "proof_bundles.ledger"
+        ledger_entries = read_ledger(ledger_path)
+        readback_passed = bool(ledger_entries) and bool(service_receipts) and all(
+            receipt.stages["readback"] for receipt in service_receipts
+        )
+        return GateReceipt(
+            gate_id=gate_id,
+            gate_type=gate["gate_type"],
+            promotion_state=LOCAL_PASS if readback_passed else LOCAL_FAIL,
+            receipt_required=gate["receipt_required"],
+            executed=readback_passed,
+            evidence_path=str(ledger_path) if ledger_path.exists() else "",
+            detail=(
+                f"Executable ledger readback verified with {len(ledger_entries)} entries "
+                f"across {len(service_receipts)} service receipts."
+                if readback_passed
+                else "Local ledger write/readback proof is absent or incomplete."
+            ),
+        )
+
+    service_id = LOCAL_GATE_SERVICE_MAP.get(gate_id)
+    if not service_id:
+        return None
+    service = next((item for item in service_receipts if item.service_id == service_id), None)
+    proved = bool(
+        service
+        and service.promotion_state == LOCAL_PASS
+        and service.executed
+        and service.stages["verify"]
+        and service.stages["readback"]
+        and service.evidence_path
+    )
+    return GateReceipt(
+        gate_id=gate_id,
+        gate_type=gate["gate_type"],
+        promotion_state=LOCAL_PASS if proved else LOCAL_FAIL,
+        receipt_required=gate["receipt_required"],
+        executed=proved,
+        evidence_path=service.evidence_path if service and proved else "",
+        detail=(
+            f"Executable virtual-CPU proof supplied by service {service_id}."
+            if proved
+            else f"Required executable service proof is missing for {service_id}."
+        ),
+    )
+
+
+def evaluate_target_gates(
+    root: Path,
+    service_receipts: List[ServiceReceipt] | None = None,
+) -> List[GateReceipt]:
     gates = read_json(root / "config" / "deployment_profile_macos_m3.json")["target_gates"]
     evidence_path, host_checks = load_target_host_checks(root)
+    service_receipts = service_receipts or []
     receipts: List[GateReceipt] = []
     for gate in gates:
+        local_receipt = evaluate_local_gate(root, gate, service_receipts)
+        if local_receipt is not None:
+            receipts.append(local_receipt)
+            continue
+
         check_id = TARGET_GATE_CHECK_MAP.get(gate["gate_id"])
         check = host_checks.get(check_id, {}) if check_id else {}
         check_state = check.get("status")
         promotion_state = check_state if check_state in VALID_GATE_STATES else gate["promotion_state"]
+
+        if gate["promotion_state"] == LOCAL_PASS and not check:
+            promotion_state = LOCAL_FAIL
+
         receipts.append(
             GateReceipt(
                 gate_id=gate["gate_id"],
@@ -209,7 +280,12 @@ def evaluate_target_gates(root: Path) -> List[GateReceipt]:
                 receipt_required=gate["receipt_required"],
                 executed=bool(check.get("executed", False)),
                 evidence_path=evidence_path if check else "",
-                detail=str(check.get("detail", "No executable target-host receipt has been ingested.")),
+                detail=str(
+                    check.get(
+                        "detail",
+                        "No executable target-host or provider receipt has been ingested.",
+                    )
+                ),
             )
         )
     return receipts
@@ -242,7 +318,7 @@ def run_acceptance(root: Path, emit_receipt: bool = False) -> Dict[str, Any]:
     authority_checks = validate_authority_map(root)
     service_receipts = evaluate_services(root)
     standards = validate_standards_catalog(root)
-    gates = evaluate_target_gates(root)
+    gates = evaluate_target_gates(root, service_receipts)
     orphan_rows = evaluate_orphans(root)
 
     ledger_entries = read_ledger(ledger_path)
@@ -320,6 +396,7 @@ def run_acceptance(root: Path, emit_receipt: bool = False) -> Dict[str, Any]:
     write_json(outbox_path, outbox_manifest)
 
     launchd_gate = next((gate for gate in gates if gate.gate_id == "TG-02"), None)
+    target_host_evidence_path, _ = load_target_host_checks(root)
     final = {
         "version": "V98",
         "status": (
@@ -339,7 +416,7 @@ def run_acceptance(root: Path, emit_receipt: bool = False) -> Dict[str, Any]:
         "target_gate_classification_counts": gate_classification_counts,
         "target_gate_failures": target_gate_failures,
         "target_gate_receipts": [asdict(gate) for gate in gates],
-        "target_host_receipt_ingested": any(gate.evidence_path for gate in gates),
+        "target_host_receipt_ingested": bool(target_host_evidence_path),
         "orphan_items_resolved": len(orphan_rows),
         "ledger_entries": len(ledger_entries),
         "ledger_readback": all_probe_receipts_read_back,
