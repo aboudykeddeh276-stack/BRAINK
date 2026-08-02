@@ -371,12 +371,15 @@ def probe_btc_core_protocol_router(root: Path) -> ProbeCoreResult:
         BitcoinP2PMessageFactory.build_message("command-name-too-long", b"")
     except ValueError:
         invalid_command_rejected = True
-    opportunity = receipt.simulated_opportunity or {}
+    opportunity = receipt.simulated_opportunity
+    no_real_order = opportunity is None or (
+        opportunity.get("simulation_only") is True
+        and opportunity.get("real_order_submitted") is False
+    )
     negative_passed = (
         invalid_command_rejected
         and receipt.arbitrage_simulation_only is True
-        and opportunity.get("simulation_only") is True
-        and opportunity.get("real_order_submitted") is False
+        and no_real_order
     )
     return ProbeCoreResult(
         LOCAL_PASS if positive_passed and negative_passed else LOCAL_FAIL,
@@ -389,7 +392,8 @@ def probe_btc_core_protocol_router(root: Path) -> ProbeCoreResult:
             "rpc_enabled": receipt.rpc_enabled,
             "rpc_result_present": receipt.rpc_result_present,
             "arbitrage_simulation_only": receipt.arbitrage_simulation_only,
-            "real_order_submitted": opportunity.get("real_order_submitted"),
+            "simulated_opportunity_present": opportunity is not None,
+            "real_order_submitted": opportunity.get("real_order_submitted") if opportunity else False,
             "invalid_command_rejected": invalid_command_rejected,
         },
     )
