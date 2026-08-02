@@ -1,5 +1,5 @@
 {
-  "version": "V98",
+  "version": "V99",
   "service_contract": ["recognize", "execute", "verify", "write_receipt", "readback", "handoff"],
   "services": [
     {"service_id":"agent_static_guard","owner_plane":"virtual_cpu","boundary":"local static scan; not external certification","stages":{"recognize":true,"execute":true,"verify":true,"write_receipt":true,"readback":true,"handoff":true}},
@@ -15,6 +15,7 @@
     {"service_id":"orphan_service_reconciler","owner_plane":"virtual_cpu","boundary":"maps orphaned procedures to owners/gates; does not claim runtime execution where absent","stages":{"recognize":true,"execute":true,"verify":true,"write_receipt":true,"readback":true,"handoff":true}},
     {"service_id":"mirror_update_lane","owner_plane":"virtual_cpu_vfs_mirror","boundary":"mirrors research, development, standards and deployment artifacts; target-host/provider claims remain gated","stages":{"recognize":true,"execute":true,"verify":true,"write_receipt":true,"readback":true,"handoff":true}},
     {"service_id":"agent_registry_service","owner_plane":"virtual_cpu_governance_plane","boundary":"defines and validates agent identity/capability routing; only acceptance harness may promote local pass","stages":{"recognize":true,"execute":true,"verify":true,"write_receipt":true,"readback":true,"handoff":true}},
-    {"service_id":"agent_runtime_service","owner_plane":"virtual_cpu_execution_plane","boundary":"authorizes bounded work orders against the agent registry, fails closed on denied actions, and emits receipts","stages":{"recognize":true,"execute":true,"verify":true,"write_receipt":true,"readback":true,"handoff":true}}
+    {"service_id":"agent_runtime_service","owner_plane":"virtual_cpu_execution_plane","boundary":"authorizes bounded work orders against the agent registry, fails closed on denied actions, and emits receipts","stages":{"recognize":true,"execute":true,"verify":true,"write_receipt":true,"readback":true,"handoff":true}},
+    {"service_id":"btc_core_protocol_router","owner_plane":"virtual_cpu_network_adapter","boundary":"bounded Bitcoin P2P serialization and optional read-only JSON-RPC; no hard-coded credentials, no private-key logging, no live trading claim","stages":{"recognize":true,"execute":true,"verify":true,"write_receipt":true,"readback":true,"handoff":true}}
   ]
 }
