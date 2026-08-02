@@ -2,14 +2,17 @@
   "version": "V98",
   "lane_id": "mirror_update_lane",
   "lane_state": "DEPLOYMENT_CONFIGURED_TARGET_HOST_GATED",
-  "purpose": "Mirror research, development, standards, protocols, compliance and deployment records into an auditable update lane without allowing manual promotion.",
+  "purpose": "Mirror research, development, standards, protocols, compliance, agent registry, app/applet and telemetry abstraction records into an auditable update lane without allowing manual promotion.",
   "source_documents": [
     "docs/V98_RESEARCH_AND_DEPLOYMENT_PLAN.md",
     "docs/PROTOCOLS_CONVENTIONS_FRAMEWORKS.md",
     "docs/COMPLIANCE_PACK.md",
     "docs/DEPLOYMENT_RUNBOOK.md",
+    "docs/AGENT_REGISTRY_SPEC.md",
+    "docs/APP_APPLET_TELEMETRY_ABSTRACTIONS.md",
     "standards/standards_catalog.json",
     "config/authority_map.json",
+    "config/agent_registry.json",
     "config/service_protocols.json",
     "config/functional_protocols.json",
     "config/control_objectives.json",
@@ -35,6 +38,7 @@
     "launchd_status_receipt",
     "vfs_mirror_volume_readback",
     "dashboard_projection_receipt",
+    "agent_registry_receipt",
     "provider_peer_ack_receipt"
   ]
 }
