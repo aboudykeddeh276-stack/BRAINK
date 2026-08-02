@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -77,6 +78,47 @@ class V98AcceptanceTests(unittest.TestCase):
         self.assertTrue(catalog["reference_alignment_only"])
         self.assertGreaterEqual(catalog["standards_count"], 10)
 
+    def test_local_pass_target_gates_reference_executable_evidence(self) -> None:
+        services = harness.evaluate_services(ROOT)
+        gates = {gate.gate_id: gate for gate in harness.evaluate_target_gates(ROOT, services)}
+        for gate_id in ("TG-03", "TG-08"):
+            gate = gates[gate_id]
+            self.assertEqual(gate.promotion_state, harness.LOCAL_PASS)
+            self.assertTrue(gate.executed)
+            self.assertTrue(gate.evidence_path)
+            self.assertTrue(Path(gate.evidence_path).exists())
+
+    def test_local_target_gates_fail_closed_without_execution_evidence(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            config = root / "config"
+            config.mkdir(parents=True)
+            (config / "deployment_profile_macos_m3.json").write_text(
+                json.dumps(
+                    {
+                        "target_gates": [
+                            {
+                                "gate_id": "TG-03",
+                                "gate_type": "local_ledger_write_readback",
+                                "promotion_state": "LOCAL_PASS",
+                                "receipt_required": "ledger readback",
+                            },
+                            {
+                                "gate_id": "TG-08",
+                                "gate_type": "virtual_cpu",
+                                "promotion_state": "LOCAL_PASS",
+                                "receipt_required": "service receipt",
+                            },
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+            gates = harness.evaluate_target_gates(root, [])
+            self.assertTrue(all(gate.promotion_state == harness.LOCAL_FAIL for gate in gates))
+            self.assertTrue(all(not gate.executed for gate in gates))
+            self.assertTrue(all(not gate.evidence_path for gate in gates))
+
     def test_acceptance_emits_probe_receipts_ledger_and_outbox(self) -> None:
         final = harness.run_acceptance(ROOT, emit_receipt=True)
         self.assertEqual(
@@ -91,6 +133,14 @@ class V98AcceptanceTests(unittest.TestCase):
             final["service_classification_counts"][harness.UNSUPPORTED_IN_THIS_RUNTIME],
             0,
         )
+        local_gates = [
+            gate
+            for gate in final["target_gate_receipts"]
+            if gate["promotion_state"] == harness.LOCAL_PASS
+        ]
+        self.assertGreater(len(local_gates), 0)
+        self.assertTrue(all(gate["executed"] for gate in local_gates))
+        self.assertTrue(all(gate["evidence_path"] for gate in local_gates))
         self.assertFalse(final["hash_used_as_functional_proof"])
         self.assertFalse(final["manifest_used_as_functional_proof"])
         self.assertFalse(final["telemetry_used_as_functional_proof"])
