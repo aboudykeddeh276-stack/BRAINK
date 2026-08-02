@@ -1,0 +1,40 @@
+{
+  "version": "V98",
+  "lane_id": "mirror_update_lane",
+  "lane_state": "DEPLOYMENT_CONFIGURED_TARGET_HOST_GATED",
+  "purpose": "Mirror research, development, standards, protocols, compliance and deployment records into an auditable update lane without allowing manual promotion.",
+  "source_documents": [
+    "docs/V98_RESEARCH_AND_DEPLOYMENT_PLAN.md",
+    "docs/PROTOCOLS_CONVENTIONS_FRAMEWORKS.md",
+    "docs/COMPLIANCE_PACK.md",
+    "docs/DEPLOYMENT_RUNBOOK.md",
+    "standards/standards_catalog.json",
+    "config/authority_map.json",
+    "config/service_protocols.json",
+    "config/functional_protocols.json",
+    "config/control_objectives.json",
+    "config/orphan_registry.json",
+    "config/deployment_profile_macos_m3.json"
+  ],
+  "required_mirror_documents": [
+    "mirror_update_lane/docs/MIRROR_LANE_RESEARCH_BRIEF.md",
+    "mirror_update_lane/docs/MIRROR_LANE_DEVELOPMENT_SPEC.md",
+    "mirror_update_lane/docs/MIRROR_LANE_DEPLOYMENT_RUNBOOK.md",
+    "mirror_update_lane/docs/MIRROR_LANE_COMPLIANCE_CROSSWALK.md"
+  ],
+  "service_contract": ["recognize", "execute", "verify", "write_receipt", "readback", "handoff"],
+  "promotion_rules": {
+    "manual_promotion_allowed": false,
+    "agent_self_promotion_allowed": false,
+    "acceptance_harness_promotion_required": true,
+    "hash_used_as_functional_proof": false
+  },
+  "outbox_target": "runtime_volume/outbox/mirror_update_lane",
+  "target_host_gates": [
+    "self_hosted_macos_arm64_runner",
+    "launchd_status_receipt",
+    "vfs_mirror_volume_readback",
+    "dashboard_projection_receipt",
+    "provider_peer_ack_receipt"
+  ]
+}
