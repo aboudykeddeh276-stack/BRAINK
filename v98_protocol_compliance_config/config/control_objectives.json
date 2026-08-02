@@ -1,0 +1,12 @@
+{
+  "version": "V98",
+  "objectives": [
+    {"objective_id":"CO-01","domain":"lifecycle","statement":"Every service has a declared lifecycle stage and acceptance state.","mapped_standards":["ISO_IEC_IEEE_12207_2026","ISO_IEC_25010_2023"]},
+    {"objective_id":"CO-02","domain":"ai_governance","statement":"AI/coding agents may propose and implement but cannot self-promote pass state.","mapped_standards":["ISO_IEC_42001_2023","ISO_IEC_23894_2023"]},
+    {"objective_id":"CO-03","domain":"security","statement":"Secrets are never embedded in source or receipts.","mapped_standards":["ISO_IEC_27001_2022","ISO_IEC_27002_2022","NIST_SP_800_218_SSDF_1_1"]},
+    {"objective_id":"CO-04","domain":"privacy","statement":"Provider and Drive transit require explicit provider receipt and no hidden data disclosure.","mapped_standards":["ISO_IEC_27018_2025"]},
+    {"objective_id":"CO-05","domain":"supply_chain","statement":"Deployment changes are branch/PR based and emit evidence artifacts.","mapped_standards":["SLSA","CycloneDX_ECMA_424"]},
+    {"objective_id":"CO-06","domain":"software_assurance","statement":"Invalid states must be exercised by negative-space falsifiers.","mapped_standards":["OWASP_ASVS","OWASP_SAMM"]},
+    {"objective_id":"CO-07","domain":"target_host","statement":"M3/launchd/iostat/virtual CPU-GPU claims remain gated until host receipts exist.","mapped_standards":["POSIX_1_2024","DO_178C","MISRA_C_2012"]}
+  ]
+}
