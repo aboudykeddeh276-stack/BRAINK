@@ -95,8 +95,8 @@ def operational_files(root: Path) -> Iterable[Path]:
 
 def probe_agent_static_guard(root: Path) -> ProbeCoreResult:
     python_files = sorted((root / "src").glob("*.py"))
-    parsed = 0
     errors: List[str] = []
+    parsed = 0
     for path in python_files:
         try:
             ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
@@ -108,12 +108,13 @@ def probe_agent_static_guard(root: Path) -> ProbeCoreResult:
         ast.parse("def broken(:\n    pass\n")
     except SyntaxError:
         negative_passed = True
+    positive_passed = parsed > 0 and not errors
     return ProbeCoreResult(
-        classification=LOCAL_PASS if parsed > 0 and not errors and negative_passed else LOCAL_FAIL,
-        executed=True,
-        positive_test_passed=parsed > 0 and not errors,
-        negative_test_passed=negative_passed,
-        details={"python_files_parsed": parsed, "syntax_errors": errors},
+        LOCAL_PASS if positive_passed and negative_passed else LOCAL_FAIL,
+        True,
+        positive_passed,
+        negative_passed,
+        {"python_files_parsed": parsed, "syntax_errors": errors},
     )
 
 
@@ -143,11 +144,11 @@ def probe_secret_boundary_guard(root: Path) -> ProbeCoreResult:
     negative_passed = "pem_private_key" in detect_secret_markers(negative_sample)
     positive_passed = scanned > 0 and not findings
     return ProbeCoreResult(
-        classification=LOCAL_PASS if positive_passed and negative_passed else LOCAL_FAIL,
-        executed=True,
-        positive_test_passed=positive_passed,
-        negative_test_passed=negative_passed,
-        details={"files_scanned": scanned, "findings": findings},
+        LOCAL_PASS if positive_passed and negative_passed else LOCAL_FAIL,
+        True,
+        positive_passed,
+        negative_passed,
+        {"files_scanned": scanned, "findings": findings},
     )
 
 
@@ -156,14 +157,13 @@ def probe_safe_asset_receipt_pipeline(root: Path) -> ProbeCoreResult:
     payload = {"asset_id": "probe-asset", "content": "non-secret", "created_at": time.time()}
     write_json(target, payload)
     positive_passed = read_json(target) == payload
-    blocked_payload = {"content": "-----BEGIN " + "PRIVATE KEY-----"}
-    negative_passed = bool(detect_secret_markers(blocked_payload["content"]))
+    negative_passed = bool(detect_secret_markers("-----BEGIN " + "PRIVATE KEY-----"))
     return ProbeCoreResult(
-        classification=LOCAL_PASS if positive_passed and negative_passed else LOCAL_FAIL,
-        executed=True,
-        positive_test_passed=positive_passed,
-        negative_test_passed=negative_passed,
-        details={"asset_path": str(target), "secret_payload_rejected": negative_passed},
+        LOCAL_PASS if positive_passed and negative_passed else LOCAL_FAIL,
+        True,
+        positive_passed,
+        negative_passed,
+        {"asset_path": str(target), "secret_payload_rejected": negative_passed},
     )
 
 
@@ -181,44 +181,34 @@ def probe_vfs_volume_custody(root: Path) -> ProbeCoreResult:
         except json.JSONDecodeError:
             negative_passed = True
     return ProbeCoreResult(
-        classification=LOCAL_PASS if positive_passed and negative_passed else LOCAL_FAIL,
-        executed=True,
-        positive_test_passed=positive_passed,
-        negative_test_passed=negative_passed,
-        details={"ledger_path": str(ledger)},
+        LOCAL_PASS if positive_passed and negative_passed else LOCAL_FAIL,
+        True,
+        positive_passed,
+        negative_passed,
+        {"ledger_path": str(ledger)},
     )
 
 
 def probe_orphan_service_reconciler(root: Path) -> ProbeCoreResult:
     items = read_json(root / "config" / "orphan_registry.json")["orphaned_items"]
-    allowed_states = {
-        TARGET_HOST_REQUIRED,
-        PROVIDER_REQUIRED,
-        EXTERNAL_CERTIFICATION_REQUIRED,
-        UNSUPPORTED_IN_THIS_RUNTIME,
-        LOCAL_PASS,
-        LOCAL_FAIL,
-    }
     positive_passed = bool(items) and all(
-        item.get("item_id") and item.get("assigned_service") and item.get("resolution_state") in allowed_states
+        item.get("item_id")
+        and item.get("assigned_service")
+        and item.get("resolution_state") in ALLOWED_STATES
         for item in items
     )
     invalid_item = {"item_id": "invalid", "assigned_service": "", "resolution_state": LOCAL_PASS}
-    negative_passed = not (
-        invalid_item.get("item_id")
-        and invalid_item.get("assigned_service")
-        and invalid_item.get("resolution_state") in allowed_states
-    )
+    negative_passed = not bool(invalid_item["assigned_service"])
     state_counts: Dict[str, int] = {}
     for item in items:
         state = str(item.get("resolution_state"))
         state_counts[state] = state_counts.get(state, 0) + 1
     return ProbeCoreResult(
-        classification=LOCAL_PASS if positive_passed and negative_passed else LOCAL_FAIL,
-        executed=True,
-        positive_test_passed=positive_passed,
-        negative_test_passed=negative_passed,
-        details={"items_reconciled": len(items), "resolution_state_counts": state_counts},
+        LOCAL_PASS if positive_passed and negative_passed else LOCAL_FAIL,
+        True,
+        positive_passed,
+        negative_passed,
+        {"items_reconciled": len(items), "resolution_state_counts": state_counts},
     )
 
 
@@ -239,11 +229,11 @@ def probe_mirror_update_lane(root: Path) -> ProbeCoreResult:
         except FileNotFoundError:
             negative_passed = True
     return ProbeCoreResult(
-        classification=LOCAL_PASS if positive_passed and negative_passed else LOCAL_FAIL,
-        executed=True,
-        positive_test_passed=positive_passed,
-        negative_test_passed=negative_passed,
-        details={"mirror_receipt": result},
+        LOCAL_PASS if positive_passed and negative_passed else LOCAL_FAIL,
+        True,
+        positive_passed,
+        negative_passed,
+        {"mirror_receipt": result},
     )
 
 
@@ -253,14 +243,13 @@ def probe_agent_registry_service(root: Path) -> ProbeCoreResult:
     result = run_agent_registry(root, emit_receipt=True)
     positive_passed = result["receipt"]["promotion_state"] == LOCAL_PASS
     required = read_json(root / "config" / "agent_registry.json")["required_agent_fields"]
-    invalid_agent = {"agent_id": "invalid"}
-    negative_passed = validate_agent(invalid_agent, required) is False
+    negative_passed = validate_agent({"agent_id": "invalid"}, required) is False
     return ProbeCoreResult(
-        classification=LOCAL_PASS if positive_passed and negative_passed else LOCAL_FAIL,
-        executed=True,
-        positive_test_passed=positive_passed,
-        negative_test_passed=negative_passed,
-        details={"registry_receipt": result},
+        LOCAL_PASS if positive_passed and negative_passed else LOCAL_FAIL,
+        True,
+        positive_passed,
+        negative_passed,
+        {"registry_receipt": result},
     )
 
 
@@ -283,11 +272,11 @@ def probe_agent_runtime_service(root: Path) -> ProbeCoreResult:
     positive_passed = positive.authorized and positive.executed and Path(positive.receipt_path).exists()
     negative_passed = not negative.authorized and not negative.executed
     return ProbeCoreResult(
-        classification=LOCAL_PASS if positive_passed and negative_passed else LOCAL_FAIL,
-        executed=True,
-        positive_test_passed=positive_passed,
-        negative_test_passed=negative_passed,
-        details={
+        LOCAL_PASS if positive_passed and negative_passed else LOCAL_FAIL,
+        True,
+        positive_passed,
+        negative_passed,
+        {
             "authorized_work_order": positive.work_order_id,
             "rejected_work_order": negative.work_order_id,
             "rejection_reason": negative.reason,
@@ -295,14 +284,32 @@ def probe_agent_runtime_service(root: Path) -> ProbeCoreResult:
     )
 
 
-def gated_probe(classification: str, reason: str) -> ProbeCoreResult:
+def probe_indefinite_network_runtime(root: Path) -> ProbeCoreResult:
+    from keddeh_route_controller import run_route_controller_acceptance
+
+    result = run_route_controller_acceptance(root, emit_receipt=True)
+    receipt_path = Path(result["receipt_path"])
+    positive_passed = bool(result["positive_test_passed"]) and receipt_path.exists()
+    negative_passed = bool(result["negative_test_passed"])
     return ProbeCoreResult(
-        classification=classification,
-        executed=False,
-        positive_test_passed=False,
-        negative_test_passed=False,
-        details={"gate_reason": reason},
+        LOCAL_PASS if positive_passed and negative_passed else LOCAL_FAIL,
+        True,
+        positive_passed,
+        negative_passed,
+        {
+            "route_controller_receipt": str(receipt_path),
+            "decision": result["decision"],
+            "next_hop_path": result["next_hop_path"],
+            "validation": result["validation"],
+            "negative_vectors": result["negative_vectors"],
+            "kernel_route_table_modified": result["kernel_route_table_modified"],
+            "packets_transmitted": result["packets_transmitted"],
+        },
     )
+
+
+def gated_probe(classification: str, reason: str) -> ProbeCoreResult:
+    return ProbeCoreResult(classification, False, False, False, {"gate_reason": reason})
 
 
 def probe_zero_heap_compiler(root: Path) -> ProbeCoreResult:
@@ -330,13 +337,6 @@ def probe_hemos_family_of_five_runtime(root: Path) -> ProbeCoreResult:
     return gated_probe(
         UNSUPPORTED_IN_THIS_RUNTIME,
         "No executable Family-of-Five consensus engine and adversarial consensus receipt are present.",
-    )
-
-
-def probe_indefinite_network_runtime(root: Path) -> ProbeCoreResult:
-    return gated_probe(
-        UNSUPPORTED_IN_THIS_RUNTIME,
-        "No executable route-controller implementation or packet-path test is present in the portable package.",
     )
 
 
@@ -373,36 +373,26 @@ def execute_service_probe(root: Path, service: Dict[str, Any]) -> ServiceProbeRe
     probe = PROBES.get(service_id)
     started = time.time()
     if probe is None:
-        core = gated_probe(
-            UNSUPPORTED_IN_THIS_RUNTIME,
-            "No executable probe is registered for this declared service.",
-        )
+        core = gated_probe(UNSUPPORTED_IN_THIS_RUNTIME, "No executable probe is registered for this declared service.")
         probe_name = "unregistered_probe"
     else:
         probe_name = probe.__name__
         try:
             core = probe(root)
-        except Exception as exc:  # fail closed and preserve the exception as evidence
+        except Exception as exc:
             core = ProbeCoreResult(
-                classification=LOCAL_FAIL,
-                executed=True,
-                positive_test_passed=False,
-                negative_test_passed=False,
-                details={"exception_type": type(exc).__name__, "exception": str(exc)},
+                LOCAL_FAIL,
+                True,
+                False,
+                False,
+                {"exception_type": type(exc).__name__, "exception": str(exc)},
             )
     if core.classification not in ALLOWED_STATES:
-        core = ProbeCoreResult(
-            classification=LOCAL_FAIL,
-            executed=True,
-            positive_test_passed=False,
-            negative_test_passed=False,
-            details={"invalid_classification": core.classification},
-        )
+        core = ProbeCoreResult(LOCAL_FAIL, True, False, False, {"invalid_classification": core.classification})
 
     evidence_path = root / "evidence" / "service_probes" / f"{service_id}.json"
     outbox_path = root / "runtime_volume" / "outbox" / "service_probes" / f"{service_id}.handoff.json"
     ledger_path = root / "runtime_volume" / "proof_bundles.ledger"
-
     pre_receipt = {
         "service_id": service_id,
         "owner_plane": owner_plane,
@@ -418,7 +408,6 @@ def execute_service_probe(root: Path, service: Dict[str, Any]) -> ServiceProbeRe
     receipt_hash = canonical_hash(pre_receipt)
     write_json(evidence_path, pre_receipt)
     receipt_written = evidence_path.exists() and read_json(evidence_path) == pre_receipt
-
     handoff = {
         "handoff_id": receipt_hash,
         "source": "KEDDEH_V98_SERVICE_PROBE",
@@ -440,37 +429,37 @@ def execute_service_probe(root: Path, service: Dict[str, Any]) -> ServiceProbeRe
     }
     write_json(outbox_path, handoff)
     handoff_written = outbox_path.exists() and read_json(outbox_path) == handoff
-
-    ledger_entry = {
-        "type": "service_probe_receipt",
-        "entry_hash": receipt_hash,
-        "service_id": service_id,
-        "classification": core.classification,
-        "evidence_path": str(evidence_path),
-        "outbox_manifest": str(outbox_path),
-    }
-    append_jsonl(ledger_path, ledger_entry)
+    append_jsonl(
+        ledger_path,
+        {
+            "type": "service_probe_receipt",
+            "entry_hash": receipt_hash,
+            "service_id": service_id,
+            "classification": core.classification,
+            "evidence_path": str(evidence_path),
+            "outbox_manifest": str(outbox_path),
+        },
+    )
     readback_passed = any(
         entry.get("entry_hash") == receipt_hash and entry.get("service_id") == service_id
         for entry in read_jsonl(ledger_path)
     )
-
     return ServiceProbeReceipt(
-        service_id=service_id,
-        owner_plane=owner_plane,
-        boundary=boundary,
-        classification=core.classification,
-        executed=core.executed,
-        positive_test_passed=core.positive_test_passed,
-        negative_test_passed=core.negative_test_passed,
-        receipt_written=receipt_written,
-        readback_passed=readback_passed,
-        handoff_written=handoff_written,
-        evidence_path=str(evidence_path),
-        outbox_manifest=str(outbox_path),
-        probe_name=probe_name,
-        details=core.details,
-        timestamp=started,
+        service_id,
+        owner_plane,
+        boundary,
+        core.classification,
+        core.executed,
+        core.positive_test_passed,
+        core.negative_test_passed,
+        receipt_written,
+        readback_passed,
+        handoff_written,
+        str(evidence_path),
+        str(outbox_path),
+        probe_name,
+        core.details,
+        started,
     )
 
 
