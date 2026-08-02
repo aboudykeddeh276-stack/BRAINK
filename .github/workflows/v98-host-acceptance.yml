@@ -39,6 +39,7 @@ jobs:
         run: |
           cd v98_protocol_compliance_config
           python3 src/keddeh_v98_acceptance_harness.py --root . --emit-receipt
+          python3 src/keddeh_btc_core_protocol_router.py --root . --once --emit-receipt
       - name: Run discovered unit tests
         if: always()
         run: |
