@@ -1,0 +1,25 @@
+{
+  "version": "V98",
+  "authority_model": {
+    "human_can_define": true,
+    "human_can_edit_source": true,
+    "human_can_promote_pass": false,
+    "agent_can_write_code": true,
+    "agent_can_promote_pass": false,
+    "acceptance_harness_can_promote_pass": true,
+    "ledger_is_append_only": true,
+    "virtual_cpu_executes_validation": true,
+    "virtual_gpu_renders_state": true,
+    "vfs_records_state": true
+  },
+  "assignment": {
+    "architecture_owner": "Keddeh Systems",
+    "implementation_agent": "Codex",
+    "acceptance_agent": "self-hosted macOS ARM64 M3 runner",
+    "runtime_supervisor": "launchd LaunchAgent",
+    "custody_layer": "runtime_volume/proof_bundles.ledger and outbox manifests",
+    "virtual_cpu_plane": "validation, tests, state transitions and receipts",
+    "virtual_gpu_plane": "dashboard, frame/telemetry projection and state display",
+    "audit_council": "BrainK / Family-of-Five consensus"
+  }
+}
