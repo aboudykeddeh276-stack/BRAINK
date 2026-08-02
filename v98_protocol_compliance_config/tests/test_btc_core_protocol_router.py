@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import json
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -18,6 +19,7 @@ from keddeh_btc_core_protocol_router import (
     MAINNET_MAGIC,
     NonZeroNetworkSpectra,
     OrderBookSnapshot,
+    network_address,
     sha256d,
 )
 
@@ -38,6 +40,25 @@ class BitcoinCoreProtocolRouterTests(unittest.TestCase):
         self.assertTrue(message.startswith(MAINNET_MAGIC))
         self.assertEqual(len(message), 24 + len(payload))
 
+    def test_version_network_ports_use_big_endian_wire_order(self) -> None:
+        payload = BitcoinP2PMessageFactory.build_version_payload(
+            receiving_port=8333,
+            transmitting_port=18444,
+            nonce=b"12345678",
+            timestamp=1700000000,
+        )
+        # Version/services/timestamp consume 20 bytes. Each network address is
+        # 8-byte services + 16-byte IP + 2-byte big-endian port.
+        self.assertEqual(payload[44:46], b"\x20\x8d")
+        self.assertEqual(int.from_bytes(payload[44:46], "big"), 8333)
+        self.assertEqual(int.from_bytes(payload[70:72], "big"), 18444)
+
+    def test_network_address_rejects_invalid_port(self) -> None:
+        with self.assertRaises(ValueError):
+            network_address(1, "127.0.0.1", 0)
+        with self.assertRaises(ValueError):
+            network_address(1, "127.0.0.1", 65536)
+
     def test_rejects_invalid_command_and_zero_index(self) -> None:
         with self.assertRaises(ValueError):
             BitcoinP2PMessageFactory.build_message("this_command_is_too_long", b"")
@@ -51,6 +72,7 @@ class BitcoinCoreProtocolRouterTests(unittest.TestCase):
 
     def test_arbitrage_path_is_simulation_only_not_real_execution(self) -> None:
         from keddeh_btc_core_protocol_router import ArbitrageAnalyzer
+
         result = ArbitrageAnalyzer().analyze(
             OrderBookSnapshot("A", "BTC", 100.0, 1.0, 101.0, 1.0, 1.0),
             OrderBookSnapshot("B", "BTC", 105.0, 1.0, 106.0, 1.0, 1.0),
@@ -61,15 +83,17 @@ class BitcoinCoreProtocolRouterTests(unittest.TestCase):
         self.assertFalse(result["real_order_submitted"])
 
     def test_router_run_once_writes_receipt_ledger_and_outbox(self) -> None:
-        receipt = asyncio.run(HEMOSBitcoinCoreRouter(ROOT).run_once(emit_receipt=True))
-        self.assertGreater(receipt.p2p_message_bytes, 24)
-        self.assertTrue(receipt.arbitrage_simulation_only)
-        self.assertTrue(Path(receipt.ledger_path).exists())
-        self.assertTrue(Path(receipt.outbox_manifest).exists())
-        receipt_path = ROOT / "evidence" / "btc_core_protocol_router_receipt.json"
-        self.assertTrue(receipt_path.exists())
-        data = json.loads(receipt_path.read_text(encoding="utf-8"))
-        self.assertEqual(data["receipt_id"], receipt.receipt_id)
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            receipt = asyncio.run(HEMOSBitcoinCoreRouter(root).run_once(emit_receipt=True))
+            self.assertGreater(receipt.p2p_message_bytes, 24)
+            self.assertTrue(receipt.arbitrage_simulation_only)
+            self.assertTrue(Path(receipt.ledger_path).exists())
+            self.assertTrue(Path(receipt.outbox_manifest).exists())
+            receipt_path = root / "evidence" / "btc_core_protocol_router_receipt.json"
+            self.assertTrue(receipt_path.exists())
+            data = json.loads(receipt_path.read_text(encoding="utf-8"))
+            self.assertEqual(data["receipt_id"], receipt.receipt_id)
 
 
 if __name__ == "__main__":
