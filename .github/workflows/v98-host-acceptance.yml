@@ -22,13 +22,14 @@ jobs:
         uses: actions/checkout@v4
       - name: Python version
         run: python3 --version
-      - name: Run V98 acceptance, mirror lane and agent registry harnesses
+      - name: Run V98 acceptance, mirror lane, agent registry and runtime service
         run: |
           cd v98_protocol_compliance_config
           python3 -m compileall src tests
           python3 src/keddeh_v98_acceptance_harness.py --root . --emit-receipt
           python3 src/keddeh_mirror_update_lane.py --root . --emit-receipt
           python3 src/keddeh_agent_registry.py --root . --emit-receipt
+          python3 src/keddeh_agent_runtime_service.py --root . --agent-id acceptance_harness_agent --action write_receipt --service-id agent_registry_service --payload-json '{"workflow":"v98-host-acceptance"}' --emit-receipt
           python3 -m unittest discover -s tests -v
       - name: Upload local evidence artifact
         uses: actions/upload-artifact@v4
