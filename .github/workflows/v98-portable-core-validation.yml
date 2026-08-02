@@ -1,0 +1,54 @@
+name: KEDDEH V98 Portable Core Validation
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'v98_protocol_compliance_config/**'
+      - '.github/workflows/v98-portable-core-validation.yml'
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  portable-core-validation:
+    name: portable Python core execution and receipt validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Python version
+        run: python3 --version
+      - name: Compile executable modules
+        run: |
+          cd v98_protocol_compliance_config
+          python3 -m compileall src tests
+      - name: Execute portable V98 services
+        run: |
+          cd v98_protocol_compliance_config
+          python3 src/keddeh_v98_acceptance_harness.py --root . --emit-receipt
+          python3 src/keddeh_mirror_update_lane.py --root . --emit-receipt
+          python3 src/keddeh_agent_registry.py --root . --emit-receipt
+          python3 src/keddeh_agent_runtime_service.py \
+            --root . \
+            --agent-id acceptance_harness_agent \
+            --action write_receipt \
+            --service-id agent_registry_service \
+            --payload-json '{"workflow":"v98-portable-core-validation"}' \
+            --emit-receipt
+      - name: Run discovered unit tests and require nonzero test count
+        run: |
+          cd v98_protocol_compliance_config
+          python3 -m unittest discover -s tests -v 2>&1 | tee unittest.log
+          grep -Eq '^Ran [1-9][0-9]* tests? in ' unittest.log
+      - name: Upload portable execution evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: keddeh-v98-portable-core-evidence
+          path: |
+            v98_protocol_compliance_config/evidence/
+            v98_protocol_compliance_config/runtime_volume/
+            v98_protocol_compliance_config/exports/
+            v98_protocol_compliance_config/unittest.log
