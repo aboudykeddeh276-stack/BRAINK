@@ -1,0 +1,15 @@
+{
+  "version": "V98",
+  "orphaned_items": [
+    {"item_id":"drive_raw_zip_upload","assigned_service":"vfs_volume_custody","resolution_state":"PROVIDER_REQUIRED"},
+    {"item_id":"simb_provider_execution","assigned_service":"peer_ack_verifier","resolution_state":"PROVIDER_REQUIRED"},
+    {"item_id":"remote_attestation","assigned_service":"peer_ack_verifier","resolution_state":"PROVIDER_REQUIRED"},
+    {"item_id":"public_dns_web4_route","assigned_service":"indefinite_network_runtime","resolution_state":"TARGET_HOST_REQUIRED"},
+    {"item_id":"kernel_vfs_block_mount","assigned_service":"vfs_volume_custody","resolution_state":"TARGET_HOST_REQUIRED"},
+    {"item_id":"launchd_supervision","assigned_service":"host_bootstrap_supervisor","resolution_state":"TARGET_HOST_REQUIRED"},
+    {"item_id":"m3_iostat_throughput_receipt","assigned_service":"safe_asset_receipt_pipeline","resolution_state":"TARGET_HOST_REQUIRED"},
+    {"item_id":"virtual_gpu_framebuffer_receipt","assigned_service":"virtual_gpu_hci_dashboard","resolution_state":"TARGET_HOST_REQUIRED"},
+    {"item_id":"rust_no_std_compile","assigned_service":"zero_heap_compiler","resolution_state":"TARGET_HOST_REQUIRED"},
+    {"item_id":"misra_do178c_certification","assigned_service":"compliance_pack","resolution_state":"EXTERNAL_CERTIFICATION_REQUIRED"}
+  ]
+}
