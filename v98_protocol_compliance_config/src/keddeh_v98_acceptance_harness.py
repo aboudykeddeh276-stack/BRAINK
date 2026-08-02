@@ -22,6 +22,19 @@ from keddeh_service_probes import (
 
 SERVICE_STAGES = ["recognize", "execute", "verify", "write_receipt", "readback", "handoff"]
 REFERENCE_ALIGNMENT_ONLY = "REFERENCE_ALIGNMENT_ONLY"
+TARGET_GATE_CHECK_MAP = {
+    "TG-01": "runner_context",
+    "TG-02": "launchd_service",
+    "TG-04": "iostat_sample",
+}
+VALID_GATE_STATES = {
+    LOCAL_PASS,
+    LOCAL_FAIL,
+    TARGET_HOST_REQUIRED,
+    PROVIDER_REQUIRED,
+    EXTERNAL_CERTIFICATION_REQUIRED,
+    UNSUPPORTED_IN_THIS_RUNTIME,
+}
 
 
 @dataclass(frozen=True)
@@ -44,6 +57,9 @@ class GateReceipt:
     gate_type: str
     promotion_state: str
     receipt_required: str
+    executed: bool
+    evidence_path: str
+    detail: str
 
 
 def canonical_hash(payload: Any) -> str:
@@ -158,17 +174,45 @@ def validate_standards_catalog(root: Path) -> Dict[str, Any]:
     }
 
 
+def load_target_host_checks(root: Path) -> tuple[str, Dict[str, Dict[str, Any]]]:
+    evidence_path = root / "evidence" / "target_host_receipts.json"
+    if not evidence_path.exists():
+        return "", {}
+    try:
+        payload = read_json(evidence_path)
+    except (OSError, ValueError, TypeError):
+        return str(evidence_path), {}
+    checks = payload.get("checks", [])
+    if not isinstance(checks, list):
+        return str(evidence_path), {}
+    return str(evidence_path), {
+        str(check.get("check_id")): check
+        for check in checks
+        if isinstance(check, dict) and check.get("check_id")
+    }
+
+
 def evaluate_target_gates(root: Path) -> List[GateReceipt]:
     gates = read_json(root / "config" / "deployment_profile_macos_m3.json")["target_gates"]
-    return [
-        GateReceipt(
-            gate_id=gate["gate_id"],
-            gate_type=gate["gate_type"],
-            promotion_state=gate["promotion_state"],
-            receipt_required=gate["receipt_required"],
+    evidence_path, host_checks = load_target_host_checks(root)
+    receipts: List[GateReceipt] = []
+    for gate in gates:
+        check_id = TARGET_GATE_CHECK_MAP.get(gate["gate_id"])
+        check = host_checks.get(check_id, {}) if check_id else {}
+        check_state = check.get("status")
+        promotion_state = check_state if check_state in VALID_GATE_STATES else gate["promotion_state"]
+        receipts.append(
+            GateReceipt(
+                gate_id=gate["gate_id"],
+                gate_type=gate["gate_type"],
+                promotion_state=promotion_state,
+                receipt_required=gate["receipt_required"],
+                executed=bool(check.get("executed", False)),
+                evidence_path=evidence_path if check else "",
+                detail=str(check.get("detail", "No executable target-host receipt has been ingested.")),
+            )
         )
-        for gate in gates
-    ]
+    return receipts
 
 
 def evaluate_orphans(root: Path) -> List[Dict[str, Any]]:
@@ -206,10 +250,15 @@ def run_acceptance(root: Path, emit_receipt: bool = False) -> Dict[str, Any]:
     for receipt in service_receipts:
         classification_counts[receipt.promotion_state] = classification_counts.get(receipt.promotion_state, 0) + 1
 
+    gate_classification_counts: Dict[str, int] = {}
+    for gate in gates:
+        gate_classification_counts[gate.promotion_state] = gate_classification_counts.get(gate.promotion_state, 0) + 1
+
     local_services_passed = classification_counts.get(LOCAL_PASS, 0)
     service_probe_failures = [
         receipt.service_id for receipt in service_receipts if receipt.promotion_state == LOCAL_FAIL
     ]
+    target_gate_failures = [gate.gate_id for gate in gates if gate.promotion_state == LOCAL_FAIL]
     all_probe_receipts_read_back = all(receipt.stages["readback"] for receipt in service_receipts)
     target_gate_count = sum(
         1
@@ -242,6 +291,7 @@ def run_acceptance(root: Path, emit_receipt: bool = False) -> Dict[str, Any]:
         all(authority_checks.values())
         and all_probe_receipts_read_back
         and not service_probe_failures
+        and not target_gate_failures
         and standards["required_missing"] == []
         and standards["reference_alignment_only"] is True
     )
@@ -251,6 +301,10 @@ def run_acceptance(root: Path, emit_receipt: bool = False) -> Dict[str, Any]:
                 "services": [
                     {"service_id": receipt.service_id, "state": receipt.promotion_state}
                     for receipt in service_receipts
+                ],
+                "gates": [
+                    {"gate_id": gate.gate_id, "state": gate.promotion_state}
+                    for gate in gates
                 ],
                 "started": started,
             }
@@ -265,12 +319,13 @@ def run_acceptance(root: Path, emit_receipt: bool = False) -> Dict[str, Any]:
     outbox_path = outbox_dir / f"{outbox_manifest['handoff_id']}.handoff.json"
     write_json(outbox_path, outbox_manifest)
 
+    launchd_gate = next((gate for gate in gates if gate.gate_id == "TG-02"), None)
     final = {
         "version": "V98",
         "status": (
             "PASS_WITH_EXECUTABLE_SERVICE_PROBES_AND_TARGET_HOST_DEPLOYMENT_GATES"
             if overall_pass
-            else "LOCAL_FAIL_SERVICE_PROBE"
+            else "LOCAL_FAIL_SERVICE_OR_TARGET_GATE_PROBE"
         ),
         "authority_checks_passed": all(authority_checks.values()),
         "authority_checks": authority_checks,
@@ -281,6 +336,10 @@ def run_acceptance(root: Path, emit_receipt: bool = False) -> Dict[str, Any]:
         "service_receipts": [asdict(receipt) for receipt in service_receipts],
         "standards_catalog": standards,
         "target_gate_count": target_gate_count,
+        "target_gate_classification_counts": gate_classification_counts,
+        "target_gate_failures": target_gate_failures,
+        "target_gate_receipts": [asdict(gate) for gate in gates],
+        "target_host_receipt_ingested": any(gate.evidence_path for gate in gates),
         "orphan_items_resolved": len(orphan_rows),
         "ledger_entries": len(ledger_entries),
         "ledger_readback": all_probe_receipts_read_back,
@@ -290,7 +349,7 @@ def run_acceptance(root: Path, emit_receipt: bool = False) -> Dict[str, Any]:
         "telemetry_used_as_functional_proof": False,
         "certification_claimed": False,
         "remote_provider_claimed": False,
-        "launchd_installed_here": False,
+        "launchd_installed_here": bool(launchd_gate and launchd_gate.promotion_state == LOCAL_PASS),
     }
     if emit_receipt:
         write_json(evidence_dir / "FINAL_VERIFICATION.json", final)
