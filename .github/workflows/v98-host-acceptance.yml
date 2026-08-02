@@ -26,11 +26,16 @@ jobs:
         run: |
           cd v98_protocol_compliance_config
           python3 -m compileall src tests
-      - name: Capture target-host receipts
+      - name: Install and load launchd service spine
         run: |
           cd v98_protocol_compliance_config
-          python3 src/keddeh_target_host_receipts.py
-      - name: Execute acceptance and per-service probes
+          bash scripts/install.command
+      - name: Capture and require executable target-host receipts
+        run: |
+          cd v98_protocol_compliance_config
+          python3 src/keddeh_target_host_receipts.py --root . --emit-receipt --require-all
+      - name: Execute acceptance and ingest target-host gates
+        if: always()
         run: |
           cd v98_protocol_compliance_config
           python3 src/keddeh_v98_acceptance_harness.py --root . --emit-receipt
