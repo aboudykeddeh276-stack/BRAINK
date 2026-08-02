@@ -1,0 +1,33 @@
+{
+  "version": "V98",
+  "schema_id": "workflow_schema_v1",
+  "source_basis": "Pasted text(248) WORKFLOW Schema report",
+  "purpose": "Standardise stable work identity, portable slugs, lifecycle fields, branch naming, commits, PR titles, labels, roadmap metadata, and cross-tool traceability without treating naming compliance as delivery proof.",
+  "identity_layers": ["native_key", "portable_slug", "human_title", "scope_level", "structured_metadata"],
+  "principles": [
+    "stable_identity_separate_from_mutable_metadata",
+    "title_for_humans_slug_for_systems_fields_for_reporting",
+    "internationalise_titles_not_machine_keys",
+    "trace_planning_code_build_deploy_chat",
+    "measure_delivery_effectiveness_not_naming_only"
+  ],
+  "levels": ["epic", "feature", "story", "task", "subtask"],
+  "statuses": ["proposed", "ready", "in-progress", "blocked", "in-review", "ready-for-release", "deployed", "done", "cancelled"],
+  "priorities": ["p0", "p1", "p2", "p3", "p4"],
+  "risks": ["r0", "r1", "r2", "r3"],
+  "roles": ["eng", "qa", "sre", "sec", "ux", "pm", "data", "ml"],
+  "environments": ["dev", "test", "qa", "stage", "prod", "preview"],
+  "branch_kinds": ["feature", "bugfix", "hotfix", "chore", "release", "spike", "docs", "ops"],
+  "commit_types": ["feat", "fix", "chore", "docs", "refactor", "test", "build", "ci", "perf", "revert"],
+  "regex": {
+    "portable_slug": "^(?=.{8,56}$)[a-z][a-z0-9]*(?:-[a-z0-9]+){2,7}$",
+    "branch": "^(feature|bugfix|hotfix|chore|release|spike|docs|ops)\\/([A-Z][A-Z0-9]+-\\d+|\\d+)\\/[a-z][a-z0-9]*(?:-[a-z0-9]+){2,7}$",
+    "pr_title": "^([A-Z][A-Z0-9]+-\\d+|[A-Za-z0-9._-]+\\/[A-Za-z0-9._-]+#\\d+|#\\d+)\\s.+$",
+    "commit_message": "^(feat|fix|chore|docs|refactor|test|build|ci|perf|revert)(\\([a-z0-9-]+\\))?!?:\\s([A-Z][A-Z0-9]+-\\d+|#\\d+|[A-Za-z0-9._-]+\\/[A-Za-z0-9._-]+#\\d+)\\s.+$",
+    "label": "^wf-(lvl|st|pr|rk|own|role|env|tier|xteam|xrepo|rel)-[a-z0-9]+(?:-[a-z0-9]+)*$",
+    "rfc3339": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+\\-]\\d{2}:\\d{2})$",
+    "semver": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-[0-9A-Za-z.-]+)?(?:\\+[0-9A-Za-z.-]+)?$"
+  },
+  "allowed_states": ["LOCAL_PASS", "LOCAL_FAIL", "TARGET_HOST_REQUIRED", "PROVIDER_REQUIRED", "EXTERNAL_CERTIFICATION_REQUIRED", "UNSUPPORTED_IN_THIS_RUNTIME", "REFERENCE_ALIGNMENT_ONLY"],
+  "telemetry_boundary": "Workflow naming compliance is routing and traceability evidence only. It is not execution proof, deployment proof, security certification, or functional proof."
+}
