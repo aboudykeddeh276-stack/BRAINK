@@ -45,19 +45,25 @@ class ServiceProbeTests(unittest.TestCase):
             "peer_ack_verifier",
             "hyper_explicit_mesh_runtime",
             "hemos_family_of_five_runtime",
-            "indefinite_network_runtime",
             "virtual_gpu_hci_dashboard",
         ]:
             self.assertFalse(receipts[service_id].executed, service_id)
             self.assertNotEqual(receipts[service_id].classification, probes.LOCAL_PASS)
 
-    def test_static_and_secret_guards_execute_real_negative_vectors(self) -> None:
+    def test_static_secret_and_network_probes_execute_negative_vectors(self) -> None:
         static = probes.probe_agent_static_guard(ROOT)
         secrets = probes.probe_secret_boundary_guard(ROOT)
+        network = probes.probe_indefinite_network_runtime(ROOT)
         self.assertEqual(static.classification, probes.LOCAL_PASS)
         self.assertTrue(static.negative_test_passed)
         self.assertEqual(secrets.classification, probes.LOCAL_PASS)
         self.assertTrue(secrets.negative_test_passed)
+        self.assertEqual(network.classification, probes.LOCAL_PASS)
+        self.assertTrue(network.executed)
+        self.assertTrue(network.positive_test_passed)
+        self.assertTrue(network.negative_test_passed)
+        self.assertFalse(network.details["kernel_route_table_modified"])
+        self.assertFalse(network.details["packets_transmitted"])
 
 
 if __name__ == "__main__":
