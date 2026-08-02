@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>KEDDEH V98 Protocol Compliance Dashboard</title>
+  <style>
+    body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#0f1117;color:#e6e8f0;margin:0;padding:24px;}
+    main{max-width:1120px;margin:auto;}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;}
+    .card{border:1px solid #303545;border-radius:14px;padding:16px;background:#161a24;}
+    code,pre{background:#0b0d12;border:1px solid #303545;border-radius:10px;padding:10px;display:block;overflow:auto;}
+    .pass{color:#7ee787}.gate{color:#f7c56b}.fail{color:#ff7b72}
+  </style>
+</head>
+<body>
+<main>
+  <h1>KEDDEH V98 Protocol Compliance Dashboard</h1>
+  <p>This dashboard is a projection surface. It renders the acceptance state; it does not promote correctness.</p>
+  <section class="grid">
+    <div class="card"><h2>Authority</h2><p>Human/agent promotion disabled. Acceptance harness promotion enabled.</p></div>
+    <div class="card"><h2>Virtual CPU</h2><p>Executes validation, service contracts, ledger writes and readbacks.</p></div>
+    <div class="card"><h2>Virtual GPU</h2><p>Projects dashboard and telemetry state only.</p></div>
+    <div class="card"><h2>Target host</h2><p class="gate">M3 runner, launchd, iostat and provider receipts remain gated until executed.</p></div>
+  </section>
+  <h2>Local Commands</h2>
+  <pre>cd v98_protocol_compliance_config
+bash scripts/run.command
+bash scripts/status.command</pre>
+  <h2>Receipt source</h2>
+  <pre>evidence/FINAL_VERIFICATION.json
+runtime_volume/proof_bundles.ledger
+runtime_volume/outbox/*.handoff.json</pre>
+</main>
+</body>
+</html>
