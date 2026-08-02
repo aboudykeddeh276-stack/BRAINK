@@ -3,6 +3,7 @@
   "certification_claim": false,
   "certification_boundary": "Reference alignment only unless an external certificate or qualified assessment report exists.",
   "standards": [
+    {"id":"ISO_56001_2024","title":"Innovation management system — Requirements","type":"innovation_management_system","promotion":"reference_alignment_only"},
     {"id":"ISO_IEC_IEEE_12207_2026","title":"Systems and software engineering — Software life cycle processes","type":"software_lifecycle","promotion":"reference_alignment_only"},
     {"id":"ISO_IEC_42001_2023","title":"Artificial intelligence management system","type":"ai_management_system","promotion":"reference_alignment_only"},
     {"id":"ISO_IEC_27001_2022","title":"Information security management systems — Requirements","type":"isms","promotion":"reference_alignment_only"},
