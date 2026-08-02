@@ -34,12 +34,13 @@ jobs:
         run: |
           cd v98_protocol_compliance_config
           python3 src/keddeh_target_host_receipts.py --root . --emit-receipt --require-all
-      - name: Execute acceptance and ingest target-host gates
+      - name: Execute acceptance, BTC router and task milestone monitor
         if: always()
         run: |
           cd v98_protocol_compliance_config
           python3 src/keddeh_v98_acceptance_harness.py --root . --emit-receipt
           python3 src/keddeh_btc_core_protocol_router.py --root . --once --emit-receipt
+          python3 src/keddeh_task_milestone_monitor.py --root . --emit-receipt
       - name: Run discovered unit tests
         if: always()
         run: |
