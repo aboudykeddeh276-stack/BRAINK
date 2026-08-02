@@ -5,7 +5,6 @@ import argparse
 import csv
 import hashlib
 import json
-import os
 import time
 from dataclasses import dataclass, asdict
 from pathlib import Path
@@ -114,6 +113,7 @@ def validate_standards_catalog(root: Path) -> Dict[str, Any]:
     catalog = read_json(root / "standards" / "standards_catalog.json")
     ids = {item["id"] for item in catalog["standards"]}
     required = {
+        "ISO_56001_2024",
         "ISO_IEC_IEEE_12207_2026",
         "ISO_IEC_42001_2023",
         "ISO_IEC_27001_2022",
