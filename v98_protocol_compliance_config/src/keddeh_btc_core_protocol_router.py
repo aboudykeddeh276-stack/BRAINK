@@ -96,6 +96,17 @@ def ipv4_mapped_address(host: str) -> bytes:
     return b"\x00" * 10 + b"\xff\xff" + ip.packed
 
 
+def network_address(services: int, host: str, port: int) -> bytes:
+    """Serialize a Bitcoin net_addr without time.
+
+    Integer fields use Bitcoin's little-endian convention except the TCP port,
+    which is transmitted in network byte order (big-endian).
+    """
+    if not 1 <= port <= 65535:
+        raise ValueError("port must be between 1 and 65535")
+    return struct.pack("<Q16s", services, ipv4_mapped_address(host)) + struct.pack(">H", port)
+
+
 class BitcoinP2PMessageFactory:
     @staticmethod
     def build_message(command: str, payload: bytes) -> bytes:
@@ -132,8 +143,8 @@ class BitcoinP2PMessageFactory:
         timestamp = int(time.time()) if timestamp is None else int(timestamp)
 
         payload = struct.pack("<iQq", DEFAULT_PROTOCOL_VERSION, NODE_NETWORK, timestamp)
-        payload += struct.pack("<Q16sH", NODE_NETWORK, ipv4_mapped_address(receiving_host), receiving_port)
-        payload += struct.pack("<Q16sH", NODE_NETWORK, ipv4_mapped_address(transmitting_host), transmitting_port)
+        payload += network_address(NODE_NETWORK, receiving_host, receiving_port)
+        payload += network_address(NODE_NETWORK, transmitting_host, transmitting_port)
         payload += nonce
         payload += compact_size(len(user_agent)) + user_agent
         payload += struct.pack("<i?", int(start_height), bool(relay))
@@ -188,7 +199,12 @@ class BitcoinCoreRPCBridge:
             return None
         payload = json.dumps({"jsonrpc": "1.0", "id": "hemos_v99_query", "method": method, "params": params or []}).encode("utf-8")
         auth = base64.b64encode(f"{self.rpc_user}:{self.rpc_password}".encode("utf-8")).decode("ascii")
-        request = urllib.request.Request(self.endpoint, data=payload, headers={"Content-Type": "application/json", "Authorization": f"Basic {auth}"}, method="POST")
+        request = urllib.request.Request(
+            self.endpoint,
+            data=payload,
+            headers={"Content-Type": "application/json", "Authorization": f"Basic {auth}"},
+            method="POST",
+        )
         try:
             with urllib.request.urlopen(request, timeout=self.timeout) as response:
                 return json.loads(response.read().decode("utf-8")).get("result")
@@ -222,7 +238,16 @@ class ArbitrageAnalyzer:
         fees = (sell.best_bid_price + buy.best_ask_price) * self.fee_rate
         net_spread = gross_spread - fees
         volume = min(buy.best_ask_volume, sell.best_bid_volume)
-        return {"route": route, "buy_venue": buy.venue_id, "sell_venue": sell.venue_id, "gross_spread": gross_spread, "fees": fees, "net_spread": net_spread, "volume_considered": volume, "estimated_opportunity_usd": max(0.0, net_spread * volume)}
+        return {
+            "route": route,
+            "buy_venue": buy.venue_id,
+            "sell_venue": sell.venue_id,
+            "gross_spread": gross_spread,
+            "fees": fees,
+            "net_spread": net_spread,
+            "volume_considered": volume,
+            "estimated_opportunity_usd": max(0.0, net_spread * volume),
+        }
 
 
 class HEMOSBitcoinCoreRouter:
@@ -235,7 +260,11 @@ class HEMOSBitcoinCoreRouter:
         self.analyzer = ArbitrageAnalyzer()
 
     async def run_once(self, emit_receipt: bool = False) -> RouterReceipt:
-        version_payload = BitcoinP2PMessageFactory.build_version_payload(start_height=0, nonce=b"KEDDEH99", timestamp=1700000000)
+        version_payload = BitcoinP2PMessageFactory.build_version_payload(
+            start_height=0,
+            nonce=b"KEDDEH99",
+            timestamp=1700000000,
+        )
         wire_message = BitcoinP2PMessageFactory.build_message("version", version_payload)
         p2p_hash = hashlib.sha256(wire_message).hexdigest()
         rpc_result = await self.rpc.call("getbestblockhash") if self.rpc.enabled else None
@@ -245,14 +274,45 @@ class HEMOSBitcoinCoreRouter:
             OrderBookSnapshot("SIM_A", "BTC", 68000.0, 2.5, 68001.0, 1.8, ts),
             OrderBookSnapshot("SIM_B", "BTC", 68015.5, 3.0, 68016.5, 2.2, ts),
         )
-        pre_receipt = {"mode": "bounded_local_router", "p2p_message_bytes": len(wire_message), "p2p_message_hash": p2p_hash, "rpc_enabled": self.rpc.enabled, "rpc_method": rpc_method, "rpc_result_present": rpc_result is not None, "arbitrage_simulation_only": True, "simulated_opportunity": opportunity, "timestamp": ts}
+        pre_receipt = {
+            "mode": "bounded_local_router",
+            "p2p_message_bytes": len(wire_message),
+            "p2p_message_hash": p2p_hash,
+            "rpc_enabled": self.rpc.enabled,
+            "rpc_method": rpc_method,
+            "rpc_result_present": rpc_result is not None,
+            "arbitrage_simulation_only": True,
+            "simulated_opportunity": opportunity,
+            "timestamp": ts,
+        }
         receipt_id = hashlib.sha256(json.dumps(pre_receipt, sort_keys=True).encode("utf-8")).hexdigest()
         receipt_path = self.evidence_dir / "btc_core_protocol_router_receipt.json"
         outbox_path = self.outbox_dir / f"{receipt_id}.handoff.json"
         outbox_path.parent.mkdir(parents=True, exist_ok=True)
-        handoff = {"handoff_id": receipt_id, "source": "KEDDEH_V99_BTC_CORE_PROTOCOL_ROUTER", "payload_path": str(receipt_path), "receipt_path": str(self.ledger.path), "next_target": "self_hosted_macos_arm64_runner_with_optional_bitcoind", "status": "READY_FOR_TARGET_HOST_EXECUTION", "created_at": ts}
+        handoff = {
+            "handoff_id": receipt_id,
+            "source": "KEDDEH_V99_BTC_CORE_PROTOCOL_ROUTER",
+            "payload_path": str(receipt_path),
+            "receipt_path": str(self.ledger.path),
+            "next_target": "self_hosted_macos_arm64_runner_with_optional_bitcoind",
+            "status": "READY_FOR_TARGET_HOST_EXECUTION",
+            "created_at": ts,
+        }
         outbox_path.write_text(json.dumps(handoff, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-        receipt = RouterReceipt(receipt_id=receipt_id, mode="bounded_local_router", p2p_message_bytes=len(wire_message), p2p_message_hash=p2p_hash, rpc_enabled=self.rpc.enabled, rpc_method=rpc_method, rpc_result_present=rpc_result is not None, arbitrage_simulation_only=True, simulated_opportunity=opportunity, ledger_path=str(self.ledger.path), outbox_manifest=str(outbox_path), timestamp=ts)
+        receipt = RouterReceipt(
+            receipt_id=receipt_id,
+            mode="bounded_local_router",
+            p2p_message_bytes=len(wire_message),
+            p2p_message_hash=p2p_hash,
+            rpc_enabled=self.rpc.enabled,
+            rpc_method=rpc_method,
+            rpc_result_present=rpc_result is not None,
+            arbitrage_simulation_only=True,
+            simulated_opportunity=opportunity,
+            ledger_path=str(self.ledger.path),
+            outbox_manifest=str(outbox_path),
+            timestamp=ts,
+        )
         self.ledger.append({"type": "btc_core_protocol_router", "entry_hash": receipt_id, "receipt": asdict(receipt)})
         if emit_receipt:
             receipt_path.parent.mkdir(parents=True, exist_ok=True)
