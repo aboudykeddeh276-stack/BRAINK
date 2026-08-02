@@ -29,8 +29,13 @@ jobs:
           cd v98_protocol_compliance_config
           python3 -m compileall src tests
           python3 src/keddeh_mirror_update_lane.py --root . --emit-receipt
-          python3 -m unittest tests.test_mirror_update_lane -v
+      - name: Run mirror lane tests
+        if: always()
+        run: |
+          cd v98_protocol_compliance_config
+          python3 -m unittest tests.test_mirror_update_lane -v 2>&1 | tee mirror-unittest.log
       - name: Upload mirror lane evidence artifact
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: keddeh-v98-mirror-update-lane-evidence
@@ -38,3 +43,4 @@ jobs:
             v98_protocol_compliance_config/evidence/mirror_update_lane_receipt.json
             v98_protocol_compliance_config/runtime_volume/
             v98_protocol_compliance_config/exports/mirror_update_lane_matrix.csv
+            v98_protocol_compliance_config/mirror-unittest.log
