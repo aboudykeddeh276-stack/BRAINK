@@ -1,8 +1,8 @@
 {
-  "version": "V98",
+  "version": "V99",
   "lane_id": "mirror_update_lane",
   "lane_state": "DEPLOYMENT_CONFIGURED_TARGET_HOST_GATED",
-  "purpose": "Mirror research, development, standards, protocols, compliance, agent registry, app/applet and telemetry abstraction records into an auditable update lane without allowing manual promotion.",
+  "purpose": "Mirror research, development, standards, protocols, compliance, agent registry, app/applet, telemetry, BTC core protocol router and deployment records into an auditable update lane without allowing manual promotion.",
   "source_documents": [
     "docs/V98_RESEARCH_AND_DEPLOYMENT_PLAN.md",
     "docs/PROTOCOLS_CONVENTIONS_FRAMEWORKS.md",
@@ -10,6 +10,7 @@
     "docs/DEPLOYMENT_RUNBOOK.md",
     "docs/AGENT_REGISTRY_SPEC.md",
     "docs/APP_APPLET_TELEMETRY_ABSTRACTIONS.md",
+    "docs/BTC_CORE_PROTOCOL_ROUTER_SPEC.md",
     "standards/standards_catalog.json",
     "config/authority_map.json",
     "config/agent_registry.json",
@@ -17,7 +18,8 @@
     "config/functional_protocols.json",
     "config/control_objectives.json",
     "config/orphan_registry.json",
-    "config/deployment_profile_macos_m3.json"
+    "config/deployment_profile_macos_m3.json",
+    "config/btc_core_protocol_router.json"
   ],
   "required_mirror_documents": [
     "mirror_update_lane/docs/MIRROR_LANE_RESEARCH_BRIEF.md",
@@ -39,6 +41,7 @@
     "vfs_mirror_volume_readback",
     "dashboard_projection_receipt",
     "agent_registry_receipt",
+    "btc_core_bitcoind_rpc_receipt",
     "provider_peer_ack_receipt"
   ]
 }
