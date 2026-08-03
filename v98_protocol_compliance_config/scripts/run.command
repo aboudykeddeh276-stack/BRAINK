@@ -11,6 +11,8 @@ python3 src/keddeh_application_applet_packager.py --root "$ROOT" --emit-receipt
 python3 src/keddeh_deployment_maturity_workplan.py --root "$ROOT" --emit-receipt
 python3 src/keddeh_current_state_surface_auditor.py --root "$ROOT" --emit-receipt
 python3 src/keddeh_evidence_context_resolver.py --root "$ROOT" --emit-receipt
+python3 src/keddeh_semantic_knowledge_graph.py --root "$ROOT" --emit-receipt
+python3 src/keddeh_four_plane_context_framework.py --root "$ROOT" --emit-receipt
 python3 src/keddeh_v98_acceptance_harness.py --root "$ROOT" --emit-receipt
 python3 src/keddeh_mesh_scheduler.py --root "$ROOT" --emit-receipt
 python3 src/keddeh_mirror_update_lane.py --root "$ROOT" --emit-receipt
