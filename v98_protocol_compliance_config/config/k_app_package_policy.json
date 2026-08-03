@@ -1,0 +1,113 @@
+{
+  "version": "V99",
+  "policy_id": "k_app_package_policy",
+  "canonical_pipeline": [
+    "source_application_or_applet",
+    "vite_build_and_compilation",
+    "immutable_k_app_package",
+    "k_cloud_admission_and_policy_resolution",
+    "mesh_registration",
+    "node_agent_microvm_service_deployment",
+    "health_and_capability_readback",
+    "evidence_based_promotion"
+  ],
+  "runtime_rule": "DEPENDENCY_FAILURE_NE_GLOBAL_APPLICATION_FAILURE",
+  "required_package_files": [
+    "application/index.html",
+    "k-app.manifest.json",
+    "asset-manifest.json",
+    "route-manifest.json",
+    "agent-bindings.json",
+    "vfs-namespaces.json",
+    "telemetry-schema.json",
+    "permission-policy.json",
+    "dependency-contracts.json",
+    "degraded-mode-policy.json",
+    "recovery-policy.json",
+    "SBOM.spdx.json",
+    "build-receipt.json",
+    "integrity.sha256"
+  ],
+  "required_runtime_contract_fields": [
+    "identity",
+    "supplied_capabilities",
+    "startup_dependencies",
+    "runtime_dependencies",
+    "optional_dependencies",
+    "criticality_class",
+    "fallback_adapter",
+    "degraded_mode_behaviour",
+    "queue_and_outbox_policy",
+    "circuit_breaker_limits",
+    "rollback_contract",
+    "recovery_conditions",
+    "reintegration_tests"
+  ],
+  "canonical_manifest": {
+    "applicationId": "kex.workstation.core",
+    "version": "1.2.0",
+    "entrypoint": "/index.html",
+    "runtime": "BROWSER_ESM",
+    "deploymentMode": "MESH_REPLICATED",
+    "requiredServices": [
+      "service.agent-registry",
+      "service.vfs",
+      "service.runtime-config"
+    ],
+    "optionalServices": [
+      "service.audio-output",
+      "service.native-gpu",
+      "service.remote-telemetry"
+    ],
+    "dependencyPolicies": {
+      "service.agent-registry": "CORE_DEGRADED",
+      "service.vfs": "CORE_MANDATORY",
+      "service.runtime-config": "CORE_MANDATORY",
+      "service.audio-output": "OPTIONAL",
+      "service.native-gpu": "REPLACEABLE",
+      "service.remote-telemetry": "DEFERRED_COMMIT",
+      "service.mesh-registry": "EXTERNAL_GATE"
+    },
+    "fallbackAdapters": {
+      "service.native-gpu": "adapter.canvas-cpu-renderer",
+      "service.remote-telemetry": "adapter.local-telemetry-outbox",
+      "service.audio-output": "adapter.visual-notification",
+      "service.mesh-registry": "adapter.local-mesh-outbox"
+    },
+    "targetGates": [
+      "AUTHORIZED_DOMAIN",
+      "TLS_READBACK",
+      "BROWSER_SECURITY",
+      "WCAG"
+    ]
+  },
+  "external_services": {
+    "service.mesh-registry": {
+      "available_by_default": false,
+      "criticality": "EXTERNAL_GATE",
+      "fallback_adapter": "adapter.local-mesh-outbox"
+    },
+    "service.remote-telemetry": {
+      "available_by_default": false,
+      "criticality": "DEFERRED_COMMIT",
+      "fallback_adapter": "adapter.local-telemetry-outbox"
+    }
+  },
+  "mesh_nodes": [
+    {
+      "node_id": "node.local-portable-runtime",
+      "domain": "portable_runtime",
+      "dependencies": ["service.vfs", "service.runtime-config", "service.agent-registry"]
+    },
+    {
+      "node_id": "node.m3-target-host",
+      "domain": "target_host_validation",
+      "dependencies": ["service.mesh-registry", "service.native-gpu"]
+    }
+  ],
+  "circuit_breaker_defaults": {
+    "failure_threshold": 2,
+    "recovery_timeout_seconds": 60
+  },
+  "promotion_rule": "promote_only_receipt_backed_capabilities_after_integrity_readback_and_health_readback"
+}
