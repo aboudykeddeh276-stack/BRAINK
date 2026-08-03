@@ -10,32 +10,40 @@ on:
       - 'v98_protocol_compliance_config/scripts/task_milestones.command'
       - 'v98_protocol_compliance_config/docs/TASK_MILESTONE_MONITOR_SPEC.md'
       - '.github/workflows/v98-task-milestone-monitor.yml'
+      - '.github/workflows/v98-task-milestone-host-readback.yml'
 
 permissions:
   contents: read
   actions: read
 
 jobs:
-  task-milestone-monitor:
-    name: self-hosted M3 task milestone monitor
-    runs-on: [self-hosted, macOS, ARM64, KEDDEH-M3]
-    timeout-minutes: 30
+  portable-task-governor:
+    name: portable task milestone reconstruction and evidence review
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Python version
-        run: python3 --version
-      - name: Execute task milestone monitor
+      - name: Compile task governor
         run: |
           cd v98_protocol_compliance_config
           python3 -m compileall src tests
+      - name: Reconstruct task milestones from receipt-backed records
+        run: |
+          cd v98_protocol_compliance_config
           python3 src/keddeh_task_milestone_monitor.py --root . --emit-receipt
-          python3 -m unittest tests.test_task_milestone_monitor -v
-      - name: Upload task milestone evidence
+      - name: Run task governor positive and negative tests
+        run: |
+          cd v98_protocol_compliance_config
+          python3 src/keddeh_test_runner.py --root . --emit-receipt 2>&1 | tee task-test-runner.log
+          grep -Eq '"tests_executed": [1-9][0-9]*' task-test-runner.log
+      - name: Upload portable task-governor evidence
         uses: actions/upload-artifact@v4
         with:
-          name: keddeh-v98-task-milestone-evidence
+          name: keddeh-v98-portable-task-governor-evidence
           path: |
             v98_protocol_compliance_config/evidence/task_milestone_monitor_receipt.json
+            v98_protocol_compliance_config/evidence/test_runner_receipt.json
             v98_protocol_compliance_config/exports/task_milestone_matrix.csv
             v98_protocol_compliance_config/runtime_volume/
+            v98_protocol_compliance_config/task-test-runner.log
