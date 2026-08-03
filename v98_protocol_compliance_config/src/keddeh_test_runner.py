@@ -68,9 +68,15 @@ def discover_function_tests(test_dir: Path) -> List[tuple[Path, str, Any]]:
 
 def run_tests(root: Path, emit_receipt: bool = False) -> Dict[str, Any]:
     root = root.expanduser().resolve()
-    src = root / "src"
-    if str(src) not in sys.path:
-        sys.path.insert(0, str(src))
+    # Executing this runner as ``python3 src/keddeh_test_runner.py`` makes
+    # ``src`` the initial sys.path entry, not the package root.  Register
+    # both paths so tests may use either ``import module`` or
+    # ``from src.module import ...`` consistently on local, hosted and
+    # self-hosted runners.
+    for import_root in (root, root / "src"):
+        import_path = str(import_root)
+        if import_path not in sys.path:
+            sys.path.insert(0, import_path)
     test_dir = root / "tests"
     evidence_dir = root / "evidence"
     started = time.time()
