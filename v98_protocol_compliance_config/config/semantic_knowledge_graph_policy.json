@@ -1,0 +1,213 @@
+{
+  "version": "V99",
+  "graph_id": "semantic_knowledge_graph",
+  "canonical_statement": "The codebase is an executable encyclopedia of contextual state transitions.",
+  "explainability_statement": "Every execution can explain itself linguistically, structurally and evidentially.",
+  "purpose": "Make words, expressions, services, code bindings, transitions and receipts addressable and traversable so implementation meaning is governed by linked definitions instead of isolated files or repeated prose.",
+  "core_pipeline": [
+    "source_word",
+    "canonical_definition",
+    "contextual_word_state",
+    "expression",
+    "sector_meaning",
+    "service_meaning",
+    "executable_action",
+    "observation_receipt",
+    "updated_story_state"
+  ],
+  "repository_shapes": {
+    "lexicon": "runtime_volume/semantic_graph/lexicon/words",
+    "expressions": "runtime_volume/semantic_graph/expressions",
+    "services": "runtime_volume/semantic_graph/services",
+    "story": "runtime_volume/semantic_graph/story",
+    "current_context": "runtime_volume/semantic_graph/current_context.json",
+    "transition_ledger": "runtime_volume/semantic_graph/transition_ledger.jsonl"
+  },
+  "required_word_fields": [
+    "word",
+    "canonical_id",
+    "part_of_speech",
+    "source_definitions",
+    "invariants",
+    "allowed_variants",
+    "prohibited_conflations"
+  ],
+  "required_context_fields": [
+    "expression",
+    "sector",
+    "service",
+    "environment",
+    "observer",
+    "execution_plane",
+    "evidence_class"
+  ],
+  "required_expression_fields": [
+    "expression_id",
+    "words",
+    "source_meaning",
+    "composed_definition",
+    "not_allowed"
+  ],
+  "canonical_words": [
+    {
+      "word": "RUN",
+      "canonical_id": "word://run",
+      "part_of_speech": "verb",
+      "source_definitions": {
+        "linguistic": "cause a process or system to operate",
+        "computer_science": "initiate or continue execution of instructions",
+        "keddeh": "transition an authorized contextual object into an active execution state"
+      },
+      "invariants": ["runnable_subject_exists", "execution_environment_identified", "executing_service_known", "evidence_preservable"],
+      "allowed_variants": ["process_run", "test_run", "workflow_run", "application_run", "node_run", "recovery_run"],
+      "prohibited_conflations": ["declared_run_is_not_executed_run", "ui_animation_is_not_process_execution"]
+    },
+    {
+      "word": "HEALTH",
+      "canonical_id": "word://health",
+      "part_of_speech": "noun",
+      "source_definitions": {
+        "linguistic": "condition of a subject",
+        "computer_science": "observed operational condition of a service or node",
+        "keddeh": "capability-scoped state derived from observer, environment, execution plane, evidence and freshness"
+      },
+      "invariants": ["subject_identity_known", "observer_known", "freshness_known", "capability_scope_known"],
+      "allowed_variants": ["healthy", "degraded", "deferred", "external_gate", "replacement_active"],
+      "prohibited_conflations": ["ui_colour_alone_is_not_health", "online_string_is_not_health", "stale_heartbeat_is_not_current_health"]
+    },
+    {
+      "word": "AGENT",
+      "canonical_id": "word://agent",
+      "part_of_speech": "noun",
+      "source_definitions": {
+        "linguistic": "one that acts",
+        "computer_science": "bounded actor executing assigned work under policy",
+        "keddeh": "governed worker identity with role, team, tenant boundary, VFS namespace, task queue, skills, policy, telemetry, receipt ledger and lineage"
+      },
+      "invariants": ["identity", "role", "vfs_namespace", "task_queue", "policy_set", "receipt_ledger", "lineage_address"],
+      "allowed_variants": ["human_agent", "software_agent", "acceptance_harness_agent", "worker_agent"],
+      "prohibited_conflations": ["agent_definition_is_not_functioning_worker", "button_is_not_agent"]
+    },
+    {
+      "word": "SERVICE",
+      "canonical_id": "word://service",
+      "part_of_speech": "noun",
+      "source_definitions": {
+        "linguistic": "useful work supplied to another",
+        "computer_science": "bounded executable capability exposed through an interface",
+        "keddeh": "owned execution domain with declared contract, dependencies, evidence boundary and recovery behaviour"
+      },
+      "invariants": ["service_identity", "owner_plane", "contract", "dependency_boundary", "evidence_boundary"],
+      "allowed_variants": ["local_service", "provider_service", "agent_service", "applet_service"],
+      "prohibited_conflations": ["service_label_is_not_service_execution", "route_exists_is_not_service_success"]
+    },
+    {
+      "word": "DEPLOY",
+      "canonical_id": "word://deploy",
+      "part_of_speech": "verb",
+      "source_definitions": {
+        "linguistic": "place into use",
+        "computer_science": "release an artifact into an execution environment",
+        "keddeh": "promote a receipt-backed package into an eligible runtime domain while preserving rollback and lineage"
+      },
+      "invariants": ["artifact_exists", "environment_known", "policy_resolved", "rollback_available", "receipt_required"],
+      "allowed_variants": ["local_deploy", "host_deploy", "provider_deploy", "degraded_deploy"],
+      "prohibited_conflations": ["build_is_not_deploy", "manifest_is_not_deploy_receipt"]
+    },
+    {
+      "word": "VERIFY",
+      "canonical_id": "word://verify",
+      "part_of_speech": "verb",
+      "source_definitions": {
+        "linguistic": "establish truth or correctness",
+        "computer_science": "check a value against an expected condition and report result",
+        "keddeh": "read, compare, validate, record result and emit evidence with observer, environment, execution plane and lineage"
+      },
+      "invariants": ["readback_performed", "comparison_target_known", "result_recorded", "evidence_emitted"],
+      "allowed_variants": ["integrity_verify", "schema_verify", "capability_verify", "receipt_verify"],
+      "prohibited_conflations": ["file_exists_is_not_full_verify", "hash_alone_is_not_functional_verify"]
+    },
+    {
+      "word": "RECOVER",
+      "canonical_id": "word://recover",
+      "part_of_speech": "verb",
+      "source_definitions": {
+        "linguistic": "return to a usable state",
+        "computer_science": "restore capability after failure or unavailability",
+        "keddeh": "reconcile deferred work and reintegrate a dependency only after health, integrity and lineage checks pass"
+      },
+      "invariants": ["failure_record_exists", "fallback_path_known", "reentry_condition_known", "reintegration_receipt_required"],
+      "allowed_variants": ["deferred_recovery", "provider_recovery", "host_recovery", "fallback_recovery"],
+      "prohibited_conflations": ["retry_loop_is_not_recovery", "clearing_ui_error_is_not_reintegration"]
+    },
+    {
+      "word": "NODE",
+      "canonical_id": "word://node",
+      "part_of_speech": "noun",
+      "source_definitions": {
+        "linguistic": "point in a connected structure",
+        "computer_science": "addressable member of a distributed system",
+        "keddeh": "mesh entity with identity, region, lineage, service address, VFS volume, capability set, policy set, current version, health and attestation state"
+      },
+      "invariants": ["node_id", "region_or_scope", "lineage", "capability_set", "health_state"],
+      "allowed_variants": ["browser_node", "agent_node", "microvm_node", "service_node", "provider_node"],
+      "prohibited_conflations": ["node_icon_is_not_node_execution", "node_name_is_not_capability_readback"]
+    }
+  ],
+  "expressions": [
+    {
+      "expression_id": "expression://run-kapp-on-eligible-node",
+      "words": [
+        {"canonical": "word://run", "grammatical_role": "action"},
+        {"canonical": "word://deploy", "grammatical_role": "release_context"},
+        {"canonical": "word://node", "grammatical_role": "execution_target"}
+      ],
+      "source_meaning": {"run": "word://run", "deploy": "word://deploy", "node": "word://node"},
+      "composed_definition": "initiate an admitted immutable application package on a node whose capabilities, policy, health and integrity satisfy the deployment contract",
+      "not_allowed": ["run label without process execution", "deploy claim without package readback"]
+    },
+    {
+      "expression_id": "expression://verify-manifest-before-node-execution",
+      "words": [
+        {"canonical": "word://verify", "grammatical_role": "predicate"},
+        {"canonical": "word://deploy", "grammatical_role": "deployment_constraint"},
+        {"canonical": "word://node", "grammatical_role": "execution_target"}
+      ],
+      "source_meaning": {"verify": "word://verify", "deploy": "word://deploy", "node": "word://node"},
+      "composed_definition": "read and compare the application package manifest against integrity data before node-side execution can start",
+      "not_allowed": ["existence check only", "node execution before integrity readback"]
+    },
+    {
+      "expression_id": "expression://observe-node-health",
+      "words": [
+        {"canonical": "word://health", "grammatical_role": "object"},
+        {"canonical": "word://node", "grammatical_role": "subject"}
+      ],
+      "source_meaning": {"health": "word://health", "node": "word://node"},
+      "composed_definition": "derive current capability-scoped condition of an addressable node from fresh observer-bound evidence",
+      "not_allowed": ["static ONLINE string", "stale heartbeat", "UI colour alone"]
+    },
+    {
+      "expression_id": "expression://instantiate-governed-agent-worker",
+      "words": [
+        {"canonical": "word://agent", "grammatical_role": "worker_identity"},
+        {"canonical": "word://service", "grammatical_role": "execution_service"},
+        {"canonical": "word://verify", "grammatical_role": "admission_gate"}
+      ],
+      "source_meaning": {"agent": "word://agent", "service": "word://service", "verify": "word://verify"},
+      "composed_definition": "create a functioning worker by binding identity, role, team, tenant boundary, VFS namespace, queue, skills, policy, runtime allocation, telemetry channel, receipt ledger and lineage",
+      "not_allowed": ["definition-only agent", "button-only provision action"]
+    },
+    {
+      "expression_id": "expression://reconcile-deferred-work-after-dependency-recovery",
+      "words": [
+        {"canonical": "word://recover", "grammatical_role": "action"},
+        {"canonical": "word://service", "grammatical_role": "dependency_domain"},
+        {"canonical": "word://verify", "grammatical_role": "reintegration_gate"}
+      ],
+      "source_meaning": {"recover": "word://recover", "service": "word://service", "verify": "word://verify"},
+      "composed_definition": "replay durable deferred work only after dependency health, integrity and lineage are verified",
+      "not_allowed": ["blind retry", "manual status flip"]
+    }
+  ]
+}
