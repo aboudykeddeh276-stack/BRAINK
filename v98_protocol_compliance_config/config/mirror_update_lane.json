@@ -2,7 +2,7 @@
   "version": "V99",
   "lane_id": "mirror_update_lane",
   "lane_state": "DEPLOYMENT_CONFIGURED_TARGET_HOST_GATED",
-  "purpose": "Mirror research, development, standards, protocols, compliance, agent registry, app/applet, telemetry, BTC core protocol router, task milestone monitor, workflow schema guard, software design deployment workflow, dependency failure isolation, K-APP packaging, application/applet shipping, deployment maturity workplans, current state surface audit, evidence context resolution, K-Cloud deployment and deployment records into an auditable update lane without allowing manual promotion.",
+  "purpose": "Mirror research, development, standards, protocols, compliance, agent registry, app/applet, telemetry, BTC core protocol router, task milestone monitor, workflow schema guard, software design deployment workflow, dependency failure isolation, K-APP packaging, application/applet shipping, deployment maturity workplans, current state surface audit, evidence context resolution, semantic knowledge graph, four-plane context framework, K-Cloud deployment and deployment records into an auditable update lane without allowing manual promotion.",
   "source_documents": [
     "docs/V98_RESEARCH_AND_DEPLOYMENT_PLAN.md",
     "docs/PROTOCOLS_CONVENTIONS_FRAMEWORKS.md",
@@ -20,6 +20,8 @@
     "docs/DEPLOYMENT_MATURITY_WORKPLAN.md",
     "docs/CURRENT_STATE_SURFACE_AUDIT.md",
     "docs/EVIDENCE_CONTEXT_RESOLUTION.md",
+    "docs/SEMANTIC_KNOWLEDGE_GRAPH.md",
+    "docs/FOUR_PLANE_CONTEXT_FRAMEWORK.md",
     "standards/standards_catalog.json",
     "config/authority_map.json",
     "config/agent_registry.json",
@@ -37,7 +39,9 @@
     "config/application_applet_registry.json",
     "config/deployment_maturity_workplan.json",
     "config/current_state_surface_audit.json",
-    "config/evidence_context_resolution_policy.json"
+    "config/evidence_context_resolution_policy.json",
+    "config/semantic_knowledge_graph_policy.json",
+    "config/four_plane_context_framework.json"
   ],
   "required_mirror_documents": [
     "mirror_update_lane/docs/MIRROR_LANE_RESEARCH_BRIEF.md",
@@ -69,6 +73,8 @@
     "deployment_maturity_workplan_receipt",
     "current_state_surface_audit_receipt",
     "evidence_context_resolution_receipt",
+    "semantic_knowledge_graph_receipt",
+    "four_plane_context_framework_receipt",
     "provider_peer_ack_receipt"
   ]
 }
