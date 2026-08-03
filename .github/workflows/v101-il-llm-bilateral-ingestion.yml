@@ -1,0 +1,46 @@
+name: KEDDEH V101 IL-LLM Bilateral Ingestion
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'v98_protocol_compliance_config/config/il_llm_*'
+      - 'v98_protocol_compliance_config/src/keddeh_il_llm_*'
+      - 'v98_protocol_compliance_config/tests/test_il_llm_*'
+      - '.github/workflows/v101-il-llm-bilateral-ingestion.yml'
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  bilateral-il-llm:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile IL-LLM runtimes and tests
+        run: |
+          cd v98_protocol_compliance_config
+          python3 -m compileall src tests
+      - name: Run repository test runner
+        run: |
+          cd v98_protocol_compliance_config
+          python3 src/keddeh_test_runner.py --root . --emit-receipt
+      - name: Execute manifest discovery and bilateral pending-source workflow
+        run: |
+          cd v98_protocol_compliance_config
+          python3 src/keddeh_il_llm_bilateral_ingestor.py --root . --emit-receipt
+      - name: Execute contextual IL-LLM integration
+        run: |
+          cd v98_protocol_compliance_config
+          python3 src/keddeh_il_llm_runtime.py --root . --text 'IL-LLM agent wire substrate verify preserve' --observer ci --environment github-actions --emit-receipt
+      - name: Upload IL-LLM evidence and work packets
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: keddeh-v101-il-llm-bilateral
+          path: |
+            v98_protocol_compliance_config/evidence/il_llm_*.json
+            v98_protocol_compliance_config/runtime_volume/il_llm/
+            v98_protocol_compliance_config/runtime_volume/workplans/il_llm_*/
