@@ -1,0 +1,43 @@
+name: KEDDEH V99 K-Cloud Deploy
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'v98_protocol_compliance_config/config/k_app_package_policy.json'
+      - 'v98_protocol_compliance_config/src/keddeh_k_cloud_adapter.py'
+      - 'v98_protocol_compliance_config/tests/test_k_cloud_adapter.py'
+      - 'v98_protocol_compliance_config/docs/K_APP_K_CLOUD_DEPLOYMENT.md'
+      - 'v98_protocol_compliance_config/scripts/k_cloud_deploy.command'
+      - '.github/workflows/v98-k-cloud-deploy.yml'
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  k-cloud-deploy:
+    name: portable K-APP package and K-Cloud admission
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Execute K-Cloud deployment adapter
+        run: |
+          cd v98_protocol_compliance_config
+          python3 -m compileall src tests
+          python3 src/keddeh_k_cloud_adapter.py --root . --emit-receipt
+          python3 src/keddeh_test_runner.py --root . --emit-receipt
+      - name: Upload K-Cloud evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: keddeh-v99-k-cloud-evidence
+          path: |
+            v98_protocol_compliance_config/evidence/k_cloud_deployment_receipt.json
+            v98_protocol_compliance_config/evidence/test_runner_receipt.json
+            v98_protocol_compliance_config/exports/k_cloud_health_matrix.csv
+            v98_protocol_compliance_config/runtime_volume/failure_ledger.jsonl
+            v98_protocol_compliance_config/runtime_volume/outbox/k_cloud/
+            v98_protocol_compliance_config/runtime_volume/continuation_workflows/k_cloud/
