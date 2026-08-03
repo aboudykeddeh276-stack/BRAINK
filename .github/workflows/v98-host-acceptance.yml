@@ -8,6 +8,7 @@ on:
       - '.github/workflows/v98-host-acceptance.yml'
       - '.github/workflows/v98-mirror-update-lane.yml'
       - '.github/workflows/v98-workflow-schema-guard.yml'
+      - '.github/workflows/v98-design-deployment-workflow.yml'
 
 permissions:
   contents: read
@@ -35,7 +36,7 @@ jobs:
         run: |
           cd v98_protocol_compliance_config
           python3 src/keddeh_target_host_receipts.py --root . --emit-receipt --require-all
-      - name: Execute acceptance, BTC router, task milestone and workflow schema guards
+      - name: Execute acceptance, BTC router, task, workflow and design deployment gates
         if: always()
         run: |
           cd v98_protocol_compliance_config
@@ -43,12 +44,19 @@ jobs:
           python3 src/keddeh_btc_core_protocol_router.py --root . --once --emit-receipt
           python3 src/keddeh_task_milestone_monitor.py --root . --emit-receipt
           python3 src/keddeh_workflow_schema_guard.py --root . --emit-receipt
-      - name: Run discovered unit tests
+          python3 src/keddeh_design_deployment_workflow.py --root . --emit-receipt
+      - name: Run TestCase tests
         if: always()
         run: |
           cd v98_protocol_compliance_config
           python3 -m unittest discover -s tests -v 2>&1 | tee unittest.log
           grep -Eq '^Ran [1-9][0-9]* tests? in ' unittest.log
+      - name: Run plain function tests
+        if: always()
+        run: |
+          cd v98_protocol_compliance_config
+          python3 src/keddeh_test_runner.py --root . --emit-receipt 2>&1 | tee test_runner.log
+          grep -Eq '"tests_executed": [1-9][0-9]*' test_runner.log
       - name: Upload local evidence artifact
         if: always()
         uses: actions/upload-artifact@v4
@@ -59,3 +67,4 @@ jobs:
             v98_protocol_compliance_config/runtime_volume/
             v98_protocol_compliance_config/exports/
             v98_protocol_compliance_config/unittest.log
+            v98_protocol_compliance_config/test_runner.log
