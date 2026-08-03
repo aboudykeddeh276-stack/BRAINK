@@ -13,4 +13,6 @@ python3 src/keddeh_agent_runtime_service.py --root "$ROOT" --agent-id acceptance
 python3 src/keddeh_btc_core_protocol_router.py --root "$ROOT" --once --emit-receipt
 python3 src/keddeh_task_milestone_monitor.py --root "$ROOT" --emit-receipt
 python3 src/keddeh_workflow_schema_guard.py --root "$ROOT" --emit-receipt
+python3 src/keddeh_design_deployment_workflow.py --root "$ROOT" --emit-receipt
 python3 -m unittest discover -s tests -v
+python3 src/keddeh_test_runner.py --root "$ROOT" --emit-receipt
