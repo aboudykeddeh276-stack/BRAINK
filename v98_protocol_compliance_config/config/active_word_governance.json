@@ -1,0 +1,42 @@
+{
+  "version": "V102-ACTIVE-WORD-1",
+  "registryId": "keddeh.active-word.governance",
+  "equation": "A_W=f(W,C,E,S,V,O,L,T)",
+  "canonicalRule": "word identity is invariant; active meaning is contextually instantiated and bilaterally linked",
+  "requiredFields": [
+    "word",
+    "canonical_identity",
+    "context",
+    "expression",
+    "sector",
+    "service",
+    "observer",
+    "execution_plane",
+    "evidence_class",
+    "dependencies",
+    "state",
+    "lineage",
+    "allowed_transitions"
+  ],
+  "stateMachine": {
+    "primary": ["DEFINED", "CONTEXTUALIZED", "AUTHORIZED", "ROUTED", "ACTIVE", "OBSERVED", "VERIFIED", "PRESERVED"],
+    "boundedFailure": ["ACTIVE", "DEGRADED", "DEFERRED", "RECOVERING", "REINTEGRATED"],
+    "terminalGlobalState": "GLOBAL_SAFETY_STOP",
+    "globalStopRequirement": "proven global safety, semantic or integrity invariant violation"
+  },
+  "evidenceClasses": ["DECLARED", "GENERATED", "MODELED", "OBSERVED", "MEASURED", "RECEIPT_BACKED", "HOST_VERIFIED", "PROVIDER_VERIFIED"],
+  "executionPlanes": ["CONTROL_PLANE", "BROWSER_PROJECTION", "LOCAL_PROCESS", "LOCAL_CPU", "WEBGPU", "EMULATOR", "MICROVM_GUEST", "NODE_RUNTIME", "TARGET_HOST", "REMOTE_PROVIDER", "IMPORTED_EVIDENCE"],
+  "addressGrammar": "word://<canonical-word>/<sector>/<service>/<context>/<state>/<instance-id>",
+  "prohibitedConflations": [
+    "declared_state_is_not_executed_state",
+    "projection_is_not_automatically_execution",
+    "execution_is_not_automatically_verified",
+    "verified_local_is_not_automatically_provider_verified",
+    "service_failure_is_not_global_runtime_failure",
+    "null_presence_is_not_character_erasure"
+  ],
+  "bilateralLinks": {
+    "forward": "source word -> active instance -> expression -> sector -> service -> transition -> receipt",
+    "reverse": "receipt -> transition -> service -> sector -> expression -> active instance -> source word"
+  }
+}
