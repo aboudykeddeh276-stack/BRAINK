@@ -1,0 +1,80 @@
+{
+  "version": "V99",
+  "workplan_id": "deployment_maturity_workplan",
+  "purpose": "Assess every module, application, applet, service, function, protocol, procedure, framework and governance lane for shippable maturity, corrective workflows, pending workloads and executable deployment actions without treating target-host or provider gates as global failure.",
+  "canonical_runtime_rule": "DEPENDENCY_FAILURE_NE_GLOBAL_APPLICATION_FAILURE",
+  "completion_rule": [
+    "source_code_exists",
+    "executable_command_exists",
+    "tests_executed",
+    "k_app_package_or_service_receipt_exists",
+    "manifest_integrity_readback_verified",
+    "ledger_readback_verified",
+    "outbox_handoff_written",
+    "target_host_or_provider_receipt_where_required"
+  ],
+  "not_completion_by_itself": ["manifest", "telemetry", "hash", "report", "dashboard_render", "documentation", "simulation"],
+  "maturity_states": [
+    "LOCAL_SHIPPABLE",
+    "LOCAL_SHIPPABLE_WITH_TARGET_GATES",
+    "TARGET_HOST_REQUIRED",
+    "PROVIDER_REQUIRED",
+    "EXTERNAL_CERTIFICATION_REQUIRED",
+    "LOCAL_REPAIR_REQUIRED",
+    "UNSUPPORTED_IN_THIS_RUNTIME"
+  ],
+  "issue_taxonomy": {
+    "MISSING_K_APP_PACKAGE": "Component has no local K-APP package or manifest readback yet.",
+    "TARGET_HOST_GATE_PENDING": "M3/launchd/iostat/browser readback proof is required before native-host promotion.",
+    "PROVIDER_GATE_PENDING": "External provider, remote attestation, Drive/SIMB/Gemini/OpenAI, DNS/TLS or peer envelope proof is required.",
+    "REVIEW_SURFACE_TOO_LARGE": "Current PR surface should be split after executable receipts are captured to reduce review and release risk.",
+    "TEST_RECEIPT_REQUIRED": "Tests must execute and emit a receipt; existing test files alone do not count.",
+    "INTEGRITY_READBACK_REQUIRED": "Manifest integrity must be read back before node-side execution.",
+    "DEPENDENCY_ISOLATION_REQUIRED": "Blocked dependency must create continuation work and not poison unrelated runtime domains."
+  },
+  "corrective_workflows": {
+    "package_local": "bash scripts/ship_applications.command",
+    "k_cloud_local": "bash scripts/k_cloud_deploy.command",
+    "full_local_acceptance": "bash scripts/run.command",
+    "target_host": "register self-hosted M3 runner, run v98-host-acceptance, capture launchd/iostat/browser receipts",
+    "provider_gate": "capture signed peer/provider receipt, keep local outbox until provider returns",
+    "split_release": "split PR into application shipping, resilience, K-Cloud, governance, and target-host follow-up lanes after local receipt pack is stable"
+  },
+  "required_matrix_fields": [
+    "component_id",
+    "component_type",
+    "owner_plane",
+    "issue_code",
+    "maturity_state",
+    "corrective_workflow",
+    "pending_workload",
+    "action_command",
+    "required_receipts",
+    "dependency_class",
+    "fallback_path",
+    "reentry_condition",
+    "promotion_boundary"
+  ],
+  "target_host_gates": [
+    "self_hosted_macos_arm64_runner",
+    "launchd_status_receipt",
+    "iostat_or_target_host_throughput_receipt",
+    "browser_open_readback",
+    "k_app_catalog_readback",
+    "k_cloud_deployment_receipt",
+    "dependency_failure_receipt"
+  ],
+  "provider_gates": [
+    "drive_raw_package_receipt",
+    "simb_peer_ack_receipt",
+    "gemini_or_openai_signed_provider_receipt",
+    "dns_tls_readback",
+    "external_certification_receipt"
+  ],
+  "governance": {
+    "local_pass_authority": "acceptance_harness",
+    "target_host_promotion_authority": "self_hosted_m3_runner_receipts",
+    "provider_promotion_authority": "signed_provider_or_peer_receipts",
+    "review_boundary": "large PR allowed only as integration workbench; release should be split once evidence exists"
+  }
+}
