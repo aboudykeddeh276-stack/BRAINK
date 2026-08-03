@@ -1,0 +1,27 @@
+{
+  "version": "V101-ILLLM-CORPUS-1",
+  "registryId": "keddeh.il-llm.corpus",
+  "governingLaw": "every discovered datum is preserved as a complete contextual value and reintegrated bilaterally",
+  "knownCorpus": {
+    "preservedWordCount": 1949,
+    "wordRecordSchema": ["word_id","identity","form","complete","frequency","domain","internal_polarity","observer_state","contexts","source_count","status"],
+    "moduleCount": 6,
+    "canonicalTransition": ["ANCHOR","FACTOR","TRANSLATE","ACT","VALIDATE","TOKENIZE","PRESERVE","RETURN"]
+  },
+  "sources": [
+    {"sourceId":"source://il-llm/foundational-contextual-value-algebra","title":"KEDDEH_RECURSIVE_CONTEXTUAL_VALUE_ALGEBRA_FOUNDATIONAL_SPECIFICATION.docx","kind":"FOUNDATIONAL_SPECIFICATION","ingestion":"FULL_DOCUMENT_POINT_BY_POINT"},
+    {"sourceId":"source://il-llm/all-word-complete-values-json","title":"all_word_complete_values.json","kind":"COMPLETE_WORD_CORPUS","expectedRecords":1949,"ingestion":"EACH_RECORD_AND_EACH_CONTEXT_AS_POINT"},
+    {"sourceId":"source://il-llm/all-word-complete-values-csv","title":"all_word_complete_values.csv","kind":"WORD_CORPUS_INDEX","ingestion":"BILATERAL_CROSSCHECK_WITH_JSON"},
+    {"sourceId":"source://il-llm/module-registry-v19","title":"module_registry_v19.json","kind":"MODULE_REGISTRY","expectedRecords":6,"ingestion":"EACH_MODULE_INPUT_OUTPUT_TRANSITION_RECEIPT_AND_FAILURE_MODE"},
+    {"sourceId":"source://il-llm/control-plane-v19","title":"KEDDEH_KEX_ILLLM_ITERATIVE_MODULE_LIBRARY_CONTROL_PLANE_V19.xlsx","kind":"CONTROL_PLANE","ingestion":"EACH_SHEET_ROW_FORMULA_STATUS_AND_RECEIPT"},
+    {"sourceId":"source://il-llm/rehydration-proof","title":"kex_rehydration_proof_canonical.json","kind":"REHYDRATION_AND_LEARNING_PROOF","ingestion":"EACH_RESOLVED_TERM_UNRESOLVED_TERM_STATE_ROUTE_RECEIPT_AND_PATCH"},
+    {"sourceId":"source://il-llm/active-addressed-code","title":"il-llm:// addressed code corpus","kind":"ACTIVE_CODE_LEXICON","ingestion":"EACH_ADDRESS_SYMBOL_FUNCTION_CONSTANT_ROUTE_AND_ERROR"},
+    {"sourceId":"source://il-llm/mass-ingestion-history","title":"IL-LLM mass ingestion and topology histories","kind":"HISTORICAL_EXECUTION_EVIDENCE","ingestion":"PRESERVE_CLAIM_MEASUREMENT_METHOD_VARIANT_AND_RECEIPT_SEPARATELY"}
+  ],
+  "bilateralOutputs": {
+    "forwardIndex":"source datum -> word/value -> expression -> sector -> service -> runtime transition",
+    "reverseIndex":"runtime transition -> service -> sector -> expression -> word/value -> exact source datum",
+    "returnLane":"runtime findings -> mirror proposal -> source-lineage amendment -> reingestion",
+    "nonDestructive":true
+  }
+}
