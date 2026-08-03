@@ -2,7 +2,7 @@
   "version": "V99",
   "lane_id": "mirror_update_lane",
   "lane_state": "DEPLOYMENT_CONFIGURED_TARGET_HOST_GATED",
-  "purpose": "Mirror research, development, standards, protocols, compliance, agent registry, app/applet, telemetry, BTC core protocol router, task milestone monitor, workflow schema guard, software design deployment workflow, dependency failure isolation and deployment records into an auditable update lane without allowing manual promotion.",
+  "purpose": "Mirror research, development, standards, protocols, compliance, agent registry, app/applet, telemetry, BTC core protocol router, task milestone monitor, workflow schema guard, software design deployment workflow, dependency failure isolation, K-APP packaging, K-Cloud deployment and deployment records into an auditable update lane without allowing manual promotion.",
   "source_documents": [
     "docs/V98_RESEARCH_AND_DEPLOYMENT_PLAN.md",
     "docs/PROTOCOLS_CONVENTIONS_FRAMEWORKS.md",
@@ -15,6 +15,7 @@
     "docs/WORKFLOW_SCHEMA_STANDARD.md",
     "docs/SOFTWARE_DESIGN_DEPLOYMENT_WORKFLOW.md",
     "docs/DEPENDENCY_FAILURE_ISOLATION.md",
+    "docs/K_APP_K_CLOUD_DEPLOYMENT.md",
     "standards/standards_catalog.json",
     "config/authority_map.json",
     "config/agent_registry.json",
@@ -27,7 +28,8 @@
     "config/task_milestone_registry.json",
     "config/workflow_schema.json",
     "config/software_design_deployment_workflow.json",
-    "config/dependency_failure_policy.json"
+    "config/dependency_failure_policy.json",
+    "config/k_app_package_policy.json"
   ],
   "required_mirror_documents": [
     "mirror_update_lane/docs/MIRROR_LANE_RESEARCH_BRIEF.md",
@@ -54,6 +56,7 @@
     "workflow_schema_guard_receipt",
     "software_design_deployment_workflow_receipt",
     "dependency_failure_receipt",
+    "k_cloud_deployment_receipt",
     "provider_peer_ack_receipt"
   ]
 }
