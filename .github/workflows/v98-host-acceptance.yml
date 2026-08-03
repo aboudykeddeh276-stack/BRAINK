@@ -11,6 +11,7 @@ on:
       - '.github/workflows/v98-design-deployment-workflow.yml'
       - '.github/workflows/v98-dependency-failure-isolation.yml'
       - '.github/workflows/v98-k-cloud-deploy.yml'
+      - '.github/workflows/v98-application-applet-shipping.yml'
 
 permissions:
   contents: read
@@ -44,6 +45,11 @@ jobs:
         run: |
           cd v98_protocol_compliance_config
           python3 src/keddeh_k_cloud_adapter.py --root . --emit-receipt
+      - name: Package every applet and application as K-APP
+        if: always()
+        run: |
+          cd v98_protocol_compliance_config
+          python3 src/keddeh_application_applet_packager.py --root . --emit-receipt
       - name: Execute acceptance, BTC router, task, workflow and design deployment gates
         if: always()
         run: |
