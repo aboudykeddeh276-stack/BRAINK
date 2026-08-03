@@ -14,6 +14,7 @@ on:
       - '.github/workflows/v98-application-applet-shipping.yml'
       - '.github/workflows/v98-deployment-maturity-workplan.yml'
       - '.github/workflows/v98-current-state-surface-audit.yml'
+      - '.github/workflows/v99-evidence-context-resolution.yml'
 
 permissions:
   contents: read
@@ -62,6 +63,11 @@ jobs:
         run: |
           cd v98_protocol_compliance_config
           python3 src/keddeh_current_state_surface_auditor.py --root . --emit-receipt
+      - name: Resolve contextual evidence state
+        if: always()
+        run: |
+          cd v98_protocol_compliance_config
+          python3 src/keddeh_evidence_context_resolver.py --root . --emit-receipt
       - name: Execute acceptance, BTC router, task, workflow and design deployment gates
         if: always()
         run: |
