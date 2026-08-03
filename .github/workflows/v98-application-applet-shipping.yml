@@ -1,0 +1,38 @@
+name: KEDDEH V98 Application Applet Shipping
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'v98_protocol_compliance_config/**'
+      - '.github/workflows/v98-application-applet-shipping.yml'
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  application-applet-shipping:
+    name: package every application and applet as K-APP
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Python version
+        run: python3 --version
+      - name: Build and verify application/applet packages
+        run: |
+          cd v98_protocol_compliance_config
+          bash scripts/ship_applications.command
+      - name: Upload application package evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: keddeh-v99-application-applet-shipping
+          path: |
+            v98_protocol_compliance_config/evidence/application_applet_shipping_receipt.json
+            v98_protocol_compliance_config/exports/application_applet_shipping_matrix.csv
+            v98_protocol_compliance_config/runtime_volume/application_catalog/
+            v98_protocol_compliance_config/runtime_volume/k_app_packages/application_applet_shipping/
+            v98_protocol_compliance_config/runtime_volume/outbox/application_applet_shipping/
