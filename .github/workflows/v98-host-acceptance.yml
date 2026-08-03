@@ -15,6 +15,8 @@ on:
       - '.github/workflows/v98-deployment-maturity-workplan.yml'
       - '.github/workflows/v98-current-state-surface-audit.yml'
       - '.github/workflows/v99-evidence-context-resolution.yml'
+      - '.github/workflows/v99-semantic-knowledge-graph.yml'
+      - '.github/workflows/v99-four-plane-context-framework.yml'
 
 permissions:
   contents: read
@@ -68,6 +70,12 @@ jobs:
         run: |
           cd v98_protocol_compliance_config
           python3 src/keddeh_evidence_context_resolver.py --root . --emit-receipt
+      - name: Build semantic graph and four-plane context framework
+        if: always()
+        run: |
+          cd v98_protocol_compliance_config
+          python3 src/keddeh_semantic_knowledge_graph.py --root . --emit-receipt
+          python3 src/keddeh_four_plane_context_framework.py --root . --emit-receipt
       - name: Execute acceptance, BTC router, task, workflow and design deployment gates
         if: always()
         run: |
