@@ -1,0 +1,45 @@
+name: KEDDEH V98 Mirror Host Commit
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'v98_protocol_compliance_config/mirror_update_lane/**'
+      - 'v98_protocol_compliance_config/config/mirror_update_lane.json'
+      - 'v98_protocol_compliance_config/src/keddeh_mirror_update_lane.py'
+      - '.github/workflows/v98-mirror-host-commit.yml'
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  m3-mirror-commit:
+    name: M3 mirror commit and target-host readback
+    runs-on: [self-hosted, macOS, ARM64, KEDDEH-M3]
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Execute mirror commit on target host
+        run: |
+          cd v98_protocol_compliance_config
+          python3 -m compileall src tests
+          python3 src/keddeh_mirror_update_lane.py --root . --emit-receipt
+      - name: Capture target-host receipts
+        run: |
+          cd v98_protocol_compliance_config
+          python3 src/keddeh_target_host_receipts.py --root . --emit-receipt
+      - name: Run reintegration tests
+        run: |
+          cd v98_protocol_compliance_config
+          python3 -m unittest tests.test_mirror_update_lane tests.test_target_host_receipts -v
+      - name: Upload target-host mirror evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: keddeh-v98-m3-mirror-commit-evidence
+          path: |
+            v98_protocol_compliance_config/evidence/
+            v98_protocol_compliance_config/runtime_volume/
+            v98_protocol_compliance_config/exports/
