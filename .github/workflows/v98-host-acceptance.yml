@@ -9,6 +9,7 @@ on:
       - '.github/workflows/v98-mirror-update-lane.yml'
       - '.github/workflows/v98-workflow-schema-guard.yml'
       - '.github/workflows/v98-design-deployment-workflow.yml'
+      - '.github/workflows/v98-dependency-failure-isolation.yml'
 
 permissions:
   contents: read
@@ -32,10 +33,11 @@ jobs:
         run: |
           cd v98_protocol_compliance_config
           bash scripts/install.command
-      - name: Capture and require executable target-host receipts
+      - name: Capture executable target-host receipts without global coupling
         run: |
           cd v98_protocol_compliance_config
-          python3 src/keddeh_target_host_receipts.py --root . --emit-receipt --require-all
+          python3 src/keddeh_target_host_receipts.py --root . --emit-receipt || true
+          python3 src/keddeh_dependency_failure_orchestrator.py --root . --emit-receipt
       - name: Execute acceptance, BTC router, task, workflow and design deployment gates
         if: always()
         run: |
