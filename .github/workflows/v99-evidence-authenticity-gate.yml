@@ -26,10 +26,10 @@ jobs:
         run: |
           cd v98_protocol_compliance_config
           python3 -m compileall src tests
-      - name: Run focused tests
+      - name: Run repository test runner
         run: |
           cd v98_protocol_compliance_config
-          python3 -m pytest -q tests/test_evidence_authenticity_gate.py
+          python3 src/keddeh_test_runner.py --root . --emit-receipt
       - name: Scan source claims
         run: |
           cd v98_protocol_compliance_config
@@ -39,4 +39,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: keddeh-v99-evidence-authenticity
-          path: v98_protocol_compliance_config/evidence/evidence_authenticity_gate_receipt.json
+          path: |
+            v98_protocol_compliance_config/evidence/evidence_authenticity_gate_receipt.json
+            v98_protocol_compliance_config/evidence/test_runner_receipt.json
