@@ -1,0 +1,41 @@
+name: KEDDEH V99 Design Deployment Workflow
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'v98_protocol_compliance_config/config/software_design_deployment_workflow.json'
+      - 'v98_protocol_compliance_config/src/keddeh_design_deployment_workflow.py'
+      - 'v98_protocol_compliance_config/tests/test_design_deployment_workflow.py'
+      - 'v98_protocol_compliance_config/docs/SOFTWARE_DESIGN_DEPLOYMENT_WORKFLOW.md'
+      - 'v98_protocol_compliance_config/scripts/design_deployment.command'
+      - '.github/workflows/v98-design-deployment-workflow.yml'
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  design-deployment-workflow:
+    name: software design deployment workflow receipt
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Python version
+        run: python3 --version
+      - name: Execute design deployment workflow
+        run: |
+          cd v98_protocol_compliance_config
+          python3 -m compileall src tests
+          python3 src/keddeh_design_deployment_workflow.py --root . --emit-receipt
+          python3 -m unittest tests.test_design_deployment_workflow -v
+      - name: Upload design deployment workflow evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: keddeh-v99-design-deployment-workflow-evidence
+          path: |
+            v98_protocol_compliance_config/evidence/software_design_deployment_workflow_receipt.json
+            v98_protocol_compliance_config/exports/software_design_deployment_workflow_matrix.csv
+            v98_protocol_compliance_config/runtime_volume/
