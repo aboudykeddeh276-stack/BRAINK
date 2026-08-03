@@ -1,0 +1,22 @@
+{
+  "version": "V101-ILLLM-KAPP-1",
+  "registryId": "keddeh.kcloud.il-llm",
+  "products": [
+    {
+      "applicationId": "keddeh.il-llm-context-runtime",
+      "kind": "APPLET",
+      "entrypoint": "src/keddeh_il_llm_runtime.py",
+      "runtime": "PYTHON_SERVICE",
+      "route": "applet://il-llm-context-runtime",
+      "vfsNamespace": "vfs://applets/keddeh.il-llm-context-runtime/",
+      "suppliedCapabilities": ["SOURCE_BOUND_INGESTION","COMPLETE_WORD_PRESERVATION","LEXICON_RESOLUTION","CONTEXTUAL_EXPRESSION_COMPOSITION","UNRESOLVED_TERM_MIRROR_LEARNING","IL_LLM_RECEIPTS"],
+      "modules": ["src/keddeh_il_llm_runtime.py","src/keddeh_active_story_runtime.py"],
+      "criticality": "CORE_DEGRADED",
+      "fallbackAdapter": "adapter.active-story-static-resolution",
+      "launchCommand": "python3 src/keddeh_product_runtime.py --root . --product keddeh.il-llm-context-runtime --emit-receipt",
+      "testCommand": "python3 src/keddeh_test_runner.py --root . --emit-receipt",
+      "deploymentTarget": "PORTABLE_AND_M3",
+      "maturity": "IMPLEMENTED_PENDING_PRODUCT_AND_HOST_RECEIPTS"
+    }
+  ]
+}
