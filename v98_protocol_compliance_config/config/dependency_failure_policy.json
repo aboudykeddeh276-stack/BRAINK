@@ -1,0 +1,140 @@
+{
+  "version": "V99",
+  "policy_id": "dependency_failure_isolation_policy",
+  "purpose": "Prevent blocked, queued, provider-gated, target-host-gated, stale or failed dependency lanes from being promoted into global runtime failure unless continuing would violate a proven safety, integrity or semantic invariant.",
+  "canonical_runtime_rule": "DEPENDENCY_FAILURE_NE_GLOBAL_RUNTIME_FAILURE",
+  "decision_pipeline": [
+    "detect",
+    "classify_criticality",
+    "isolate_failure_domain",
+    "preserve_unaffected_runtimes",
+    "select_degraded_or_alternate_path",
+    "queue_deferred_work",
+    "continue_core_execution",
+    "monitor_recovery_condition",
+    "reintegrate_when_proven_healthy"
+  ],
+  "global_fail_stop_allowed_only_when": [
+    "continuation_would_violate_safety_invariant",
+    "continuation_would_violate_integrity_invariant",
+    "continuation_would_violate_semantic_invariant"
+  ],
+  "dependency_classes": {
+    "CORE_MANDATORY": {
+      "required_behaviour": "Stop only the operation whose semantic validity depends on the dependency.",
+      "default_overall_status": "OPERATIONAL_PARTIAL"
+    },
+    "CORE_DEGRADED": {
+      "required_behaviour": "Continue with reduced but valid functionality.",
+      "default_overall_status": "OPERATIONAL_DEGRADED"
+    },
+    "OPTIONAL": {
+      "required_behaviour": "Bypass the feature and continue the runtime.",
+      "default_overall_status": "OPERATIONAL"
+    },
+    "EXTERNAL_GATE": {
+      "required_behaviour": "Continue locally while external proof remains pending.",
+      "default_overall_status": "OPERATIONAL_EXTERNAL_GATE"
+    },
+    "REPLACEABLE": {
+      "required_behaviour": "Select another adapter, provider or execution plane.",
+      "default_overall_status": "OPERATIONAL_ALTERNATE_PATH"
+    },
+    "DEFERRED_COMMIT": {
+      "required_behaviour": "Persist work and reconcile it when the dependency returns.",
+      "default_overall_status": "OPERATIONAL_DEFERRED_COMMIT"
+    }
+  },
+  "required_dependency_fields": [
+    "dependency_id",
+    "class",
+    "affected_capability",
+    "blocked_domain",
+    "impact_radius",
+    "fallback_path",
+    "continuation_mode",
+    "re_entry_condition",
+    "owner",
+    "queue_policy",
+    "retry_policy",
+    "circuit_breaker_policy",
+    "rollback_policy"
+  ],
+  "runtime_domains": [
+    {
+      "dependency_id": "m3_host_acceptance",
+      "class": "EXTERNAL_GATE",
+      "affected_capability": "M3-specific host validation",
+      "blocked_domain": "self-hosted macOS ARM64 runner / launchd / iostat evidence",
+      "impact_radius": ["target_host_validation"],
+      "fallback_path": "portable_core_validation_and_local_receipts",
+      "continuation_mode": "continue Ubuntu-portable execution; keep M3 proof pending",
+      "re_entry_condition": "matching self-hosted runner executes and uploads evidence artifact",
+      "owner": "target_host_receipt_harness",
+      "queue_policy": "runtime_volume/outbox/target_host",
+      "retry_policy": "workflow rerun or runner pickup when available",
+      "circuit_breaker_policy": "do not endlessly retry inside portable runtime",
+      "rollback_policy": "no rollback of portable runtime required"
+    },
+    {
+      "dependency_id": "mirror_update_application",
+      "class": "DEFERRED_COMMIT",
+      "affected_capability": "target-host mirror application",
+      "blocked_domain": "mirror host application surface",
+      "impact_radius": ["mirror_apply"],
+      "fallback_path": "versioned update bundle, append-only ledger and replayable outbox",
+      "continuation_mode": "produce mirror receipt and replay package locally",
+      "re_entry_condition": "mirror host becomes reachable and integrity checks pass",
+      "owner": "mirror_update_lane",
+      "queue_policy": "runtime_volume/outbox/mirror_update_lane",
+      "retry_policy": "replay on next healthy mirror host check",
+      "circuit_breaker_policy": "defer after failed mirror apply",
+      "rollback_policy": "preserve previous mirror state until receipt verifies"
+    },
+    {
+      "dependency_id": "task_milestone_observation",
+      "class": "CORE_DEGRADED",
+      "affected_capability": "target-host milestone observation",
+      "blocked_domain": "milestone monitor target-host observer",
+      "impact_radius": ["milestone_live_observation"],
+      "fallback_path": "reconstruct milestones from append-only task evidence",
+      "continuation_mode": "continue task execution with local receipts",
+      "re_entry_condition": "monitor reads and verifies accumulated receipts",
+      "owner": "task_milestone_monitor",
+      "queue_policy": "runtime_volume/outbox/task_milestones",
+      "retry_policy": "hourly condition-watch milestone check",
+      "circuit_breaker_policy": "do not block task receipts when monitor is stale",
+      "rollback_policy": "preserve receipt ledger as source of truth"
+    },
+    {
+      "dependency_id": "audio_output_adapter",
+      "class": "OPTIONAL",
+      "affected_capability": "speaker/audio notification",
+      "blocked_domain": "audio output adapter",
+      "impact_radius": ["audio_notification"],
+      "fallback_path": "visual alert and logged notification",
+      "continuation_mode": "computation, storage, display, agent execution and scheduler remain healthy",
+      "re_entry_condition": "audio adapter health probe passes",
+      "owner": "virtual_gpu_hci_dashboard",
+      "queue_policy": "runtime_volume/outbox/notifications",
+      "retry_policy": "next notification cycle",
+      "circuit_breaker_policy": "disable audio adapter until health probe succeeds",
+      "rollback_policy": "none required"
+    },
+    {
+      "dependency_id": "provider_peer_ack",
+      "class": "EXTERNAL_GATE",
+      "affected_capability": "remote provider attestation",
+      "blocked_domain": "Drive/SIMB/Gemini/OpenAI provider acknowledgement",
+      "impact_radius": ["remote_attestation", "provider_sync"],
+      "fallback_path": "local receipt, outbox and deferred provider envelope",
+      "continuation_mode": "continue local runtime and mark provider proof pending",
+      "re_entry_condition": "signed provider acknowledgement envelope validates",
+      "owner": "peer_ack_verifier",
+      "queue_policy": "runtime_volume/outbox/provider_peer_ack",
+      "retry_policy": "provider retry only when credential and network gates exist",
+      "circuit_breaker_policy": "do not claim remote provider state without receipt",
+      "rollback_policy": "provider state not promoted until verified"
+    }
+  ]
+}
