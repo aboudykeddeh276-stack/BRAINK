@@ -1,0 +1,42 @@
+name: KEDDEH V99 Evidence Authenticity Gate
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - '**/*.ts'
+      - '**/*.tsx'
+      - '**/*.js'
+      - '**/*.jsx'
+      - '**/*.py'
+      - '**/*.html'
+      - '.github/workflows/v99-evidence-authenticity-gate.yml'
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  evidence-authenticity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile gate and tests
+        run: |
+          cd v98_protocol_compliance_config
+          python3 -m compileall src tests
+      - name: Run focused tests
+        run: |
+          cd v98_protocol_compliance_config
+          python3 -m pytest -q tests/test_evidence_authenticity_gate.py
+      - name: Scan source claims
+        run: |
+          cd v98_protocol_compliance_config
+          python3 src/keddeh_evidence_authenticity_gate.py --root .. --emit-receipt
+      - name: Upload authenticity receipt
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: keddeh-v99-evidence-authenticity
+          path: v98_protocol_compliance_config/evidence/evidence_authenticity_gate_receipt.json
