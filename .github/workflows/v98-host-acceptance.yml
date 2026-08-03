@@ -12,6 +12,7 @@ on:
       - '.github/workflows/v98-dependency-failure-isolation.yml'
       - '.github/workflows/v98-k-cloud-deploy.yml'
       - '.github/workflows/v98-application-applet-shipping.yml'
+      - '.github/workflows/v98-deployment-maturity-workplan.yml'
 
 permissions:
   contents: read
@@ -50,6 +51,11 @@ jobs:
         run: |
           cd v98_protocol_compliance_config
           python3 src/keddeh_application_applet_packager.py --root . --emit-receipt
+      - name: Produce deployment maturity workplan
+        if: always()
+        run: |
+          cd v98_protocol_compliance_config
+          python3 src/keddeh_deployment_maturity_workplan.py --root . --emit-receipt
       - name: Execute acceptance, BTC router, task, workflow and design deployment gates
         if: always()
         run: |
