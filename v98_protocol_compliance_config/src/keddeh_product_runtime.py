@@ -3,7 +3,7 @@ from __future__ import annotations
 import argparse, hashlib, json, subprocess, time
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, Iterable, List
 from keddeh_k_cloud_adapter import integrity_readback
 REQUIRED={"applicationId","kind","entrypoint","runtime","route","vfsNamespace","suppliedCapabilities","modules","criticality","fallbackAdapter","launchCommand","testCommand","deploymentTarget","maturity"}
 @dataclass(frozen=True)
@@ -16,8 +16,23 @@ def append_ledger(p:Path,x:Dict[str,Any])->None:
     with p.open("a",encoding="utf-8") as h:h.write(json.dumps(x,sort_keys=True)+"\n")
 def ledger_contains(p:Path,hsh:str)->bool:
     return p.exists() and any(json.loads(l).get("entry_hash")==hsh for l in p.read_text().splitlines() if l.strip())
+def registry_paths(root:Path)->List[Path]:
+    config=root/"config"
+    primary=config/"kapp_product_registry.json"
+    extensions=sorted(p for p in config.glob("kapp_*_registry.json") if p!=primary)
+    return [primary,*extensions]
+def iter_products(root:Path)->Iterable[Dict[str,Any]]:
+    seen=set()
+    for registry in registry_paths(root):
+        payload=read_json(registry)
+        for product in payload.get("products",[]):
+            product_id=product.get("applicationId")
+            if product_id in seen:
+                raise ValueError("duplicate_product:"+str(product_id))
+            seen.add(product_id)
+            yield product
 def load_product(root:Path,pid:str)->Dict[str,Any]:
-    for p in read_json(root/"config"/"kapp_product_registry.json").get("products",[]):
+    for p in iter_products(root):
         if p.get("applicationId")==pid:
             missing=REQUIRED-set(p)
             if missing: raise ValueError("product_missing_fields:"+",".join(sorted(missing)))
