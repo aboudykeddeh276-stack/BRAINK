@@ -13,6 +13,7 @@ on:
       - '.github/workflows/v98-k-cloud-deploy.yml'
       - '.github/workflows/v98-application-applet-shipping.yml'
       - '.github/workflows/v98-deployment-maturity-workplan.yml'
+      - '.github/workflows/v98-current-state-surface-audit.yml'
 
 permissions:
   contents: read
@@ -56,6 +57,11 @@ jobs:
         run: |
           cd v98_protocol_compliance_config
           python3 src/keddeh_deployment_maturity_workplan.py --root . --emit-receipt
+      - name: Audit current desktop, emulator, server and hardware surfaces
+        if: always()
+        run: |
+          cd v98_protocol_compliance_config
+          python3 src/keddeh_current_state_surface_auditor.py --root . --emit-receipt
       - name: Execute acceptance, BTC router, task, workflow and design deployment gates
         if: always()
         run: |
