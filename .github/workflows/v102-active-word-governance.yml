@@ -1,0 +1,43 @@
+name: KEDDEH V102 Active Word Governance
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'v98_protocol_compliance_config/config/active_word_governance.json'
+      - 'v98_protocol_compliance_config/config/active_story_lexicon.json'
+      - 'v98_protocol_compliance_config/config/il_llm_active_story_registry.json'
+      - 'v98_protocol_compliance_config/src/keddeh_active_word_governance.py'
+      - 'v98_protocol_compliance_config/tests/test_active_word_governance.py'
+      - '.github/workflows/v102-active-word-governance.yml'
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  active-word-governance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile source and tests
+        run: |
+          cd v98_protocol_compliance_config
+          python3 -m compileall src tests
+      - name: Run active word governance tests
+        run: |
+          cd v98_protocol_compliance_config
+          python3 src/keddeh_test_runner.py --root . --emit-receipt
+      - name: Execute active word governance runtime
+        run: |
+          cd v98_protocol_compliance_config
+          python3 src/keddeh_active_word_governance.py --root . --emit-receipt
+      - name: Upload active word evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: keddeh-v102-active-word-governance
+          path: |
+            v98_protocol_compliance_config/evidence/active_word_governance_receipt.json
+            v98_protocol_compliance_config/runtime_volume/active_words/
