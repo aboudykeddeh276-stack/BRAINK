@@ -1,0 +1,162 @@
+{
+  "version": "V107-UNIVERSAL-CAPABILITY-DERIVATION-1",
+  "registryId": "keddeh.universal-capability-derivation",
+  "canonicalRule": "A component failure removes only the input data and capabilities supplied by that component. Each required output is re-derived through every admissible path before the affected service is degraded, deferred, or bounded-stopped.",
+  "states": [
+    "FULLY_DERIVED",
+    "SUBSTITUTED",
+    "DEGRADED_DERIVATION",
+    "DEFERRED_INPUT",
+    "BOUNDED_STOP",
+    "REINTEGRATION_REQUIRED"
+  ],
+  "componentClasses": [
+    "HOST",
+    "SERVER",
+    "HYPERVISOR",
+    "AGENT",
+    "MODEL",
+    "DATABASE",
+    "NETWORK",
+    "API",
+    "SENSOR",
+    "GPU",
+    "STORAGE",
+    "HUMAN_AUTHORITY",
+    "EXTERNAL_PROVIDER"
+  ],
+  "components": [
+    {"componentId": "component://host/macos-m3", "class": "HOST", "supplies": ["input.apple-native-readback", "input.metal-frame-proof", "input.macos-package-signature"]},
+    {"componentId": "component://server/application-primary", "class": "SERVER", "supplies": ["input.live-application-response", "input.primary-service-health"]},
+    {"componentId": "component://hypervisor/primary", "class": "HYPERVISOR", "supplies": ["input.runtime-placement", "input.provider-capability-map"]},
+    {"componentId": "component://agent/research-primary", "class": "AGENT", "supplies": ["input.primary-research-synthesis", "input.agent-observation"]},
+    {"componentId": "component://model/primary", "class": "MODEL", "supplies": ["input.primary-model-inference"]},
+    {"componentId": "component://database/primary", "class": "DATABASE", "supplies": ["input.current-authoritative-record", "input.primary-query-result"]},
+    {"componentId": "component://network/public-route", "class": "NETWORK", "supplies": ["input.external-reachability", "input.remote-provider-response"]},
+    {"componentId": "component://api/primary", "class": "API", "supplies": ["input.live-api-payload"]},
+    {"componentId": "component://sensor/primary", "class": "SENSOR", "supplies": ["input.live-sensor-observation"]},
+    {"componentId": "component://gpu/native", "class": "GPU", "supplies": ["input.native-gpu-frame", "input.hardware-acceleration-proof"]},
+    {"componentId": "component://storage/primary", "class": "STORAGE", "supplies": ["input.primary-artifact-readback"]},
+    {"componentId": "component://authority/human", "class": "HUMAN_AUTHORITY", "supplies": ["input.human-approval", "input.authority-decision"]},
+    {"componentId": "component://provider/external", "class": "EXTERNAL_PROVIDER", "supplies": ["input.external-provider-result"]},
+
+    {"componentId": "component://host/github-linux", "class": "HOST", "supplies": ["input.portable-execution", "input.portable-test-receipt"]},
+    {"componentId": "component://server/application-secondary", "class": "SERVER", "supplies": ["input.live-application-response-secondary", "input.secondary-service-health"]},
+    {"componentId": "component://hypervisor/embedded-resolver", "class": "HYPERVISOR", "supplies": ["input.static-placement-policy", "input.cached-provider-capability-map"]},
+    {"componentId": "component://agent/research-secondary", "class": "AGENT", "supplies": ["input.secondary-research-synthesis", "input.agent-observation-secondary"]},
+    {"componentId": "component://model/fallback", "class": "MODEL", "supplies": ["input.fallback-model-inference"]},
+    {"componentId": "component://database/replica", "class": "DATABASE", "supplies": ["input.replica-authoritative-record", "input.replica-query-result"]},
+    {"componentId": "component://network/local", "class": "NETWORK", "supplies": ["input.local-route", "input.local-provider-response"]},
+    {"componentId": "component://api/cache", "class": "API", "supplies": ["input.cached-api-payload"]},
+    {"componentId": "component://sensor/derived", "class": "SENSOR", "supplies": ["input.model-derived-observation"]},
+    {"componentId": "component://gpu/cpu-renderer", "class": "GPU", "supplies": ["input.cpu-rendered-frame"]},
+    {"componentId": "component://storage/replica", "class": "STORAGE", "supplies": ["input.replica-artifact-readback"]},
+    {"componentId": "component://ledger/prior-authority", "class": "STORAGE", "supplies": ["input.prior-authority-receipt"]},
+    {"componentId": "component://provider/substitute", "class": "EXTERNAL_PROVIDER", "supplies": ["input.substitute-provider-result"]}
+  ],
+  "services": [
+    {
+      "serviceId": "service://universal/example",
+      "outputs": [
+        {
+          "outputId": "output.service-result",
+          "mandatory": true,
+          "derivationPaths": [
+            {"pathId": "path_a", "requiredInputs": ["input.primary-query-result", "input.primary-model-inference"], "quality": "AUTHORITATIVE"},
+            {"pathId": "path_b", "requiredInputs": ["input.replica-query-result", "input.fallback-model-inference"], "quality": "SUBSTITUTED"},
+            {"pathId": "path_x", "requiredInputs": ["input.cached-api-payload", "input.prior-authority-receipt"], "quality": "DEGRADED"}
+          ]
+        }
+      ]
+    },
+    {
+      "serviceId": "service://application/runtime",
+      "outputs": [
+        {
+          "outputId": "output.application-response",
+          "mandatory": true,
+          "derivationPaths": [
+            {"pathId": "path_a", "requiredInputs": ["input.live-application-response", "input.primary-service-health"], "quality": "AUTHORITATIVE"},
+            {"pathId": "path_b", "requiredInputs": ["input.live-application-response-secondary", "input.secondary-service-health"], "quality": "SUBSTITUTED"},
+            {"pathId": "path_x", "requiredInputs": ["input.cached-api-payload"], "quality": "DEGRADED"}
+          ]
+        }
+      ]
+    },
+    {
+      "serviceId": "service://provider/scheduling",
+      "outputs": [
+        {
+          "outputId": "output.runtime-placement",
+          "mandatory": true,
+          "derivationPaths": [
+            {"pathId": "path_a", "requiredInputs": ["input.runtime-placement", "input.provider-capability-map"], "quality": "AUTHORITATIVE"},
+            {"pathId": "path_b", "requiredInputs": ["input.static-placement-policy", "input.cached-provider-capability-map"], "quality": "SUBSTITUTED"},
+            {"pathId": "path_x", "requiredInputs": ["input.portable-execution"], "quality": "DEGRADED"}
+          ]
+        }
+      ]
+    },
+    {
+      "serviceId": "service://research/synthesis",
+      "outputs": [
+        {
+          "outputId": "output.research-synthesis",
+          "mandatory": true,
+          "derivationPaths": [
+            {"pathId": "path_a", "requiredInputs": ["input.primary-research-synthesis", "input.agent-observation"], "quality": "AUTHORITATIVE"},
+            {"pathId": "path_b", "requiredInputs": ["input.secondary-research-synthesis", "input.agent-observation-secondary"], "quality": "SUBSTITUTED"},
+            {"pathId": "path_x", "requiredInputs": ["input.prior-authority-receipt"], "quality": "DEGRADED"}
+          ]
+        }
+      ]
+    },
+    {
+      "serviceId": "service://visual/projection",
+      "outputs": [
+        {
+          "outputId": "output.frame",
+          "mandatory": true,
+          "derivationPaths": [
+            {"pathId": "path_a", "requiredInputs": ["input.native-gpu-frame"], "quality": "AUTHORITATIVE"},
+            {"pathId": "path_b", "requiredInputs": ["input.cpu-rendered-frame"], "quality": "SUBSTITUTED"}
+          ]
+        },
+        {
+          "outputId": "output.hardware-acceleration-proof",
+          "mandatory": false,
+          "derivationPaths": [
+            {"pathId": "path_a", "requiredInputs": ["input.hardware-acceleration-proof"], "quality": "AUTHORITATIVE"}
+          ]
+        }
+      ]
+    },
+    {
+      "serviceId": "service://apple/native-validation",
+      "outputs": [
+        {
+          "outputId": "output.apple-native-validation",
+          "mandatory": false,
+          "derivationPaths": [
+            {"pathId": "path_a", "requiredInputs": ["input.apple-native-readback", "input.macos-package-signature"], "quality": "AUTHORITATIVE"}
+          ]
+        },
+        {
+          "outputId": "output.portable-validation",
+          "mandatory": true,
+          "derivationPaths": [
+            {"pathId": "path_b", "requiredInputs": ["input.portable-execution", "input.portable-test-receipt"], "quality": "SUBSTITUTED"}
+          ]
+        }
+      ]
+    }
+  ],
+  "statePolicy": {
+    "allMandatoryAuthoritative": "FULLY_DERIVED",
+    "allMandatoryDerivedWithSubstitution": "SUBSTITUTED",
+    "allMandatoryDerivedWithDegradedPath": "DEGRADED_DERIVATION",
+    "mandatoryOutputNotDerivable": "BOUNDED_STOP",
+    "onlyOptionalOutputNotDerivable": "DEFERRED_INPUT",
+    "globalStop": false
+  }
+}
