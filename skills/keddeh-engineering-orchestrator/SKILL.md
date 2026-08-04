@@ -4,7 +4,7 @@
 
 ```text
 skill://keddeh/engineering-orchestrator
-version: 1.0.0
+version: 1.1.0
 class: HIGH_ASSURANCE_ENGINEERING_ORCHESTRATION
 scope: KEDDEH / BRAINK / KEX engineering only
 lovable: excluded
@@ -19,13 +19,14 @@ This skill coordinates all realistically applicable engineering capabilities int
 ```text
 engineering objective
 → resolve authoritative sources
+→ identify or create software topology identities
 → decompose into bounded work units
 → map each work unit to the strongest applicable capability
 → execute through deterministic path_a, path_b, path_c
-→ validate outputs
+→ validate outputs and topology changes
 → preserve durable artifacts
 → perform independent readback
-→ record receipts, hashes, lineage, impact radius, and unresolved gates
+→ record receipts, hashes, lineage, impact radius, architecture decisions, and unresolved gates
 ```
 
 ## Core invariants
@@ -40,6 +41,53 @@ engineering objective
 8. **Engineering fidelity:** existing KEDDEH architecture is extended, not replaced by unrelated platform defaults.
 9. **Lovable exclusion:** Lovable must not be invoked by this skill.
 10. **User authority:** destructive, external, credentialed, legal-authority, financial, or public-production actions remain permission- and evidence-gated.
+11. **Topology authority:** every material software unit must have a canonical identity, responsibility, owner, level, interfaces, dependencies, runtime projection, and evidence lineage.
+12. **Iteration authority:** implementation cannot bypass design, static validation, execution, integration, preservation, and review states.
+
+## Software topology and design authority
+
+The canonical standard is:
+
+```text
+SOFTWARE_TOPOLOGY_STANDARD.md
+```
+
+Every material engineering task must determine which topology levels it changes:
+
+```text
+L0 ecosystem
+L1 system
+L2 bounded domain
+L3 runtime container
+L4 component
+L5 code unit
+L6 execution transition
+L7 deployment projection
+```
+
+The task must preserve distinct views for context, building blocks, runtime, deployment, data lineage, failure/recovery, security/trust, and evidence/promotion.
+
+A topology mutation must report:
+
+```text
+nodes added or changed
+edges added, changed, or retired
+interfaces affected
+compatibility effect
+ADRs introduced or superseded
+migration and rollback sequence
+validation gates
+```
+
+The following files are mandatory skill authorities:
+
+```text
+software_topology.schema.json
+naming_conventions.json
+iteration_lifecycle.json
+```
+
+Disconnected files without topology identity are incomplete software design outputs.
 
 ## Capability domains
 
@@ -140,6 +188,25 @@ compute:
   path_c deterministic local software model
 ```
 
+## Design iteration lifecycle
+
+Every material change follows:
+
+```text
+I0 OBSERVE
+→ I1 DEFINE
+→ I2 DESIGN
+→ I3 IMPLEMENT
+→ I4 STATIC_VALIDATE
+→ I5 EXECUTE
+→ I6 INTEGRATE
+→ I7 PROMOTE
+→ I8 PRESERVE
+→ I9 REVIEW
+```
+
+Skipping from design to promotion is prohibited. Rollback preserves the failed iteration, evidence, and superseding decision.
+
 ## Promotion ladder
 
 ```text
@@ -194,6 +261,14 @@ Every completed work unit should emit:
   "source_identities": [],
   "tools_invoked": [],
   "selected_path": "path_a|path_b|path_c",
+  "topology_delta": {
+    "nodes_added": [],
+    "nodes_changed": [],
+    "edges_added": [],
+    "edges_changed": [],
+    "interfaces_affected": []
+  },
+  "iteration_state": "I0_OBSERVE|I1_DEFINE|I2_DESIGN|I3_IMPLEMENT|I4_STATIC_VALIDATE|I5_EXECUTE|I6_INTEGRATE|I7_PROMOTE|I8_PRESERVE|I9_REVIEW",
   "outputs": [],
   "tests": [],
   "artifact_state": "DURABLE_BYTES|DURABLE_NATIVE_RECORD|REFERENCE_ONLY|EPHEMERAL_OR_EXPIRED_PATH|RECONSTRUCTION_REQUIRED",
@@ -216,10 +291,13 @@ inventing target-host, provider, deployment, legal, financial, or certification 
 replacing KEDDEH architecture with unrelated conventional abstractions
 blending incomplete failover paths
 creating decorative artifacts without engineering value
+creating disconnected modules without topology identity
+mixing architecture abstraction levels in one undocumented view
+promoting changes without an iteration record and topology delta
 ```
 
 ## Invocation
 
 Use this skill whenever the request concerns KEDDEH/BRAINK/KEX engineering, repository work, research, system design, runtime implementation, testing, deployment, evidence, preservation, worker coordination, or formal technical documentation.
 
-The skill must be consulted before selecting tools and again before claiming completion.
+The skill must be consulted before selecting tools, before mutating software topology, and again before claiming completion.
