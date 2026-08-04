@@ -1,13 +1,15 @@
 {
   "skill_id": "skill://keddeh/engineering-orchestrator",
   "name": "KEDDEH Engineering Orchestrator",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "status": "ACTIVE_REPOSITORY_SKILL",
   "scope": [
-    "KEDDEH", "BRAINK", "KEX", "bare-metal OS", "workbook OS", "K-Cloud",
-    "agents", "networking", "storage", "visual hardware/software",
+    "KEDDEH", "BRAINK", "KEX", "bare-metal OS", "custom BIOS and firmware",
+    "workbook OS", "K-Cloud", "agents", "networking", "servers", "storage",
+    "visual hardware/software", "hardware abstraction", "hardware description",
     "legal-process software", "research archives", "deployment and evidence",
-    "software topology", "software design", "architecture documentation", "iteration governance"
+    "software topology", "software design", "architecture documentation",
+    "iteration governance", "multi-language source generation", "bilateral translation"
   ],
   "excluded_tools": ["Lovable"],
   "capability_domains": [
@@ -19,8 +21,29 @@
     "ISO/IEC/IEEE 42010:2022 architecture description concepts",
     "C4 hierarchical abstraction and diagram views",
     "arc42 architecture communication structure",
+    "LLVM typed target-independent intermediate representation",
+    "MLIR multi-level dialect and lowering architecture",
+    "UEFI and ACPI firmware interface specifications",
+    "RISC-V separation of ISA, privilege architecture, and execution environments",
     "KEDDEH recursive contextual execution architecture"
   ],
+  "translation_architecture": {
+    "translation_layer": "IL-LLM",
+    "canonical_ir": "ir://keddeh/system-synthesis",
+    "bilateral_contract": "contract://keddeh/il-llm-bilateral-translation",
+    "pipeline": [
+      "source_requirement", "IL_LLM_interpretation", "KIR",
+      "target_language_projection", "execution_or_synthesis",
+      "evidence_readback", "KIR_raise", "semantic_equivalence"
+    ],
+    "equivalence_states": [
+      "SEMANTIC_EQUIVALENT",
+      "SEMANTIC_EQUIVALENT_WITH_DECLARED_ADAPTERS",
+      "PARTIAL_EQUIVALENCE",
+      "TRANSLATION_GAP",
+      "INVALID_TARGET"
+    ]
+  },
   "topology_levels": [
     "L0_ECOSYSTEM", "L1_SYSTEM", "L2_DOMAIN", "L3_RUNTIME_CONTAINER",
     "L4_COMPONENT", "L5_CODE_UNIT", "L6_EXECUTION_TRANSITION", "L7_DEPLOYMENT_PROJECTION"
@@ -37,7 +60,8 @@
   "completion_requires": [
     "execution_or_explicit_nonexecution_boundary", "validation", "artifact classification",
     "lineage", "impact radius", "remaining gates", "topology delta",
-    "interface compatibility", "iteration state"
+    "interface compatibility", "iteration state", "KIR mapping",
+    "target language and runtime declaration", "bilateral semantic readback"
   ],
   "artifact_states": [
     "DURABLE_BYTES", "DURABLE_NATIVE_RECORD", "REFERENCE_ONLY",
@@ -60,6 +84,9 @@
     "software_topology_schema": "software_topology.schema.json",
     "naming_conventions": "naming_conventions.json",
     "iteration_lifecycle": "iteration_lifecycle.json",
+    "language_target_matrix": "LANGUAGE_TARGET_MATRIX.json",
+    "keddeh_ir": "KEDDEH_INTERMEDIATE_REPRESENTATION.md",
+    "il_llm_translation_contract": "IL_LLM_BILATERAL_TRANSLATION_CONTRACT.md",
     "validator": "validate_skill.py",
     "tests": "test_validate_skill.py"
   }
