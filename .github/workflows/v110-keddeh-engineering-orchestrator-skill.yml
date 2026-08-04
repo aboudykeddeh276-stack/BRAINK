@@ -23,6 +23,6 @@ jobs:
         working-directory: skills/keddeh-engineering-orchestrator
         run: python3 validate_skill.py
 
-      - name: Execute skill tests
+      - name: Execute dependency-free skill tests
         working-directory: skills/keddeh-engineering-orchestrator
-        run: python3 -m pytest -q test_validate_skill.py
+        run: python3 -m unittest -v test_validate_skill.py
