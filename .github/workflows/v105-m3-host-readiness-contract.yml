@@ -1,0 +1,47 @@
+name: KEDDEH V105 M3 Host Readiness Contract
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'v98_protocol_compliance_config/config/m3_host_readiness_contract.json'
+      - 'v98_protocol_compliance_config/src/keddeh_m3_host_readiness.py'
+      - 'v98_protocol_compliance_config/scripts/run_m3_host_acceptance.command'
+      - 'v98_protocol_compliance_config/tests/test_m3_host_readiness.py'
+      - '.github/workflows/v105-m3-host-readiness-contract.yml'
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  validate-host-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile host readiness runtime
+        run: |
+          cd v98_protocol_compliance_config
+          python3 -m compileall src tests
+      - name: Run repository test suite
+        run: |
+          cd v98_protocol_compliance_config
+          python3 src/keddeh_test_runner.py --root . --emit-receipt
+      - name: Generate bounded host receipt template
+        run: |
+          cd v98_protocol_compliance_config
+          python3 src/keddeh_m3_host_readiness.py --root . --emit-template || test $? -eq 1
+          test -f runtime_volume/workplans/m3_host_readiness/host_receipt_template.json
+      - name: Verify host script is present
+        run: |
+          test -s v98_protocol_compliance_config/scripts/run_m3_host_acceptance.command
+      - name: Upload host readiness contract
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: keddeh-v105-m3-host-readiness-contract
+          path: |
+            v98_protocol_compliance_config/config/m3_host_readiness_contract.json
+            v98_protocol_compliance_config/scripts/run_m3_host_acceptance.command
+            v98_protocol_compliance_config/runtime_volume/workplans/m3_host_readiness/
