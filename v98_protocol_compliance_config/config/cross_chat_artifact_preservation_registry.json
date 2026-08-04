@@ -1,0 +1,76 @@
+{
+  "version": "V108-CROSS-CHAT-ARTIFACT-PRESERVATION-1",
+  "registryId": "keddeh.cross-chat-artifact-preservation",
+  "canonicalRule": "An artifact is not saved merely because a chat contains a sandbox link, scratch path, manifest, index, report, or successful generation claim. Saved requires durable bytes, independent readback, stable identity, filename, size, cryptographic hash, and a reconstruction path.",
+  "scope": {
+    "auditedSources": ["chat-file-library", "current-conversation-files", "google-drive", "github", "project-context"],
+    "notDirectlyAccessible": ["complete raw transcripts for every ChatGPT conversation", "expired sandbox workspaces", "cleaned scratch directories", "unmounted prior runtime files"],
+    "scopeBoundary": "All accessible cross-chat records are audited. Inaccessible chat transcripts and expired bytes are registered as unresolved obligations rather than assumed preserved."
+  },
+  "states": ["DURABLE_BYTES_VERIFIED", "DURABLE_NATIVE_RECORD_ONLY", "REFERENCE_ONLY", "EPHEMERAL_PATH", "MISSING_BYTES_CONFIRMED", "RECONSTRUCTION_REQUIRED", "RECONSTRUCTED_AND_VERIFIED"],
+  "requiredDurabilityEvidence": ["stable_storage_id", "exact_filename", "mime_type", "byte_size", "sha256", "independent_byte_readback", "source_lineage", "reconstruction_command_or_source_bundle"],
+  "prohibitedCompletionEvidence": ["sandbox:/mnt/data link alone", "sandbox:/workspace/scratch link", "Drive manifest without artifact bytes", "Drive index without artifact bytes", "chat response saying saved", "test summary without artifact readback", "GitHub Actions artifact after expiry without durable copy"],
+  "confirmedIncidents": [
+    {
+      "incidentId": "artifact://legal-process/v0.15/case-export",
+      "expectedFiles": ["CASE-AK-SA-001-complete-export.zip", "KEX_Legal_Process_v0.15.0_Export_Availability_Fixed.zip"],
+      "priorReferences": ["sandbox:/workspace/scratch/081bd171415b/CASE-AK-SA-001-complete-export.zip", "sandbox:/workspace/scratch/081bd171415b/KEX_Legal_Process_v0.15.0_Export_Availability_Fixed.zip"],
+      "driveSearchResult": "NOT_FOUND_BY_EXACT_NAME",
+      "state": "MISSING_BYTES_CONFIRMED",
+      "reconstructionInputs": ["complete case record", "authorities", "topology", "Markdown report", "exact defence source", "corpus index", "matter audit events", "README", "SHA-256 manifest"],
+      "knownSourceHash": "e8f2f183cb68c3189798d5d4d66266d4f430b18fd1054b1eba384fa047ae48a7"
+    },
+    {
+      "incidentId": "artifact://wbios/v9/build",
+      "expectedFiles": ["KEDDEH_WBIOS_MAXIMISED_BUILD_V9.zip", "KEDDEH_WBIOS_VISUAL_CONTROL_PLANE_V9.xlsx", "KEDDEH_WBIOS_VISUAL_EMULATOR_V9.html", "KEDDEH_WBIOS_VISUAL_EMULATOR_V9.png", "KEDDEH_WBIOS_RGBA_FRAMEBUFFERS_V9.json", "KEDDEH_WBIOS_VISUAL_TELEMETRY_V9.json", "kex_rehydration_seed_v9.kexseed", "kex_rehydration_proof_v9.json", "KEDDEH_WBIOS_MAXIMISED_BUILD_V9_BYTE_CHECKPOINTS.json"],
+      "durableRecordsFound": ["KEDDEH_WBIOS_V9_VISUAL_EMULATOR_INDEX", "KEDDEH WBIOS MAXIMISED BUILD V9 — Drive Save Manifest", "KEDDEH WBIOS V9 Visual Projection Manifest"],
+      "state": "DURABLE_NATIVE_RECORD_ONLY"
+    },
+    {
+      "incidentId": "artifact://akd64/v10/build",
+      "expectedFiles": ["KEDDEH_AKD64_VISUAL_FABRIC_BUILD_V10.zip", "KEDDEH_AKD64_VISUAL_FABRIC_CONTROL_PLANE_V10.xlsx", "KEDDEH_AKD64_VISUAL_FABRIC_DASHBOARD_V10.png", "KEDDEH_AKD64_VISUAL_EMULATOR_V10.html", "KEDDEH_AKD64_VISUAL_EMULATOR_V10.png", "KEDDEH_AKD64_RGBA_FRAMEBUFFERS_V10.json", "KEDDEH_AKD64_VISUAL_TELEMETRY_V10.json", "kex_rehydration_seed_v10.kexseed", "kex_rehydration_proof_v10.json", "KEDDEH_AKD64_VISUAL_FABRIC_V10_BYTE_CHECKPOINTS.json"],
+      "driveSearchResult": "ZIP_NOT_FOUND_BY_EXACT_NAME",
+      "state": "DURABLE_NATIVE_RECORD_ONLY"
+    },
+    {
+      "incidentId": "artifact://akd64/v11/build",
+      "expectedFiles": ["KEDDEH_AKD64_EVOLUTION_LIBRARY_BUILD_V11.zip", "KEDDEH_AKD64_EVOLUTION_LIBRARY_INDEX_V11.json", "KEDDEH_AKD64_V11_RESEARCH_EXPANSION.md", "kex_rehydration_seed_v11.kexseed", "kex_rehydration_proof_v11.json", "KEDDEH_AKD64_V11_VERIFICATION_GATES.json", "KEDDEH_AKD64_EVOLUTION_LIBRARY_SUMMARY_V11.json"],
+      "priorRecord": "Raw ZIP upload rejected; Drive-native library records created",
+      "state": "DURABLE_NATIVE_RECORD_ONLY"
+    },
+    {
+      "incidentId": "artifact://kex/v12/algebraic-foundation",
+      "expectedFiles": ["KEDDEH_KEX_ALGEBRAIC_FOUNDATION_BUILD_V12.zip", "KEX_AKD64_ALGEBRAIC_FOUNDATION_V12.md", "KEX_ALGEBRAIC_FOUNDATION_SPEC_V12.json", "KEX_ALGEBRAIC_PROOF_GATES_V12.json", "kex_algebraic_foundation_seed_v12.kexseed", "kex_algebraic_foundation_rehydration_proof_v12.json", "KEX_ALGEBRAIC_FOUNDATION_LIBRARY_INDEX_V12.json", "KEX_ALGEBRAIC_FOUNDATION_SUMMARY_V12.json"],
+      "priorRecord": "Raw ZIP/file upload rejected; Drive-native foundation records created",
+      "state": "DURABLE_NATIVE_RECORD_ONLY"
+    },
+    {
+      "incidentId": "artifact://runtime/v58/active-vite-enterprise",
+      "expectedFiles": ["KEDDEH_RUNTIME_V58_ACTIVE_VITE_ENTERPRISE_PROVISIONING_PACKAGE.zip", "KEDDEH_RUNTIME_V58_ACTIVE_VITE_ENTERPRISE_PROVISIONING_SUMMARY.json"],
+      "state": "REFERENCE_ONLY"
+    },
+    {
+      "incidentId": "artifact://runtime/v64/network-instantiation",
+      "expectedFiles": ["KEDDEH_RUNTIME_V64_DEAF_NETWORK_CORRECT_INSTANTIATION_PACKAGE.zip", "KEDDEH_V64_DEAF_NETWORK_CORRECT_INSTANTIATION_MATRIX.xlsx", "KEDDEH_RUNTIME_V64_DEAF_NETWORK_CORRECT_INSTANTIATION_SUMMARY.json"],
+      "driveSearchResult": "PACKAGE_ZIP_NOT_FOUND_BY_EXACT_NAME",
+      "state": "MISSING_BYTES_CONFIRMED"
+    },
+    {
+      "incidentId": "artifact://math/verification-appendix-supplement",
+      "expectedRoot": "KEX_BRAINK_Verification_Appendix_Supplement_20260714",
+      "state": "REFERENCE_ONLY"
+    },
+    {
+      "incidentId": "artifact://observer-encoding/0.3.0",
+      "expectedFiles": ["keddeh_observer_encoding-0.3.0.zip", "keddeh_observer_encoding-0.3.0.tar.gz", "keddeh_encoding_proof-0.3.0-py3-none-any.whl"],
+      "state": "REFERENCE_ONLY"
+    }
+  ],
+  "requiredSystemFix": {
+    "preExport": ["persist source data", "generate artifact in durable build directory", "write manifest and hashes"],
+    "export": ["generate real bytes", "verify archive integrity", "verify every manifest entry", "read exact source bytes back"],
+    "persistence": ["copy bytes to durable Drive or repository release storage", "record stable provider ID", "record size and SHA-256"],
+    "response": ["link only to confirmed available bytes", "never link to cleaned scratch workspace", "state exact evidence class"],
+    "reconciliation": ["scan archived chat/file records", "register unresolved filenames", "rebuild from preserved sources where possible", "mark irrecoverable bytes honestly"]
+  }
+}
