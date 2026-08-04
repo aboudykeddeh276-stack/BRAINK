@@ -1,0 +1,28 @@
+name: KEDDEH V110 Engineering Orchestrator Skill
+
+on:
+  pull_request:
+    paths:
+      - 'skills/keddeh-engineering-orchestrator/**'
+      - '.github/workflows/v110-keddeh-engineering-orchestrator-skill.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-skill:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate Python syntax
+        run: python3 -m compileall skills/keddeh-engineering-orchestrator
+
+      - name: Validate skill contract
+        working-directory: skills/keddeh-engineering-orchestrator
+        run: python3 validate_skill.py
+
+      - name: Execute skill tests
+        working-directory: skills/keddeh-engineering-orchestrator
+        run: python3 -m pytest -q test_validate_skill.py
