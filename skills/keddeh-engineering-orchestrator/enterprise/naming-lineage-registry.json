@@ -1,0 +1,92 @@
+{
+  "registry_id": "registry://keddeh/naming-lineage",
+  "version": "1.0.0",
+  "principle": "Names are executable attribution contracts. A name is valid only when its origin, semantic derivation, inherited capability field, contextual projections, ownership, and evidence lineage are explicit.",
+  "required_fields": [
+    "display_name",
+    "canonical_slug",
+    "canonical_identity",
+    "origin_authority",
+    "design_lineage",
+    "semantic_derivation",
+    "native_responsibility",
+    "inherited_capabilities",
+    "bilateral_contexts",
+    "non_responsibilities",
+    "version_authority",
+    "evidence_refs"
+  ],
+  "entries": [
+    {
+      "display_name": "Keddeh PlayWrite",
+      "canonical_slug": "playwrite",
+      "canonical_identity": "umbrella://keddeh/playwrite",
+      "origin_authority": "KEDDEH Systems design lineage",
+      "design_lineage": ["structured authorship", "technical documentation", "active-story semantics", "source lineage", "controlled document generation"],
+      "semantic_derivation": "Play + Write identifies an interactive executable authorship surface where source, structure, transformation, evidence, and publication remain linked.",
+      "native_responsibility": "Authoring and publication objects",
+      "inherited_capabilities": ["IL-LLM", "KIR", "semantic graph", "workflow", "evidence", "deployment"],
+      "bilateral_contexts": ["FormPath filing narratives", "LawPath submissions", "ClaimPath statements", "KEO specifications", "Data/Workbook reports"],
+      "non_responsibilities": ["legal authority", "filing acceptance", "insurance determination"],
+      "version_authority": "KEDDEH Systems portfolio governance",
+      "evidence_refs": []
+    },
+    {
+      "display_name": "Spin^",
+      "canonical_slug": "spin",
+      "canonical_identity": "umbrella://keddeh/spin",
+      "origin_authority": "KEDDEH Systems server and recursive runtime designs",
+      "design_lineage": ["server logic", "runtime loops", "concurrency", "routing", "resilience", "performance optimisation"],
+      "semantic_derivation": "Spin denotes continuously executing service logic; the exponent mark denotes scalable recursive composition and optimisation rather than a decorative brand suffix.",
+      "native_responsibility": "Service execution and server frameworks",
+      "inherited_capabilities": ["provider resolution", "KEX transitions", "KIR topology", "observability", "evidence"],
+      "bilateral_contexts": ["Coms delivery runtimes", "ClaimPath workflow services", "LawPath matter services", "K-Cloud execution"],
+      "non_responsibilities": ["message meaning", "legal meaning", "claim adjudication"],
+      "version_authority": "KEDDEH Systems portfolio governance",
+      "evidence_refs": []
+    },
+    {
+      "display_name": "LawPath",
+      "canonical_slug": "lawpath",
+      "canonical_identity": "umbrella://keddeh/lawpath",
+      "origin_authority": "KEX Legal Process and KEDDEH legal workflow lineage",
+      "design_lineage": ["matter topology", "procedure", "authority mapping", "evidence chains", "chronology", "submissions", "accountability"],
+      "semantic_derivation": "Law identifies the regulated legal domain; Path identifies the ordered, evidence-bearing procedural route through that domain.",
+      "native_responsibility": "Legal process and matter state",
+      "inherited_capabilities": ["PlayWrite", "Coms", "KIR", "active story", "evidence ledger", "request guard"],
+      "bilateral_contexts": ["FormPath document and filing requirements", "ClaimPath dispute escalation", "Regulatory Conformity jurisdiction packs"],
+      "non_responsibilities": ["professional legal advice without authorised reviewer", "authority-issued acceptance", "insurance coverage determination"],
+      "version_authority": "LawPath product governance with jurisdiction-pack review",
+      "evidence_refs": ["KEX Legal Process v0.14 lineage"]
+    },
+    {
+      "display_name": "FormPath",
+      "canonical_slug": "formpath",
+      "canonical_identity": "umbrella://keddeh/formpath",
+      "origin_authority": "KEDDEH document sourcing and technical filing design lineage",
+      "design_lineage": ["authoritative source retrieval", "form edition control", "field schemas", "technical filings", "submission assembly", "lodgement and readback"],
+      "semantic_derivation": "Form identifies authoritative structured documents and filing objects; Path identifies their source-to-completion-to-submission-to-readback lifecycle.",
+      "native_responsibility": "Form authority, edition, completion, package, submission, and receipt state",
+      "inherited_capabilities": ["PlayWrite", "Coms", "Data/Workbook", "KIR", "Evidence/Assurance"],
+      "bilateral_contexts": ["LawPath procedural filings", "ClaimPath insurance forms", "enterprise regulatory submissions"],
+      "non_responsibilities": ["substantive legal conclusion", "insurance merits determination", "filing authority acceptance without receipt"],
+      "version_authority": "FormPath source-authority governance",
+      "evidence_refs": []
+    },
+    {
+      "display_name": "ClaimPath",
+      "canonical_slug": "claimpath",
+      "canonical_identity": "umbrella://keddeh/claimpath",
+      "origin_authority": "KEDDEH insurance claim workflow spin-off design lineage",
+      "design_lineage": ["insurance intake", "policy interpretation", "coverage", "evidence", "loss", "valuation", "complaints", "disputes", "settlement"],
+      "semantic_derivation": "Claim identifies the insurance event and asserted entitlement; Path identifies the controlled progression from intake through evidence, assessment, decision, dispute, and resolution.",
+      "native_responsibility": "Insurance claim workflow and assessment record",
+      "inherited_capabilities": ["Coms", "FormPath", "LawPath", "Data/Workbook", "BRAINK", "Evidence/Assurance"],
+      "bilateral_contexts": ["FormPath required forms", "LawPath legal escalation", "Coms insurer correspondence", "Data/Workbook valuation"],
+      "non_responsibilities": ["binding insurer decision", "professional legal advice", "regulatory approval"],
+      "version_authority": "ClaimPath product governance with insurance regulatory review",
+      "evidence_refs": []
+    }
+  ],
+  "global_stop": false
+}
