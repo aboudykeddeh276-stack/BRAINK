@@ -1,0 +1,72 @@
+{
+  "wedge_id": "wedge://keddeh/engineering-to-regulated-workflow",
+  "version": "1.0.0",
+  "status": "CONTROLLED_ALPHA_WEDGE",
+  "name": "KEDDEH Engineering-to-Regulated-Workflow Suite",
+  "included_umbrellas": [
+    "umbrella://keddeh/keo",
+    "umbrella://keddeh/spin",
+    "umbrella://keddeh/formpath",
+    "umbrella://keddeh/evidence-assurance-deployment"
+  ],
+  "optional_pilot_extensions": [
+    "umbrella://keddeh/claimpath",
+    "umbrella://keddeh/playwrite"
+  ],
+  "customer_problem": "Engineering teams and regulated operations lose traceability between requirements, architecture, source implementation, authoritative documents, submission packages, and proof of what was executed.",
+  "primary_users": [
+    "systems architects",
+    "platform engineers",
+    "technical compliance teams",
+    "regulated operations teams",
+    "document and filing specialists"
+  ],
+  "economic_buyers": [
+    "chief technology officer",
+    "head of engineering",
+    "chief risk or compliance officer",
+    "operations director"
+  ],
+  "market_outcome": "Generate and operate a traceable engineering system that can source and assemble authority-backed filing packages while preserving topology, evidence, and bilateral semantic lineage.",
+  "vertical_flow": [
+    "capture requirement",
+    "resolve canonical identity and terminology",
+    "create KIR and topology",
+    "instantiate Spin service runtime",
+    "source and validate FormPath authority objects",
+    "assemble submission package",
+    "execute assurance and export readback",
+    "return observed evidence into KIR"
+  ],
+  "minimum_alpha_deliverables": [
+    "installable KEO CLI",
+    "persistent enterprise portfolio runtime",
+    "namespace and lineage resolver",
+    "bilateral contract adapter runtime",
+    "Spin service profile",
+    "FormPath authority and filing profile",
+    "durable signed export bundle",
+    "evidence and promotion receipt"
+  ],
+  "exclusions": [
+    "professional legal advice",
+    "authority acceptance guarantee",
+    "insurance determination",
+    "unreviewed autonomous filing",
+    "unproven production or hardware claims"
+  ],
+  "alpha_acceptance_gates": [
+    "GATE_WEDGE_01_INSTALLS_CLEANLY",
+    "GATE_WEDGE_02_FIRST_VALUE_UNDER_15_MINUTES",
+    "GATE_WEDGE_03_BILATERAL_ROUND_TRIP_PASSES",
+    "GATE_WEDGE_04_DURABLE_EXPORT_READBACK_PASSES",
+    "GATE_WEDGE_05_REGULATORY_BOUNDARIES_VISIBLE",
+    "GATE_WEDGE_06_EXTERNAL_USER_CASE_STUDY"
+  ],
+  "pricing_hypothesis": {
+    "community": "local CLI and open project format",
+    "team": "shared registry, private templates, evidence history, support",
+    "enterprise": "self-hosted control plane, SSO, policy packs, audit export and contractual support"
+  },
+  "global_stop": false
+}
