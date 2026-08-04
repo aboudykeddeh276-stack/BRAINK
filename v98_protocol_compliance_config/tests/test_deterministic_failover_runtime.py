@@ -74,7 +74,7 @@ def test_component_loss_removes_only_supplied_inputs():
     assert states["output.frame"]["selected_path"] == "path_b"
     assert states["output.frame"]["derived"] is True
     assert states["output.hardware-acceleration-proof"]["derived"] is False
-    assert result["service_state"] == "DEFERRED_INPUT"
+    assert result["service_state"] == "SUBSTITUTED"
     assert result["impact_radius"] == ["output.hardware-acceleration-proof"]
     assert result["preserved_outputs"] == ["output.frame"]
 
