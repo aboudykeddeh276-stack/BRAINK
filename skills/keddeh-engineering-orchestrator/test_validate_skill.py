@@ -45,6 +45,25 @@ class EngineeringOrchestratorSkillTests(unittest.TestCase):
         schema = load("software_topology.schema.json")
         self.assertIs(schema["properties"]["global_stop"]["const"], False)
 
+    def test_language_matrix_covers_software_firmware_and_hardware(self) -> None:
+        matrix = load("LANGUAGE_TARGET_MATRIX.json")
+        families = matrix["language_families"]
+        self.assertIn("C++23", families["freestanding_systems"]["languages"])
+        self.assertIn("Python", families["hosted_services"]["languages"])
+        self.assertIn("SystemVerilog", families["hardware_description"]["languages"])
+        self.assertIn("OpenAPI", families["interface_and_configuration"]["languages"])
+        self.assertIn("Excel-formulas", families["workbook_and_visual"]["languages"])
+        self.assertIs(matrix["global_stop"], False)
+
+    def test_il_llm_translation_architecture_is_bilateral(self) -> None:
+        manifest = load("skill_manifest.json")
+        translation = manifest["translation_architecture"]
+        self.assertEqual(translation["translation_layer"], "IL-LLM")
+        self.assertEqual(translation["canonical_ir"], "ir://keddeh/system-synthesis")
+        self.assertIn("KIR_raise", translation["pipeline"])
+        self.assertIn("SEMANTIC_EQUIVALENT", translation["equivalence_states"])
+        self.assertIn("TRANSLATION_GAP", translation["equivalence_states"])
+
     def test_all_canonical_files_exist(self) -> None:
         manifest = load("skill_manifest.json")
         for filename in manifest["canonical_files"].values():
