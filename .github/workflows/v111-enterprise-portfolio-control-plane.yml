@@ -1,0 +1,66 @@
+name: KEDDEH V111 Enterprise Portfolio Control Plane
+
+on:
+  pull_request:
+    paths:
+      - 'skills/keddeh-engineering-orchestrator/enterprise/**'
+      - '.github/workflows/v111-enterprise-portfolio-control-plane.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-enterprise-portfolio:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate Python syntax
+        run: python3 -m compileall skills/keddeh-engineering-orchestrator/enterprise
+
+      - name: Validate enterprise portfolio contracts
+        working-directory: skills/keddeh-engineering-orchestrator/enterprise
+        run: python3 validate_enterprise_portfolio.py
+
+      - name: Execute enterprise portfolio tests
+        working-directory: skills/keddeh-engineering-orchestrator/enterprise
+        run: python3 -m unittest -v test_enterprise_portfolio.py
+
+      - name: Emit enterprise receipt
+        working-directory: skills/keddeh-engineering-orchestrator/enterprise
+        run: |
+          python3 - <<'PY'
+          import hashlib, json
+          from pathlib import Path
+          files = [
+              'portfolio-registry.json',
+              'naming-lineage-registry.json',
+              'bilateral-contracts.json',
+              'enterprise-trajectory.json'
+          ]
+          receipt = {
+              'receipt_id': 'receipt://keddeh/enterprise-portfolio/v1',
+              'status': 'CI_PASS',
+              'global_stop': False,
+              'artifacts': []
+          }
+          for name in files:
+              data = Path(name).read_bytes()
+              receipt['artifacts'].append({
+                  'name': name,
+                  'size': len(data),
+                  'sha256': hashlib.sha256(data).hexdigest()
+              })
+          Path('enterprise-portfolio-receipt.json').write_text(
+              json.dumps(receipt, indent=2, sort_keys=True) + '\n',
+              encoding='utf-8'
+          )
+          PY
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: keddeh-enterprise-portfolio-control-plane
+          path: |
+            skills/keddeh-engineering-orchestrator/enterprise/*.json
+            skills/keddeh-engineering-orchestrator/enterprise/*.py
