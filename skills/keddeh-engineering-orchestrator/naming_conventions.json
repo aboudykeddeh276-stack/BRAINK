@@ -1,0 +1,39 @@
+{
+  "version": "1.0.0",
+  "canonical_address_pattern": "<kind>://<authority>/<domain>/<entity>",
+  "segment_case": "lower-kebab-case",
+  "repository_case": "lower-kebab-case",
+  "directory_case": "lower-kebab-case",
+  "allowed_identity_kinds": [
+    "system", "domain", "service", "component", "interface", "schema",
+    "workflow", "agent", "worker", "provider", "volume", "adapter",
+    "receipt", "evidence", "story", "expression", "word", "iteration", "topology"
+  ],
+  "language_rules": {
+    "cpp_types": "PascalCase",
+    "cpp_functions": "snake_case",
+    "cpp_variables": "snake_case",
+    "python_modules": "snake_case",
+    "python_classes": "PascalCase",
+    "python_functions": "snake_case",
+    "typescript_types": "PascalCase",
+    "typescript_functions": "camelCase",
+    "json_yaml_keys": "snake_case",
+    "environment_variables": "UPPER_SNAKE_CASE"
+  },
+  "adr_pattern": "ADR-<four-digit-sequence>-<kebab-case-title>.md",
+  "iteration_pattern": "iteration://<system>/<domain>/<yyyy-mm-dd>/<sequence>",
+  "semantic_version_pattern": "MAJOR.MINOR.PATCH",
+  "reserved_claim_words": [
+    "final", "verified", "complete", "production", "deployed", "certified", "sealed"
+  ],
+  "reserved_claim_rule": "Reserved claim words require corresponding promotion evidence and may not be inferred from filenames or titles.",
+  "examples": [
+    "system://braink/workstation",
+    "domain://runtime/provider-resolution",
+    "service://k-cloud/admission",
+    "component://k-cloud/admission/integrity-readback",
+    "interface://volume/backing-adapter/v1",
+    "workflow://artifact/preservation-audit"
+  ]
+}
