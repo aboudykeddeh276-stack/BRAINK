@@ -23,6 +23,10 @@ jobs:
         working-directory: skills/keddeh-engineering-orchestrator
         run: python3 validate_skill.py
 
+      - name: Validate naming attribution and lineage
+        working-directory: skills/keddeh-engineering-orchestrator
+        run: python3 validate_naming_attribution.py
+
       - name: Validate market product contract
         working-directory: skills/keddeh-engineering-orchestrator
         run: python3 validate_product.py
