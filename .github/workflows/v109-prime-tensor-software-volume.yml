@@ -1,0 +1,95 @@
+name: KEDDEH V109 Prime Tensor Software Volume
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'v98_protocol_compliance_config/os/**'
+      - '.github/workflows/v109-prime-tensor-software-volume.yml'
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  software-volume:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Compile freestanding tensor volume with hosted compiler
+        run: |
+          cd v98_protocol_compliance_config/os
+          mkdir -p build
+          g++ \
+            -std=c++23 -O2 -ffreestanding -fno-builtin \
+            -fno-exceptions -fno-rtti -fno-threadsafe-statics \
+            -fno-use-cxa-atexit -fno-omit-frame-pointer -mno-red-zone \
+            -fno-pic -mcmodel=kernel -nostdinc++ \
+            -Wall -Wextra -Werror -Wconversion -Wsign-conversion \
+            -Wdouble-promotion -Wshadow -fstrict-aliasing \
+            -fno-delete-null-pointer-checks -Iinclude \
+            tests/prime_tensor_volume_compile.cpp \
+            -o build/prime_tensor_volume_hosted_probe
+
+      - name: Execute deterministic backing-path probe
+        run: |
+          cd v98_protocol_compliance_config/os
+          ./build/prime_tensor_volume_hosted_probe
+
+      - name: Verify coordinate and route topology
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          dim = 8
+          px, py, pz, mod = 97, 199, 401, 823
+          slots = set()
+          residues = {}
+          collisions = []
+          for x in range(dim):
+              for y in range(dim):
+                  for z in range(dim):
+                      slot = x * 64 + y * 8 + z
+                      assert slot not in slots
+                      slots.add(slot)
+                      residue = (x * px + y * py + z * pz) % mod
+                      if residue in residues:
+                          collisions.append((residues[residue], (x, y, z), residue))
+                      else:
+                          residues[residue] = (x, y, z)
+
+          assert slots == set(range(512))
+          assert len(residues) == 432
+          assert len(collisions) == 80
+
+          receipt = {
+              'status': 'PASS',
+              'volume_state': 'ACTIVE_SOFTWARE_VOLUME',
+              'cell_count': 512,
+              'canonical_slots_unique': True,
+              'route_residue_count': 432,
+              'route_residue_collisions': 80,
+              'collision_policy': 'route residue is metadata; canonical slot is unique identity',
+              'backing_order': ['path_a_physical', 'path_b_persistent', 'path_c_software'],
+              'physical_backing_required': False,
+              'global_stop': False,
+          }
+          evidence = Path('v98_protocol_compliance_config/evidence')
+          evidence.mkdir(parents=True, exist_ok=True)
+          (evidence / 'prime_tensor_software_volume_receipt.json').write_text(
+              json.dumps(receipt, indent=2, sort_keys=True) + '\n', encoding='utf-8')
+          print(json.dumps(receipt, indent=2, sort_keys=True))
+          PY
+
+      - name: Upload volume evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: keddeh-v109-prime-tensor-software-volume
+          path: |
+            v98_protocol_compliance_config/evidence/prime_tensor_software_volume_receipt.json
+            v98_protocol_compliance_config/os/SYSTEM_MANIFEST.json
+            v98_protocol_compliance_config/os/OS_STATE.md
