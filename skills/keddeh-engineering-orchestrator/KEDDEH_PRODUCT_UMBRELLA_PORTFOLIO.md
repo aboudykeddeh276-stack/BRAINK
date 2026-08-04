@@ -1,109 +1,172 @@
 # KEDDEH Systems Product Umbrella Portfolio
 
-## Portfolio identity
+## Portfolio authority
 
 ```text
 portfolio://keddeh/systems
-version: 1.0.0
+version: 1.1.0
+status: AUTHORITATIVE_TOP_LEVEL_UMBRELLA_MODEL
 ```
 
-KEDDEH Systems is a governed portfolio of product umbrellas. Each umbrella has a distinct market function, product boundary, runtime topology, evidence contract, commercial path, and regulatory profile. Shared capabilities remain bilateral through IL-LLM and KIR.
+KEDDEH Systems is a governed portfolio of independent top-level umbrellas. Each umbrella has its own market function, product boundary, runtime topology, evidence contract, commercial path, and regulatory profile. Bilateral usage is represented by explicit interfaces and shared KIR identities—not by incorrectly nesting one umbrella inside another.
 
-## Portfolio topology
+## Authoritative top-level topology
 
 ```text
 KEDDEH SYSTEMS
 ├── Keddeh PlayWrite
-│   ├── structured writing and technical authorship
-│   ├── publication workflows
-│   ├── document transformation
-│   └── source-to-output lineage
 ├── Keddeh Coms
-│   ├── communications infrastructure
-│   ├── messaging and collaboration
-│   ├── network-facing services
-│   └── secure communications control planes
 ├── Spin^
-│   ├── server logic
-│   ├── service frameworks
-│   ├── runtime optimisation
-│   ├── request routing
-│   └── distributed execution patterns
 ├── KEO
-│   ├── engineering synthesis
-│   ├── topology and KIR
-│   ├── validation
-│   └── evidence continuity
 ├── BRAINK
-│   ├── workstation and operating environment
-│   ├── agent orchestration
-│   ├── local-first AI runtime
-│   └── system projection
 ├── KEX
-│   ├── deterministic execution laws
-│   ├── runtime algebra
-│   ├── protocol and state governance
-│   └── hardware/software abstraction
 ├── LawPath
-│   ├── FormPath
-│   └── ClaimPath
-├── Keddeh Infrastructure
-│   ├── cloud and server infrastructure
-│   ├── networking
-│   ├── storage
-│   └── deployment substrates
-├── Keddeh Hardware Systems
-│   ├── BIOS and firmware
-│   ├── hardware abstraction
-│   ├── accelerators
-│   └── FPGA/ASIC/software models
-├── Keddeh Data Systems
-│   ├── workbook operating systems
-│   ├── registries
-│   ├── evidence ledgers
-│   └── semantic matrices
-└── Keddeh Assurance
-    ├── verification
-    ├── security
-    ├── compliance
-    ├── artifact preservation
-    └── release evidence
+├── FormPath
+├── ClaimPath
+├── Legal/Regulatory Conformity
+├── Infrastructure and Cloud
+├── Hardware/Firmware
+├── Data/Workbook Systems
+└── Evidence, Assurance, and Deployment
+```
+
+## Umbrella market functions
+
+### Keddeh PlayWrite
+
+Structured authorship, technical writing, document transformation, multilingual publication, controlled templates, and source-to-output lineage.
+
+### Keddeh Coms
+
+Communications systems, secure messaging, correspondence, collaboration, communications servers, gateways, notifications, and delivery evidence.
+
+### Spin^
+
+Server logic, service frameworks, API runtimes, request routing, concurrency, distributed execution, resilience, and performance optimisation.
+
+### KEO
+
+Engineering synthesis, software topology, KIR, naming, iteration governance, multi-language projection, validation, and product evidence continuity.
+
+### BRAINK
+
+Workstation and operating environment, agent orchestration, local-first AI runtime, application surfaces, and system projection.
+
+### KEX
+
+Deterministic execution laws, runtime algebra, protocol/state governance, hardware/software abstraction, and system invariants.
+
+### LawPath
+
+Legal-process software, matter topology, authority mapping, procedural analysis, evidence chains, chronology, submissions, hearing preparation, accountability trails, and jurisdiction-specific process controls.
+
+LawPath does not absorb FormPath or ClaimPath. It exchanges controlled legal-process and authority data with them bilaterally.
+
+### FormPath
+
+Authoritative document sourcing, technical forms, regulatory forms, filing requirements, procedural templates, submission-pack assembly, service requirements, deadline validation, and filing-readiness assessment.
+
+FormPath answers:
+
+```text
+what document or authority is required
+where it comes from
+which version applies
+which fields and attachments are mandatory
+how it must be assembled, submitted, served, and retained
+```
+
+### ClaimPath
+
+Independent insurance-focused product umbrella for claim intake, policy and coverage mapping, evidence and loss assembly, causation and liability analysis, assessment, valuation, insurer/assessor correspondence, dispute handling, review, settlement, and escalation readiness.
+
+ClaimPath answers:
+
+```text
+what loss or event is claimed
+which policy and coverage terms apply
+what evidence substantiates the claim
+how liability, causation, quantum, and exclusions are assessed
+what communications, review, settlement, or dispute path follows
+```
+
+ClaimPath is not a legal sub-topic. It is an insurance spin-off with bilateral legal, document, communications, data, and assurance uses.
+
+### Legal/Regulatory Conformity
+
+Portfolio-wide regulatory trigger mapping, legal control design, jurisdiction profiles, claims governance, disclosure controls, privacy obligations, licensing gates, and professional-review boundaries.
+
+This umbrella governs conformity requirements across every product without taking ownership of LawPath, FormPath, or ClaimPath product functionality.
+
+### Infrastructure and Cloud
+
+Cloud, server infrastructure, networking, storage, deployment substrates, service discovery, orchestration, tenancy, sovereignty, and operational control planes.
+
+### Hardware/Firmware
+
+Custom BIOS and firmware, boot substrates, hardware abstraction, drivers, device models, accelerators, processor/runtime projections, FPGA, ASIC, and software-backed hardware models.
+
+### Data/Workbook Systems
+
+Workbook operating systems, registries, matrices, semantic datasets, control planes, evidence ledgers, storage models, and bilateral indexes.
+
+### Evidence, Assurance, and Deployment
+
+Testing, verification, security, compliance evidence, artifact preservation, release engineering, deployment receipts, promotion states, auditability, and external-readback boundaries.
+
+## Bilateral portfolio interfaces
+
+```text
+LawPath ↔ FormPath
+legal procedure and authority requirements ↔ document sourcing and filing readiness
+
+LawPath ↔ ClaimPath
+legal rights, disputes, remedies, and process ↔ insurance coverage, assessment, and claim escalation
+
+FormPath ↔ ClaimPath
+required claim forms and supporting documents ↔ claim evidence and insurer submission requirements
+
+ClaimPath ↔ Keddeh Coms
+claim communications ↔ claimant, insurer, assessor, repairer, expert, and dispute correspondence
+
+ClaimPath ↔ Data/Workbook Systems
+policy, loss, valuation, evidence, and chronology data ↔ structured claim ledgers and assessment models
+
+PlayWrite ↔ LawPath/FormPath/ClaimPath
+controlled writing and document transformation ↔ submissions, forms, claims, reports, and correspondence
+
+Spin^ ↔ Keddeh Coms/ClaimPath/LawPath
+server frameworks ↔ communications, claims, and legal workflow services
+
+KEO/KIR ↔ all umbrellas
+canonical engineering identity ↔ product-specific software, runtime, data, and evidence projections
+
+Legal/Regulatory Conformity ↔ all umbrellas
+regulatory triggers and control obligations ↔ product design, operation, marketing, and evidence
+
+Evidence, Assurance, and Deployment ↔ all umbrellas
+validation and promotion controls ↔ durable market delivery and operational readback
 ```
 
 ## Bilateral market law
 
 ```text
 customer requirement
-→ umbrella product intake
+→ correct top-level umbrella intake
 → IL-LLM semantic translation
-→ KIR and topology
+→ KIR and topology resolution
+→ bilateral interfaces to other umbrellas where required
 → product-specific implementation
-→ LawPath regulatory and filing controls where applicable
-→ Keddeh Assurance validation
-→ durable release and market delivery
-→ customer/runtime evidence readback
+→ regulatory-trigger assessment
+→ assurance and deployment validation
+→ durable market delivery
+→ customer/runtime/authority evidence readback
 → IL-LLM bilateral return
 ```
 
-No umbrella silently absorbs another umbrella's legal, technical, or commercial responsibility.
+## Market-function contract
 
-## Shared portfolio services
-
-- canonical identity and naming;
-- customer and product intake;
-- IL-LLM bilateral translation;
-- KIR and software topology;
-- product catalog and ownership;
-- security and privacy controls;
-- legal and regulatory trigger mapping;
-- evidence and artifact preservation;
-- licensing and release governance;
-- customer support and lifecycle management;
-- market analytics and product iteration.
-
-## Market-function rule
-
-Each product must declare:
+Every umbrella and product must declare:
 
 ```text
 problem solved
@@ -113,15 +176,16 @@ market category
 inputs
 outputs
 interfaces
-runtime/deployment
+runtime and deployment
 pricing or edition model
-legal/regulatory triggers
+legal and regulatory triggers
 support policy
 evidence of value
+bilateral dependencies
 ```
 
-## Regulatory integration
+## Legal-project usage boundary
 
-LawPath is the portfolio-wide legal-process and regulatory-conformity umbrella. It does not replace professional legal advice or authority determinations. It provides auditable sourcing, filing, claim assessment, evidence lineage, process controls, and regulatory trigger maps.
+The existing legal project supplies controlled case-study material for LawPath, FormPath, Legal/Regulatory Conformity, PlayWrite, Data/Workbook Systems, and Evidence/Assurance. Its facts, allegations, authorities, deadlines, procedural states, and outcomes remain jurisdiction- and matter-specific evidence classes.
 
-The legal project and its jurisdiction-specific records are treated as source material and controlled case studies. Their facts, allegations, authorities, and procedural states remain distinct evidence classes and cannot be generalized into universal legal conclusions.
+The legal project must not be generalized into universal legal conclusions or presented as professional legal advice, court findings, regulatory approval, or insurance determinations without the relevant authority-specific evidence.
