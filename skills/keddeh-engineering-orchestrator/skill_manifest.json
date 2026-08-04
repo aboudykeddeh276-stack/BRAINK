@@ -1,0 +1,80 @@
+{
+  "skill_id": "skill://keddeh/engineering-orchestrator",
+  "name": "KEDDEH Engineering Orchestrator",
+  "version": "1.0.0",
+  "status": "ACTIVE_REPOSITORY_SKILL",
+  "scope": [
+    "KEDDEH",
+    "BRAINK",
+    "KEX",
+    "bare-metal OS",
+    "workbook OS",
+    "K-Cloud",
+    "agents",
+    "networking",
+    "storage",
+    "visual hardware/software",
+    "legal-process software",
+    "research archives",
+    "deployment and evidence"
+  ],
+  "excluded_tools": ["Lovable"],
+  "capability_domains": [
+    "GitHub",
+    "Google Drive",
+    "File Library",
+    "Code Execution",
+    "Web Research",
+    "Figma",
+    "Spreadsheets",
+    "Documents",
+    "PDFs",
+    "Slides",
+    "Image Generation",
+    "Slack",
+    "Gmail",
+    "Google Calendar",
+    "Google Contacts",
+    "OpenAI Platform",
+    "Automations"
+  ],
+  "routing_policy": "FIRST_COMPLETE_PATH_IN_STRICT_ORDER",
+  "path_order": ["path_a", "path_b", "path_c"],
+  "allow_partial_path_blending": false,
+  "global_stop": false,
+  "completion_requires": [
+    "execution_or_explicit_nonexecution_boundary",
+    "validation",
+    "artifact classification",
+    "lineage",
+    "impact radius",
+    "remaining gates"
+  ],
+  "artifact_states": [
+    "DURABLE_BYTES",
+    "DURABLE_NATIVE_RECORD",
+    "REFERENCE_ONLY",
+    "EPHEMERAL_OR_EXPIRED_PATH",
+    "RECONSTRUCTION_REQUIRED"
+  ],
+  "promotion_states": [
+    "CONCEPTUAL",
+    "FORMALISED",
+    "IMPLEMENTED",
+    "STATICALLY_VALIDATED",
+    "LOCALLY_EXECUTED",
+    "CI_PASS",
+    "TARGET_HOST_PASS",
+    "PROVIDER_PASS",
+    "DEPLOYED",
+    "EXTERNALLY_PROVEN",
+    "CERTIFIED_OR_AUTHORITY_CONFIRMED"
+  ],
+  "canonical_files": {
+    "skill": "SKILL.md",
+    "routing": "tool_routing.json",
+    "evidence": "evidence_contract.schema.json",
+    "validator": "validate_skill.py",
+    "tests": "test_validate_skill.py"
+  }
+}
