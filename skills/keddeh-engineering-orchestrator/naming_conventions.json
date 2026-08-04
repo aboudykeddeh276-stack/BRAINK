@@ -1,12 +1,12 @@
 {
-  "version": "1.0.0",
+  "version": "2.0.0",
   "canonical_address_pattern": "<kind>://<authority>/<domain>/<entity>",
   "segment_case": "lower-kebab-case",
   "repository_case": "lower-kebab-case",
   "directory_case": "lower-kebab-case",
   "allowed_identity_kinds": [
-    "system", "domain", "service", "component", "interface", "schema",
-    "workflow", "agent", "worker", "provider", "volume", "adapter",
+    "portfolio", "umbrella", "product", "system", "domain", "service", "component", "interface", "schema",
+    "workflow", "agent", "worker", "provider", "volume", "adapter", "contract", "standard", "ir", "matrix",
     "receipt", "evidence", "story", "expression", "word", "iteration", "topology"
   ],
   "language_rules": {
@@ -21,6 +21,33 @@
     "json_yaml_keys": "snake_case",
     "environment_variables": "UPPER_SNAKE_CASE"
   },
+  "semantic_attribution": {
+    "standard": "NAMING_ATTRIBUTION_STANDARD.md",
+    "schema": "naming_attribution.schema.json",
+    "validity_rule": "A syntactically valid name is not a governed KEDDEH identity until origin, lineage, semantic roots, architectural role, context boundaries, inherited capabilities, bilateral applications, and evidence are recorded.",
+    "required_fields": [
+      "canonical_id",
+      "canonical_name",
+      "origin_authority",
+      "origin_type",
+      "source_lineage",
+      "semantic_roots",
+      "design_problem",
+      "architectural_role",
+      "native_context",
+      "valid_cross_contexts",
+      "inherited_capabilities",
+      "specialised_capabilities",
+      "bilateral_interfaces",
+      "prohibited_conflations",
+      "evidence",
+      "promotion_state",
+      "version"
+    ],
+    "origin_authority_rule": "User-designed names and names derived from user architecture must preserve user design authority explicitly; assistant formalisation does not transfer authorship.",
+    "context_transfer_rule": "Cross-application requires explicit source ownership, target context, transferred capability, preserved invariants, adapter, and bilateral readback path.",
+    "capability_rule": "Naming precision adds attribution and contextual control; it must not compress inherited capability."
+  },
   "adr_pattern": "ADR-<four-digit-sequence>-<kebab-case-title>.md",
   "iteration_pattern": "iteration://<system>/<domain>/<yyyy-mm-dd>/<sequence>",
   "semantic_version_pattern": "MAJOR.MINOR.PATCH",
@@ -28,7 +55,20 @@
     "final", "verified", "complete", "production", "deployed", "certified", "sealed"
   ],
   "reserved_claim_rule": "Reserved claim words require corresponding promotion evidence and may not be inferred from filenames or titles.",
+  "prohibited_naming_behaviours": [
+    "unattributed_label_promotion",
+    "assistant_authorship_substitution",
+    "capability_compression_by_taxonomy",
+    "cross_context_copy_without_lineage",
+    "semantic_root_invention_without_evidence",
+    "hierarchy_inference_from_bilateral_use"
+  ],
   "examples": [
+    "portfolio://keddeh/systems",
+    "umbrella://keddeh/playwrite",
+    "umbrella://keddeh/coms",
+    "umbrella://keddeh/spin",
+    "product://keddeh/engineering-orchestrator",
     "system://braink/workstation",
     "domain://runtime/provider-resolution",
     "service://k-cloud/admission",
