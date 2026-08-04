@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema://keddeh/engineering-orchestrator/evidence-contract/1.0.0",
+  "title": "KEDDEH Engineering Orchestrator Completion Receipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "work_unit",
+    "engineering_domain",
+    "source_identities",
+    "tools_invoked",
+    "selected_path",
+    "outputs",
+    "tests",
+    "artifact_state",
+    "promotion_state",
+    "impact_radius",
+    "unaffected_domains",
+    "remaining_gates",
+    "global_stop"
+  ],
+  "properties": {
+    "work_unit": {"type": "string", "minLength": 1},
+    "engineering_domain": {"type": "string", "minLength": 1},
+    "source_identities": {"type": "array", "items": {"type": "string"}},
+    "tools_invoked": {"type": "array", "items": {"type": "string"}},
+    "selected_path": {"enum": ["path_a", "path_b", "path_c"]},
+    "outputs": {"type": "array", "items": {"type": "string"}},
+    "tests": {"type": "array", "items": {"type": "string"}},
+    "artifact_state": {
+      "enum": [
+        "DURABLE_BYTES",
+        "DURABLE_NATIVE_RECORD",
+        "REFERENCE_ONLY",
+        "EPHEMERAL_OR_EXPIRED_PATH",
+        "RECONSTRUCTION_REQUIRED"
+      ]
+    },
+    "promotion_state": {
+      "enum": [
+        "CONCEPTUAL",
+        "FORMALISED",
+        "IMPLEMENTED",
+        "STATICALLY_VALIDATED",
+        "LOCALLY_EXECUTED",
+        "CI_PASS",
+        "TARGET_HOST_PASS",
+        "PROVIDER_PASS",
+        "DEPLOYED",
+        "EXTERNALLY_PROVEN",
+        "CERTIFIED_OR_AUTHORITY_CONFIRMED"
+      ]
+    },
+    "impact_radius": {"type": "array", "items": {"type": "string"}},
+    "unaffected_domains": {"type": "array", "items": {"type": "string"}},
+    "remaining_gates": {"type": "array", "items": {"type": "string"}},
+    "stable_storage_id": {"type": ["string", "null"]},
+    "exact_filename": {"type": ["string", "null"]},
+    "byte_size": {"type": ["integer", "null"], "minimum": 1},
+    "sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+    "independent_readback": {"type": ["boolean", "null"]},
+    "global_stop": {"const": false}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"artifact_state": {"const": "DURABLE_BYTES"}}},
+      "then": {
+        "required": ["stable_storage_id", "exact_filename", "byte_size", "sha256", "independent_readback"],
+        "properties": {"independent_readback": {"const": true}}
+      }
+    }
+  ]
+}
