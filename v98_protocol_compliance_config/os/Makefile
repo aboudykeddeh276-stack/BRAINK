@@ -30,11 +30,12 @@ COMMON_FLAGS := \
 TRAP_UBSAN_FLAGS := -fsanitize=undefined -fsanitize-undefined-trap-on-error
 
 FOUNDATION_OBJECT := $(BUILD_DIR)/kernel_types_compile.o
+TENSOR_OBJECT := $(BUILD_DIR)/prime_tensor_volume_compile.o
 TRAP_UBSAN_OBJECT := $(BUILD_DIR)/kernel_types_compile.ubsan.o
 LINKER_PROBE_OBJECT := $(BUILD_DIR)/linker_probe.o
 LINKER_PROBE_ELF := $(BUILD_DIR)/linker_probe.elf
 
-.PHONY: all check toolchain-check compile-check ubsan-trap-check linker-check inspect clean help
+.PHONY: all check toolchain-check compile-check tensor-check ubsan-trap-check linker-check inspect clean help
 
 all: check
 
@@ -42,6 +43,7 @@ help:
 	@printf '%s\n' \
 	  'toolchain-check  Verify required x86_64-elf tools exist' \
 	  'compile-check    Compile the freestanding foundation header test' \
+	  'tensor-check     Compile the active 512-cell prime tensor volume contract' \
 	  'ubsan-trap-check Compile trap-based UBSan instrumentation without libubsan' \
 	  'linker-check     Parse linker.ld and verify higher-half section layout' \
 	  'inspect          Print ELF headers and sections for the linker probe' \
@@ -65,6 +67,13 @@ $(FOUNDATION_OBJECT): $(TEST_DIR)/kernel_types_compile.cpp $(INCLUDE_DIR)/kernel
 compile-check: toolchain-check $(FOUNDATION_OBJECT)
 	@$(READELF) -h $(FOUNDATION_OBJECT) | grep -q 'Machine:.*Advanced Micro Devices X86-64'
 	@echo 'GATE_01_FOUNDATION_COMPILE: PASS'
+
+$(TENSOR_OBJECT): $(TEST_DIR)/prime_tensor_volume_compile.cpp $(INCLUDE_DIR)/prime_tensor_volume.hpp $(INCLUDE_DIR)/kernel_types.hpp | $(BUILD_DIR)
+	$(CXX) $(COMMON_FLAGS) -c $< -o $@
+
+tensor-check: toolchain-check $(TENSOR_OBJECT)
+	@$(READELF) -h $(TENSOR_OBJECT) | grep -q 'Machine:.*Advanced Micro Devices X86-64'
+	@echo 'GATE_02_PRIME_TENSOR_VOLUME_COMPILE: PASS'
 
 $(TRAP_UBSAN_OBJECT): $(TEST_DIR)/kernel_types_compile.cpp $(INCLUDE_DIR)/kernel_types.hpp | $(BUILD_DIR)
 	$(CXX) $(COMMON_FLAGS) $(TRAP_UBSAN_FLAGS) -c $< -o $@
@@ -94,9 +103,10 @@ inspect: $(LINKER_PROBE_ELF)
 	$(READELF) -l $(LINKER_PROBE_ELF)
 	$(OBJDUMP) -h $(LINKER_PROBE_ELF)
 
-check: compile-check ubsan-trap-check linker-check
+check: compile-check tensor-check ubsan-trap-check linker-check
 	@echo 'PHASE_1_STATIC_FOUNDATION: PASS'
-	@echo 'NOTE: boot execution is not yet proven; Multiboot2 entry and QEMU readback remain pending.'
+	@echo 'PRIME_TENSOR_VOLUME: ACTIVE_SOFTWARE_VOLUME'
+	@echo 'NOTE: physical backing is an optional adapter; boot execution remains independently pending.'
 
 clean:
 	rm -rf $(BUILD_DIR)
