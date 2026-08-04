@@ -37,7 +37,11 @@ jobs:
 
       - name: Build persisted downloadable proof bundle
         run: |
-          mkdir -p runtime_volume/cases/CI-EXPORT-1
+          mkdir -p \
+            runtime_volume/cases/CI-EXPORT-1 \
+            runtime_volume/outbox/persisted_exports \
+            exports/downloads \
+            evidence/exports
           printf '%s\n' '{"case_id":"CI-EXPORT-1","state":"persisted"}' > runtime_volume/cases/CI-EXPORT-1/case-record.json
           printf '%s\n' '# Persisted export proof' 'Executable source readback.' > runtime_volume/cases/CI-EXPORT-1/report.md
           python3 src/keddeh_persisted_export_service.py \
