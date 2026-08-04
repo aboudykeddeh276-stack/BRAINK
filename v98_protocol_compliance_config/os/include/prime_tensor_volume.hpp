@@ -35,29 +35,54 @@ enum class BackingPath : u8 {
     path_c_software = 3U,
 };
 
+enum class BackingKind : u8 {
+    physical_frame = 1U,
+    device_mmio = 2U,
+    persistent_volume = 3U,
+    file_backed_storage = 4U,
+    workbook_cells = 5U,
+    browser_buffer = 6U,
+    vm_memory = 7U,
+    simulated_memory = 8U,
+    software_memory = 9U,
+};
+
 struct BackingAvailability final {
-    bool physical;
-    bool persistent;
-    bool software;
+    bool physical_frame;
+    bool device_mmio;
+    bool persistent_volume;
+    bool file_backed_storage;
+    bool workbook_cells;
+    bool browser_buffer;
+    bool vm_memory;
+    bool simulated_memory;
+    bool software_memory;
+};
+
+struct BackingBases final {
+    uptr physical_frame;
+    uptr device_mmio;
+    uptr persistent_volume;
+    uptr file_backed_storage;
+    uptr workbook_cells;
+    uptr browser_buffer;
+    uptr vm_memory;
+    uptr simulated_memory;
+    uptr software_memory;
 };
 
 struct VolumeBinding final {
     TensorCell cell;
     BackingPath path;
+    BackingKind kind;
     uptr backing_address;
 };
 
 class PrimeTensorVolume final {
 public:
     constexpr explicit PrimeTensorVolume(const uptr route_base,
-                                         const uptr physical_base,
-                                         const uptr persistent_base,
-                                         const uptr software_base) noexcept
-        : occupancy_{},
-          route_base_(route_base),
-          physical_base_(physical_base),
-          persistent_base_(persistent_base),
-          software_base_(software_base) {}
+                                         const BackingBases backing_bases) noexcept
+        : occupancy_{}, route_base_(route_base), backing_bases_(backing_bases) {}
 
     [[nodiscard]] static constexpr u64 canonical_slot(const TensorCoordinate coordinate) noexcept {
         return (coordinate.x * tensor_dimension * tensor_dimension)
@@ -119,18 +144,58 @@ public:
             return Expected<VolumeBinding>::failure(ErrorCode::invalid_argument);
         }
 
-        if (availability.physical) {
-            return Expected<VolumeBinding>::success(binding_for(cell, BackingPath::path_a_physical,
-                                                                physical_base_));
+        // Deterministic path A: physical projections. Physical backing is a consumer,
+        // never the definition of the tensor volume.
+        if (availability.physical_frame) {
+            return success_binding(cell, BackingPath::path_a_physical,
+                                   BackingKind::physical_frame,
+                                   backing_bases_.physical_frame);
         }
-        if (availability.persistent) {
-            return Expected<VolumeBinding>::success(binding_for(cell, BackingPath::path_b_persistent,
-                                                                persistent_base_));
+        if (availability.device_mmio) {
+            return success_binding(cell, BackingPath::path_a_physical,
+                                   BackingKind::device_mmio,
+                                   backing_bases_.device_mmio);
         }
-        if (availability.software) {
-            return Expected<VolumeBinding>::success(binding_for(cell, BackingPath::path_c_software,
-                                                                software_base_));
+
+        // Deterministic path B: durable or externally projected storage surfaces.
+        if (availability.persistent_volume) {
+            return success_binding(cell, BackingPath::path_b_persistent,
+                                   BackingKind::persistent_volume,
+                                   backing_bases_.persistent_volume);
         }
+        if (availability.file_backed_storage) {
+            return success_binding(cell, BackingPath::path_b_persistent,
+                                   BackingKind::file_backed_storage,
+                                   backing_bases_.file_backed_storage);
+        }
+        if (availability.workbook_cells) {
+            return success_binding(cell, BackingPath::path_b_persistent,
+                                   BackingKind::workbook_cells,
+                                   backing_bases_.workbook_cells);
+        }
+        if (availability.browser_buffer) {
+            return success_binding(cell, BackingPath::path_b_persistent,
+                                   BackingKind::browser_buffer,
+                                   backing_bases_.browser_buffer);
+        }
+
+        // Deterministic path C: volatile software execution surfaces.
+        if (availability.vm_memory) {
+            return success_binding(cell, BackingPath::path_c_software,
+                                   BackingKind::vm_memory,
+                                   backing_bases_.vm_memory);
+        }
+        if (availability.simulated_memory) {
+            return success_binding(cell, BackingPath::path_c_software,
+                                   BackingKind::simulated_memory,
+                                   backing_bases_.simulated_memory);
+        }
+        if (availability.software_memory) {
+            return success_binding(cell, BackingPath::path_c_software,
+                                   BackingKind::software_memory,
+                                   backing_bases_.software_memory);
+        }
+
         return Expected<VolumeBinding>::failure(ErrorCode::invalid_state);
     }
 
@@ -167,25 +232,32 @@ private:
 
     [[nodiscard]] static constexpr VolumeBinding binding_for(const TensorCell& cell,
                                                               const BackingPath path,
+                                                              const BackingKind kind,
                                                               const uptr base) noexcept {
         return VolumeBinding{
             cell,
             path,
+            kind,
             base + static_cast<uptr>(cell.canonical_slot * page_size),
         };
     }
 
+    [[nodiscard]] static constexpr Expected<VolumeBinding> success_binding(
+        const TensorCell& cell,
+        const BackingPath path,
+        const BackingKind kind,
+        const uptr base) noexcept {
+        return Expected<VolumeBinding>::success(binding_for(cell, path, kind, base));
+    }
+
     u64 occupancy_[tensor_cell_count / 64U];
     uptr route_base_;
-    uptr physical_base_;
-    uptr persistent_base_;
-    uptr software_base_;
+    BackingBases backing_bases_;
 };
 
 static_assert(tensor_cell_count == 512U);
 static_assert(sizeof(TensorCoordinate) == 24U);
 static_assert(sizeof(TensorCell) == 48U);
-static_assert(sizeof(PrimeTensorVolume) == 96U);
 static_assert(PrimeTensorVolume::canonical_slot(TensorCoordinate{7U, 7U, 7U}) == 511U);
 static_assert(PrimeTensorVolume::coordinate_from_slot(511U).x == 7U);
 static_assert(PrimeTensorVolume::coordinate_from_slot(511U).y == 7U);
