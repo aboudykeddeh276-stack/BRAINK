@@ -1,0 +1,412 @@
+{
+  "registry_id": "registry://keddeh/name-lineage",
+  "version": "1.0.0",
+  "authority_rule": "Direct user design statements outrank assistant summaries. Assistant formalisation preserves but does not acquire design authorship.",
+  "records": [
+    {
+      "canonical_id": "umbrella://keddeh/playwrite",
+      "canonical_name": "Keddeh PlayWrite",
+      "origin_authority": "A. Keddeh",
+      "origin_type": "USER_DESIGNED",
+      "source_lineage": [
+        "User-defined KEDDEH Systems umbrella naming in project conversation",
+        "Existing KEDDEH writing, document, legal, technical, research, publication, and source-lineage workloads"
+      ],
+      "semantic_roots": [
+        {
+          "term": "Play",
+          "meaning": "active, iterative, compositional operation rather than static document storage",
+          "design_effect": "writing artefacts are executable, transformable, replayable, versioned, and context-aware"
+        },
+        {
+          "term": "Write",
+          "meaning": "authorship, technical expression, record creation, software-as-text, publication, and preserved source",
+          "design_effect": "the umbrella spans human writing, technical specifications, legal material, generated code, reports, and publication workflows"
+        }
+      ],
+      "design_problem": "Unify authored text, technical artefacts, generated documents, source transformation, publication, and evidence lineage without reducing writing to a passive editor.",
+      "architectural_role": "Active authorship and executable-document substrate across KEDDEH Systems.",
+      "native_context": [
+        "structured authorship",
+        "technical writing",
+        "document transformation",
+        "publication",
+        "source-to-output lineage",
+        "software-as-text"
+      ],
+      "valid_cross_contexts": [
+        "LawPath submissions and matter records",
+        "FormPath sourced forms and filing packs",
+        "ClaimPath claim narratives and insurer correspondence",
+        "KEO specifications and ADRs",
+        "BRAINK user and agent workspaces",
+        "KEX executable language artefacts"
+      ],
+      "inherited_capabilities": [
+        "IL-LLM bilateral translation",
+        "KIR identity preservation",
+        "multi-language transformation",
+        "evidence and provenance",
+        "versioned workflows",
+        "local and cloud runtime projection"
+      ],
+      "specialised_capabilities": [
+        "authoring",
+        "editing",
+        "rewriting",
+        "technical publication",
+        "template systems",
+        "document compilation",
+        "citation and source lineage",
+        "controlled release"
+      ],
+      "bilateral_interfaces": [
+        {
+          "target_identity": "umbrella://keddeh/lawpath",
+          "transferred_capability": "Transform matter sources into controlled legal writing while preserving authority and evidence lineage.",
+          "preserved_invariants": ["source identity", "authority class", "matter context", "version", "citation lineage"],
+          "source_owner": "Keddeh PlayWrite",
+          "target_owner": "LawPath",
+          "readback_path": "LawPath output and filing evidence raised through KIR into the originating PlayWrite source lineage."
+        }
+      ],
+      "prohibited_conflations": [
+        "generic word processor",
+        "content marketing only",
+        "assistant-invented brand",
+        "static document repository"
+      ],
+      "evidence": [
+        {
+          "evidence_class": "DIRECT_USER_DESIGN_STATEMENT",
+          "reference": "Current project conversation: Keddeh PlayWrite named as a KEDDEH Systems umbrella",
+          "supports": "Name, top-level status, and cross-portfolio design authority"
+        }
+      ],
+      "promotion_state": "ARCHITECTURALLY_BOUND",
+      "version": "1.0.0",
+      "supersedes": null,
+      "superseded_by": null
+    },
+    {
+      "canonical_id": "umbrella://keddeh/coms",
+      "canonical_name": "Keddeh Coms",
+      "origin_authority": "A. Keddeh",
+      "origin_type": "USER_DESIGNED",
+      "source_lineage": [
+        "User definition: Keddeh Coms means communications and servers",
+        "Existing KEDDEH communications, networking, messaging, agent, server, and evidence-delivery designs"
+      ],
+      "semantic_roots": [
+        {
+          "term": "Coms",
+          "meaning": "communications in human, machine, service, network, signalling, and evidentiary forms",
+          "design_effect": "one attributed communications substrate covers messages, correspondence, protocols, servers, gateways, events, delivery, and readback"
+        }
+      ],
+      "design_problem": "Provide one attributable communications architecture across people, agents, services, networks, servers, legal correspondence, insurance workflows, and system signalling.",
+      "architectural_role": "Cross-channel communications and communications-server substrate.",
+      "native_context": [
+        "messaging",
+        "correspondence",
+        "communications servers",
+        "network transport",
+        "notifications",
+        "agent and service communications",
+        "delivery evidence"
+      ],
+      "valid_cross_contexts": [
+        "Spin^ server runtimes",
+        "LawPath correspondence and service",
+        "FormPath lodgement and notification",
+        "ClaimPath insurer, assessor, claimant, expert, and repairer communications",
+        "BRAINK agent collaboration",
+        "Infrastructure and Cloud gateways"
+      ],
+      "inherited_capabilities": [
+        "IL-LLM translation",
+        "KIR interfaces",
+        "identity and access boundaries",
+        "observability",
+        "evidence and receipts",
+        "server and network abstraction"
+      ],
+      "specialised_capabilities": [
+        "message routing",
+        "communications servers",
+        "secure channels",
+        "correspondence workflows",
+        "event transport",
+        "delivery and acknowledgement",
+        "retention and legal hold",
+        "human-machine communications"
+      ],
+      "bilateral_interfaces": [
+        {
+          "target_identity": "umbrella://keddeh/claimpath",
+          "transferred_capability": "Provide attributable claim correspondence, notifications, evidence delivery, and communications chronology.",
+          "preserved_invariants": ["sender", "recipient", "channel", "timestamp", "content identity", "delivery state", "claim context"],
+          "source_owner": "Keddeh Coms",
+          "target_owner": "ClaimPath",
+          "readback_path": "Claim communications receipts return to Coms delivery ledgers and ClaimPath chronology through KIR."
+        }
+      ],
+      "prohibited_conflations": [
+        "chat application only",
+        "email wrapper only",
+        "Spin^ subordinate module",
+        "assistant-invented brand"
+      ],
+      "evidence": [
+        {
+          "evidence_class": "DIRECT_USER_DESIGN_STATEMENT",
+          "reference": "Current project conversation: Keddeh Coms defined as communications and servers",
+          "supports": "Semantic root, server inclusion, and top-level umbrella status"
+        }
+      ],
+      "promotion_state": "ARCHITECTURALLY_BOUND",
+      "version": "1.0.0",
+      "supersedes": null,
+      "superseded_by": null
+    },
+    {
+      "canonical_id": "umbrella://keddeh/spin",
+      "canonical_name": "Spin^",
+      "origin_authority": "A. Keddeh",
+      "origin_type": "USER_DESIGNED",
+      "source_lineage": [
+        "User definition: Spin^ covers server logics, frameworks, and optimisations",
+        "Existing KEDDEH server, routing, runtime, orchestration, failover, and optimisation designs"
+      ],
+      "semantic_roots": [
+        {
+          "term": "Spin",
+          "meaning": "continuous runtime motion, recurrence, scheduling, routing, execution, and service operation",
+          "design_effect": "server behaviour is represented as an active, optimisable execution topology rather than a static process"
+        },
+        {
+          "term": "^",
+          "meaning": "raised, extended, recursive, scalable, or compounded capability",
+          "design_effect": "the runtime can project upward into distributed, nested, accelerated, or recursively composed service systems"
+        }
+      ],
+      "design_problem": "Create reusable and optimisable server logic that can scale across processes, services, containers, microVMs, agents, hardware abstractions, and distributed systems.",
+      "architectural_role": "Server logic, runtime framework, routing, resilience, and optimisation substrate.",
+      "native_context": [
+        "server frameworks",
+        "service runtimes",
+        "request routing",
+        "concurrency",
+        "distributed execution",
+        "runtime optimisation",
+        "failover and resilience"
+      ],
+      "valid_cross_contexts": [
+        "Keddeh Coms communications servers",
+        "ClaimPath claim processing services",
+        "LawPath matter and deadline services",
+        "BRAINK agents and workstation services",
+        "Infrastructure and Cloud deployments",
+        "Hardware/Firmware accelerated runtimes"
+      ],
+      "inherited_capabilities": [
+        "KEX deterministic state",
+        "KEO topology and iteration governance",
+        "IL-LLM translation",
+        "KIR runtime contracts",
+        "provider failover",
+        "evidence readback"
+      ],
+      "specialised_capabilities": [
+        "server logic",
+        "framework construction",
+        "protocol routing",
+        "concurrency",
+        "scheduling",
+        "load distribution",
+        "circuit breaking",
+        "runtime optimisation",
+        "benchmarking"
+      ],
+      "bilateral_interfaces": [
+        {
+          "target_identity": "umbrella://keddeh/coms",
+          "transferred_capability": "Host and optimise communications services without acquiring ownership of communications semantics.",
+          "preserved_invariants": ["protocol", "message identity", "ordering", "failure semantics", "delivery evidence"],
+          "source_owner": "Spin^",
+          "target_owner": "Keddeh Coms",
+          "readback_path": "Runtime performance and failure evidence return through KIR while message semantics remain owned by Coms."
+        }
+      ],
+      "prohibited_conflations": [
+        "single web server",
+        "communications product",
+        "generic hosting label",
+        "assistant-invented brand"
+      ],
+      "evidence": [
+        {
+          "evidence_class": "DIRECT_USER_DESIGN_STATEMENT",
+          "reference": "Current project conversation: Spin^ defined as server logics, frameworks, and optimisations",
+          "supports": "Semantic role and top-level umbrella status"
+        }
+      ],
+      "promotion_state": "ARCHITECTURALLY_BOUND",
+      "version": "1.0.0",
+      "supersedes": null,
+      "superseded_by": null
+    },
+    {
+      "canonical_id": "umbrella://keddeh/lawpath",
+      "canonical_name": "LawPath",
+      "origin_authority": "A. Keddeh",
+      "origin_type": "USER_NAMED_FROM_PRIOR_DESIGN",
+      "source_lineage": [
+        "Existing KEDDEH legal-process project and matter workflow architecture",
+        "User confirmation that legal naming lineage already existed and LawPath was part of it"
+      ],
+      "semantic_roots": [
+        {
+          "term": "Law",
+          "meaning": "authority, rights, obligations, procedure, legal state, jurisdiction, and remedy",
+          "design_effect": "legal sources and procedural states remain typed and authority-bound"
+        },
+        {
+          "term": "Path",
+          "meaning": "ordered, traceable progression across procedural, evidentiary, and decision states",
+          "design_effect": "matter progression, deadlines, submissions, hearings, remedies, and review remain auditable"
+        }
+      ],
+      "design_problem": "Translate complex legal sources, facts, evidence, procedural requirements, deadlines, and remedies into an attributable and auditable matter path.",
+      "architectural_role": "Legal-process, authority, evidence, and procedural-state system.",
+      "native_context": ["legal matters", "authority mapping", "procedure", "evidence", "submissions", "hearings", "remedies"],
+      "valid_cross_contexts": ["FormPath filing requirements", "ClaimPath disputes", "PlayWrite legal drafting", "Coms service and correspondence", "Assurance audit"],
+      "inherited_capabilities": ["IL-LLM translation", "KIR state models", "evidence lineage", "document generation", "communications", "workbook ledgers"],
+      "specialised_capabilities": ["matter topology", "authority mapping", "legal-element analysis", "chronology", "procedural control", "hearing preparation", "remedy mapping"],
+      "bilateral_interfaces": [
+        {
+          "target_identity": "umbrella://keddeh/formpath",
+          "transferred_capability": "Supply jurisdictional and procedural requirements for document sourcing and filing readiness.",
+          "preserved_invariants": ["jurisdiction", "authority", "matter identity", "deadline", "service rule", "procedural state"],
+          "source_owner": "LawPath",
+          "target_owner": "FormPath",
+          "readback_path": "Filing outcome and rejection/correction evidence return to the LawPath matter state through KIR."
+        }
+      ],
+      "prohibited_conflations": ["FormPath parent", "ClaimPath parent", "professional legal advice by default", "assistant-invented brand"],
+      "evidence": [
+        {
+          "evidence_class": "DIRECT_USER_DESIGN_STATEMENT",
+          "reference": "Current project conversation: LawPath identified as existing naming lineage from the legal project",
+          "supports": "Attribution to prior user design and independent top-level umbrella status"
+        }
+      ],
+      "promotion_state": "ARCHITECTURALLY_BOUND",
+      "version": "1.0.0",
+      "supersedes": null,
+      "superseded_by": null
+    },
+    {
+      "canonical_id": "umbrella://keddeh/formpath",
+      "canonical_name": "FormPath",
+      "origin_authority": "A. Keddeh",
+      "origin_type": "USER_DESIGNED",
+      "source_lineage": [
+        "User-defined top-level umbrella for document sourcing, technical filings, forms, and filing readiness",
+        "Existing legal, regulatory, technical-document, workbook, and evidence workflows"
+      ],
+      "semantic_roots": [
+        {
+          "term": "Form",
+          "meaning": "authoritative document, schema, prescribed structure, technical filing instrument, or required information container",
+          "design_effect": "document identity, source authority, version, fields, attachments, and filing constraints remain explicit"
+        },
+        {
+          "term": "Path",
+          "meaning": "sourcing, completion, assembly, submission, service, correction, resubmission, and retention sequence",
+          "design_effect": "document workflows remain stateful and auditable rather than static downloads"
+        }
+      ],
+      "design_problem": "Source the correct authoritative documents and technical forms, determine what applies, assemble complete filing packages, and validate procedural or technical readiness.",
+      "architectural_role": "Authoritative document sourcing, technical form intelligence, filing assembly, and readiness system.",
+      "native_context": ["document sourcing", "technical filings", "regulatory forms", "field schemas", "attachments", "lodgement", "service", "filing readiness"],
+      "valid_cross_contexts": ["LawPath procedural filings", "ClaimPath insurance forms", "regulatory conformity", "PlayWrite document transformation", "Data/Workbook structured intake"],
+      "inherited_capabilities": ["IL-LLM translation", "source provenance", "document transformation", "schema validation", "workflow state", "communications", "evidence readback"],
+      "specialised_capabilities": ["authority retrieval", "version currency", "form selection", "field validation", "attachment matrices", "filing-pack generation", "service and lodgement tracking", "rejection and correction"],
+      "bilateral_interfaces": [
+        {
+          "target_identity": "umbrella://keddeh/claimpath",
+          "transferred_capability": "Source and validate insurer, policy, assessor, authority, and dispute forms required by a claim.",
+          "preserved_invariants": ["document authority", "version", "mandatory fields", "attachments", "submission status", "provenance"],
+          "source_owner": "FormPath",
+          "target_owner": "ClaimPath",
+          "readback_path": "Claim submission acceptance, rejection, correction, and insurer response return to FormPath filing state and ClaimPath claim state."
+        }
+      ],
+      "prohibited_conflations": ["LawPath child", "ClaimPath child", "template library only", "assistant-invented brand"],
+      "evidence": [
+        {
+          "evidence_class": "DIRECT_USER_DESIGN_STATEMENT",
+          "reference": "Current project conversation: FormPath defined for document sourcing, technical filings, and filing readiness",
+          "supports": "Semantic role and independent top-level status"
+        }
+      ],
+      "promotion_state": "ARCHITECTURALLY_BOUND",
+      "version": "1.0.0",
+      "supersedes": null,
+      "superseded_by": null
+    },
+    {
+      "canonical_id": "umbrella://keddeh/claimpath",
+      "canonical_name": "ClaimPath",
+      "origin_authority": "A. Keddeh",
+      "origin_type": "USER_DESIGNED",
+      "source_lineage": [
+        "User-defined independent insurance spin-off",
+        "User clarification that ClaimPath is not the same topic as LawPath/FormPath but has bilateral uses",
+        "Existing claim, evidence, communications, valuation, dispute, and regulatory concepts"
+      ],
+      "semantic_roots": [
+        {
+          "term": "Claim",
+          "meaning": "asserted insured event, loss, entitlement, coverage request, liability position, or recovery demand",
+          "design_effect": "the system centres policy, event, loss, evidence, coverage, causation, liability, quantum, decision, and remedy"
+        },
+        {
+          "term": "Path",
+          "meaning": "intake, notice, evidence, assessment, decision, dispute, review, settlement, recovery, and closure sequence",
+          "design_effect": "claim progression and decision evidence remain auditable and reversible"
+        }
+      ],
+      "design_problem": "Manage and assess insurance claims bilaterally across policy, event, evidence, loss, valuation, causation, liability, communications, insurer decisions, disputes, settlement, and recovery.",
+      "architectural_role": "Independent insurance-claim lifecycle, assessment, and dispute-readiness system.",
+      "native_context": ["insurance claims", "policy and coverage", "loss evidence", "assessment", "valuation", "insurer workflow", "dispute", "settlement", "recovery"],
+      "valid_cross_contexts": ["FormPath insurance documents", "LawPath dispute process", "Coms correspondence", "Spin^ claim services", "Data/Workbook valuation ledgers", "Assurance evidence"],
+      "inherited_capabilities": ["IL-LLM translation", "KIR state and evidence", "document sourcing", "communications", "server workflows", "data ledgers", "assurance"],
+      "specialised_capabilities": ["claim intake", "policy interpretation", "coverage mapping", "loss and evidence assembly", "causation and liability analysis", "valuation", "assessment", "dispute and review", "settlement and recovery"],
+      "bilateral_interfaces": [
+        {
+          "target_identity": "umbrella://keddeh/lawpath",
+          "transferred_capability": "Exchange dispute, rights, remedies, authority, and procedural information without converting the insurance product into a legal sub-product.",
+          "preserved_invariants": ["claim identity", "policy identity", "coverage position", "evidence class", "decision state", "jurisdiction", "dispute status"],
+          "source_owner": "ClaimPath",
+          "target_owner": "LawPath",
+          "readback_path": "Legal process outcomes return to ClaimPath as typed dispute evidence while claim ownership remains with ClaimPath."
+        }
+      ],
+      "prohibited_conflations": ["LawPath child", "FormPath child", "legal topic only", "generic complaints system", "assistant-invented brand"],
+      "evidence": [
+        {
+          "evidence_class": "DIRECT_USER_DESIGN_STATEMENT",
+          "reference": "Current project conversation: ClaimPath defined as an insurance spin-off with bilateral uses",
+          "supports": "Insurance scope, independent top-level status, and bilateral relationship"
+        }
+      ],
+      "promotion_state": "ARCHITECTURALLY_BOUND",
+      "version": "1.0.0",
+      "supersedes": null,
+      "superseded_by": null
+    }
+  ],
+  "global_stop": false
+}
