@@ -1,0 +1,126 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema://keddeh/naming-attribution/v1",
+  "title": "KEDDEH Naming Attribution Record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "canonical_id",
+    "canonical_name",
+    "origin_authority",
+    "origin_type",
+    "source_lineage",
+    "semantic_roots",
+    "design_problem",
+    "architectural_role",
+    "native_context",
+    "valid_cross_contexts",
+    "inherited_capabilities",
+    "specialised_capabilities",
+    "bilateral_interfaces",
+    "prohibited_conflations",
+    "evidence",
+    "promotion_state",
+    "version"
+  ],
+  "properties": {
+    "canonical_id": {"type": "string", "minLength": 3},
+    "canonical_name": {"type": "string", "minLength": 1},
+    "origin_authority": {"type": "string", "minLength": 1},
+    "origin_type": {
+      "enum": [
+        "USER_DESIGNED",
+        "USER_NAMED_FROM_PRIOR_DESIGN",
+        "DERIVED_FROM_USER_ARCHITECTURE",
+        "JOINTLY_REFINED",
+        "LEGACY_IMPORTED",
+        "MARKET_ALIAS",
+        "IMPLEMENTATION_ALIAS"
+      ]
+    },
+    "source_lineage": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+    "semantic_roots": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["term", "meaning", "design_effect"],
+        "properties": {
+          "term": {"type": "string"},
+          "meaning": {"type": "string"},
+          "design_effect": {"type": "string"}
+        }
+      }
+    },
+    "design_problem": {"type": "string", "minLength": 1},
+    "architectural_role": {"type": "string", "minLength": 1},
+    "native_context": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+    "valid_cross_contexts": {"type": "array", "items": {"type": "string"}},
+    "inherited_capabilities": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+    "specialised_capabilities": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+    "bilateral_interfaces": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "target_identity",
+          "transferred_capability",
+          "preserved_invariants",
+          "source_owner",
+          "target_owner",
+          "readback_path"
+        ],
+        "properties": {
+          "target_identity": {"type": "string"},
+          "transferred_capability": {"type": "string"},
+          "preserved_invariants": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+          "source_owner": {"type": "string"},
+          "target_owner": {"type": "string"},
+          "readback_path": {"type": "string"}
+        }
+      }
+    },
+    "prohibited_conflations": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+    "evidence": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["evidence_class", "reference", "supports"],
+        "properties": {
+          "evidence_class": {
+            "enum": [
+              "DIRECT_USER_DESIGN_STATEMENT",
+              "USER_SUPPLIED_SOURCE",
+              "PRIOR_ARCHITECTURE_RECORD",
+              "REPOSITORY_IMPLEMENTATION",
+              "DRIVE_ARTIFACT",
+              "MARKET_POSITIONING_DECISION",
+              "INFERRED_RELATIONSHIP_PENDING_CONFIRMATION"
+            ]
+          },
+          "reference": {"type": "string"},
+          "supports": {"type": "string"}
+        }
+      }
+    },
+    "promotion_state": {
+      "enum": [
+        "OBSERVED",
+        "ATTRIBUTED",
+        "SEMANTICALLY_FACTORED",
+        "ARCHITECTURALLY_BOUND",
+        "BILATERALLY_MAPPED",
+        "IMPLEMENTED",
+        "MARKET_VALIDATED",
+        "LEGALLY_CLEARED"
+      ]
+    },
+    "version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
+    "supersedes": {"type": ["string", "null"]},
+    "superseded_by": {"type": ["string", "null"]}
+  }
+}
