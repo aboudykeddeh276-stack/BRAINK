@@ -17,14 +17,19 @@ def validate(root: Path) -> Dict[str, object]:
     standards = root / "deploy" / "cloudworkspace-engine" / "DEPLOYMENT_STANDARDS.md"
     openapi = root / "api" / "mesh-engine-node-registry.openapi.yaml"
     ledger = root / "web" / "src" / "failure-ledger.ts"
+    server = root / "services" / "cloudworkspace_engine" / "server.py"
+    dockerfile = root / "services" / "cloudworkspace_engine" / "Dockerfile"
+    runner_bootstrap = root / "scripts" / "bootstrap_m3_self_hosted_runner.command"
+    kind_deploy = root / "scripts" / "deploy_cloudworkspace_kind_m3.command"
     errors: List[str] = []
 
-    for path in (deployment, standards, openapi, ledger):
+    artifacts = (deployment, standards, openapi, ledger, server, dockerfile, runner_bootstrap, kind_deploy)
+    for path in artifacts:
         if not path.exists():
             errors.append(f"missing_file:{path.relative_to(root)}")
 
     if errors:
-        return {"valid": False, "errors": errors}
+        return {"valid": False, "errors": errors, "global_stop": False}
 
     deployment_text = deployment.read_text(encoding="utf-8")
     for token in (
@@ -86,16 +91,68 @@ def validate(root: Path) -> Dict[str, object]:
     ):
         require(standards_text, token, errors, "standards")
 
+    server_text = server.read_text(encoding="utf-8")
+    for token in (
+        "ThreadingHTTPServer",
+        "PRAGMA journal_mode=WAL",
+        'path == "/startupz"',
+        'path == "/healthz"',
+        'path == "/readyz"',
+        'path == "/v1/nodes"',
+        'path == "/v1/packages/manifests"',
+        'path == "/v1/failures"',
+        'path.endswith("/reconcile")',
+        '"globalStop": False',
+        '"REINTEGRATED" if recovered else "DEFERRED"',
+    ):
+        require(server_text, token, errors, "cloudworkspace-runtime")
+
+    docker_text = dockerfile.read_text(encoding="utf-8")
+    for token in (
+        "FROM python:3.12-slim",
+        "USER 10001:10001",
+        "HEALTHCHECK",
+        'ENTRYPOINT ["python", "/app/server.py"]',
+    ):
+        require(docker_text, token, errors, "cloudworkspace-container")
+
+    runner_text = runner_bootstrap.read_text(encoding="utf-8")
+    for token in (
+        "actions/runners/downloads",
+        "actions/runners/registration-token",
+        "osx",
+        "arm64",
+        "KEDDEH-M3",
+        "./svc.sh install",
+        "./svc.sh start",
+    ):
+        require(runner_text, token, errors, "m3-runner-bootstrap")
+
+    kind_text = kind_deploy.read_text(encoding="utf-8")
+    for token in (
+        "kind create cluster",
+        "docker build --platform linux/arm64",
+        "kind load docker-image",
+        "kubectl apply",
+        "kubectl -n \"$NAMESPACE\" rollout status",
+        "/startupz",
+        "/healthz",
+        "/readyz",
+        "TARGET_HOST_PASS",
+    ):
+        require(kind_text, token, errors, "m3-kind-deployment")
+
     return {
-        "version": "V104-CLOUDWORKSPACE-SOVEREIGN-1",
+        "version": "V106-CLOUDWORKSPACE-EXECUTABLE-1",
         "valid": not errors,
         "errors": errors,
-        "artifacts": [
-            str(deployment.relative_to(root)),
-            str(standards.relative_to(root)),
-            str(openapi.relative_to(root)),
-            str(ledger.relative_to(root)),
-        ],
+        "artifacts": [str(path.relative_to(root)) for path in artifacts],
+        "execution_paths": {
+            "m3_runner_bootstrap": str(runner_bootstrap.relative_to(root)),
+            "m3_kind_deployment": str(kind_deploy.relative_to(root)),
+            "cloudworkspace_runtime": str(server.relative_to(root)),
+            "cloudworkspace_container": str(dockerfile.relative_to(root)),
+        },
         "global_stop": False,
     }
 
