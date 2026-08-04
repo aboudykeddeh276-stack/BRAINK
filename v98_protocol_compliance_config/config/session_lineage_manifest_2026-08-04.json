@@ -1,0 +1,107 @@
+{
+  "version": "SESSION-LINEAGE-2026-08-04-1",
+  "recordId": "lineage://session/2026-08-04/il-llm-active-word-provider-failover",
+  "status": "CANONICAL_CONCEPTUAL_RECORD",
+  "imperative": true,
+  "canonicalDocument": "docs/session_lineage/KEDDEH_SESSION_IMPERATIVE_2026-08-04.md",
+  "driveRecord": {
+    "folderId": "1tmnwKwh_Yxh4O3OIhvCllmdfSyEslJoX",
+    "documentId": "18zjWfiOpiUZGFfZe689aLKySKWHAiE70778WXY80kt8",
+    "title": "KEDDEH SESSION IMPERATIVE — IL-LLM, Active Word Governance, Provider Inversion & Deterministic Failover — 2026-08-04"
+  },
+  "governingLaws": [
+    {
+      "id": "law://system-domain-equivalence",
+      "statement": "SYSTEM ≡ DOMAIN; every system surface is a contextual domain executing the same recursive lifecycle."
+    },
+    {
+      "id": "law://active-word-context",
+      "statement": "Word identity is invariant; active meaning is instantiated by A_W=f(W,C,E,S,V,O,L,T)."
+    },
+    {
+      "id": "law://unknown-term-continuation",
+      "statement": "Missing term does not imply missing runtime; untranslated terms become provisional active values and continue under bounded context."
+    },
+    {
+      "id": "law://character-null-presence",
+      "statement": "A character does not become zero; null presence is dependent relational notation preserving character and lineage."
+    },
+    {
+      "id": "law://provider-inversion",
+      "statement": "Hosts, servers, hypervisors, agents, clusters, models and other execution surfaces are capability providers beneath the governing runtime."
+    },
+    {
+      "id": "law://component-service-separation",
+      "statement": "Component availability is not service availability; component loss removes only its supplied capabilities and input data."
+    },
+    {
+      "id": "law://deterministic-failover",
+      "statement": "For each output evaluate path_a, then path_b, then path_c, selecting the first complete valid path."
+    },
+    {
+      "id": "law://no-cross-path-blending",
+      "statement": "Partial inputs from separate failover paths may not be blended unless a separately declared composite path authorizes the exact input set."
+    },
+    {
+      "id": "law://output-impact-radius",
+      "statement": "Only non-derivable outputs are deferred or bounded-stopped; all derivable outputs and unaffected domains remain active."
+    },
+    {
+      "id": "law://bilateral-lineage",
+      "statement": "Every source-to-runtime transition and every runtime-to-source return must remain independently traversable and preserved."
+    }
+  ],
+  "canonicalTransitions": {
+    "contextLifecycle": ["OBSERVE", "IDENTIFY", "INTERPRET", "TRAVERSE", "VALIDATE", "PROMOTE", "PRESERVE"],
+    "ilLlm": ["ANCHOR", "FACTOR", "TRANSLATE", "ACT", "VALIDATE", "TOKENIZE", "PRESERVE", "RETURN"],
+    "activeWord": ["DEFINED", "CONTEXTUALIZED", "AUTHORIZED", "ROUTED", "ACTIVE", "OBSERVED", "VERIFIED", "PRESERVED"],
+    "failure": ["ACTIVE", "DEGRADED", "DEFERRED", "RECOVERING", "REINTEGRATED"],
+    "deterministicFailover": ["path_a", "path_b", "path_c"]
+  },
+  "implementationVersions": [
+    {"version": "V100", "capability": "Active Story Lexicon"},
+    {"version": "V101", "capability": "IL-LLM Bilateral Ingestion"},
+    {"version": "V102", "capability": "Active Word Governance"},
+    {"version": "V103", "capability": "Active Word Full Engagement"},
+    {"version": "V104", "capability": "CloudWorkspaceEngine Sovereign Contracts and runtime"},
+    {"version": "V105", "capability": "M3 Host Readiness Contract"},
+    {"version": "V106", "capability": "Hypervisor Provider Resolution"},
+    {"version": "V107", "capability": "Universal Deterministic Capability Failover"}
+  ],
+  "boundFiles": [
+    "config/active_story_lexicon.json",
+    "config/il_llm_active_story_registry.json",
+    "config/il_llm_corpus_manifest.json",
+    "config/active_word_governance.json",
+    "config/active_word_full_engagement.json",
+    "config/hypervisor_provider_registry.json",
+    "config/universal_capability_derivation_registry.json",
+    "src/keddeh_active_story_runtime.py",
+    "src/keddeh_il_llm_runtime.py",
+    "src/keddeh_il_llm_bilateral_ingestor.py",
+    "src/keddeh_active_word_governance.py",
+    "src/keddeh_active_word_full_engagement.py",
+    "src/keddeh_hypervisor_provider_resolver.py",
+    "src/keddeh_deterministic_failover_runtime.py",
+    "services/cloudworkspace_engine/server.py",
+    "web/src/failure-ledger.ts",
+    "api/mesh-engine-node-registry.openapi.yaml",
+    "deploy/cloudworkspace-engine/cloudworkspace-engine.yaml"
+  ],
+  "requiredConsultationBeforeChange": [
+    "provider selection",
+    "dependency isolation",
+    "IL-LLM ingestion",
+    "Active Story semantics",
+    "active-word governance",
+    "FailureLedger behaviour",
+    "service health aggregation",
+    "workflow routing",
+    "deterministic failover"
+  ],
+  "evidenceBoundary": {
+    "states": ["SPECIFIED", "IMPLEMENTED", "VALIDATED", "OPERATIONAL", "PROVIDER_PROVEN", "DEPLOYED", "EXTERNALLY_PROVEN"],
+    "globalStopDefault": false,
+    "rule": "Missing provider or external evidence creates an output-specific pending state and re-entry path, not a global stop."
+  }
+}
