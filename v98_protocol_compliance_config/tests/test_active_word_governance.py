@@ -46,19 +46,47 @@ def test_word_instance_preserves_full_context_and_bilateral_links() -> None:
         assert result["bilateral_readback"] is True
         active = result["active_word"]
         assert active["canonical_identity"] == "word://observe"
+        assert active["resolution_state"] == "TRANSLATED"
         assert active["service"] == "service://health-state-monitor"
         assert active["observer"]["identity"] == "probe://mesh-17"
 
 
-def test_unknown_word_opens_learning_without_global_stop() -> None:
-    runtime = ActiveWordGovernance(ROOT)
-    result = runtime.instantiate(
-        "word://unknown-new-term", {}, {}, "sector://x", "service://x", {},
-        "CONTROL_PLANE", "DECLARED", {"required": [], "optional": []},
-        "DEFINED", {"source": "source://test"}, ["CONTEXTUALIZED"],
-    )
-    assert result["promotion_state"] == "LEARNING_REQUIRED"
-    assert result["global_stop"] is False
+def test_unknown_word_becomes_provisional_and_execution_continues() -> None:
+    with tempfile.TemporaryDirectory() as raw:
+        tmp = Path(raw)
+        prepare(tmp)
+        runtime = ActiveWordGovernance(tmp)
+        result = runtime.instantiate(
+            "word://unknown-new-term",
+            {"domain": "runtime", "purpose": "continue despite missing term", "environment": "test"},
+            {"subject": "task", "action": "unknown-new-term", "object": "work"},
+            "sector://runtime-continuity",
+            "service://task-orchestrator",
+            {"identity": "observer://test"},
+            "CONTROL_PLANE",
+            "DECLARED",
+            {"required": [], "optional": []},
+            "CONTEXTUALIZED",
+            {"source": "source://test"},
+            ["AUTHORIZED", "ROUTED", "ACTIVE", "DEFERRED"],
+        )
+        assert result["promotion_state"] == "ACTIVE_WORD_PROVISIONAL"
+        assert result["execution_mode"] == "BOUNDED_CONTEXT_CONTINUATION"
+        assert result["global_stop"] is False
+        assert result["bilateral_readback"] is True
+        assert result["active_word"]["resolution_state"] == "UNTRANSLATED"
+        assert result["mirror_proposal"]["kind"] == "UNTRANSLATED_ACTIVE_WORD"
+        assert result["mirror_proposal"]["execution_continues"] is True
+        assert (tmp / "runtime_volume" / "active_words" / "provisional_lexicon.json").exists()
+
+        transitioned = runtime.transition(
+            result["active_word"]["address"],
+            "ACTIVE",
+            {"receipt": "bounded-execution-receipt"},
+        )
+        assert transitioned["promotion_state"] == "STATE_TRANSITIONED"
+        assert transitioned["execution_mode"] == "BOUNDED_CONTEXT_CONTINUATION"
+        assert transitioned["active_word"]["resolution_state"] == "UNTRANSLATED"
 
 
 def test_disallowed_transition_is_bounded_to_service() -> None:
