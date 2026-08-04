@@ -1,0 +1,52 @@
+{
+  "matrix_id": "matrix://keddeh/language-target-capabilities",
+  "version": "1.0.0",
+  "principle": "Source language is a projection target. Canonical system identity, invariants, interfaces, topology, lineage, and evidence remain language-independent.",
+  "language_families": {
+    "freestanding_systems": {
+      "languages": ["C18", "C++23", "Rust-no_std", "x86_64-assembly", "AArch64-assembly", "RISC-V-assembly"],
+      "uses": ["BIOS", "firmware", "bootloaders", "kernels", "hypervisors", "drivers", "hardware-abstraction-layers", "memory-managers"],
+      "mandatory_contracts": ["calling_convention", "linker_layout", "memory_model", "privilege_model", "interrupt_model", "undefined_behavior_policy", "toolchain_receipt"]
+    },
+    "hosted_services": {
+      "languages": ["C++", "Rust", "Go", "Python", "Java", "C#", "TypeScript", "JavaScript"],
+      "uses": ["servers", "control-planes", "agents", "APIs", "orchestrators", "observability", "deployment-tools"],
+      "mandatory_contracts": ["service_interface", "persistence", "concurrency", "authentication", "failure_modes", "deployment_runtime"]
+    },
+    "hardware_description": {
+      "languages": ["SystemVerilog", "Verilog", "VHDL", "Chisel", "SpinalHDL", "CIRCT-MLIR", "LLHD"],
+      "uses": ["digital-hardware", "CPU-blocks", "accelerators", "buses", "register-files", "memory-controllers", "FPGA", "ASIC"],
+      "mandatory_contracts": ["clock_domains", "reset_semantics", "latency", "throughput", "protocol", "synthesis_constraints", "simulation_receipt", "formal_property_set"]
+    },
+    "interface_and_configuration": {
+      "languages": ["JSON", "YAML", "TOML", "XML", "OpenAPI", "Protocol-Buffers", "YANG", "CUE", "JSON-Schema"],
+      "uses": ["schemas", "manifests", "APIs", "network-models", "deployment", "policy", "validation"],
+      "mandatory_contracts": ["schema_version", "compatibility_policy", "validation", "migration", "ownership"]
+    },
+    "workbook_and_visual": {
+      "languages": ["Excel-formulas", "Google-Sheets-formulas", "VBA", "Office-Scripts", "WebGPU-WGSL", "GLSL", "HLSL", "Metal-Shading-Language"],
+      "uses": ["workbook-OS", "control-planes", "visual-compute", "GPU-projection", "operator-surfaces"],
+      "mandatory_contracts": ["cell_or_buffer_identity", "data_lineage", "execution_trigger", "render_or_formula_contract", "readback"]
+    }
+  },
+  "execution_targets": [
+    "raw-processor",
+    "BIOS-or-UEFI-firmware",
+    "bootloader",
+    "kernel-ring0",
+    "hypervisor",
+    "user-space-native",
+    "server-process",
+    "container",
+    "microVM",
+    "browser-runtime",
+    "workbook-runtime",
+    "FPGA",
+    "ASIC",
+    "GPU",
+    "simulator",
+    "formal-verifier"
+  ],
+  "selection_rule": "Choose target languages from required execution semantics and verified toolchains, never from model preference.",
+  "global_stop": false
+}
