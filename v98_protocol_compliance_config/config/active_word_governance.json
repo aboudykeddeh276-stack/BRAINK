@@ -1,11 +1,12 @@
 {
-  "version": "V102-ACTIVE-WORD-1",
+  "version": "V106-ACTIVE-WORD-CONTINUATION-1",
   "registryId": "keddeh.active-word.governance",
   "equation": "A_W=f(W,C,E,S,V,O,L,T)",
   "canonicalRule": "word identity is invariant; active meaning is contextually instantiated and bilaterally linked",
   "requiredFields": [
     "word",
     "canonical_identity",
+    "resolution_state",
     "context",
     "expression",
     "sector",
@@ -18,6 +19,18 @@
     "lineage",
     "allowed_transitions"
   ],
+  "missingTermPolicy": {
+    "rule": "missing terminology is an untranslated active value, not an execution stop",
+    "resolutionState": "UNTRANSLATED",
+    "executionMode": "BOUNDED_CONTEXT_CONTINUATION",
+    "provisionalDefinitionRequired": true,
+    "contextPreservationRequired": true,
+    "bilateralLinkRequired": true,
+    "mirrorLaneProposalRequired": true,
+    "executionContinues": true,
+    "globalStop": false,
+    "reintegrationPath": ["ANCHOR", "FACTOR", "TRANSLATE", "VALIDATE", "PRESERVE", "RETURN", "REINTEGRATED"]
+  },
   "stateMachine": {
     "primary": ["DEFINED", "CONTEXTUALIZED", "AUTHORIZED", "ROUTED", "ACTIVE", "OBSERVED", "VERIFIED", "PRESERVED"],
     "boundedFailure": ["ACTIVE", "DEGRADED", "DEFERRED", "RECOVERING", "REINTEGRATED"],
@@ -28,6 +41,8 @@
   "executionPlanes": ["CONTROL_PLANE", "BROWSER_PROJECTION", "LOCAL_PROCESS", "LOCAL_CPU", "WEBGPU", "EMULATOR", "MICROVM_GUEST", "NODE_RUNTIME", "TARGET_HOST", "REMOTE_PROVIDER", "IMPORTED_EVIDENCE"],
   "addressGrammar": "word://<canonical-word>/<sector>/<service>/<context>/<state>/<instance-id>",
   "prohibitedConflations": [
+    "missing_term_is_not_missing_runtime",
+    "untranslated_is_not_invalid",
     "declared_state_is_not_executed_state",
     "projection_is_not_automatically_execution",
     "execution_is_not_automatically_verified",
