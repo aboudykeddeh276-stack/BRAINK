@@ -1,0 +1,78 @@
+name: KEDDEH V107 Deterministic Capability Failover
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'v98_protocol_compliance_config/config/universal_capability_derivation_registry.json'
+      - 'v98_protocol_compliance_config/src/keddeh_deterministic_failover_runtime.py'
+      - 'v98_protocol_compliance_config/tests/test_deterministic_failover_runtime.py'
+      - '.github/workflows/v107-deterministic-capability-failover.yml'
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  deterministic-failover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile
+        run: |
+          cd v98_protocol_compliance_config
+          python3 -m compileall src tests
+      - name: Execute repository tests
+        run: |
+          cd v98_protocol_compliance_config
+          python3 src/keddeh_test_runner.py --root . --emit-receipt
+      - name: Execute path A
+        run: |
+          cd v98_protocol_compliance_config
+          python3 src/keddeh_deterministic_failover_runtime.py --root . \
+            --service service://universal/example \
+            --component component://database/primary \
+            --component component://model/primary \
+            --emit-receipt
+      - name: Execute path B
+        run: |
+          cd v98_protocol_compliance_config
+          python3 src/keddeh_deterministic_failover_runtime.py --root . \
+            --service service://universal/example \
+            --component component://database/replica \
+            --component component://model/fallback \
+            --emit-receipt
+      - name: Execute path C
+        run: |
+          cd v98_protocol_compliance_config
+          python3 src/keddeh_deterministic_failover_runtime.py --root . \
+            --service service://universal/example \
+            --component component://api/cache \
+            --component component://ledger/prior-authority \
+            --emit-receipt
+      - name: Verify partial-path non-blending
+        run: |
+          cd v98_protocol_compliance_config
+          python3 - <<'PY'
+          import json
+          import sys
+          from pathlib import Path
+          sys.path.insert(0, 'src')
+          from keddeh_deterministic_failover_runtime import DeterministicFailoverRuntime
+          result = DeterministicFailoverRuntime(Path('.')).execute(
+              'service://universal/example',
+              ['component://database/primary', 'component://model/fallback'],
+          )
+          assert result['service_state'] == 'BOUNDED_STOP'
+          assert result['global_stop'] is False
+          print(json.dumps(result, indent=2, sort_keys=True))
+          PY
+      - name: Upload deterministic failover evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: keddeh-v107-deterministic-failover
+          path: |
+            v98_protocol_compliance_config/evidence/
+            v98_protocol_compliance_config/runtime_volume/deterministic_failover/
