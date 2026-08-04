@@ -5,9 +5,8 @@ import argparse
 import hashlib
 import json
 import time
-from collections import defaultdict
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Optional, Set, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 
 def read_json(path: Path, default: Any = None) -> Any:
@@ -67,8 +66,9 @@ class ActiveWordFullEngagement:
         return errors
 
     def _proposal(self, kind: str, subject: str, source_addresses: List[str], detail: Dict[str, Any]) -> Dict[str, Any]:
+        identity = {"kind": kind, "subject": subject, "sources": source_addresses, "detail": detail}
         proposal = {
-            "proposal_id": "proposal://mirror-lane/" + canonical_hash({"kind": kind, "subject": subject, "sources": source_addresses, "detail": detail}),
+            "proposal_id": "proposal://mirror-lane/" + canonical_hash(identity),
             "kind": kind,
             "subject": subject,
             "source_addresses": source_addresses,
@@ -82,16 +82,16 @@ class ActiveWordFullEngagement:
         return proposal
 
     def _derivation(self, kind: str, left: str, right: str, basis: Dict[str, Any], iteration: int) -> Dict[str, Any]:
+        # Derivation identity is invariant across iterations. The discovery iteration is lineage,
+        # not part of the relation's identity; otherwise the same relation can never converge.
+        identity = {"kind": kind, "left": left, "right": right, "basis": basis}
         body = {
-            "kind": kind,
-            "left": left,
-            "right": right,
-            "basis": basis,
-            "iteration": iteration,
+            **identity,
+            "first_discovered_iteration": iteration,
             "complete": 1,
             "preserved": True,
         }
-        body["derivation_id"] = "derivation://active-word/" + canonical_hash(body)
+        body["derivation_id"] = "derivation://active-word/" + canonical_hash(identity)
         return body
 
     def _engage_expression(self, expr_id: str, expr: Dict[str, Any], iteration: int) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
@@ -107,15 +107,16 @@ class ActiveWordFullEngagement:
             proposals.append(self._proposal(
                 "MISSING_EXPRESSION_BINDING",
                 expr_id,
-                [expr_id] + [w for w in words if w],
+                [expr_id] + [word for word in words if word],
                 {"service": service, "sector": sector, "handler": handler},
             ))
 
         for word_id in words:
             if not word_id:
                 continue
+            role = next((item.get("role") for item in expr["words"] if item.get("word") == word_id), "unspecified")
             derivations.extend([
-                self._derivation("WORD_TO_EXPRESSION", word_id, expr_id, {"role": next((x.get("role") for x in expr["words"] if x.get("word") == word_id), "unspecified")}, iteration),
+                self._derivation("WORD_TO_EXPRESSION", word_id, expr_id, {"role": role}, iteration),
                 self._derivation("WORD_TO_SECTOR", word_id, sector, {"expression": expr_id}, iteration),
                 self._derivation("WORD_TO_EVIDENCE", word_id, expr_id, {"required_evidence": evidence}, iteration),
             ])
@@ -148,9 +149,7 @@ class ActiveWordFullEngagement:
         iteration_count = iterations or int(self.policy["iterations"])
         all_derivations: Dict[str, Dict[str, Any]] = {}
         all_proposals: Dict[str, Dict[str, Any]] = {}
-        indexes: Dict[str, Dict[str, List[str]]] = {
-            name: {} for name in self.policy["requiredBilateralIndexes"]
-        }
+        indexes: Dict[str, Dict[str, List[str]]] = {name: {} for name in self.policy["requiredBilateralIndexes"]}
         iteration_receipts: List[Dict[str, Any]] = []
 
         for iteration in range(1, iteration_count + 1):
@@ -165,9 +164,12 @@ class ActiveWordFullEngagement:
                 all_derivations.setdefault(derivation["derivation_id"], derivation)
 
             for derivation in all_derivations.values():
-                left, right, kind, did = derivation["left"], derivation["right"], derivation["kind"], derivation["derivation_id"]
-                unique_append(indexes["forward"], left, did)
-                unique_append(indexes["reverse"], right, did)
+                left = derivation["left"]
+                right = derivation["right"]
+                kind = derivation["kind"]
+                derivation_id = derivation["derivation_id"]
+                unique_append(indexes["forward"], left, derivation_id)
+                unique_append(indexes["reverse"], right, derivation_id)
                 if kind == "WORD_TO_EXPRESSION":
                     unique_append(indexes["word_to_expression"], left, right)
                     unique_append(indexes["expression_to_word"], right, left)
