@@ -1,0 +1,41 @@
+githubConfigUrl: https://github.com/aboudykeddeh276-stack/BRAINK
+githubConfigSecret: keddeh-arc-github-auth
+runnerScaleSetName: keddeh-arc-runner-set
+minRunners: 0
+maxRunners: 10
+containerMode:
+  type: kubernetes
+controllerServiceAccount:
+  namespace: arc-systems
+  name: keddeh-arc-controller-gha-rs-controller
+runnerGroup: Default
+template:
+  spec:
+    serviceAccountName: keddeh-arc-runner
+    restartPolicy: Never
+    securityContext:
+      runAsNonRoot: true
+      seccompProfile:
+        type: RuntimeDefault
+    containers:
+      - name: runner
+        image: ghcr.io/actions/actions-runner:latest
+        command: ["/home/runner/run.sh"]
+        resources:
+          requests:
+            cpu: "500m"
+            memory: 1Gi
+          limits:
+            cpu: "4"
+            memory: 8Gi
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop: ["ALL"]
+        env:
+          - name: KEDDEH_PROVIDER_ID
+            value: provider://kubernetes/arc
+          - name: KEDDEH_EXECUTION_PLANE
+            value: NODE_RUNTIME
+          - name: KEDDEH_GLOBAL_STOP
+            value: "false"
