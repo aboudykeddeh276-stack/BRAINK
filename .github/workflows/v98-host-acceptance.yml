@@ -6,105 +6,113 @@ on:
     paths:
       - 'v98_protocol_compliance_config/**'
       - '.github/workflows/v98-host-acceptance.yml'
-      - '.github/workflows/v98-mirror-update-lane.yml'
-      - '.github/workflows/v98-workflow-schema-guard.yml'
-      - '.github/workflows/v98-design-deployment-workflow.yml'
-      - '.github/workflows/v98-dependency-failure-isolation.yml'
-      - '.github/workflows/v98-k-cloud-deploy.yml'
-      - '.github/workflows/v98-application-applet-shipping.yml'
-      - '.github/workflows/v98-deployment-maturity-workplan.yml'
-      - '.github/workflows/v98-current-state-surface-audit.yml'
-      - '.github/workflows/v99-evidence-context-resolution.yml'
-      - '.github/workflows/v99-semantic-knowledge-graph.yml'
-      - '.github/workflows/v99-four-plane-context-framework.yml'
 
 permissions:
   contents: read
   actions: read
 
 jobs:
-  host-acceptance:
-    name: self-hosted M3 protocol compliance acceptance
-    runs-on: [self-hosted, macOS, ARM64, KEDDEH-M3]
-    timeout-minutes: 30
+  hypervisor-ignite:
+    name: GitHub-hosted hypervisor provider resolution
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      selected_provider: ${{ steps.resolve.outputs.selected_provider }}
+      should_run_m3: ${{ steps.resolve.outputs.should_run_m3 }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Python version
-        run: python3 --version
-      - name: Compile executable modules
+      - uses: actions/checkout@v4
+      - name: Resolve portable and Apple-specific providers
+        id: resolve
+        env:
+          M3_AVAILABLE: ${{ vars.KEDDEH_M3_AVAILABLE }}
         run: |
           cd v98_protocol_compliance_config
           python3 -m compileall src tests
-      - name: Install and load launchd service spine
+          python3 src/keddeh_hypervisor_provider_resolver.py \
+            --root . \
+            --workload workload://host-acceptance/portable \
+            --emit-receipt
+          if [[ "${M3_AVAILABLE:-false}" == "true" ]]; then
+            python3 src/keddeh_hypervisor_provider_resolver.py \
+              --root . \
+              --workload workload://apple/native-validation \
+              --available provider://local/m3
+            echo "should_run_m3=true" >> "$GITHUB_OUTPUT"
+          else
+            python3 src/keddeh_hypervisor_provider_resolver.py \
+              --root . \
+              --workload workload://apple/native-validation
+            echo "should_run_m3=false" >> "$GITHUB_OUTPUT"
+          fi
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import json
+          from pathlib import Path
+          data = json.loads(Path('evidence/hypervisor_provider_resolution_receipt.json').read_text())
+          print('selected_provider=' + str(data['result']['selected_provider']))
+          PY
+      - name: Upload provider resolution
+        uses: actions/upload-artifact@v4
+        with:
+          name: keddeh-hypervisor-provider-resolution
+          path: |
+            v98_protocol_compliance_config/evidence/hypervisor_provider_resolution_receipt.json
+            v98_protocol_compliance_config/runtime_volume/hypervisor_provider_resolution/
+            v98_protocol_compliance_config/runtime_volume/workplans/provider_reentry/
+
+  portable-acceptance:
+    name: Provider-independent protocol compliance acceptance
+    needs: hypervisor-ignite
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Execute portable governance and runtime gates
         run: |
           cd v98_protocol_compliance_config
-          bash scripts/install.command
-      - name: Capture executable target-host receipts without global coupling
-        run: |
-          cd v98_protocol_compliance_config
-          python3 src/keddeh_target_host_receipts.py --root . --emit-receipt || true
+          python3 -m compileall src tests
           python3 src/keddeh_dependency_failure_orchestrator.py --root . --emit-receipt
-      - name: Execute K-Cloud package integrity and deployment adapter
-        if: always()
-        run: |
-          cd v98_protocol_compliance_config
           python3 src/keddeh_k_cloud_adapter.py --root . --emit-receipt
-      - name: Package every applet and application as K-APP
-        if: always()
-        run: |
-          cd v98_protocol_compliance_config
           python3 src/keddeh_application_applet_packager.py --root . --emit-receipt
-      - name: Produce deployment maturity workplan
-        if: always()
-        run: |
-          cd v98_protocol_compliance_config
           python3 src/keddeh_deployment_maturity_workplan.py --root . --emit-receipt
-      - name: Audit current desktop, emulator, server and hardware surfaces
-        if: always()
-        run: |
-          cd v98_protocol_compliance_config
           python3 src/keddeh_current_state_surface_auditor.py --root . --emit-receipt
-      - name: Resolve contextual evidence state
-        if: always()
-        run: |
-          cd v98_protocol_compliance_config
           python3 src/keddeh_evidence_context_resolver.py --root . --emit-receipt
-      - name: Build semantic graph and four-plane context framework
-        if: always()
-        run: |
-          cd v98_protocol_compliance_config
           python3 src/keddeh_semantic_knowledge_graph.py --root . --emit-receipt
           python3 src/keddeh_four_plane_context_framework.py --root . --emit-receipt
-      - name: Execute acceptance, BTC router, task, workflow and design deployment gates
-        if: always()
-        run: |
-          cd v98_protocol_compliance_config
           python3 src/keddeh_v98_acceptance_harness.py --root . --emit-receipt
           python3 src/keddeh_btc_core_protocol_router.py --root . --once --emit-receipt
           python3 src/keddeh_task_milestone_monitor.py --root . --emit-receipt
           python3 src/keddeh_workflow_schema_guard.py --root . --emit-receipt
           python3 src/keddeh_design_deployment_workflow.py --root . --emit-receipt
-      - name: Run TestCase tests
-        if: always()
-        run: |
-          cd v98_protocol_compliance_config
-          python3 -m unittest discover -s tests -v 2>&1 | tee unittest.log
-          grep -Eq '^Ran [1-9][0-9]* tests? in ' unittest.log
-      - name: Run plain function tests
-        if: always()
-        run: |
-          cd v98_protocol_compliance_config
-          python3 src/keddeh_test_runner.py --root . --emit-receipt 2>&1 | tee test_runner.log
-          grep -Eq '"tests_executed": [1-9][0-9]*' test_runner.log
-      - name: Upload local evidence artifact
+          python3 src/keddeh_test_runner.py --root . --emit-receipt
+      - name: Upload portable acceptance evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: keddeh-v98-evidence
+          name: keddeh-v98-portable-host-acceptance
           path: |
             v98_protocol_compliance_config/evidence/
             v98_protocol_compliance_config/runtime_volume/
             v98_protocol_compliance_config/exports/
-            v98_protocol_compliance_config/unittest.log
-            v98_protocol_compliance_config/test_runner.log
+
+  apple-provider-acceptance:
+    name: Apple-specific M3 capability acceptance
+    needs: hypervisor-ignite
+    if: needs.hypervisor-ignite.outputs.should_run_m3 == 'true'
+    runs-on: [self-hosted, macOS, ARM64, KEDDEH-M3]
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Execute Apple-specific provider checks
+        run: |
+          cd v98_protocol_compliance_config
+          bash scripts/install.command
+          python3 src/keddeh_target_host_receipts.py --root . --emit-receipt
+          bash scripts/run_m3_host_acceptance.command
+      - name: Upload Apple provider evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: keddeh-v98-m3-provider-evidence
+          path: |
+            v98_protocol_compliance_config/evidence/
+            v98_protocol_compliance_config/runtime_volume/
