@@ -1,79 +1,65 @@
 {
   "skill_id": "skill://keddeh/engineering-orchestrator",
   "name": "KEDDEH Engineering Orchestrator",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "status": "ACTIVE_REPOSITORY_SKILL",
   "scope": [
-    "KEDDEH",
-    "BRAINK",
-    "KEX",
-    "bare-metal OS",
-    "workbook OS",
-    "K-Cloud",
-    "agents",
-    "networking",
-    "storage",
-    "visual hardware/software",
-    "legal-process software",
-    "research archives",
-    "deployment and evidence"
+    "KEDDEH", "BRAINK", "KEX", "bare-metal OS", "workbook OS", "K-Cloud",
+    "agents", "networking", "storage", "visual hardware/software",
+    "legal-process software", "research archives", "deployment and evidence",
+    "software topology", "software design", "architecture documentation", "iteration governance"
   ],
   "excluded_tools": ["Lovable"],
   "capability_domains": [
-    "GitHub",
-    "Google Drive",
-    "File Library",
-    "Code Execution",
-    "Web Research",
-    "Figma",
-    "Spreadsheets",
-    "Documents",
-    "PDFs",
-    "Slides",
-    "Image Generation",
-    "Slack",
-    "Gmail",
-    "Google Calendar",
-    "Google Contacts",
-    "OpenAI Platform",
-    "Automations"
+    "GitHub", "Google Drive", "File Library", "Code Execution", "Web Research",
+    "Figma", "Spreadsheets", "Documents", "PDFs", "Slides", "Image Generation",
+    "Slack", "Gmail", "Google Calendar", "Google Contacts", "OpenAI Platform", "Automations"
+  ],
+  "architecture_basis": [
+    "ISO/IEC/IEEE 42010:2022 architecture description concepts",
+    "C4 hierarchical abstraction and diagram views",
+    "arc42 architecture communication structure",
+    "KEDDEH recursive contextual execution architecture"
+  ],
+  "topology_levels": [
+    "L0_ECOSYSTEM", "L1_SYSTEM", "L2_DOMAIN", "L3_RUNTIME_CONTAINER",
+    "L4_COMPONENT", "L5_CODE_UNIT", "L6_EXECUTION_TRANSITION", "L7_DEPLOYMENT_PROJECTION"
+  ],
+  "required_architecture_views": [
+    "CONTEXT_VIEW", "BUILDING_BLOCK_VIEW", "RUNTIME_VIEW", "DEPLOYMENT_VIEW",
+    "DATA_LINEAGE_VIEW", "FAILURE_AND_RECOVERY_VIEW", "SECURITY_AND_TRUST_VIEW",
+    "EVIDENCE_AND_PROMOTION_VIEW"
   ],
   "routing_policy": "FIRST_COMPLETE_PATH_IN_STRICT_ORDER",
   "path_order": ["path_a", "path_b", "path_c"],
   "allow_partial_path_blending": false,
   "global_stop": false,
   "completion_requires": [
-    "execution_or_explicit_nonexecution_boundary",
-    "validation",
-    "artifact classification",
-    "lineage",
-    "impact radius",
-    "remaining gates"
+    "execution_or_explicit_nonexecution_boundary", "validation", "artifact classification",
+    "lineage", "impact radius", "remaining gates", "topology delta",
+    "interface compatibility", "iteration state"
   ],
   "artifact_states": [
-    "DURABLE_BYTES",
-    "DURABLE_NATIVE_RECORD",
-    "REFERENCE_ONLY",
-    "EPHEMERAL_OR_EXPIRED_PATH",
-    "RECONSTRUCTION_REQUIRED"
+    "DURABLE_BYTES", "DURABLE_NATIVE_RECORD", "REFERENCE_ONLY",
+    "EPHEMERAL_OR_EXPIRED_PATH", "RECONSTRUCTION_REQUIRED"
   ],
   "promotion_states": [
-    "CONCEPTUAL",
-    "FORMALISED",
-    "IMPLEMENTED",
-    "STATICALLY_VALIDATED",
-    "LOCALLY_EXECUTED",
-    "CI_PASS",
-    "TARGET_HOST_PASS",
-    "PROVIDER_PASS",
-    "DEPLOYED",
-    "EXTERNALLY_PROVEN",
-    "CERTIFIED_OR_AUTHORITY_CONFIRMED"
+    "CONCEPTUAL", "FORMALISED", "IMPLEMENTED", "STATICALLY_VALIDATED",
+    "LOCALLY_EXECUTED", "CI_PASS", "TARGET_HOST_PASS", "PROVIDER_PASS",
+    "DEPLOYED", "EXTERNALLY_PROVEN", "CERTIFIED_OR_AUTHORITY_CONFIRMED"
+  ],
+  "iteration_states": [
+    "I0_OBSERVE", "I1_DEFINE", "I2_DESIGN", "I3_IMPLEMENT", "I4_STATIC_VALIDATE",
+    "I5_EXECUTE", "I6_INTEGRATE", "I7_PROMOTE", "I8_PRESERVE", "I9_REVIEW"
   ],
   "canonical_files": {
     "skill": "SKILL.md",
     "routing": "tool_routing.json",
     "evidence": "evidence_contract.schema.json",
+    "software_topology_standard": "SOFTWARE_TOPOLOGY_STANDARD.md",
+    "software_topology_schema": "software_topology.schema.json",
+    "naming_conventions": "naming_conventions.json",
+    "iteration_lifecycle": "iteration_lifecycle.json",
     "validator": "validate_skill.py",
     "tests": "test_validate_skill.py"
   }
