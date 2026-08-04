@@ -1,0 +1,48 @@
+{
+  "version": "V105-M3-HOST-READINESS-1",
+  "contractId": "keddeh.m3-host-readiness",
+  "runnerLabels": ["self-hosted", "macOS", "ARM64", "KEDDEH-M3"],
+  "requiredHostFacts": [
+    "hostname",
+    "os_name",
+    "os_version",
+    "architecture",
+    "cpu_brand",
+    "logical_cpu_count",
+    "physical_memory_bytes",
+    "free_disk_bytes",
+    "python_version",
+    "node_version",
+    "git_version",
+    "runner_labels",
+    "repository_head_sha",
+    "observed_at"
+  ],
+  "requiredExecutableChecks": [
+    "workspace_write_readback",
+    "python_compileall",
+    "portable_test_runner",
+    "active_word_governance",
+    "il_llm_bilateral_ingestion",
+    "active_word_full_engagement",
+    "cloudworkspace_contract_validation",
+    "receipt_hash_readback"
+  ],
+  "minimums": {
+    "architecture": "arm64",
+    "free_disk_bytes": 5368709120,
+    "logical_cpu_count": 4
+  },
+  "promotionBoundary": {
+    "portable_success": "CI_PASS",
+    "valid_host_receipt": "TARGET_HOST_PASS",
+    "provider_or_external_network_receipt": "PROVIDER_PASS",
+    "globalStop": false
+  },
+  "failurePolicy": {
+    "runner_unavailable": "EXTERNAL_GATE",
+    "host_check_failure": "BOUNDED_STOP",
+    "unaffected_domains": "PRESERVED",
+    "deferred_work": "PERSIST_AND_RETRY_AFTER_HOST_REENTRY"
+  }
+}
