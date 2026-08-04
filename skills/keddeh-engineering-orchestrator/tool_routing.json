@@ -1,0 +1,73 @@
+{
+  "version": "1.0.0",
+  "selection_rule": "Use only tools that materially advance the engineering objective; choose the strongest applicable direct path and preserve deterministic fallbacks.",
+  "domains": {
+    "repository_engineering": {
+      "path_a": ["GitHub"],
+      "path_b": ["Google Drive", "File Library"],
+      "path_c": ["Code Execution", "durable work packet"],
+      "required_outputs": ["repo", "ref", "changed paths", "commit SHA", "checks", "remaining blockers"]
+    },
+    "source_and_lineage": {
+      "path_a": ["Google Drive", "File Library"],
+      "path_b": ["GitHub"],
+      "path_c": ["local generated register"],
+      "required_outputs": ["source identity", "revision or hash", "authority class", "lineage relation"]
+    },
+    "analysis_and_execution": {
+      "path_a": ["Code Execution", "target runtime"],
+      "path_b": ["GitHub Actions", "hosted CI"],
+      "path_c": ["deterministic software model"],
+      "required_outputs": ["command or callable", "input", "output", "tests", "receipt"]
+    },
+    "standards_research": {
+      "path_a": ["Web Research primary sources"],
+      "path_b": ["authoritative uploaded source"],
+      "path_c": ["explicit inference with unresolved verification gate"],
+      "required_outputs": ["source", "supported claim", "date or version", "inference boundary"]
+    },
+    "interface_and_hci": {
+      "path_a": ["Figma"],
+      "path_b": ["Image Generation", "Slides"],
+      "path_c": ["Document diagram specification"],
+      "required_outputs": ["editable topology or design", "component bindings", "engineering purpose"]
+    },
+    "workbook_control_plane": {
+      "path_a": ["Spreadsheets"],
+      "path_b": ["Google Drive Sheets"],
+      "path_c": ["CSV or JSON register"],
+      "required_outputs": ["sheet topology", "formulas", "validation", "bilateral indexes", "readback"]
+    },
+    "formal_artifacts": {
+      "path_a": ["Documents", "PDFs", "Slides"],
+      "path_b": ["Google Drive native records"],
+      "path_c": ["Markdown or structured text"],
+      "required_outputs": ["artifact", "source basis", "version", "preservation state"]
+    },
+    "engineering_coordination": {
+      "path_a": ["Slack", "Gmail", "Calendar", "Contacts"],
+      "path_b": ["GitHub issues and PR comments"],
+      "path_c": ["durable coordination plan"],
+      "required_outputs": ["recipient or channel", "action", "owner", "deadline or next state", "receipt"]
+    },
+    "openai_runtime": {
+      "path_a": ["OpenAI Platform"],
+      "path_b": ["official OpenAI documentation"],
+      "path_c": ["configuration work packet"],
+      "required_outputs": ["runtime requirement", "configuration boundary", "secret handling", "verification"]
+    },
+    "recurring_governance": {
+      "path_a": ["Automations"],
+      "path_b": ["GitHub scheduled workflows"],
+      "path_c": ["manual executable audit checklist"],
+      "required_outputs": ["schedule or trigger", "check", "notification condition", "evidence retention"]
+    }
+  },
+  "prohibited": [
+    "Lovable",
+    "unrelated promotional content",
+    "decorative tooling without engineering value",
+    "partial path blending",
+    "unsupported completion claims"
+  ]
+}
