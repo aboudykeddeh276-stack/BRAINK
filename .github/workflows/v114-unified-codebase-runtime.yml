@@ -38,6 +38,7 @@ jobs:
 
       - name: Execute registered codebase runtimes
         run: |
+          mkdir -p evidence runtime_volume/outbox/unified_runtime
           python3 src/keddeh_unified_codebase_runtime.py \
             --root . \
             --registry config/codebase_runtime_registry.json \
