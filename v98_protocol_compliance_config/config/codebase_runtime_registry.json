@@ -1,0 +1,79 @@
+{
+  "registry_id": "registry://keddeh/codebase-runtimes/v1",
+  "version": "1.0.0",
+  "execution_rule": "Each runtime is executed, its exit state and expected artifacts are independently read back, and failure is bounded to its declared capability unless a proven global invariant violation exists.",
+  "runtimes": [
+    {
+      "runtime_id": "runtime://keddeh/semantic-knowledge-graph",
+      "domain": "semantic-control-plane",
+      "command": ["python3", "src/keddeh_semantic_knowledge_graph.py", "--root", ".", "--emit-receipt"],
+      "depends_on": [],
+      "criticality": "CORE_DEGRADED",
+      "timeout_seconds": 120,
+      "expected_artifacts": ["evidence/semantic_knowledge_graph_receipt.json"],
+      "supplied_capabilities": ["semantic-identity", "backlinks", "context-transition"]
+    },
+    {
+      "runtime_id": "runtime://keddeh/evidence-context",
+      "domain": "semantic-control-plane",
+      "command": ["python3", "src/keddeh_evidence_context_resolver.py", "--root", ".", "--emit-receipt"],
+      "depends_on": [],
+      "criticality": "CORE_DEGRADED",
+      "timeout_seconds": 120,
+      "expected_artifacts": ["evidence/evidence_context_resolution_receipt.json"],
+      "supplied_capabilities": ["evidence-classification", "context-resolution"]
+    },
+    {
+      "runtime_id": "runtime://keddeh/dependency-failure",
+      "domain": "runtime-continuity",
+      "command": ["python3", "src/keddeh_dependency_failure_orchestrator.py", "--root", ".", "--emit-receipt"],
+      "depends_on": [],
+      "criticality": "CORE_MANDATORY",
+      "timeout_seconds": 120,
+      "expected_artifacts": ["evidence/dependency_failure_receipt.json"],
+      "supplied_capabilities": ["failure-isolation", "deferred-work", "re-entry-planning"]
+    },
+    {
+      "runtime_id": "runtime://keddeh/k-cloud",
+      "domain": "deployment-control-plane",
+      "command": ["python3", "src/keddeh_k_cloud_adapter.py", "--root", ".", "--emit-receipt"],
+      "depends_on": ["runtime://keddeh/dependency-failure"],
+      "criticality": "CORE_DEGRADED",
+      "timeout_seconds": 180,
+      "expected_artifacts": ["evidence/k_cloud_deployment_receipt.json"],
+      "supplied_capabilities": ["package-admission", "provider-readback", "mesh-deployment"]
+    },
+    {
+      "runtime_id": "runtime://keddeh/application-shipping",
+      "domain": "product-runtime",
+      "command": ["python3", "src/keddeh_application_applet_packager.py", "--root", ".", "--emit-receipt"],
+      "depends_on": [],
+      "criticality": "CORE_DEGRADED",
+      "timeout_seconds": 180,
+      "expected_artifacts": ["evidence/application_applet_packaging_receipt.json"],
+      "supplied_capabilities": ["k-app-packaging", "manifest-generation", "application-catalog"]
+    },
+    {
+      "runtime_id": "runtime://keddeh/acceptance",
+      "domain": "assurance-control-plane",
+      "command": ["python3", "src/keddeh_v98_acceptance_harness.py", "--root", ".", "--emit-receipt"],
+      "depends_on": ["runtime://keddeh/dependency-failure"],
+      "criticality": "CORE_MANDATORY",
+      "timeout_seconds": 300,
+      "expected_artifacts": ["evidence/FINAL_VERIFICATION.json"],
+      "supplied_capabilities": ["service-probes", "promotion-gates", "target-boundary-classification"]
+    },
+    {
+      "runtime_id": "runtime://keddeh/enterprise-portfolio",
+      "domain": "enterprise-control-plane",
+      "working_directory": "../skills/keddeh-engineering-orchestrator/enterprise",
+      "command": ["python3", "enterprise_portfolio_runtime.py", "--database", "runtime/enterprise-portfolio.sqlite3", "sync"],
+      "depends_on": [],
+      "criticality": "CORE_DEGRADED",
+      "timeout_seconds": 120,
+      "expected_artifacts": ["../skills/keddeh-engineering-orchestrator/enterprise/runtime/enterprise-portfolio.sqlite3"],
+      "supplied_capabilities": ["portfolio-registry", "namespace-resolution", "bilateral-contracts"]
+    }
+  ],
+  "global_stop": false
+}
