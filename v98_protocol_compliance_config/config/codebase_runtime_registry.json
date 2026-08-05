@@ -50,7 +50,7 @@
       "depends_on": [],
       "criticality": "CORE_DEGRADED",
       "timeout_seconds": 180,
-      "expected_artifacts": ["evidence/application_applet_packaging_receipt.json"],
+      "expected_artifacts": ["evidence/application_applet_shipping_receipt.json"],
       "supplied_capabilities": ["k-app-packaging", "manifest-generation", "application-catalog"]
     },
     {
