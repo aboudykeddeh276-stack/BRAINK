@@ -1,0 +1,333 @@
+{
+  "contract_version": "1.0",
+  "id": "BOS_RECOVERY_LOGIC_V1",
+  "kind": "protocol",
+  "title": "BOS recovery authority example contract",
+  "purpose": "Demonstrate the governed relationship between requirements, invariants, a process, an executable procedure, a protocol state machine, verification, evidence, and claim boundaries.",
+  "scope": "Covers an E2 software contract for capability-bound recovery verification and excludes physical TPM, NVMe, network, and destructive power-loss validation.",
+  "status": "review",
+  "maturity": "E2",
+  "system_of_interest": {
+    "controlled": [
+      "recovery gate",
+      "capability table",
+      "quorum verifier",
+      "root-store interface"
+    ],
+    "external": [
+      "storage backend",
+      "voting node",
+      "operator"
+    ],
+    "trust_boundaries": [
+      "encoded capsule entering the recovery gate",
+      "storage bytes entering through a trusted read receipt",
+      "member votes entering through the quorum verifier"
+    ],
+    "excluded": [
+      "physical TPM quote",
+      "physical NVMe attachment",
+      "real multi-node transport",
+      "destructive power-cut campaign"
+    ]
+  },
+  "authority": {
+    "requesters": [
+      "boot recovery coordinator"
+    ],
+    "decision": "The recovery gate decides only after all proof obligations pass.",
+    "enforcement": "The capability table, quorum verifier, and root-store interface enforce authority.",
+    "credentials": [
+      "generation-tagged read capability",
+      "membership-bound node signature",
+      "current anchor state"
+    ],
+    "delegation": "Read authority may be attenuated to a narrower extent and cannot be broadened by the recipient.",
+    "revocation": "A stale generation is rejected before storage submission and cannot authorise later reuse.",
+    "audit": "Every accepted or rejected attempt produces an artifact-bound receipt and explicit claim boundary."
+  },
+  "definitions": [
+    {
+      "term": "VerifiedCapsule",
+      "meaning": "A private authority token produced only after capsule, data-root, quorum, lineage, and freshness verification."
+    },
+    {
+      "term": "ReadReceipt",
+      "meaning": "A trusted backend record binding completed bytes and geometry to the authorised capability generation."
+    },
+    {
+      "term": "AtomicRootPublication",
+      "meaning": "Ordered preparation and durability of an inactive root before authoritative selector publication."
+    }
+  ],
+  "requirements": [
+    {
+      "id": "REQ-CAP-001",
+      "statement": "The recovery gate MUST bind a generation-current read capability before storage submission.",
+      "rationale": "Caller-supplied bytes cannot establish authorised hardware provenance.",
+      "verification": "Interface review and stale-generation unit test.",
+      "source": "INV-REC-01"
+    },
+    {
+      "id": "REQ-ROOT-001",
+      "statement": "The root-store interface MUST accept publication only through a private VerifiedCapsule token.",
+      "rationale": "The type boundary prevents direct publication of parsed but unverified state.",
+      "verification": "Public API review and integration test.",
+      "source": "non-bypassable authority objective"
+    },
+    {
+      "id": "REQ-PROC-001",
+      "statement": "The recovery procedure MUST preserve the prior authoritative root when verification fails.",
+      "rationale": "A failed recovery attempt cannot replace known valid state.",
+      "verification": "Failure-path state assertion.",
+      "source": "crash-consistency objective"
+    },
+    {
+      "id": "REQ-CLAIM-001",
+      "statement": "The report MUST classify physical TPM, NVMe, network, and power-cut validation as not proven at E2.",
+      "rationale": "Static and isolated software evidence cannot establish target-hardware properties.",
+      "verification": "Claim-boundary review.",
+      "source": "Keddeh evidence ladder"
+    }
+  ],
+  "invariants": [
+    {
+      "id": "INV-AUTH-001",
+      "statement": "No encoded or merely parsed capsule can directly enter root publication.",
+      "enforcement": "The publication interface accepts only a privately constructed VerifiedCapsule.",
+      "failure_action": "Reject the call before root mutation and retain the prior root."
+    },
+    {
+      "id": "INV-CAP-001",
+      "statement": "Every completed read remains bound to the active capability generation used at submission.",
+      "enforcement": "The read receipt is compared with the pinned lease before data hashing.",
+      "failure_action": "Discard the candidate data and record a capability-integrity failure."
+    }
+  ],
+  "process": {
+    "owner": "BOS recovery authority",
+    "entry_criteria": [
+      "The system is in authorised recovery mode.",
+      "A current anchor and bounded read capability are available."
+    ],
+    "activities": [
+      "bind the capability",
+      "read and verify candidate state",
+      "publish only a verified root",
+      "retain a receipt"
+    ],
+    "exit_criteria": [
+      "A commit receipt binds the accepted root, or a failure receipt confirms that the prior root remains authoritative."
+    ],
+    "records": [
+      "recovery request",
+      "verification trace",
+      "commit or failure receipt"
+    ],
+    "feedback": "Every failure is routed to the earliest lifecycle gate responsible for the defect."
+  },
+  "procedure": {
+    "authorised_actor": "BOS recovery coordinator",
+    "prerequisites": [
+      "The target is a disposable or authorised environment.",
+      "The read capability is current and bounded."
+    ],
+    "tools": [
+      "pinned Python runtime",
+      "logical engineering validator"
+    ],
+    "steps": [
+      {
+        "id": "STEP-READ-001",
+        "actor": "BOS recovery coordinator",
+        "precondition": "The capability geometry matches the recovery request.",
+        "action": "Invoke the capability-bound exact-read operation.",
+        "expected_observation": "A trusted receipt reports the requested byte count and capability generation.",
+        "failure_action": "Stop recovery, retain the prior root, and record the typed read failure.",
+        "evidence": "read receipt"
+      },
+      {
+        "id": "STEP-VERIFY-001",
+        "actor": "recovery gate",
+        "precondition": "The read receipt matches the pinned capability lease.",
+        "action": "Verify data integrity, capsule authority, lineage, and freshness.",
+        "expected_observation": "A private VerifiedCapsule token is produced.",
+        "failure_action": "Stop recovery and record the failing proof obligation.",
+        "evidence": "verification trace"
+      }
+    ],
+    "stop_conditions": [
+      "Any capability, completion, integrity, authority, lineage, or freshness check fails."
+    ],
+    "rollback": [
+      "Retain the previously authoritative root and discard the candidate authority token."
+    ],
+    "evidence": [
+      "source revision",
+      "validation receipt",
+      "claim boundary"
+    ]
+  },
+  "protocol": {
+    "participants": [
+      "recovery coordinator",
+      "recovery gate",
+      "root store"
+    ],
+    "states": [
+      "IDLE",
+      "VERIFYING",
+      "COMMITTED",
+      "FAILED"
+    ],
+    "initial_state": "IDLE",
+    "terminal_states": [
+      "COMMITTED",
+      "FAILED"
+    ],
+    "messages": [
+      {
+        "id": "MSG-RECOVERY-REQUEST",
+        "sender": "recovery coordinator",
+        "receiver": "recovery gate",
+        "fields": [
+          "protocol_version",
+          "sequence",
+          "parent_root",
+          "capability_handle",
+          "operation_id"
+        ],
+        "encoding": "Canonical field order with explicit lengths and integer byte order.",
+        "authentication": "The local capability table authenticates the request authority."
+      },
+      {
+        "id": "MSG-COMMIT-REQUEST",
+        "sender": "recovery gate",
+        "receiver": "root store",
+        "fields": [
+          "verified_token",
+          "state_root",
+          "sequence",
+          "operation_id"
+        ],
+        "encoding": "Typed in-process interface with no raw structure transmutation.",
+        "authentication": "The private VerifiedCapsule type conveys local publication authority."
+      }
+    ],
+    "transitions": [
+      {
+        "id": "TR-START-001",
+        "from": "IDLE",
+        "trigger": "MSG-RECOVERY-REQUEST",
+        "guard": "The request version, identity, and capability syntax are valid.",
+        "actor": "recovery gate",
+        "action": "Bind the capability and verify the candidate state.",
+        "to": "VERIFYING",
+        "failure": "Enter FAILED and retain the prior root.",
+        "evidence": "bound request trace"
+      },
+      {
+        "id": "TR-COMMIT-001",
+        "from": "VERIFYING",
+        "trigger": "MSG-COMMIT-REQUEST",
+        "guard": "All proof obligations passed and a private VerifiedCapsule exists.",
+        "actor": "root store",
+        "action": "Publish the verified state according to the durable-root contract.",
+        "to": "COMMITTED",
+        "failure": "Enter FAILED and preserve the prior authoritative state.",
+        "evidence": "commit receipt"
+      },
+      {
+        "id": "TR-FAULT-001",
+        "from": "VERIFYING",
+        "trigger": "FAULT",
+        "guard": "A proof, completion, or authority check fails.",
+        "actor": "recovery gate",
+        "action": "Reject the candidate and emit a failure receipt.",
+        "to": "FAILED",
+        "failure": "Escalate an internal invariant failure without publishing candidate state.",
+        "evidence": "failure receipt"
+      }
+    ],
+    "ordering": "Sequence and parent-root checks establish one accepted lineage before publication.",
+    "freshness": "Sequence, parent root, operation identifier, and current anchor reject replay and rollback.",
+    "idempotency": "The operation identifier deduplicates repeated recovery and commit requests.",
+    "timeouts": "Every external wait has a bounded monotonic deadline recorded in the request.",
+    "retries": "Retries are bounded and cannot bypass authority or freshness checks.",
+    "versioning": "Unsupported major versions fail closed and negotiation cannot weaken mandatory fields.",
+    "security": "Capabilities, canonical encoding, typed authority, lineage, and evidence binding protect the transition.",
+    "failure_semantics": "Every failed path enters FAILED or remains non-authoritative; no failed path publishes a root."
+  },
+  "verification": {
+    "static": [
+      "JSON structure validation",
+      "requirement grammar validation",
+      "identifier uniqueness validation"
+    ],
+    "dynamic": [
+      "valid contract acceptance",
+      "invalid transition-state rejection"
+    ],
+    "fault_injection": [
+      "missing traceability",
+      "lowercase normative keyword",
+      "unreachable terminal state",
+      "false maturity promotion"
+    ],
+    "acceptance": [
+      "The validator returns PASS for this contract.",
+      "Each critical mutation causes validator failure."
+    ],
+    "independence": "A reviewer independently checks domain correctness beyond the structural validator.",
+    "traceability": {
+      "REQ-CAP-001": [
+        "validate authority fields",
+        "review capability requirement"
+      ],
+      "REQ-ROOT-001": [
+        "review private authority-token invariant"
+      ],
+      "REQ-PROC-001": [
+        "review failure transition and rollback"
+      ],
+      "REQ-CLAIM-001": [
+        "validate E2 claim boundary"
+      ]
+    }
+  },
+  "evidence": {
+    "required_artifacts": [
+      "skill source",
+      "contract source",
+      "validator receipt"
+    ],
+    "receipt_fields": [
+      "artifact",
+      "artifact_hash",
+      "source_revision",
+      "toolchain",
+      "environment",
+      "timestamp",
+      "result",
+      "claim_boundary"
+    ],
+    "retention": "Receipts are retained with the source revision and the governed engineering artifact.",
+    "integrity": "Contract and receipt hashes bind validation results to immutable source content."
+  },
+  "claim_boundary": {
+    "proven": [
+      "The contract structurally distinguishes requirements, invariants, process, procedure, protocol, verification, evidence, and claim boundaries.",
+      "The validator can enforce the declared structural and semantic minimums."
+    ],
+    "not_proven": [
+      "The BOS recovery implementation has passed a physical TPM quote.",
+      "The storage path has passed physical NVMe durability or destructive power-loss validation.",
+      "Separate physical nodes have completed partition and rejoin testing."
+    ],
+    "next_gates": [
+      "Execute validator tests in CI.",
+      "Apply the skill to the BOS recovery pull request.",
+      "Perform target-hardware E4 and destructive E5 validation separately."
+    ]
+  }
+}
