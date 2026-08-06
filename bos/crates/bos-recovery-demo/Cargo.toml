@@ -1,0 +1,16 @@
+[package]
+name = "bos-recovery-demo"
+description = "Executable deterministic proof harness for BOS recovery capsule v3"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+publish = false
+
+[dependencies]
+bos-cap.workspace = true
+bos-recovery = { workspace = true, features = ["std"] }
+ed25519-dalek.workspace = true
+sha2.workspace = true
