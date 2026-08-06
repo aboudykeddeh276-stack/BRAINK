@@ -147,6 +147,23 @@ class BrAInKRuntime:
         return receipt
 
     # -- introspection --------------------------------------------------
+    def _ledger_status(self) -> Dict[str, Any]:
+        if not self.started:
+            return {
+                "path": self.ledger_path,
+                "open": False,
+                "status": "CLOSED",
+                "note": "Ledger connection is closed; start() reopens the session.",
+            }
+        return {
+            "path": self.ledger_path,
+            "open": True,
+            "entry_count": self.ledger.count(),
+            "head_hash": self.ledger.head_hash(),
+            "chain_valid": self.ledger.verify_chain(),
+            "status": "LOCALLY_PROVEN",
+        }
+
     def get_status(self) -> Dict[str, Any]:
         return {
             "session_id": self.session_id,
@@ -162,13 +179,7 @@ class BrAInKRuntime:
                 "registered": len(self.identities),
                 "status": "UNIT_TESTED",
             },
-            "ledger": {
-                "path": self.ledger_path,
-                "entry_count": self.ledger.count(),
-                "head_hash": self.ledger.head_hash(),
-                "chain_valid": self.ledger.verify_chain(),
-                "status": "LOCALLY_PROVEN",
-            },
+            "ledger": self._ledger_status(),
             "signer": {
                 "test_signer": self.signer.trust_level,
                 "production_signer": self.production_signer.trust_level,

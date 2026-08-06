@@ -8,7 +8,7 @@ raw DNS transport and restart recovery — each with honest proof status.
 from __future__ import annotations
 
 __version__ = "1.0.0"
-version = "1.0.0"
+version = __version__  # convenience alias; kept in sync by construction
 
 from .canonical import (
     canonical_bytes,

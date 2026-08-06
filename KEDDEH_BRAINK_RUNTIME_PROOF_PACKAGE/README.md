@@ -71,7 +71,7 @@ Full accounting: `docs/VALIDATION_REPORT.md`.
 ```
 src/braink_runtime/   nine modules: canonical, linguistic_core, identity,
                       ledger, signer, dns_transport, restart, runtime, receipts
-tests/                seven pytest modules, 116 tests
+tests/                seven pytest modules, 117 tests
 schemas/              JSON Schema draft-07 for every persisted structure
 registry/             component / skill / skillset / discovery registries + CSV matrix
 config/               example DNS records, example env, placeholder signer config

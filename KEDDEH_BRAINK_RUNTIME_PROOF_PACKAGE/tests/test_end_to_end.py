@@ -64,6 +64,16 @@ def test_full_lifecycle(workspace):
     assert shutdown["last_entry_id"] == 4
 
 
+def test_status_after_shutdown_does_not_touch_closed_ledger(workspace):
+    runtime = BrAInKRuntime(_config(workspace, "closed-session"))
+    runtime.start()
+    runtime.shutdown(clean=True)
+    status = runtime.get_status()
+    assert status["started"] is False
+    assert status["ledger"]["open"] is False
+    assert status["ledger"]["status"] == "CLOSED"
+
+
 def test_unknown_command_is_recorded(workspace):
     runtime = BrAInKRuntime(_config(workspace, "unknown-session"))
     runtime.start()

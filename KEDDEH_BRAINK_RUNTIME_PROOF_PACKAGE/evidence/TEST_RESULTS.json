@@ -2,9 +2,9 @@
   "command": "python -m pytest tests/ -v --tb=short",
   "errors": 0,
   "failed": 0,
-  "passed": 116,
+  "passed": 117,
   "pytest_exit_code": 0,
-  "raw_summary": "============================= 116 passed in 0.40s ==============================",
+  "raw_summary": "============================= 117 passed in 0.29s ==============================",
   "receipt_type": "TEST_RESULTS",
   "status": "PASSED",
   "test_names": [
@@ -31,6 +31,7 @@
     "tests/test_dns_transport.py::test_receipt_to_dict_keys",
     "tests/test_dns_transport.py::test_query_tcp_failure_is_graceful",
     "tests/test_end_to_end.py::test_full_lifecycle",
+    "tests/test_end_to_end.py::test_status_after_shutdown_does_not_touch_closed_ledger",
     "tests/test_end_to_end.py::test_unknown_command_is_recorded",
     "tests/test_end_to_end.py::test_malformed_command_is_rejected_but_logged",
     "tests/test_end_to_end.py::test_process_command_before_start_raises",
@@ -125,6 +126,6 @@
     "tests/test_signer.py::test_production_signer_is_defined_not_validated",
     "tests/test_signer.py::test_production_signer_unconfigured_by_default"
   ],
-  "tests_run": 116,
-  "timestamp": "2026-08-06T08:56:43.514934+00:00"
+  "tests_run": 117,
+  "timestamp": "2026-08-06T09:00:29.937433+00:00"
 }

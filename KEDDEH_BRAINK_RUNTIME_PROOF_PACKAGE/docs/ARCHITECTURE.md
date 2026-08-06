@@ -118,10 +118,16 @@ error containment and the guarantee that every action is ledgered.
    including `chain_valid`, close the ledger and set `started = False`.
 5. **`get_status()`.** Return a nested dict with keys `session_id`,
    `runtime_id`, `version`, `started`, `commands_processed`, `linguistic_core`,
-   `identity`, `ledger`, `signer`, `dns`, `restart`, `reported_at`. The `dns`
-   block must always report `status_cap: "LOCALLY_EXECUTED"` and
-   `authoritative_external_confirmed: false`. The `signer` block must always
-   report the production signer as `DEFINED`.
+   `identity`, `ledger`, `signer`, `dns`, `restart`, `reported_at`. The `ledger`
+   block is produced by the helper `_ledger_status()`, which reports
+   `{path, open: False, status: "CLOSED", note}` when the runtime is not started
+   — after `shutdown()` the SQLite connection is closed, so querying it would
+   raise `sqlite3.ProgrammingError`; status introspection must never be the thing
+   that crashes. When started it reports `entry_count`, `head_hash` and
+   `chain_valid`. The `dns` block must always report
+   `status_cap: "LOCALLY_EXECUTED"` and `authoritative_external_confirmed:
+   false`. The `signer` block must always report the production signer as
+   `DEFINED`.
 
 ### Conceptual validation method
 Argue completeness of the trace: `start`, every `process_command` and `shutdown`
@@ -131,8 +137,9 @@ the linguistic core, so no subsystem failure is silently swallowed.
 
 ### Practical validation method
 `tests/test_end_to_end.py`: full lifecycle, unknown command, malformed command,
-command-before-start, restart-and-resume with chain verification, and a signed
-end-to-end proof receipt.
+command-before-start, status-after-shutdown against a closed ledger,
+restart-and-resume with chain verification, and a signed end-to-end proof
+receipt.
 
 ### Current validation state
 `INTEGRATION_TESTED`.

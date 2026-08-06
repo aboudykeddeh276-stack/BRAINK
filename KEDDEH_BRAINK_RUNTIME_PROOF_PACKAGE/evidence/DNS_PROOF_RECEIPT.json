@@ -12,7 +12,7 @@
   "response_meta": {},
   "status": "LOCALLY_EXECUTED",
   "status_explanation": "status=LOCALLY_EXECUTED records that the query was built and transmitted from this host. local_execution_result records whether a parsable response came back; a value of LOCAL_EXECUTION_FAILED means the sandbox has no DNS egress. Neither value ever implies external observation.",
-  "timestamp": "2026-08-06T08:56:43.690207+00:00",
+  "timestamp": "2026-08-06T09:00:30.120815+00:00",
   "transport_error": "PermissionError: [Errno 1] Operation not permitted",
   "transport_status": "LOCAL_EXECUTION_FAILED"
 }

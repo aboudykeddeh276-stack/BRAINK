@@ -27,7 +27,7 @@ The **Externally observed** column is `❌` for every row, without exception.
 
 ## 2. What was actually executed
 
-* `python -m pytest tests/ -v --tb=short` from the package root — **116 tests,
+* `python -m pytest tests/ -v --tb=short` from the package root — **117 tests,
   all passing**. The captured result, including every test name, is in
   `evidence/TEST_RESULTS.json`, together with the real pytest exit code.
 * A ledger was created, three events appended, the chain verified and a receipt
@@ -96,7 +96,7 @@ and verification performed by a party that is not this package.
 ```bash
 cd KEDDEH_BRAINK_RUNTIME_PROOF_PACKAGE
 python -m pip install pytest
-./scripts/run_tests.command          # 116 tests
+./scripts/run_tests.command          # 117 tests
 ./scripts/verify_ledger.command      # positive and negative ledger controls
 ./scripts/test_restart.command       # crash / restart / recovery
 ./scripts/verify_dns.command         # local DNS execution, capped status
