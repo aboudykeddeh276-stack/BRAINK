@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://braink.local/schemas/ledger-event.schema.json",
+  "title": "BrAInK Ledger Event",
+  "description": "One append-only, hash-chained ledger entry.",
+  "type": "object",
+  "required": ["entry_id", "event_type", "payload", "prev_hash", "entry_hash", "timestamp"],
+  "additionalProperties": false,
+  "properties": {
+    "entry_id": { "type": "integer", "minimum": 1 },
+    "event_type": { "type": "string", "minLength": 1, "maxLength": 128 },
+    "payload": { "type": "object" },
+    "prev_hash": {
+      "type": "string",
+      "oneOf": [
+        { "const": "GENESIS" },
+        { "pattern": "^[0-9a-f]{64}$" }
+      ]
+    },
+    "entry_hash": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "timestamp": { "type": "string", "format": "date-time" }
+  }
+}

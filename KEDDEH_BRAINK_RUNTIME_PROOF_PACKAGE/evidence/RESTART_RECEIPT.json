@@ -1,0 +1,38 @@
+{
+  "chain_valid": true,
+  "continuity_proven": true,
+  "entry_count": 3,
+  "generated_at": "2026-08-06T08:56:43.637785+00:00",
+  "ledger_path": "<ephemeral temp ledger>",
+  "note": "Ledger reopened in a new object after a simulated unclean shutdown; chain re-verified.",
+  "post_restart_entry_hash": "4b73bb7cbc563bc36f67f67720a02dda88a42ffc0b4f972065355c2680bb1dca",
+  "post_restart_entry_id": 3,
+  "pre_restart_state": {
+    "clean_shutdown": true,
+    "last_entry_hash": "864fca7a44f89b170409beeeb5d0b859ac3ff033c5ad2fff4a0222ed1cf9cd5c",
+    "last_entry_id": 2,
+    "ledger_path": "/tmp/braink-evidence-restart-yy2gq6_j/ledger.sqlite",
+    "session_id": "evidence-session",
+    "timestamp": "2026-08-06T08:56:43.636062+00:00"
+  },
+  "receipt_type": "RESTART_PROOF",
+  "recovery_report": {
+    "chain_valid": true,
+    "clean_shutdown": true,
+    "current_entry_hash": "4b73bb7cbc563bc36f67f67720a02dda88a42ffc0b4f972065355c2680bb1dca",
+    "current_entry_id": 3,
+    "entries_since_saved_state": 1,
+    "recovered_at": "2026-08-06T08:56:43.637729+00:00",
+    "recovery_ok": true,
+    "saved_entry_hash": "864fca7a44f89b170409beeeb5d0b859ac3ff033c5ad2fff4a0222ed1cf9cd5c",
+    "saved_entry_id": 2,
+    "session_id": "evidence-session",
+    "state_found": true,
+    "status": "RESTART_TESTED",
+    "tampered_entries": []
+  },
+  "session_id": "evidence-session",
+  "state_path": "<ephemeral temp state>",
+  "status": "RESTART_TESTED",
+  "tampered_entries": []
+}
