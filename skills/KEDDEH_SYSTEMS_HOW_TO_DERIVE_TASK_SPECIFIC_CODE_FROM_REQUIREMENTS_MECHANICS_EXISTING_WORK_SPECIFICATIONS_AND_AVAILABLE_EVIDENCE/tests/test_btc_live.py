@@ -180,9 +180,6 @@ class _FakeClient:
         return {"scriptPubKey": "0014751e76e8199196d454941c45d1b3a323f1433bd6"}
 
 
-_PRIVATE_COOKIE = CoreRpcConfig  # alias for readability in tests
-
-
 def _userpass_config(**kw) -> CoreRpcConfig:
     params = dict(host="127.0.0.1", rpc_user="u", rpc_password="p")
     params.update(kw)
@@ -291,11 +288,11 @@ class RpcConfigTests(unittest.TestCase):
         expected = "Basic " + base64.b64encode(b"alice:s3cr3t").decode()
         self.assertEqual(cfg.auth_header_value(), expected)
 
-    def test_auth_header_cookie(self, ) -> None:
-        cookie = Path(self.enterContext(_temp_cookie("__cookie__:deadbeef")))
-        cfg = CoreRpcConfig(host="127.0.0.1", cookie_path=str(cookie))
-        expected = "Basic " + base64.b64encode(b"__cookie__:deadbeef").decode()
-        self.assertEqual(cfg.auth_header_value(), expected)
+    def test_auth_header_cookie(self) -> None:
+        with _temp_cookie("__cookie__:deadbeef") as cookie_path:
+            cfg = CoreRpcConfig(host="127.0.0.1", cookie_path=cookie_path)
+            expected = "Basic " + base64.b64encode(b"__cookie__:deadbeef").decode()
+            self.assertEqual(cfg.auth_header_value(), expected)
 
     def test_endpoint_url_wallet_scoping(self) -> None:
         cfg = _userpass_config(wallet="w1")
