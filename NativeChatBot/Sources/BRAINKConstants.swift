@@ -3,6 +3,10 @@ import Foundation
 enum BRAINKConstants {
     static var nativeChatBotRoot: String { URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().path }
     static var repositoryRoot: String { URL(fileURLWithPath: nativeChatBotRoot).deletingLastPathComponent().path }
+    static var sourcesRoot: String { URL(fileURLWithPath: nativeChatBotRoot).appendingPathComponent("Sources").path }
+    static func sourceFilePath(_ fileName: String) -> String {
+        URL(fileURLWithPath: sourcesRoot).appendingPathComponent(fileName).path
+    }
     static var buildRoot: String { URL(fileURLWithPath: nativeChatBotRoot).appendingPathComponent("build").path }
     static let architectName = "A. KEDDEH"
     static let organizationName = "K-SYSTEMS"
