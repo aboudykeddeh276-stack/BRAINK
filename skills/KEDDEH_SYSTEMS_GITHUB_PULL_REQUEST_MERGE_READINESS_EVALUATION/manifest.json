@@ -1,0 +1,19 @@
+{
+  "canonical_skill_name": "Keddeh Systems \u2014 GitHub Pull Request Merge Readiness Evaluation",
+  "canonical_identifier": "KEDDEH_SYSTEMS_GITHUB_PULL_REQUEST_MERGE_READINESS_EVALUATION",
+  "version": "1.0.0",
+  "status": "implemented_and_tested",
+  "methodology_reference": "KEDDEH_SYSTEMS_HOW_TO_DESIGN_MAKE_VALIDATE_SAVE_MAINTAIN_AND_REUSE_A_SKILL",
+  "purpose": "Evaluate a single pull request against deterministic merge-readiness criteria (not draft, CI success, no merge conflict, no outstanding review requests) and emit a structured JSON verdict with blocking reasons.",
+  "dependencies": [],
+  "execution_environment": {
+    "python_minimum": "3.10",
+    "external_packages_required": false,
+    "platform": "POSIX or GitHub Actions runner"
+  },
+  "claim_boundary": {
+    "merge_readiness_evaluation_implemented": true,
+    "blocking_reason_list_emitted": true,
+    "network_calls_required_at_runtime": true
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "canonical_skill_name": "Keddeh Systems \u2014 GitHub Stale Pull Request Detection and Triage",
+  "canonical_identifier": "KEDDEH_SYSTEMS_GITHUB_STALE_PULL_REQUEST_DETECTION_AND_TRIAGE",
+  "version": "1.0.0",
+  "status": "implemented_and_tested",
+  "methodology_reference": "KEDDEH_SYSTEMS_HOW_TO_DESIGN_MAKE_VALIDATE_SAVE_MAINTAIN_AND_REUSE_A_SKILL",
+  "purpose": "Identify draft pull requests with no activity for longer than a configurable threshold, classify them as stale, and emit a structured JSON report. Optionally post a triage comment to each stale PR.",
+  "dependencies": [],
+  "execution_environment": {
+    "python_minimum": "3.10",
+    "external_packages_required": false,
+    "platform": "POSIX or GitHub Actions runner"
+  },
+  "claim_boundary": {
+    "stale_detection_implemented": true,
+    "comment_posting_implemented": true,
+    "network_calls_required_at_runtime": true
+  }
+}

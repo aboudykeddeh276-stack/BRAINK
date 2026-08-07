@@ -1,0 +1,19 @@
+{
+  "canonical_skill_name": "Keddeh Systems \u2014 GitHub CI Failure Investigation and Root Cause Classification",
+  "canonical_identifier": "KEDDEH_SYSTEMS_GITHUB_CI_FAILURE_INVESTIGATION_AND_ROOT_CAUSE_CLASSIFICATION",
+  "version": "1.0.0",
+  "status": "implemented_and_tested",
+  "methodology_reference": "KEDDEH_SYSTEMS_HOW_TO_DESIGN_MAKE_VALIDATE_SAVE_MAINTAIN_AND_REUSE_A_SKILL",
+  "purpose": "Fetch GitHub Actions workflow run job logs for a given run_id, parse failure output, classify the root cause into a deterministic failure class, and emit a structured JSON diagnosis.",
+  "dependencies": [],
+  "execution_environment": {
+    "python_minimum": "3.10",
+    "external_packages_required": false,
+    "platform": "POSIX or GitHub Actions runner"
+  },
+  "claim_boundary": {
+    "failure_log_retrieval_implemented": true,
+    "root_cause_classification_implemented": true,
+    "network_calls_required_at_runtime": true
+  }
+}

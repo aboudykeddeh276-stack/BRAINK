@@ -1,0 +1,117 @@
+name: V115 Repo Steward Skill Contract
+
+on:
+  pull_request:
+    paths:
+      - 'skills/KEDDEH_SYSTEMS_HOW_TO_DESIGN_MAKE_VALIDATE_SAVE_MAINTAIN_AND_REUSE_A_SKILL/**'
+      - 'skills/KEDDEH_SYSTEMS_GITHUB_REPOSITORY_STATUS_SCAN_AND_TRIAGE/**'
+      - 'skills/KEDDEH_SYSTEMS_GITHUB_CI_FAILURE_INVESTIGATION_AND_ROOT_CAUSE_CLASSIFICATION/**'
+      - 'skills/KEDDEH_SYSTEMS_GITHUB_STALE_PULL_REQUEST_DETECTION_AND_TRIAGE/**'
+      - 'skills/KEDDEH_SYSTEMS_GITHUB_CI_FAILURE_PATTERN_AUTOFIX_AND_COMMIT/**'
+      - 'skills/KEDDEH_SYSTEMS_GITHUB_PULL_REQUEST_MERGE_READINESS_EVALUATION/**'
+      - '.github/workflows/v115-repo-steward-skill-contract.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: v115-repo-steward-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate-skill-packages:
+    name: Validate all skill packages against the KEDDEH_SYSTEMS methodology
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Compile all skill source files
+        run: |
+          python3 -m compileall -q \
+            skills/KEDDEH_SYSTEMS_HOW_TO_DESIGN_MAKE_VALIDATE_SAVE_MAINTAIN_AND_REUSE_A_SKILL/src/ \
+            skills/KEDDEH_SYSTEMS_GITHUB_REPOSITORY_STATUS_SCAN_AND_TRIAGE/src/ \
+            skills/KEDDEH_SYSTEMS_GITHUB_CI_FAILURE_INVESTIGATION_AND_ROOT_CAUSE_CLASSIFICATION/src/ \
+            skills/KEDDEH_SYSTEMS_GITHUB_STALE_PULL_REQUEST_DETECTION_AND_TRIAGE/src/ \
+            skills/KEDDEH_SYSTEMS_GITHUB_CI_FAILURE_PATTERN_AUTOFIX_AND_COMMIT/src/ \
+            skills/KEDDEH_SYSTEMS_GITHUB_PULL_REQUEST_MERGE_READINESS_EVALUATION/src/
+
+      - name: Run tests — KEDDEH_SYSTEMS_HOW_TO_DESIGN_MAKE_VALIDATE_SAVE_MAINTAIN_AND_REUSE_A_SKILL
+        working-directory: skills/KEDDEH_SYSTEMS_HOW_TO_DESIGN_MAKE_VALIDATE_SAVE_MAINTAIN_AND_REUSE_A_SKILL
+        run: python3 -m unittest discover -s tests -v
+
+      - name: Run tests — KEDDEH_SYSTEMS_GITHUB_REPOSITORY_STATUS_SCAN_AND_TRIAGE
+        working-directory: skills/KEDDEH_SYSTEMS_GITHUB_REPOSITORY_STATUS_SCAN_AND_TRIAGE
+        run: python3 -m unittest discover -s tests -v
+
+      - name: Run tests — KEDDEH_SYSTEMS_GITHUB_CI_FAILURE_INVESTIGATION_AND_ROOT_CAUSE_CLASSIFICATION
+        working-directory: skills/KEDDEH_SYSTEMS_GITHUB_CI_FAILURE_INVESTIGATION_AND_ROOT_CAUSE_CLASSIFICATION
+        run: python3 -m unittest discover -s tests -v
+
+      - name: Run tests — KEDDEH_SYSTEMS_GITHUB_STALE_PULL_REQUEST_DETECTION_AND_TRIAGE
+        working-directory: skills/KEDDEH_SYSTEMS_GITHUB_STALE_PULL_REQUEST_DETECTION_AND_TRIAGE
+        run: python3 -m unittest discover -s tests -v
+
+      - name: Run tests — KEDDEH_SYSTEMS_GITHUB_CI_FAILURE_PATTERN_AUTOFIX_AND_COMMIT
+        working-directory: skills/KEDDEH_SYSTEMS_GITHUB_CI_FAILURE_PATTERN_AUTOFIX_AND_COMMIT
+        run: python3 -m unittest discover -s tests -v
+
+      - name: Run tests — KEDDEH_SYSTEMS_GITHUB_PULL_REQUEST_MERGE_READINESS_EVALUATION
+        working-directory: skills/KEDDEH_SYSTEMS_GITHUB_PULL_REQUEST_MERGE_READINESS_EVALUATION
+        run: python3 -m unittest discover -s tests -v
+
+      - name: Validate skill packages — methodology package self-validates first
+        run: |
+          mkdir -p evidence/skill_validation
+          python3 \
+            skills/KEDDEH_SYSTEMS_HOW_TO_DESIGN_MAKE_VALIDATE_SAVE_MAINTAIN_AND_REUSE_A_SKILL/src/validate_skill_package.py \
+            skills/KEDDEH_SYSTEMS_HOW_TO_DESIGN_MAKE_VALIDATE_SAVE_MAINTAIN_AND_REUSE_A_SKILL \
+            | tee evidence/skill_validation/KEDDEH_SYSTEMS_HOW_TO_DESIGN_MAKE_VALIDATE_SAVE_MAINTAIN_AND_REUSE_A_SKILL.json
+
+      - name: Validate skill packages — KEDDEH_SYSTEMS_GITHUB_REPOSITORY_STATUS_SCAN_AND_TRIAGE
+        run: |
+          python3 \
+            skills/KEDDEH_SYSTEMS_HOW_TO_DESIGN_MAKE_VALIDATE_SAVE_MAINTAIN_AND_REUSE_A_SKILL/src/validate_skill_package.py \
+            skills/KEDDEH_SYSTEMS_GITHUB_REPOSITORY_STATUS_SCAN_AND_TRIAGE \
+            | tee evidence/skill_validation/KEDDEH_SYSTEMS_GITHUB_REPOSITORY_STATUS_SCAN_AND_TRIAGE.json
+
+      - name: Validate skill packages — KEDDEH_SYSTEMS_GITHUB_CI_FAILURE_INVESTIGATION_AND_ROOT_CAUSE_CLASSIFICATION
+        run: |
+          python3 \
+            skills/KEDDEH_SYSTEMS_HOW_TO_DESIGN_MAKE_VALIDATE_SAVE_MAINTAIN_AND_REUSE_A_SKILL/src/validate_skill_package.py \
+            skills/KEDDEH_SYSTEMS_GITHUB_CI_FAILURE_INVESTIGATION_AND_ROOT_CAUSE_CLASSIFICATION \
+            | tee evidence/skill_validation/KEDDEH_SYSTEMS_GITHUB_CI_FAILURE_INVESTIGATION_AND_ROOT_CAUSE_CLASSIFICATION.json
+
+      - name: Validate skill packages — KEDDEH_SYSTEMS_GITHUB_STALE_PULL_REQUEST_DETECTION_AND_TRIAGE
+        run: |
+          python3 \
+            skills/KEDDEH_SYSTEMS_HOW_TO_DESIGN_MAKE_VALIDATE_SAVE_MAINTAIN_AND_REUSE_A_SKILL/src/validate_skill_package.py \
+            skills/KEDDEH_SYSTEMS_GITHUB_STALE_PULL_REQUEST_DETECTION_AND_TRIAGE \
+            | tee evidence/skill_validation/KEDDEH_SYSTEMS_GITHUB_STALE_PULL_REQUEST_DETECTION_AND_TRIAGE.json
+
+      - name: Validate skill packages — KEDDEH_SYSTEMS_GITHUB_CI_FAILURE_PATTERN_AUTOFIX_AND_COMMIT
+        run: |
+          python3 \
+            skills/KEDDEH_SYSTEMS_HOW_TO_DESIGN_MAKE_VALIDATE_SAVE_MAINTAIN_AND_REUSE_A_SKILL/src/validate_skill_package.py \
+            skills/KEDDEH_SYSTEMS_GITHUB_CI_FAILURE_PATTERN_AUTOFIX_AND_COMMIT \
+            | tee evidence/skill_validation/KEDDEH_SYSTEMS_GITHUB_CI_FAILURE_PATTERN_AUTOFIX_AND_COMMIT.json
+
+      - name: Validate skill packages — KEDDEH_SYSTEMS_GITHUB_PULL_REQUEST_MERGE_READINESS_EVALUATION
+        run: |
+          python3 \
+            skills/KEDDEH_SYSTEMS_HOW_TO_DESIGN_MAKE_VALIDATE_SAVE_MAINTAIN_AND_REUSE_A_SKILL/src/validate_skill_package.py \
+            skills/KEDDEH_SYSTEMS_GITHUB_PULL_REQUEST_MERGE_READINESS_EVALUATION \
+            | tee evidence/skill_validation/KEDDEH_SYSTEMS_GITHUB_PULL_REQUEST_MERGE_READINESS_EVALUATION.json
+
+      - name: Upload skill validation evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: v115-repo-steward-skill-evidence-${{ github.sha }}
+          if-no-files-found: error
+          retention-days: 30
+          path: evidence/skill_validation/
