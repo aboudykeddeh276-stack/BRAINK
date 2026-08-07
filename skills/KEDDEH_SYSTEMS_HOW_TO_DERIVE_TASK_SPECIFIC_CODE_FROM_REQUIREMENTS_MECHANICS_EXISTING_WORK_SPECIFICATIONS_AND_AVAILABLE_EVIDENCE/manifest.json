@@ -8,6 +8,7 @@
   "purpose": "Derive and validate the task-specific code required by a capability by decomposing the capability into mechanics, mechanics into functions, and functions into required knowledge, reference, and test oracles, then selecting derivation pathways. The underlying mechanics are the governing object; acquisition (and download within it) is a subordinate pathway that supplies source, reference, or oracles and can never be promoted into a capability limitation while other pathways remain available or untested.",
   "governing_rule": "A failed acquisition method cannot be promoted into a capability limitation while other derivation pathways remain available or untested.",
   "working_principle": "One mechanic, one authoritative implementation, many consumers. Tests verify mechanics; packaging relocates them; repository organisation describes them. None re-implement business logic.",
+  "governing_doctrine": "Capability is the centre; evidence is a by-product. ACHIEVE -> VERIFY -> IMPROVE -> VERIFY AGAIN -> PRESERVE THE MECHANICS. Exhaust engineering pathways before arguing any limitation.",
   "case_studies": {
     "btc": "Two faithful projections: resources/btc_case_study.json (amendable derivation-planning data for the general engine) and src/btc/ (executable mechanics implemented once and composed in src/btc/pipeline.py). The Bitcoin protocol is illustrative, not a locked topic."
   },
@@ -24,6 +25,7 @@
     "amendable_btc_case_study_provided": true,
     "executable_btc_mechanics_implemented_once_and_composed": true,
     "btc_mechanics_verified_against_genesis_block_and_independent_oracles": true,
+    "miner_measures_real_sha256d_execution_rate_and_economics": true,
     "one_mechanic_one_implementation_many_consumers_enforced": true,
     "engine_and_case_study_tested": true,
     "download_is_required_at_runtime": false

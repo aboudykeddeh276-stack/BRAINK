@@ -26,6 +26,12 @@ from btc.block import assemble_block  # noqa: E402
 from btc.coinbase import TxOutput, build_coinbase_tx, coinbase_txid_internal  # noqa: E402
 from btc.economics import COIN, block_subsidy, coinbase_value  # noqa: E402
 from btc.header import BlockHeader, block_hash_display, block_hash_internal, build_header  # noqa: E402
+from btc.measure import (  # noqa: E402
+    expected_reward_rate_btc_per_hour,
+    expected_value_per_block_btc,
+    measure_hashrate_by_count,
+    measure_hashrate_by_time,
+)
 from btc.merkle import merkle_root  # noqa: E402
 from btc.mining import reconstruct_candidate, search_nonce  # noqa: E402
 from btc.pipeline import run_pipeline  # noqa: E402
@@ -89,12 +95,14 @@ class MerkleTests(unittest.TestCase):
         leaf = hash_to_internal(GENESIS_MERKLE_DISPLAY)
         self.assertEqual(merkle_root([leaf]), leaf)
 
-    def test_two_leaf_root_matches_independent_oracle(self) -> None:
-        a = hashlib.sha256(b"a").digest() + hashlib.sha256(b"a").digest()
-        a = a[:32]
+    def test_two_leaf_root_is_sha256d_of_ordered_concatenation(self) -> None:
+        # Structural check: for two leaves the root is sha256d(leaf0 || leaf1),
+        # and ordering matters. We assert the order dependency explicitly rather
+        # than claiming an independent oracle for a one-step formula.
+        a = hashlib.sha256(b"a").digest()
         b = hashlib.sha256(b"b").digest()
-        expected = sha256d(a + b)  # independent direct computation
-        self.assertEqual(merkle_root([a, b]), expected)
+        self.assertEqual(merkle_root([a, b]), sha256d(a + b))
+        self.assertNotEqual(merkle_root([a, b]), merkle_root([b, a]))
 
     def test_odd_row_duplicates_last(self) -> None:
         a = hashlib.sha256(b"a").digest()
@@ -296,6 +304,41 @@ class PipelineCompositionTests(unittest.TestCase):
         self.assertEqual(block[:80], header)
         self.assertEqual(block[80], 2)  # compact_size tx count
         self.assertEqual(block[81:83], b"\xde\xad")  # coinbase first
+
+
+class MeasurementTests(unittest.TestCase):
+    """Capability is the centre: these verify the miner measures its REAL work."""
+
+    def _prefix(self) -> bytes:
+        header = build_header(BlockHeader(0x20000000, bytes(32), bytes(32), 1700000000, 0x207FFFFF, 0))
+        return header[:76]
+
+    def test_count_measurement_runs_exact_work(self) -> None:
+        m = measure_hashrate_by_count(self._prefix(), 5000)
+        self.assertEqual(m.hashes, 5000)
+        self.assertGreater(m.hashes_per_second, 0)
+
+    def test_count_measurement_rate_is_internally_consistent(self) -> None:
+        m = measure_hashrate_by_count(self._prefix(), 4096)
+        # The reported rate must equal hashes/elapsed (the measurement is honest).
+        self.assertAlmostEqual(m.hashes_per_second, m.hashes / m.elapsed_seconds, places=3)
+
+    def test_time_measurement_produces_positive_rate(self) -> None:
+        m = measure_hashrate_by_time(self._prefix(), 0.02)
+        self.assertGreater(m.hashes, 0)
+        self.assertGreater(m.hashes_per_second, 0)
+
+    def test_invalid_iterations(self) -> None:
+        with self.assertRaises(ValueError):
+            measure_hashrate_by_count(self._prefix(), 0)
+
+    def test_expected_value_per_block(self) -> None:
+        self.assertEqual(expected_value_per_block_btc(0, 0), 50.0)
+        self.assertEqual(expected_value_per_block_btc(840_000, 0), 3.125)
+
+    def test_expected_reward_rate(self) -> None:
+        # 50 BTC/block * 2 blocks/hour = 100 BTC/hour.
+        self.assertEqual(expected_reward_rate_btc_per_hour(0, 0, 2), 100.0)
 
 
 if __name__ == "__main__":

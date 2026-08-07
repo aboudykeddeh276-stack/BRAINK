@@ -123,6 +123,48 @@ report. The only durable state is the amendable case-study data under `resources
 - `EVIDENCE_IS_INSUFFICIENT_STATUS_UNKNOWN` — a mechanic cannot yet be judged derivable
   or limited; more routes must be tested before any negative claim.
 
+## Governing doctrine: capability is the centre
+
+Capability — software whose behaviour, structure, performance, and reliability are
+demonstrably strong — is the centre of the workflow. Evidence is a **by-product** of that
+capability, never a substitute for it.
+
+```text
+UNDERSTAND THE REQUIRED MECHANIC
+ -> FIT EXISTING USEFUL LOGIC
+ -> DERIVE WHAT IS MISSING
+ -> BUILD THE REAL FUNCTION
+ -> CONNECT IT DIRECTLY
+ -> RUN IT -> BREAK IT -> FIX IT
+ -> MEASURE IT -> OPTIMISE IT
+ -> REPEAT UNTIL THE SOFTWARE ITSELF IS EXCELLENT
+```
+
+Then tests, logs, benchmarks, receipts, and claims simply describe what the software
+already demonstrably does:
+
+> A test exists because it helps make the software better.
+> A benchmark exists because it tells us where to improve.
+> A log exists because it reveals what happened.
+> A skill exists because it preserves a proven engineering method.
+> A module exists because it performs a real function.
+> A repository exists because it stores the work.
+
+The working loop is therefore:
+
+```text
+ACHIEVE -> VERIFY -> IMPROVE -> VERIFY AGAIN -> PRESERVE THE MECHANICS
+```
+
+not `CLASSIFY -> DOCUMENT -> GATE -> EXPLAIN -> eventually build`. And, consistent with the
+governing rule above: **do not spend effort proving why something cannot be done while
+plausible engineering pathways remain — exhaust the pathways first.**
+
+The derivation engine (`src/derive_task_specific_code.py`) is a *planning aid* subordinate
+to this doctrine: it enumerates pathways so building proceeds, and prevents a failed
+acquisition route from masquerading as a limitation. It does not replace building,
+running, breaking, measuring, and improving the real software.
+
 ## Working principle: one mechanic, one implementation, many consumers
 
 A mechanic is written **once**, as a single authoritative function. The repository stores
@@ -186,6 +228,7 @@ src/btc/
     block.py        # assemble_block
     stale.py        # is_stale
     submit.py       # build_submitblock_request / interpret response (transport-free)
+    measure.py      # measured SHA256d execution rate + economics (benchmark)
     pipeline.py     # composes the above: template -> ... -> submit
 ```
 
@@ -204,5 +247,6 @@ the full chain run end-to-end without network access. To dry-run the chain, call
 | Amendable BTC case study provided | TRUE |
 | Executable BTC mechanics implemented once and composed in a pipeline | TRUE |
 | BTC mechanics verified against the real genesis block and independent oracles | TRUE |
+| Miner measures real SHA256d execution rate and economics | TRUE |
 | Engine and case study tested | TRUE |
 | Download required at runtime | FALSE — no network access is required |
