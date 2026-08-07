@@ -1,7 +1,7 @@
 {
   "canonical_skill_name": "Keddeh Systems — How to Design, Make, Validate, Save, Maintain, and Reuse a Skill",
   "canonical_identifier": "KEDDEH_SYSTEMS_HOW_TO_DESIGN_MAKE_VALIDATE_SAVE_MAINTAIN_AND_REUSE_A_SKILL",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "status": "normative_engineering_skill_specification",
   "authoritative_naming_rule": "full semantic names are authoritative; abbreviations may only be secondary aliases after demonstrated semantic equivalence",
   "purpose": "Define the complete Keddeh Systems method for designing, making, validating, saving, maintaining, and reusing rigorous, reproducible, executable skill packages.",

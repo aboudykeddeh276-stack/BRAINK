@@ -21,11 +21,21 @@
 
 ## Reuse and derivation
 
-- Existing components must be materialised and tested against their responsibilities
-  before a new implementation is derived.
+- Existing artifacts must first be classified as source material, not as dependencies,
+  modules, implementations, or authoritative runtime. An existing file is not a
+  dependency merely because it already exists. See `REUSE_DOCTRINE.md`.
+- Existing artifacts must be decomposed into atomic mechanics, and each mechanic must be
+  validated independently (valid, partial, invalid, unverified, or irrelevant) before any
+  module-level reuse decision.
+- Reuse must occur at the smallest validated semantic unit that preserves the required
+  behaviour. A whole module is reused only when the whole-module contract is proven correct.
 - Reuse must be justified by semantic-equivalence tests, not source presence alone.
 - Missing behaviour must be derived only when not already correctly implemented.
-- Bounded defects must be repaired at the smallest responsible layer.
+- Bounded defects must be repaired at the smallest responsible layer; artifacts that
+  introduce unproven assumptions, irrelevant state, or architectural coupling must be
+  reconstructed cleanly rather than imported wholesale.
+- No module may enter the pipeline until it is complete in isolation, and no pipeline
+  stage may rely on an unverified side effect of another file.
 
 ## Execution and validation
 

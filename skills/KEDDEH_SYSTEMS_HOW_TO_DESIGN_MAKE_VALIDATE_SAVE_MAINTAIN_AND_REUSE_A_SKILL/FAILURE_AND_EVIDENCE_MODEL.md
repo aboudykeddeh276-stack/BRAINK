@@ -17,6 +17,7 @@ Use the full name in documentation and the machine id in code and JSON.
 | `REQUIRED_SECURITY_PROPERTY_CANNOT_BE_ESTABLISHED` | Required security property cannot be established in the current configuration |
 | `EVIDENCE_CANNOT_SUBSTANTIATE_THE_CLAIM` | Retained evidence cannot substantiate the claim being made |
 | `EVIDENCE_IS_INSUFFICIENT_STATUS_UNKNOWN` | Evidence is insufficient; capability status remains unknown |
+| `EXISTING_ARTIFACT_TREATED_AS_AUTHORITY_WITHOUT_MECHANIC_VALIDATION` | An existing artifact was reused as a dependency, module, or authoritative runtime before its mechanics were extracted and independently validated |
 | `MISSING_FILE_OR_DIRECTORY` | A required file or directory was not found at the expected path |
 | `SYNTAX_ERROR_IN_SOURCE` | Source file contains a syntax error that prevents parsing or compilation |
 | `TEST_ASSERTION_FAILED` | A test assertion evaluated to false against a declared acceptance criterion |
@@ -69,6 +70,8 @@ Short aliases may exist as secondary convenience labels but must never replace t
 
 - Claiming PASS on a check that was not executed.
 - Inferring capability presence from source file existence alone.
+- Treating an existing artifact as a dependency, module, or authoritative runtime before its mechanics are extracted and independently validated.
+- Reusing a whole module when only some of its mechanics are validated, instead of reconstructing cleanly from the validated mechanics.
 - Treating a document reference as equivalent to a retained artifact.
 - Treating simulation, emulation, hosted, and physical execution as the same evidence class.
 - Asserting hardware, deployment, legal, financial, or certification proof that was not produced.

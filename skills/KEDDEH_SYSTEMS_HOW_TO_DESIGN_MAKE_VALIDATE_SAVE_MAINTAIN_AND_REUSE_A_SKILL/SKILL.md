@@ -1,7 +1,7 @@
 # Keddeh Systems — How to Design, Make, Validate, Save, Maintain, and Reuse a Skill
 
 **Canonical identifier:** `KEDDEH_SYSTEMS_HOW_TO_DESIGN_MAKE_VALIDATE_SAVE_MAINTAIN_AND_REUSE_A_SKILL`
-**Version:** 1.1.0
+**Version:** 1.2.0
 **Class:** Governing Keddeh Systems skill-making methodology
 **Status:** Normative engineering skill specification with executable validator.
 
@@ -92,8 +92,9 @@ reproducible engineering method that produces and validates that capability.
 Literal purpose
 → complete understanding of the core mechanics
 → complete requirements decomposition
-→ identification of existing reusable components
-→ explicit reuse / repair / adaptation / derivation / rejection decision
+→ classification of existing components as source material (not authority)
+→ per-mechanic extraction, independent validation, and smallest-unit reuse decision
+→ clean canonical reconstruction from validated mechanics only
 → interface and state contracts
 → invariants
 → logically ordered workflow
@@ -161,6 +162,14 @@ Transitions:
 5. **Traceability:** every reported finding must identify the file and field it evaluated.
 6. **No false-positive maturity:** the validator must not infer capability presence from
    source existence alone.
+7. **Existing artifacts are source material, not authority:** an existing component is
+   classified as source material until its mechanics are extracted and independently
+   validated. Reuse the smallest validated semantic unit; reconstruct cleanly when the
+   containing artifact introduces unproven assumptions, irrelevant state, or coupling.
+   See `REUSE_DOCTRINE.md`.
+8. **Module completeness before composition:** no module enters the pipeline until it is
+   complete in isolation, and no pipeline stage relies on an unverified side effect of
+   another file.
 
 ---
 

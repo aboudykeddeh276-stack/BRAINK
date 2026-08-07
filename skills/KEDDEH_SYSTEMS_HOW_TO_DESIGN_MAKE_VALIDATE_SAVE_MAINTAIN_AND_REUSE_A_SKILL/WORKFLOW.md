@@ -20,15 +20,19 @@ Each step produces a concrete, verifiable output before the next step begins.
  5. Decompose all material requirements.
     Output: REQUIREMENTS.md or Requirements section in SKILL.md.
 
- 6. Materialise and inventory existing implementation locally when available.
-    Output: list of found components with their file paths and responsibilities.
+ 6. Materialise existing implementation locally and classify it as source material.
+    Existing files are inputs to analysis, not dependencies, until validated.
+    Output: inventory of found artifacts with file paths, classified as SOURCE MATERIAL.
 
- 7. Test each found component against its declared responsibility.
-    Output: pass/fail result per component with evidence.
+ 7. Decompose each source artifact into atomic mechanics and validate each mechanic
+    independently against its required behaviour.
+    Output: per-mechanic classification — valid | partial | invalid | unverified | irrelevant.
 
- 8. Classify each component:
-      reuse | repair-then-reuse | adapt-then-reuse | derive | reject | unknown
-    Output: classification table in SKILL.md.
+ 8. Decide reuse at the smallest validated semantic unit (see REUSE_DOCTRINE.md):
+      reuse-mechanic | repair-then-reuse | adapt-then-reuse | derive | reject | unknown.
+    Reconstruct cleanly when the containing artifact introduces unproven assumptions,
+    irrelevant state, or architectural coupling; do not import a defective module wholesale.
+    Output: reuse decision table in SKILL.md keyed to individual mechanics.
 
  9. Define interfaces, data representation, authoritative state, and invariants.
     Output: Interfaces, State, and Invariants sections in SKILL.md.
@@ -102,16 +106,38 @@ If FAIL:
 
 ## Reuse decision tree
 
+Existing artifacts are classified as source material and decomposed into atomic
+mechanics before any reuse decision. The decision is made per mechanic, at the
+smallest validated semantic unit. See `REUSE_DOCTRINE.md`.
+
 ```
-Component found?
-├── No  → derive from requirements
-└── Yes → test against declared responsibility
-          ├── Passes → reuse
-          ├── Fails, bounded defect → repair and reuse
-          ├── Fails, interface mismatch → adapt and reuse
-          ├── Fails, fundamentally incompatible → derive new; reject found component
-          └── Cannot assess → classify as unknown; do not reuse
+Artifact found?
+├── No  → derive mechanics from requirements
+└── Yes → classify as source material; decompose into atomic mechanics
+          → for each mechanic, validate independently against required behaviour
+            ├── Valid → reuse the mechanic (smallest validated unit)
+            ├── Partial, bounded defect → repair at smallest layer, then reuse
+            ├── Interface mismatch → adapt, then reuse
+            ├── Invalid / fundamentally incompatible → derive clean; discard mechanic
+            ├── Irrelevant → discard; do not carry into the clean module
+            └── Unverified → classify as unknown; do not reuse
+
+Promote a whole module only when the whole-module contract is proven correct;
+otherwise reconstruct the module cleanly from validated mechanics only.
 ```
+
+## Pipeline composition rule
+
+```
+NO MODULE ENTERS THE PIPELINE UNTIL THE MODULE IS COMPLETE IN ISOLATION.
+NO PIPELINE STAGE MAY RELY ON AN UNVERIFIED SIDE EFFECT OF ANOTHER FILE.
+AN EXISTING FILE IS NOT A DEPENDENCY MERELY BECAUSE IT ALREADY EXISTS.
+REUSE MECHANICS, NOT ACCIDENTAL HISTORICAL STRUCTURE.
+```
+
+Keep source material and historical corpus outside the measurement domain of the
+reconstructed pipeline so that coverage and test measurements describe the
+reconstructed capability, not the accidental scope of the repository.
 
 ## Completion criteria
 
