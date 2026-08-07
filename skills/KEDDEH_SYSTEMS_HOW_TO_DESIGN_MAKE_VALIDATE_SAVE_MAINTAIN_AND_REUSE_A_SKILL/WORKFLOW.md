@@ -104,6 +104,21 @@ If FAIL:
     return to this step — do not advance until this step passes
 ```
 
+## Negative-claim emission gate
+
+A negative capability claim carries the burden of proof. See
+`NEGATIVE_CLAIM_BURDEN_OF_PROOF.md`.
+
+```
+Emitting "not achieved" / "unavailable" / "unmanageable" / "impossible locally"?
+→ Enumerate all materially plausible local routes.
+→ For each route, record: TESTED_AND_FAILED (with evidence)
+                          | RULED_OUT_WITH_EVIDENCE (with cited constraint).
+→ Any route left untested and unexplained?
+    Yes → status is EVIDENCE_IS_INSUFFICIENT_STATUS_UNKNOWN; do not emit the claim.
+    No  → emit the claim scoped to the evidence; retain the route ledger.
+```
+
 ## Reuse decision tree
 
 Existing artifacts are classified as source material and decomposed into atomic

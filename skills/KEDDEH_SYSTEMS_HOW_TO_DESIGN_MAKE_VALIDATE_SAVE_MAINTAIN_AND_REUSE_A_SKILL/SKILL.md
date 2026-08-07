@@ -1,7 +1,7 @@
 # Keddeh Systems — How to Design, Make, Validate, Save, Maintain, and Reuse a Skill
 
 **Canonical identifier:** `KEDDEH_SYSTEMS_HOW_TO_DESIGN_MAKE_VALIDATE_SAVE_MAINTAIN_AND_REUSE_A_SKILL`
-**Version:** 1.2.0
+**Version:** 1.3.0
 **Class:** Governing Keddeh Systems skill-making methodology
 **Status:** Normative engineering skill specification with executable validator.
 
@@ -170,6 +170,11 @@ Transitions:
 8. **Module completeness before composition:** no module enters the pipeline until it is
    complete in isolation, and no pipeline stage relies on an unverified side effect of
    another file.
+9. **Negative claims carry the burden of proof:** a negative capability claim ("not
+   achieved", "unavailable", "unmanageable", "impossible locally", or any equivalent) must
+   not be emitted until all materially plausible local routes are enumerated, and each is
+   tested-and-failed or ruled out with evidence. Until then the status is UNKNOWN, not
+   impossible. See `NEGATIVE_CLAIM_BURDEN_OF_PROOF.md`.
 
 ---
 

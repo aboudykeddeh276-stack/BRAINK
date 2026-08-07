@@ -51,6 +51,11 @@
   and verdict.
 - Evidence references must resolve to retained artifacts or authoritative external results.
 - Unknowns must remain marked unknown.
+- Negative capability claims ("not achieved", "unavailable", "unmanageable", "impossible
+  locally", or any equivalent) carry the burden of proof: they must not be emitted until
+  all materially plausible local routes are enumerated and each is tested-and-failed or
+  ruled out with an evidenced constraint. Until then the status is unknown, not impossible.
+  See `NEGATIVE_CLAIM_BURDEN_OF_PROOF.md`.
 - Limitations must be classified and evidenced, not asserted generically.
 
 ## Packaging
