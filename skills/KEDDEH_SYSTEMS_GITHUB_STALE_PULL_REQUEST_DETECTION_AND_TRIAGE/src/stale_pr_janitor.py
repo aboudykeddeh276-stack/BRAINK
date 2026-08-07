@@ -68,7 +68,7 @@ def _api_get(path: str, token: str) -> Any:
     req.add_header("Accept", "application/vnd.github+json")
     req.add_header("X-GitHub-Api-Version", "2022-11-28")
     if token:
-        req.add_header("Authorization", f"******")
+        req.add_header("Authorization", f"Bearer {token}")
     with urllib.request.urlopen(req, timeout=30) as resp:
         return json.loads(resp.read().decode("utf-8"))
 
@@ -81,7 +81,7 @@ def _api_post(path: str, body: dict, token: str) -> Any:
     req.add_header("X-GitHub-Api-Version", "2022-11-28")
     req.add_header("Content-Type", "application/json")
     if token:
-        req.add_header("Authorization", f"******")
+        req.add_header("Authorization", f"Bearer {token}")
     with urllib.request.urlopen(req, timeout=30) as resp:
         return json.loads(resp.read().decode("utf-8"))
 

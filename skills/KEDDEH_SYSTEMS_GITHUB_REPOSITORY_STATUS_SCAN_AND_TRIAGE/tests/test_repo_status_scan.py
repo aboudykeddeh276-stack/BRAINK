@@ -9,7 +9,8 @@ from pathlib import Path
 from unittest.mock import patch, MagicMock
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
-from repo_status_scan import _days_since  # noqa: E402
+import repo_status_scan  # noqa: E402
+from repo_status_scan import _days_since, scan  # noqa: E402
 
 
 class DaysSinceTests(unittest.TestCase):
@@ -42,31 +43,31 @@ class ScanClassificationTests(unittest.TestCase):
         }
 
     def _run_scan_with_fake_prs(self, prs, stale_days=14):
-        """Run the classification logic directly without network calls."""
-        ready, draft, stale, failing, merge_ready = [], [], [], [], []
-        for pr in prs:
-            ci = pr.pop("_ci")
-            number = pr["number"]
-            is_draft = pr["draft"]
-            days = _days_since(pr["updated_at"])
-            entry = {
-                "number": number,
-                "title": pr["title"],
-                "branch": pr["head"]["ref"],
-                "is_draft": is_draft,
-                "ci_conclusion": ci,
-                "days_since_update": days,
-                "html_url": pr["html_url"],
-            }
-            if is_draft:
-                (stale if days >= stale_days else draft).append(entry)
-            else:
-                ready.append(entry)
-            if ci == "failure":
-                failing.append(entry)
-            if not is_draft and ci == "success":
-                merge_ready.append(entry)
-        return ready, draft, stale, failing, merge_ready
+        """Invoke the real scan() with network boundary functions stubbed.
+
+        Returns the (ready, draft, stale, failing, merge_ready) tuple derived
+        from the shipped scan() report, so the actual classification logic is
+        exercised rather than a reimplementation.
+        """
+        ci_by_branch = {pr["head"]["ref"]: pr.pop("_ci") for pr in prs}
+        original_paginated = repo_status_scan._api_get_paginated
+        original_ci = repo_status_scan._get_ci_conclusion
+        repo_status_scan._api_get_paginated = lambda path, token, per_page=100: prs
+        repo_status_scan._get_ci_conclusion = (
+            lambda owner, repo, branch, token: ci_by_branch.get(branch, "unknown")
+        )
+        try:
+            report = scan("owner", "repo", stale_days, "token")
+        finally:
+            repo_status_scan._api_get_paginated = original_paginated
+            repo_status_scan._get_ci_conclusion = original_ci
+        return (
+            report["ready_for_review"],
+            report["draft"],
+            report["stale_draft"],
+            report["ci_failing"],
+            report["merge_ready"],
+        )
 
     def test_ready_non_draft_pr_classified_correctly(self):
         prs = [self._pr(1, draft=False, days_old=1, ci="success")]
