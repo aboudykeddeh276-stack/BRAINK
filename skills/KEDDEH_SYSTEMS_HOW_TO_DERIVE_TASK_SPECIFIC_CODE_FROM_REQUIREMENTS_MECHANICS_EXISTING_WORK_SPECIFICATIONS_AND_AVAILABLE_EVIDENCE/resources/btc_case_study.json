@@ -1,0 +1,313 @@
+{
+  "capability": "Build a valid BTC mining workload and execution pipeline that assembles, executes, reconstructs, and submits candidate blocks",
+  "case_study_note": "This file is an AMENDABLE case study applied to the general derivation engine. The mechanics below are the true highlights of the function; the Bitcoin protocol is the illustrative domain, not a locked topic. Edit mechanics, functions, required_knowledge, and derivation_pathway statuses to reflect the current environment and evidence. 'Download Bitcoin Core' appears only as one subordinate acquisition pathway, never as the requirement.",
+  "reference_corpora": {
+    "bitcoin_core_source": "reference / oracle / protocol implementation",
+    "existing_mining_source": "candidate mechanics / historical process evidence",
+    "bips": "protocol requirements",
+    "mathematics": "formal invariants",
+    "clean_keddeh_btc_modules": "authoritative task-specific implementation"
+  },
+  "mechanics": [
+    {
+      "id": "RPC_INTERACTION_CONTRACT",
+      "name": "Derive and implement the Bitcoin Core JSON-RPC request/response contract",
+      "functions": [
+        {
+          "name": "rpc_call",
+          "inputs": ["method", "params", "endpoint", "credentials"],
+          "outputs": ["result", "error"],
+          "state": "stateless per call; reuses an authenticated transport",
+          "invariants": ["request id echoed in response", "error and result are mutually exclusive"],
+          "errors": ["TRANSPORT_ERROR", "AUTH_ERROR", "RPC_ERROR"],
+          "interfaces": ["HTTP JSON-RPC 1.0/2.0"]
+        }
+      ],
+      "required_knowledge": ["Bitcoin Core RPC contract", "JSON-RPC framing", "authentication model"],
+      "derivation_pathways": [
+        {"kind": "protocol_specification", "status": "available", "evidence": "official RPC documentation defines request/response contract"},
+        {"kind": "existing_source", "status": "untested", "evidence": "Bitcoin Core RPC source can be read as reference"},
+        {"kind": "reference_implementation", "status": "untested", "evidence": "differential test against a local node when one is present"}
+      ]
+    },
+    {
+      "id": "BLOCK_TEMPLATE_INTERPRETATION",
+      "name": "Interpret the getblocktemplate model into a candidate assembly plan",
+      "functions": [
+        {
+          "name": "parse_block_template",
+          "inputs": ["getblocktemplate_result"],
+          "outputs": ["template_model"],
+          "state": "stateless",
+          "invariants": ["version, previousblockhash, bits, curtime, height are present", "transactions preserve template order"],
+          "errors": ["MALFORMED_TEMPLATE"],
+          "interfaces": ["getblocktemplate result object"]
+        }
+      ],
+      "required_knowledge": ["BIP22/BIP23 template model", "consensus field semantics"],
+      "derivation_pathways": [
+        {"kind": "protocol_specification", "status": "available", "evidence": "BIP22/BIP23 define the template model"},
+        {"kind": "published_test_vectors", "status": "untested"}
+      ]
+    },
+    {
+      "id": "BIP34_COINBASE_CONSTRUCTION",
+      "name": "Construct a BIP34-compliant coinbase transaction with height-encoded scriptSig",
+      "functions": [
+        {
+          "name": "build_coinbase",
+          "inputs": ["height", "payout_scripts", "value", "extranonce_space", "witness_commitment"],
+          "outputs": ["coinbase_tx"],
+          "state": "stateless",
+          "invariants": ["scriptSig begins with the serialized block height (BIP34)", "output value <= subsidy + fees"],
+          "errors": ["INVALID_HEIGHT_ENCODING", "VALUE_OVERFLOW"],
+          "interfaces": ["transaction serialization"]
+        }
+      ],
+      "required_knowledge": ["BIP34 height encoding", "coinbase input structure", "subsidy schedule"],
+      "derivation_pathways": [
+        {"kind": "protocol_specification", "status": "available", "evidence": "BIP34 specifies height-in-coinbase encoding"},
+        {"kind": "mathematical_derivation", "status": "available", "evidence": "subsidy schedule derivable from halving formula"}
+      ]
+    },
+    {
+      "id": "PAYOUT_SCRIPT_CONSTRUCTION",
+      "name": "Construct payout output scripts for the coinbase reward destination",
+      "functions": [
+        {
+          "name": "build_payout_script",
+          "inputs": ["address_or_descriptor"],
+          "outputs": ["output_script"],
+          "state": "stateless",
+          "invariants": ["script matches the declared address type", "script is standard"],
+          "errors": ["UNSUPPORTED_ADDRESS_TYPE"],
+          "interfaces": ["scriptPubKey encoding"]
+        }
+      ],
+      "required_knowledge": ["address encodings (base58check, bech32/bech32m)", "standard script templates"],
+      "derivation_pathways": [
+        {"kind": "protocol_specification", "status": "available", "evidence": "BIP141/BIP173/BIP350 define witness address encodings"},
+        {"kind": "published_test_vectors", "status": "untested"}
+      ]
+    },
+    {
+      "id": "BIP141_WITNESS_COMMITMENT",
+      "name": "Compute and embed the BIP141 segregated-witness commitment in the coinbase",
+      "functions": [
+        {
+          "name": "witness_commitment",
+          "inputs": ["wtxid_list", "witness_reserved_value"],
+          "outputs": ["commitment_output_script"],
+          "state": "stateless",
+          "invariants": ["commitment = SHA256d(witness_merkle_root || reserved)", "coinbase wtxid treated as 0x00..00"],
+          "errors": ["MISSING_WITNESS_DATA"],
+          "interfaces": ["OP_RETURN commitment output"]
+        }
+      ],
+      "required_knowledge": ["BIP141 commitment structure", "witness merkle root computation"],
+      "derivation_pathways": [
+        {"kind": "protocol_specification", "status": "available", "evidence": "BIP141 defines the commitment"},
+        {"kind": "reference_implementation", "status": "untested"}
+      ]
+    },
+    {
+      "id": "TRANSACTION_MERKLE_CONSTRUCTION",
+      "name": "Compute the transaction Merkle root over the ordered transaction set",
+      "functions": [
+        {
+          "name": "merkle_root",
+          "inputs": ["txid_list"],
+          "outputs": ["merkle_root"],
+          "state": "stateless",
+          "invariants": ["odd rows duplicate the last hash", "root is SHA256d based"],
+          "errors": ["EMPTY_TX_SET"],
+          "interfaces": ["32-byte little-endian hash"]
+        }
+      ],
+      "required_knowledge": ["Bitcoin Merkle tree rules", "SHA256d"],
+      "derivation_pathways": [
+        {"kind": "mathematical_derivation", "status": "available", "evidence": "Merkle rules fully specified and testable with vectors"},
+        {"kind": "published_test_vectors", "status": "untested"}
+      ]
+    },
+    {
+      "id": "EIGHTY_BYTE_HEADER_CONSTRUCTION",
+      "name": "Serialize the canonical 80-byte block header",
+      "functions": [
+        {
+          "name": "build_header",
+          "inputs": ["version", "prev_hash", "merkle_root", "time", "bits", "nonce"],
+          "outputs": ["header_bytes"],
+          "state": "stateless",
+          "invariants": ["header is exactly 80 bytes", "field endianness matches consensus serialization"],
+          "errors": ["FIELD_WIDTH_ERROR"],
+          "interfaces": ["little-endian header serialization"]
+        }
+      ],
+      "required_knowledge": ["header field layout and endianness"],
+      "derivation_pathways": [
+        {"kind": "protocol_specification", "status": "available", "evidence": "header layout fully specified"},
+        {"kind": "published_test_vectors", "status": "untested"}
+      ]
+    },
+    {
+      "id": "WORK_SPACE_ALLOCATION",
+      "name": "Allocate the nonce and extranonce search space across the mining workload",
+      "functions": [
+        {
+          "name": "allocate_work",
+          "inputs": ["template_model", "worker_count"],
+          "outputs": ["work_ranges"],
+          "state": "assignment ledger of issued ranges",
+          "invariants": ["ranges are disjoint", "every worker receives a bounded range"],
+          "errors": ["RANGE_EXHAUSTED"],
+          "interfaces": ["work-range descriptor"]
+        }
+      ],
+      "required_knowledge": ["nonce/extranonce space partitioning"],
+      "derivation_pathways": [
+        {"kind": "mathematical_derivation", "status": "available", "evidence": "space partitioning is arithmetic"}
+      ]
+    },
+    {
+      "id": "SHA256D_WORK_EXECUTION",
+      "name": "Execute SHA256d over candidate headers to search for a satisfying nonce",
+      "functions": [
+        {
+          "name": "sha256d_search",
+          "inputs": ["header_prefix", "nonce_range", "target"],
+          "outputs": ["winning_nonce_or_none"],
+          "state": "stateless within a range",
+          "invariants": ["hash = SHA256(SHA256(header))", "winner satisfies hash <= target"],
+          "errors": ["NO_SOLUTION_IN_RANGE"],
+          "interfaces": ["hash comparison against 256-bit target"]
+        }
+      ],
+      "required_knowledge": ["SHA-256 (FIPS 180-4)", "double hashing convention"],
+      "derivation_pathways": [
+        {"kind": "protocol_specification", "status": "available", "evidence": "SHA-256 is standardized (FIPS 180-4)"},
+        {"kind": "published_test_vectors", "status": "available", "evidence": "NIST SHA-256 vectors provide a correctness oracle"}
+      ]
+    },
+    {
+      "id": "CANDIDATE_RECONSTRUCTION",
+      "name": "Reconstruct the full candidate header from a returned winning nonce and work assignment",
+      "functions": [
+        {
+          "name": "reconstruct_candidate",
+          "inputs": ["work_assignment", "winning_nonce", "extranonce"],
+          "outputs": ["final_header"],
+          "state": "stateless",
+          "invariants": ["reconstructed header re-hashes to the reported winning hash"],
+          "errors": ["RECONSTRUCTION_MISMATCH"],
+          "interfaces": ["header reconstruction"]
+        }
+      ],
+      "required_knowledge": ["work-assignment to header mapping"],
+      "derivation_pathways": [
+        {"kind": "mathematical_derivation", "status": "available"}
+      ]
+    },
+    {
+      "id": "TARGET_VERIFICATION",
+      "name": "Verify a candidate hash against the compact-encoded difficulty target",
+      "functions": [
+        {
+          "name": "meets_target",
+          "inputs": ["candidate_hash", "bits"],
+          "outputs": ["boolean"],
+          "state": "stateless",
+          "invariants": ["bits expands to the 256-bit target", "hash interpreted little-endian"],
+          "errors": ["INVALID_BITS"],
+          "interfaces": ["compact target (nBits) expansion"]
+        }
+      ],
+      "required_knowledge": ["nBits compact encoding", "target comparison"],
+      "derivation_pathways": [
+        {"kind": "mathematical_derivation", "status": "available", "evidence": "nBits expansion is a defined arithmetic operation"},
+        {"kind": "published_test_vectors", "status": "untested"}
+      ]
+    },
+    {
+      "id": "FULL_BLOCK_ASSEMBLY",
+      "name": "Serialize the complete block from header, coinbase, and transaction set",
+      "functions": [
+        {
+          "name": "serialize_block",
+          "inputs": ["final_header", "coinbase_tx", "transactions"],
+          "outputs": ["block_bytes"],
+          "state": "stateless",
+          "invariants": ["coinbase is the first transaction", "transaction count prefix matches the set", "segwit marker/flag used when witness data present"],
+          "errors": ["SERIALIZATION_ERROR"],
+          "interfaces": ["consensus block serialization"]
+        }
+      ],
+      "required_knowledge": ["block serialization format", "segwit marker/flag rules"],
+      "derivation_pathways": [
+        {"kind": "protocol_specification", "status": "available"},
+        {"kind": "reference_implementation", "status": "untested"}
+      ]
+    },
+    {
+      "id": "STALE_WORK_HANDLING",
+      "name": "Detect and discard stale work when the chain tip advances",
+      "functions": [
+        {
+          "name": "is_stale",
+          "inputs": ["work_assignment", "current_tip"],
+          "outputs": ["boolean"],
+          "state": "tracks the tip the work was issued against",
+          "invariants": ["work issued against a superseded previousblockhash is stale"],
+          "errors": [],
+          "interfaces": ["tip-change notification or poll"]
+        }
+      ],
+      "required_knowledge": ["tip tracking", "template refresh cadence"],
+      "derivation_pathways": [
+        {"kind": "protocol_specification", "status": "available"},
+        {"kind": "existing_source", "status": "untested"}
+      ]
+    },
+    {
+      "id": "SUBMITBLOCK_INTERACTION",
+      "name": "Implement and verify the submitblock full-block submission path",
+      "functions": [
+        {
+          "name": "submit_block",
+          "inputs": ["block_bytes"],
+          "outputs": ["submission_result"],
+          "state": "stateless per submission",
+          "invariants": ["null result means accepted", "non-null string is a reject reason"],
+          "errors": ["RPC_ERROR", "REJECTED"],
+          "interfaces": ["submitblock RPC"]
+        }
+      ],
+      "required_knowledge": ["submitblock request/response contract", "reject reason semantics"],
+      "derivation_pathways": [
+        {"kind": "protocol_specification", "status": "available", "evidence": "official RPC documentation defines submitblock behaviour"},
+        {"kind": "existing_source", "status": "untested", "evidence": "Bitcoin Core RPC source can be read to derive request/response behaviour, then tested against a mock"},
+        {"kind": "reference_implementation", "status": "untested", "evidence": "differential test against a local node when present"},
+        {"kind": "download", "status": "tested_and_failed", "evidence": "external release-archive download from the current container failed; this is ONE acquisition route only and does not, by itself, make the mechanic a capability limitation while specification and source pathways remain available"}
+      ]
+    },
+    {
+      "id": "ECONOMIC_ACCOUNTING",
+      "name": "Account for reward, fees, and profitability across the mining workload",
+      "functions": [
+        {
+          "name": "profitability_controller",
+          "inputs": ["subsidy", "fees", "cost_model"],
+          "outputs": ["accounting_record", "continue_or_halt"],
+          "state": "running accounting ledger",
+          "invariants": ["accounting is conservative (no negative reward booked as profit)"],
+          "errors": ["COST_MODEL_UNAVAILABLE"],
+          "interfaces": ["profitability decision record"]
+        }
+      ],
+      "required_knowledge": ["subsidy schedule", "fee summation", "cost model inputs"],
+      "derivation_pathways": [
+        {"kind": "mathematical_derivation", "status": "available"}
+      ]
+    }
+  ]
+}
