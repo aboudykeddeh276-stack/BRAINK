@@ -1,0 +1,10 @@
+{
+  "name": "deployment_maturity_workplan",
+  "packages": [
+    {
+      "name": "deployment_maturity_workplan",
+      "versionInfo": "1.0.0"
+    }
+  ],
+  "spdxVersion": "SPDX-2.3"
+}

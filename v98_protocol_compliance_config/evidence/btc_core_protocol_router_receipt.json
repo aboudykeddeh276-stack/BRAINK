@@ -1,0 +1,14 @@
+{
+  "arbitrage_simulation_only": true,
+  "ledger_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/btc_core_protocol_router.ledger",
+  "mode": "bounded_local_router",
+  "outbox_manifest": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/outbox/btc_core_protocol_router/c807be273eb0ffccfe53097a3fb463daa21dba6d3720105095f95b11dd321e88.handoff.json",
+  "p2p_message_bytes": 129,
+  "p2p_message_hash": "608b98c4f81987d4a91ccd1eb6d83dfe31282bf29a3f9b1cc102f736d0540025",
+  "receipt_id": "c807be273eb0ffccfe53097a3fb463daa21dba6d3720105095f95b11dd321e88",
+  "rpc_enabled": false,
+  "rpc_method": null,
+  "rpc_result_present": false,
+  "simulated_opportunity": null,
+  "timestamp": 1786086742.2921278
+}

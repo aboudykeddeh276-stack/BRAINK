@@ -1,0 +1,16 @@
+{
+  "boundary": "authorizes bounded work orders against the agent registry, fails closed on denied actions, and emits receipts",
+  "classification": "LOCAL_PASS",
+  "details": {
+    "authorized_work_order": "94b38464d91be4baf34ad38c497bda3b65c4d91b8458183b812bb1bac358ee7d",
+    "rejected_work_order": "a411ed5748501c4125f2ecf7ffdff459a9adf7c88c9b05c520a3b89dfa4d622d",
+    "rejection_reason": "action_explicitly_denied"
+  },
+  "executed": true,
+  "negative_test_passed": true,
+  "owner_plane": "virtual_cpu_execution_plane",
+  "positive_test_passed": true,
+  "probe_name": "probe_agent_runtime_service",
+  "service_id": "agent_runtime_service",
+  "timestamp": 1786086742.286054
+}

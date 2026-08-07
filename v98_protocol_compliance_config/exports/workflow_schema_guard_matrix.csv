@@ -1,0 +1,6 @@
+check,valid,detail
+work_item,true,ok
+branch,true,feature/KEX-98/workflow-schema-guard-service-spine
+pr_title,true,KEX-98 Add workflow schema guard to service spine
+commit,true,feat(workflow): KEX-98 add schema guard receipts
+labels,true,wf-lvl-task;wf-st-in-review;wf-pr-p1;wf-own-platform

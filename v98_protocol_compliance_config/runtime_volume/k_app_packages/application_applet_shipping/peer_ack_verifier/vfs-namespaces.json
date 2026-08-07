@@ -1,0 +1,6 @@
+{
+  "namespaces": [
+    "vfs://apps/peer-ack-verifier/",
+    "vfs://agents/peer-ack-verifier/receipts/"
+  ]
+}

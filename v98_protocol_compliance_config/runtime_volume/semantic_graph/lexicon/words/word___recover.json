@@ -1,0 +1,41 @@
+{
+  "allowed_variants": [
+    "deferred_recovery",
+    "provider_recovery",
+    "host_recovery",
+    "fallback_recovery"
+  ],
+  "backlinks": {
+    "code_bindings": [
+      "config/service_protocols.json::application_applet_packager",
+      "config/service_protocols.json::dependency_failure_orchestrator",
+      "config/service_protocols.json::failure_ledger"
+    ],
+    "expressions": [
+      "expression://reconcile-deferred-work-after-dependency-recovery"
+    ],
+    "services": [
+      "service://application_applet_packager",
+      "service://dependency_failure_orchestrator",
+      "service://failure_ledger"
+    ]
+  },
+  "canonical_id": "word://recover",
+  "invariants": [
+    "failure_record_exists",
+    "fallback_path_known",
+    "reentry_condition_known",
+    "reintegration_receipt_required"
+  ],
+  "part_of_speech": "verb",
+  "prohibited_conflations": [
+    "retry_loop_is_not_recovery",
+    "clearing_ui_error_is_not_reintegration"
+  ],
+  "source_definitions": {
+    "computer_science": "restore capability after failure or unavailability",
+    "keddeh": "reconcile deferred work and reintegrate a dependency only after health, integrity and lineage checks pass",
+    "linguistic": "return to a usable state"
+  },
+  "word": "RECOVER"
+}

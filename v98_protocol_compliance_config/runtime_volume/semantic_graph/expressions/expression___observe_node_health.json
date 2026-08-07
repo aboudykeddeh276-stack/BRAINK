@@ -1,0 +1,32 @@
+{
+  "backlinks": {
+    "code_bindings": [
+      "config/service_protocols.json::health_state_monitor"
+    ],
+    "services": [
+      "service://health_state_monitor"
+    ],
+    "story_transitions": []
+  },
+  "composed_definition": "derive current capability-scoped condition of an addressable node from fresh observer-bound evidence",
+  "expression_id": "expression://observe-node-health",
+  "not_allowed": [
+    "static ONLINE string",
+    "stale heartbeat",
+    "UI colour alone"
+  ],
+  "source_meaning": {
+    "health": "word://health",
+    "node": "word://node"
+  },
+  "words": [
+    {
+      "canonical": "word://health",
+      "grammatical_role": "object"
+    },
+    {
+      "canonical": "word://node",
+      "grammatical_role": "subject"
+    }
+  ]
+}

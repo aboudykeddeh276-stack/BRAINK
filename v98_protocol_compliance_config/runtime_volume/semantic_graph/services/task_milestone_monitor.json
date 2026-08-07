@@ -1,0 +1,11 @@
+{
+  "code_binding": "config/service_protocols.json::task_milestone_monitor",
+  "conformance_state": "SEMANTICALLY_BOUND",
+  "evidence_contract": "recognize\u2192execute\u2192verify\u2192write_receipt\u2192readback\u2192handoff",
+  "owner_plane": "virtual_cpu_worker_governance",
+  "reason": "service contract and boundary available",
+  "sector": "sector://evidence-governance",
+  "semantic_expression": "expression://verify-manifest-before-node-execution",
+  "semantic_word": "word://verify",
+  "service_id": "task_milestone_monitor"
+}

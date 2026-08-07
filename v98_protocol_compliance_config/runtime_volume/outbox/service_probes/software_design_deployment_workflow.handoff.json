@@ -1,0 +1,11 @@
+{
+  "classification": "UNSUPPORTED_IN_THIS_RUNTIME",
+  "created_at": 1786086742.302844,
+  "handoff_id": "d1b717d36417f6c130d28af3cc19f5db2d5b897b8b164cfb069880d84b3ee00c",
+  "next_target": "implementation_backlog",
+  "payload_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/service_probes/software_design_deployment_workflow.json",
+  "receipt_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/proof_bundles.ledger",
+  "service_id": "software_design_deployment_workflow",
+  "source": "KEDDEH_V98_SERVICE_PROBE",
+  "status": "READY"
+}

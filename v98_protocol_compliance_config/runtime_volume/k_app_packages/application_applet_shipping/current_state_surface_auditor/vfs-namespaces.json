@@ -1,0 +1,6 @@
+{
+  "namespaces": [
+    "vfs://apps/current-state-surface-auditor/",
+    "vfs://agents/current-state-surface-auditor/receipts/"
+  ]
+}

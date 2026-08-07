@@ -1,0 +1,8 @@
+{
+  "created_at": 1786086741.171715,
+  "guard_matrix_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/exports/four_plane_cross_plane_guards.csv",
+  "matrix_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/exports/four_plane_context_framework_matrix.csv",
+  "payload_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/four_plane_context_framework_receipt.json",
+  "source": "KEDDEH_V99_FOUR_PLANE_CONTEXT_FRAMEWORK",
+  "status": "FOUR_PLANE_FRAMEWORK_BOUND"
+}

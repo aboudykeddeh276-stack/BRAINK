@@ -1,0 +1,14 @@
+{
+  "boundary": "records and categorizes dependency failures, continuation workflows, recovery conditions and deferred-work reconciliation without converting dependency failure into global runtime failure",
+  "classification": "UNSUPPORTED_IN_THIS_RUNTIME",
+  "details": {
+    "gate_reason": "No executable probe is registered for this declared service."
+  },
+  "executed": false,
+  "negative_test_passed": false,
+  "owner_plane": "vfs_resilience_plane",
+  "positive_test_passed": false,
+  "probe_name": "unregistered_probe",
+  "service_id": "failure_ledger",
+  "timestamp": 1786086742.3107913
+}

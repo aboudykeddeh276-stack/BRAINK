@@ -1,0 +1,22 @@
+{
+  "agent_count": 6,
+  "all_agents_valid": true,
+  "hash_used_as_functional_proof": false,
+  "ledger_readback": true,
+  "outbox_manifest": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/outbox/agent_registry/82211a405120702d72cf70c75130014e05567ac7990903662bf69e87b2c8435c.handoff.json",
+  "promotion_guard_passed": true,
+  "receipt": {
+    "agent_count": 6,
+    "all_agents_valid": true,
+    "ledger_readback": true,
+    "outbox_manifest": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/outbox/agent_registry/82211a405120702d72cf70c75130014e05567ac7990903662bf69e87b2c8435c.handoff.json",
+    "promotion_guard_passed": true,
+    "promotion_state": "LOCAL_PASS"
+  },
+  "registry_id": "keddeh_agent_registry",
+  "status": "LOCAL_PASS",
+  "telemetry_promotes_correctness": false,
+  "timestamp": 1786086742.281776,
+  "version": "V98",
+  "virtual_gpu_promotes_correctness": false
+}

@@ -1,0 +1,6 @@
+{
+  "namespaces": [
+    "vfs://apps/failure-ledger/",
+    "vfs://agents/failure-ledger/receipts/"
+  ]
+}

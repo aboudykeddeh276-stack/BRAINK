@@ -1,0 +1,10 @@
+{
+  "name": "failure_ledger",
+  "packages": [
+    {
+      "name": "failure_ledger",
+      "versionInfo": "1.0.0"
+    }
+  ],
+  "spdxVersion": "SPDX-2.3"
+}

@@ -1,0 +1,8 @@
+{
+  "created_at": 1786086741.0827277,
+  "matrix_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/exports/deployment_maturity_workplan_matrix.csv",
+  "next_target": "run_command_then_target_host_provider_receipts",
+  "payload_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/deployment_maturity_workplan_receipt.json",
+  "source": "KEDDEH_V99_DEPLOYMENT_MATURITY_WORKPLAN",
+  "status": "ACTIONABLE_WORKPLAN_READY"
+}

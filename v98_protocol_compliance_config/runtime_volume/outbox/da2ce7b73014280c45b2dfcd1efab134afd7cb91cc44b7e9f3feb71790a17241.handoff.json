@@ -1,0 +1,9 @@
+{
+  "created_at": 1786086741.776667,
+  "handoff_id": "da2ce7b73014280c45b2dfcd1efab134afd7cb91cc44b7e9f3feb71790a17241",
+  "next_target": "self_hosted_macos_arm64_runner_then_launchd",
+  "payload_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/FINAL_VERIFICATION.json",
+  "receipt_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/proof_bundles.ledger",
+  "source": "KEDDEH_V98_PROTOCOL_COMPLIANCE_DEPLOYMENT_OS",
+  "status": "READY_FOR_TARGET_HOST_EXECUTION"
+}

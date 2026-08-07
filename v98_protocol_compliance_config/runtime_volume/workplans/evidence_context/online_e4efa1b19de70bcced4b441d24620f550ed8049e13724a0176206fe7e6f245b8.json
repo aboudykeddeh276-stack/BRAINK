@@ -1,0 +1,33 @@
+{
+  "character_capability": "health_label",
+  "derived_state": "EVIDENCE_CORRELATION_REQUIRED",
+  "environment": "mesh_ui_or_server_health_api",
+  "evidence_class": "label_without_readback",
+  "execution_plane": "imported_observation",
+  "finding": "ONLINE",
+  "freshness": "requires_timestamped_heartbeat",
+  "impact_radius": [
+    "capability_scoped"
+  ],
+  "lineage": "node_status_surface",
+  "negative_tests": [
+    "single signal does not produce FAKE, FAILED, IMPOSSIBLE or GLOBAL_STOP"
+  ],
+  "observer": "health_state_monitor",
+  "owner": "evidence_context_resolver",
+  "positive_tests": [
+    "tests/test_evidence_context_resolver.py"
+  ],
+  "promotion_evidence": [
+    "evidence/evidence_context_resolution_receipt.json"
+  ],
+  "purpose": "declared status or heartbeat projection",
+  "reentry_conditions": [
+    "fresh receipt correlates identity, execution plane, evidence class and lineage"
+  ],
+  "required_changes": [
+    "collect capability-scoped readback",
+    "bind receipt to observer/environment/execution plane",
+    "preserve lineage and freshness"
+  ]
+}

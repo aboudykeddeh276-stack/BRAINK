@@ -1,0 +1,6 @@
+{
+  "builder": "keddeh_application_applet_packager",
+  "component_id": "virtual_gpu_hci_dashboard",
+  "source_surface": "service_protocol_runtime_surface",
+  "timestamp": 1786086741.110312
+}

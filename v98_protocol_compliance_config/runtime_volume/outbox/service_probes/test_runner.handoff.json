@@ -1,0 +1,11 @@
+{
+  "classification": "UNSUPPORTED_IN_THIS_RUNTIME",
+  "created_at": 1786086742.3048365,
+  "handoff_id": "01872f9bd6fc5853bd5a933055c8c21c025559314596e9e2ab76cf55956ca257",
+  "next_target": "implementation_backlog",
+  "payload_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/service_probes/test_runner.json",
+  "receipt_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/proof_bundles.ledger",
+  "service_id": "test_runner",
+  "source": "KEDDEH_V98_SERVICE_PROBE",
+  "status": "READY"
+}

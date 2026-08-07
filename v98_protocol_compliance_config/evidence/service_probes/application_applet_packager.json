@@ -1,0 +1,14 @@
+{
+  "boundary": "assesses every module as application/applet/service/runtime domain, generates local K-APP packages, performs manifest integrity readback before node execution and emits catalog, matrix, receipt and outbox handoff without treating target-host gates as global failure",
+  "classification": "UNSUPPORTED_IN_THIS_RUNTIME",
+  "details": {
+    "gate_reason": "No executable probe is registered for this declared service."
+  },
+  "executed": false,
+  "negative_test_passed": false,
+  "owner_plane": "virtual_cpu_application_shipping_plane",
+  "positive_test_passed": false,
+  "probe_name": "unregistered_probe",
+  "service_id": "application_applet_packager",
+  "timestamp": 1786086742.3147912
+}

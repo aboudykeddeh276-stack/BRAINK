@@ -1,11 +1,16 @@
 """
 Tests for pr_merge_readiness.py
+
+These tests exercise the real evaluate() function with the two network
+boundary functions (_api_get, _get_ci_conclusion) deterministically stubbed,
+so verdict logic is validated against the shipped implementation.
 """
 import sys
 import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
+import pr_merge_readiness
 from pr_merge_readiness import evaluate
 
 
@@ -25,46 +30,53 @@ def _fake_pr(draft=False, mergeable_state="clean", reviewers=None, teams=None):
 class EvaluateMergeReadinessTests(unittest.TestCase):
 
     def _run_evaluate(self, pr_data, ci_conclusion="success"):
-        """Directly invoke the logic without network by patching internals."""
-        import ci_pr_merge_readiness_shim as _m  # not a real module — we'll call evaluate logic directly
+        """Invoke the real evaluate() with network calls deterministically stubbed."""
+        original_api_get = pr_merge_readiness._api_get
+        original_ci = pr_merge_readiness._get_ci_conclusion
+        pr_merge_readiness._api_get = lambda path, token: pr_data
+        pr_merge_readiness._get_ci_conclusion = (
+            lambda owner, repo, branch, token: ci_conclusion
+        )
+        try:
+            return evaluate("owner", "repo", pr_data["number"], "token")
+        finally:
+            pr_merge_readiness._api_get = original_api_get
+            pr_merge_readiness._get_ci_conclusion = original_ci
 
     def test_clean_non_draft_pr_with_ci_success_is_merge_ready(self):
-        """White-box test of verdict logic."""
-        is_draft = False
-        ci = "success"
-        mergeable_state = "clean"
-        has_review_requests = False
-
-        blocking = []
-        if is_draft: blocking.append("draft")
-        if ci != "success": blocking.append("ci")
-        if mergeable_state not in ("clean", "has_hooks", "unstable"): blocking.append("conflict")
-        if has_review_requests: blocking.append("review")
-
-        self.assertEqual(blocking, [])
+        report, exit_code = self._run_evaluate(_fake_pr(), ci_conclusion="success")
+        self.assertEqual(report["verdict"], "MERGE_READY")
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(report["blocking_reasons"], [])
 
     def test_draft_pr_is_blocked(self):
-        blocking = []
-        if True: blocking.append("BLOCKED_BY_DRAFT")
-        self.assertIn("BLOCKED_BY_DRAFT", blocking)
+        report, exit_code = self._run_evaluate(_fake_pr(draft=True), ci_conclusion="success")
+        self.assertEqual(report["verdict"], "BLOCKED_BY_DRAFT")
+        self.assertEqual(exit_code, 2)
 
     def test_ci_failure_blocks_merge(self):
-        blocking = []
-        ci = "failure"
-        if ci == "failure": blocking.append("BLOCKED_BY_CI")
-        self.assertIn("BLOCKED_BY_CI", blocking)
+        report, exit_code = self._run_evaluate(_fake_pr(), ci_conclusion="failure")
+        self.assertEqual(report["verdict"], "BLOCKED_BY_CI")
+        self.assertEqual(exit_code, 2)
 
     def test_dirty_mergeable_state_blocks(self):
-        blocking = []
-        ms = "dirty"
-        if ms not in ("clean", "has_hooks", "unstable", None): blocking.append("BLOCKED_BY_CONFLICT")
-        self.assertIn("BLOCKED_BY_CONFLICT", blocking)
+        report, exit_code = self._run_evaluate(
+            _fake_pr(mergeable_state="dirty"), ci_conclusion="success"
+        )
+        self.assertEqual(report["verdict"], "BLOCKED_BY_CONFLICT")
+        self.assertEqual(exit_code, 2)
 
     def test_pending_ci_blocks_merge(self):
-        blocking = []
-        ci = "pending"
-        if ci not in ("success",): blocking.append("BLOCKED_BY_CI")
-        self.assertIn("BLOCKED_BY_CI", blocking)
+        report, exit_code = self._run_evaluate(_fake_pr(), ci_conclusion="pending")
+        self.assertEqual(report["verdict"], "BLOCKED_BY_CI")
+        self.assertEqual(exit_code, 2)
+
+    def test_outstanding_review_request_blocks_merge(self):
+        report, exit_code = self._run_evaluate(
+            _fake_pr(reviewers=[{"login": "octocat"}]), ci_conclusion="success"
+        )
+        self.assertEqual(report["verdict"], "BLOCKED_BY_REVIEW")
+        self.assertEqual(exit_code, 2)
 
 
 if __name__ == "__main__":

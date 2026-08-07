@@ -1,0 +1,17 @@
+{
+  "action": "write_receipt",
+  "agent_id": "unknown_agent",
+  "authorized": false,
+  "executed": false,
+  "ledger_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/proof_bundles.ledger",
+  "outbox_manifest": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/outbox/agent_runtime/d43d0395b9457f6da3084908302949e21010f65d54f0a520198e6f19dca5831c.handoff.json",
+  "reason": "'unknown agent_id: unknown_agent'",
+  "receipt_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/agent_runtime_work_order_d43d0395b9457f6da3084908302949e21010f65d54f0a520198e6f19dca5831c.json",
+  "result": {
+    "failed_closed": true,
+    "reason": "'unknown agent_id: unknown_agent'"
+  },
+  "service_id": "agent_registry_service",
+  "timestamp": 1786086740.5187917,
+  "work_order_id": "d43d0395b9457f6da3084908302949e21010f65d54f0a520198e6f19dca5831c"
+}

@@ -1,0 +1,11 @@
+{
+  "classification": "PROVIDER_REQUIRED",
+  "created_at": 1786086742.2566707,
+  "handoff_id": "ad77f76a947b11dc9b071a7d3cd5ac03b55e25a00e7ff96138f73a9faf75652d",
+  "next_target": "provider_receipt_gate",
+  "payload_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/service_probes/peer_ack_verifier.json",
+  "receipt_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/proof_bundles.ledger",
+  "service_id": "peer_ack_verifier",
+  "source": "KEDDEH_V98_SERVICE_PROBE",
+  "status": "READY"
+}

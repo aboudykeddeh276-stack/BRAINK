@@ -1,0 +1,14 @@
+{
+  "boundary": "append-only local custody trail; external archive/Drive provider-gated",
+  "classification": "LOCAL_PASS",
+  "details": {
+    "ledger_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/service_probe_custody.ledger"
+  },
+  "executed": true,
+  "negative_test_passed": true,
+  "owner_plane": "vfs",
+  "positive_test_passed": true,
+  "probe_name": "probe_vfs_volume_custody",
+  "service_id": "vfs_volume_custody",
+  "timestamp": 1786086742.2716336
+}

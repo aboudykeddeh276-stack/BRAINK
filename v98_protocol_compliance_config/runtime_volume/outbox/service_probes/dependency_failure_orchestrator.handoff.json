@@ -1,0 +1,11 @@
+{
+  "classification": "UNSUPPORTED_IN_THIS_RUNTIME",
+  "created_at": 1786086742.3067904,
+  "handoff_id": "73d3eaf175066fba8f4d1712ddba6b5b0235996bde8e4bde8ea194fc9739c41a",
+  "next_target": "implementation_backlog",
+  "payload_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/service_probes/dependency_failure_orchestrator.json",
+  "receipt_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/proof_bundles.ledger",
+  "service_id": "dependency_failure_orchestrator",
+  "source": "KEDDEH_V98_SERVICE_PROBE",
+  "status": "READY"
+}

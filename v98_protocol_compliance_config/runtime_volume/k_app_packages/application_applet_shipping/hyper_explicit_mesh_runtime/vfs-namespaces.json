@@ -1,0 +1,6 @@
+{
+  "namespaces": [
+    "vfs://apps/hyper-explicit-mesh-runtime/",
+    "vfs://agents/hyper-explicit-mesh-runtime/receipts/"
+  ]
+}

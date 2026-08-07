@@ -1,0 +1,6 @@
+{
+  "namespaces": [
+    "vfs://apps/dependency-failure-orchestrator/",
+    "vfs://agents/dependency-failure-orchestrator/receipts/"
+  ]
+}

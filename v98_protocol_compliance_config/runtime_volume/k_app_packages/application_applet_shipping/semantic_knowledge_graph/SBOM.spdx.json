@@ -1,0 +1,10 @@
+{
+  "name": "semantic_knowledge_graph",
+  "packages": [
+    {
+      "name": "semantic_knowledge_graph",
+      "versionInfo": "1.0.0"
+    }
+  ],
+  "spdxVersion": "SPDX-2.3"
+}

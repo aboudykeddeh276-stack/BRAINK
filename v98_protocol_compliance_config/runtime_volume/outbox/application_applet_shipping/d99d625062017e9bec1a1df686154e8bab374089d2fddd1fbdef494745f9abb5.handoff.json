@@ -1,0 +1,9 @@
+{
+  "catalog_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/application_catalog/index.html",
+  "created_at": 1786086740.5735614,
+  "next_target": "k_cloud_admission_then_mesh_node_readback",
+  "package_root": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/k_app_packages/application_applet_shipping",
+  "payload_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/application_applet_shipping_receipt.json",
+  "source": "KEDDEH_V99_APPLICATION_APPLET_PACKAGER",
+  "status": "LOCAL_SHIPPABLE_WITH_TARGET_GATES"
+}

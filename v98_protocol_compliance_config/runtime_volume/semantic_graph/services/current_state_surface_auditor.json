@@ -1,0 +1,11 @@
+{
+  "code_binding": "config/service_protocols.json::current_state_surface_auditor",
+  "conformance_state": "SEMANTICALLY_BOUND",
+  "evidence_contract": "recognize\u2192execute\u2192verify\u2192write_receipt\u2192readback\u2192handoff",
+  "owner_plane": "virtual_cpu_current_state_audit_plane",
+  "reason": "service contract and boundary available",
+  "sector": "sector://agent-operations",
+  "semantic_expression": "expression://instantiate-governed-agent-worker",
+  "semantic_word": "word://agent",
+  "service_id": "current_state_surface_auditor"
+}

@@ -1,0 +1,6 @@
+{
+  "namespaces": [
+    "vfs://apps/zero-heap-compiler/",
+    "vfs://agents/zero-heap-compiler/receipts/"
+  ]
+}

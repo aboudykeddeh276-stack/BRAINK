@@ -1,0 +1,10 @@
+{
+  "name": "workflow_schema_guard",
+  "packages": [
+    {
+      "name": "workflow_schema_guard",
+      "versionInfo": "1.0.0"
+    }
+  ],
+  "spdxVersion": "SPDX-2.3"
+}

@@ -1,0 +1,11 @@
+{
+  "classification": "TARGET_HOST_REQUIRED",
+  "created_at": 1786086742.2697418,
+  "handoff_id": "75c610dca2f8c854f7b8a9e9e7d485162f64efc719d432a396b4a6b0ea66ad9b",
+  "next_target": "self_hosted_macos_arm64_runner",
+  "payload_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/service_probes/virtual_gpu_hci_dashboard.json",
+  "receipt_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/proof_bundles.ledger",
+  "service_id": "virtual_gpu_hci_dashboard",
+  "source": "KEDDEH_V98_SERVICE_PROBE",
+  "status": "READY"
+}

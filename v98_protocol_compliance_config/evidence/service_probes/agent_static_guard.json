@@ -1,0 +1,15 @@
+{
+  "boundary": "local static scan; not external certification",
+  "classification": "LOCAL_PASS",
+  "details": {
+    "python_files_parsed": 39,
+    "syntax_errors": []
+  },
+  "executed": true,
+  "negative_test_passed": true,
+  "owner_plane": "virtual_cpu",
+  "positive_test_passed": true,
+  "probe_name": "probe_agent_static_guard",
+  "service_id": "agent_static_guard",
+  "timestamp": 1786086742.184885
+}

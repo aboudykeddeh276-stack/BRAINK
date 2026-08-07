@@ -1,0 +1,28 @@
+{
+  "routes": [
+    {
+      "interface": "uplink0",
+      "metric": 500,
+      "next_hop": "192.0.2.1",
+      "prefix": "0.0.0.0/0"
+    },
+    {
+      "interface": "mesh0",
+      "metric": 100,
+      "next_hop": null,
+      "prefix": "10.10.0.0/16"
+    },
+    {
+      "interface": "mesh1",
+      "metric": 20,
+      "next_hop": "10.10.0.1",
+      "prefix": "10.10.20.0/24"
+    },
+    {
+      "interface": "uplink0",
+      "metric": 10,
+      "next_hop": null,
+      "prefix": "192.0.2.0/24"
+    }
+  ]
+}

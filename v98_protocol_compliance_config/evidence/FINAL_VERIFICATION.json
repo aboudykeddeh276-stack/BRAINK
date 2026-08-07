@@ -1,0 +1,851 @@
+{
+  "authority_checks": {
+    "acceptance_harness_can_promote": true,
+    "agent_cannot_promote": true,
+    "human_cannot_promote": true,
+    "ledger_append_only": true,
+    "virtual_cpu_validates": true,
+    "virtual_gpu_renders": true
+  },
+  "authority_checks_passed": true,
+  "certification_claimed": false,
+  "hash_used_as_functional_proof": false,
+  "launchd_installed_here": false,
+  "ledger_entries": 182,
+  "ledger_readback": true,
+  "manifest_used_as_functional_proof": false,
+  "orphan_items_resolved": 10,
+  "outbox_manifest": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/outbox/da2ce7b73014280c45b2dfcd1efab134afd7cb91cc44b7e9f3feb71790a17241.handoff.json",
+  "remote_provider_claimed": false,
+  "service_classification_counts": {
+    "LOCAL_PASS": 12,
+    "PROVIDER_REQUIRED": 1,
+    "TARGET_HOST_REQUIRED": 1,
+    "UNSUPPORTED_IN_THIS_RUNTIME": 15
+  },
+  "service_probe_failures": [],
+  "service_receipts": [
+    {
+      "boundary": "local static scan; not external certification",
+      "details": {
+        "python_files_parsed": 39,
+        "syntax_errors": []
+      },
+      "evidence_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/service_probes/agent_static_guard.json",
+      "executed": true,
+      "outbox_manifest": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/outbox/service_probes/agent_static_guard.handoff.json",
+      "owner_plane": "virtual_cpu",
+      "probe_name": "probe_agent_static_guard",
+      "promotion_state": "LOCAL_PASS",
+      "service_id": "agent_static_guard",
+      "stages": {
+        "execute": true,
+        "handoff": true,
+        "readback": true,
+        "recognize": true,
+        "verify": true,
+        "write_receipt": true
+      }
+    },
+    {
+      "boundary": "reject hard-coded secrets; target-host secret store still gated",
+      "details": {
+        "files_scanned": 108,
+        "findings": []
+      },
+      "evidence_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/service_probes/secret_boundary_guard.json",
+      "executed": true,
+      "outbox_manifest": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/outbox/service_probes/secret_boundary_guard.handoff.json",
+      "owner_plane": "virtual_cpu",
+      "probe_name": "probe_secret_boundary_guard",
+      "promotion_state": "LOCAL_PASS",
+      "service_id": "secret_boundary_guard",
+      "stages": {
+        "execute": true,
+        "handoff": true,
+        "readback": true,
+        "recognize": true,
+        "verify": true,
+        "write_receipt": true
+      }
+    },
+    {
+      "boundary": "mechanical scanner; MISRA certification not claimed",
+      "details": {
+        "gate_reason": "No qualified C/Rust no-heap compiler implementation or compile receipt exists in the portable runtime."
+      },
+      "evidence_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/service_probes/zero_heap_compiler.json",
+      "executed": false,
+      "outbox_manifest": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/outbox/service_probes/zero_heap_compiler.handoff.json",
+      "owner_plane": "virtual_cpu",
+      "probe_name": "probe_zero_heap_compiler",
+      "promotion_state": "UNSUPPORTED_IN_THIS_RUNTIME",
+      "service_id": "zero_heap_compiler",
+      "stages": {
+        "execute": false,
+        "handoff": true,
+        "readback": true,
+        "recognize": true,
+        "verify": false,
+        "write_receipt": true
+      }
+    },
+    {
+      "boundary": "local HMAC envelope; remote attestation provider-gated",
+      "details": {
+        "gate_reason": "A real provider-signed acknowledgement envelope is required; local schema or HMAC data is insufficient."
+      },
+      "evidence_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/service_probes/peer_ack_verifier.json",
+      "executed": false,
+      "outbox_manifest": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/outbox/service_probes/peer_ack_verifier.handoff.json",
+      "owner_plane": "virtual_cpu",
+      "probe_name": "probe_peer_ack_verifier",
+      "promotion_state": "PROVIDER_REQUIRED",
+      "service_id": "peer_ack_verifier",
+      "stages": {
+        "execute": false,
+        "handoff": true,
+        "readback": true,
+        "recognize": true,
+        "verify": false,
+        "write_receipt": true
+      }
+    },
+    {
+      "boundary": "local model/runtime; not physical hardware control",
+      "details": {
+        "allocation_map": {
+          "frame-plan": "beta",
+          "route-batch": "alpha",
+          "route-index": "alpha"
+        },
+        "deferred_tasks": [
+          "unsupported-capability"
+        ],
+        "host_resources_reserved": false,
+        "mesh_scheduler_receipt": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/mesh_scheduler_receipt.json",
+        "os_threads_created": false,
+        "portable_model_only": true,
+        "remote_workers_contacted": false,
+        "timed_out_tasks": [
+          "deadline-vector"
+        ]
+      },
+      "evidence_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/service_probes/hyper_explicit_mesh_runtime.json",
+      "executed": true,
+      "outbox_manifest": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/outbox/service_probes/hyper_explicit_mesh_runtime.handoff.json",
+      "owner_plane": "virtual_cpu",
+      "probe_name": "probe_hyper_explicit_mesh_runtime",
+      "promotion_state": "LOCAL_PASS",
+      "service_id": "hyper_explicit_mesh_runtime",
+      "stages": {
+        "execute": true,
+        "handoff": true,
+        "readback": true,
+        "recognize": true,
+        "verify": true,
+        "write_receipt": true
+      }
+    },
+    {
+      "boundary": "local consensus model; not external human governance proof",
+      "details": {
+        "gate_reason": "No executable Family-of-Five consensus engine and adversarial consensus receipt are present."
+      },
+      "evidence_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/service_probes/hemos_family_of_five_runtime.json",
+      "executed": false,
+      "outbox_manifest": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/outbox/service_probes/hemos_family_of_five_runtime.handoff.json",
+      "owner_plane": "virtual_cpu",
+      "probe_name": "probe_hemos_family_of_five_runtime",
+      "promotion_state": "UNSUPPORTED_IN_THIS_RUNTIME",
+      "service_id": "hemos_family_of_five_runtime",
+      "stages": {
+        "execute": false,
+        "handoff": true,
+        "readback": true,
+        "recognize": true,
+        "verify": false,
+        "write_receipt": true
+      }
+    },
+    {
+      "boundary": "local route controller; not public internet tunnel claim",
+      "details": {
+        "decision": {
+          "destination": "10.10.20.55",
+          "interface": "mesh1",
+          "matched_prefix": "10.10.20.0/24",
+          "metric": 20,
+          "next_hop": "10.10.0.1"
+        },
+        "kernel_route_table_modified": false,
+        "negative_vectors": {
+          "malformed_prefix_rejected": true,
+          "routing_loop_rejected": true,
+          "unreachable_destination_rejected": true
+        },
+        "next_hop_path": [
+          {
+            "destination": "10.10.20.55",
+            "interface": "mesh1",
+            "matched_prefix": "10.10.20.0/24",
+            "metric": 20,
+            "next_hop": "10.10.0.1"
+          },
+          {
+            "destination": "10.10.0.1",
+            "interface": "mesh0",
+            "matched_prefix": "10.10.0.0/16",
+            "metric": 100,
+            "next_hop": null
+          }
+        ],
+        "packets_transmitted": false,
+        "route_controller_receipt": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/route_controller_receipt.json",
+        "validation": {
+          "duplicates": 0,
+          "loop_errors": [],
+          "route_count": 4,
+          "valid": true
+        }
+      },
+      "evidence_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/service_probes/indefinite_network_runtime.json",
+      "executed": true,
+      "outbox_manifest": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/outbox/service_probes/indefinite_network_runtime.handoff.json",
+      "owner_plane": "virtual_cpu_network_adapter",
+      "probe_name": "probe_indefinite_network_runtime",
+      "promotion_state": "LOCAL_PASS",
+      "service_id": "indefinite_network_runtime",
+      "stages": {
+        "execute": true,
+        "handoff": true,
+        "readback": true,
+        "recognize": true,
+        "verify": true,
+        "write_receipt": true
+      }
+    },
+    {
+      "boundary": "non-secret receipt pipeline; no plaintext private-key logging",
+      "details": {
+        "asset_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/service_probe_assets/asset.json",
+        "secret_payload_rejected": true
+      },
+      "evidence_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/service_probes/safe_asset_receipt_pipeline.json",
+      "executed": true,
+      "outbox_manifest": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/outbox/service_probes/safe_asset_receipt_pipeline.handoff.json",
+      "owner_plane": "virtual_cpu_volume_adapter",
+      "probe_name": "probe_safe_asset_receipt_pipeline",
+      "promotion_state": "LOCAL_PASS",
+      "service_id": "safe_asset_receipt_pipeline",
+      "stages": {
+        "execute": true,
+        "handoff": true,
+        "readback": true,
+        "recognize": true,
+        "verify": true,
+        "write_receipt": true
+      }
+    },
+    {
+      "boundary": "renders and visualizes state; does not promote pass state",
+      "details": {
+        "gate_reason": "Dashboard source exists, but framebuffer/render/readback execution requires the target workstation runtime."
+      },
+      "evidence_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/service_probes/virtual_gpu_hci_dashboard.json",
+      "executed": false,
+      "outbox_manifest": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/outbox/service_probes/virtual_gpu_hci_dashboard.handoff.json",
+      "owner_plane": "virtual_gpu",
+      "probe_name": "probe_virtual_gpu_hci_dashboard",
+      "promotion_state": "TARGET_HOST_REQUIRED",
+      "service_id": "virtual_gpu_hci_dashboard",
+      "stages": {
+        "execute": false,
+        "handoff": true,
+        "readback": true,
+        "recognize": true,
+        "verify": false,
+        "write_receipt": true
+      }
+    },
+    {
+      "boundary": "append-only local custody trail; external archive/Drive provider-gated",
+      "details": {
+        "ledger_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/service_probe_custody.ledger"
+      },
+      "evidence_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/service_probes/vfs_volume_custody.json",
+      "executed": true,
+      "outbox_manifest": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/outbox/service_probes/vfs_volume_custody.handoff.json",
+      "owner_plane": "vfs",
+      "probe_name": "probe_vfs_volume_custody",
+      "promotion_state": "LOCAL_PASS",
+      "service_id": "vfs_volume_custody",
+      "stages": {
+        "execute": true,
+        "handoff": true,
+        "readback": true,
+        "recognize": true,
+        "verify": true,
+        "write_receipt": true
+      }
+    },
+    {
+      "boundary": "maps orphaned procedures to owners/gates; does not claim runtime execution where absent",
+      "details": {
+        "items_reconciled": 10,
+        "resolution_state_counts": {
+          "EXTERNAL_CERTIFICATION_REQUIRED": 1,
+          "PROVIDER_REQUIRED": 3,
+          "TARGET_HOST_REQUIRED": 6
+        }
+      },
+      "evidence_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/service_probes/orphan_service_reconciler.json",
+      "executed": true,
+      "outbox_manifest": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/outbox/service_probes/orphan_service_reconciler.handoff.json",
+      "owner_plane": "virtual_cpu",
+      "probe_name": "probe_orphan_service_reconciler",
+      "promotion_state": "LOCAL_PASS",
+      "service_id": "orphan_service_reconciler",
+      "stages": {
+        "execute": true,
+        "handoff": true,
+        "readback": true,
+        "recognize": true,
+        "verify": true,
+        "write_receipt": true
+      }
+    },
+    {
+      "boundary": "mirrors research, development, standards and deployment artifacts; target-host/provider claims remain gated",
+      "details": {
+        "mirror_receipt": {
+          "certification_claimed": false,
+          "hash_used_as_functional_proof": false,
+          "receipt": {
+            "agent_self_promotion_allowed": false,
+            "all_documents_present": true,
+            "lane_id": "mirror_update_lane",
+            "lane_state": "DEPLOYMENT_CONFIGURED_TARGET_HOST_GATED",
+            "ledger_readback": true,
+            "manual_promotion_allowed": false,
+            "mirror_documents_checked": 4,
+            "outbox_manifest": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/outbox/mirror_update_lane/58a64ca87e4da239d045268929811100c3927d44cb0c22485c8d792182f85656.handoff.json",
+            "promotion_state": "LOCAL_PASS",
+            "source_documents_checked": 38,
+            "timestamp": 1786086741.8635714
+          },
+          "receipt_hash": "58a64ca87e4da239d045268929811100c3927d44cb0c22485c8d792182f85656",
+          "remote_provider_claimed": false,
+          "target_host_claimed": false
+        }
+      },
+      "evidence_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/service_probes/mirror_update_lane.json",
+      "executed": true,
+      "outbox_manifest": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/outbox/service_probes/mirror_update_lane.handoff.json",
+      "owner_plane": "virtual_cpu_vfs_mirror",
+      "probe_name": "probe_mirror_update_lane",
+      "promotion_state": "LOCAL_PASS",
+      "service_id": "mirror_update_lane",
+      "stages": {
+        "execute": true,
+        "handoff": true,
+        "readback": true,
+        "recognize": true,
+        "verify": true,
+        "write_receipt": true
+      }
+    },
+    {
+      "boundary": "defines and validates agent identity/capability routing; only acceptance harness may promote local pass",
+      "details": {
+        "registry_receipt": {
+          "agent_count": 6,
+          "all_agents_valid": true,
+          "hash_used_as_functional_proof": false,
+          "ledger_readback": true,
+          "outbox_manifest": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/outbox/agent_registry/b5c067794d479f6649647a6c7501f6e1c08942e6a8448c99787c7d6e8c9e994d.handoff.json",
+          "promotion_guard_passed": true,
+          "receipt": {
+            "agent_count": 6,
+            "all_agents_valid": true,
+            "ledger_readback": true,
+            "outbox_manifest": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/outbox/agent_registry/b5c067794d479f6649647a6c7501f6e1c08942e6a8448c99787c7d6e8c9e994d.handoff.json",
+            "promotion_guard_passed": true,
+            "promotion_state": "LOCAL_PASS"
+          },
+          "registry_id": "keddeh_agent_registry",
+          "status": "LOCAL_PASS",
+          "telemetry_promotes_correctness": false,
+          "timestamp": 1786086741.8682725,
+          "version": "V98",
+          "virtual_gpu_promotes_correctness": false
+        }
+      },
+      "evidence_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/service_probes/agent_registry_service.json",
+      "executed": true,
+      "outbox_manifest": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/outbox/service_probes/agent_registry_service.handoff.json",
+      "owner_plane": "virtual_cpu_governance_plane",
+      "probe_name": "probe_agent_registry_service",
+      "promotion_state": "LOCAL_PASS",
+      "service_id": "agent_registry_service",
+      "stages": {
+        "execute": true,
+        "handoff": true,
+        "readback": true,
+        "recognize": true,
+        "verify": true,
+        "write_receipt": true
+      }
+    },
+    {
+      "boundary": "authorizes bounded work orders against the agent registry, fails closed on denied actions, and emits receipts",
+      "details": {
+        "authorized_work_order": "f57e86af170b280d3d974699460bf98c266a901ffcebee8765c5200d11cd265c",
+        "rejected_work_order": "c1a1f43ecc8c834a31f106de8e01eab7444814199f30213072e4754410a1df18",
+        "rejection_reason": "action_explicitly_denied"
+      },
+      "evidence_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/service_probes/agent_runtime_service.json",
+      "executed": true,
+      "outbox_manifest": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/outbox/service_probes/agent_runtime_service.handoff.json",
+      "owner_plane": "virtual_cpu_execution_plane",
+      "probe_name": "probe_agent_runtime_service",
+      "promotion_state": "LOCAL_PASS",
+      "service_id": "agent_runtime_service",
+      "stages": {
+        "execute": true,
+        "handoff": true,
+        "readback": true,
+        "recognize": true,
+        "verify": true,
+        "write_receipt": true
+      }
+    },
+    {
+      "boundary": "bounded Bitcoin P2P serialization and optional read-only JSON-RPC; no hard-coded credentials, no private-key logging, no live trading claim",
+      "details": {
+        "arbitrage_simulation_only": true,
+        "invalid_command_rejected": true,
+        "p2p_message_bytes": 129,
+        "real_order_submitted": false,
+        "router_receipt": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/btc_core_protocol_router_receipt.json",
+        "rpc_enabled": false,
+        "rpc_result_present": false,
+        "simulated_opportunity_present": false
+      },
+      "evidence_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/service_probes/btc_core_protocol_router.json",
+      "executed": true,
+      "outbox_manifest": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/outbox/service_probes/btc_core_protocol_router.handoff.json",
+      "owner_plane": "virtual_cpu_network_adapter",
+      "probe_name": "probe_btc_core_protocol_router",
+      "promotion_state": "LOCAL_PASS",
+      "service_id": "btc_core_protocol_router",
+      "stages": {
+        "execute": true,
+        "handoff": true,
+        "readback": true,
+        "recognize": true,
+        "verify": true,
+        "write_receipt": true
+      }
+    },
+    {
+      "boundary": "tracks only receipt-backed completion for 100 planned tasks and triggers case-study checkpoints at 50 and 100 tasks; no telemetry-only or hash-as-proof completion",
+      "details": {
+        "milestones_reached": [],
+        "monitor_receipt": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/task_milestone_monitor_receipt.json",
+        "telemetry_only_rejection": "telemetry_only_not_completion",
+        "total_tasks": 100,
+        "valid_completed_tasks": 0
+      },
+      "evidence_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/service_probes/task_milestone_monitor.json",
+      "executed": true,
+      "outbox_manifest": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/outbox/service_probes/task_milestone_monitor.handoff.json",
+      "owner_plane": "virtual_cpu_worker_governance",
+      "probe_name": "probe_task_milestone_monitor",
+      "promotion_state": "LOCAL_PASS",
+      "service_id": "task_milestone_monitor",
+      "stages": {
+        "execute": true,
+        "handoff": true,
+        "readback": true,
+        "recognize": true,
+        "verify": true,
+        "write_receipt": true
+      }
+    },
+    {
+      "boundary": "validates work item, slug, branch, PR title, commit, label, RFC3339 and SemVer conventions; naming compliance is traceability support, not execution proof",
+      "details": {
+        "gate_reason": "No executable probe is registered for this declared service."
+      },
+      "evidence_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/service_probes/workflow_schema_guard.json",
+      "executed": false,
+      "outbox_manifest": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/outbox/service_probes/workflow_schema_guard.handoff.json",
+      "owner_plane": "virtual_cpu_delivery_governance",
+      "probe_name": "unregistered_probe",
+      "promotion_state": "UNSUPPORTED_IN_THIS_RUNTIME",
+      "service_id": "workflow_schema_guard",
+      "stages": {
+        "execute": false,
+        "handoff": true,
+        "readback": true,
+        "recognize": true,
+        "verify": false,
+        "write_receipt": true
+      }
+    },
+    {
+      "boundary": "executes the design-to-deployment lifecycle as receipt-backed phases; documentation, telemetry, manifests, hashes and dashboards are not completion by themselves",
+      "details": {
+        "gate_reason": "No executable probe is registered for this declared service."
+      },
+      "evidence_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/service_probes/software_design_deployment_workflow.json",
+      "executed": false,
+      "outbox_manifest": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/outbox/service_probes/software_design_deployment_workflow.handoff.json",
+      "owner_plane": "virtual_cpu_delivery_governance",
+      "probe_name": "unregistered_probe",
+      "promotion_state": "UNSUPPORTED_IN_THIS_RUNTIME",
+      "service_id": "software_design_deployment_workflow",
+      "stages": {
+        "execute": false,
+        "handoff": true,
+        "readback": true,
+        "recognize": true,
+        "verify": false,
+        "write_receipt": true
+      }
+    },
+    {
+      "boundary": "executes pytest-style plain functions and records TestCase coverage gaps; tests must execute, not merely exist",
+      "details": {
+        "gate_reason": "No executable probe is registered for this declared service."
+      },
+      "evidence_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/service_probes/test_runner.json",
+      "executed": false,
+      "outbox_manifest": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/outbox/service_probes/test_runner.handoff.json",
+      "owner_plane": "virtual_cpu_verification_plane",
+      "probe_name": "unregistered_probe",
+      "promotion_state": "UNSUPPORTED_IN_THIS_RUNTIME",
+      "service_id": "test_runner",
+      "stages": {
+        "execute": false,
+        "handoff": true,
+        "readback": true,
+        "recognize": true,
+        "verify": false,
+        "write_receipt": true
+      }
+    },
+    {
+      "boundary": "classifies blocked dependencies, isolates failure domains, preserves unaffected runtimes, emits bounded task packets and prevents dependency failure from becoming global runtime failure unless a proven invariant would be violated",
+      "details": {
+        "gate_reason": "No executable probe is registered for this declared service."
+      },
+      "evidence_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/service_probes/dependency_failure_orchestrator.json",
+      "executed": false,
+      "outbox_manifest": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/outbox/service_probes/dependency_failure_orchestrator.handoff.json",
+      "owner_plane": "virtual_cpu_resilience_plane",
+      "probe_name": "unregistered_probe",
+      "promotion_state": "UNSUPPORTED_IN_THIS_RUNTIME",
+      "service_id": "dependency_failure_orchestrator",
+      "stages": {
+        "execute": false,
+        "handoff": true,
+        "readback": true,
+        "recognize": true,
+        "verify": false,
+        "write_receipt": true
+      }
+    },
+    {
+      "boundary": "converts Vite/application output into an immutable K-APP package, performs manifest integrity readback before node execution, activates dependency policies and emits K-Cloud deployment receipts",
+      "details": {
+        "gate_reason": "No executable probe is registered for this declared service."
+      },
+      "evidence_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/service_probes/k_cloud_adapter.json",
+      "executed": false,
+      "outbox_manifest": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/outbox/service_probes/k_cloud_adapter.handoff.json",
+      "owner_plane": "virtual_cpu_deployment_plane",
+      "probe_name": "unregistered_probe",
+      "promotion_state": "UNSUPPORTED_IN_THIS_RUNTIME",
+      "service_id": "k_cloud_adapter",
+      "stages": {
+        "execute": false,
+        "handoff": true,
+        "readback": true,
+        "recognize": true,
+        "verify": false,
+        "write_receipt": true
+      }
+    },
+    {
+      "boundary": "records and categorizes dependency failures, continuation workflows, recovery conditions and deferred-work reconciliation without converting dependency failure into global runtime failure",
+      "details": {
+        "gate_reason": "No executable probe is registered for this declared service."
+      },
+      "evidence_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/service_probes/failure_ledger.json",
+      "executed": false,
+      "outbox_manifest": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/outbox/service_probes/failure_ledger.handoff.json",
+      "owner_plane": "vfs_resilience_plane",
+      "probe_name": "unregistered_probe",
+      "promotion_state": "UNSUPPORTED_IN_THIS_RUNTIME",
+      "service_id": "failure_ledger",
+      "stages": {
+        "execute": false,
+        "handoff": true,
+        "readback": true,
+        "recognize": true,
+        "verify": false,
+        "write_receipt": true
+      }
+    },
+    {
+      "boundary": "observes registered mesh nodes and projects capability-specific degraded UI state while preserving healthy runtime domains",
+      "details": {
+        "gate_reason": "No executable probe is registered for this declared service."
+      },
+      "evidence_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/service_probes/health_state_monitor.json",
+      "executed": false,
+      "outbox_manifest": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/outbox/service_probes/health_state_monitor.handoff.json",
+      "owner_plane": "virtual_cpu_health_plane",
+      "probe_name": "unregistered_probe",
+      "promotion_state": "UNSUPPORTED_IN_THIS_RUNTIME",
+      "service_id": "health_state_monitor",
+      "stages": {
+        "execute": false,
+        "handoff": true,
+        "readback": true,
+        "recognize": true,
+        "verify": false,
+        "write_receipt": true
+      }
+    },
+    {
+      "boundary": "assesses every module as application/applet/service/runtime domain, generates local K-APP packages, performs manifest integrity readback before node execution and emits catalog, matrix, receipt and outbox handoff without treating target-host gates as global failure",
+      "details": {
+        "gate_reason": "No executable probe is registered for this declared service."
+      },
+      "evidence_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/service_probes/application_applet_packager.json",
+      "executed": false,
+      "outbox_manifest": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/outbox/service_probes/application_applet_packager.handoff.json",
+      "owner_plane": "virtual_cpu_application_shipping_plane",
+      "probe_name": "unregistered_probe",
+      "promotion_state": "UNSUPPORTED_IN_THIS_RUNTIME",
+      "service_id": "application_applet_packager",
+      "stages": {
+        "execute": false,
+        "handoff": true,
+        "readback": true,
+        "recognize": true,
+        "verify": false,
+        "write_receipt": true
+      }
+    },
+    {
+      "boundary": "identifies issues, corrective workflows and pending workloads for every module and emits executable work packets for local shipping, target-host proof, provider proof and release splitting without using simulation or telemetry as deployment proof",
+      "details": {
+        "gate_reason": "No executable probe is registered for this declared service."
+      },
+      "evidence_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/service_probes/deployment_maturity_workplan.json",
+      "executed": false,
+      "outbox_manifest": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/outbox/service_probes/deployment_maturity_workplan.handoff.json",
+      "owner_plane": "virtual_cpu_release_governance_plane",
+      "probe_name": "unregistered_probe",
+      "promotion_state": "UNSUPPORTED_IN_THIS_RUNTIME",
+      "service_id": "deployment_maturity_workplan",
+      "stages": {
+        "execute": false,
+        "handoff": true,
+        "readback": true,
+        "recognize": true,
+        "verify": false,
+        "write_receipt": true
+      }
+    },
+    {
+      "boundary": "audits current desktop, emulator, server, hardware abstraction and agent surfaces against shippable K-APP and receipt-backed deployment criteria; action history, random telemetry and UI wiring are diagnostic inputs only, not proof",
+      "details": {
+        "gate_reason": "No executable probe is registered for this declared service."
+      },
+      "evidence_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/service_probes/current_state_surface_auditor.json",
+      "executed": false,
+      "outbox_manifest": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/outbox/service_probes/current_state_surface_auditor.handoff.json",
+      "owner_plane": "virtual_cpu_current_state_audit_plane",
+      "probe_name": "unregistered_probe",
+      "promotion_state": "UNSUPPORTED_IN_THIS_RUNTIME",
+      "service_id": "current_state_surface_auditor",
+      "stages": {
+        "execute": false,
+        "handoff": true,
+        "readback": true,
+        "recognize": true,
+        "verify": false,
+        "write_receipt": true
+      }
+    },
+    {
+      "boundary": "implements S=f(I,V,O,E,X,R,L), preserves invariants and variants, and prevents single signals such as Math.random, ONLINE, ATTESTED, TPU, quantum core or simulated from becoming terminal judgements without contextual readback",
+      "details": {
+        "gate_reason": "No executable probe is registered for this declared service."
+      },
+      "evidence_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/service_probes/evidence_context_resolver.json",
+      "executed": false,
+      "outbox_manifest": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/outbox/service_probes/evidence_context_resolver.handoff.json",
+      "owner_plane": "virtual_cpu_evidence_reasoning_plane",
+      "probe_name": "unregistered_probe",
+      "promotion_state": "UNSUPPORTED_IN_THIS_RUNTIME",
+      "service_id": "evidence_context_resolver",
+      "stages": {
+        "execute": false,
+        "handoff": true,
+        "readback": true,
+        "recognize": true,
+        "verify": false,
+        "write_receipt": true
+      }
+    },
+    {
+      "boundary": "turns words, expressions, services, code bindings, transitions and receipts into an executable knowledge graph so implementations can explain their meaning, authority, sector, service and evidence lineage",
+      "details": {
+        "gate_reason": "No executable probe is registered for this declared service."
+      },
+      "evidence_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/service_probes/semantic_knowledge_graph.json",
+      "executed": false,
+      "outbox_manifest": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/outbox/service_probes/semantic_knowledge_graph.handoff.json",
+      "owner_plane": "virtual_cpu_semantic_governance_plane",
+      "probe_name": "unregistered_probe",
+      "promotion_state": "UNSUPPORTED_IN_THIS_RUNTIME",
+      "service_id": "semantic_knowledge_graph",
+      "stages": {
+        "execute": false,
+        "handoff": true,
+        "readback": true,
+        "recognize": true,
+        "verify": false,
+        "write_receipt": true
+      }
+    },
+    {
+      "boundary": "preserves separate I,V,O,E,X,R,L for output, thinking, legal perspective and software service planes and prevents cross-plane inheritance such as software tests becoming legal conclusions or polished output becoming reasoning proof",
+      "details": {
+        "gate_reason": "No executable probe is registered for this declared service."
+      },
+      "evidence_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/service_probes/four_plane_context_framework.json",
+      "executed": false,
+      "outbox_manifest": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/outbox/service_probes/four_plane_context_framework.handoff.json",
+      "owner_plane": "virtual_cpu_context_governance_plane",
+      "probe_name": "unregistered_probe",
+      "promotion_state": "UNSUPPORTED_IN_THIS_RUNTIME",
+      "service_id": "four_plane_context_framework",
+      "stages": {
+        "execute": false,
+        "handoff": true,
+        "readback": true,
+        "recognize": true,
+        "verify": false,
+        "write_receipt": true
+      }
+    }
+  ],
+  "services_connected": 29,
+  "services_passed": 12,
+  "standards_catalog": {
+    "reference_alignment_only": true,
+    "required_missing": [],
+    "standards_count": 17
+  },
+  "status": "PASS_WITH_EXECUTABLE_SERVICE_PROBES_AND_TARGET_HOST_DEPLOYMENT_GATES",
+  "target_gate_classification_counts": {
+    "LOCAL_PASS": 2,
+    "PROVIDER_REQUIRED": 2,
+    "TARGET_HOST_REQUIRED": 5
+  },
+  "target_gate_count": 7,
+  "target_gate_failures": [],
+  "target_gate_receipts": [
+    {
+      "detail": "No executable target-host or provider receipt has been ingested.",
+      "evidence_path": "",
+      "executed": false,
+      "gate_id": "TG-01",
+      "gate_type": "self_hosted_runner_labels",
+      "promotion_state": "TARGET_HOST_REQUIRED",
+      "receipt_required": "GitHub Actions job log showing labels and job execution"
+    },
+    {
+      "detail": "No executable target-host or provider receipt has been ingested.",
+      "evidence_path": "",
+      "executed": false,
+      "gate_id": "TG-02",
+      "gate_type": "launchd_installation",
+      "promotion_state": "TARGET_HOST_REQUIRED",
+      "receipt_required": "launchctl print gui/$UID/com.keddeh.service-spine output"
+    },
+    {
+      "detail": "Executable ledger readback verified with 182 entries across 29 service receipts.",
+      "evidence_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/proof_bundles.ledger",
+      "executed": true,
+      "gate_id": "TG-03",
+      "gate_type": "local_ledger_write_readback",
+      "promotion_state": "LOCAL_PASS",
+      "receipt_required": "runtime_volume/proof_bundles.ledger readback"
+    },
+    {
+      "detail": "No executable target-host or provider receipt has been ingested.",
+      "evidence_path": "",
+      "executed": false,
+      "gate_id": "TG-04",
+      "gate_type": "m3_iostat_throughput",
+      "promotion_state": "TARGET_HOST_REQUIRED",
+      "receipt_required": "iostat/sample receipt captured on the M3 host"
+    },
+    {
+      "detail": "No executable target-host or provider receipt has been ingested.",
+      "evidence_path": "",
+      "executed": false,
+      "gate_id": "TG-05",
+      "gate_type": "secret_store",
+      "promotion_state": "TARGET_HOST_REQUIRED",
+      "receipt_required": "macOS keychain or approved secret manager injection receipt"
+    },
+    {
+      "detail": "No executable target-host or provider receipt has been ingested.",
+      "evidence_path": "",
+      "executed": false,
+      "gate_id": "TG-06",
+      "gate_type": "provider_peer_ack",
+      "promotion_state": "PROVIDER_REQUIRED",
+      "receipt_required": "valid multi-root peer acknowledgement envelope"
+    },
+    {
+      "detail": "No executable target-host or provider receipt has been ingested.",
+      "evidence_path": "",
+      "executed": false,
+      "gate_id": "TG-07",
+      "gate_type": "drive_archive",
+      "promotion_state": "PROVIDER_REQUIRED",
+      "receipt_required": "Drive upload/import result with file IDs"
+    },
+    {
+      "detail": "Executable virtual-CPU proof supplied by service agent_runtime_service.",
+      "evidence_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/service_probes/agent_runtime_service.json",
+      "executed": true,
+      "gate_id": "TG-08",
+      "gate_type": "virtual_cpu",
+      "promotion_state": "LOCAL_PASS",
+      "receipt_required": "acceptance harness service receipt"
+    },
+    {
+      "detail": "No executable target-host or provider receipt has been ingested.",
+      "evidence_path": "",
+      "executed": false,
+      "gate_id": "TG-09",
+      "gate_type": "virtual_gpu",
+      "promotion_state": "TARGET_HOST_REQUIRED",
+      "receipt_required": "dashboard/frame state readback on target workstation"
+    }
+  ],
+  "target_host_receipt_ingested": false,
+  "telemetry_used_as_functional_proof": false,
+  "version": "V98"
+}

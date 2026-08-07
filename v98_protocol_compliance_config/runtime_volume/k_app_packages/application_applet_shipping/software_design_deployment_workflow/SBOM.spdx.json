@@ -1,0 +1,10 @@
+{
+  "name": "software_design_deployment_workflow",
+  "packages": [
+    {
+      "name": "software_design_deployment_workflow",
+      "versionInfo": "1.0.0"
+    }
+  ],
+  "spdxVersion": "SPDX-2.3"
+}

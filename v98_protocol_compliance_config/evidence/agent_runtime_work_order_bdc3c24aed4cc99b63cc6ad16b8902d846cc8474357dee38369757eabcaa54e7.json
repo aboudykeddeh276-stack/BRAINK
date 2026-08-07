@@ -1,0 +1,17 @@
+{
+  "action": "promote_local_pass",
+  "agent_id": "virtual_gpu_projection_agent",
+  "authorized": false,
+  "executed": false,
+  "ledger_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/proof_bundles.ledger",
+  "outbox_manifest": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/outbox/agent_runtime/bdc3c24aed4cc99b63cc6ad16b8902d846cc8474357dee38369757eabcaa54e7.handoff.json",
+  "reason": "action_explicitly_denied",
+  "receipt_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/agent_runtime_work_order_bdc3c24aed4cc99b63cc6ad16b8902d846cc8474357dee38369757eabcaa54e7.json",
+  "result": {
+    "failed_closed": true,
+    "reason": "action_explicitly_denied"
+  },
+  "service_id": "virtual_gpu_hci_dashboard",
+  "timestamp": 1786086740.5199106,
+  "work_order_id": "bdc3c24aed4cc99b63cc6ad16b8902d846cc8474357dee38369757eabcaa54e7"
+}

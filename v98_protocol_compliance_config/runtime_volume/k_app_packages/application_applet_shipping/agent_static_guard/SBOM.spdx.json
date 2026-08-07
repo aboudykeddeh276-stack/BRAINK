@@ -1,0 +1,10 @@
+{
+  "name": "agent_static_guard",
+  "packages": [
+    {
+      "name": "agent_static_guard",
+      "versionInfo": "1.0.0"
+    }
+  ],
+  "spdxVersion": "SPDX-2.3"
+}

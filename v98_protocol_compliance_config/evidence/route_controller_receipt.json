@@ -1,0 +1,44 @@
+{
+  "abstraction": "deterministic_in_process_route_control_plane",
+  "decision": {
+    "destination": "10.10.20.55",
+    "interface": "mesh1",
+    "matched_prefix": "10.10.20.0/24",
+    "metric": 20,
+    "next_hop": "10.10.0.1"
+  },
+  "kernel_route_table_modified": false,
+  "negative_test_passed": true,
+  "negative_vectors": {
+    "malformed_prefix_rejected": true,
+    "routing_loop_rejected": true,
+    "unreachable_destination_rejected": true
+  },
+  "next_hop_path": [
+    {
+      "destination": "10.10.20.55",
+      "interface": "mesh1",
+      "matched_prefix": "10.10.20.0/24",
+      "metric": 20,
+      "next_hop": "10.10.0.1"
+    },
+    {
+      "destination": "10.10.0.1",
+      "interface": "mesh0",
+      "matched_prefix": "10.10.0.0/16",
+      "metric": 100,
+      "next_hop": null
+    }
+  ],
+  "packets_transmitted": false,
+  "positive_test_passed": true,
+  "route_table_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/network/route_table.json",
+  "service_id": "indefinite_network_runtime",
+  "timestamp": 1786086742.2655065,
+  "validation": {
+    "duplicates": 0,
+    "loop_errors": [],
+    "route_count": 4,
+    "valid": true
+  }
+}

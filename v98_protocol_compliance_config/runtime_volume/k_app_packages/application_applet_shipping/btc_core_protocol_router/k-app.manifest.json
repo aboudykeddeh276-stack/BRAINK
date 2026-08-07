@@ -1,0 +1,81 @@
+{
+  "applicationId": "kex.btc.core.protocol.router",
+  "boundary": "bounded Bitcoin P2P serialization and optional read-only JSON-RPC; no hard-coded credentials, no private-key logging, no live trading claim",
+  "canonicalRuntimeRule": "DEPENDENCY_FAILURE_NE_GLOBAL_APPLICATION_FAILURE",
+  "componentId": "btc_core_protocol_router",
+  "componentType": "APPLET",
+  "dependencyPolicies": {
+    "service.audio-output": "OPTIONAL",
+    "service.btc-core-protocol-router": "CORE_DEGRADED",
+    "service.native-gpu": "OPTIONAL",
+    "service.remote-telemetry": "OPTIONAL",
+    "service.runtime-config": "CORE_MANDATORY",
+    "service.vfs": "CORE_MANDATORY"
+  },
+  "deploymentMode": "MESH_REPLICATED",
+  "entrypoint": "/index.html",
+  "fallbackAdapters": {
+    "service.audio-output": "adapter.visual-notification",
+    "service.btc-core-protocol-router": "adapter.read-only-local-p2p-framer",
+    "service.mesh-registry": "adapter.local-mesh-outbox",
+    "service.native-gpu": "adapter.canvas-cpu-renderer",
+    "service.remote-telemetry": "adapter.local-telemetry-outbox"
+  },
+  "optionalServices": [
+    "service.audio-output",
+    "service.native-gpu",
+    "service.remote-telemetry"
+  ],
+  "ownerPlane": "virtual_cpu_network_adapter",
+  "requiredServices": [
+    "service.vfs",
+    "service.runtime-config"
+  ],
+  "runtime": "BROWSER_ESM",
+  "runtimeIndependenceContract": {
+    "circuitBreakerLimits": {
+      "failureThreshold": 2,
+      "recoveryTimeoutSeconds": 60
+    },
+    "criticalityClass": "CORE_DEGRADED",
+    "degradedModeBehaviour": "preserve core runtime and expose degraded capability state",
+    "fallbackAdapter": "adapter.read-only-local-p2p-framer",
+    "identity": "btc_core_protocol_router",
+    "optionalDependencies": [
+      "service.audio-output",
+      "service.native-gpu",
+      "service.remote-telemetry"
+    ],
+    "queueOutboxPolicy": "runtime_volume/outbox/application_applet_shipping/btc_core_protocol_router",
+    "recoveryConditions": [
+      "dependency health check passes",
+      "manifest integrity readback passes",
+      "node capability readback passes"
+    ],
+    "reintegrationTests": [
+      "tests/test_application_applet_packager.py",
+      "tests/test_k_cloud_adapter.py"
+    ],
+    "rollbackContract": "retain previous package directory until new package receipt and integrity readback pass",
+    "runtimeDependencies": [
+      "service.btc-core-protocol-router"
+    ],
+    "startupDependencies": [
+      "service.vfs",
+      "service.runtime-config"
+    ],
+    "suppliedCapabilities": [
+      "btc_core_protocol_router",
+      "virtual_cpu_network_adapter"
+    ]
+  },
+  "sourceSurface": "service_protocol_runtime_surface",
+  "targetGates": [
+    "AUTHORIZED_DOMAIN",
+    "TLS_READBACK",
+    "BROWSER_SECURITY",
+    "WCAG",
+    "MESH_NODE_READBACK"
+  ],
+  "version": "1.0.0"
+}

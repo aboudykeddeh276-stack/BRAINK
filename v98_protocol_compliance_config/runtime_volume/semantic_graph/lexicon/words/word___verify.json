@@ -1,0 +1,45 @@
+{
+  "allowed_variants": [
+    "integrity_verify",
+    "schema_verify",
+    "capability_verify",
+    "receipt_verify"
+  ],
+  "backlinks": {
+    "code_bindings": [
+      "config/service_protocols.json::safe_asset_receipt_pipeline",
+      "config/service_protocols.json::semantic_knowledge_graph",
+      "config/service_protocols.json::task_milestone_monitor",
+      "config/service_protocols.json::workflow_schema_guard"
+    ],
+    "expressions": [
+      "expression://verify-manifest-before-node-execution",
+      "expression://instantiate-governed-agent-worker",
+      "expression://reconcile-deferred-work-after-dependency-recovery"
+    ],
+    "services": [
+      "service://safe_asset_receipt_pipeline",
+      "service://semantic_knowledge_graph",
+      "service://task_milestone_monitor",
+      "service://workflow_schema_guard"
+    ]
+  },
+  "canonical_id": "word://verify",
+  "invariants": [
+    "readback_performed",
+    "comparison_target_known",
+    "result_recorded",
+    "evidence_emitted"
+  ],
+  "part_of_speech": "verb",
+  "prohibited_conflations": [
+    "file_exists_is_not_full_verify",
+    "hash_alone_is_not_functional_verify"
+  ],
+  "source_definitions": {
+    "computer_science": "check a value against an expected condition and report result",
+    "keddeh": "read, compare, validate, record result and emit evidence with observer, environment, execution plane and lineage",
+    "linguistic": "establish truth or correctness"
+  },
+  "word": "VERIFY"
+}

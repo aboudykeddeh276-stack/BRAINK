@@ -1,0 +1,22 @@
+{
+  "action_command": "capture signed provider/peer receipt then replay outbox",
+  "component_id": "deployment_maturity_workplan",
+  "corrective_workflow": "provider_gate",
+  "dependency_class": "EXTERNAL_GATE",
+  "fallback_path": "adapter.local-static-applet",
+  "issue_code": "PROVIDER_GATE_PENDING",
+  "maturity_state": "LOCAL_SHIPPABLE_WITH_TARGET_GATES",
+  "pending_workload": "Keep local package and outbox active while awaiting external/provider or target-host proof.",
+  "promotion_boundary": "PROVIDER_REQUIRED_OR_TARGET_HOST_REQUIRED",
+  "reentry_condition": "provider or target host produces signed receipt and capability readback",
+  "required_receipts": [
+    "runtime_volume/outbox/*",
+    "provider_peer_ack_receipt_or_target_host_receipt"
+  ],
+  "research_basis": [
+    "DORA continuous delivery small-batch deployability",
+    "NIST SSDF lifecycle-integrated secure development",
+    "GitHub deployment environments and protected gates",
+    "fault-domain isolation and durable outbox pattern"
+  ]
+}

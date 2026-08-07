@@ -1,0 +1,6 @@
+{
+  "namespaces": [
+    "vfs://apps/orphan-service-reconciler/",
+    "vfs://agents/orphan-service-reconciler/receipts/"
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "boundary": "tracks only receipt-backed completion for 100 planned tasks and triggers case-study checkpoints at 50 and 100 tasks; no telemetry-only or hash-as-proof completion",
+  "classification": "LOCAL_PASS",
+  "details": {
+    "milestones_reached": [],
+    "monitor_receipt": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/task_milestone_monitor_receipt.json",
+    "telemetry_only_rejection": "telemetry_only_not_completion",
+    "total_tasks": 100,
+    "valid_completed_tasks": 0
+  },
+  "executed": true,
+  "negative_test_passed": true,
+  "owner_plane": "virtual_cpu_worker_governance",
+  "positive_test_passed": true,
+  "probe_name": "probe_task_milestone_monitor",
+  "service_id": "task_milestone_monitor",
+  "timestamp": 1786086742.295333
+}

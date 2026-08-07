@@ -1,0 +1,17 @@
+{
+  "action": "promote_local_pass",
+  "agent_id": "codex_implementation_agent",
+  "authorized": false,
+  "executed": false,
+  "ledger_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/proof_bundles.ledger",
+  "outbox_manifest": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/outbox/agent_runtime/c1a1f43ecc8c834a31f106de8e01eab7444814199f30213072e4754410a1df18.handoff.json",
+  "reason": "action_explicitly_denied",
+  "receipt_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/agent_runtime_work_order_c1a1f43ecc8c834a31f106de8e01eab7444814199f30213072e4754410a1df18.json",
+  "result": {
+    "failed_closed": true,
+    "reason": "action_explicitly_denied"
+  },
+  "service_id": "agent_static_guard",
+  "timestamp": 1786086741.8730154,
+  "work_order_id": "c1a1f43ecc8c834a31f106de8e01eab7444814199f30213072e4754410a1df18"
+}

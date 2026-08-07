@@ -1,0 +1,279 @@
+{
+  "events": [
+    {
+      "capabilities": [
+        "cpu",
+        "network"
+      ],
+      "capacity": 4,
+      "kind": "worker_registered",
+      "seq": 1,
+      "time": 0,
+      "worker_id": "alpha"
+    },
+    {
+      "capabilities": [
+        "cpu",
+        "gpu"
+      ],
+      "capacity": 4,
+      "kind": "worker_registered",
+      "seq": 2,
+      "time": 0,
+      "worker_id": "beta"
+    },
+    {
+      "capabilities": [
+        "cpu",
+        "gpu",
+        "network"
+      ],
+      "capacity": 2,
+      "kind": "worker_registered",
+      "seq": 3,
+      "time": 0,
+      "worker_id": "gamma"
+    },
+    {
+      "deadline": null,
+      "demand": 2,
+      "kind": "task_submitted",
+      "priority": 20,
+      "required_capabilities": [
+        "cpu",
+        "network"
+      ],
+      "seq": 4,
+      "task_id": "route-index",
+      "time": 0
+    },
+    {
+      "deadline": null,
+      "demand": 2,
+      "kind": "task_submitted",
+      "priority": 10,
+      "required_capabilities": [
+        "cpu",
+        "gpu"
+      ],
+      "seq": 5,
+      "task_id": "frame-plan",
+      "time": 0
+    },
+    {
+      "deadline": null,
+      "demand": 3,
+      "kind": "task_submitted",
+      "priority": 5,
+      "required_capabilities": [
+        "cpu",
+        "network"
+      ],
+      "seq": 6,
+      "task_id": "route-batch",
+      "time": 0
+    },
+    {
+      "demand": 2,
+      "kind": "task_allocated",
+      "seq": 7,
+      "task_id": "route-index",
+      "time": 0,
+      "worker_id": "alpha"
+    },
+    {
+      "demand": 2,
+      "kind": "task_allocated",
+      "seq": 8,
+      "task_id": "frame-plan",
+      "time": 0,
+      "worker_id": "beta"
+    },
+    {
+      "kind": "task_deferred",
+      "reason": "no_eligible_capacity",
+      "seq": 9,
+      "task_id": "route-batch",
+      "time": 0
+    },
+    {
+      "kind": "task_completed",
+      "seq": 10,
+      "task_id": "route-index",
+      "time": 0,
+      "worker_id": "alpha"
+    },
+    {
+      "demand": 3,
+      "kind": "task_allocated",
+      "seq": 11,
+      "task_id": "route-batch",
+      "time": 0,
+      "worker_id": "alpha"
+    },
+    {
+      "deadline": 5,
+      "demand": 1,
+      "kind": "task_submitted",
+      "priority": 1,
+      "required_capabilities": [
+        "cpu"
+      ],
+      "seq": 12,
+      "task_id": "deadline-vector",
+      "time": 0
+    },
+    {
+      "kind": "task_timed_out",
+      "seq": 13,
+      "task_id": "deadline-vector",
+      "time": 5,
+      "worker_id": null
+    },
+    {
+      "deadline": null,
+      "demand": 1,
+      "kind": "task_submitted",
+      "priority": 0,
+      "required_capabilities": [
+        "quantum"
+      ],
+      "seq": 14,
+      "task_id": "unsupported-capability",
+      "time": 5
+    },
+    {
+      "kind": "task_deferred",
+      "reason": "no_eligible_capacity",
+      "seq": 15,
+      "task_id": "unsupported-capability",
+      "time": 5
+    }
+  ],
+  "host_resources_reserved": false,
+  "logical_time": 5,
+  "os_threads_created": false,
+  "remote_workers_contacted": false,
+  "tasks": [
+    {
+      "assigned_worker": null,
+      "deadline": 5,
+      "demand": 1,
+      "finished_at": 5,
+      "priority": 1,
+      "required_capabilities": [
+        "cpu"
+      ],
+      "result": null,
+      "started_at": null,
+      "state": "TIMED_OUT",
+      "submitted_at": 0,
+      "task_id": "deadline-vector"
+    },
+    {
+      "assigned_worker": "beta",
+      "deadline": null,
+      "demand": 2,
+      "finished_at": null,
+      "priority": 10,
+      "required_capabilities": [
+        "cpu",
+        "gpu"
+      ],
+      "result": null,
+      "started_at": 0,
+      "state": "RUNNING",
+      "submitted_at": 0,
+      "task_id": "frame-plan"
+    },
+    {
+      "assigned_worker": "alpha",
+      "deadline": null,
+      "demand": 3,
+      "finished_at": null,
+      "priority": 5,
+      "required_capabilities": [
+        "cpu",
+        "network"
+      ],
+      "result": null,
+      "started_at": 0,
+      "state": "RUNNING",
+      "submitted_at": 0,
+      "task_id": "route-batch"
+    },
+    {
+      "assigned_worker": "alpha",
+      "deadline": null,
+      "demand": 2,
+      "finished_at": 0,
+      "priority": 20,
+      "required_capabilities": [
+        "cpu",
+        "network"
+      ],
+      "result": {
+        "routes": 3
+      },
+      "started_at": 0,
+      "state": "COMPLETED",
+      "submitted_at": 0,
+      "task_id": "route-index"
+    },
+    {
+      "assigned_worker": null,
+      "deadline": null,
+      "demand": 1,
+      "finished_at": null,
+      "priority": 0,
+      "required_capabilities": [
+        "quantum"
+      ],
+      "result": null,
+      "started_at": null,
+      "state": "PENDING",
+      "submitted_at": 5,
+      "task_id": "unsupported-capability"
+    }
+  ],
+  "workers": [
+    {
+      "available": true,
+      "capabilities": [
+        "cpu",
+        "network"
+      ],
+      "capacity": 4,
+      "load": 3,
+      "running_tasks": [
+        "route-batch"
+      ],
+      "worker_id": "alpha"
+    },
+    {
+      "available": true,
+      "capabilities": [
+        "cpu",
+        "gpu"
+      ],
+      "capacity": 4,
+      "load": 2,
+      "running_tasks": [
+        "frame-plan"
+      ],
+      "worker_id": "beta"
+    },
+    {
+      "available": true,
+      "capabilities": [
+        "cpu",
+        "gpu",
+        "network"
+      ],
+      "capacity": 2,
+      "load": 0,
+      "running_tasks": [],
+      "worker_id": "gamma"
+    }
+  ]
+}

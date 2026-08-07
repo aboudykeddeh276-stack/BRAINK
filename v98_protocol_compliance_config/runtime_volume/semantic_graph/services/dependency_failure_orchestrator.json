@@ -1,0 +1,11 @@
+{
+  "code_binding": "config/service_protocols.json::dependency_failure_orchestrator",
+  "conformance_state": "SEMANTICALLY_BOUND",
+  "evidence_contract": "recognize\u2192execute\u2192verify\u2192write_receipt\u2192readback\u2192handoff",
+  "owner_plane": "virtual_cpu_resilience_plane",
+  "reason": "service contract and boundary available",
+  "sector": "sector://runtime-continuity",
+  "semantic_expression": "expression://reconcile-deferred-work-after-dependency-recovery",
+  "semantic_word": "word://recover",
+  "service_id": "dependency_failure_orchestrator"
+}

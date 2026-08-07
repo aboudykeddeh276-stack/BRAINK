@@ -1,0 +1,33 @@
+{
+  "boundary": "mirrors research, development, standards and deployment artifacts; target-host/provider claims remain gated",
+  "classification": "LOCAL_PASS",
+  "details": {
+    "mirror_receipt": {
+      "certification_claimed": false,
+      "hash_used_as_functional_proof": false,
+      "receipt": {
+        "agent_self_promotion_allowed": false,
+        "all_documents_present": true,
+        "lane_id": "mirror_update_lane",
+        "lane_state": "DEPLOYMENT_CONFIGURED_TARGET_HOST_GATED",
+        "ledger_readback": true,
+        "manual_promotion_allowed": false,
+        "mirror_documents_checked": 4,
+        "outbox_manifest": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/outbox/mirror_update_lane/c4e8b91677b37cd64f6541a05ba0bdf2f4e9312e62e9ca34c71fdec6d37e3ddc.handoff.json",
+        "promotion_state": "LOCAL_PASS",
+        "source_documents_checked": 38,
+        "timestamp": 1786086742.276
+      },
+      "receipt_hash": "c4e8b91677b37cd64f6541a05ba0bdf2f4e9312e62e9ca34c71fdec6d37e3ddc",
+      "remote_provider_claimed": false,
+      "target_host_claimed": false
+    }
+  },
+  "executed": true,
+  "negative_test_passed": true,
+  "owner_plane": "virtual_cpu_vfs_mirror",
+  "positive_test_passed": true,
+  "probe_name": "probe_mirror_update_lane",
+  "service_id": "mirror_update_lane",
+  "timestamp": 1786086742.2759166
+}

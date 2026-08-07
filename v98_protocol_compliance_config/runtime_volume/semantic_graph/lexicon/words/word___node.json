@@ -1,0 +1,37 @@
+{
+  "allowed_variants": [
+    "browser_node",
+    "agent_node",
+    "microvm_node",
+    "service_node",
+    "provider_node"
+  ],
+  "backlinks": {
+    "code_bindings": [],
+    "expressions": [
+      "expression://run-kapp-on-eligible-node",
+      "expression://verify-manifest-before-node-execution",
+      "expression://observe-node-health"
+    ],
+    "services": []
+  },
+  "canonical_id": "word://node",
+  "invariants": [
+    "node_id",
+    "region_or_scope",
+    "lineage",
+    "capability_set",
+    "health_state"
+  ],
+  "part_of_speech": "noun",
+  "prohibited_conflations": [
+    "node_icon_is_not_node_execution",
+    "node_name_is_not_capability_readback"
+  ],
+  "source_definitions": {
+    "computer_science": "addressable member of a distributed system",
+    "keddeh": "mesh entity with identity, region, lineage, service address, VFS volume, capability set, policy set, current version, health and attestation state",
+    "linguistic": "point in a connected structure"
+  },
+  "word": "NODE"
+}

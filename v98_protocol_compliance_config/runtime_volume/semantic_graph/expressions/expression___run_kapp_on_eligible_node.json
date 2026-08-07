@@ -1,0 +1,42 @@
+{
+  "backlinks": {
+    "code_bindings": [
+      "config/service_protocols.json::deployment_maturity_workplan",
+      "config/service_protocols.json::k_cloud_adapter",
+      "config/service_protocols.json::mirror_update_lane",
+      "config/service_protocols.json::software_design_deployment_workflow"
+    ],
+    "services": [
+      "service://deployment_maturity_workplan",
+      "service://k_cloud_adapter",
+      "service://mirror_update_lane",
+      "service://software_design_deployment_workflow"
+    ],
+    "story_transitions": []
+  },
+  "composed_definition": "initiate an admitted immutable application package on a node whose capabilities, policy, health and integrity satisfy the deployment contract",
+  "expression_id": "expression://run-kapp-on-eligible-node",
+  "not_allowed": [
+    "run label without process execution",
+    "deploy claim without package readback"
+  ],
+  "source_meaning": {
+    "deploy": "word://deploy",
+    "node": "word://node",
+    "run": "word://run"
+  },
+  "words": [
+    {
+      "canonical": "word://run",
+      "grammatical_role": "action"
+    },
+    {
+      "canonical": "word://deploy",
+      "grammatical_role": "release_context"
+    },
+    {
+      "canonical": "word://node",
+      "grammatical_role": "execution_target"
+    }
+  ]
+}

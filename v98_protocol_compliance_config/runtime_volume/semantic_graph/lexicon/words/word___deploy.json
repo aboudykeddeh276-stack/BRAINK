@@ -1,0 +1,45 @@
+{
+  "allowed_variants": [
+    "local_deploy",
+    "host_deploy",
+    "provider_deploy",
+    "degraded_deploy"
+  ],
+  "backlinks": {
+    "code_bindings": [
+      "config/service_protocols.json::deployment_maturity_workplan",
+      "config/service_protocols.json::k_cloud_adapter",
+      "config/service_protocols.json::mirror_update_lane",
+      "config/service_protocols.json::software_design_deployment_workflow"
+    ],
+    "expressions": [
+      "expression://run-kapp-on-eligible-node",
+      "expression://verify-manifest-before-node-execution"
+    ],
+    "services": [
+      "service://deployment_maturity_workplan",
+      "service://k_cloud_adapter",
+      "service://mirror_update_lane",
+      "service://software_design_deployment_workflow"
+    ]
+  },
+  "canonical_id": "word://deploy",
+  "invariants": [
+    "artifact_exists",
+    "environment_known",
+    "policy_resolved",
+    "rollback_available",
+    "receipt_required"
+  ],
+  "part_of_speech": "verb",
+  "prohibited_conflations": [
+    "build_is_not_deploy",
+    "manifest_is_not_deploy_receipt"
+  ],
+  "source_definitions": {
+    "computer_science": "release an artifact into an execution environment",
+    "keddeh": "promote a receipt-backed package into an eligible runtime domain while preserving rollback and lineage",
+    "linguistic": "place into use"
+  },
+  "word": "DEPLOY"
+}

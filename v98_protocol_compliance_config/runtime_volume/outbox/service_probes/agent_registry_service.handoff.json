@@ -1,0 +1,11 @@
+{
+  "classification": "LOCAL_PASS",
+  "created_at": 1786086742.2817419,
+  "handoff_id": "ea92dad36a1849cb23cb352ae7ae69e99c882d55bccc9f49e10834da0804840d",
+  "next_target": "acceptance_summary",
+  "payload_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/service_probes/agent_registry_service.json",
+  "receipt_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/proof_bundles.ledger",
+  "service_id": "agent_registry_service",
+  "source": "KEDDEH_V98_SERVICE_PROBE",
+  "status": "READY"
+}

@@ -1,0 +1,6 @@
+{
+  "namespaces": [
+    "vfs://apps/evidence-context-resolver/",
+    "vfs://agents/evidence-context-resolver/receipts/"
+  ]
+}

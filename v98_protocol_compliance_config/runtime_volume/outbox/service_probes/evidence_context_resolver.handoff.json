@@ -1,0 +1,11 @@
+{
+  "classification": "UNSUPPORTED_IN_THIS_RUNTIME",
+  "created_at": 1786086742.3208551,
+  "handoff_id": "c038925f66abb7fd4e6ab3a0d95e4e5582167f47f9d5a2db735c12ff76fdc330",
+  "next_target": "implementation_backlog",
+  "payload_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/service_probes/evidence_context_resolver.json",
+  "receipt_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/proof_bundles.ledger",
+  "service_id": "evidence_context_resolver",
+  "source": "KEDDEH_V98_SERVICE_PROBE",
+  "status": "READY"
+}

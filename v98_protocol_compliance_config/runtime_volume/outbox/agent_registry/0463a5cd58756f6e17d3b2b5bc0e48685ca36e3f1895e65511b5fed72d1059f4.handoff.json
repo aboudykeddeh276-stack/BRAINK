@@ -1,0 +1,9 @@
+{
+  "created_at": 1786086741.5678601,
+  "handoff_id": "0463a5cd58756f6e17d3b2b5bc0e48685ca36e3f1895e65511b5fed72d1059f4",
+  "next_target": "acceptance_harness_then_self_hosted_runner",
+  "payload_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/agent_registry_receipt.json",
+  "receipt_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/proof_bundles.ledger",
+  "source": "KEDDEH_V98_AGENT_REGISTRY",
+  "status": "READY_FOR_TARGET_HOST_EXECUTION"
+}

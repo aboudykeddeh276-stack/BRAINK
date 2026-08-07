@@ -1,0 +1,23 @@
+{
+  "action_command": "create lane-specific PRs after evidence artifact is captured",
+  "component_id": "pull_request_32_review_surface",
+  "corrective_workflow": "split_release",
+  "dependency_class": "CORE_DEGRADED",
+  "fallback_path": "continue current integration branch until split is safe",
+  "issue_code": "REVIEW_SURFACE_TOO_LARGE",
+  "maturity_state": "TARGET_HOST_REQUIRED",
+  "pending_workload": "After local receipt pack stabilizes, split the integration workbench into smaller release PRs so each lane can be reviewed, deployed and rolled back independently.",
+  "promotion_boundary": "RELEASE_REVIEW_REQUIRED",
+  "reentry_condition": "local run.command receipt pack is stable and target-host evidence is captured",
+  "required_receipts": [
+    "PR split plan",
+    " per-lane test receipts",
+    " per-lane K-APP packages"
+  ],
+  "research_basis": [
+    "DORA continuous delivery small-batch deployability",
+    "NIST SSDF lifecycle-integrated secure development",
+    "GitHub deployment environments and protected gates",
+    "fault-domain isolation and durable outbox pattern"
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "boundary": "preserves separate I,V,O,E,X,R,L for output, thinking, legal perspective and software service planes and prevents cross-plane inheritance such as software tests becoming legal conclusions or polished output becoming reasoning proof",
+  "classification": "UNSUPPORTED_IN_THIS_RUNTIME",
+  "details": {
+    "gate_reason": "No executable probe is registered for this declared service."
+  },
+  "executed": false,
+  "negative_test_passed": false,
+  "owner_plane": "virtual_cpu_context_governance_plane",
+  "positive_test_passed": false,
+  "probe_name": "unregistered_probe",
+  "service_id": "four_plane_context_framework",
+  "timestamp": 1786086742.324932
+}

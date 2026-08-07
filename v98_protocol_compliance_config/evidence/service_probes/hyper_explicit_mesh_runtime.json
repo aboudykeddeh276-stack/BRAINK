@@ -1,0 +1,29 @@
+{
+  "boundary": "local model/runtime; not physical hardware control",
+  "classification": "LOCAL_PASS",
+  "details": {
+    "allocation_map": {
+      "frame-plan": "beta",
+      "route-batch": "alpha",
+      "route-index": "alpha"
+    },
+    "deferred_tasks": [
+      "unsupported-capability"
+    ],
+    "host_resources_reserved": false,
+    "mesh_scheduler_receipt": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/mesh_scheduler_receipt.json",
+    "os_threads_created": false,
+    "portable_model_only": true,
+    "remote_workers_contacted": false,
+    "timed_out_tasks": [
+      "deadline-vector"
+    ]
+  },
+  "executed": true,
+  "negative_test_passed": true,
+  "owner_plane": "virtual_cpu",
+  "positive_test_passed": true,
+  "probe_name": "probe_hyper_explicit_mesh_runtime",
+  "service_id": "hyper_explicit_mesh_runtime",
+  "timestamp": 1786086742.258601
+}

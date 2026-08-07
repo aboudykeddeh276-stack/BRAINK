@@ -1,0 +1,9 @@
+{
+  "created_at": 1786086741.3439364,
+  "handoff_id": "58dd89b27783900a2eafecf25d26ffc369fc4fab883c1a55bbe8b5f48f669edc",
+  "next_target": "self_hosted_macos_arm64_runner_then_vfs_mirror_volume",
+  "payload_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/mirror_update_lane_receipt.json",
+  "receipt_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/proof_bundles.ledger",
+  "source": "KEDDEH_V98_MIRROR_UPDATE_LANE",
+  "status": "READY_FOR_TARGET_HOST_EXECUTION"
+}

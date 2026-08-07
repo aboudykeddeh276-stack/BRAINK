@@ -1,0 +1,6 @@
+{
+  "builder": "keddeh_application_applet_packager",
+  "component_id": "kex.workstation.core",
+  "source_surface": "vite_or_static_browser_surface",
+  "timestamp": 1786086741.0915427
+}

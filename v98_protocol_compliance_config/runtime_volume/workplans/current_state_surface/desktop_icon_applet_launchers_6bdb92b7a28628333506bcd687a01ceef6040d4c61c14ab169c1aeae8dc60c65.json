@@ -1,0 +1,22 @@
+{
+  "corrective_workflow": "Every desktop icon must resolve to a K-APP package, route, capability contract, readback status and failure-domain policy.",
+  "dependency_class": "CORE_DEGRADED",
+  "deployability_state": "CORRECTIVE_WORKFLOW_REQUIRED",
+  "evidence_state": "K_APP_OR_RECEIPT_REQUIRED",
+  "fallback_adapter": "adapter.static-k-app-catalog",
+  "issue_code": "Icon launch and drag behavior was improved, but a launcher is not itself an applet unless it binds to an executable command and receipt path.",
+  "next_action": "bash scripts/ship_applications.command && bash scripts/current_state_audit.command",
+  "promotion_boundary": "PROMOTE_ONLY_RECEIPT_BACKED_CAPABILITIES",
+  "required_receipts": [
+    "evidence/current_state_surface_audit_receipt.json",
+    "exports/current_state_surface_audit_matrix.csv"
+  ],
+  "research_basis": [
+    "source action history is diagnostic, not proof",
+    "K-APP manifest integrity readback before node execution",
+    "dependency failure is not global application failure",
+    "observability is not execution proof"
+  ],
+  "surface_id": "desktop_icon_applet_launchers",
+  "surface_type": "USER_SPACE_APPLICATION_SURFACE"
+}

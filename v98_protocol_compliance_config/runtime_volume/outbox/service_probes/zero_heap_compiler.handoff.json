@@ -1,0 +1,11 @@
+{
+  "classification": "UNSUPPORTED_IN_THIS_RUNTIME",
+  "created_at": 1786086742.2547572,
+  "handoff_id": "e488fed4d4cbbb823ad4e42d2bae26a79bb8374f48a7aac6298460f8872e679a",
+  "next_target": "implementation_backlog",
+  "payload_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/service_probes/zero_heap_compiler.json",
+  "receipt_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/proof_bundles.ledger",
+  "service_id": "zero_heap_compiler",
+  "source": "KEDDEH_V98_SERVICE_PROBE",
+  "status": "READY"
+}

@@ -1,0 +1,7 @@
+{
+  "created_at": 1786086741.168834,
+  "matrix_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/exports/evidence_context_resolution_matrix.csv",
+  "payload_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/evidence_context_resolution_receipt.json",
+  "source": "KEDDEH_V99_EVIDENCE_CONTEXT_RESOLVER",
+  "status": "CONTEXTUAL_RESOLUTION_READY"
+}

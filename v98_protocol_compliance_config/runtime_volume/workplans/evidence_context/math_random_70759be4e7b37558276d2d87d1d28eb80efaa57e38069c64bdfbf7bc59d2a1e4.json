@@ -1,0 +1,33 @@
+{
+  "character_capability": "randomized_metric_source",
+  "derived_state": "CONTEXT_RESOLUTION_REQUIRED",
+  "environment": "browser_or_node_local",
+  "evidence_class": "single_signal_uncorroborated",
+  "execution_plane": "projection_or_fixture",
+  "finding": "Math.random()",
+  "freshness": "requires_runtime_receipt",
+  "impact_radius": [
+    "capability_scoped"
+  ],
+  "lineage": "uploaded_action_history_or_source_scan",
+  "negative_tests": [
+    "single signal does not produce FAKE, FAILED, IMPOSSIBLE or GLOBAL_STOP"
+  ],
+  "observer": "current_state_surface_auditor",
+  "owner": "evidence_context_resolver",
+  "positive_tests": [
+    "tests/test_evidence_context_resolver.py"
+  ],
+  "promotion_evidence": [
+    "evidence/evidence_context_resolution_receipt.json"
+  ],
+  "purpose": "UI demo, fixture, benchmark noise, or provisional telemetry placeholder",
+  "reentry_conditions": [
+    "fresh receipt correlates identity, execution plane, evidence class and lineage"
+  ],
+  "required_changes": [
+    "collect capability-scoped readback",
+    "bind receipt to observer/environment/execution plane",
+    "preserve lineage and freshness"
+  ]
+}

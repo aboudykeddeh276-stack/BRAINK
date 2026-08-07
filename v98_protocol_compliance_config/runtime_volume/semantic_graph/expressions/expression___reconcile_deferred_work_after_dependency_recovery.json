@@ -1,0 +1,40 @@
+{
+  "backlinks": {
+    "code_bindings": [
+      "config/service_protocols.json::application_applet_packager",
+      "config/service_protocols.json::dependency_failure_orchestrator",
+      "config/service_protocols.json::failure_ledger"
+    ],
+    "services": [
+      "service://application_applet_packager",
+      "service://dependency_failure_orchestrator",
+      "service://failure_ledger"
+    ],
+    "story_transitions": []
+  },
+  "composed_definition": "replay durable deferred work only after dependency health, integrity and lineage are verified",
+  "expression_id": "expression://reconcile-deferred-work-after-dependency-recovery",
+  "not_allowed": [
+    "blind retry",
+    "manual status flip"
+  ],
+  "source_meaning": {
+    "recover": "word://recover",
+    "service": "word://service",
+    "verify": "word://verify"
+  },
+  "words": [
+    {
+      "canonical": "word://recover",
+      "grammatical_role": "action"
+    },
+    {
+      "canonical": "word://service",
+      "grammatical_role": "dependency_domain"
+    },
+    {
+      "canonical": "word://verify",
+      "grammatical_role": "reintegration_gate"
+    }
+  ]
+}

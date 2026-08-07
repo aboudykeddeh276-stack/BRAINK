@@ -1,0 +1,6 @@
+{
+  "namespaces": [
+    "vfs://apps/kex-workstation-core/",
+    "vfs://agents/kex-workstation-core/receipts/"
+  ]
+}

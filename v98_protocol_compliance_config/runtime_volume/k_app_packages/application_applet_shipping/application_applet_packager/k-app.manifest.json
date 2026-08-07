@@ -1,0 +1,81 @@
+{
+  "applicationId": "kex.application.applet.packager",
+  "boundary": "assesses every module as application/applet/service/runtime domain, generates local K-APP packages, performs manifest integrity readback before node execution and emits catalog, matrix, receipt and outbox handoff without treating target-host gates as global failure",
+  "canonicalRuntimeRule": "DEPENDENCY_FAILURE_NE_GLOBAL_APPLICATION_FAILURE",
+  "componentId": "application_applet_packager",
+  "componentType": "APPLET",
+  "dependencyPolicies": {
+    "service.application-applet-packager": "CORE_DEGRADED",
+    "service.audio-output": "OPTIONAL",
+    "service.native-gpu": "OPTIONAL",
+    "service.remote-telemetry": "OPTIONAL",
+    "service.runtime-config": "CORE_MANDATORY",
+    "service.vfs": "CORE_MANDATORY"
+  },
+  "deploymentMode": "MESH_REPLICATED",
+  "entrypoint": "/index.html",
+  "fallbackAdapters": {
+    "service.application-applet-packager": "adapter.local-static-applet",
+    "service.audio-output": "adapter.visual-notification",
+    "service.mesh-registry": "adapter.local-mesh-outbox",
+    "service.native-gpu": "adapter.canvas-cpu-renderer",
+    "service.remote-telemetry": "adapter.local-telemetry-outbox"
+  },
+  "optionalServices": [
+    "service.audio-output",
+    "service.native-gpu",
+    "service.remote-telemetry"
+  ],
+  "ownerPlane": "virtual_cpu_application_shipping_plane",
+  "requiredServices": [
+    "service.vfs",
+    "service.runtime-config"
+  ],
+  "runtime": "BROWSER_ESM",
+  "runtimeIndependenceContract": {
+    "circuitBreakerLimits": {
+      "failureThreshold": 2,
+      "recoveryTimeoutSeconds": 60
+    },
+    "criticalityClass": "CORE_DEGRADED",
+    "degradedModeBehaviour": "preserve core runtime and expose degraded capability state",
+    "fallbackAdapter": "adapter.local-static-applet",
+    "identity": "application_applet_packager",
+    "optionalDependencies": [
+      "service.audio-output",
+      "service.native-gpu",
+      "service.remote-telemetry"
+    ],
+    "queueOutboxPolicy": "runtime_volume/outbox/application_applet_shipping/application_applet_packager",
+    "recoveryConditions": [
+      "dependency health check passes",
+      "manifest integrity readback passes",
+      "node capability readback passes"
+    ],
+    "reintegrationTests": [
+      "tests/test_application_applet_packager.py",
+      "tests/test_k_cloud_adapter.py"
+    ],
+    "rollbackContract": "retain previous package directory until new package receipt and integrity readback pass",
+    "runtimeDependencies": [
+      "service.application-applet-packager"
+    ],
+    "startupDependencies": [
+      "service.vfs",
+      "service.runtime-config"
+    ],
+    "suppliedCapabilities": [
+      "application_applet_packager",
+      "virtual_cpu_application_shipping_plane"
+    ]
+  },
+  "sourceSurface": "service_protocol_runtime_surface",
+  "targetGates": [
+    "AUTHORIZED_DOMAIN",
+    "TLS_READBACK",
+    "BROWSER_SECURITY",
+    "WCAG",
+    "MESH_NODE_READBACK"
+  ],
+  "version": "1.0.0"
+}

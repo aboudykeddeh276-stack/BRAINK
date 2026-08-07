@@ -1,0 +1,24 @@
+{
+  "corrective_workflow": "Bind worker identity, team, tenant boundary, VFS namespace, queue, skills, policy set, runtime allocation, telemetry channel, receipt ledger and lineage address.",
+  "dependency_class": "CORE_DEGRADED",
+  "deployability_state": "CORRECTIVE_WORKFLOW_REQUIRED",
+  "evidence_state": "WORKER_CONTEXT_AND_RECEIPT_REQUIRED",
+  "fallback_adapter": "adapter.agent-runtime-work-order",
+  "issue_code": "Does not declare user purpose, function, work environment, VFS namespace, task queue, capability set, response contract or proof path.",
+  "next_action": "bind provision agent to worker identity, VFS namespace, queue, policy, capability and receipt ledger",
+  "promotion_boundary": "PROMOTE_ONLY_RECEIPT_BACKED_CAPABILITIES",
+  "required_receipts": [
+    "evidence/current_state_surface_audit_receipt.json",
+    "exports/current_state_surface_audit_matrix.csv",
+    "agent worker VFS namespace receipt",
+    "agent runtime work-order receipt"
+  ],
+  "research_basis": [
+    "source action history is diagnostic, not proof",
+    "K-APP manifest integrity readback before node execution",
+    "dependency failure is not global application failure",
+    "observability is not execution proof"
+  ],
+  "surface_id": "provision_agent",
+  "surface_type": "AGENT_WORKER_APPLET"
+}

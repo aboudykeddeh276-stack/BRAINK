@@ -1,0 +1,1504 @@
+{
+  "bindings": [
+    {
+      "code_binding": "config/service_protocols.json::agent_static_guard",
+      "conformance_state": "SEMANTICALLY_BOUND",
+      "evidence_contract": "recognize\u2192execute\u2192verify\u2192write_receipt\u2192readback\u2192handoff",
+      "owner_plane": "virtual_cpu",
+      "reason": "service contract and boundary available",
+      "sector": "sector://agent-operations",
+      "semantic_expression": "expression://instantiate-governed-agent-worker",
+      "semantic_word": "word://agent",
+      "service_id": "agent_static_guard"
+    },
+    {
+      "code_binding": "config/service_protocols.json::secret_boundary_guard",
+      "conformance_state": "SEMANTICALLY_BOUND",
+      "evidence_contract": "recognize\u2192execute\u2192verify\u2192write_receipt\u2192readback\u2192handoff",
+      "owner_plane": "virtual_cpu",
+      "reason": "service contract and boundary available",
+      "sector": "sector://service-governance",
+      "semantic_expression": "expression://verify-manifest-before-node-execution",
+      "semantic_word": "word://service",
+      "service_id": "secret_boundary_guard"
+    },
+    {
+      "code_binding": "config/service_protocols.json::zero_heap_compiler",
+      "conformance_state": "SEMANTICALLY_BOUND",
+      "evidence_contract": "recognize\u2192execute\u2192verify\u2192write_receipt\u2192readback\u2192handoff",
+      "owner_plane": "virtual_cpu",
+      "reason": "service contract and boundary available",
+      "sector": "sector://service-governance",
+      "semantic_expression": "expression://verify-manifest-before-node-execution",
+      "semantic_word": "word://service",
+      "service_id": "zero_heap_compiler"
+    },
+    {
+      "code_binding": "config/service_protocols.json::peer_ack_verifier",
+      "conformance_state": "SEMANTICALLY_BOUND",
+      "evidence_contract": "recognize\u2192execute\u2192verify\u2192write_receipt\u2192readback\u2192handoff",
+      "owner_plane": "virtual_cpu",
+      "reason": "service contract and boundary available",
+      "sector": "sector://service-governance",
+      "semantic_expression": "expression://verify-manifest-before-node-execution",
+      "semantic_word": "word://service",
+      "service_id": "peer_ack_verifier"
+    },
+    {
+      "code_binding": "config/service_protocols.json::hyper_explicit_mesh_runtime",
+      "conformance_state": "SEMANTICALLY_BOUND",
+      "evidence_contract": "recognize\u2192execute\u2192verify\u2192write_receipt\u2192readback\u2192handoff",
+      "owner_plane": "virtual_cpu",
+      "reason": "service contract and boundary available",
+      "sector": "sector://service-governance",
+      "semantic_expression": "expression://verify-manifest-before-node-execution",
+      "semantic_word": "word://service",
+      "service_id": "hyper_explicit_mesh_runtime"
+    },
+    {
+      "code_binding": "config/service_protocols.json::hemos_family_of_five_runtime",
+      "conformance_state": "SEMANTICALLY_BOUND",
+      "evidence_contract": "recognize\u2192execute\u2192verify\u2192write_receipt\u2192readback\u2192handoff",
+      "owner_plane": "virtual_cpu",
+      "reason": "service contract and boundary available",
+      "sector": "sector://service-governance",
+      "semantic_expression": "expression://verify-manifest-before-node-execution",
+      "semantic_word": "word://service",
+      "service_id": "hemos_family_of_five_runtime"
+    },
+    {
+      "code_binding": "config/service_protocols.json::indefinite_network_runtime",
+      "conformance_state": "SEMANTICALLY_BOUND",
+      "evidence_contract": "recognize\u2192execute\u2192verify\u2192write_receipt\u2192readback\u2192handoff",
+      "owner_plane": "virtual_cpu_network_adapter",
+      "reason": "service contract and boundary available",
+      "sector": "sector://service-governance",
+      "semantic_expression": "expression://verify-manifest-before-node-execution",
+      "semantic_word": "word://service",
+      "service_id": "indefinite_network_runtime"
+    },
+    {
+      "code_binding": "config/service_protocols.json::safe_asset_receipt_pipeline",
+      "conformance_state": "SEMANTICALLY_BOUND",
+      "evidence_contract": "recognize\u2192execute\u2192verify\u2192write_receipt\u2192readback\u2192handoff",
+      "owner_plane": "virtual_cpu_volume_adapter",
+      "reason": "service contract and boundary available",
+      "sector": "sector://evidence-governance",
+      "semantic_expression": "expression://verify-manifest-before-node-execution",
+      "semantic_word": "word://verify",
+      "service_id": "safe_asset_receipt_pipeline"
+    },
+    {
+      "code_binding": "config/service_protocols.json::virtual_gpu_hci_dashboard",
+      "conformance_state": "SEMANTICALLY_BOUND",
+      "evidence_contract": "recognize\u2192execute\u2192verify\u2192write_receipt\u2192readback\u2192handoff",
+      "owner_plane": "virtual_gpu",
+      "reason": "service contract and boundary available",
+      "sector": "sector://service-governance",
+      "semantic_expression": "expression://verify-manifest-before-node-execution",
+      "semantic_word": "word://service",
+      "service_id": "virtual_gpu_hci_dashboard"
+    },
+    {
+      "code_binding": "config/service_protocols.json::vfs_volume_custody",
+      "conformance_state": "SEMANTICALLY_BOUND",
+      "evidence_contract": "recognize\u2192execute\u2192verify\u2192write_receipt\u2192readback\u2192handoff",
+      "owner_plane": "vfs",
+      "reason": "service contract and boundary available",
+      "sector": "sector://service-governance",
+      "semantic_expression": "expression://verify-manifest-before-node-execution",
+      "semantic_word": "word://service",
+      "service_id": "vfs_volume_custody"
+    },
+    {
+      "code_binding": "config/service_protocols.json::orphan_service_reconciler",
+      "conformance_state": "SEMANTICALLY_BOUND",
+      "evidence_contract": "recognize\u2192execute\u2192verify\u2192write_receipt\u2192readback\u2192handoff",
+      "owner_plane": "virtual_cpu",
+      "reason": "service contract and boundary available",
+      "sector": "sector://service-governance",
+      "semantic_expression": "expression://verify-manifest-before-node-execution",
+      "semantic_word": "word://service",
+      "service_id": "orphan_service_reconciler"
+    },
+    {
+      "code_binding": "config/service_protocols.json::mirror_update_lane",
+      "conformance_state": "SEMANTICALLY_BOUND",
+      "evidence_contract": "recognize\u2192execute\u2192verify\u2192write_receipt\u2192readback\u2192handoff",
+      "owner_plane": "virtual_cpu_vfs_mirror",
+      "reason": "service contract and boundary available",
+      "sector": "sector://application-deployment",
+      "semantic_expression": "expression://run-kapp-on-eligible-node",
+      "semantic_word": "word://deploy",
+      "service_id": "mirror_update_lane"
+    },
+    {
+      "code_binding": "config/service_protocols.json::agent_registry_service",
+      "conformance_state": "SEMANTICALLY_BOUND",
+      "evidence_contract": "recognize\u2192execute\u2192verify\u2192write_receipt\u2192readback\u2192handoff",
+      "owner_plane": "virtual_cpu_governance_plane",
+      "reason": "service contract and boundary available",
+      "sector": "sector://agent-operations",
+      "semantic_expression": "expression://instantiate-governed-agent-worker",
+      "semantic_word": "word://agent",
+      "service_id": "agent_registry_service"
+    },
+    {
+      "code_binding": "config/service_protocols.json::agent_runtime_service",
+      "conformance_state": "SEMANTICALLY_BOUND",
+      "evidence_contract": "recognize\u2192execute\u2192verify\u2192write_receipt\u2192readback\u2192handoff",
+      "owner_plane": "virtual_cpu_execution_plane",
+      "reason": "service contract and boundary available",
+      "sector": "sector://agent-operations",
+      "semantic_expression": "expression://instantiate-governed-agent-worker",
+      "semantic_word": "word://agent",
+      "service_id": "agent_runtime_service"
+    },
+    {
+      "code_binding": "config/service_protocols.json::btc_core_protocol_router",
+      "conformance_state": "SEMANTICALLY_BOUND",
+      "evidence_contract": "recognize\u2192execute\u2192verify\u2192write_receipt\u2192readback\u2192handoff",
+      "owner_plane": "virtual_cpu_network_adapter",
+      "reason": "service contract and boundary available",
+      "sector": "sector://service-governance",
+      "semantic_expression": "expression://verify-manifest-before-node-execution",
+      "semantic_word": "word://service",
+      "service_id": "btc_core_protocol_router"
+    },
+    {
+      "code_binding": "config/service_protocols.json::task_milestone_monitor",
+      "conformance_state": "SEMANTICALLY_BOUND",
+      "evidence_contract": "recognize\u2192execute\u2192verify\u2192write_receipt\u2192readback\u2192handoff",
+      "owner_plane": "virtual_cpu_worker_governance",
+      "reason": "service contract and boundary available",
+      "sector": "sector://evidence-governance",
+      "semantic_expression": "expression://verify-manifest-before-node-execution",
+      "semantic_word": "word://verify",
+      "service_id": "task_milestone_monitor"
+    },
+    {
+      "code_binding": "config/service_protocols.json::workflow_schema_guard",
+      "conformance_state": "SEMANTICALLY_BOUND",
+      "evidence_contract": "recognize\u2192execute\u2192verify\u2192write_receipt\u2192readback\u2192handoff",
+      "owner_plane": "virtual_cpu_delivery_governance",
+      "reason": "service contract and boundary available",
+      "sector": "sector://evidence-governance",
+      "semantic_expression": "expression://verify-manifest-before-node-execution",
+      "semantic_word": "word://verify",
+      "service_id": "workflow_schema_guard"
+    },
+    {
+      "code_binding": "config/service_protocols.json::software_design_deployment_workflow",
+      "conformance_state": "SEMANTICALLY_BOUND",
+      "evidence_contract": "recognize\u2192execute\u2192verify\u2192write_receipt\u2192readback\u2192handoff",
+      "owner_plane": "virtual_cpu_delivery_governance",
+      "reason": "service contract and boundary available",
+      "sector": "sector://application-deployment",
+      "semantic_expression": "expression://run-kapp-on-eligible-node",
+      "semantic_word": "word://deploy",
+      "service_id": "software_design_deployment_workflow"
+    },
+    {
+      "code_binding": "config/service_protocols.json::test_runner",
+      "conformance_state": "SEMANTICALLY_BOUND",
+      "evidence_contract": "recognize\u2192execute\u2192verify\u2192write_receipt\u2192readback\u2192handoff",
+      "owner_plane": "virtual_cpu_verification_plane",
+      "reason": "service contract and boundary available",
+      "sector": "sector://service-governance",
+      "semantic_expression": "expression://verify-manifest-before-node-execution",
+      "semantic_word": "word://service",
+      "service_id": "test_runner"
+    },
+    {
+      "code_binding": "config/service_protocols.json::dependency_failure_orchestrator",
+      "conformance_state": "SEMANTICALLY_BOUND",
+      "evidence_contract": "recognize\u2192execute\u2192verify\u2192write_receipt\u2192readback\u2192handoff",
+      "owner_plane": "virtual_cpu_resilience_plane",
+      "reason": "service contract and boundary available",
+      "sector": "sector://runtime-continuity",
+      "semantic_expression": "expression://reconcile-deferred-work-after-dependency-recovery",
+      "semantic_word": "word://recover",
+      "service_id": "dependency_failure_orchestrator"
+    },
+    {
+      "code_binding": "config/service_protocols.json::k_cloud_adapter",
+      "conformance_state": "SEMANTICALLY_BOUND",
+      "evidence_contract": "recognize\u2192execute\u2192verify\u2192write_receipt\u2192readback\u2192handoff",
+      "owner_plane": "virtual_cpu_deployment_plane",
+      "reason": "service contract and boundary available",
+      "sector": "sector://application-deployment",
+      "semantic_expression": "expression://run-kapp-on-eligible-node",
+      "semantic_word": "word://deploy",
+      "service_id": "k_cloud_adapter"
+    },
+    {
+      "code_binding": "config/service_protocols.json::failure_ledger",
+      "conformance_state": "SEMANTICALLY_BOUND",
+      "evidence_contract": "recognize\u2192execute\u2192verify\u2192write_receipt\u2192readback\u2192handoff",
+      "owner_plane": "vfs_resilience_plane",
+      "reason": "service contract and boundary available",
+      "sector": "sector://runtime-continuity",
+      "semantic_expression": "expression://reconcile-deferred-work-after-dependency-recovery",
+      "semantic_word": "word://recover",
+      "service_id": "failure_ledger"
+    },
+    {
+      "code_binding": "config/service_protocols.json::health_state_monitor",
+      "conformance_state": "SEMANTICALLY_BOUND",
+      "evidence_contract": "recognize\u2192execute\u2192verify\u2192write_receipt\u2192readback\u2192handoff",
+      "owner_plane": "virtual_cpu_health_plane",
+      "reason": "service contract and boundary available",
+      "sector": "sector://mesh-infrastructure",
+      "semantic_expression": "expression://observe-node-health",
+      "semantic_word": "word://health",
+      "service_id": "health_state_monitor"
+    },
+    {
+      "code_binding": "config/service_protocols.json::application_applet_packager",
+      "conformance_state": "SEMANTICALLY_BOUND",
+      "evidence_contract": "recognize\u2192execute\u2192verify\u2192write_receipt\u2192readback\u2192handoff",
+      "owner_plane": "virtual_cpu_application_shipping_plane",
+      "reason": "service contract and boundary available",
+      "sector": "sector://runtime-continuity",
+      "semantic_expression": "expression://reconcile-deferred-work-after-dependency-recovery",
+      "semantic_word": "word://recover",
+      "service_id": "application_applet_packager"
+    },
+    {
+      "code_binding": "config/service_protocols.json::deployment_maturity_workplan",
+      "conformance_state": "SEMANTICALLY_BOUND",
+      "evidence_contract": "recognize\u2192execute\u2192verify\u2192write_receipt\u2192readback\u2192handoff",
+      "owner_plane": "virtual_cpu_release_governance_plane",
+      "reason": "service contract and boundary available",
+      "sector": "sector://application-deployment",
+      "semantic_expression": "expression://run-kapp-on-eligible-node",
+      "semantic_word": "word://deploy",
+      "service_id": "deployment_maturity_workplan"
+    },
+    {
+      "code_binding": "config/service_protocols.json::current_state_surface_auditor",
+      "conformance_state": "SEMANTICALLY_BOUND",
+      "evidence_contract": "recognize\u2192execute\u2192verify\u2192write_receipt\u2192readback\u2192handoff",
+      "owner_plane": "virtual_cpu_current_state_audit_plane",
+      "reason": "service contract and boundary available",
+      "sector": "sector://agent-operations",
+      "semantic_expression": "expression://instantiate-governed-agent-worker",
+      "semantic_word": "word://agent",
+      "service_id": "current_state_surface_auditor"
+    },
+    {
+      "code_binding": "config/service_protocols.json::evidence_context_resolver",
+      "conformance_state": "SEMANTICALLY_BOUND",
+      "evidence_contract": "recognize\u2192execute\u2192verify\u2192write_receipt\u2192readback\u2192handoff",
+      "owner_plane": "virtual_cpu_evidence_reasoning_plane",
+      "reason": "service contract and boundary available",
+      "sector": "sector://service-governance",
+      "semantic_expression": "expression://verify-manifest-before-node-execution",
+      "semantic_word": "word://service",
+      "service_id": "evidence_context_resolver"
+    },
+    {
+      "code_binding": "config/service_protocols.json::semantic_knowledge_graph",
+      "conformance_state": "SEMANTICALLY_BOUND",
+      "evidence_contract": "recognize\u2192execute\u2192verify\u2192write_receipt\u2192readback\u2192handoff",
+      "owner_plane": "virtual_cpu_semantic_governance_plane",
+      "reason": "service contract and boundary available",
+      "sector": "sector://evidence-governance",
+      "semantic_expression": "expression://verify-manifest-before-node-execution",
+      "semantic_word": "word://verify",
+      "service_id": "semantic_knowledge_graph"
+    },
+    {
+      "code_binding": "config/service_protocols.json::four_plane_context_framework",
+      "conformance_state": "SEMANTICALLY_BOUND",
+      "evidence_contract": "recognize\u2192execute\u2192verify\u2192write_receipt\u2192readback\u2192handoff",
+      "owner_plane": "virtual_cpu_context_governance_plane",
+      "reason": "service contract and boundary available",
+      "sector": "sector://service-governance",
+      "semantic_expression": "expression://verify-manifest-before-node-execution",
+      "semantic_word": "word://service",
+      "service_id": "four_plane_context_framework"
+    }
+  ],
+  "canonical_statement": "The codebase is an executable encyclopedia of contextual state transitions.",
+  "execution_explainability_enabled": true,
+  "explainability_statement": "Every execution can explain itself linguistically, structurally and evidentially.",
+  "expressions": [
+    {
+      "backlinks": {
+        "code_bindings": [
+          "config/service_protocols.json::deployment_maturity_workplan",
+          "config/service_protocols.json::k_cloud_adapter",
+          "config/service_protocols.json::mirror_update_lane",
+          "config/service_protocols.json::software_design_deployment_workflow"
+        ],
+        "services": [
+          "service://deployment_maturity_workplan",
+          "service://k_cloud_adapter",
+          "service://mirror_update_lane",
+          "service://software_design_deployment_workflow"
+        ],
+        "story_transitions": []
+      },
+      "composed_definition": "initiate an admitted immutable application package on a node whose capabilities, policy, health and integrity satisfy the deployment contract",
+      "expression_id": "expression://run-kapp-on-eligible-node",
+      "not_allowed": [
+        "run label without process execution",
+        "deploy claim without package readback"
+      ],
+      "source_meaning": {
+        "deploy": "word://deploy",
+        "node": "word://node",
+        "run": "word://run"
+      },
+      "words": [
+        {
+          "canonical": "word://run",
+          "grammatical_role": "action"
+        },
+        {
+          "canonical": "word://deploy",
+          "grammatical_role": "release_context"
+        },
+        {
+          "canonical": "word://node",
+          "grammatical_role": "execution_target"
+        }
+      ]
+    },
+    {
+      "backlinks": {
+        "code_bindings": [
+          "config/service_protocols.json::btc_core_protocol_router",
+          "config/service_protocols.json::evidence_context_resolver",
+          "config/service_protocols.json::four_plane_context_framework",
+          "config/service_protocols.json::hemos_family_of_five_runtime",
+          "config/service_protocols.json::hyper_explicit_mesh_runtime",
+          "config/service_protocols.json::indefinite_network_runtime",
+          "config/service_protocols.json::orphan_service_reconciler",
+          "config/service_protocols.json::peer_ack_verifier",
+          "config/service_protocols.json::safe_asset_receipt_pipeline",
+          "config/service_protocols.json::secret_boundary_guard",
+          "config/service_protocols.json::semantic_knowledge_graph",
+          "config/service_protocols.json::task_milestone_monitor",
+          "config/service_protocols.json::test_runner",
+          "config/service_protocols.json::vfs_volume_custody",
+          "config/service_protocols.json::virtual_gpu_hci_dashboard",
+          "config/service_protocols.json::workflow_schema_guard",
+          "config/service_protocols.json::zero_heap_compiler"
+        ],
+        "services": [
+          "service://btc_core_protocol_router",
+          "service://evidence_context_resolver",
+          "service://four_plane_context_framework",
+          "service://hemos_family_of_five_runtime",
+          "service://hyper_explicit_mesh_runtime",
+          "service://indefinite_network_runtime",
+          "service://orphan_service_reconciler",
+          "service://peer_ack_verifier",
+          "service://safe_asset_receipt_pipeline",
+          "service://secret_boundary_guard",
+          "service://semantic_knowledge_graph",
+          "service://task_milestone_monitor",
+          "service://test_runner",
+          "service://vfs_volume_custody",
+          "service://virtual_gpu_hci_dashboard",
+          "service://workflow_schema_guard",
+          "service://zero_heap_compiler"
+        ],
+        "story_transitions": []
+      },
+      "composed_definition": "read and compare the application package manifest against integrity data before node-side execution can start",
+      "expression_id": "expression://verify-manifest-before-node-execution",
+      "not_allowed": [
+        "existence check only",
+        "node execution before integrity readback"
+      ],
+      "source_meaning": {
+        "deploy": "word://deploy",
+        "node": "word://node",
+        "verify": "word://verify"
+      },
+      "words": [
+        {
+          "canonical": "word://verify",
+          "grammatical_role": "predicate"
+        },
+        {
+          "canonical": "word://deploy",
+          "grammatical_role": "deployment_constraint"
+        },
+        {
+          "canonical": "word://node",
+          "grammatical_role": "execution_target"
+        }
+      ]
+    },
+    {
+      "backlinks": {
+        "code_bindings": [
+          "config/service_protocols.json::health_state_monitor"
+        ],
+        "services": [
+          "service://health_state_monitor"
+        ],
+        "story_transitions": []
+      },
+      "composed_definition": "derive current capability-scoped condition of an addressable node from fresh observer-bound evidence",
+      "expression_id": "expression://observe-node-health",
+      "not_allowed": [
+        "static ONLINE string",
+        "stale heartbeat",
+        "UI colour alone"
+      ],
+      "source_meaning": {
+        "health": "word://health",
+        "node": "word://node"
+      },
+      "words": [
+        {
+          "canonical": "word://health",
+          "grammatical_role": "object"
+        },
+        {
+          "canonical": "word://node",
+          "grammatical_role": "subject"
+        }
+      ]
+    },
+    {
+      "backlinks": {
+        "code_bindings": [
+          "config/service_protocols.json::agent_registry_service",
+          "config/service_protocols.json::agent_runtime_service",
+          "config/service_protocols.json::agent_static_guard",
+          "config/service_protocols.json::current_state_surface_auditor"
+        ],
+        "services": [
+          "service://agent_registry_service",
+          "service://agent_runtime_service",
+          "service://agent_static_guard",
+          "service://current_state_surface_auditor"
+        ],
+        "story_transitions": []
+      },
+      "composed_definition": "create a functioning worker by binding identity, role, team, tenant boundary, VFS namespace, queue, skills, policy, runtime allocation, telemetry channel, receipt ledger and lineage",
+      "expression_id": "expression://instantiate-governed-agent-worker",
+      "not_allowed": [
+        "definition-only agent",
+        "button-only provision action"
+      ],
+      "source_meaning": {
+        "agent": "word://agent",
+        "service": "word://service",
+        "verify": "word://verify"
+      },
+      "words": [
+        {
+          "canonical": "word://agent",
+          "grammatical_role": "worker_identity"
+        },
+        {
+          "canonical": "word://service",
+          "grammatical_role": "execution_service"
+        },
+        {
+          "canonical": "word://verify",
+          "grammatical_role": "admission_gate"
+        }
+      ]
+    },
+    {
+      "backlinks": {
+        "code_bindings": [
+          "config/service_protocols.json::application_applet_packager",
+          "config/service_protocols.json::dependency_failure_orchestrator",
+          "config/service_protocols.json::failure_ledger"
+        ],
+        "services": [
+          "service://application_applet_packager",
+          "service://dependency_failure_orchestrator",
+          "service://failure_ledger"
+        ],
+        "story_transitions": []
+      },
+      "composed_definition": "replay durable deferred work only after dependency health, integrity and lineage are verified",
+      "expression_id": "expression://reconcile-deferred-work-after-dependency-recovery",
+      "not_allowed": [
+        "blind retry",
+        "manual status flip"
+      ],
+      "source_meaning": {
+        "recover": "word://recover",
+        "service": "word://service",
+        "verify": "word://verify"
+      },
+      "words": [
+        {
+          "canonical": "word://recover",
+          "grammatical_role": "action"
+        },
+        {
+          "canonical": "word://service",
+          "grammatical_role": "dependency_domain"
+        },
+        {
+          "canonical": "word://verify",
+          "grammatical_role": "reintegration_gate"
+        }
+      ]
+    }
+  ],
+  "isolated_file_model_rejected": true,
+  "issues": [],
+  "receipt": {
+    "binding_matrix_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/exports/semantic_knowledge_graph_bindings.csv",
+    "conformance_issue_count": 0,
+    "edge_matrix_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/exports/semantic_knowledge_graph_edges.csv",
+    "expression_count": 5,
+    "ledger_readback": true,
+    "outbox_manifest": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/outbox/semantic_knowledge_graph/24ffb9133fdb7168fd92c0789a021ae484edd09c7244844aa7ff3ddbc75b488b.handoff.json",
+    "receipt_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/semantic_knowledge_graph_receipt.json",
+    "service_binding_count": 29,
+    "story_transition_count": 29,
+    "timestamp": 1786086741.2530122,
+    "version": "V99",
+    "word_count": 8
+  },
+  "single_file_claim": false,
+  "transitions": [
+    {
+      "evidence": {
+        "evidence_required": "service contract and linked expression",
+        "observer": "semantic_knowledge_graph",
+        "receipt_class": "semantic_graph_receipt"
+      },
+      "execution_service": "service://agent_static_guard",
+      "expression": "expression://instantiate-governed-agent-worker",
+      "handler": "config/service_protocols.json::agent_static_guard",
+      "next_story": {
+        "meaning_state": "linked",
+        "service_state": "addressable"
+      },
+      "prior_story": {
+        "meaning_state": "unlinked_or_partial",
+        "service_state": "declared"
+      },
+      "timestamp": 1786086741.2534654,
+      "transition_id": "transition://semantic/agent_static_guard/a68083d8bbe1"
+    },
+    {
+      "evidence": {
+        "evidence_required": "service contract and linked expression",
+        "observer": "semantic_knowledge_graph",
+        "receipt_class": "semantic_graph_receipt"
+      },
+      "execution_service": "service://secret_boundary_guard",
+      "expression": "expression://verify-manifest-before-node-execution",
+      "handler": "config/service_protocols.json::secret_boundary_guard",
+      "next_story": {
+        "meaning_state": "linked",
+        "service_state": "addressable"
+      },
+      "prior_story": {
+        "meaning_state": "unlinked_or_partial",
+        "service_state": "declared"
+      },
+      "timestamp": 1786086741.2534752,
+      "transition_id": "transition://semantic/secret_boundary_guard/88f7dbbd3114"
+    },
+    {
+      "evidence": {
+        "evidence_required": "service contract and linked expression",
+        "observer": "semantic_knowledge_graph",
+        "receipt_class": "semantic_graph_receipt"
+      },
+      "execution_service": "service://zero_heap_compiler",
+      "expression": "expression://verify-manifest-before-node-execution",
+      "handler": "config/service_protocols.json::zero_heap_compiler",
+      "next_story": {
+        "meaning_state": "linked",
+        "service_state": "addressable"
+      },
+      "prior_story": {
+        "meaning_state": "unlinked_or_partial",
+        "service_state": "declared"
+      },
+      "timestamp": 1786086741.2534814,
+      "transition_id": "transition://semantic/zero_heap_compiler/9a3ced9b67ea"
+    },
+    {
+      "evidence": {
+        "evidence_required": "service contract and linked expression",
+        "observer": "semantic_knowledge_graph",
+        "receipt_class": "semantic_graph_receipt"
+      },
+      "execution_service": "service://peer_ack_verifier",
+      "expression": "expression://verify-manifest-before-node-execution",
+      "handler": "config/service_protocols.json::peer_ack_verifier",
+      "next_story": {
+        "meaning_state": "linked",
+        "service_state": "addressable"
+      },
+      "prior_story": {
+        "meaning_state": "unlinked_or_partial",
+        "service_state": "declared"
+      },
+      "timestamp": 1786086741.2534873,
+      "transition_id": "transition://semantic/peer_ack_verifier/504ad30c61ef"
+    },
+    {
+      "evidence": {
+        "evidence_required": "service contract and linked expression",
+        "observer": "semantic_knowledge_graph",
+        "receipt_class": "semantic_graph_receipt"
+      },
+      "execution_service": "service://hyper_explicit_mesh_runtime",
+      "expression": "expression://verify-manifest-before-node-execution",
+      "handler": "config/service_protocols.json::hyper_explicit_mesh_runtime",
+      "next_story": {
+        "meaning_state": "linked",
+        "service_state": "addressable"
+      },
+      "prior_story": {
+        "meaning_state": "unlinked_or_partial",
+        "service_state": "declared"
+      },
+      "timestamp": 1786086741.2534928,
+      "transition_id": "transition://semantic/hyper_explicit_mesh_runtime/bf19f9d7e9ed"
+    },
+    {
+      "evidence": {
+        "evidence_required": "service contract and linked expression",
+        "observer": "semantic_knowledge_graph",
+        "receipt_class": "semantic_graph_receipt"
+      },
+      "execution_service": "service://hemos_family_of_five_runtime",
+      "expression": "expression://verify-manifest-before-node-execution",
+      "handler": "config/service_protocols.json::hemos_family_of_five_runtime",
+      "next_story": {
+        "meaning_state": "linked",
+        "service_state": "addressable"
+      },
+      "prior_story": {
+        "meaning_state": "unlinked_or_partial",
+        "service_state": "declared"
+      },
+      "timestamp": 1786086741.253498,
+      "transition_id": "transition://semantic/hemos_family_of_five_runtime/776bd6f627f1"
+    },
+    {
+      "evidence": {
+        "evidence_required": "service contract and linked expression",
+        "observer": "semantic_knowledge_graph",
+        "receipt_class": "semantic_graph_receipt"
+      },
+      "execution_service": "service://indefinite_network_runtime",
+      "expression": "expression://verify-manifest-before-node-execution",
+      "handler": "config/service_protocols.json::indefinite_network_runtime",
+      "next_story": {
+        "meaning_state": "linked",
+        "service_state": "addressable"
+      },
+      "prior_story": {
+        "meaning_state": "unlinked_or_partial",
+        "service_state": "declared"
+      },
+      "timestamp": 1786086741.2535033,
+      "transition_id": "transition://semantic/indefinite_network_runtime/f5b3d6ded58d"
+    },
+    {
+      "evidence": {
+        "evidence_required": "service contract and linked expression",
+        "observer": "semantic_knowledge_graph",
+        "receipt_class": "semantic_graph_receipt"
+      },
+      "execution_service": "service://safe_asset_receipt_pipeline",
+      "expression": "expression://verify-manifest-before-node-execution",
+      "handler": "config/service_protocols.json::safe_asset_receipt_pipeline",
+      "next_story": {
+        "meaning_state": "linked",
+        "service_state": "addressable"
+      },
+      "prior_story": {
+        "meaning_state": "unlinked_or_partial",
+        "service_state": "declared"
+      },
+      "timestamp": 1786086741.2535083,
+      "transition_id": "transition://semantic/safe_asset_receipt_pipeline/02c4591e36a6"
+    },
+    {
+      "evidence": {
+        "evidence_required": "service contract and linked expression",
+        "observer": "semantic_knowledge_graph",
+        "receipt_class": "semantic_graph_receipt"
+      },
+      "execution_service": "service://virtual_gpu_hci_dashboard",
+      "expression": "expression://verify-manifest-before-node-execution",
+      "handler": "config/service_protocols.json::virtual_gpu_hci_dashboard",
+      "next_story": {
+        "meaning_state": "linked",
+        "service_state": "addressable"
+      },
+      "prior_story": {
+        "meaning_state": "unlinked_or_partial",
+        "service_state": "declared"
+      },
+      "timestamp": 1786086741.253513,
+      "transition_id": "transition://semantic/virtual_gpu_hci_dashboard/400c9c6af2a1"
+    },
+    {
+      "evidence": {
+        "evidence_required": "service contract and linked expression",
+        "observer": "semantic_knowledge_graph",
+        "receipt_class": "semantic_graph_receipt"
+      },
+      "execution_service": "service://vfs_volume_custody",
+      "expression": "expression://verify-manifest-before-node-execution",
+      "handler": "config/service_protocols.json::vfs_volume_custody",
+      "next_story": {
+        "meaning_state": "linked",
+        "service_state": "addressable"
+      },
+      "prior_story": {
+        "meaning_state": "unlinked_or_partial",
+        "service_state": "declared"
+      },
+      "timestamp": 1786086741.2535188,
+      "transition_id": "transition://semantic/vfs_volume_custody/23f1d31be2d9"
+    },
+    {
+      "evidence": {
+        "evidence_required": "service contract and linked expression",
+        "observer": "semantic_knowledge_graph",
+        "receipt_class": "semantic_graph_receipt"
+      },
+      "execution_service": "service://orphan_service_reconciler",
+      "expression": "expression://verify-manifest-before-node-execution",
+      "handler": "config/service_protocols.json::orphan_service_reconciler",
+      "next_story": {
+        "meaning_state": "linked",
+        "service_state": "addressable"
+      },
+      "prior_story": {
+        "meaning_state": "unlinked_or_partial",
+        "service_state": "declared"
+      },
+      "timestamp": 1786086741.2535243,
+      "transition_id": "transition://semantic/orphan_service_reconciler/5da86caa43bd"
+    },
+    {
+      "evidence": {
+        "evidence_required": "service contract and linked expression",
+        "observer": "semantic_knowledge_graph",
+        "receipt_class": "semantic_graph_receipt"
+      },
+      "execution_service": "service://mirror_update_lane",
+      "expression": "expression://run-kapp-on-eligible-node",
+      "handler": "config/service_protocols.json::mirror_update_lane",
+      "next_story": {
+        "meaning_state": "linked",
+        "service_state": "addressable"
+      },
+      "prior_story": {
+        "meaning_state": "unlinked_or_partial",
+        "service_state": "declared"
+      },
+      "timestamp": 1786086741.2535293,
+      "transition_id": "transition://semantic/mirror_update_lane/df637b907324"
+    },
+    {
+      "evidence": {
+        "evidence_required": "service contract and linked expression",
+        "observer": "semantic_knowledge_graph",
+        "receipt_class": "semantic_graph_receipt"
+      },
+      "execution_service": "service://agent_registry_service",
+      "expression": "expression://instantiate-governed-agent-worker",
+      "handler": "config/service_protocols.json::agent_registry_service",
+      "next_story": {
+        "meaning_state": "linked",
+        "service_state": "addressable"
+      },
+      "prior_story": {
+        "meaning_state": "unlinked_or_partial",
+        "service_state": "declared"
+      },
+      "timestamp": 1786086741.2535348,
+      "transition_id": "transition://semantic/agent_registry_service/53563a5ebe58"
+    },
+    {
+      "evidence": {
+        "evidence_required": "service contract and linked expression",
+        "observer": "semantic_knowledge_graph",
+        "receipt_class": "semantic_graph_receipt"
+      },
+      "execution_service": "service://agent_runtime_service",
+      "expression": "expression://instantiate-governed-agent-worker",
+      "handler": "config/service_protocols.json::agent_runtime_service",
+      "next_story": {
+        "meaning_state": "linked",
+        "service_state": "addressable"
+      },
+      "prior_story": {
+        "meaning_state": "unlinked_or_partial",
+        "service_state": "declared"
+      },
+      "timestamp": 1786086741.2535398,
+      "transition_id": "transition://semantic/agent_runtime_service/36958e7469c7"
+    },
+    {
+      "evidence": {
+        "evidence_required": "service contract and linked expression",
+        "observer": "semantic_knowledge_graph",
+        "receipt_class": "semantic_graph_receipt"
+      },
+      "execution_service": "service://btc_core_protocol_router",
+      "expression": "expression://verify-manifest-before-node-execution",
+      "handler": "config/service_protocols.json::btc_core_protocol_router",
+      "next_story": {
+        "meaning_state": "linked",
+        "service_state": "addressable"
+      },
+      "prior_story": {
+        "meaning_state": "unlinked_or_partial",
+        "service_state": "declared"
+      },
+      "timestamp": 1786086741.2535453,
+      "transition_id": "transition://semantic/btc_core_protocol_router/012c2457cc48"
+    },
+    {
+      "evidence": {
+        "evidence_required": "service contract and linked expression",
+        "observer": "semantic_knowledge_graph",
+        "receipt_class": "semantic_graph_receipt"
+      },
+      "execution_service": "service://task_milestone_monitor",
+      "expression": "expression://verify-manifest-before-node-execution",
+      "handler": "config/service_protocols.json::task_milestone_monitor",
+      "next_story": {
+        "meaning_state": "linked",
+        "service_state": "addressable"
+      },
+      "prior_story": {
+        "meaning_state": "unlinked_or_partial",
+        "service_state": "declared"
+      },
+      "timestamp": 1786086741.2535505,
+      "transition_id": "transition://semantic/task_milestone_monitor/35bd73bd9600"
+    },
+    {
+      "evidence": {
+        "evidence_required": "service contract and linked expression",
+        "observer": "semantic_knowledge_graph",
+        "receipt_class": "semantic_graph_receipt"
+      },
+      "execution_service": "service://workflow_schema_guard",
+      "expression": "expression://verify-manifest-before-node-execution",
+      "handler": "config/service_protocols.json::workflow_schema_guard",
+      "next_story": {
+        "meaning_state": "linked",
+        "service_state": "addressable"
+      },
+      "prior_story": {
+        "meaning_state": "unlinked_or_partial",
+        "service_state": "declared"
+      },
+      "timestamp": 1786086741.2535558,
+      "transition_id": "transition://semantic/workflow_schema_guard/4c437de87ae5"
+    },
+    {
+      "evidence": {
+        "evidence_required": "service contract and linked expression",
+        "observer": "semantic_knowledge_graph",
+        "receipt_class": "semantic_graph_receipt"
+      },
+      "execution_service": "service://software_design_deployment_workflow",
+      "expression": "expression://run-kapp-on-eligible-node",
+      "handler": "config/service_protocols.json::software_design_deployment_workflow",
+      "next_story": {
+        "meaning_state": "linked",
+        "service_state": "addressable"
+      },
+      "prior_story": {
+        "meaning_state": "unlinked_or_partial",
+        "service_state": "declared"
+      },
+      "timestamp": 1786086741.2535613,
+      "transition_id": "transition://semantic/software_design_deployment_workflow/fef188ad75f8"
+    },
+    {
+      "evidence": {
+        "evidence_required": "service contract and linked expression",
+        "observer": "semantic_knowledge_graph",
+        "receipt_class": "semantic_graph_receipt"
+      },
+      "execution_service": "service://test_runner",
+      "expression": "expression://verify-manifest-before-node-execution",
+      "handler": "config/service_protocols.json::test_runner",
+      "next_story": {
+        "meaning_state": "linked",
+        "service_state": "addressable"
+      },
+      "prior_story": {
+        "meaning_state": "unlinked_or_partial",
+        "service_state": "declared"
+      },
+      "timestamp": 1786086741.2535667,
+      "transition_id": "transition://semantic/test_runner/2a427119ce48"
+    },
+    {
+      "evidence": {
+        "evidence_required": "service contract and linked expression",
+        "observer": "semantic_knowledge_graph",
+        "receipt_class": "semantic_graph_receipt"
+      },
+      "execution_service": "service://dependency_failure_orchestrator",
+      "expression": "expression://reconcile-deferred-work-after-dependency-recovery",
+      "handler": "config/service_protocols.json::dependency_failure_orchestrator",
+      "next_story": {
+        "meaning_state": "linked",
+        "service_state": "addressable"
+      },
+      "prior_story": {
+        "meaning_state": "unlinked_or_partial",
+        "service_state": "declared"
+      },
+      "timestamp": 1786086741.253572,
+      "transition_id": "transition://semantic/dependency_failure_orchestrator/57d6eb52b723"
+    },
+    {
+      "evidence": {
+        "evidence_required": "service contract and linked expression",
+        "observer": "semantic_knowledge_graph",
+        "receipt_class": "semantic_graph_receipt"
+      },
+      "execution_service": "service://k_cloud_adapter",
+      "expression": "expression://run-kapp-on-eligible-node",
+      "handler": "config/service_protocols.json::k_cloud_adapter",
+      "next_story": {
+        "meaning_state": "linked",
+        "service_state": "addressable"
+      },
+      "prior_story": {
+        "meaning_state": "unlinked_or_partial",
+        "service_state": "declared"
+      },
+      "timestamp": 1786086741.2535772,
+      "transition_id": "transition://semantic/k_cloud_adapter/da9d9febab68"
+    },
+    {
+      "evidence": {
+        "evidence_required": "service contract and linked expression",
+        "observer": "semantic_knowledge_graph",
+        "receipt_class": "semantic_graph_receipt"
+      },
+      "execution_service": "service://failure_ledger",
+      "expression": "expression://reconcile-deferred-work-after-dependency-recovery",
+      "handler": "config/service_protocols.json::failure_ledger",
+      "next_story": {
+        "meaning_state": "linked",
+        "service_state": "addressable"
+      },
+      "prior_story": {
+        "meaning_state": "unlinked_or_partial",
+        "service_state": "declared"
+      },
+      "timestamp": 1786086741.2535825,
+      "transition_id": "transition://semantic/failure_ledger/a4662b14218f"
+    },
+    {
+      "evidence": {
+        "evidence_required": "service contract and linked expression",
+        "observer": "semantic_knowledge_graph",
+        "receipt_class": "semantic_graph_receipt"
+      },
+      "execution_service": "service://health_state_monitor",
+      "expression": "expression://observe-node-health",
+      "handler": "config/service_protocols.json::health_state_monitor",
+      "next_story": {
+        "meaning_state": "linked",
+        "service_state": "addressable"
+      },
+      "prior_story": {
+        "meaning_state": "unlinked_or_partial",
+        "service_state": "declared"
+      },
+      "timestamp": 1786086741.253588,
+      "transition_id": "transition://semantic/health_state_monitor/cfb5c763bf0e"
+    },
+    {
+      "evidence": {
+        "evidence_required": "service contract and linked expression",
+        "observer": "semantic_knowledge_graph",
+        "receipt_class": "semantic_graph_receipt"
+      },
+      "execution_service": "service://application_applet_packager",
+      "expression": "expression://reconcile-deferred-work-after-dependency-recovery",
+      "handler": "config/service_protocols.json::application_applet_packager",
+      "next_story": {
+        "meaning_state": "linked",
+        "service_state": "addressable"
+      },
+      "prior_story": {
+        "meaning_state": "unlinked_or_partial",
+        "service_state": "declared"
+      },
+      "timestamp": 1786086741.2536116,
+      "transition_id": "transition://semantic/application_applet_packager/1306a1aca2a4"
+    },
+    {
+      "evidence": {
+        "evidence_required": "service contract and linked expression",
+        "observer": "semantic_knowledge_graph",
+        "receipt_class": "semantic_graph_receipt"
+      },
+      "execution_service": "service://deployment_maturity_workplan",
+      "expression": "expression://run-kapp-on-eligible-node",
+      "handler": "config/service_protocols.json::deployment_maturity_workplan",
+      "next_story": {
+        "meaning_state": "linked",
+        "service_state": "addressable"
+      },
+      "prior_story": {
+        "meaning_state": "unlinked_or_partial",
+        "service_state": "declared"
+      },
+      "timestamp": 1786086741.2536216,
+      "transition_id": "transition://semantic/deployment_maturity_workplan/78a70282a89b"
+    },
+    {
+      "evidence": {
+        "evidence_required": "service contract and linked expression",
+        "observer": "semantic_knowledge_graph",
+        "receipt_class": "semantic_graph_receipt"
+      },
+      "execution_service": "service://current_state_surface_auditor",
+      "expression": "expression://instantiate-governed-agent-worker",
+      "handler": "config/service_protocols.json::current_state_surface_auditor",
+      "next_story": {
+        "meaning_state": "linked",
+        "service_state": "addressable"
+      },
+      "prior_story": {
+        "meaning_state": "unlinked_or_partial",
+        "service_state": "declared"
+      },
+      "timestamp": 1786086741.2536283,
+      "transition_id": "transition://semantic/current_state_surface_auditor/62af80cdf49a"
+    },
+    {
+      "evidence": {
+        "evidence_required": "service contract and linked expression",
+        "observer": "semantic_knowledge_graph",
+        "receipt_class": "semantic_graph_receipt"
+      },
+      "execution_service": "service://evidence_context_resolver",
+      "expression": "expression://verify-manifest-before-node-execution",
+      "handler": "config/service_protocols.json::evidence_context_resolver",
+      "next_story": {
+        "meaning_state": "linked",
+        "service_state": "addressable"
+      },
+      "prior_story": {
+        "meaning_state": "unlinked_or_partial",
+        "service_state": "declared"
+      },
+      "timestamp": 1786086741.2536337,
+      "transition_id": "transition://semantic/evidence_context_resolver/838a9e99a6e0"
+    },
+    {
+      "evidence": {
+        "evidence_required": "service contract and linked expression",
+        "observer": "semantic_knowledge_graph",
+        "receipt_class": "semantic_graph_receipt"
+      },
+      "execution_service": "service://semantic_knowledge_graph",
+      "expression": "expression://verify-manifest-before-node-execution",
+      "handler": "config/service_protocols.json::semantic_knowledge_graph",
+      "next_story": {
+        "meaning_state": "linked",
+        "service_state": "addressable"
+      },
+      "prior_story": {
+        "meaning_state": "unlinked_or_partial",
+        "service_state": "declared"
+      },
+      "timestamp": 1786086741.2536392,
+      "transition_id": "transition://semantic/semantic_knowledge_graph/87be542aa168"
+    },
+    {
+      "evidence": {
+        "evidence_required": "service contract and linked expression",
+        "observer": "semantic_knowledge_graph",
+        "receipt_class": "semantic_graph_receipt"
+      },
+      "execution_service": "service://four_plane_context_framework",
+      "expression": "expression://verify-manifest-before-node-execution",
+      "handler": "config/service_protocols.json::four_plane_context_framework",
+      "next_story": {
+        "meaning_state": "linked",
+        "service_state": "addressable"
+      },
+      "prior_story": {
+        "meaning_state": "unlinked_or_partial",
+        "service_state": "declared"
+      },
+      "timestamp": 1786086741.2536442,
+      "transition_id": "transition://semantic/four_plane_context_framework/fb4665a65611"
+    }
+  ],
+  "words": [
+    {
+      "allowed_variants": [
+        "process_run",
+        "test_run",
+        "workflow_run",
+        "application_run",
+        "node_run",
+        "recovery_run"
+      ],
+      "backlinks": {
+        "code_bindings": [],
+        "expressions": [
+          "expression://run-kapp-on-eligible-node"
+        ],
+        "services": []
+      },
+      "canonical_id": "word://run",
+      "invariants": [
+        "runnable_subject_exists",
+        "execution_environment_identified",
+        "executing_service_known",
+        "evidence_preservable"
+      ],
+      "part_of_speech": "verb",
+      "prohibited_conflations": [
+        "declared_run_is_not_executed_run",
+        "ui_animation_is_not_process_execution"
+      ],
+      "source_definitions": {
+        "computer_science": "initiate or continue execution of instructions",
+        "keddeh": "transition an authorized contextual object into an active execution state",
+        "linguistic": "cause a process or system to operate"
+      },
+      "word": "RUN"
+    },
+    {
+      "allowed_variants": [
+        "healthy",
+        "degraded",
+        "deferred",
+        "external_gate",
+        "replacement_active"
+      ],
+      "backlinks": {
+        "code_bindings": [
+          "config/service_protocols.json::health_state_monitor"
+        ],
+        "expressions": [
+          "expression://observe-node-health"
+        ],
+        "services": [
+          "service://health_state_monitor"
+        ]
+      },
+      "canonical_id": "word://health",
+      "invariants": [
+        "subject_identity_known",
+        "observer_known",
+        "freshness_known",
+        "capability_scope_known"
+      ],
+      "part_of_speech": "noun",
+      "prohibited_conflations": [
+        "ui_colour_alone_is_not_health",
+        "online_string_is_not_health",
+        "stale_heartbeat_is_not_current_health"
+      ],
+      "source_definitions": {
+        "computer_science": "observed operational condition of a service or node",
+        "keddeh": "capability-scoped state derived from observer, environment, execution plane, evidence and freshness",
+        "linguistic": "condition of a subject"
+      },
+      "word": "HEALTH"
+    },
+    {
+      "allowed_variants": [
+        "human_agent",
+        "software_agent",
+        "acceptance_harness_agent",
+        "worker_agent"
+      ],
+      "backlinks": {
+        "code_bindings": [
+          "config/service_protocols.json::agent_registry_service",
+          "config/service_protocols.json::agent_runtime_service",
+          "config/service_protocols.json::agent_static_guard",
+          "config/service_protocols.json::current_state_surface_auditor"
+        ],
+        "expressions": [
+          "expression://instantiate-governed-agent-worker"
+        ],
+        "services": [
+          "service://agent_registry_service",
+          "service://agent_runtime_service",
+          "service://agent_static_guard",
+          "service://current_state_surface_auditor"
+        ]
+      },
+      "canonical_id": "word://agent",
+      "invariants": [
+        "identity",
+        "role",
+        "vfs_namespace",
+        "task_queue",
+        "policy_set",
+        "receipt_ledger",
+        "lineage_address"
+      ],
+      "part_of_speech": "noun",
+      "prohibited_conflations": [
+        "agent_definition_is_not_functioning_worker",
+        "button_is_not_agent"
+      ],
+      "source_definitions": {
+        "computer_science": "bounded actor executing assigned work under policy",
+        "keddeh": "governed worker identity with role, team, tenant boundary, VFS namespace, task queue, skills, policy, telemetry, receipt ledger and lineage",
+        "linguistic": "one that acts"
+      },
+      "word": "AGENT"
+    },
+    {
+      "allowed_variants": [
+        "local_service",
+        "provider_service",
+        "agent_service",
+        "applet_service"
+      ],
+      "backlinks": {
+        "code_bindings": [
+          "config/service_protocols.json::btc_core_protocol_router",
+          "config/service_protocols.json::evidence_context_resolver",
+          "config/service_protocols.json::four_plane_context_framework",
+          "config/service_protocols.json::hemos_family_of_five_runtime",
+          "config/service_protocols.json::hyper_explicit_mesh_runtime",
+          "config/service_protocols.json::indefinite_network_runtime",
+          "config/service_protocols.json::orphan_service_reconciler",
+          "config/service_protocols.json::peer_ack_verifier",
+          "config/service_protocols.json::secret_boundary_guard",
+          "config/service_protocols.json::test_runner",
+          "config/service_protocols.json::vfs_volume_custody",
+          "config/service_protocols.json::virtual_gpu_hci_dashboard",
+          "config/service_protocols.json::zero_heap_compiler"
+        ],
+        "expressions": [
+          "expression://instantiate-governed-agent-worker",
+          "expression://reconcile-deferred-work-after-dependency-recovery"
+        ],
+        "services": [
+          "service://btc_core_protocol_router",
+          "service://evidence_context_resolver",
+          "service://four_plane_context_framework",
+          "service://hemos_family_of_five_runtime",
+          "service://hyper_explicit_mesh_runtime",
+          "service://indefinite_network_runtime",
+          "service://orphan_service_reconciler",
+          "service://peer_ack_verifier",
+          "service://secret_boundary_guard",
+          "service://test_runner",
+          "service://vfs_volume_custody",
+          "service://virtual_gpu_hci_dashboard",
+          "service://zero_heap_compiler"
+        ]
+      },
+      "canonical_id": "word://service",
+      "invariants": [
+        "service_identity",
+        "owner_plane",
+        "contract",
+        "dependency_boundary",
+        "evidence_boundary"
+      ],
+      "part_of_speech": "noun",
+      "prohibited_conflations": [
+        "service_label_is_not_service_execution",
+        "route_exists_is_not_service_success"
+      ],
+      "source_definitions": {
+        "computer_science": "bounded executable capability exposed through an interface",
+        "keddeh": "owned execution domain with declared contract, dependencies, evidence boundary and recovery behaviour",
+        "linguistic": "useful work supplied to another"
+      },
+      "word": "SERVICE"
+    },
+    {
+      "allowed_variants": [
+        "local_deploy",
+        "host_deploy",
+        "provider_deploy",
+        "degraded_deploy"
+      ],
+      "backlinks": {
+        "code_bindings": [
+          "config/service_protocols.json::deployment_maturity_workplan",
+          "config/service_protocols.json::k_cloud_adapter",
+          "config/service_protocols.json::mirror_update_lane",
+          "config/service_protocols.json::software_design_deployment_workflow"
+        ],
+        "expressions": [
+          "expression://run-kapp-on-eligible-node",
+          "expression://verify-manifest-before-node-execution"
+        ],
+        "services": [
+          "service://deployment_maturity_workplan",
+          "service://k_cloud_adapter",
+          "service://mirror_update_lane",
+          "service://software_design_deployment_workflow"
+        ]
+      },
+      "canonical_id": "word://deploy",
+      "invariants": [
+        "artifact_exists",
+        "environment_known",
+        "policy_resolved",
+        "rollback_available",
+        "receipt_required"
+      ],
+      "part_of_speech": "verb",
+      "prohibited_conflations": [
+        "build_is_not_deploy",
+        "manifest_is_not_deploy_receipt"
+      ],
+      "source_definitions": {
+        "computer_science": "release an artifact into an execution environment",
+        "keddeh": "promote a receipt-backed package into an eligible runtime domain while preserving rollback and lineage",
+        "linguistic": "place into use"
+      },
+      "word": "DEPLOY"
+    },
+    {
+      "allowed_variants": [
+        "integrity_verify",
+        "schema_verify",
+        "capability_verify",
+        "receipt_verify"
+      ],
+      "backlinks": {
+        "code_bindings": [
+          "config/service_protocols.json::safe_asset_receipt_pipeline",
+          "config/service_protocols.json::semantic_knowledge_graph",
+          "config/service_protocols.json::task_milestone_monitor",
+          "config/service_protocols.json::workflow_schema_guard"
+        ],
+        "expressions": [
+          "expression://verify-manifest-before-node-execution",
+          "expression://instantiate-governed-agent-worker",
+          "expression://reconcile-deferred-work-after-dependency-recovery"
+        ],
+        "services": [
+          "service://safe_asset_receipt_pipeline",
+          "service://semantic_knowledge_graph",
+          "service://task_milestone_monitor",
+          "service://workflow_schema_guard"
+        ]
+      },
+      "canonical_id": "word://verify",
+      "invariants": [
+        "readback_performed",
+        "comparison_target_known",
+        "result_recorded",
+        "evidence_emitted"
+      ],
+      "part_of_speech": "verb",
+      "prohibited_conflations": [
+        "file_exists_is_not_full_verify",
+        "hash_alone_is_not_functional_verify"
+      ],
+      "source_definitions": {
+        "computer_science": "check a value against an expected condition and report result",
+        "keddeh": "read, compare, validate, record result and emit evidence with observer, environment, execution plane and lineage",
+        "linguistic": "establish truth or correctness"
+      },
+      "word": "VERIFY"
+    },
+    {
+      "allowed_variants": [
+        "deferred_recovery",
+        "provider_recovery",
+        "host_recovery",
+        "fallback_recovery"
+      ],
+      "backlinks": {
+        "code_bindings": [
+          "config/service_protocols.json::application_applet_packager",
+          "config/service_protocols.json::dependency_failure_orchestrator",
+          "config/service_protocols.json::failure_ledger"
+        ],
+        "expressions": [
+          "expression://reconcile-deferred-work-after-dependency-recovery"
+        ],
+        "services": [
+          "service://application_applet_packager",
+          "service://dependency_failure_orchestrator",
+          "service://failure_ledger"
+        ]
+      },
+      "canonical_id": "word://recover",
+      "invariants": [
+        "failure_record_exists",
+        "fallback_path_known",
+        "reentry_condition_known",
+        "reintegration_receipt_required"
+      ],
+      "part_of_speech": "verb",
+      "prohibited_conflations": [
+        "retry_loop_is_not_recovery",
+        "clearing_ui_error_is_not_reintegration"
+      ],
+      "source_definitions": {
+        "computer_science": "restore capability after failure or unavailability",
+        "keddeh": "reconcile deferred work and reintegrate a dependency only after health, integrity and lineage checks pass",
+        "linguistic": "return to a usable state"
+      },
+      "word": "RECOVER"
+    },
+    {
+      "allowed_variants": [
+        "browser_node",
+        "agent_node",
+        "microvm_node",
+        "service_node",
+        "provider_node"
+      ],
+      "backlinks": {
+        "code_bindings": [],
+        "expressions": [
+          "expression://run-kapp-on-eligible-node",
+          "expression://verify-manifest-before-node-execution",
+          "expression://observe-node-health"
+        ],
+        "services": []
+      },
+      "canonical_id": "word://node",
+      "invariants": [
+        "node_id",
+        "region_or_scope",
+        "lineage",
+        "capability_set",
+        "health_state"
+      ],
+      "part_of_speech": "noun",
+      "prohibited_conflations": [
+        "node_icon_is_not_node_execution",
+        "node_name_is_not_capability_readback"
+      ],
+      "source_definitions": {
+        "computer_science": "addressable member of a distributed system",
+        "keddeh": "mesh entity with identity, region, lineage, service address, VFS volume, capability set, policy set, current version, health and attestation state",
+        "linguistic": "point in a connected structure"
+      },
+      "word": "NODE"
+    }
+  ]
+}

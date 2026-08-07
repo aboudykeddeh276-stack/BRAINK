@@ -1,0 +1,11 @@
+{
+  "classification": "UNSUPPORTED_IN_THIS_RUNTIME",
+  "created_at": 1786086742.3147912,
+  "handoff_id": "a120769d9955dbf8aa30c8e5f39e95df34e219b714434a84b0e8b9fd765ecac5",
+  "next_target": "implementation_backlog",
+  "payload_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/service_probes/application_applet_packager.json",
+  "receipt_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/proof_bundles.ledger",
+  "service_id": "application_applet_packager",
+  "source": "KEDDEH_V98_SERVICE_PROBE",
+  "status": "READY"
+}

@@ -1,0 +1,11 @@
+{
+  "classification": "UNSUPPORTED_IN_THIS_RUNTIME",
+  "created_at": 1786086742.2628891,
+  "handoff_id": "6e276aff10c0c6e104084f7135f80f56fc027dd886874604324e16bfeb9b41c5",
+  "next_target": "implementation_backlog",
+  "payload_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/service_probes/hemos_family_of_five_runtime.json",
+  "receipt_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/proof_bundles.ledger",
+  "service_id": "hemos_family_of_five_runtime",
+  "source": "KEDDEH_V98_SERVICE_PROBE",
+  "status": "READY"
+}

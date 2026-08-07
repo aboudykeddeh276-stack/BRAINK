@@ -1,0 +1,6 @@
+{
+  "namespaces": [
+    "vfs://apps/btc-core-protocol-router/",
+    "vfs://agents/btc-core-protocol-router/receipts/"
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "hash_used_as_functional_proof": false,
+  "ledger_readback": true,
+  "receipt": {
+    "branch_valid": true,
+    "commit_valid": true,
+    "errors": [],
+    "labels_valid": true,
+    "ledger_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/proof_bundles.ledger",
+    "outbox_manifest": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/outbox/workflow_schema/ff4d173bfd5e5beb4d0da921cb798a69e3213b836da8b4b738a77b8977286bc5.handoff.json",
+    "pr_title_valid": true,
+    "promotion_state": "LOCAL_PASS",
+    "receipt_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/workflow_schema_guard_receipt.json",
+    "schema_id": "workflow_schema_v1",
+    "timestamp": 1786086742.3286664,
+    "work_item_valid": true
+  },
+  "schema_enforcement_is_delivery_proof": false,
+  "telemetry_used_as_execution_proof": false
+}

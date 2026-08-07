@@ -1,0 +1,39 @@
+{
+  "allowed_variants": [
+    "healthy",
+    "degraded",
+    "deferred",
+    "external_gate",
+    "replacement_active"
+  ],
+  "backlinks": {
+    "code_bindings": [
+      "config/service_protocols.json::health_state_monitor"
+    ],
+    "expressions": [
+      "expression://observe-node-health"
+    ],
+    "services": [
+      "service://health_state_monitor"
+    ]
+  },
+  "canonical_id": "word://health",
+  "invariants": [
+    "subject_identity_known",
+    "observer_known",
+    "freshness_known",
+    "capability_scope_known"
+  ],
+  "part_of_speech": "noun",
+  "prohibited_conflations": [
+    "ui_colour_alone_is_not_health",
+    "online_string_is_not_health",
+    "stale_heartbeat_is_not_current_health"
+  ],
+  "source_definitions": {
+    "computer_science": "observed operational condition of a service or node",
+    "keddeh": "capability-scoped state derived from observer, environment, execution plane, evidence and freshness",
+    "linguistic": "condition of a subject"
+  },
+  "word": "HEALTH"
+}

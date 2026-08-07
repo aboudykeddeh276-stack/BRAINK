@@ -1,0 +1,6 @@
+{
+  "namespaces": [
+    "vfs://apps/test-runner/",
+    "vfs://agents/test-runner/receipts/"
+  ]
+}

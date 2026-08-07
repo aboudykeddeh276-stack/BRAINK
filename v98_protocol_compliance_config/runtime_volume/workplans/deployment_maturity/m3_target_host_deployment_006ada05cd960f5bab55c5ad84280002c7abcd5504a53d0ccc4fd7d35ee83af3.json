@@ -1,0 +1,24 @@
+{
+  "action_command": "run v98-host-acceptance on [self-hosted, macOS, ARM64, KEDDEH-M3]",
+  "component_id": "m3_target_host_deployment",
+  "corrective_workflow": "target_host",
+  "dependency_class": "EXTERNAL_GATE",
+  "fallback_path": "portable local K-APP packages and outbox replay",
+  "issue_code": "TARGET_HOST_GATE_PENDING",
+  "maturity_state": "TARGET_HOST_REQUIRED",
+  "pending_workload": "Register self-hosted macOS ARM64 runner, run host acceptance, capture launchd/iostat/browser/K-APP catalog readback receipts.",
+  "promotion_boundary": "TARGET_HOST_REQUIRED",
+  "reentry_condition": "matching M3 runner executes and uploads evidence artifact",
+  "required_receipts": [
+    "GitHub Actions artifact",
+    "launchd status",
+    "iostat receipt",
+    "browser catalog readback"
+  ],
+  "research_basis": [
+    "DORA continuous delivery small-batch deployability",
+    "NIST SSDF lifecycle-integrated secure development",
+    "GitHub deployment environments and protected gates",
+    "fault-domain isolation and durable outbox pattern"
+  ]
+}

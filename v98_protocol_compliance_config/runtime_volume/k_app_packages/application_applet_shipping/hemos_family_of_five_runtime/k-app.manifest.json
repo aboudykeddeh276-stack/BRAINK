@@ -1,0 +1,81 @@
+{
+  "applicationId": "kex.hemos.family.of.five.runtime",
+  "boundary": "local consensus model; not external human governance proof",
+  "canonicalRuntimeRule": "DEPENDENCY_FAILURE_NE_GLOBAL_APPLICATION_FAILURE",
+  "componentId": "hemos_family_of_five_runtime",
+  "componentType": "APPLET",
+  "dependencyPolicies": {
+    "service.audio-output": "OPTIONAL",
+    "service.hemos-family-of-five-runtime": "CORE_DEGRADED",
+    "service.native-gpu": "OPTIONAL",
+    "service.remote-telemetry": "OPTIONAL",
+    "service.runtime-config": "CORE_MANDATORY",
+    "service.vfs": "CORE_MANDATORY"
+  },
+  "deploymentMode": "MESH_REPLICATED",
+  "entrypoint": "/index.html",
+  "fallbackAdapters": {
+    "service.audio-output": "adapter.visual-notification",
+    "service.hemos-family-of-five-runtime": "adapter.local-static-applet",
+    "service.mesh-registry": "adapter.local-mesh-outbox",
+    "service.native-gpu": "adapter.canvas-cpu-renderer",
+    "service.remote-telemetry": "adapter.local-telemetry-outbox"
+  },
+  "optionalServices": [
+    "service.audio-output",
+    "service.native-gpu",
+    "service.remote-telemetry"
+  ],
+  "ownerPlane": "virtual_cpu",
+  "requiredServices": [
+    "service.vfs",
+    "service.runtime-config"
+  ],
+  "runtime": "BROWSER_ESM",
+  "runtimeIndependenceContract": {
+    "circuitBreakerLimits": {
+      "failureThreshold": 2,
+      "recoveryTimeoutSeconds": 60
+    },
+    "criticalityClass": "CORE_DEGRADED",
+    "degradedModeBehaviour": "preserve core runtime and expose degraded capability state",
+    "fallbackAdapter": "adapter.local-static-applet",
+    "identity": "hemos_family_of_five_runtime",
+    "optionalDependencies": [
+      "service.audio-output",
+      "service.native-gpu",
+      "service.remote-telemetry"
+    ],
+    "queueOutboxPolicy": "runtime_volume/outbox/application_applet_shipping/hemos_family_of_five_runtime",
+    "recoveryConditions": [
+      "dependency health check passes",
+      "manifest integrity readback passes",
+      "node capability readback passes"
+    ],
+    "reintegrationTests": [
+      "tests/test_application_applet_packager.py",
+      "tests/test_k_cloud_adapter.py"
+    ],
+    "rollbackContract": "retain previous package directory until new package receipt and integrity readback pass",
+    "runtimeDependencies": [
+      "service.hemos-family-of-five-runtime"
+    ],
+    "startupDependencies": [
+      "service.vfs",
+      "service.runtime-config"
+    ],
+    "suppliedCapabilities": [
+      "hemos_family_of_five_runtime",
+      "virtual_cpu"
+    ]
+  },
+  "sourceSurface": "service_protocol_runtime_surface",
+  "targetGates": [
+    "AUTHORIZED_DOMAIN",
+    "TLS_READBACK",
+    "BROWSER_SECURITY",
+    "WCAG",
+    "MESH_NODE_READBACK"
+  ],
+  "version": "1.0.0"
+}

@@ -1,0 +1,11 @@
+{
+  "classification": "UNSUPPORTED_IN_THIS_RUNTIME",
+  "created_at": 1786086742.322918,
+  "handoff_id": "3904f14f89d6afa17e9f44376cffa1678d9ae8033eea82eeb696236b368997ab",
+  "next_target": "implementation_backlog",
+  "payload_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/service_probes/semantic_knowledge_graph.json",
+  "receipt_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/proof_bundles.ledger",
+  "service_id": "semantic_knowledge_graph",
+  "source": "KEDDEH_V98_SERVICE_PROBE",
+  "status": "READY"
+}

@@ -1,0 +1,10 @@
+{
+  "name": "agent_runtime_service",
+  "packages": [
+    {
+      "name": "agent_runtime_service",
+      "versionInfo": "1.0.0"
+    }
+  ],
+  "spdxVersion": "SPDX-2.3"
+}

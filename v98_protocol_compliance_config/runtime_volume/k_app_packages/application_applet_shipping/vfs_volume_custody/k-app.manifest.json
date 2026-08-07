@@ -1,0 +1,81 @@
+{
+  "applicationId": "kex.vfs.volume.custody",
+  "boundary": "append-only local custody trail; external archive/Drive provider-gated",
+  "canonicalRuntimeRule": "DEPENDENCY_FAILURE_NE_GLOBAL_APPLICATION_FAILURE",
+  "componentId": "vfs_volume_custody",
+  "componentType": "APPLET",
+  "dependencyPolicies": {
+    "service.audio-output": "OPTIONAL",
+    "service.native-gpu": "OPTIONAL",
+    "service.remote-telemetry": "OPTIONAL",
+    "service.runtime-config": "CORE_MANDATORY",
+    "service.vfs": "CORE_MANDATORY",
+    "service.vfs-volume-custody": "CORE_MANDATORY"
+  },
+  "deploymentMode": "MESH_REPLICATED",
+  "entrypoint": "/index.html",
+  "fallbackAdapters": {
+    "service.audio-output": "adapter.visual-notification",
+    "service.mesh-registry": "adapter.local-mesh-outbox",
+    "service.native-gpu": "adapter.canvas-cpu-renderer",
+    "service.remote-telemetry": "adapter.local-telemetry-outbox",
+    "service.vfs-volume-custody": "adapter.local-static-applet"
+  },
+  "optionalServices": [
+    "service.audio-output",
+    "service.native-gpu",
+    "service.remote-telemetry"
+  ],
+  "ownerPlane": "vfs",
+  "requiredServices": [
+    "service.vfs",
+    "service.runtime-config"
+  ],
+  "runtime": "BROWSER_ESM",
+  "runtimeIndependenceContract": {
+    "circuitBreakerLimits": {
+      "failureThreshold": 2,
+      "recoveryTimeoutSeconds": 60
+    },
+    "criticalityClass": "CORE_MANDATORY",
+    "degradedModeBehaviour": "preserve core runtime and expose degraded capability state",
+    "fallbackAdapter": "adapter.local-static-applet",
+    "identity": "vfs_volume_custody",
+    "optionalDependencies": [
+      "service.audio-output",
+      "service.native-gpu",
+      "service.remote-telemetry"
+    ],
+    "queueOutboxPolicy": "runtime_volume/outbox/application_applet_shipping/vfs_volume_custody",
+    "recoveryConditions": [
+      "dependency health check passes",
+      "manifest integrity readback passes",
+      "node capability readback passes"
+    ],
+    "reintegrationTests": [
+      "tests/test_application_applet_packager.py",
+      "tests/test_k_cloud_adapter.py"
+    ],
+    "rollbackContract": "retain previous package directory until new package receipt and integrity readback pass",
+    "runtimeDependencies": [
+      "service.vfs-volume-custody"
+    ],
+    "startupDependencies": [
+      "service.vfs",
+      "service.runtime-config"
+    ],
+    "suppliedCapabilities": [
+      "vfs_volume_custody",
+      "vfs"
+    ]
+  },
+  "sourceSurface": "service_protocol_runtime_surface",
+  "targetGates": [
+    "AUTHORIZED_DOMAIN",
+    "TLS_READBACK",
+    "BROWSER_SECURITY",
+    "WCAG",
+    "MESH_NODE_READBACK"
+  ],
+  "version": "1.0.0"
+}

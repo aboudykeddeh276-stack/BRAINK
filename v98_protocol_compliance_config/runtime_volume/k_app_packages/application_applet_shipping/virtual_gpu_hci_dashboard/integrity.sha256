@@ -1,0 +1,15 @@
+{
+  "SBOM.spdx.json": "79143207b8cf0e4495443f0748d0c0f348b70e634eeba13e8b0d0b1510478f4b",
+  "agent-bindings.json": "324caba4ddaeb79ea3d6316f4157695b19bb8838801f53e721c3ae1ea8ec22de",
+  "application/index.html": "a2ceb0440ba2549b84c27eaf13caad10aabbf390432428c10c89656fc0a4910d",
+  "asset-manifest.json": "109ed1343735492f445458351f4b771e973d3df607b73ee25136f7ade722d8d4",
+  "build-receipt.json": "8ef50d6b8149f197daecc8050527778881b22902838a48165dd81bfdfab43eae",
+  "degraded-mode-policy.json": "e50755117924b0f59fd48669fe1fd6ffd9659d662067736a0e7cba7be0ec2d0e",
+  "dependency-contracts.json": "ed44c53293b109635aa0cd00891832a9b7968fc0cca0230e0108b0f79b609295",
+  "k-app.manifest.json": "52c619e1e229dd33fcfb6bfb9534916ba3d59f8f90c0cedeb31eb8ec9bc8c839",
+  "permission-policy.json": "54e37fe288d1c7e3f494ea105f6adc5ca3b4561fe9cf2201b0510f4ac2a669b4",
+  "recovery-policy.json": "dc5bc93cd0fdd01c9e71b2ae83e2367452e1491a2c281fb0173b08b17b7e77b8",
+  "route-manifest.json": "8315a9df906fb044bd3b8ac30b79cab79de973678a6be7d225973c9386783c9f",
+  "telemetry-schema.json": "8ee19970ba61952addf20b15f8e850bb27bbb34e3f30225af00d3ffb3b9016c5",
+  "vfs-namespaces.json": "8fd92d6c6af418d882b0152c7c842e6a6cd0963f299d4071bb59ef76420fe9cc"
+}
