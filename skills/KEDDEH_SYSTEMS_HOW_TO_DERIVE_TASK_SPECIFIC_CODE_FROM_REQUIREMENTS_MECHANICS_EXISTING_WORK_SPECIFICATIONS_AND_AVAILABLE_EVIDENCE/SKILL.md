@@ -230,12 +230,29 @@ src/btc/
     submit.py       # build_submitblock_request / interpret response (transport-free)
     measure.py      # measured SHA256d execution rate + economics (benchmark)
     pipeline.py     # composes the above: template -> ... -> submit
+    rpc.py          # REAL Bitcoin Core JSON-RPC transport (private-by-default)
+    address.py      # address -> scriptPubKey (bech32/bech32m/base58check)
+    payout.py       # coinbase payout-script derivation (static or wallet RPC)
+    controller.py   # live loop: getblocktemplate -> pipeline -> submitblock
+    telemetry.py    # revenue/cost profitability from measured hashrate + live target
+    stratum.py      # Stratum V1 worker boundary (subscribe/authorize/notify/submit)
+    live.py         # CLI: point the mechanics at a real synced Core node
 ```
 
 Correctness is anchored to independent oracles: the real Bitcoin **genesis block** header
 hash, Merkle root, and target are reproduced exactly, and a regtest-style easy target lets
 the full chain run end-to-end without network access. To dry-run the chain, call
 `btc.pipeline.run_pipeline` (see `tests/test_btc_mechanics.py`).
+
+**3. Live control plane — real mainnet execution.** The same mechanics are pointed at a
+real, synced Bitcoin Core node through `rpc.py`/`controller.py`/`live.py`. Topology is
+enforced per Bitcoin Core's own guidance: **Core RPC and wallet RPC stay private
+(loopback by default)**; only Bitcoin P2P (`:8333`) and, for remote workers, Stratum are
+ever public. The payout script is derived in the control plane and never reaches hashing
+hardware. See `docs/TOPOLOGY.md`, `resources/production/bitcoin.conf.template`, and
+`run-keddeh-miner.command`. The live boundary is verified in `tests/test_btc_live.py`
+with an injected HTTP transport (so the exact request that would hit `bitcoind` is
+exercised without pretending to be the node) and BIP173/BIP350 address vectors.
 
 ## Claim boundary
 
@@ -248,5 +265,9 @@ the full chain run end-to-end without network access. To dry-run the chain, call
 | Executable BTC mechanics implemented once and composed in a pipeline | TRUE |
 | BTC mechanics verified against the real genesis block and independent oracles | TRUE |
 | Miner measures real SHA256d execution rate and economics | TRUE |
+| Live control plane implemented against a real Bitcoin Core node (rpc/controller/live) | TRUE |
+| RPC and wallet kept private by default; public boundary is Stratum and P2P only | TRUE |
+| Payout script derived in control plane, never exposed to hashing workers | TRUE |
+| Live boundary verified with injected transport and BIP173/BIP350 vectors | TRUE |
 | Engine and case study tested | TRUE |
 | Download required at runtime | FALSE — no network access is required |

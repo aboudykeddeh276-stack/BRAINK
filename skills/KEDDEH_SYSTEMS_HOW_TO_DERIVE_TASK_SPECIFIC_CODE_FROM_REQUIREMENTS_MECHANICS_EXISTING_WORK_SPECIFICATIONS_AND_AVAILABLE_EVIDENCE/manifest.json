@@ -27,6 +27,11 @@
     "btc_mechanics_verified_against_genesis_block_and_independent_oracles": true,
     "miner_measures_real_sha256d_execution_rate_and_economics": true,
     "one_mechanic_one_implementation_many_consumers_enforced": true,
+    "live_control_plane_implemented_real_core_rpc_transport": true,
+    "rpc_and_wallet_kept_private_by_default_public_boundary_is_stratum_and_p2p": true,
+    "payout_script_derived_in_control_plane_never_exposed_to_hashing_workers": true,
+    "controller_runs_real_template_to_submitblock_chain_against_a_live_node": true,
+    "live_control_plane_verified_with_injected_transport_and_bip173_bip350_vectors": true,
     "engine_and_case_study_tested": true,
     "download_is_required_at_runtime": false
   }
