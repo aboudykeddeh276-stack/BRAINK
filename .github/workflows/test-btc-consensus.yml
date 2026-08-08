@@ -1,0 +1,25 @@
+name: BRAINK BTC Consensus Runtime Tests
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - runtime/btc_consensus.py
+      - runtime/btc_miner_runtime.py
+      - runtime/btc_workload_substrate.py
+      - tests/test_btc_consensus.py
+      - .github/workflows/test-btc-consensus.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  consensus-tests:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile BTC runtime
+        run: python3 -m py_compile runtime/btc_consensus.py runtime/btc_miner_runtime.py runtime/btc_workload_substrate.py
+      - name: Run Bitcoin consensus construction tests
+        run: python3 -m unittest -v tests/test_btc_consensus.py
