@@ -172,8 +172,8 @@ enum BRAINKDeliveryAudit {
             moduleName: "config_constants_module",
             runningFile: "\(sourceRoot)/BRAINKConstants.swift",
             logicalLink: "BRAINKConstants",
-            verification: "Constants referenced by chat engine and audits.",
-            requiredTokens: ["enum BRAINKConstants", "cookieName", "axiosTimeoutMs", "proofPacketCommand"],
+            verification: "Constants include KEX engineering values, shared ISO8601 formatter, portable source paths, and shared digest utility. No hardcoded host paths.",
+            requiredTokens: ["enum BRAINKConstants", "cookieName", "axiosTimeoutMs", "proofPacketCommand", "kexResonance", "kexLatticeRoot", "kexAxis", "kexBaseline", "stableHexDigest", "sourceRoot", "iso8601"],
             weight: 1.0
         ),
         StackModuleContract(
@@ -390,6 +390,38 @@ enum BRAINKDeliveryAudit {
             logicalLink: "BrainkNativeChatbotView",
             verification: "UI displays chat, traces, runtime panel, drag-drop input.",
             requiredTokens: ["struct BrainkNativeChatbotView", "ChatInputBar", "TraceRow", "onDrop"],
+            weight: 1.2
+        ),
+        StackModuleContract(
+            moduleName: "ui_nested_runtime_dashboard_component",
+            runningFile: "\(sourceRoot)/BRAINKUIContainers.swift",
+            logicalLink: "NestedRuntimeDashboard",
+            verification: "NestedRuntimeDashboard renders spectrum slots [1..5] and IL-LLM circular path label.",
+            requiredTokens: ["struct NestedRuntimeDashboard", "spectrumSlots", "circularPathLabel", "NestedRuntimeSlotRow"],
+            weight: 1.2
+        ),
+        StackModuleContract(
+            moduleName: "service_skill_protocol_module",
+            runningFile: "\(sourceRoot)/BRAINKSkillProtocol.swift",
+            logicalLink: "protocol BRAINKSkill",
+            verification: "BRAINKSkill protocol defines name, requiredSlots, execute(context:), validate().",
+            requiredTokens: ["protocol BRAINKSkill", "var requiredSlots: [Int]", "func execute(context: SkillContext)", "func validate() -> SkillValidation", "struct SkillContext", "struct SkillResult", "struct SkillValidation"],
+            weight: 1.2
+        ),
+        StackModuleContract(
+            moduleName: "service_skill_registry_module",
+            runningFile: "\(sourceRoot)/BRAINKSkillRegistry.swift",
+            logicalLink: "BRAINKSkillRegistry.validateRegistrationCompleteness()",
+            verification: "Skill registry registers all 5 skills, maps slots [1..5], encodes 1→2→3→1 circular path + governance(4)→orchestration(5), and proves all routes have skills.",
+            requiredTokens: ["enum BRAINKSkillRegistry", "allSkills", "slotMap", "dependencyGraph", "illlmCircularPath", "validateRegistrationCompleteness()", "isCircularFeedback", "NestedRuntimeOrchestratorSkill"],
+            weight: 1.3
+        ),
+        StackModuleContract(
+            moduleName: "route_skill_registry_wiring",
+            runningFile: "\(sourceRoot)/BRAINKChatEngine.swift",
+            logicalLink: "classifyRoute -> resolveLocally skill_registry",
+            verification: "Route classifier emits skill_registry and resolver calls BRAINKSkillRegistry.validateRegistrationCompleteness and asText.",
+            requiredTokens: ["return \"skill_registry\"", "case \"skill_registry\":", "BRAINKSkillRegistry.writeRegistrationProof()", "BRAINKSkillRegistry.asText(proof)"],
             weight: 1.2
         ),
     ]
