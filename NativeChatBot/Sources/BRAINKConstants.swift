@@ -2,6 +2,7 @@ import Foundation
 
 enum BRAINKConstants {
     static var nativeChatBotRoot: String { URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().path }
+    static var repositoryRoot: String { URL(fileURLWithPath: nativeChatBotRoot).deletingLastPathComponent().path }
     static var buildRoot: String { URL(fileURLWithPath: nativeChatBotRoot).appendingPathComponent("build").path }
     static let architectName = "A. KEDDEH"
     static let organizationName = "K-SYSTEMS"
@@ -29,4 +30,8 @@ enum BRAINKConstants {
     static var kexHyperdriveConceptReportPath: String { URL(fileURLWithPath: buildRoot).appendingPathComponent("kex_hyperdrive_transition_definition_report.json").path }
     static var kexHyperdriveCalibrationReportPath: String { URL(fileURLWithPath: buildRoot).appendingPathComponent("kex_hyperdrive_repo_calibration_report.json").path }
     static var kexSelfSustainedCodingReportPath: String { URL(fileURLWithPath: buildRoot).appendingPathComponent("kex_self_sustained_coding_report.json").path }
+    static var deadRouteRegistryPath: String { URL(fileURLWithPath: buildRoot).appendingPathComponent("braink_dead_route_registry.json").path }
+    static var errorContextArtifactPath: String { URL(fileURLWithPath: buildRoot).appendingPathComponent("braink_error_context.json").path }
+    static var errorContextHistoryPath: String { URL(fileURLWithPath: buildRoot).appendingPathComponent("braink_error_context_history.json").path }
+    static var failureAnalysisReportPath: String { URL(fileURLWithPath: buildRoot).appendingPathComponent("braink_failure_analysis_report.json").path }
 }
