@@ -15,7 +15,7 @@ enum BRAINKConstants {
     static let unauthedErrMsg = "Please login (10001)"
     static let notAdminErrMsg = "You do not have required permission (10002)"
 
-    static let defaultILLLMRuntimePath = "/Users/ak/Documents/New project"
+    static var defaultILLLMRuntimePath: String { URL(fileURLWithPath: nativeChatBotRoot).deletingLastPathComponent().path }
     static let defaultProofPacketRunId = "smart_manager_0074"
     static let proofPacketCommand = "python3 -m il_llm.cli proof-packet --run-id \(defaultProofPacketRunId)"
     static var stackAuditReportPath: String { URL(fileURLWithPath: buildRoot).appendingPathComponent("braink_stack_alignment_report.json").path }
