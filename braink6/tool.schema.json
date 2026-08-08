@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "BRAINK6Call",
+  "type": "object",
+  "required": ["operation"],
+  "properties": {
+    "operation": {
+      "enum": ["task.init", "task.status", "capability.define", "capability.unlock", "runtime.execute", "workspace.inspect", "workspace.test"]
+    },
+    "task_id": {"type": "string"},
+    "capability_id": {"type": "string"},
+    "workspace": {"type": "string"},
+    "command": {"type": "array", "items": {"type": "string"}},
+    "acceptance": {"type": "array", "items": {"type": "string"}},
+    "constraints": {"type": "array", "items": {"type": "string"}},
+    "obligations": {"type": "array", "items": {"type": "string"}}
+  },
+  "additionalProperties": true
+}
