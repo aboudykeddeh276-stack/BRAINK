@@ -1,0 +1,112 @@
+name: BRAINK agent orchestration
+
+on:
+  workflow_dispatch:
+    inputs:
+      intent:
+        description: BRAINK objective for route classification
+        required: false
+        default: software that can code using my software and task it to each repo using my self existence design
+      route:
+        description: Optional explicit primary BRAINK route
+        required: false
+        type: choice
+        options:
+          - auth
+          - self_sustained_coder
+          - kex_hyperdrive
+          - proof_packet
+          - stack_audit
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  braink-orchestration:
+    runs-on: ubuntu-latest
+    env:
+      BRAINK_CHAT_RUNTIME: ${{ secrets.BRAINK_CHAT_RUNTIME }}
+      EXPO_PUBLIC_OAUTH_PORTAL_URL: ${{ secrets.EXPO_PUBLIC_OAUTH_PORTAL_URL }}
+      EXPO_PUBLIC_OAUTH_SERVER_URL: ${{ secrets.EXPO_PUBLIC_OAUTH_SERVER_URL }}
+      EXPO_PUBLIC_APP_ID: ${{ secrets.EXPO_PUBLIC_APP_ID }}
+      EXPO_PUBLIC_API_BASE_URL: ${{ secrets.EXPO_PUBLIC_API_BASE_URL }}
+      EXPO_PUBLIC_OWNER_OPEN_ID: ${{ secrets.EXPO_PUBLIC_OWNER_OPEN_ID }}
+      EXPO_PUBLIC_OWNER_NAME: ${{ secrets.EXPO_PUBLIC_OWNER_NAME }}
+      IL_LLM_RUNTIME_PATH: ${{ github.workspace }}
+      BRAINK_WORKFLOW_REPORT_DIR: ${{ github.workspace }}/artifacts/braink-workflow
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Bind BRAINK runtime endpoint
+        shell: bash
+        run: |
+          if [ -z "${BRAINK_CHAT_RUNTIME:-}" ] && [ -n "${EXPO_PUBLIC_API_BASE_URL:-}" ]; then
+            echo "BRAINK_CHAT_RUNTIME=${EXPO_PUBLIC_API_BASE_URL}" >> "$GITHUB_ENV"
+          fi
+          echo "IL_LLM_RUNTIME_PATH=${IL_LLM_RUNTIME_PATH:-$GITHUB_WORKSPACE}" >> "$GITHUB_ENV"
+
+      - name: Resolve orchestration inputs
+        shell: bash
+        run: |
+          intent='${{ github.event.inputs.intent || '' }}'
+          route='${{ github.event.inputs.route || '' }}'
+          if [ -z "$intent" ]; then
+            intent='software that can code using my software and task it to each repo using my self existence design'
+          fi
+          echo "BRAINK_WORKFLOW_INTENT=$intent" >> "$GITHUB_ENV"
+          echo "BRAINK_WORKFLOW_ROUTE=$route" >> "$GITHUB_ENV"
+
+      - name: Plan BRAINK orchestration
+        shell: bash
+        run: |
+          args=(plan --intent "$BRAINK_WORKFLOW_INTENT" --output-dir "$BRAINK_WORKFLOW_REPORT_DIR")
+          if [ -n "${BRAINK_WORKFLOW_ROUTE:-}" ]; then
+            args+=(--route "$BRAINK_WORKFLOW_ROUTE")
+          fi
+          python3 scripts/braink_workflow_orchestrator.py "${args[@]}"
+
+      - name: Execute BRAINK orchestration
+        shell: bash
+        run: |
+          args=(run --intent "$BRAINK_WORKFLOW_INTENT" --output-dir "$BRAINK_WORKFLOW_REPORT_DIR")
+          if [ -n "${BRAINK_WORKFLOW_ROUTE:-}" ]; then
+            args+=(--route "$BRAINK_WORKFLOW_ROUTE")
+          fi
+          python3 scripts/braink_workflow_orchestrator.py "${args[@]}"
+
+      - name: Verify BRAINK workflow outcome
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          report = json.loads(Path('artifacts/braink-workflow/workflow_report.json').read_text())
+          summary = report['summary']
+          assert summary['success'], summary
+          assert summary['proof_packet_verified'], summary
+          assert summary['alignment'] == 1.0, summary
+          assert 'self_sustained_coder' in summary['routes'], summary
+          assert 'kex_hyperdrive' in summary['routes'], summary
+          PY
+
+      - name: Upload BRAINK workflow artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: braink-agent-orchestration-artifacts
+          path: |
+            artifacts/braink-workflow
+            NativeChatBot/build/*.json
+            reports/*.json
+          if-no-files-found: error
