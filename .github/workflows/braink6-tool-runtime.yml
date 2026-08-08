@@ -1,0 +1,29 @@
+name: BRAINK6 Tool Runtime
+
+on:
+  push:
+    branches: ["feature/braink6-ai-tool-runtime"]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  conformance:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install test runner
+        run: python -m pip install pytest
+      - name: Compile runtime
+        run: python -m py_compile runtime/braink6_tool.py
+      - name: Run BRAINK6 conformance
+        run: python -m pytest -q tests/test_braink6_tool.py
+      - name: Exercise executable tool
+        run: |
+          python runtime/braink6_tool.py init-task SELF-TEST "BRAINK6 self-test" "Execute a reconstructed capability" --accept receipt --obligation execute
+          python runtime/braink6_tool.py define-capability PYTHON-CHECK "Verified Python execution" --dependency python --validator "python -c pass"
+          python runtime/braink6_tool.py unlock PYTHON-CHECK
+          python runtime/braink6_tool.py run PYTHON-CHECK python -c "print('BRAINK6_EXECUTION_OK')"
+          python runtime/braink6_tool.py status
