@@ -43,10 +43,11 @@ const P = {
 };
 
 function parseArgs(argv) {
-  const out = { target: 'MESH_GLOBAL_CLOSURE', evidence: null, pretty: true };
+  const out = { target: 'MESH_GLOBAL_CLOSURE', evidence: null, bindings: null, pretty: true };
   for (let i=0;i<argv.length;i++) {
     if (argv[i] === '--target') out.target = argv[++i];
     else if (argv[i] === '--evidence') out.evidence = argv[++i];
+    else if (argv[i] === '--bindings') out.bindings = argv[++i];
     else if (argv[i] === '--compact') out.pretty = false;
     else throw new Error(`Unknown argument ${argv[i]}`);
   }
@@ -62,6 +63,12 @@ function loadEvidence(path) {
   return entries;
 }
 
+function loadBindings(path) {
+  if (!path) return {};
+  const body = JSON.parse(fs.readFileSync(path,'utf8'));
+  return body.bindings ?? {};
+}
+
 function normalizeObservation(o) {
   if (!o || typeof o !== 'object') throw new Error('Invalid observation');
   if (!P[o.predicate]) throw new Error(`Unknown predicate ${o.predicate}`);
@@ -73,7 +80,7 @@ function normalizeObservation(o) {
 const stageRank = stage => TARGETS.indexOf(stage);
 const requiredPredicates = target => Object.entries(P).filter(([,v]) => stageRank(v.stage) <= stageRank(target)).map(([k]) => k);
 
-function resolve(target, rawEvidence) {
+function resolve(target, rawEvidence, bindings = {}) {
   const obs = new Map();
   for (const item of rawEvidence.map(normalizeObservation)) obs.set(item.predicate, item);
   const required = new Set(requiredPredicates(target));
@@ -95,11 +102,19 @@ function resolve(target, rawEvidence) {
     return { stage, observed, total:names.length, complete:observed === names.length };
   });
 
-  const nextActions = ready.map(name => ({ predicate:name, stage:P[name].stage, required_external_evidence:P[name].evidence, capability_hints:P[name].capabilityHints, integration_mode:'LOGICAL_BIND_OR_TYPED_BRIDGE', physical_merge_default:false }));
+  const nextActions = ready.map(name => ({
+    predicate:name,
+    stage:P[name].stage,
+    required_external_evidence:P[name].evidence,
+    capability_hints:P[name].capabilityHints,
+    capability_binding:bindings[name] ?? null,
+    integration_mode:'LOGICAL_BIND_OR_TYPED_BRIDGE',
+    physical_merge_default:false
+  }));
   const complete = [...required].every(n => states[n] === 'OBSERVED');
 
   return {
-    schema:'kex.global.resolution.v3',
+    schema:'kex.global.resolution.v4',
     local_conformance:'INHERENT_ADMISSIBILITY_NOT_A_GLOBAL_STAGE',
     target,
     process_model:'DEPENDENCY_GRAPH_NOT_STAGE_COUNTER',
@@ -117,4 +132,5 @@ function resolve(target, rawEvidence) {
 }
 
 const args = parseArgs(process.argv.slice(2));
-process.stdout.write(JSON.stringify(resolve(args.target, loadEvidence(args.evidence)), null, args.pretty ? 2 : 0) + '\n');
+const output = resolve(args.target, loadEvidence(args.evidence), loadBindings(args.bindings));
+process.stdout.write(JSON.stringify(output, null, args.pretty ? 2 : 0) + '\n');
