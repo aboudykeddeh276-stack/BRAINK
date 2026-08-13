@@ -1,0 +1,10 @@
+{
+  "schema": "braink.receipt.supersession.v1",
+  "target": "site-actions/receipts/braink-virtual-mesh-leap-v1.json",
+  "state": "SUPERSEDED",
+  "replacement": "site-actions/receipts/braink-virtual-mesh-leap-v2.json",
+  "reason": "The earlier receipt used a SHA-256 graph digest as the primary mesh root. The corrected KEX model retains SHA-256 only as an optional byte-integrity digest. Mesh identity and proof are reconstructed from the KEX state-transition route, service coordinates, lineage, observer, rule, commit sequence and rehydration result.",
+  "canonical_route": ["SEED", "EXPAND", "TRAVERSE", "COLLAPSE", "REHYDRATE"],
+  "canonical_seed": "KEX-BRAINK-MESH-V2",
+  "historical_receipt_retained": true
+}
