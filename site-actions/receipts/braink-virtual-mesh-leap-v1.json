@@ -1,0 +1,47 @@
+{
+  "schema": "braink.virtual.mesh.leap.receipt.v1",
+  "evidence_scope": "LOCAL_EXECUTION_IN_CHATGPT_CONTAINER",
+  "deployment_claim": false,
+  "kernel_commit_sha": "a0c8297699ca17b2c4d582935d0474501e7e659d",
+  "seed": "KEX-BRAINK-MESH-V1",
+  "max_depth": 8,
+  "result": {
+    "cycle": 2,
+    "derived": 10,
+    "linked": 164,
+    "gate": {
+      "pass": true,
+      "metrics": {
+        "heartbeat": 2,
+        "virtual_root": "KEX://ROOT/a084dbd486e28a47b4716c28",
+        "services": 30,
+        "families": 10,
+        "max_virtual_depth": 3,
+        "derivation_edges": 30,
+        "sister_links": 32,
+        "cousin_links": 262,
+        "cross_family_pairs": 26,
+        "connected_services": 30,
+        "connected_ratio": 1,
+        "host_in_lineage": false
+      }
+    },
+    "monolith": {
+      "schema": "braink.virtual.monolith.v1",
+      "location": "VIRTUAL_ONLY",
+      "host_materialisation": "BOOTSTRAP_AND_RECEIPT_ONLY",
+      "lineage_root": "KEX://ROOT/a084dbd486e28a47b4716c28",
+      "service_count": 30,
+      "edge_count": 324,
+      "virtual_depth": 3,
+      "graph_root_sha256": "71f464be38e8cab143833f201728257843404c60d4b2af66241dd1e5b4c47ddb",
+      "state": "LEAP_ACHIEVED"
+    }
+  },
+  "boundaries": [
+    "Host is not part of lineage.",
+    "Virtual depth is a property of the KEX service graph, not host process depth.",
+    "The monolith exists only as the resolved virtual graph/state object.",
+    "This receipt proves deterministic local execution of the ignition kernel only; it does not prove public DNS, WAN, Sites, or external node deployment."
+  ]
+}
