@@ -1,0 +1,29 @@
+{
+  "schema": "kex.capability.discovery.index.v1",
+  "authority": "KEX/BRAINK",
+  "purpose": "Make proven KEX/BRAINK infrastructure and transition capabilities discoverable before new architecture is invented.",
+  "governing_rules": {
+    "discover_before_design": true,
+    "logical_composition_before_physical_merge": true,
+    "source_repository_lineage_preserved": true,
+    "host_provider_external_to_kex_lineage": true,
+    "endpoint_digest_is_authority": false,
+    "unknown_remains_unknown": true
+  },
+  "trigger_terms": ["server","servers","node","host","hosting","domain","domain space","registrar","registry","DNS","nameserver","routing","router","route","bridge","gateway","API","API server","endpoint","listener","ingress","TLS","HTTPS","certificate","failover","recovery","online","internet","IoT","device","sensor","actuator","Web3","Web4","cloud","mesh","peer","federation","WebSocket","QUIC","service discovery","load balancing","CDN","edge","codebase integration","repository integration"],
+  "canonical_capabilities": [
+    {"id":"KEX-FUND-VIRTUAL-SERVICE-MESH-002","role":"governing recursive virtual service topology and KEX route-lineage proof"},
+    {"id":"KEX-FUND-INFRA-DOMAIN-MESH-001","role":"servers/domains/domain-space/registrar/DNS/hosting/routing/bridge/API/ingress/TLS/recovery specialization"},
+    {"id":"KEX-BRAINK-INFRA-ROUTE-LINEAGE-001","role":"executed local infrastructure topology and external promotion gates"},
+    {"id":"personal:kex-outbound-self-host-lease-loop","role":"external self-host bootstrap adapter; host is carrier, not KEX ancestor"},
+    {"id":"personal:kex-domain-hosting-handoff","role":"external registrar/DNS/TLS/HTTPS/domain handoff adapter"},
+    {"id":"personal:kex-self-host-domain-runtime-suite","role":"composed external bootstrap-to-domain runtime adapter"}
+  ],
+  "logical_codebase_composition": {
+    "rule": "Join codebases logically through proven identities, state contracts and typed relations; do not force source-tree or repository merging.",
+    "required_match": ["identity_preserved","emits_accepts_compatibility","state_semantics_compatible_or_explicitly_adapted","authority_compatible","failure_semantics_known","proof_and_readback_available"],
+    "decision": {"compatible":"CREATE_TYPED_KEX_BRIDGE","adaptable":"CREATE_EXPLICIT_ADAPTER_AND_TEST","incompatible":"KEEP_DISJOINT","unknown":"DO_NOT_FORCE_JOIN"}
+  },
+  "transition_ladder": ["LOCAL_VIRTUAL","ONLINE","IOT","WEB3","WEB4","CLOUD","MESH"],
+  "resolver_policy": "Any request materially involving infrastructure, networking, hosting, public addressing, distributed execution, online services, IoT, Web3, Web4, cloud or mesh MUST inspect this index and its canonical capabilities before deriving a new architecture."
+}
