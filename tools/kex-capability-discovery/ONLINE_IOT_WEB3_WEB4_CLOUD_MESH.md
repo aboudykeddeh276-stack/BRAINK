@@ -1,55 +1,52 @@
-# KEX/BRAINK Transition — Local Virtual → Online → IoT → Web3 → Web4 → Cloud → Mesh
+# KEX/BRAINK Global Transition — Online → IoT → Web3 → Web4 → Cloud → Mesh
 
-The transition is progressive externalisation of the same KEX lineage, not a sequence of rewrites into unrelated technology stacks.
+## Governing correction
+Local KEX conformance is an inherent admissibility invariant. It is not a transition stage, target milestone, or substitute for global evidence.
+
+The actionable process is:
 
 ```text
-KEX ROOT / VIRTUAL MONOLITH
-      │
-      ├─ ONLINE bindings
-      ├─ IoT bindings
-      ├─ Web3 distributed bindings
-      ├─ Web4 semantic/state-runtime bindings
-      ├─ Cloud execution-carrier bindings
-      └─ Mesh peer/federation bindings
+ONLINE_GLOBAL_BINDING
+→ IOT_GLOBAL_DEVICE_SPACE
+→ WEB3_DISTRIBUTED_STATE_SPACE
+→ WEB4_SEMANTIC_EXECUTION_SPACE
+→ CLOUD_CARRIER_INDEPENDENCE
+→ MESH_GLOBAL_CLOSURE
 ```
 
-External platforms, networks, providers, devices and hosts remain typed execution/authority/transport boundaries. They do not become KEX ancestors.
+The same KEX lineage is progressively externalised. Hosts, providers, devices, public networks and other carriers remain external boundaries rather than KEX ancestors.
 
-## LOCAL_VIRTUAL
-Executable volume + recursive service families + sister/cousin closure + rehydratable KEX route lineage. No external availability is implied.
+## Global process rule
+A global predicate requires an independently observed external relation: remote/public execution, external authority/publication, remote device/peer participation, carrier replacement, or outside-in readback. Local loopback or self-declared state is not global evidence.
 
-## ONLINE
-Adds physical-server carrier, public domain projection, registrar/registry authority, DNS, hosting, TLS/HTTPS, ingress, route, bridge and API transport bindings. External observations promote only the predicates they actually prove.
+## Online
+Bind the KEX graph to the required public/remote server, addressing/domain, registrar/registry, DNS, hosting, TLS/HTTPS, ingress, routing, bridge and API surfaces. Commit only the external predicates independently observed.
 
 ## IoT
-Adds DEVICE, IDENTITY, CAPABILITY, SENSOR, ACTUATOR, TELEMETRY, COMMAND, GATEWAY and RECOVERY families. A physical device is a materialisation boundary; the KEX coordinate identifies the logical device/service state.
+Extend the same logical service space to remote device identity, capabilities, sensors/actuators, telemetry, commands, gateways, offline/rejoin and device replacement without rewriting KEX ancestry.
 
 ## Web3
-Adds distributed identity/state/exchange and federation. Blockchain/ledger integration is optional and requirement-driven, never the default KEX proof root. External consensus is used only where deterministic ownership is insufficient.
+Extend distributed identity/state/exchange/federation. Blockchain or ledger integration is optional and requirement-driven; it is not the KEX proof root.
 
 ## Web4
-Adds semantic/executable addressing, observer-relative state, recursive service derivation, typed relation discovery, sister/cousin closure, virtual monolith formation and rehydration as proof. Front-end/back-end are relative graph positions rather than permanent classes.
+Expose KEX semantic/executable addressing and recursively derived service relationships across remote materialisation boundaries. Sister/cousin/equivalent services may close across independently hosted codebases through typed logical bridges.
 
 ## Cloud
-Cloud is an execution-carrier and availability plane, not software genealogy. The same KEX service coordinate may materialise on local or cloud carriers without changing ancestry.
+Use cloud infrastructure as replaceable execution/availability carriers. The same KEX coordinate may move between qualified carriers while preserving lineage and rehydration semantics.
 
 ## Mesh
-Closes independently externalised branches through peer discovery, capability advertisement, sister/cousin/equivalent-service linking, failover, rehydration and partition/rejoin handling.
+Close independently materialised branches through peer discovery, membership, capability advertisement, typed cross-codebase links, rerouting, failover, partition/rejoin and rehydration with external readback.
 
-## Logical codebase composition law
+## Logical codebase composition
 
 ```text
-CODEBASE A                     CODEBASE B
-identity A                     identity B
-emits X                        accepts X
-state semantics A              state semantics B
-     │                              │
-     └──── semantic/interface proof ─┘
-                    ↓
-             KEX BRIDGE EDGE
+CODEBASE A + CODEBASE B
+→ inspect identity/state/contracts
+→ prove relation
+→ LINK | ADAPT+LINK | KEEP DISJOINT
 ```
 
-If equivalence is not established, the codebases remain disjoint. Physical source merging is justified only by a real build/runtime dependency.
+Repository/source-tree merge is not the default integration mechanism. It occurs only where a genuine build/runtime dependency requires physical unification.
 
-## Promotion law
-Passing LOCAL_VIRTUAL does not prove ONLINE. Passing ONLINE does not prove IoT/Web3/Web4/Cloud/Mesh. Internal KEX lineage can remain continuous while each external predicate is independently evidence-gated.
+## Engineering focus
+Do not spend the principal cycle reproving local conformance unless a regression or changed internal invariant requires it. Resolve and execute the next open global dependency.
