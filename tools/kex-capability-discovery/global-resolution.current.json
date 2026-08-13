@@ -1,5 +1,5 @@
 {
-  "schema": "kex.global.resolution.v3",
+  "schema": "kex.global.resolution.v4",
   "target": "MESH_GLOBAL_CLOSURE",
   "process_model": "DEPENDENCY_GRAPH_NOT_STAGE_COUNTER",
   "local_conformance": "INHERENT_ADMISSIBILITY_NOT_A_GLOBAL_STAGE",
@@ -20,14 +20,30 @@
     {
       "predicate": "REMOTE_EXECUTION",
       "required_external_evidence": "REMOTE_EXECUTION_READBACK",
+      "capability_binding": {
+        "primary": "personal:kex-outbound-self-host-lease-loop",
+        "compose_with": "personal:kex-self-host-domain-runtime-suite",
+        "last_known_skill_state": "PLANNED_NOT_RAISED"
+      },
       "integration_mode": "LOGICAL_BIND_OR_TYPED_BRIDGE"
     },
     {
       "predicate": "PUBLIC_NAME_AUTHORITY",
       "required_external_evidence": "REGISTRAR_OR_REGISTRY_READBACK",
+      "capability_binding": {
+        "primary": "personal:kex-domain-hosting-handoff",
+        "compose_with": "personal:kex-self-host-domain-runtime-suite",
+        "last_known_state": "OPEN_OWNER_AUTHORITY_REQUIRED",
+        "freshness": "CURRENT_REGISTRAR_OR_RDAP_READBACK_REQUIRED"
+      },
       "integration_mode": "LOGICAL_BIND_OR_TYPED_BRIDGE"
     }
   ],
+  "historical_domain_plan": {
+    "assessment_date": "2026-08-12",
+    "status": "LINEAGE_EVIDENCE_NOT_CURRENT_WRITE_AUTHORITY",
+    "rule": "Do not replay historical Sites A/TXT values until the hosting provider returns a fresh current record plan."
+  },
   "online_global_binding": {
     "observed": 1,
     "total": 7,
