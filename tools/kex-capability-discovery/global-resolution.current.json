@@ -1,0 +1,38 @@
+{
+  "schema": "kex.global.resolution.v3",
+  "target": "MESH_GLOBAL_CLOSURE",
+  "process_model": "DEPENDENCY_GRAPH_NOT_STAGE_COUNTER",
+  "local_conformance": "INHERENT_ADMISSIBILITY_NOT_A_GLOBAL_STAGE",
+  "source_lineage_preserved": true,
+  "external_carriers_in_kex_lineage": false,
+  "digest_is_kex_authority": false,
+  "observed": {
+    "SOURCE_REMOTE_READBACK": {
+      "state": "OBSERVED",
+      "scope": "EXTERNAL",
+      "observer": "GITHUB_CONNECTOR",
+      "authority": "REMOTE_SOURCE_PROVIDER",
+      "receipt": "aboudykeddeh276-stack/BRAINK:site-action-platform-v1",
+      "claim_boundary": "Proves remote source-provider readback only."
+    }
+  },
+  "next_actions": [
+    {
+      "predicate": "REMOTE_EXECUTION",
+      "required_external_evidence": "REMOTE_EXECUTION_READBACK",
+      "integration_mode": "LOGICAL_BIND_OR_TYPED_BRIDGE"
+    },
+    {
+      "predicate": "PUBLIC_NAME_AUTHORITY",
+      "required_external_evidence": "REGISTRAR_OR_REGISTRY_READBACK",
+      "integration_mode": "LOGICAL_BIND_OR_TYPED_BRIDGE"
+    }
+  ],
+  "online_global_binding": {
+    "observed": 1,
+    "total": 7,
+    "complete": false
+  },
+  "downstream_state": "BLOCKED_BY_DEPENDENCY_CLOSURE",
+  "global_state": "GLOBAL_PROCESS_INCOMPLETE"
+}
