@@ -1,0 +1,27 @@
+{
+  "schema": "braink.virtual.mesh.seed.v2",
+  "seed": "KEX-BRAINK-MESH-V2",
+  "host_boundary": {
+    "role": "EXTERNAL_EXECUTION_ENVELOPE",
+    "in_lineage": false,
+    "materialises": ["bootstrap", "heartbeat", "receipt"]
+  },
+  "kex_root": {
+    "coordinate": "KEX://ROOT/KEX-BRAINK-MESH-V2",
+    "begins_lineage": true,
+    "primitive": "STATE"
+  },
+  "root_service_families": [
+    "IDENTITY", "STATE", "COMPUTE", "STORAGE", "NETWORK",
+    "PROOF", "RECOVERY", "SITE", "AGENT", "RESOLVER"
+  ],
+  "relation": "HEX × HEX = KEX is typed relation/composition. Relationship and traversal remain recoverable.",
+  "proof_route": ["SEED", "EXPAND", "TRAVERSE", "COLLAPSE", "REHYDRATE"],
+  "proof_fields": ["identity", "input", "path", "rule", "observer", "commit_order", "outcome", "authority"],
+  "endpoint_digest_is_proof_authority": false,
+  "derivation_rule": "Virtual services derive descendants from virtual parents only; the host never enters ancestry.",
+  "link_rule": "Compatible service boundaries form sister/cousin graph relations and may close across families.",
+  "monolith_rule": "Monolithic form exists only as resolved virtual graph/state closure after ignition.",
+  "rehydration_rule": "A valid committed mesh state must reproduce the same admitted service coordinates, route relations and collapse metrics from the same authoritative seed/rules.",
+  "supersedes": "braink.virtual.mesh.seed.v1"
+}
