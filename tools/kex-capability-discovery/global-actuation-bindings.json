@@ -1,0 +1,76 @@
+{
+  "schema": "kex.global.actuation.bindings.v1",
+  "authority": "KEX/BRAINK",
+  "rule": "Bindings connect a global predicate to an existing logical capability or external authority surface. They do not transfer source lineage and they do not make an external carrier a KEX ancestor.",
+  "bindings": {
+    "SOURCE_REMOTE_READBACK": {
+      "capabilities": ["GitHub connector"],
+      "mode": "EXTERNAL_READBACK",
+      "freshness": "CURRENT_READ_REQUIRED"
+    },
+    "REMOTE_EXECUTION": {
+      "capabilities": ["personal:kex-outbound-self-host-lease-loop"],
+      "compose_with": ["personal:kex-self-host-domain-runtime-suite"],
+      "mode": "RAISE_EXISTING_CAPABILITY_THEN_REMOTE_READBACK",
+      "last_known_skill_state": "PLANNED_NOT_RAISED",
+      "claim_boundary": "No remote runtime is promoted without an externally returned durable completion receipt."
+    },
+    "PUBLIC_NAME_AUTHORITY": {
+      "capabilities": ["personal:kex-domain-hosting-handoff"],
+      "compose_with": ["personal:kex-self-host-domain-runtime-suite"],
+      "mode": "OWNER_OR_REGISTRAR_AUTHORITY_BIND",
+      "last_known_state": "OPEN_OWNER_AUTHORITY_REQUIRED",
+      "freshness": "CURRENT_REGISTRAR_OR_RDAP_READBACK_REQUIRED"
+    },
+    "AUTHORITATIVE_DNS": {
+      "capabilities": ["personal:kex-domain-hosting-handoff"],
+      "mode": "AUTHORITATIVE_PUBLICATION_AND_INDEPENDENT_RESOLUTION",
+      "freshness": "FRESH_PROVIDER_VALUES_REQUIRED_BEFORE_WRITE",
+      "historical_plan": "The 2026-08-12 Sites record plan is lineage evidence only and must not be replayed without fresh provider readback."
+    },
+    "TLS_IDENTITY": {
+      "capabilities": ["personal:kex-domain-hosting-handoff"],
+      "mode": "PROVIDER_OR_SOVEREIGN_TLS_BIND_AND_OUTSIDE_IN_READBACK"
+    },
+    "PUBLIC_INGRESS": {
+      "capabilities": ["personal:kex-self-host-domain-runtime-suite"],
+      "mode": "PUBLIC_ROUTE_BIND_AND_OUTSIDE_IN_READBACK"
+    },
+    "API_CONTRACT": {
+      "capabilities": ["KEX-FUND-INFRA-DOMAIN-MESH-001"],
+      "mode": "FINITE_INGRESS_TO_LOGICAL_LISTENER_RESOLVER"
+    },
+    "DEVICE_REMOTE_IDENTITY": {
+      "capabilities": ["KEX global IoT device-space binding"],
+      "mode": "LOGICAL_DEVICE_IDENTITY_TO_REMOTE_MATERIALISATION"
+    },
+    "PEER_IDENTITY": {
+      "capabilities": ["KEX global distributed-state binding"],
+      "mode": "REMOTE_PEER_IDENTITY_WITH_TYPED_AUTHORITY"
+    },
+    "SEMANTIC_REMOTE_RESOLUTION": {
+      "capabilities": ["KEX-FUND-VIRTUAL-SERVICE-MESH-002"],
+      "mode": "REMOTE_KEX_COORDINATE_RESOLUTION"
+    },
+    "COUSIN_CLOSURE_REMOTE": {
+      "capabilities": ["KEX-FUND-VIRTUAL-SERVICE-MESH-002"],
+      "mode": "TYPED_LOGICAL_BRIDGE_BETWEEN_DISJOINT_CODEBASES"
+    },
+    "REMOTE_REHYDRATION": {
+      "capabilities": ["KEX-FUND-VIRTUAL-SERVICE-MESH-002", "personal:kex-outbound-self-host-lease-loop"],
+      "mode": "REHYDRATE_SAME_KEX_ROUTE_ON_REPLACEMENT_CARRIER"
+    },
+    "CARRIER_REPLACEMENT": {
+      "capabilities": ["KEX cloud carrier binding"],
+      "mode": "REPLACE_EXECUTION_CARRIER_WITHOUT_LINEAGE_CHANGE"
+    },
+    "PEER_DISCOVERY": {
+      "capabilities": ["KEX mesh peer/federation binding"],
+      "mode": "REMOTE_DISCOVERY_AND_MEMBERSHIP"
+    },
+    "GLOBAL_CLOSURE": {
+      "capabilities": ["KEX mesh global closure"],
+      "mode": "MULTI_BOUNDARY_ROUTE_CLOSURE_WITH_INDEPENDENT_READBACK"
+    }
+  }
+}
