@@ -1,0 +1,21 @@
+{
+  "schema": "kex.global.process.v2",
+  "local_conformance": {
+    "role": "INHERENT_ADMISSIBILITY_INVARIANT",
+    "is_transition_stage": false
+  },
+  "global_ladder": [
+    "ONLINE_GLOBAL_BINDING",
+    "IOT_GLOBAL_DEVICE_SPACE",
+    "WEB3_DISTRIBUTED_STATE_SPACE",
+    "WEB4_SEMANTIC_EXECUTION_SPACE",
+    "CLOUD_CARRIER_INDEPENDENCE",
+    "MESH_GLOBAL_CLOSURE"
+  ],
+  "rules": {
+    "logical_composition_before_physical_merge": true,
+    "source_lineage_preserved": true,
+    "external_carrier_in_lineage": false,
+    "global_state_requires_external_observation": true
+  }
+}
