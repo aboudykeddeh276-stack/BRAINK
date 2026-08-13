@@ -1,31 +1,39 @@
 {
-  "schema": "kex.capability.discovery.index.v2",
+  "schema": "kex.capability.discovery.index.v3",
   "authority": "KEX/BRAINK",
-  "purpose": "Make proven KEX/BRAINK infrastructure and global-transition capabilities discoverable before new architecture is invented.",
+  "purpose": "Resolve existing KEX/BRAINK infrastructure capabilities and advance real external dependencies without rebuilding proven internal engineering.",
   "governing_rules": {
     "discover_before_design": true,
     "local_conformance_is_inherent_admissibility": true,
     "local_conformance_is_transition_stage": false,
+    "global_process_is_dependency_graph": true,
     "logical_composition_before_physical_merge": true,
     "source_repository_lineage_preserved": true,
     "host_provider_external_to_kex_lineage": true,
     "endpoint_digest_is_authority": false,
+    "global_observed_requires_external_scope": true,
     "unknown_remains_unknown": true
+  },
+  "runtime": {
+    "resolver": "tools/kex-capability-discovery/global-process-resolver.mjs",
+    "observation_ledger": "tools/kex-capability-discovery/global-observation-ledger.seed.json",
+    "state_machine": "tools/kex-capability-discovery/global-process-state-machine.v2.json",
+    "execution_rule": "Resolve ready external predicates from dependency closure; do not advance a stage by label alone."
   },
   "trigger_terms": ["server","servers","node","host","hosting","domain","domain space","registrar","registry","DNS","nameserver","routing","router","route","bridge","gateway","API","API server","endpoint","listener","ingress","TLS","HTTPS","certificate","failover","recovery","online","internet","IoT","device","sensor","actuator","Web3","Web4","cloud","mesh","peer","federation","WebSocket","QUIC","service discovery","load balancing","CDN","edge","codebase integration","repository integration"],
   "canonical_capabilities": [
-    {"id":"KEX-FUND-VIRTUAL-SERVICE-MESH-002","role":"governing recursive virtual service topology and KEX route-lineage proof"},
-    {"id":"KEX-FUND-INFRA-DOMAIN-MESH-001","role":"servers/domains/domain-space/registrar/DNS/hosting/routing/bridge/API/ingress/TLS/recovery specialization"},
-    {"id":"KEX-BRAINK-INFRA-ROUTE-LINEAGE-001","role":"infrastructure topology and external promotion gates"},
-    {"id":"personal:kex-outbound-self-host-lease-loop","role":"external self-host bootstrap adapter; host is carrier, not KEX ancestor"},
-    {"id":"personal:kex-domain-hosting-handoff","role":"external registrar/DNS/TLS/HTTPS/domain handoff adapter"},
+    {"id":"KEX-FUND-VIRTUAL-SERVICE-MESH-002","role":"recursive virtual service topology and KEX route-lineage proof"},
+    {"id":"KEX-FUND-INFRA-DOMAIN-MESH-001","role":"server/domain/domain-space/registrar/DNS/hosting/routing/bridge/API/ingress/TLS/recovery specialization"},
+    {"id":"KEX-BRAINK-INFRA-ROUTE-LINEAGE-001","role":"infrastructure topology and external promotion predicates"},
+    {"id":"personal:kex-outbound-self-host-lease-loop","role":"external self-host bootstrap adapter; host remains carrier, not ancestor"},
+    {"id":"personal:kex-domain-hosting-handoff","role":"registrar/DNS/TLS/HTTPS/domain authority adapter"},
     {"id":"personal:kex-self-host-domain-runtime-suite","role":"composed external bootstrap-to-domain runtime adapter"}
   ],
   "logical_codebase_composition": {
-    "rule": "Join codebases logically through proven identities, state contracts and typed relations; do not force source-tree or repository merging.",
+    "rule": "Join codebases through proven identities, state contracts and typed relations; source-tree/repository merging is exceptional, not the integration primitive.",
     "required_match": ["identity_preserved","emits_accepts_compatibility","state_semantics_compatible_or_explicitly_adapted","authority_compatible","failure_semantics_known","proof_and_readback_available"],
     "decision": {"compatible":"CREATE_TYPED_KEX_BRIDGE","adaptable":"CREATE_EXPLICIT_ADAPTER_AND_TEST","incompatible":"KEEP_DISJOINT","unknown":"DO_NOT_FORCE_JOIN"}
   },
-  "global_transition_ladder": ["ONLINE_GLOBAL_BINDING","IOT_GLOBAL_DEVICE_SPACE","WEB3_DISTRIBUTED_STATE_SPACE","WEB4_SEMANTIC_EXECUTION_SPACE","CLOUD_CARRIER_INDEPENDENCE","MESH_GLOBAL_CLOSURE"],
-  "resolver_policy": "Any request involving infrastructure or distributed execution must inspect existing KEX capabilities first and then advance the next unresolved global dependency rather than treating local conformance as the target."
+  "global_transition_view": ["ONLINE_GLOBAL_BINDING","IOT_GLOBAL_DEVICE_SPACE","WEB3_DISTRIBUTED_STATE_SPACE","WEB4_SEMANTIC_EXECUTION_SPACE","CLOUD_CARRIER_INDEPENDENCE","MESH_GLOBAL_CLOSURE"],
+  "resolver_policy": "Inspect existing KEX capabilities, load the external observation ledger, compute ready predicates from dependency closure, bind only the relevant external boundary, independently read back the result, then recompute."
 }
