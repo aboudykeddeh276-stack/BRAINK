@@ -1,0 +1,19 @@
+{
+  "schema": "kex.braink.deployment.release.v29",
+  "logical_machine": "volume://keddeh/braink/root",
+  "release": "v29",
+  "payload": "deploy/kex-volume/index.html",
+  "bytes": 3973006,
+  "sha256": "7fab4b71668082931bf333053b6018b9a93999459db065b4bebe1d33e67287aa",
+  "carrier_property": "STATIC_HTML",
+  "portable_carrier": "kex.host.adapter.portable.v2",
+  "architectural_closure": "PASS",
+  "public_carrier": "OPEN_DEPENDENCY",
+  "source_repository": "aboudykeddeh276-stack/BRAINK",
+  "required_public_closure": [
+    "exact payload repository/static-host transfer",
+    "public HTTPS carrier admission",
+    "external URL readback",
+    "independent network observation"
+  ]
+}
