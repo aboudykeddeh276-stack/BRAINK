@@ -1,7 +1,33 @@
 {
-  "schema": "kex.global.resolution.v5",
+  "schema": "kex.global.resolution.v6",
   "target": "MESH_GLOBAL_CLOSURE",
   "process_model": "DEPENDENCY_GRAPH_NOT_STAGE_COUNTER",
+  "canonical_internal_runtime": {
+    "runtime": "tools/kex-runtime/runtime.mjs",
+    "contract": "tools/kex-runtime/runtime-contract.v2.json",
+    "self_test_receipt": "tools/kex-runtime/SELF_TEST_RECEIPT.json",
+    "state": "INTERNAL_ADMISSIBLE",
+    "service_graph": {
+      "families": 10,
+      "virtual_services": 30,
+      "connected_ratio": 1.0
+    },
+    "hardware_graph": {
+      "shared_machine_templates": 1,
+      "virtual_machine_descriptors": 341,
+      "hardware_complete_carriers": 341,
+      "max_generation": 5,
+      "hardware_family_count": 14,
+      "resident_machine_payloads_created": 0
+    },
+    "rehydration_test": {
+      "events": 100,
+      "fanout": 2,
+      "receipts": 200,
+      "replay_route_equal": true
+    },
+    "claim_boundary": "INTERNAL SOFTWARE MODEL ONLY; does not promote any external predicate"
+  },
   "local_conformance": "INHERENT_ADMISSIBILITY_NOT_A_GLOBAL_STAGE",
   "source_lineage_preserved": true,
   "external_carriers_in_kex_lineage": false,
@@ -12,27 +38,28 @@
       "scope": "EXTERNAL",
       "observer": "GITHUB_CONNECTOR",
       "authority": "REMOTE_SOURCE_PROVIDER",
-      "receipt": "aboudykeddeh276-stack/BRAINK:site-action-platform-v1",
+      "receipt": "aboudykeddeh276-stack/BRAINK:kex-runtime-v2",
       "claim_boundary": "Proves remote source-provider readback only."
     }
   },
   "actuator_availability": {
     "REMOTE_SOURCE_PROVIDER": "CONNECTED_GITHUB",
-    "SELF_HOST_NODE": "LOGICAL_CAPABILITY_PRESENT_NO_DURABLE_REMOTE_RECEIPT_OBSERVED",
+    "SELF_HOST_NODE": "LOGICAL_CAPABILITY_PRESENT_NO_DURABLE_REMOTE_EXECUTION_RECEIPT_OBSERVED",
     "REGISTRAR_DNS_AUTHORITY": "LOGICAL_CAPABILITY_PRESENT_NO_CONNECTED_AUTHORITY_ACTUATOR_DISCOVERED",
     "SITES_HOSTING_CONTROL": "LOGICAL_CAPABILITIES_INDEXED_NO_DIRECT_EXECUTOR_EXPOSED_IN_CURRENT_TOOL_SURFACE",
-    "OPTIONAL_EXTERNAL_DEPLOYMENT_CARRIER": "INSTALLABLE_VERCEL_NOT_SELECTED_NOT_CONNECTED"
+    "EXTERNAL_VM_OR_BARE_METAL": "MATERIALISATION_ADAPTER_CONTRACT_PRESENT_NO_EXTERNAL_CARRIER_RECEIPT_OBSERVED"
   },
   "next_actions": [
     {
       "predicate": "REMOTE_EXECUTION",
       "required_external_evidence": "REMOTE_EXECUTION_READBACK",
+      "internal_resolution": "RESOLVE_CARRIER_READY_MACHINE_THROUGH_KEX_RUNTIME_V2",
       "capability_binding": {
-        "primary": "personal:kex-outbound-self-host-lease-loop",
-        "compose_with": "personal:kex-self-host-domain-runtime-suite",
-        "last_known_skill_state": "PLANNED_NOT_RAISED"
+        "primary": "KEX-FUND-RUNTIME-SPINE-003",
+        "external_adapter": "personal:kex-outbound-self-host-lease-loop",
+        "compose_with": "personal:kex-self-host-domain-runtime-suite"
       },
-      "integration_mode": "LOGICAL_BIND_OR_TYPED_BRIDGE",
+      "integration_mode": "VIRTUAL_REHYDRATION_THEN_EXTERNAL_MATERIALISATION",
       "blocked_on": "EXTERNAL_NODE_ACTUATOR_OR_REMOTE_COMPLETION_RECEIPT"
     },
     {
@@ -41,10 +68,9 @@
       "capability_binding": {
         "primary": "personal:kex-domain-hosting-handoff",
         "compose_with": "personal:kex-self-host-domain-runtime-suite",
-        "last_known_state": "OPEN_OWNER_AUTHORITY_REQUIRED",
         "freshness": "CURRENT_REGISTRAR_OR_RDAP_READBACK_REQUIRED"
       },
-      "integration_mode": "LOGICAL_BIND_OR_TYPED_BRIDGE",
+      "integration_mode": "LOGICAL_AUTHORITY_BIND",
       "blocked_on": "CONNECTED_REGISTRAR_OR_DNS_AUTHORITY"
     }
   ],
@@ -58,6 +84,6 @@
     "total": 7,
     "complete": false
   },
-  "downstream_state": "BLOCKED_BY_DEPENDENCY_CLOSURE",
+  "downstream_state": "BLOCKED_BY_EXTERNAL_DEPENDENCY_CLOSURE",
   "global_state": "GLOBAL_PROCESS_INCOMPLETE"
 }
