@@ -1,7 +1,21 @@
 {
-  "schema": "kex.global.actuation.bindings.v1",
+  "schema": "kex.global.actuation.bindings.v2",
   "authority": "KEX/BRAINK",
   "rule": "Bindings connect a global predicate to an existing logical capability or external authority surface. They do not transfer source lineage and they do not make an external carrier a KEX ancestor.",
+  "substrates": {
+    "KEX_VIRTUAL_HARDWARE_CONVERGENCE": {
+      "capability_id": "KEX-VIRTUAL-HARDWARE-CONVERGENCE-001",
+      "contract": "virtual-hardware-contract.v1.json",
+      "runtime": "virtual-hardware-convergence-fabric.mjs",
+      "role": "Recursively derive hardware-complete virtual machine coordinates from KEX mesh state. A hardware-complete virtual machine may itself carry a child mesh.",
+      "machine_template": "KEX://MACHINE-TEMPLATE/HYPERPROCESSOR-V1",
+      "physical_host_in_lineage": false,
+      "physical_performance_equivalence_claim": false,
+      "materialisation_adapters": ["QEMU", "KVM", "HVF", "cloud VM", "physical server", "IoT/edge device"],
+      "failover_semantics": "REHYDRATE_PRESERVED_KEX_LINEAGE_ON_RANDOM_ADMISSIBLE_VIRTUAL_MACHINE_SPACE",
+      "primary_secondary_required": false
+    }
+  },
   "bindings": {
     "SOURCE_REMOTE_READBACK": {
       "capabilities": ["GitHub connector"],
@@ -9,11 +23,11 @@
       "freshness": "CURRENT_READ_REQUIRED"
     },
     "REMOTE_EXECUTION": {
-      "capabilities": ["personal:kex-outbound-self-host-lease-loop"],
+      "capabilities": ["KEX-VIRTUAL-HARDWARE-CONVERGENCE-001", "personal:kex-outbound-self-host-lease-loop"],
       "compose_with": ["personal:kex-self-host-domain-runtime-suite"],
-      "mode": "RAISE_EXISTING_CAPABILITY_THEN_REMOTE_READBACK",
+      "mode": "RESOLVE_VIRTUAL_MACHINE_THEN_RAISE_EXTERNAL_MATERIALISATION_ADAPTER",
       "last_known_skill_state": "PLANNED_NOT_RAISED",
-      "claim_boundary": "No remote runtime is promoted without an externally returned durable completion receipt."
+      "claim_boundary": "Virtual machine addressability is not remote physical execution. No remote runtime is promoted without an externally returned durable completion receipt."
     },
     "PUBLIC_NAME_AUTHORITY": {
       "capabilities": ["personal:kex-domain-hosting-handoff"],
@@ -23,8 +37,8 @@
       "freshness": "CURRENT_REGISTRAR_OR_RDAP_READBACK_REQUIRED"
     },
     "AUTHORITATIVE_DNS": {
-      "capabilities": ["personal:kex-domain-hosting-handoff"],
-      "mode": "AUTHORITATIVE_PUBLICATION_AND_INDEPENDENT_RESOLUTION",
+      "capabilities": ["KEX-FUND-INFRA-DOMAIN-MESH-001", "personal:kex-domain-hosting-handoff"],
+      "mode": "MATERIALISE_DNS_SERVICE_ON_HARDWARE_COMPLETE_KEX_MACHINE_THEN_AUTHORITATIVE_PUBLICATION_AND_INDEPENDENT_RESOLUTION",
       "freshness": "FRESH_PROVIDER_VALUES_REQUIRED_BEFORE_WRITE",
       "historical_plan": "The 2026-08-12 Sites record plan is lineage evidence only and must not be replayed without fresh provider readback."
     },
@@ -33,15 +47,15 @@
       "mode": "PROVIDER_OR_SOVEREIGN_TLS_BIND_AND_OUTSIDE_IN_READBACK"
     },
     "PUBLIC_INGRESS": {
-      "capabilities": ["personal:kex-self-host-domain-runtime-suite"],
-      "mode": "PUBLIC_ROUTE_BIND_AND_OUTSIDE_IN_READBACK"
+      "capabilities": ["KEX-VIRTUAL-HARDWARE-CONVERGENCE-001", "personal:kex-self-host-domain-runtime-suite"],
+      "mode": "PUBLIC_ROUTE_BIND_TO_MATERIALISED_VIRTUAL_MACHINE_AND_OUTSIDE_IN_READBACK"
     },
     "API_CONTRACT": {
-      "capabilities": ["KEX-FUND-INFRA-DOMAIN-MESH-001"],
-      "mode": "FINITE_INGRESS_TO_LOGICAL_LISTENER_RESOLVER"
+      "capabilities": ["KEX-FUND-INFRA-DOMAIN-MESH-001", "KEX-VIRTUAL-HARDWARE-CONVERGENCE-001"],
+      "mode": "FINITE_INGRESS_TO_LOGICAL_LISTENER_RESOLVER_ON_REHYDRATABLE_MACHINE_SPACE"
     },
     "DEVICE_REMOTE_IDENTITY": {
-      "capabilities": ["KEX global IoT device-space binding"],
+      "capabilities": ["KEX global IoT device-space binding", "KEX-VIRTUAL-HARDWARE-CONVERGENCE-001"],
       "mode": "LOGICAL_DEVICE_IDENTITY_TO_REMOTE_MATERIALISATION"
     },
     "PEER_IDENTITY": {
@@ -49,28 +63,32 @@
       "mode": "REMOTE_PEER_IDENTITY_WITH_TYPED_AUTHORITY"
     },
     "SEMANTIC_REMOTE_RESOLUTION": {
-      "capabilities": ["KEX-FUND-VIRTUAL-SERVICE-MESH-002"],
-      "mode": "REMOTE_KEX_COORDINATE_RESOLUTION"
+      "capabilities": ["KEX-FUND-VIRTUAL-SERVICE-MESH-002", "KEX-VIRTUAL-HARDWARE-CONVERGENCE-001"],
+      "mode": "REMOTE_KEX_COORDINATE_RESOLUTION_ACROSS_SERVICE_AND_MACHINE_SPACES"
     },
     "COUSIN_CLOSURE_REMOTE": {
       "capabilities": ["KEX-FUND-VIRTUAL-SERVICE-MESH-002"],
       "mode": "TYPED_LOGICAL_BRIDGE_BETWEEN_DISJOINT_CODEBASES"
     },
     "REMOTE_REHYDRATION": {
-      "capabilities": ["KEX-FUND-VIRTUAL-SERVICE-MESH-002", "personal:kex-outbound-self-host-lease-loop"],
-      "mode": "REHYDRATE_SAME_KEX_ROUTE_ON_REPLACEMENT_CARRIER"
+      "capabilities": ["KEX-FUND-VIRTUAL-SERVICE-MESH-002", "KEX-VIRTUAL-HARDWARE-CONVERGENCE-001", "personal:kex-outbound-self-host-lease-loop"],
+      "mode": "REHYDRATE_SAME_KEX_LINEAGE_ON_RANDOM_ADMISSIBLE_HARDWARE_COMPLETE_MACHINE_SPACE",
+      "random_selection": "UNIFORM_OVER_CURRENT_ADMISSIBLE_POPULATION",
+      "entropy_receipt_required": true,
+      "lineage_rewrite": false
     },
     "CARRIER_REPLACEMENT": {
-      "capabilities": ["KEX cloud carrier binding"],
-      "mode": "REPLACE_EXECUTION_CARRIER_WITHOUT_LINEAGE_CHANGE"
+      "capabilities": ["KEX-VIRTUAL-HARDWARE-CONVERGENCE-001", "KEX cloud carrier binding"],
+      "mode": "REHYDRATE_TO_ANOTHER_VIRTUAL_MACHINE_THEN_REBIND_EXTERNAL_EXECUTION_CARRIER_WITHOUT_LINEAGE_CHANGE",
+      "failback_to_primary_required": false
     },
     "PEER_DISCOVERY": {
-      "capabilities": ["KEX mesh peer/federation binding"],
-      "mode": "REMOTE_DISCOVERY_AND_MEMBERSHIP"
+      "capabilities": ["KEX mesh peer/federation binding", "KEX-VIRTUAL-HARDWARE-CONVERGENCE-001"],
+      "mode": "REMOTE_DISCOVERY_OF_SERVICE_AND_MACHINE_CAPABILITIES"
     },
     "GLOBAL_CLOSURE": {
-      "capabilities": ["KEX mesh global closure"],
-      "mode": "MULTI_BOUNDARY_ROUTE_CLOSURE_WITH_INDEPENDENT_READBACK"
+      "capabilities": ["KEX mesh global closure", "KEX-VIRTUAL-HARDWARE-CONVERGENCE-001"],
+      "mode": "MULTI_BOUNDARY_SERVICE_AND_MACHINE_ROUTE_CLOSURE_WITH_REHYDRATION_AND_INDEPENDENT_READBACK"
     }
   }
 }
