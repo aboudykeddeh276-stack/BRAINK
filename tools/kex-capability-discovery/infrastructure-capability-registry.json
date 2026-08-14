@@ -1,15 +1,19 @@
 {
-  "schema": "kex.capability.discovery.index.v3",
+  "schema": "kex.capability.discovery.index.v4",
   "authority": "KEX/BRAINK",
-  "purpose": "Resolve existing KEX/BRAINK infrastructure capabilities and advance real external dependencies without rebuilding proven internal engineering.",
+  "purpose": "Resolve existing KEX/BRAINK infrastructure, virtual-hardware and global-transition capabilities and advance real external dependencies without rebuilding proven internal engineering.",
   "governing_rules": {
     "discover_before_design": true,
     "local_conformance_is_inherent_admissibility": true,
     "local_conformance_is_transition_stage": false,
     "global_process_is_dependency_graph": true,
     "logical_composition_before_physical_merge": true,
+    "virtual_hardware_before_new_physical_carrier": true,
     "source_repository_lineage_preserved": true,
     "host_provider_external_to_kex_lineage": true,
+    "virtual_machine_can_be_kex_parent_carrier": true,
+    "failover_is_rehydration": true,
+    "random_rehydration_selection_over_admissible_meshes": true,
     "endpoint_digest_is_authority": false,
     "global_observed_requires_external_scope": true,
     "unknown_remains_unknown": true
@@ -18,11 +22,14 @@
     "resolver": "tools/kex-capability-discovery/global-process-resolver.mjs",
     "observation_ledger": "tools/kex-capability-discovery/global-observation-ledger.seed.json",
     "state_machine": "tools/kex-capability-discovery/global-process-state-machine.v2.json",
-    "execution_rule": "Resolve ready external predicates from dependency closure; do not advance a stage by label alone."
+    "virtual_hardware_fabric": "tools/kex-capability-discovery/virtual-hardware-convergence-fabric.mjs",
+    "virtual_hardware_contract": "tools/kex-capability-discovery/virtual-hardware-contract.v1.json",
+    "execution_rule": "Resolve ready external predicates from dependency closure; resolve hardware-complete virtual machine space before adding a new physical carrier; materialise only the required external boundary."
   },
-  "trigger_terms": ["server","servers","node","host","hosting","domain","domain space","registrar","registry","DNS","nameserver","routing","router","route","bridge","gateway","API","API server","endpoint","listener","ingress","TLS","HTTPS","certificate","failover","recovery","online","internet","IoT","device","sensor","actuator","Web3","Web4","cloud","mesh","peer","federation","WebSocket","QUIC","service discovery","load balancing","CDN","edge","codebase integration","repository integration"],
+  "trigger_terms": ["server","servers","node","host","hosting","domain","domain space","registrar","registry","DNS","nameserver","routing","router","route","bridge","gateway","API","API server","endpoint","listener","ingress","TLS","HTTPS","certificate","failover","rehydration","recovery","online","internet","IoT","device","sensor","actuator","Web3","Web4","cloud","mesh","peer","federation","WebSocket","QUIC","service discovery","load balancing","CDN","edge","codebase integration","repository integration","virtual machine","VM","bare metal","bare-metal","emulator","emulation","hyperprocessor","CPU","registers","MMU","memory bus","device bus","interrupt","firmware","boot","QEMU","KVM","HVF","nested virtualization","virtual hardware"],
   "canonical_capabilities": [
     {"id":"KEX-FUND-VIRTUAL-SERVICE-MESH-002","role":"recursive virtual service topology and KEX route-lineage proof"},
+    {"id":"KEX-FUND-VIRTUAL-HARDWARE-CONVERGENCE-001","role":"recursive virtual hardware/machine convergence; hardware-complete virtual machines become KEX parent carriers; failover is random admissible rehydration"},
     {"id":"KEX-FUND-INFRA-DOMAIN-MESH-001","role":"server/domain/domain-space/registrar/DNS/hosting/routing/bridge/API/ingress/TLS/recovery specialization"},
     {"id":"KEX-BRAINK-INFRA-ROUTE-LINEAGE-001","role":"infrastructure topology and external promotion predicates"},
     {"id":"personal:kex-outbound-self-host-lease-loop","role":"external self-host bootstrap adapter; host remains carrier, not ancestor"},
@@ -34,6 +41,13 @@
     "required_match": ["identity_preserved","emits_accepts_compatibility","state_semantics_compatible_or_explicitly_adapted","authority_compatible","failure_semantics_known","proof_and_readback_available"],
     "decision": {"compatible":"CREATE_TYPED_KEX_BRIDGE","adaptable":"CREATE_EXPLICIT_ADAPTER_AND_TEST","incompatible":"KEEP_DISJOINT","unknown":"DO_NOT_FORCE_JOIN"}
   },
+  "machine_resolution_policy": {
+    "rule": "Before allocating another physical server/VM, resolve whether an existing or derivable KEX hardware-complete virtual machine space can carry the workload.",
+    "machine_contract": "CPU+MMU+MEMORY+BUS+DMA/IOMMU+IRQ+TIMER+NETWORK+BLOCK+FIRMWARE+BOOT+CONSOLE+ACCELERATOR+ENTROPY",
+    "shared_template": true,
+    "physical_performance_equivalence_claim": false,
+    "failover": "REHYDRATE_SAME_LINEAGE_ON_RANDOM_ADMISSIBLE_MACHINE_SPACE"
+  },
   "global_transition_view": ["ONLINE_GLOBAL_BINDING","IOT_GLOBAL_DEVICE_SPACE","WEB3_DISTRIBUTED_STATE_SPACE","WEB4_SEMANTIC_EXECUTION_SPACE","CLOUD_CARRIER_INDEPENDENCE","MESH_GLOBAL_CLOSURE"],
-  "resolver_policy": "Inspect existing KEX capabilities, load the external observation ledger, compute ready predicates from dependency closure, bind only the relevant external boundary, independently read back the result, then recompute."
+  "resolver_policy": "Inspect existing KEX service and virtual-hardware capabilities, load the external observation ledger, compute ready predicates from dependency closure, bind only the relevant external boundary, independently read back the result, then recompute."
 }
