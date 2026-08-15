@@ -18,9 +18,12 @@ function readJSON(file) {
 }
 
 function candidateCapabilities(registry) {
+  if (Array.isArray(registry?.canonical_capabilities)) {
+    return registry.canonical_capabilities.map((value) => ({ ...value, capability_id: value.id }));
+  }
   const result = [];
   for (const [domain, value] of Object.entries(registry?.capabilities ?? registry?.substrates ?? {})) {
-    if (value && typeof value === 'object') result.push({ domain, ...value });
+    if (value && typeof value === 'object') result.push({ domain, ...value, capability_id: value.capability_id ?? value.id });
   }
   return result;
 }
@@ -55,19 +58,17 @@ export class CapabilityResolver {
 
     const topology = this.discover();
     const needle = (requiredCapability ?? intent).toLowerCase();
-    const exact = topology.capabilities.find((c) => {
-      const haystack = JSON.stringify(c).toLowerCase();
-      return haystack.includes(needle);
-    });
+    const exact = topology.capabilities.find((c) => JSON.stringify(c).toLowerCase().includes(needle));
 
     if (exact) {
+      const capabilityId = exact.capability_id ?? exact.id ?? exact.domain;
       return Object.freeze({
         status: 'RESOLVED',
         method: 'REUSE',
         capability: exact,
         adapter,
-        route: `capability://${exact.capability_id ?? exact.domain}`,
-        next: continuation.traverse(`capability://${exact.capability_id ?? exact.domain}`),
+        route: `capability://${capabilityId}`,
+        next: continuation.traverse(`capability://${capabilityId}`),
       });
     }
 
