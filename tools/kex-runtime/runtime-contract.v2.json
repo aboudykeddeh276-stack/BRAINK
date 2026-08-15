@@ -1,0 +1,42 @@
+{
+  "schema": "kex.runtime.contract.v2",
+  "authority": "KEX/BRAINK",
+  "canonical_sequence": [
+    "RESOLVE_SERVICE_GRAPH",
+    "DERIVE_MACHINE_DESCRIPTOR",
+    "CLOSE_HARDWARE_CONTRACT",
+    "ADMIT_AS_VIRTUAL_CARRIER",
+    "DERIVE_CHILD_MACHINE_SPACES",
+    "REGISTER_WORKLOAD_MATERIALISATION",
+    "OBSERVE_MATERIALISATION_LOSS_OR_REPLACEMENT",
+    "SELECT_RANDOM_ADMISSIBLE_CARRIER",
+    "REHYDRATE_SAME_LINEAGE",
+    "OPTIONAL_EXTERNAL_MATERIALISATION",
+    "EXTERNAL_READBACK",
+    "CONTINUE_GLOBAL_DEPENDENCY_GRAPH"
+  ],
+  "layers": {
+    "service_graph": "recursive service identity, sister/cousin closure and workload relations",
+    "hardware_graph": "shared machine grammar plus recursively derived hardware-complete carrier descriptors",
+    "rehydration_fabric": "random admissible carrier selection and lineage-preserving REHYDRATES_TO transitions",
+    "materialisation_plane": "typed QEMU/KVM/HVF/cloud/bare-metal/BIND/FRR/API adapters outside KEX ancestry",
+    "global_plane": "external authority/readback predicates such as registrar, DNS, TLS, public ingress, device/peer exchange and mesh closure"
+  },
+  "invariants": {
+    "host_is_lineage_root": false,
+    "provider_is_lineage_root": false,
+    "child_machine_requires_parent_carrier_ready": true,
+    "machine_descriptor_is_complete_at_creation": false,
+    "hardware_contract_family_count": 14,
+    "machine_template_shared": true,
+    "resident_vm_payload_per_virtual_machine_required": false,
+    "failover_is_rehydration": true,
+    "primary_secondary_required": false,
+    "failback_required": false,
+    "random_selection_scope": "CURRENT_ADMISSIBLE_HARDWARE_COMPLETE_CARRIER_POPULATION",
+    "entropy_recorded_for_route_replay": true,
+    "hash_is_kex_identity_authority": false,
+    "external_readback_required_for_external_promotion": true,
+    "hardware_interface_equivalence_implies_physical_performance_equivalence": false
+  }
+}

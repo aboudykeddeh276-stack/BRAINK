@@ -1,0 +1,54 @@
+name: KEX Runtime v2
+
+on:
+  push:
+    paths:
+      - 'tools/kex-runtime/**'
+      - 'tools/kex-capability-discovery/**'
+      - '.github/workflows/kex-runtime-v2.yml'
+  pull_request:
+    paths:
+      - 'tools/kex-runtime/**'
+      - 'tools/kex-capability-discovery/**'
+      - '.github/workflows/kex-runtime-v2.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: kex-runtime-v2-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  runtime-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Syntax-check runtime modules
+        shell: bash
+        run: |
+          set -euo pipefail
+          for file in tools/kex-runtime/*.mjs; do
+            node --check "$file"
+          done
+
+      - name: Validate JSON contracts
+        shell: bash
+        run: |
+          set -euo pipefail
+          node -e "JSON.parse(require('fs').readFileSync('tools/kex-runtime/runtime-contract.v2.json','utf8'))"
+          node -e "JSON.parse(require('fs').readFileSync('tools/kex-runtime/SELF_TEST_RECEIPT.json','utf8'))"
+          node -e "JSON.parse(require('fs').readFileSync('tools/kex-capability-discovery/infrastructure-capability-registry.json','utf8'))"
+          node -e "JSON.parse(require('fs').readFileSync('tools/kex-capability-discovery/global-actuation-bindings.json','utf8'))"
+          node -e "JSON.parse(require('fs').readFileSync('tools/kex-capability-discovery/global-resolution.current.json','utf8'))"
+
+      - name: Execute canonical KEX runtime self-test
+        run: node tools/kex-runtime/self-test.mjs

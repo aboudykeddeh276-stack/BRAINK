@@ -1,0 +1,28 @@
+{
+  "schema": "kex.virtual.hardware.rehydration.execution.receipt.v1",
+  "evidence_boundary": "SOFTWARE_MODEL_ONLY_NO_PHYSICAL_BARE_METAL_OR_WAN_CLAIM",
+  "invocation": {
+    "fanout": 4,
+    "depth": 5,
+    "rehydration_events": 100,
+    "rehydration_fanout": 2
+  },
+  "result": {
+    "shared_machine_templates": 1,
+    "virtual_machine_spaces": 341,
+    "max_generation": 5,
+    "machine_contract_families": 14,
+    "all_spaces_hardware_complete": true,
+    "distinct_random_target_meshes": 149,
+    "physical_host_in_lineage": false,
+    "lineage_rewritten_on_rehydration": false
+  },
+  "replay": {
+    "route_equal": true,
+    "entropy_equal": true,
+    "machine_count_equal": true,
+    "distinct_target_count_equal": true
+  },
+  "governing_interpretation": "Virtual expansion increases the population of hardware-complete machine coordinates. Failover is KEX lineage rehydration onto randomly selected admissible machine coordinates, not primary/secondary host switching.",
+  "physical_performance_equivalence_claim": false
+}

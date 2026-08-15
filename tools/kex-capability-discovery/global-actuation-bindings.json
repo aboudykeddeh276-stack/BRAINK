@@ -1,0 +1,96 @@
+{
+  "schema": "kex.global.actuation.bindings.v3",
+  "authority": "KEX/BRAINK",
+  "rule": "Global predicates bind to the canonical KEX runtime first. External hosts, hypervisors, DNS/routing daemons, registrars and providers are materialisation or authority boundaries only and never become KEX ancestors.",
+  "substrates": {
+    "KEX_RUNTIME_V2": {
+      "capability_id": "KEX-FUND-RUNTIME-SPINE-003",
+      "runtime": "../kex-runtime/runtime.mjs",
+      "contract": "../kex-runtime/runtime-contract.v2.json",
+      "machine_template": "KEX://MACHINE-TEMPLATE/HYPERPROCESSOR-V2",
+      "sequence": "SERVICE_GRAPH -> HARDWARE_CLOSURE -> CARRIER_READY -> REHYDRATION -> OPTIONAL_EXTERNAL_MATERIALISATION -> EXTERNAL_READBACK",
+      "physical_host_in_lineage": false,
+      "provider_in_lineage": false,
+      "physical_performance_equivalence_claim": false,
+      "parent_machine_requires_carrier_ready": true,
+      "failover_semantics": "REHYDRATE_PRESERVED_KEX_LINEAGE_ON_RANDOM_ADMISSIBLE_HARDWARE_COMPLETE_MACHINE_SPACE",
+      "primary_secondary_required": false,
+      "failback_required": false,
+      "materialisation_adapters": ["QEMU_SYSTEM", "KVM", "HVF", "CLOUD", "BARE_METAL", "BIND9", "FRR", "API_EDGE"]
+    }
+  },
+  "bindings": {
+    "SOURCE_REMOTE_READBACK": {
+      "capabilities": ["GitHub connector"],
+      "mode": "EXTERNAL_READBACK",
+      "freshness": "CURRENT_READ_REQUIRED"
+    },
+    "REMOTE_EXECUTION": {
+      "capabilities": ["KEX-FUND-RUNTIME-SPINE-003", "personal:kex-outbound-self-host-lease-loop"],
+      "compose_with": ["personal:kex-self-host-domain-runtime-suite"],
+      "mode": "RESOLVE_SERVICE_AND_HARDWARE_CARRIER_THEN_REQUEST_EXTERNAL_MATERIALISATION",
+      "claim_boundary": "Virtual carrier readiness is not remote physical execution. Promotion requires an external completion/readback receipt."
+    },
+    "PUBLIC_NAME_AUTHORITY": {
+      "capabilities": ["personal:kex-domain-hosting-handoff"],
+      "compose_with": ["personal:kex-self-host-domain-runtime-suite"],
+      "mode": "OWNER_OR_REGISTRAR_AUTHORITY_BIND",
+      "last_known_state": "OPEN_OWNER_AUTHORITY_REQUIRED",
+      "freshness": "CURRENT_REGISTRAR_OR_RDAP_READBACK_REQUIRED"
+    },
+    "AUTHORITATIVE_DNS": {
+      "capabilities": ["KEX-FUND-RUNTIME-SPINE-003", "KEX-FUND-INFRA-DOMAIN-MESH-001", "personal:kex-domain-hosting-handoff"],
+      "mode": "RESOLVE_DNS_SERVICE_ON_CARRIER_READY_MACHINE_THEN_PROJECT_THROUGH_BIND9_AND_REQUIRE_AUTHORITATIVE_READBACK",
+      "freshness": "FRESH_PROVIDER_VALUES_REQUIRED_BEFORE_WRITE",
+      "historical_plan": "The 2026-08-12 Sites record plan is lineage evidence only and must not be replayed without fresh provider readback."
+    },
+    "TLS_IDENTITY": {
+      "capabilities": ["KEX-FUND-RUNTIME-SPINE-003", "personal:kex-domain-hosting-handoff"],
+      "mode": "BIND_TLS_TO_CURRENT_MATERIALISED_CARRIER_AND_REQUIRE_OUTSIDE_IN_CHAIN_READBACK"
+    },
+    "PUBLIC_INGRESS": {
+      "capabilities": ["KEX-FUND-RUNTIME-SPINE-003", "personal:kex-self-host-domain-runtime-suite"],
+      "mode": "BIND_PUBLIC_ROUTE_TO_CURRENT_MATERIALISED_CARRIER_AND_REQUIRE_OUTSIDE_IN_READBACK"
+    },
+    "API_CONTRACT": {
+      "capabilities": ["KEX-FUND-RUNTIME-SPINE-003", "KEX-FUND-INFRA-DOMAIN-MESH-001"],
+      "mode": "FINITE_EXTERNAL_INGRESS_TO_LOGICAL_LISTENER_RESOLVER_ON_REHYDRATABLE_MACHINE_SPACE"
+    },
+    "DEVICE_REMOTE_IDENTITY": {
+      "capabilities": ["KEX-FUND-RUNTIME-SPINE-003", "KEX global IoT device-space binding"],
+      "mode": "LOGICAL_DEVICE_IDENTITY_TO_REMOTE_CARRIER_MATERIALISATION"
+    },
+    "PEER_IDENTITY": {
+      "capabilities": ["KEX-FUND-RUNTIME-SPINE-003", "KEX global distributed-state binding"],
+      "mode": "REMOTE_PEER_IDENTITY_WITH_TYPED_AUTHORITY_AND_MACHINE_CAPABILITY"
+    },
+    "SEMANTIC_REMOTE_RESOLUTION": {
+      "capabilities": ["KEX-FUND-RUNTIME-SPINE-003", "KEX-FUND-VIRTUAL-SERVICE-MESH-002"],
+      "mode": "REMOTE_KEX_COORDINATE_RESOLUTION_ACROSS_SERVICE_AND_MACHINE_GRAPHS"
+    },
+    "COUSIN_CLOSURE_REMOTE": {
+      "capabilities": ["KEX-FUND-RUNTIME-SPINE-003", "KEX-FUND-VIRTUAL-SERVICE-MESH-002"],
+      "mode": "TYPED_LOGICAL_BRIDGE_BETWEEN_DISJOINT_CODEBASES_WITHOUT_SOURCE_MERGE"
+    },
+    "REMOTE_REHYDRATION": {
+      "capabilities": ["KEX-FUND-RUNTIME-SPINE-003", "personal:kex-outbound-self-host-lease-loop"],
+      "mode": "REHYDRATE_SAME_KEX_LINEAGE_ON_RANDOM_ADMISSIBLE_CARRIER_READY_MACHINE",
+      "random_selection": "UNIFORM_OVER_CURRENT_ADMISSIBLE_POPULATION",
+      "entropy_receipt_required": true,
+      "lineage_rewrite": false
+    },
+    "CARRIER_REPLACEMENT": {
+      "capabilities": ["KEX-FUND-RUNTIME-SPINE-003", "KEX cloud carrier binding"],
+      "mode": "REHYDRATE_VIRTUAL_STATE_FIRST_THEN_REBIND_EXTERNAL_EXECUTION_ADAPTER",
+      "failback_to_primary_required": false
+    },
+    "PEER_DISCOVERY": {
+      "capabilities": ["KEX-FUND-RUNTIME-SPINE-003", "KEX mesh peer/federation binding"],
+      "mode": "REMOTE_DISCOVERY_OF_SERVICE_MACHINE_AND_MATERIALISATION_CAPABILITIES"
+    },
+    "GLOBAL_CLOSURE": {
+      "capabilities": ["KEX-FUND-RUNTIME-SPINE-003", "KEX mesh global closure"],
+      "mode": "MULTI_BOUNDARY_SERVICE_MACHINE_AND_EXTERNAL_ROUTE_CLOSURE_WITH_REHYDRATION_AND_INDEPENDENT_READBACK"
+    }
+  }
+}

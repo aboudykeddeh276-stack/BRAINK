@@ -1,0 +1,15 @@
+{
+  "schema": "kex.global.observation.ledger.v1",
+  "rule": "Only independently observed external predicates may be marked OBSERVED. Local/self-declared results remain UNRESOLVED for global promotion.",
+  "observations": [
+    {
+      "predicate": "SOURCE_REMOTE_READBACK",
+      "state": "OBSERVED",
+      "scope": "EXTERNAL",
+      "observer": "GITHUB_CONNECTOR",
+      "authority": "REMOTE_SOURCE_PROVIDER",
+      "receipt": "aboudykeddeh276-stack/BRAINK:site-action-platform-v1",
+      "note": "Remote repository and branch readback observed through the connected GitHub provider. This proves source-provider availability only; it does not prove runtime hosting, registrar authority, DNS, TLS, ingress, API execution, cloud availability or mesh closure."
+    }
+  ]
+}

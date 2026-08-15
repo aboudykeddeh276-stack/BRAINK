@@ -1,0 +1,48 @@
+{
+  "pass": true,
+  "schema": "kex.runtime.self-test.v2",
+  "metrics": {
+    "service_graph": {
+      "service_root": "KEX://SERVICE-MESH/KEX-RUNTIME-V2-SELF-TEST",
+      "families": 10,
+      "virtual_services": 30,
+      "max_depth": 3,
+      "derivation_edges": 30,
+      "sister_links": 36,
+      "cousin_links": 294,
+      "cross_family_pairs": 26,
+      "connected_services": 30,
+      "connected_ratio": 1,
+      "host_in_lineage": false
+    },
+    "hardware_graph": {
+      "virtual_root": "KEX://HARDWARE-MESH/KEX-RUNTIME-V2-SELF-TEST",
+      "shared_machine_templates": 1,
+      "virtual_machine_descriptors": 341,
+      "hardware_complete_carriers": 341,
+      "incomplete_descriptors": 0,
+      "max_generation": 5,
+      "hardware_family_count": 14,
+      "host_in_lineage": false,
+      "resident_machine_payloads_created": 0,
+      "by_generation": {
+        "1": 1,
+        "2": 4,
+        "3": 16,
+        "4": 64,
+        "5": 256
+      }
+    },
+    "service_graph_ref": "KEX://SERVICE-MESH/KEX-RUNTIME-V2-SELF-TEST",
+    "hardware_graph_ref": "KEX://HARDWARE-MESH/KEX-RUNTIME-V2-SELF-TEST",
+    "host_in_lineage": false
+  },
+  "rehydration": {
+    "events": 100,
+    "fanout": 2,
+    "receipts": 200,
+    "distinct_target_carriers": 146,
+    "replay_route_equal": true
+  },
+  "claim_boundary": "SOFTWARE_MODEL_ONLY_NO_PHYSICAL_OR_WAN_PROMOTION"
+}

@@ -1,0 +1,36 @@
+{
+  "schema": "braink.virtual.mesh.seed.v1",
+  "seed": "KEX-BRAINK-MESH-V1",
+  "host_boundary": {
+    "role": "EXTERNAL_EXECUTION_ENVELOPE",
+    "in_lineage": false,
+    "materialises": ["bootstrap", "heartbeat", "receipt"]
+  },
+  "virtual_root": {
+    "type": "KEX_ROOT",
+    "begins_lineage": true
+  },
+  "root_service_families": [
+    "IDENTITY",
+    "STATE",
+    "COMPUTE",
+    "STORAGE",
+    "NETWORK",
+    "PROOF",
+    "RECOVERY",
+    "SITE",
+    "AGENT",
+    "RESOLVER"
+  ],
+  "derivation_rule": "Each virtual service may derive a same-family descendant at the next virtual depth from preserved family grammar. The host is never a parent or ancestor.",
+  "link_rule": "Compatible emitted and accepted capability tokens form sister or cousin links. Lateral links are virtual graph edges, not additional host services.",
+  "monolith_rule": "The software becomes monolithic only after the virtual graph satisfies the leap gate. The monolith is a logical graph/state object and is never represented as host lineage.",
+  "leap_gate": {
+    "minimum_families": 10,
+    "minimum_virtual_depth": 3,
+    "minimum_cousin_links": 10,
+    "minimum_cross_family_pairs": 6,
+    "minimum_connected_ratio": 0.8,
+    "host_in_lineage": false
+  }
+}
