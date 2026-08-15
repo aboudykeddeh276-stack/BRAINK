@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import fs from 'node:fs';
+import path from 'node:path';
 import { normalizeSegment } from './contracts.mjs';
 import { EntropyTape } from './entropy.mjs';
 import { VirtualHardwareGraph } from './hardware-graph.mjs';
@@ -7,6 +8,8 @@ import { TransitionLedger } from './ledger.mjs';
 import { DEFAULT_ADAPTERS, MaterialisationRegistry } from './materialisation.mjs';
 import { RehydrationEngine } from './rehydration.mjs';
 import { VirtualServiceGraph } from './service-graph.mjs';
+import { ContinuationFrame } from './continuation.mjs';
+import { CapabilityResolver } from './capability-resolver.mjs';
 
 export class KexRuntime {
   constructor({ seed = 'KEX-RUNTIME-V2', fanout = 4, depth = 5, replayEntropy = [] } = {}) {
@@ -19,6 +22,13 @@ export class KexRuntime {
     this.rehydration = new RehydrationEngine({ graph: this.graph, ledger: this.ledger, entropy: this.entropy });
     this.materialisation = new MaterialisationRegistry({ ledger: this.ledger });
     for (const adapter of DEFAULT_ADAPTERS) this.materialisation.registerAdapter(adapter);
+
+    const discoveryRoot = path.resolve(path.dirname(new URL(import.meta.url).pathname), '../kex-capability-discovery');
+    this.capabilityResolver = new CapabilityResolver({
+      registryPath: path.join(discoveryRoot, 'infrastructure-capability-registry.json'),
+      currentResolutionPath: path.join(discoveryRoot, 'global-resolution.current.json'),
+    });
+    this.continuation = null;
   }
 
   ignite() {
@@ -29,10 +39,62 @@ export class KexRuntime {
       hardware_graph: hardwareMetrics,
       service_graph_ref: this.serviceGraph.root,
       hardware_graph_ref: this.graph.root,
-      host_in_lineage: false
+      host_in_lineage: false,
     });
     this.ledger.append('RUNTIME_READY', state);
     return state;
+  }
+
+  startContinuation({ taskId, goal, observer = {}, authority = {} } = {}) {
+    this.continuation = new ContinuationFrame({
+      id: `${this.root}/CONTINUATION/${taskId}`,
+      taskId,
+      goal,
+      observer,
+      authority,
+    });
+    this.ledger.append('CONTINUATION_STARTED', this.continuation.snapshot());
+    return this.continuation;
+  }
+
+  resolveIntent({ intent, requiredCapability = null, adapter = null } = {}) {
+    if (!this.continuation) throw new Error('Continuation required before capability resolution');
+    const resolution = this.capabilityResolver.resolve({
+      intent,
+      requiredCapability,
+      adapter,
+      continuation: this.continuation,
+    });
+    if (resolution.status === 'RESOLVED') {
+      this.continuation = resolution.next;
+      this.ledger.append('CAPABILITY_RESOLVED', {
+        intent,
+        method: resolution.method,
+        route: resolution.route,
+        continuation_root: this.continuation.stateRoot,
+      });
+    } else {
+      this.ledger.append('CAPABILITY_UNKNOWN', { intent, task_id: this.continuation.taskId });
+    }
+    return resolution;
+  }
+
+  commitContinuation({ result, evidence = null, obligationDelta = [], failure = null } = {}) {
+    if (!this.continuation) throw new Error('Continuation required before commit');
+    const route = this.continuation.routeStack.at(-1) ?? `${this.root}/RETURN`;
+    this.continuation = this.continuation.transition({ route, result, evidence, obligationDelta, failure });
+    this.ledger.append('CONTINUATION_COMMITTED', this.continuation.snapshot());
+    return this.continuation;
+  }
+
+  warmBoot(snapshot) {
+    this.continuation = ContinuationFrame.rehydrate(snapshot);
+    this.ledger.append('CONTINUATION_REHYDRATED', {
+      continuation_id: this.continuation.id,
+      logical_time: this.continuation.logicalTime,
+      state_root: this.continuation.stateRoot,
+    });
+    return this.continuation;
   }
 
   runRehydrationExercise({ events = 100, fanout = 2 } = {}) {
@@ -46,7 +108,7 @@ export class KexRuntime {
     let active = this.rehydration.registerVirtualMaterialisation({
       lineageCoordinate,
       carrierCoordinate: source.coordinate,
-      stateRefs: Object.freeze({ ...source.stateRefs, service_graph_ref: this.serviceGraph.root })
+      stateRefs: Object.freeze({ ...source.stateRefs, service_graph_ref: this.serviceGraph.root }),
     });
 
     const allReceipts = [];
@@ -54,15 +116,12 @@ export class KexRuntime {
       const receipts = this.rehydration.rehydrate({
         materialisation: active,
         fanout,
-        reason: 'VIRTUAL_CARRIER_LOSS_OR_REPLACEMENT'
+        reason: 'VIRTUAL_CARRIER_LOSS_OR_REPLACEMENT',
       });
       allReceipts.push(...receipts);
       const continuation = this.entropy.choose(receipts.length, `CONTINUATION:${i + 1}`);
       const chosen = receipts[continuation.value];
-      active = Object.freeze({
-        ...chosen,
-        carrier_machine: chosen.target_carrier
-      });
+      active = Object.freeze({ ...chosen, carrier_machine: chosen.target_carrier });
     }
 
     const distinctTargets = new Set(allReceipts.map((r) => r.target_carrier));
@@ -84,8 +143,8 @@ export class KexRuntime {
         lineage_rewritten_on_rehydration: allReceipts.some((r) => r.lineage_rewritten) === false,
         all_targets_hardware_complete: allReceipts.every((r) => r.machine_template_ref && r.target_carrier),
         shared_machine_template_count: 1,
-        resident_machine_payloads_created: 0
-      })
+        resident_machine_payloads_created: 0,
+      }),
     });
   }
 }
