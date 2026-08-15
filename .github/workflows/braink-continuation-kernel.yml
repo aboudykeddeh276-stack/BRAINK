@@ -1,0 +1,40 @@
+name: BRAINK Continuation Kernel
+
+on:
+  push:
+    paths:
+      - 'tools/kex-runtime/**'
+      - '.github/workflows/braink-continuation-kernel.yml'
+  pull_request:
+    paths:
+      - 'tools/kex-runtime/**'
+      - '.github/workflows/braink-continuation-kernel.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: braink-continuation-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  conformance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax check
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check tools/kex-runtime/continuation.mjs
+          node --check tools/kex-runtime/capability-resolver.mjs
+          node --check tools/kex-runtime/runtime.mjs
+          node --check tools/kex-runtime/continuation-kernel.test.mjs
+      - name: Execute continuation conformance
+        run: node tools/kex-runtime/continuation-kernel.test.mjs
+      - name: Execute canonical runtime self-test
+        run: node tools/kex-runtime/self-test.mjs
