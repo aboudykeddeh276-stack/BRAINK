@@ -1,50 +1,78 @@
-name: BRAINK BTC Workload Substrate
+name: BRAINK BTC Proof-Bearing Mining Runtime
 
 on:
-  push:
-    branches:
-      - run/btc-workload-substrate-20260724
   pull_request:
     branches:
       - main
     paths:
       - .github/workflows/run-btc-workload-substrate.yml
+      - runtime/btc_consensus.py
+      - runtime/btc_miner_runtime.py
       - runtime/btc_workload_substrate.py
+      - tests/test_btc_consensus.py
+      - tests/test_btc_miner_runtime.py
+      - development/M08/**
   workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
-  execute:
+  verify-consensus-miner:
     runs-on: ubuntu-24.04
     steps:
-      - name: Fetch BRAINK substrate revision
-        env:
-          GH_TOKEN: ${{ github.token }}
+      - name: Checkout candidate revision
+        uses: actions/checkout@v4
+
+      - name: Compile BTC runtime
         run: |
           set -euo pipefail
-          git init braink
-          cd braink
-          git remote add origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
-          git fetch --depth=1 origin "${GITHUB_SHA}"
-          git checkout --detach FETCH_HEAD
+          python3 -m py_compile \
+            runtime/btc_consensus.py \
+            runtime/btc_miner_runtime.py \
+            runtime/btc_workload_substrate.py
 
-      - name: Execute BTC workload function in BRAINK
+      - name: Run consensus and miner falsification tests
+        run: |
+          set -euo pipefail
+          python3 -m unittest -v \
+            tests/test_btc_consensus.py \
+            tests/test_btc_miner_runtime.py \
+            2>&1 | tee btc_m08_test_output.txt
+
+      - name: Verify unavailable RPC cannot produce synthetic mining work
         env:
           BTC_NETWORK: mainnet
+          BTC_PAYOUT_ADDRESS: bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4
+          BTC_RPC_URL: http://127.0.0.1:1
+          BTC_RPC_USER: ci-negative-control
+          BTC_RPC_PASSWORD: ci-negative-control
+          BTC_RPC_TIMEOUT: "1"
           KEX_ALLOW_LIVE_SUBMIT: "0"
-          KEX_BTC_STATE_DIR: ${{ github.workspace }}/braink/state/kex_btc
+          KEX_MAX_HASHES_PER_JOB: "3"
+          KEX_BTC_STATE_DIR: ${{ github.workspace }}/state/kex_btc
         run: |
-          set -o pipefail
-          python3 braink/runtime/btc_workload_substrate.py 2>&1 | tee braink_btc_workload_output.json
+          set -euo pipefail
+          python3 runtime/btc_miner_runtime.py | tee btc_m08_runtime_output.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
 
-      - name: Print retained execution result
+          result = json.loads(Path("btc_m08_runtime_output.json").read_text())
+          assert result["state"] == "QUIESCED", result
+          assert "RPC unavailable" in result["reason"], result
+          assert "candidate" not in result, result
+          assert "submission" not in result, result
+          print("NEGATIVE_CONTROL_PASS: unavailable RPC produced no synthetic candidate or submission")
+          PY
+
+      - name: Retain M08 proof outputs
         if: always()
-        run: |
-          if [ -f braink_btc_workload_output.json ]; then
-            cat braink_btc_workload_output.json
-          else
-            echo '{"execution_started":false,"reason":"no output file produced"}'
-            exit 1
-          fi
+        uses: actions/upload-artifact@v4
+        with:
+          name: m08-proof-outputs-${{ github.sha }}
+          path: |
+            btc_m08_test_output.txt
+            btc_m08_runtime_output.json
+          if-no-files-found: warn
+          retention-days: 30
