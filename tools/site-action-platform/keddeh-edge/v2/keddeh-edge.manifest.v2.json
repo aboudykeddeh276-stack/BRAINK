@@ -4,8 +4,10 @@
   "architecture": "RECURRENT_TYPED_RELATION_GRAPH",
   "qualification": {
     "state": "RELATIONAL_EDGE_V2_TESTS_PASS",
+    "tests_run": 20,
     "passed": 20,
-    "tests_run": 20
+    "failed": 0,
+    "executed_against_exact_published_source_bytes": true
   },
   "semantic_compile": {
     "state": "RELATIONAL_FIXED_POINT_CLOSED",
@@ -16,17 +18,19 @@
   },
   "global_maturity_state": null,
   "v1_architecture": "SUPERSEDED_FALSE_BOUNDARIES_RETAINED_AS_PRIOR_EVIDENCE",
-  "repository_publication": [
-    {"path":"keddeh-edge.seed.v2.json","bytes":10119,"sha256":"32bfb9988976a09bb19809797e565837495542ac5b82c77ded95b75742f196de"},
-    {"path":"keddeh-edge-runtime.v2.mjs","bytes":24371,"sha256":"59e137946a275f916d4ced8689bb857e26fa51abd945394718b6467192a690a4"},
-    {"path":"keddeh-edge-node.v2.mjs","bytes":7949,"sha256":"6496fda3503bbfb95569308f65e312668517f6b765df934de0592c0d225f03da"},
-    {"path":"keddeh-edge-self-test.v2.mjs","bytes":17417,"sha256":"5f038d8f4ce488d6256837c5cb5e4bfbe3cce49f5ab8a9d7af9dad2a4d078e58"},
-    {"path":"keddeh-edge-test-receipt.v2.json","bytes":5832,"sha256":"ae819f8dc7a43993e6c7f1f31016a1273c2d88db5f37c69b904b568481b0a637"},
-    {"path":"KEDDEH_EDGE_V2_RELATIONAL_ENGINEERING_OUTCOME.md","bytes":7876,"sha256":"36c7ee93efb8a5427c033ac42911f499e0471e2e85d9afb4e933878f0e51a99f"}
+  "published_source_readback": [
+    {"path":"keddeh-edge.seed.v2.json","bytes":10101,"github_blob_sha":"2cacfed844f27192373274702cbf355b9dfd294c","exact_source_mirror_tested":true},
+    {"path":"keddeh-edge-runtime.v2.mjs","bytes":24190,"github_blob_sha":"a0731bad51c51792b6d4831ed847eaaf2dfef32c","exact_source_mirror_tested":true},
+    {"path":"keddeh-edge-node.v2.mjs","bytes":7949,"github_blob_sha":"582b80690c6a11446742eddcc1967789dae907aa","exact_source_mirror_tested":true},
+    {"path":"keddeh-edge-self-test.v2.mjs","bytes":17417,"github_blob_sha":"3e557278377899bb4a94a8a64ce665b298ee346c","exact_source_mirror_tested":true},
+    {"path":"keddeh-edge-test-receipt.v2.json","bytes":4362,"github_blob_sha":"f4669b75c98d52e444d06311b434268ef6c901fb","role":"executed qualification receipt"},
+    {"path":"keddeh-edge-source-readback.v2.json","bytes":1801,"github_blob_sha":"07f618431f00f2c3a348693e2d134e0d7a837d94","role":"remote source identity and exact-byte execution readback"},
+    {"path":"KEDDEH_EDGE_V2_RELATIONAL_ENGINEERING_OUTCOME.md","bytes":7834,"github_blob_sha":"0f13082b669d097fb31e61f0cc771080c688157d","role":"engineering outcome report"}
   ],
   "local_execution_evidence": [
-    {"path":"keddeh-edge-semantic-compile.v2.json","bytes":16772,"sha256":"87c68bd22d3b2cbabf1fb9d47188871df8403bf731b2f1c40879acd2a2c8b653"},
-    {"path":"keddeh-edge-relational-proof.v2.json","bytes":97927,"sha256":"faa8bf7064d2489b544f235d8086de5a51468f86993c8805cb46ca641387444e"}
+    {"path":"keddeh-edge-semantic-compile.v2.json","sha256":"87c68bd22d3b2cbabf1fb9d47188871df8403bf731b2f1c40879acd2a2c8b653"},
+    {"path":"keddeh-edge-relational-proof.v2.json","sha256":"faa8bf7064d2489b544f235d8086de5a51468f86993c8805cb46ca641387444e"},
+    {"path":"KEDDEH_EDGE_V2_RELATIONAL_EXECUTED_PACKAGE.zip","sha256":"8e6b2dbb469eafd8ea283a0749683d5ac103d4df471c1a000a784388c2da5b31"}
   ],
-  "evidence_rule": "Repository publication proves source/readback identity only; local executed receipts/proof retain their own execution scope."
+  "evidence_rule": "GitHub blob SHA establishes exact published source identity. Qualification was rerun against a local mirror whose git-object hashes exactly matched all four published source blobs. Relation observations remain independent and no whole-edge maturity verdict is generated."
 }
