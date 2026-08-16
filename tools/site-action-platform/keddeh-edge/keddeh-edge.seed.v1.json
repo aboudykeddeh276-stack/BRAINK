@@ -1,0 +1,62 @@
+{
+  "schema": "kex.braink.keddeh-edge.seed.v1",
+  "authority": "KEX/BRAINK",
+  "seed": "KEX-KEDDEH-EDGE-V1",
+  "lineage_root": "KEX://ROOT/KEX-BRAINK-MESH-V2",
+  "edge_coordinate": "KEX://EDGE/KEDDEH/V1",
+  "governing_rules": {
+    "state_is_primitive": true,
+    "discover_before_derive": true,
+    "external_carrier_in_lineage": false,
+    "endpoint_digest_is_authority": false,
+    "finite_ingress_may_demux_virtual_listener_space": true,
+    "public_state_requires_outside_in_readback": true,
+    "historical_dns_values_are_not_current_write_authority": true,
+    "sites_is_bootstrap_carrier_not_edge_authority": true
+  },
+  "existing_capability_bindings": [
+    {"id":"KEX-FUND-VIRTUAL-SERVICE-MESH-002","role":"recursive virtual service topology and route-lineage"},
+    {"id":"KEX-FUND-INFRA-DOMAIN-MESH-001","role":"domain/DNS/hosting/routing/bridge/API/ingress/TLS/recovery topology"},
+    {"id":"KEX-BRAINK-INFRA-ROUTE-LINEAGE-001","role":"local deterministic infrastructure closure and external promotion gates"},
+    {"id":"personal:kex-outbound-self-host-lease-loop","role":"remote node pairing, heartbeat, bounded lease execution and durable completion receipt"},
+    {"id":"personal:kex-domain-hosting-handoff","role":"public name/DNS/TLS/HTTPS handoff and outside-in verification"},
+    {"id":"personal:kex-self-host-domain-runtime-suite","role":"composed self-host runtime, public ingress and reversible domain handoff"}
+  ],
+  "base_interfaces": {
+    "INGRESS":{"accepts":["transport.connection","tls.session","http.request"],"emits":["request.frame","ingress.receipt"]},
+    "ROUTING":{"accepts":["request.frame","domain.route","resolver.result"],"emits":["route.selection","route.receipt"]},
+    "TLS":{"accepts":["domain.identity","tls.key_material","certificate.chain"],"emits":["tls.session","tls.identity.receipt"]},
+    "API_SERVER":{"accepts":["route.selection","request.frame","authority.token"],"emits":["listener.dispatch","response.frame","api.receipt"]},
+    "DOMAIN_SPACE":{"accepts":["domain.name","service.intent","resolver.result"],"emits":["domain.route","service.coordinate","domain.receipt"]},
+    "SERVER":{"accepts":["listener.dispatch","runtime.command","state.frame"],"emits":["runtime.result","response.frame","server.receipt"]},
+    "RECOVERY":{"accepts":["state.snapshot","server.receipt","proof.receipt"],"emits":["recovery.ready","runtime.command","recovery.receipt"]}
+  },
+  "illlm_semantic_derivations": [
+    {"id":"EDGE_ROUTE_INGRESS","parents":["INGRESS","ROUTING"],"compatibility":[{"from":"INGRESS","token":"request.frame","to":"ROUTING"}],"function":"Convert a finite accepted ingress request into a typed KEX route selection without making the transport carrier part of lineage.","accepts":["transport.connection","tls.session","http.request"],"emits":["route.selection","ingress.route.receipt"]},
+    {"id":"SECURE_EDGE_INGRESS","parents":["TLS","EDGE_ROUTE_INGRESS"],"compatibility":[{"from":"TLS","token":"tls.session","to":"EDGE_ROUTE_INGRESS"}],"function":"Bind verified hostname/TLS identity to the route-ingress decision while preserving TLS as a separately evidence-gated predicate.","accepts":["domain.identity","http.request"],"emits":["secure.route.selection","tls.route.receipt"]},
+    {"id":"KEX_EDGE_LISTENER_RESOLVER","parents":["SECURE_EDGE_INGRESS","API_SERVER"],"compatibility":[{"from":"SECURE_EDGE_INGRESS","token":"secure.route.selection","to":"API_SERVER","to_alias":"route.selection"}],"function":"Demultiplex one finite edge ingress into a larger logical API/listener namespace through explicit KEX coordinates.","accepts":["domain.identity","http.request","service.coordinate"],"emits":["listener.dispatch","listener.resolve.receipt"]},
+    {"id":"DOMAIN_AWARE_KEX_EDGE","parents":["DOMAIN_SPACE","KEX_EDGE_LISTENER_RESOLVER"],"compatibility":[{"from":"DOMAIN_SPACE","token":"service.coordinate","to":"KEX_EDGE_LISTENER_RESOLVER"}],"function":"Resolve public host/path intent into KEX domain-space/service coordinates before runtime dispatch.","accepts":["domain.name","http.request"],"emits":["listener.dispatch","service.coordinate","edge.resolve.receipt"]},
+    {"id":"EXECUTABLE_KEDDEH_EDGE","parents":["DOMAIN_AWARE_KEX_EDGE","SERVER"],"compatibility":[{"from":"DOMAIN_AWARE_KEX_EDGE","token":"listener.dispatch","to":"SERVER"}],"function":"Materialise resolved KEX service coordinates on a finite execution carrier and return a typed response/readback receipt.","accepts":["domain.name","http.request","runtime.command"],"emits":["response.frame","server.receipt","edge.execution.receipt"]},
+    {"id":"REHYDRATABLE_KEDDEH_EDGE","parents":["EXECUTABLE_KEDDEH_EDGE","RECOVERY"],"compatibility":[{"from":"EXECUTABLE_KEDDEH_EDGE","token":"server.receipt","to":"RECOVERY"}],"function":"Preserve edge identity and route semantics across restart or replacement carrier by replaying committed state and proving equivalent resolution.","accepts":["state.snapshot","domain.name","http.request"],"emits":["response.frame","recovery.ready","edge.rehydration.receipt"]}
+  ],
+  "finite_ingress": {"id":"KEX://EDGE/KEDDEH/V1/INGRESS/PUBLIC-HTTPS","public_ports":[443],"local_test_ports":[0],"protocols":["TLS","HTTP/1.1","HTTP/2","HTTP/3-ADAPTER-ELIGIBLE"],"public_tls_state":"EXTERNAL_EVIDENCE_REQUIRED","local_test_transport":"HTTP_LOOPBACK_ONLY"},
+  "domain_space": {
+    "root":"KEX://DOMAIN-SPACE/keddeh",
+    "bindings":[
+      {"host":"keddeh.com","public_binding_intended":true,"routes":[{"prefix":"/","methods":["GET","HEAD"],"coordinate":"KEX://DOMAIN-SPACE/keddeh/site"},{"prefix":"/systems","methods":["GET","HEAD"],"coordinate":"KEX://DOMAIN-SPACE/keddeh/site/systems"},{"prefix":"/mining-btc","methods":["GET","HEAD"],"coordinate":"KEX://DOMAIN-SPACE/keddeh/service/mining-btc"}]},
+      {"host":"braink.keddeh.com","public_binding_intended":true,"routes":[{"prefix":"/","methods":["GET","HEAD"],"coordinate":"KEX://DOMAIN-SPACE/keddeh/braink/site"},{"prefix":"/chat","methods":["GET","POST"],"coordinate":"KEX://API/BRAINK/CHAT"},{"prefix":"/api","methods":["GET","POST"],"coordinate":"KEX://API/BRAINK/ROOT"},{"prefix":"/state","methods":["GET"],"coordinate":"KEX://DOMAIN-SPACE/keddeh/braink/state"}]},
+      {"host":"kex.keddeh.com","public_binding_intended":true,"routes":[{"prefix":"/","methods":["GET","HEAD"],"coordinate":"KEX://DOMAIN-SPACE/keddeh/kex/site"},{"prefix":"/runtime","methods":["GET","POST"],"coordinate":"KEX://DOMAIN-SPACE/keddeh/kex/runtime"},{"prefix":"/proof","methods":["GET","POST"],"coordinate":"KEX://DOMAIN-SPACE/keddeh/kex/proof"},{"prefix":"/api","methods":["GET","POST"],"coordinate":"KEX://API/KEX/ROOT"}]},
+      {"host":"casepath.keddeh.com","public_binding_intended":false,"routes":[{"prefix":"/","methods":["GET","HEAD"],"coordinate":"KEX://DOMAIN-SPACE/keddeh/casepath/site"},{"prefix":"/intake","methods":["GET","POST"],"coordinate":"KEX://API/CASEPATH/INTAKE"},{"prefix":"/evidence","methods":["GET","POST"],"coordinate":"KEX://API/CASEPATH/EVIDENCE"}]}
+    ]
+  },
+  "promotion_gates": [
+    {"id":"G01_REMOTE_EXECUTION","required":true,"evidence":"durable remote COMPLETED receipt"},
+    {"id":"G02_PUBLIC_NAME_AUTHORITY","required":true,"evidence":"current registrar/registry ownership and delegation readback"},
+    {"id":"G03_AUTHORITATIVE_DNS","required":true,"evidence":"authoritative publication plus independent recursive resolution"},
+    {"id":"G04_TLS_IDENTITY","required":true,"evidence":"outside-in certificate identity/chain/hostname readback"},
+    {"id":"G05_PUBLIC_INGRESS","required":true,"evidence":"outside-in TCP/TLS/HTTP reachability to KEDDEH edge"},
+    {"id":"G06_API_CONTRACT","required":true,"evidence":"public request resolves to expected KEX coordinate and returns contract response"},
+    {"id":"G07_REHYDRATION","required":true,"evidence":"restart/replacement carrier reproduces committed route state"},
+    {"id":"G08_ROLLBACK","required":true,"evidence":"tested reversible cutover/handoff receipt"}
+  ]
+}
