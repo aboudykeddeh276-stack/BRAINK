@@ -1,0 +1,25 @@
+{
+  "schema": "kex.braink.keddeh-edge.source-readback.v2",
+  "branch": "kex-keddeh-edge-v2-relational",
+  "edge": "KEX://EDGE/KEDDEH",
+  "readback_method": "GitHub connector blob identities plus local git-object reconstruction of the exact published source bytes",
+  "source_blobs": [
+    {"path":"keddeh-edge.seed.v2.json","github_blob_sha":"2cacfed844f27192373274702cbf355b9dfd294c","mirror_git_blob_sha":"2cacfed844f27192373274702cbf355b9dfd294c","exact_match":true},
+    {"path":"keddeh-edge-runtime.v2.mjs","github_blob_sha":"a0731bad51c51792b6d4831ed847eaaf2dfef32c","mirror_git_blob_sha":"a0731bad51c51792b6d4831ed847eaaf2dfef32c","exact_match":true},
+    {"path":"keddeh-edge-node.v2.mjs","github_blob_sha":"582b80690c6a11446742eddcc1967789dae907aa","mirror_git_blob_sha":"582b80690c6a11446742eddcc1967789dae907aa","exact_match":true},
+    {"path":"keddeh-edge-self-test.v2.mjs","github_blob_sha":"3e557278377899bb4a94a8a64ce665b298ee346c","mirror_git_blob_sha":"3e557278377899bb4a94a8a64ce665b298ee346c","exact_match":true}
+  ],
+  "qualification": {
+    "state": "RELATIONAL_EDGE_V2_TESTS_PASS",
+    "tests_run": 20,
+    "passed": 20,
+    "failed": 0,
+    "executed_against_exact_published_source_bytes": true
+  },
+  "network_clone_attempt": {
+    "state": "UNAVAILABLE_IN_EXECUTION_CONTAINER",
+    "reason": "container DNS could not resolve github.com",
+    "effect": "none; connector blob identity supplied authoritative remote source identities and git hash-object reproduced byte identity"
+  },
+  "claim_boundary": "This proves exact source-byte equivalence for the four published executable/seed files and successful local execution of those bytes. It does not prove registrar, public DNS, CA trust, WAN ingress, remote carrier execution, or outside-in Internet service observations."
+}
