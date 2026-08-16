@@ -1,0 +1,87 @@
+{
+  "schema": "kex.braink.keddeh-edge.package-manifest.v1",
+  "authority": "KEX/BRAINK",
+  "package": "KEDDEH_EDGE_V1",
+  "objective": "Instantiate an adjacent KEDDEH-controlled edge runtime aligned to IL-LLM semantic derivation and BRAINK/KEX route-lineage without rewriting the existing virtual mesh kernel.",
+  "source_lineage": {
+    "repository": "aboudykeddeh276-stack/BRAINK",
+    "base_branch": "site-action-platform-v1",
+    "base_commit": "713708a7e649bcddc9d6bb791739f23ca7d6424f",
+    "base_tree": "0a944c16968d3d02a91e7d6eb2bb11dad3c85c31",
+    "existing_files": {
+      "tools/site-action-platform/braink-virtual-mesh-ignition.mjs": "25ded0f04a7fc2e2c510da50115e79654c368702",
+      "tools/site-action-platform/braink-virtual-mesh.seed.v2.json": "13d94606e41d2d496c86294ff9d825d74acdd134",
+      "tools/site-action-platform/site-action.mjs": "87c14c77d74dd7eaa8607c3206e276efdd4fad90"
+    }
+  },
+  "design_decisions": [
+    "Discover/reuse existing capabilities before derivation.",
+    "Do not alter existing virtual mesh kernel unless a regression proves a dependency.",
+    "Edge is derived as semantic closure of ingress, TLS, routing, listener resolution, domain space, server runtime and recovery.",
+    "Finite physical ingress is distinct from logical listener/service cardinality.",
+    "External carriers and registrars never enter KEX lineage.",
+    "Digests are integrity evidence only and never KEX authority.",
+    "Public promotion fails closed unless every required gate carries EXTERNAL OBSERVED evidence.",
+    "Historical Sites DNS values are lineage evidence, not current write authority."
+  ],
+  "local_test_history": [
+    {
+      "run": 1,
+      "state": "FAIL",
+      "passed": 0,
+      "failed": 13,
+      "finding": "IL-LLM compiler correctly rejected DOMAIN_SPACE -> listener resolver because service.coordinate was not explicitly admitted by the derived listener contract.",
+      "resolution": "Expanded the derived KEX_EDGE_LISTENER_RESOLVER interface to accept service.coordinate and preserved strict validation."
+    },
+    {
+      "run": 2,
+      "state": "FAIL",
+      "passed": 12,
+      "failed": 1,
+      "finding": "Loopback test used fetch Host-header semantics that did not exercise the requested authority value reliably.",
+      "resolution": "Replaced fetch test with node:http request using an explicit Host header; no production resolver weakening."
+    },
+    {
+      "run": 3,
+      "state": "PASS",
+      "passed": 15,
+      "failed": 0,
+      "finding": "Final package passes semantic, deterministic, routing, rejection, ledger, rehydration, durable receipt and native TLS/SNI fixture tests."
+    }
+  ],
+  "local_outcome": {
+    "semantic_edge": "SEMANTIC_EDGE_CLOSED",
+    "terminal_capability": "REHYDRATABLE_KEDDEH_EDGE",
+    "test_state": "LOCAL_EDGE_ADJACENT_CODE_TESTS_PASS",
+    "tests": "15/15",
+    "native_tls_fixture": "PASS_SELF_SIGNED_LOCAL_ONLY",
+    "real_loopback_ingress": "PASS",
+    "public_promotion": false
+  },
+  "external_gates": [
+    "G01_REMOTE_EXECUTION",
+    "G02_PUBLIC_NAME_AUTHORITY",
+    "G03_AUTHORITATIVE_DNS",
+    "G04_TLS_IDENTITY",
+    "G05_PUBLIC_INGRESS",
+    "G06_API_CONTRACT",
+    "G07_REHYDRATION",
+    "G08_ROLLBACK"
+  ],
+  "claim_boundary": "The adjacent code is executable and locally tested. GitHub publication records source lineage only. No claim is made that keddeh.com, its subdomains, public DNS, trusted TLS, WAN ingress or a remote KEDDEH edge node are currently live.",
+  "local_execution_artifacts_sha256": {
+    "keddeh-edge.seed.v1.json": "566da8294ddfea1ea409e20e259bb857a5d7ff8f2b77d582a5759da5e9869e8a",
+    "keddeh-edge-runtime.mjs": "1ff777a1e05995d72003248e20eb7b230bebe19f9ae19d9188333d7b55fbabdc",
+    "keddeh-edge-node.mjs": "b20dfe221bfb154a779c6aa632d054ff75866c25b524fe612c5b51fafe978442",
+    "keddeh-edge-self-test.mjs": "cf344248dbc55d3dce6ed9834c093e456ad21cf518e98334cc6efe51a3670be0",
+    "keddeh-edge-test-receipt.json": "46696b57ea789577a9738ab3db4b7118167e0447ca000f773bcbe405f1f3b0aa",
+    "keddeh-edge-semantic-compile.json": "52c8ad0d6e9f1fdc864039b1bf59e7441c3ca5ed61da22b995b4401fb7c34a66",
+    "keddeh-edge-local-proof.json": "9776f881d1631aa4e499e44ffbda557fce250b5e6e993196df843b92ae165c36"
+  },
+  "source_publication": {
+    "repository": "aboudykeddeh276-stack/BRAINK",
+    "branch": "kex-keddeh-edge-v1",
+    "scope": "SOURCE_PUBLICATION_ONLY",
+    "rule": "GitHub source publication is read back separately from local execution. Blob/commit identity is not substituted for the local execution receipt or KEX proof authority."
+  }
+}
