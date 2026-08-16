@@ -1,0 +1,87 @@
+{
+  "schema": "braink.engineering-action-packet.v1",
+  "action_id": "M08-EXEC-001",
+  "created_at": "2026-08-16T20:35:00+09:30",
+  "objective": {
+    "id": "M08-CONSENSUS-BOUND-EXECUTION",
+    "statement": "Make the consensus-bound Bitcoin miner the exercised workload path while preserving strict no-synthetic-work and submission-off-by-default invariants.",
+    "acceptance_invariant": "A real Bitcoin Core template is the only source of mining work; nonce scanning mutates only the 80-byte header hot path; the full block is assembled only after a target hit; configured network identity must match Bitcoin Core's canonical chain name; live submit remains independently gated."
+  },
+  "baseline": {
+    "repository": "aboudykeddeh276-stack/BRAINK",
+    "base_branch": "main",
+    "base_commit": "3d94194a5394c06026494511a5fae9244d0278d6",
+    "observed": [
+      {
+        "path": "runtime/btc_miner_runtime.py",
+        "blob_sha": "1d60586ccb7bdcfef4859db5a988237f2cee3b1e",
+        "state": "CONSENSUS_CONSTRUCTOR_PRESENT_BUT_PER_NONCE_FULL_REBUILD"
+      },
+      {
+        "path": ".github/workflows/run-btc-workload-substrate.yml",
+        "blob_sha": "739b9379ce3490b40fccd973a14fd5b8722ec5e5",
+        "state": "WORKFLOW_EXECUTES_LEGACY_SUBSTRATE_NOT_CONSENSUS_MINER"
+      },
+      {
+        "path": "tests/test_btc_consensus.py",
+        "blob_sha": "3cc5b2dc6909ba5c3b9145bda6211f1f7a52fb3a",
+        "state": "CONSENSUS_CONSTRUCTION_TESTS_PRESENT_NO_MINER_HOT_LOOP_FALSIFIERS"
+      }
+    ]
+  },
+  "preserved_invariants": [
+    "Synthetic mainnet templates are forbidden.",
+    "Bitcoin Core getblocktemplate remains the authoritative work source.",
+    "Live submit is disabled unless KEX_ALLOW_LIVE_SUBMIT is explicitly enabled.",
+    "Candidate validation remains bound to target, previous block hash, bits, and current tip before submit.",
+    "Consensus construction primitives remain independently testable.",
+    "Repository write or commit status is not evidence of mining correctness or promotion."
+  ],
+  "changes": [
+    "Normalize configured network names to Bitcoin Core getblockchaininfo chain names: mainnet->main and testnet->test.",
+    "Prepare payout script, coinbase, transaction Merkle root, target, timestamp, and extranonce once per work item.",
+    "Scan only serialized 80-byte headers in the nonce loop.",
+    "Assemble the full block only after a header satisfies target.",
+    "Add negative and forced-hit tests proving the block assembler is not in the exhausted hot loop.",
+    "Run btc_miner_runtime.py directly in the M08 workflow and retain test/runtime proof artifacts.",
+    "Use a forced-unavailable RPC endpoint in CI as a negative control proving unavailable Core cannot produce a synthetic candidate or submission."
+  ],
+  "falsifiers": [
+    "Any exhausted nonce-window test calls assemble_block.",
+    "A forced target hit does not assemble exactly one block.",
+    "BTC_NETWORK=testnet does not resolve to Bitcoin Core chain=test.",
+    "Unavailable Bitcoin Core RPC produces a candidate, submission, or mining success state.",
+    "Live submission occurs with KEX_ALLOW_LIVE_SUBMIT=0.",
+    "Existing consensus construction tests regress."
+  ],
+  "execution_environment": {
+    "candidate_branch": "engineering/m08-proof-bearing-runtime-20260816",
+    "ci_runner": "ubuntu-24.04",
+    "live_bitcoin_core": false,
+    "live_submit": false
+  },
+  "evidence_state": {
+    "source_readback": "OBSERVED",
+    "candidate_written": true,
+    "tests_executed": false,
+    "ci_result": "PENDING",
+    "live_core_result": "NOT_OBSERVED",
+    "mainnet_submission": "NOT_ATTEMPTED"
+  },
+  "promotion": {
+    "state": "CANDIDATE_NOT_PROMOTED",
+    "eligible": false,
+    "required_before_promotion": [
+      "Pull-request CI compile passes.",
+      "Existing Bitcoin consensus tests pass.",
+      "New miner falsification tests pass.",
+      "Unavailable-RPC negative control returns QUIESCED with no candidate or submission.",
+      "Candidate head and CI evidence are reconciled to the same revision."
+    ]
+  },
+  "next_route": {
+    "on_acceptance": "M09",
+    "on_failure": "development/M08/failures/<classified-failure>",
+    "rule": "Do not advance to M09 until M08 candidate evidence is reconciled and promotion criteria are satisfied."
+  }
+}
