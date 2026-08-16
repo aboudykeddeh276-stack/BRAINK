@@ -1,0 +1,18 @@
+{
+  "schema": "kex.braink.keddeh-edge.semantic-compile.v1",
+  "seed": "KEX-KEDDEH-EDGE-V1",
+  "edge_coordinate": "KEX://EDGE/KEDDEH/V1",
+  "lineage_root": "KEX://ROOT/KEX-BRAINK-MESH-V2",
+  "external_carrier_in_lineage": false,
+  "derivation_count": 6,
+  "derivations": [
+    {"id":"EDGE_ROUTE_INGRESS","kind":"IL_LLM_DERIVED","parents":["INGRESS","ROUTING"],"function":"Convert a finite accepted ingress request into a typed KEX route selection without making the transport carrier part of lineage.","accepts":["http.request","tls.session","transport.connection"],"emits":["ingress.route.receipt","route.selection"],"relation":"SEMANTIC_DERIVATION","lineage_root":"KEX://ROOT/KEX-BRAINK-MESH-V2"},
+    {"id":"SECURE_EDGE_INGRESS","kind":"IL_LLM_DERIVED","parents":["TLS","EDGE_ROUTE_INGRESS"],"function":"Bind verified hostname/TLS identity to the route-ingress decision while preserving TLS as a separately evidence-gated predicate.","accepts":["domain.identity","http.request"],"emits":["secure.route.selection","tls.route.receipt"],"relation":"SEMANTIC_DERIVATION","lineage_root":"KEX://ROOT/KEX-BRAINK-MESH-V2"},
+    {"id":"KEX_EDGE_LISTENER_RESOLVER","kind":"IL_LLM_DERIVED","parents":["SECURE_EDGE_INGRESS","API_SERVER"],"function":"Demultiplex one finite edge ingress into a larger logical API/listener namespace through explicit KEX coordinates.","accepts":["domain.identity","http.request","service.coordinate"],"emits":["listener.dispatch","listener.resolve.receipt"],"relation":"SEMANTIC_DERIVATION","lineage_root":"KEX://ROOT/KEX-BRAINK-MESH-V2"},
+    {"id":"DOMAIN_AWARE_KEX_EDGE","kind":"IL_LLM_DERIVED","parents":["DOMAIN_SPACE","KEX_EDGE_LISTENER_RESOLVER"],"function":"Resolve public host/path intent into KEX domain-space/service coordinates before runtime dispatch.","accepts":["domain.name","http.request"],"emits":["edge.resolve.receipt","listener.dispatch","service.coordinate"],"relation":"SEMANTIC_DERIVATION","lineage_root":"KEX://ROOT/KEX-BRAINK-MESH-V2"},
+    {"id":"EXECUTABLE_KEDDEH_EDGE","kind":"IL_LLM_DERIVED","parents":["DOMAIN_AWARE_KEX_EDGE","SERVER"],"function":"Materialise resolved KEX service coordinates on a finite execution carrier and return a typed response/readback receipt.","accepts":["domain.name","http.request","runtime.command"],"emits":["edge.execution.receipt","response.frame","server.receipt"],"relation":"SEMANTIC_DERIVATION","lineage_root":"KEX://ROOT/KEX-BRAINK-MESH-V2"},
+    {"id":"REHYDRATABLE_KEDDEH_EDGE","kind":"IL_LLM_DERIVED","parents":["EXECUTABLE_KEDDEH_EDGE","RECOVERY"],"function":"Preserve edge identity and route semantics across restart or replacement carrier by replaying committed state and proving equivalent resolution.","accepts":["domain.name","http.request","state.snapshot"],"emits":["edge.rehydration.receipt","recovery.ready","response.frame"],"relation":"SEMANTIC_DERIVATION","lineage_root":"KEX://ROOT/KEX-BRAINK-MESH-V2"}
+  ],
+  "terminal": {"id":"REHYDRATABLE_KEDDEH_EDGE","kind":"IL_LLM_DERIVED","parents":["EXECUTABLE_KEDDEH_EDGE","RECOVERY"],"function":"Preserve edge identity and route semantics across restart or replacement carrier by replaying committed state and proving equivalent resolution.","accepts":["domain.name","http.request","state.snapshot"],"emits":["edge.rehydration.receipt","recovery.ready","response.frame"],"relation":"SEMANTIC_DERIVATION","lineage_root":"KEX://ROOT/KEX-BRAINK-MESH-V2"},
+  "state": "SEMANTIC_EDGE_CLOSED"
+}
