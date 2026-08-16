@@ -1,0 +1,32 @@
+{
+  "schema": "kex.braink.keddeh-edge.manifest.v2",
+  "edge": "KEX://EDGE/KEDDEH",
+  "architecture": "RECURRENT_TYPED_RELATION_GRAPH",
+  "qualification": {
+    "state": "RELATIONAL_EDGE_V2_TESTS_PASS",
+    "passed": 20,
+    "tests_run": 20
+  },
+  "semantic_compile": {
+    "state": "RELATIONAL_FIXED_POINT_CLOSED",
+    "cycles": 5,
+    "derived_capabilities": 9,
+    "compatibility_relations": 48,
+    "terminal": "CONTINUOUS_KEDDEH_EDGE"
+  },
+  "global_maturity_state": null,
+  "v1_architecture": "SUPERSEDED_FALSE_BOUNDARIES_RETAINED_AS_PRIOR_EVIDENCE",
+  "repository_publication": [
+    {"path":"keddeh-edge.seed.v2.json","bytes":10119,"sha256":"32bfb9988976a09bb19809797e565837495542ac5b82c77ded95b75742f196de"},
+    {"path":"keddeh-edge-runtime.v2.mjs","bytes":24371,"sha256":"59e137946a275f916d4ced8689bb857e26fa51abd945394718b6467192a690a4"},
+    {"path":"keddeh-edge-node.v2.mjs","bytes":7949,"sha256":"6496fda3503bbfb95569308f65e312668517f6b765df934de0592c0d225f03da"},
+    {"path":"keddeh-edge-self-test.v2.mjs","bytes":17417,"sha256":"5f038d8f4ce488d6256837c5cb5e4bfbe3cce49f5ab8a9d7af9dad2a4d078e58"},
+    {"path":"keddeh-edge-test-receipt.v2.json","bytes":5832,"sha256":"ae819f8dc7a43993e6c7f1f31016a1273c2d88db5f37c69b904b568481b0a637"},
+    {"path":"KEDDEH_EDGE_V2_RELATIONAL_ENGINEERING_OUTCOME.md","bytes":7876,"sha256":"36c7ee93efb8a5427c033ac42911f499e0471e2e85d9afb4e933878f0e51a99f"}
+  ],
+  "local_execution_evidence": [
+    {"path":"keddeh-edge-semantic-compile.v2.json","bytes":16772,"sha256":"87c68bd22d3b2cbabf1fb9d47188871df8403bf731b2f1c40879acd2a2c8b653"},
+    {"path":"keddeh-edge-relational-proof.v2.json","bytes":97927,"sha256":"faa8bf7064d2489b544f235d8086de5a51468f86993c8805cb46ca641387444e"}
+  ],
+  "evidence_rule": "Repository publication proves source/readback identity only; local executed receipts/proof retain their own execution scope."
+}
