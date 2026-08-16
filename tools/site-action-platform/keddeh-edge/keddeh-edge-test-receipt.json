@@ -1,0 +1,27 @@
+{
+  "schema": "kex.braink.keddeh-edge.self-test-receipt.v1",
+  "generated_at": "2026-08-16T05:07:30.065Z",
+  "seed": "/mnt/data/keddeh-edge-v1/keddeh-edge.seed.v1.json",
+  "tests_run": 15,
+  "passed": 15,
+  "failed": 0,
+  "state": "LOCAL_EDGE_ADJACENT_CODE_TESTS_PASS",
+  "claim_boundary": "Tests prove deterministic local semantic compilation, loopback ingress/routing, fail-closed promotion logic, receipt chaining and rehydration. They do not prove public DNS, TLS, registrar authority, WAN ingress, remote-node execution or public service availability.",
+  "tests": [
+    {"id":"T01_SEMANTIC_COMPILE_CLOSES","pass":true,"detail":{"terminal":"REHYDRATABLE_KEDDEH_EDGE","derivations":6},"duration_ms":1},
+    {"id":"T02_COMPILE_IS_DETERMINISTIC","pass":true,"detail":{"byte_equal":true},"duration_ms":0},
+    {"id":"T03_FINITE_INGRESS_MULTIPLEXES_BRAINK_AND_KEX","pass":true,"detail":{"ingress":"KEX://EDGE/KEDDEH/V1/INGRESS/PUBLIC-HTTPS","coordinates":["KEX://API/BRAINK/CHAT","KEX://DOMAIN-SPACE/keddeh/kex/proof"]},"duration_ms":1},
+    {"id":"T04_LONGEST_PREFIX_ROUTE_WINS","pass":true,"detail":{"matched_prefix":"/systems","coordinate":"KEX://DOMAIN-SPACE/keddeh/site/systems"},"duration_ms":1},
+    {"id":"T05_SNI_HOST_MISMATCH_REJECTED","pass":true,"detail":{"rejected":true},"duration_ms":0},
+    {"id":"T06_UNKNOWN_DOMAIN_REJECTED","pass":true,"detail":{"rejected":true},"duration_ms":1},
+    {"id":"T07_METHOD_CONTRACT_ENFORCED","pass":true,"detail":{"rejected":true},"duration_ms":0},
+    {"id":"T08_PUBLIC_PROMOTION_FAILS_CLOSED_WITHOUT_EXTERNAL_RECEIPTS","pass":true,"detail":{"failed_gates":["G01_REMOTE_EXECUTION","G02_PUBLIC_NAME_AUTHORITY","G03_AUTHORITATIVE_DNS","G04_TLS_IDENTITY","G05_PUBLIC_INGRESS","G06_API_CONTRACT","G07_REHYDRATION","G08_ROLLBACK"]},"duration_ms":1},
+    {"id":"T09_LOCAL_EDGE_BINDS_AND_ROUTES_OVER_REAL_LOOPBACK_SOCKET","pass":true,"detail":{"address":"127.0.0.1","port":42105,"coordinate":"KEX://API/BRAINK/CHAT"},"duration_ms":13},
+    {"id":"T10_LOCAL_EDGE_REJECTS_UNKNOWN_HOST_OVER_SOCKET","pass":true,"detail":{"status":404,"error":"DOMAIN_BINDING_NOT_FOUND"},"duration_ms":3},
+    {"id":"T11_REHYDRATION_PRESERVES_ROUTE_STATE","pass":true,"detail":{"schema":"kex.braink.keddeh-edge.rehydration.v1","state":"REHYDRATED_EQUIVALENT","scalar_equal":true,"route_equal":true,"edge":"KEX://EDGE/KEDDEH/V1"},"duration_ms":0},
+    {"id":"T12_LEDGER_IS_MONOTONIC_AND_CHAIN_VALID","pass":true,"detail":{"entries":10,"ledger_valid":true},"duration_ms":1},
+    {"id":"T13_ALL_EXTERNAL_GATES_REQUIRE_EXTERNAL_SCOPE","pass":true,"detail":{"local_rejected":true,"external_fixture_admitted_by_contract":true,"note":"External fixture tests gate semantics only; it is not real deployment evidence."},"duration_ms":1},
+    {"id":"T14_EDGE_NODE_WRITES_DURABLE_BOOT_AND_STOP_RECEIPTS","pass":true,"detail":{"durable_boot_receipt":true,"durable_stop_receipt":true},"duration_ms":1},
+    {"id":"T15_NATIVE_TLS_EDGE_NODE_HANDSHAKE_AND_SNI_ROUTING","pass":true,"detail":{"tls_handshake":true,"sni_route":"KEX://API/BRAINK/CHAT","mismatch_rejected":true,"certificate_scope":"SELF_SIGNED_TEST_FIXTURE_ONLY"},"duration_ms":72}
+  ]
+}
