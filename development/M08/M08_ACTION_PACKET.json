@@ -2,10 +2,11 @@
   "schema": "braink.engineering-action-packet.v1",
   "action_id": "M08-EXEC-001",
   "created_at": "2026-08-16T20:35:00+09:30",
+  "last_reconciled_at": "2026-08-16T20:45:00+09:30",
   "objective": {
     "id": "M08-CONSENSUS-BOUND-EXECUTION",
-    "statement": "Make the consensus-bound Bitcoin miner the exercised workload path while preserving strict no-synthetic-work and submission-off-by-default invariants.",
-    "acceptance_invariant": "A real Bitcoin Core template is the only source of mining work; nonce scanning mutates only the 80-byte header hot path; the full block is assembled only after a target hit; configured network identity must match Bitcoin Core's canonical chain name; live submit remains independently gated."
+    "statement": "Make the consensus-bound Bitcoin miner the exercised workload path while preserving strict no-synthetic-work, disjoint-work, and submission-off-by-default invariants.",
+    "acceptance_invariant": "A real Bitcoin Core template is the only source of mining work; nonce scanning mutates only the 80-byte header hot path; the full block is assembled only after a target hit; configured network identity matches Bitcoin Core's canonical chain name; repeated/concurrent jobs cannot silently repeat the same work window; live submit remains independently gated."
   },
   "baseline": {
     "repository": "aboudykeddeh276-stack/BRAINK",
@@ -26,6 +27,12 @@
         "path": "tests/test_btc_consensus.py",
         "blob_sha": "3cc5b2dc6909ba5c3b9145bda6211f1f7a52fb3a",
         "state": "CONSENSUS_CONSTRUCTION_TESTS_PRESENT_NO_MINER_HOT_LOOP_FALSIFIERS"
+      },
+      {
+        "subject": "repeated one-shot mining job",
+        "state": "DEFAULT_EXTRANONCE_ZERO_AND_NONCE_WINDOW_RESTARTS_AT_ZERO",
+        "source": "candidate source readback plus repository search",
+        "implication": "unchanged template can repeat prior search work when no external allocator changes job coordinates"
       }
     ]
   },
@@ -35,7 +42,9 @@
     "Live submit is disabled unless KEX_ALLOW_LIVE_SUBMIT is explicitly enabled.",
     "Candidate validation remains bound to target, previous block hash, bits, and current tip before submit.",
     "Consensus construction primitives remain independently testable.",
-    "Repository write or commit status is not evidence of mining correctness or promotion."
+    "Repository write or commit status is not evidence of mining correctness or promotion.",
+    "Prior verified evidence is preserved but cannot be rebound to a changed subject revision without replay.",
+    "A worker must not silently repeat or overlap an already-assigned search interval for the same work identity."
   ],
   "changes": [
     "Normalize configured network names to Bitcoin Core getblockchaininfo chain names: mainnet->main and testnet->test.",
@@ -47,41 +56,104 @@
     "Use a forced-unavailable RPC endpoint in CI as a negative control proving unavailable Core cannot produce a synthetic candidate or submission."
   ],
   "falsifiers": [
-    "Any exhausted nonce-window test calls assemble_block.",
-    "A forced target hit does not assemble exactly one block.",
-    "BTC_NETWORK=testnet does not resolve to Bitcoin Core chain=test.",
-    "Unavailable Bitcoin Core RPC produces a candidate, submission, or mining success state.",
-    "Live submission occurs with KEX_ALLOW_LIVE_SUBMIT=0.",
-    "Existing consensus construction tests regress."
+    {
+      "id": "F-M08-001",
+      "state": "CLOSED_BY_LOCAL_MECHANIC_REPRODUCTION_PENDING_HEAD_BOUND_CI",
+      "statement": "Any exhausted nonce-window test calls assemble_block."
+    },
+    {
+      "id": "F-M08-002",
+      "state": "CLOSED_BY_LOCAL_MECHANIC_REPRODUCTION_PENDING_HEAD_BOUND_CI",
+      "statement": "A forced target hit does not assemble exactly one block."
+    },
+    {
+      "id": "F-M08-003",
+      "state": "CLOSED_BY_SOURCE_AND_LOCAL_MECHANIC_REPRODUCTION_PENDING_HEAD_BOUND_CI",
+      "statement": "BTC_NETWORK=testnet does not resolve to Bitcoin Core chain=test."
+    },
+    {
+      "id": "F-M08-004",
+      "state": "HEAD_BOUND_CI_NOT_EXECUTED",
+      "statement": "Unavailable Bitcoin Core RPC produces a candidate, submission, or mining success state."
+    },
+    {
+      "id": "F-M08-005",
+      "state": "NOT_LIVE_REPLAYED",
+      "statement": "Live submission occurs with KEX_ALLOW_LIVE_SUBMIT=0."
+    },
+    {
+      "id": "F-M08-006",
+      "state": "HEAD_BOUND_CI_NOT_EXECUTED",
+      "statement": "Existing consensus construction tests regress."
+    },
+    {
+      "id": "F-M08-007",
+      "state": "OPEN_DECISIVE_FALSIFIER",
+      "classification": "WORK_PARTITIONING",
+      "statement": "Repeated or concurrent jobs for an unchanged template can reuse the same default extranonce and nonce interval, causing duplicate search work."
+    }
   ],
   "execution_environment": {
     "candidate_branch": "engineering/m08-proof-bearing-runtime-20260816",
+    "pull_request": 43,
     "ci_runner": "ubuntu-24.04",
+    "github_actions_available": false,
+    "github_actions_block_reason": "account locked due to a billing issue before runner assignment",
     "live_bitcoin_core": false,
     "live_submit": false
   },
   "evidence_state": {
     "source_readback": "OBSERVED",
     "candidate_written": true,
-    "tests_executed": false,
-    "ci_result": "PENDING",
-    "live_core_result": "NOT_OBSERVED",
+    "candidate_prior_head": "cba77419cd2b6194e689be4d72961c4ea110673f",
+    "local_mechanic_reproduction": {
+      "state": "PASS_BOUNDED",
+      "consensus_checks": 7,
+      "miner_mechanic_checks": 3,
+      "total_checks": 10,
+      "benchmark_iterations": 20000,
+      "reproduced_speedup_approx": 3.97,
+      "scope": "isolated Python carrier using repository-readback consensus construction and candidate hot-loop mechanics; not repository CI and not live Bitcoin Core"
+    },
+    "ci_result": {
+      "state": "BLOCKED_BEFORE_EXECUTION",
+      "runs": [31943498832, 31943498717],
+      "observed_runner_steps": 0,
+      "classification": "EXTERNAL_EXECUTION_ENVIRONMENT_ACCOUNT_BILLING_GATE"
+    },
+    "library_evidence_reconciliation": {
+      "state": "NO_CURRENT_LIVE_CORE_RECEIPT_FOUND_FOR_CANDIDATE",
+      "prior_evidence_preserved": true,
+      "prior_scope": "adapter, scheduler, source/compile-verifiable and protocol-shaped local RPC evidence",
+      "not_rebound_to_candidate": true
+    },
+    "live_core_result": "NOT_OBSERVED_FOR_CURRENT_CANDIDATE",
     "mainnet_submission": "NOT_ATTEMPTED"
   },
   "promotion": {
     "state": "CANDIDATE_NOT_PROMOTED",
     "eligible": false,
+    "pull_request_state": "DRAFT",
+    "blocking_reasons": [
+      "GitHub Actions did not execute candidate code because the account is locked by a billing issue.",
+      "No live Bitcoin Core getblocktemplate/readiness receipt has been observed for the current candidate revision.",
+      "F-M08-007 work-partitioning falsifier remains open: repeated jobs can repeat the default search interval."
+    ],
     "required_before_promotion": [
-      "Pull-request CI compile passes.",
-      "Existing Bitcoin consensus tests pass.",
-      "New miner falsification tests pass.",
+      "Implement or bind an explicit persistent/orchestrator work allocator for extranonce and/or nonce ranges.",
+      "Prove no overlap across successive and concurrent workers for the same template/work identity, including restart/retry behavior.",
+      "Reallocate/reset work coordinates on template/tip/workid change.",
+      "Head-bound compile and existing Bitcoin consensus tests pass on an available execution carrier.",
+      "Head-bound miner falsification tests pass.",
       "Unavailable-RPC negative control returns QUIESCED with no candidate or submission.",
-      "Candidate head and CI evidence are reconciled to the same revision."
+      "Live Bitcoin Core qualification receipt records IBD=false, current best block/tip, and a current getblocktemplate for the candidate execution environment.",
+      "Candidate subject, environment, test plan, and evidence are reconciled to the same revision before promotion."
     ]
   },
   "next_route": {
+    "immediate": "CLOSE_F-M08-007_WORK_PARTITIONING_THEN_REPLAY_HEAD_BOUND_TESTS",
     "on_acceptance": "M09",
     "on_failure": "development/M08/failures/<classified-failure>",
-    "rule": "Do not advance to M09 until M08 candidate evidence is reconciled and promotion criteria are satisfied."
+    "rule": "Do not merge, promote, or advance to M09 while any decisive M08 falsifier or mandatory evidence gate remains open."
   }
 }
