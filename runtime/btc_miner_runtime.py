@@ -114,6 +114,8 @@ def allocate_work_window(template: dict[str, Any], requested_hashes: int) -> dic
 
     SQLite BEGIN IMMEDIATE serializes concurrent allocators across processes. The row stores
     the next nonce/extranonce cursor and every allocation is retained in an append-only table.
+    Extranonce is stored as decimal TEXT so the full unsigned 64-bit domain remains representable
+    despite SQLite INTEGER being signed 64-bit.
     """
     if requested_hashes <= 0:
         raise ValueError("requested_hashes must be positive")
@@ -129,7 +131,7 @@ def allocate_work_window(template: dict[str, Any], requested_hashes: int) -> dic
             CREATE TABLE IF NOT EXISTS work_cursor (
                 work_key TEXT PRIMARY KEY,
                 descriptor_json TEXT NOT NULL,
-                next_extranonce INTEGER NOT NULL,
+                next_extranonce TEXT NOT NULL,
                 next_nonce INTEGER NOT NULL,
                 updated_at TEXT NOT NULL
             )
@@ -141,7 +143,7 @@ def allocate_work_window(template: dict[str, Any], requested_hashes: int) -> dic
                 allocation_id INTEGER PRIMARY KEY AUTOINCREMENT,
                 work_key TEXT NOT NULL,
                 descriptor_json TEXT NOT NULL,
-                extranonce INTEGER NOT NULL,
+                extranonce TEXT NOT NULL,
                 nonce_start INTEGER NOT NULL,
                 nonce_count INTEGER NOT NULL,
                 allocated_at TEXT NOT NULL
@@ -160,8 +162,8 @@ def allocate_work_window(template: dict[str, Any], requested_hashes: int) -> dic
             extranonce = 0
             nonce_start = 0
             connection.execute(
-                "INSERT INTO work_cursor(work_key, descriptor_json, next_extranonce, next_nonce, updated_at) VALUES (?, ?, 0, 0, ?)",
-                (work_key, descriptor_json, utc_now()),
+                "INSERT INTO work_cursor(work_key, descriptor_json, next_extranonce, next_nonce, updated_at) VALUES (?, ?, ?, 0, ?)",
+                (work_key, descriptor_json, "0", utc_now()),
             )
         else:
             stored_descriptor, extranonce, nonce_start = row
@@ -182,7 +184,7 @@ def allocate_work_window(template: dict[str, Any], requested_hashes: int) -> dic
         allocated_at = utc_now()
         connection.execute(
             "INSERT INTO work_allocation(work_key, descriptor_json, extranonce, nonce_start, nonce_count, allocated_at) VALUES (?, ?, ?, ?, ?, ?)",
-            (work_key, descriptor_json, extranonce, nonce_start, nonce_count, allocated_at),
+            (work_key, descriptor_json, str(extranonce), nonce_start, nonce_count, allocated_at),
         )
 
         next_nonce = nonce_start + nonce_count
@@ -195,7 +197,7 @@ def allocate_work_window(template: dict[str, Any], requested_hashes: int) -> dic
 
         connection.execute(
             "UPDATE work_cursor SET next_extranonce = ?, next_nonce = ?, updated_at = ? WHERE work_key = ?",
-            (next_extranonce, next_nonce, allocated_at, work_key),
+            (str(next_extranonce), next_nonce, allocated_at, work_key),
         )
         connection.execute("COMMIT")
         return {
@@ -363,13 +365,13 @@ def execute() -> dict[str, Any]:
             "reason": "Bitcoin Core is in initial block download",
             "network": network,
         }
-    verification = float(chain.get("verificationprogress", 0.0))
     try:
+        verification = float(chain.get("verificationprogress", 0.0))
         minimum_verification = float(os.environ.get("BTC_MIN_VERIFICATION_PROGRESS", "0.999"))
-    except ValueError:
+    except (TypeError, ValueError):
         return {
             "state": "CONFIGURATION_BLOCKED",
-            "reason": "BTC_MIN_VERIFICATION_PROGRESS must be numeric",
+            "reason": "Bitcoin Core verification progress and BTC_MIN_VERIFICATION_PROGRESS must be numeric",
             "network": network,
         }
     if verification < minimum_verification:
