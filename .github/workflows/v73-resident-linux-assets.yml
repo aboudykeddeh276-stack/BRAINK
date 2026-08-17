@@ -1,0 +1,38 @@
+name: V73 Resident Linux Assets
+
+on:
+  push:
+    branches:
+      - build/v73-resident-linux-assets
+
+permissions:
+  contents: read
+
+jobs:
+  resident-assets:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build immutable resident asset bundle
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p resident/{bios,images}
+          curl --fail --location --retry 3 -o resident/images/linux.iso \
+            https://raw.githubusercontent.com/copy/images/db92d8fd4a53dbd73b8e0588bb4bd8fe37a1975a/linux.iso
+          curl --fail --location --retry 3 -o resident/bios/seabios.bin \
+            https://raw.githubusercontent.com/copy/v86/f3d4472a9c934b9ad78a311f5849ba711a296d23/bios/seabios.bin
+          curl --fail --location --retry 3 -o resident/bios/vgabios.bin \
+            https://raw.githubusercontent.com/copy/v86/f3d4472a9c934b9ad78a311f5849ba711a296d23/bios/vgabios.bin
+          sha256sum resident/images/linux.iso resident/bios/seabios.bin resident/bios/vgabios.bin | tee resident/SHA256SUMS
+          printf '%s\n' \
+            'schema=kex.v73.resident-linux-assets.v1' \
+            'linux_source=copy/images@db92d8fd4a53dbd73b8e0588bb4bd8fe37a1975a:linux.iso' \
+            'bios_source=copy/v86@f3d4472a9c934b9ad78a311f5849ba711a296d23:bios/{seabios.bin,vgabios.bin}' \
+            > resident/PROVENANCE.txt
+      - name: Upload resident asset bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: KEDDEH_V73_RESIDENT_LINUX_ASSETS
+          path: resident/
+          if-no-files-found: error
+          retention-days: 30
