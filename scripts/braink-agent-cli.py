@@ -1,34 +1,38 @@
 #!/usr/bin/env python3
-"""BRAINK/KEX agentic repository CLI.
+"""BRAINK/KEX proof-bearing repository command CLI.
 
-This tool is a local, defensive programmer/intelligence utility. It inventories
-repositories, classifies their governance readiness, and emits a deterministic
-plan for using repositories as inputs to a CLI/agent/augmented-intelligence
-software stack. It does not execute arbitrary code from discovered repositories.
+Repositories are evidence-bearing engineering sectors, not product-state proxies.
+This utility inventories local repositories and derives admissible next actions
+from observed state without executing arbitrary repository code.
 """
 
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import subprocess
 import sys
 from dataclasses import asdict, dataclass
+from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any
 
 GOVERNANCE_FILES = [
-    "README.md",
-    "LICENSE",
-    ".gitignore",
+    "README.md", "LICENSE", ".gitignore",
     "docs/governance/repository-governance-standard.md",
-    "docs/governance/manifest.json",
-    "scripts/validate-governance.py",
-    "scripts/bootstrap-general-governance.sh",
-    "scripts/braink-agent-cli.py",
+    "docs/governance/manifest.json", "scripts/validate-governance.py",
+    "scripts/bootstrap-general-governance.sh", "scripts/braink-agent-cli.py",
     "docs/governance/agentic-intelligence-cli.md",
     "docs/governance/strict-deep-analysis-comment.md",
 ]
 
+EVIDENCE_STATES = {
+    "UNKNOWN", "OBSERVED", "SOURCE_VERIFIED", "IMPLEMENTED", "TESTED",
+    "VALIDATED", "INTEGRATION_CANDIDATE", "ACCEPTED", "DEPLOYED",
+    "OPERATIONALLY_PROVEN", "INFERRED", "UNTESTED", "FAILED", "BLOCKED",
+    "SUPERSEDED", "HISTORICAL", "RECONSTRUCTED_FROM_CURRENT_LINEAGE",
+}
 
 @dataclass(frozen=True)
 class RepositorySignal:
@@ -39,121 +43,153 @@ class RepositorySignal:
     dirty: bool
     governance_files_present: list[str]
     governance_files_missing: list[str]
-    state: str
+    observed_state: str
+    evidence_state: str
+
+@dataclass(frozen=True)
+class CommandPacket:
+    command_id: str
+    intent: str
+    requirement: str
+    observed_state: str
+    authority: str
+    invariant: str
+    expected_effect: str
+    test_method: str
+    promotion_criterion: str
+    admissible: bool
+    blockers: list[str]
+    next_valid_routes: list[str]
 
 
 def run_git(repo: Path, args: list[str]) -> str:
-    """Run a read-only git command and preserve valid empty stdout.
-
-    A clean `git status --porcelain` deliberately returns an empty string. The
-    earlier implementation replaced that empty result with `UNKNOWN`, which made
-    every clean repository appear dirty when converted to bool.
-    """
-    result = subprocess.run(
-        ["git", "-C", str(repo), *args],
-        check=False,
-        text=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-    )
-    if result.returncode != 0:
-        return "UNKNOWN"
-    return result.stdout.strip()
+    result = subprocess.run(["git", "-C", str(repo), *args], check=False, text=True,
+                            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    return "UNKNOWN" if result.returncode != 0 else result.stdout.strip()
 
 
 def discover_repositories(root: Path) -> list[Path]:
     if not root.exists() or not root.is_dir():
         raise ValueError(f"repository root does not exist or is not a directory: {root}")
-
-    repositories: list[Path] = []
-    for git_dir in root.rglob(".git"):
-        if git_dir.is_dir():
-            repositories.append(git_dir.parent)
-    return sorted(set(repositories))
+    return sorted({git_dir.parent for git_dir in root.rglob(".git") if git_dir.is_dir()})
 
 
 def inspect_repository(repo: Path) -> RepositorySignal:
-    present = [relative for relative in GOVERNANCE_FILES if (repo / relative).exists()]
-    missing = [relative for relative in GOVERNANCE_FILES if relative not in present]
+    present = [p for p in GOVERNANCE_FILES if (repo / p).exists()]
+    missing = [p for p in GOVERNANCE_FILES if p not in present]
     dirty = bool(run_git(repo, ["status", "--porcelain=v1"]))
-    state = "STATE_MODEL_LOCAL" if not missing else "STATE_PENDING"
     branch = run_git(repo, ["branch", "--show-current"]) or "DETACHED"
     head = run_git(repo, ["rev-parse", "--short", "HEAD"]) or "UNKNOWN"
-    return RepositorySignal(
-        path=str(repo),
-        name=repo.name,
-        branch=branch,
-        head=head,
-        dirty=dirty,
-        governance_files_present=present,
-        governance_files_missing=missing,
-        state=state,
+    observed = "STATE_MODEL_LOCAL" if not missing else "STATE_PENDING"
+    evidence = "SOURCE_VERIFIED" if head != "UNKNOWN" else "OBSERVED"
+    return RepositorySignal(str(repo), repo.name, branch, head, dirty, present, missing, observed, evidence)
+
+
+def canonical_hash(payload: dict[str, Any]) -> str:
+    body = json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+    return hashlib.sha256(body.encode()).hexdigest()
+
+
+def derive_routes(signal: RepositorySignal) -> list[str]:
+    routes: list[str] = []
+    if signal.governance_files_missing:
+        routes.append("VERIFY_AND_REPAIR_GOVERNANCE_BASELINE")
+    if signal.dirty:
+        routes.append("INSPECT_UNCOMMITTED_STATE_BEFORE_CHANGE")
+    if signal.head == "UNKNOWN":
+        routes.append("RESOLVE_REPOSITORY_IDENTITY")
+    if not routes:
+        routes.extend(["LOCATE_EXISTING_MECHANIC", "DERIVE_BOUNDED_CHANGE", "RUN_ALLOWLISTED_TEST"])
+    return routes
+
+
+def packet_for(signal: RepositorySignal, intent: str) -> CommandPacket:
+    blockers = []
+    if signal.head == "UNKNOWN": blockers.append("BLOCKED_REPOSITORY_HEAD_UNKNOWN")
+    if signal.governance_files_missing: blockers.append("BLOCKED_GOVERNANCE_BASELINE_INCOMPLETE")
+    routes = derive_routes(signal)
+    raw_id = f"{signal.path}|{signal.head}|{intent}|{'|'.join(routes)}"
+    command_id = hashlib.sha256(raw_id.encode()).hexdigest()[:16]
+    return CommandPacket(
+        command_id=command_id,
+        intent=intent,
+        requirement="Advance the stated objective without treating repository mutation as product progress.",
+        observed_state=signal.evidence_state,
+        authority="LOCAL_READ_AND_ALLOWLISTED_VERIFICATION_ONLY",
+        invariant="PRESERVE_WORKING_CODE_AND_LINEAGE_UNTIL_EVIDENCE_JUSTIFIES_PROMOTION",
+        expected_effect="Produce evidence sufficient to derive the next admissible engineering transition.",
+        test_method="Read back state, execute only an explicitly allowlisted verification, classify result.",
+        promotion_criterion="Required test evidence exists and affected invariants remain satisfied.",
+        admissible=not blockers,
+        blockers=blockers,
+        next_valid_routes=routes,
     )
 
 
-def build_agent_plan(signals: list[RepositorySignal]) -> dict[str, object]:
-    return {
-        "WHOLE_NAME": "WHOLE_BRAINK_AGENTIC_INTELLIGENCE_CLI",
+def build_agent_plan(signals: list[RepositorySignal], intent: str) -> dict[str, Any]:
+    packets = [asdict(packet_for(s, intent)) for s in signals]
+    payload: dict[str, Any] = {
+        "WHOLE_NAME": "WHOLE_BRAINK_PROOF_BEARING_COMMAND_RUNTIME",
         "WHOLE_OWNER_LINEAGE": "a.keddeh",
-        "GOVERNANCE_ROOT": "GENERAL-GOVERNANCE-",
-        "REPOSITORY_FUNCTION": "FUNCTION_INVENTORY_REPOSITORIES_AND_PLAN_AGENTIC_PROGRAMMER_INPUTS",
-        "REPOSITORY_ENVIRONMENT": "ENVIRONMENT_LOCAL_DEVELOPMENT",
-        "REPOSITORY_STATE": "STATE_MODEL_LOCAL",
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "intent": intent,
         "repos_discovered": len(signals),
-        "repositories": [asdict(signal) for signal in signals],
-        "agentic_routes": [
-            "FUNCTION_SCAN_REPOSITORIES",
-            "FUNCTION_CLASSIFY_GOVERNANCE_READINESS",
-            "FUNCTION_PLAN_CLI_AGENT_AUGMENTED_INTELLIGENCE_INPUTS",
-            "FUNCTION_REPORT_PENDING_EXTERNAL_ADOPTION",
-        ],
-        "pending_gates": [
-            "PENDING_EXTERNAL_REPOSITORY_ACCESS_FOR_REPOS_NOT_PRESENT_LOCALLY",
-            "PENDING_AUTHENTICATED_REMOTE_FETCH_OR_PUSH",
-            "PENDING_DOWNSTREAM_REPOSITORY_VALIDATOR_EXECUTION",
-        ],
+        "repositories": [asdict(s) for s in signals],
+        "command_packets": packets,
+        "execution_law": ["INTENT", "VERIFY_ACTUAL_STATE", "LOCATE_EXISTING_MECHANIC",
+                          "RESOLVE_REAL_DEPENDENCY", "EXECUTE_BOUNDED_ACTION", "READ_BACK",
+                          "CLASSIFY_EVIDENCE", "FOLLOW_DESCENDANTS", "DERIVE_NEXT_ROUTE"],
+        "evidence_vocabulary": sorted(EVIDENCE_STATES),
+        "boundary": "Planning and read-only inspection do not constitute product completion.",
     }
+    payload["proof_sha256"] = canonical_hash(payload)
+    return payload
 
 
 def command_scan(args: argparse.Namespace) -> int:
     root = Path(args.repo_root).expanduser().resolve()
-    try:
-        signals = [inspect_repository(repo) for repo in discover_repositories(root)]
+    try: signals = [inspect_repository(r) for r in discover_repositories(root)]
     except ValueError as exc:
-        print(f"BRAINK_AGENT_CLI_ERROR: {exc}", file=sys.stderr)
-        return 2
-    print(json.dumps(build_agent_plan(signals), indent=2, sort_keys=True))
-    return 0
+        print(f"BRAINK_AGENT_CLI_ERROR: {exc}", file=sys.stderr); return 2
+    print(json.dumps(build_agent_plan(signals, args.intent), indent=2, sort_keys=True)); return 0
+
+
+def command_plan(args: argparse.Namespace) -> int:
+    repo = Path(args.repo).expanduser().resolve()
+    if not (repo / ".git").is_dir():
+        print("BRAINK_AGENT_CLI_ERROR: target is not a git repository", file=sys.stderr); return 2
+    signal = inspect_repository(repo)
+    payload = {"repository": asdict(signal), "command_packet": asdict(packet_for(signal, args.intent))}
+    payload["proof_sha256"] = canonical_hash(payload)
+    print(json.dumps(payload, indent=2, sort_keys=True)); return 0
 
 
 def command_status(_: argparse.Namespace) -> int:
-    print("BRAINK_AGENT_CLI_STATUS: COMPLETED")
-    print("BRAINK_AGENT_CLI_MODE: MODEL_LOCAL")
+    print("BRAINK_AGENT_CLI_STATUS: PROOF_BEARING_PLANNER_AVAILABLE")
     print("BRAINK_AGENT_CLI_BOUNDARY: no arbitrary repository code execution")
+    print("BRAINK_AGENT_CLI_RULE: commit != completion; promotion requires evidence")
     return 0
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(
-        prog="braink-agent-cli",
-        description="BRAINK/KEX local agentic repository programmer and augmented-intelligence CLI.",
-    )
-    subcommands = parser.add_subparsers(dest="command", required=True)
-
-    scan = subcommands.add_parser("scan", help="Inventory local repositories and produce an agentic plan.")
-    scan.add_argument("--repo-root", default=".", help="Directory to search for git repositories. Defaults to current directory.")
+    parser = argparse.ArgumentParser(prog="braink-agent-cli", description="BRAINK/KEX proof-bearing command planner.")
+    sub = parser.add_subparsers(dest="command", required=True)
+    scan = sub.add_parser("scan", help="Inventory repositories and derive admissible routes.")
+    scan.add_argument("--repo-root", default=".")
+    scan.add_argument("--intent", default="INSPECT_AND_DERIVE_NEXT_VALID_ENGINEERING_ACTION")
     scan.set_defaults(func=command_scan)
-
-    status = subcommands.add_parser("status", help="Print CLI boundary and local status.")
+    plan = sub.add_parser("plan", help="Derive a proof-bearing command packet for one repository.")
+    plan.add_argument("--repo", default=".")
+    plan.add_argument("--intent", required=True)
+    plan.set_defaults(func=command_plan)
+    status = sub.add_parser("status", help="Print runtime boundary and status.")
     status.set_defaults(func=command_status)
     return parser
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = build_parser()
-    args = parser.parse_args(argv)
+    args = build_parser().parse_args(argv)
     return args.func(args)
-
 
 if __name__ == "__main__":
     sys.exit(main())
