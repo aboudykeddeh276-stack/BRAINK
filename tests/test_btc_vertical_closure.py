@@ -16,8 +16,8 @@ def _fixture_candidate():
         "transactions": [],
         "workid": "fixture-work",
     }
-    # Known-valid BIP173 v0 P2WPKH address used only for deterministic construction.
-    payout = "bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kygt080"
+    # Known-valid mainnet v0 P2WPKH address used only for deterministic construction.
+    payout = "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh"
     candidate = closure.build_candidate(
         template=template,
         payout_address=payout,
