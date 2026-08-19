@@ -1,0 +1,1 @@
+{"schema":"braink.proof-transition.evolution","baseline":20,"version":21,"iterations":[{"version":21,"invariant":"Canonicalize prerequisite snapshots before retry comparison so representation ordering cannot manufacture a delta."}]}
