@@ -1,0 +1,9 @@
+{
+  "schema_version":"1.0",
+  "policy":"BRAINK_AUTOMATION_BOUNDED",
+  "default":"DENY_MUTATION_AND_EXTERNAL_CONNECTION",
+  "allowed_without_external_authority":["inventory","local_retrieval","validation","health_check","readback","hashing","manifest_generation","local_packaging","evidence_receipt"],
+  "requires_explicit_qualified_authority":["runtime_activation","external_write","external_submission","credential_use","legal_practice_connection","financial_services_connection","financial_product_advice","financial_product_dealing"],
+  "forbidden_implicit_transitions":["TOOL_VISIBLE_TO_CAPABILITY_QUALIFIED","FILE_EXISTS_TO_FUNCTION_WORKS","HEALTH_OK_TO_PRODUCTION_READY","DOCUMENT_GENERATED_TO_DOCUMENT_FILED","DISCLAIMER_PRESENT_TO_REGULATED_AUTHORITY","MULTIPLE_OBSERVERS_AGREE_TO_PRODUCER_TRUTH"],
+  "failure_action":"BLOCK_AND_RECORD_PROPERTY_SCOPED_STATE"
+}
