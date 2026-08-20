@@ -1,0 +1,25 @@
+name: BRAINK Service Supervisor Characterization
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - runtime/service_supervisor.py
+      - tests/test_service_supervisor.py
+      - .github/workflows/test-service-supervisor.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  supervisor-characterization:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile service supervisor
+        run: python3 -m py_compile runtime/service_supervisor.py tests/test_service_supervisor.py
+      - name: Run service supervisor characterization tests
+        run: python3 -m unittest -v tests/test_service_supervisor.py
+      - name: Run inherited BTC consensus regression suite
+        run: python3 -m unittest -v tests/test_btc_consensus.py
