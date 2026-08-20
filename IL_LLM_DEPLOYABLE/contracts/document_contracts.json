@@ -1,0 +1,12 @@
+{
+  "schema_version":"1.0",
+  "default_external_transmission":false,
+  "contracts":[
+    {"id":"DOC.GENERAL.v1","required":["objective","audience","evidence"],"qualification_ceiling":"EVIDENCE_SCOPED_DRAFT","regulated":false},
+    {"id":"DOC.TECHNICAL_REPORT.v1","required":["scope","observations","source_identities","test_results"],"qualification_ceiling":"PROPERTY_SCOPED_OBSERVED_OR_TESTED","regulated":false},
+    {"id":"DOC.LEGAL_INFORMATION.v1","required":["jurisdiction","official_sources","informational_purpose"],"qualification_ceiling":"GENERAL_INFORMATION","regulated":true,"authority_required_for":["legal_practice","representation","external_filing"]},
+    {"id":"DOC.FINANCIAL_INFORMATION.v1","required":["official_sources","informational_purpose","regulatory_classification"],"qualification_ceiling":"GENERAL_INFORMATION","regulated":true,"authority_required_for":["financial_product_advice","dealing","digital_advice"]},
+    {"id":"DOC.USER_GUIDE.v1","required":["qualified_functions","ui_states","support_route"],"qualification_ceiling":"IMPLEMENTATION_ALIGNED","regulated":false}
+  ],
+  "receipt_required":["contract_id","contract_version","inputs_digest","evidence_digest","output_digest","qualification","warnings","failures","timestamp"]
+}
