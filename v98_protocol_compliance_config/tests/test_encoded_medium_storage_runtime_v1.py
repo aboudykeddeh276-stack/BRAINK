@@ -1,4 +1,4 @@
-import sys, unittest
+import sys, unittest, tempfile
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/"src"))
 from keddeh_encoded_medium_storage_runtime_v1 import *
@@ -52,5 +52,14 @@ class MediumTests(unittest.TestCase):
             "IP_endpoint":"CARRIER_PROJECTION"
         }
         for k,v in expected.items(): self.assertEqual(reconcile_legacy_claim(k)["authoritative"],v)
+
+    def test_activation_writes_receipt_and_outbox(self):
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d)
+            receipt=activate(root)
+            self.assertEqual(receipt["status"],"VERIFIED")
+            self.assertTrue((root/"evidence/encoded_medium_reconciliation_receipt.json").exists())
+            self.assertTrue((root/"runtime_volume/encoded_medium/current.json").exists())
+            self.assertTrue((root/"runtime_volume/outbox/encoded_medium_reconciliation/authoritative.handoff.json").exists())
 
 if __name__=="__main__": unittest.main(verbosity=2)
