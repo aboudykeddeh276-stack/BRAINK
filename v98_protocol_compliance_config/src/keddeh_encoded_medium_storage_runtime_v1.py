@@ -158,3 +158,46 @@ def authoritative_architecture()->dict[str,Any]:
             "BRAINK_is_attached_after_machine_boot"
         ]
     }
+
+def write_json(path:Path,obj:Any)->None:
+    path.parent.mkdir(parents=True,exist_ok=True)
+    path.write_text(json.dumps(obj,indent=2,ensure_ascii=False),encoding='utf-8')
+
+def activate(root:Path)->dict[str,Any]:
+    medium=EncodedMedium(32,32)
+    controller=KEXStorageController(medium)
+    vfs=VFSProjection(controller)
+    ident=MachineIdentity('MACHINE-KEX-20260822','BRAINK-ROOT-20260822','LINEAGE-KEX-20260822')
+    for i,state in enumerate([1,2,3,-2,-3],start=1):
+        medium.program_cell(1,i,state,'AUTHORED-LINE-SET')
+    controller.allocate(2,2,'BRAINK-GENESIS','BRAINK_ROOT',ident.lineage,b'{"identity":"BRAINK-ROOT-20260822","mode":"resident","medium":"encoded"}')
+    controller.allocate(2,3,'DOMAIN-keddeh.systems','DOMAIN_OBJECT',ident.lineage,b'{"domain":"keddeh.systems","role":"carrier-projection"}')
+    machine=BRAINKMachine(ident,medium,controller,vfs)
+    boot=machine.boot('BRAINK-GENESIS')
+    vfs.mount('/domains/keddeh.systems','DOMAIN-keddeh.systems')
+    domain=vfs.read('/domains/keddeh.systems')
+    snapshot=medium.snapshot()
+    receipt={
+        'status':'VERIFIED',
+        'architecture':authoritative_architecture(),
+        'boot':boot,
+        'domain_readback':domain,
+        'medium_snapshot_proof':snapshot['proof'],
+        'legacy_reconciliation':[reconcile_legacy_claim(x) for x in ['L#','volume_registry','sheet_rows','VFS','100TB_rows','IP_endpoint']]
+    }
+    receipt['proof']=h(receipt)
+    write_json(root/'runtime_volume/encoded_medium/current.json',snapshot)
+    write_json(root/'evidence/encoded_medium_reconciliation_receipt.json',receipt)
+    write_json(root/'runtime_volume/outbox/encoded_medium_reconciliation/authoritative.handoff.json',{
+        'kind':'ENCODED_MEDIUM_AUTHORITATIVE_HANDOFF','receipt_proof':receipt['proof'],'state':'VERIFIED'
+    })
+    return receipt
+
+if __name__=='__main__':
+    import argparse
+    ap=argparse.ArgumentParser()
+    ap.add_argument('--root',default='.')
+    ap.add_argument('--activate',action='store_true')
+    args=ap.parse_args()
+    if args.activate:
+        print(json.dumps(activate(Path(args.root)),indent=2))
