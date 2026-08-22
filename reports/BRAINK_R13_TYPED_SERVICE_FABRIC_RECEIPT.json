@@ -1,0 +1,37 @@
+{
+  "schema": "braink.typed-service-fabric.r13.receipt",
+  "roots": [
+    "LEX://SERVER/GLOBAL",
+    "LEX://DOMAIN/keddeh.com",
+    "LEX://DNS/keddeh.com",
+    "LEX://REGISTRAR/keddeh.com",
+    "LEX://TLS/keddeh.com",
+    "LEX://CLOUD/BRAINK/GLOBAL"
+  ],
+  "checks": {
+    "all_six_roots_resolve": true,
+    "cloud_write_pass": true,
+    "dns_internal_pass": true,
+    "registrar_internal_pass": true,
+    "tls_internal_pass": true,
+    "public_dns_blocked": true,
+    "registry_mutation_blocked": true,
+    "ca_mutation_blocked": true,
+    "replicated_cloud_hash_equal": true,
+    "secondary_dns_state_present": true,
+    "secondary_registrar_state_present": true,
+    "secondary_tls_state_present": true,
+    "secondary_cloud_available_after_primary_loss": true,
+    "secondary_domain_resolution_after_primary_loss": true,
+    "primary_restart_pass": true,
+    "reconciled_cloud_hash_equal": true
+  },
+  "payload_sha256": "9923c757ccaf5c936bc08499d9bc83fc8ccce2d2d510312b9b069ea65e368674",
+  "external_authority": {
+    "public_dns": "BLOCKED_NOT_PRESENT",
+    "registry": "BLOCKED_NOT_PRESENT",
+    "ca_tls": "BLOCKED_NOT_PRESENT",
+    "wan": "NOT_TESTED"
+  },
+  "status": "PASS"
+}
