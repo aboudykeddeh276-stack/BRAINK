@@ -1,0 +1,47 @@
+{
+  "schema": "braink.external-observer.r16.runner-boundary",
+  "domain": "keddeh.com",
+  "probe_source": "runtime/braink_external_probe_r15.sh",
+  "workflow": ".github/workflows/braink-external-observer-r16.yml",
+  "execution_harness": {
+    "pull_request": 48,
+    "head_branch": "run/r16-external-observer-proof-20260823",
+    "base_branch": "build/service-supervisor-s1-host-survey",
+    "head_sha_initial": "43dc460ef0b1f0f63cb775af31273be8cb0cbb76",
+    "head_sha_retry": "f6c4dc484402b8c63c3781b928917c5de803b31e"
+  },
+  "attempts": [
+    {
+      "run_id": 32581306813,
+      "run_number": 5,
+      "job_id": 97050982675,
+      "status": "completed",
+      "conclusion": "failure",
+      "recorded_steps": 0,
+      "job_log_readback": "BlobNotFound",
+      "artifact_count": 0,
+      "classification": "RUNNER_INITIALIZATION_FAILURE_BEFORE_RECORDED_STEP"
+    },
+    {
+      "run_id": 32581403332,
+      "run_number": 6,
+      "job_id_initial": 97051220802,
+      "job_id_rerun": 97051298072,
+      "status": "completed",
+      "conclusion": "failure",
+      "recorded_steps": 0,
+      "job_log_readback": "BlobNotFound",
+      "artifact_count": 0,
+      "classification": "RUNNER_INITIALIZATION_FAILURE_BEFORE_RECORDED_STEP"
+    }
+  ],
+  "public_state_promotion": {
+    "dns": "NOT_PROMOTED",
+    "https": "NOT_PROMOTED",
+    "tls": "NOT_PROMOTED",
+    "rdap": "NOT_PROMOTED",
+    "reason": "Independent GitHub-hosted runner did not reach step execution; therefore no domain probe ran."
+  },
+  "current_external_state": "UNKNOWN_FROM_AVAILABLE_EXECUTION_LANES",
+  "status": "PASS_BOUNDARY_CLASSIFIED_NO_FALSE_PROMOTION"
+}
