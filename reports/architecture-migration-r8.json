@@ -1,0 +1,34 @@
+{
+  "schema": "braink.architecture-migration.r8",
+  "authority": "ENCODED_MEDIUM->ZEROLESS_GEOMETRY->CONTROLLER->LOGICAL_OBJECTS->VFS",
+  "demoted_interpretations": [
+    "L#_IS_VOLUME",
+    "SHEET_ROW_IS_CAPACITY",
+    "VFS_IS_STORAGE_MEDIUM",
+    "REGISTRY_ROW_IS_ALLOCATION"
+  ],
+  "retained_evidence": [
+    "CPU_COMPILER_CAUSAL",
+    "VGPU_FRAMEBUFFER_OBSERVER_CAUSAL",
+    "HTTP_VFS_ROUNDTRIP_SHA256",
+    "LEX_VECTOR_ROUTE_ISOLATION",
+    "OBSERVER_INVARIANT_CAUSAL",
+    "MULTI_LEDGER_LINEAGE",
+    "CONCURRENT_AGENT_EXECUTION"
+  ],
+  "reclassified_evidence": {
+    "BRAINK_SCRIPT_VOLUME_REGISTRY_R5": "PROVENANCE_AND_ISOLATION_TEST_REGISTRY",
+    "L19_L27": "SOURCE_PROVENANCE_ONLY",
+    "R5_900TB": "TEST_CONTRACT_LOGICAL_ADDRESS_SPACES_NOT_CANONICAL_STORAGE_ONTOLOGY",
+    "I12_100_BANDS": "ADDRESS_GEOMETRY_CONTROLLER_PROJECTION"
+  },
+  "machine_genesis": {
+    "machine_id": "KEX-MACHINE-001",
+    "disk": "BRAINK_MACHINE_001_R8.vdisk",
+    "materialised_bytes": 67108864,
+    "braink_root_lba": 256,
+    "braink_root_sha256": "3c15cc0f7485a0e2f5db344aa5d6388ddb111f4ddee5d829a2082fd09026bedb",
+    "vfs_role": "RESOLVER_ONLY",
+    "reboot_readback": "PASS"
+  }
+}
