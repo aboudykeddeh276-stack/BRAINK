@@ -7,6 +7,12 @@ on:
     paths:
       - '.github/workflows/braink-external-observer-r16.yml'
       - 'runtime/braink_external_probe_r15.sh'
+  pull_request:
+    branches:
+      - build/service-supervisor-s1-host-survey
+    paths:
+      - 'runtime/braink_external_probe_r15.sh'
+      - '.github/workflows/braink-external-observer-r16.yml'
   workflow_dispatch:
 
 permissions:
