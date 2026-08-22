@@ -1,12 +1,6 @@
 name: BRAINK External Observer R16
 
 on:
-  push:
-    branches:
-      - build/service-supervisor-s1-host-survey
-    paths:
-      - '.github/workflows/braink-external-observer-r16.yml'
-      - 'runtime/braink_external_probe_r15.sh'
   pull_request:
     branches:
       - build/service-supervisor-s1-host-survey
@@ -23,23 +17,31 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
+      - name: Runner proof
+        run: |
+          echo "R16_RUNNER_ACTIVE=1"
+          uname -a
+          python3 --version
+          curl --version | head -n 1
       - name: Checkout BRAINK
         uses: actions/checkout@v4
       - name: Execute R15 probe from independent runner
-        shell: bash
         run: |
           chmod +x runtime/braink_external_probe_r15.sh
           mkdir -p reports/r16
           runtime/braink_external_probe_r15.sh keddeh.com reports/r16/BRAINK_R16_EXTERNAL_OBSERVER_RECEIPT.json
-      - name: Assert receipt is classified
-        shell: python
+          cat reports/r16/BRAINK_R16_EXTERNAL_OBSERVER_RECEIPT.json
+      - name: Assert receipt classification
         run: |
+          python3 - <<'PY'
           import json
           from pathlib import Path
           p=Path('reports/r16/BRAINK_R16_EXTERNAL_OBSERVER_RECEIPT.json')
           r=json.loads(p.read_text())
-          assert r['status'] in {'PASS_PUBLIC_OBSERVED','PASS_BOUNDARY_CLASSIFIED'}, r
-          print(json.dumps(r,indent=2))
+          allowed={'PASS_PUBLIC_OBSERVED','PASS_BOUNDARY_CLASSIFIED'}
+          assert r.get('status') in allowed, r
+          print('R16_RECEIPT_STATUS='+r['status'])
+          PY
       - name: Upload proof receipt
         uses: actions/upload-artifact@v4
         with:
