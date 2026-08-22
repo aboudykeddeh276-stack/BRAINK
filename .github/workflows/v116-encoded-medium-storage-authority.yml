@@ -1,0 +1,42 @@
+name: KEDDEH V116 Encoded Medium Storage Authority
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'v98_protocol_compliance_config/src/keddeh_encoded_medium_storage_runtime.py'
+      - 'v98_protocol_compliance_config/tests/test_encoded_medium_storage_runtime.py'
+      - 'v98_protocol_compliance_config/docs/AUTHORITATIVE_ENCODED_MEDIUM_STORAGE_ARCHITECTURE.md'
+      - '.github/workflows/v116-encoded-medium-storage-authority.yml'
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  encoded-medium-authority:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile authoritative runtime and tests
+        run: |
+          cd v98_protocol_compliance_config
+          python3 -m compileall src/keddeh_encoded_medium_storage_runtime.py tests/test_encoded_medium_storage_runtime.py
+      - name: Execute encoded-medium storage tests
+        run: |
+          cd v98_protocol_compliance_config
+          python3 -m unittest tests.test_encoded_medium_storage_runtime -v
+      - name: Enforce authoritative hierarchy in source
+        run: |
+          cd v98_protocol_compliance_config
+          python3 - <<'PY'
+          from pathlib import Path
+          source = Path('src/keddeh_encoded_medium_storage_runtime.py').read_text()
+          doctrine = Path('docs/AUTHORITATIVE_ENCODED_MEDIUM_STORAGE_ARCHITECTURE.md').read_text()
+          assert 'class EncodedMedium' in source
+          assert 'class KEXStorageController' in source
+          assert 'class VFSProjection' in source
+          assert 'BRAINKRoot_i ∈ EncodedMedium_i' in doctrine
+          assert 'SourceLine -> Volume -> VFS -> BRAINK' in doctrine
+          PY
