@@ -1,0 +1,30 @@
+{
+  "schema": "braink.global-service-fabric.r11.receipt",
+  "machine_1": "KEX-MACHINE-001",
+  "machine_2": "KEX-MACHINE-002-97F35749472C",
+  "roots": [
+    "SERVER_ROOT",
+    "DOMAIN_ROOT",
+    "DNS_ROOT",
+    "REGISTRAR_ROOT",
+    "TLS_ROOT",
+    "CLOUD_ROOT"
+  ],
+  "machine_1_install_verify": "PASS",
+  "machine_2_install_verify": "PASS",
+  "replication": {
+    "canonical_service_identity_equal": true,
+    "lineage_distinct": true,
+    "vector_routes_distinct": true,
+    "replica_digest": "3832e88a9332fdb26aff406abdba10146a21cd18691e357fb1dadc359799e0d8"
+  },
+  "secondary_available_during_primary_unavailability": true,
+  "primary_reconciliation_verify": "PASS",
+  "external_authority_claims": {
+    "public_dns": "NOT_PROVEN",
+    "registry_registrar_authority": "NOT_PROVEN",
+    "ca_tls_issuance": "NOT_PROVEN",
+    "wan_multi_host": "NOT_PROVEN"
+  },
+  "status": "PASS"
+}
