@@ -2,6 +2,7 @@
 # R16 independent-observer trigger: semantics unchanged; this mutation exists to execute the installed workflow on a subsequent push.
 # R16 execution trigger 2: branch-state refresh after workflow installation.
 # R16 PR execution proof trigger: no probe semantics changed.
+# R16 retry after workflow initialization simplification.
 set -u
 DOMAIN="${1:-keddeh.com}"
 OUT="${2:-/mnt/data/BRAINK_R15_EXTERNAL_PATH_RECEIPT.json}"
