@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# R16 independent-observer trigger: semantics unchanged; this mutation exists to execute the installed workflow on a subsequent push.
 set -u
 DOMAIN="${1:-keddeh.com}"
 OUT="${2:-/mnt/data/BRAINK_R15_EXTERNAL_PATH_RECEIPT.json}"
