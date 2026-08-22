@@ -1,0 +1,22 @@
+{
+  "schema": "braink.live-service-fabric.r12.receipt",
+  "lexical_id": "LEX://DOMAIN/keddeh.com",
+  "primary_listener": "0.0.0.0:17921",
+  "secondary_listener": "0.0.0.0:17922",
+  "checks": {
+    "initial_primary_selected": true,
+    "failover_secondary_selected": true,
+    "same_lexical_identity_after_failover": true,
+    "independent_machine_identity": true,
+    "primary_restart_pass": true,
+    "post_restart_primary_selected": true
+  },
+  "external_scope": {
+    "transport": "localhost TCP/HTTP only",
+    "wan": "NOT_PROVEN",
+    "public_dns": "NOT_PROVEN",
+    "registrar_registry": "NOT_PROVEN",
+    "public_tls": "NOT_PROVEN"
+  },
+  "status": "PASS"
+}
