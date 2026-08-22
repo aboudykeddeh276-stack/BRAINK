@@ -1,0 +1,36 @@
+{
+  "schema": "braink.public-edge-service.r17.receipt",
+  "service_id": "BRAINK::PUBLIC_EDGE::R17",
+  "lexical_id": "LEX://SERVER/BRAINK/PUBLIC_EDGE",
+  "listener": "0.0.0.0:17941",
+  "machine_id": "KEX-MACHINE-001",
+  "braink_id": "BRAINK::KEX-MACHINE-001::R9",
+  "routes": [
+    "/health",
+    "/systems",
+    "/dns",
+    "/domain",
+    "/cloud/object"
+  ],
+  "checks": {
+    "listener_health_pass": true,
+    "service_identity_header": true,
+    "public_edge_identity": true,
+    "systems_route_pass": true,
+    "dns_route_pass": true,
+    "domain_route_pass": true,
+    "domain_authority_not_overpromoted": true,
+    "cloud_route_pass": true,
+    "unknown_domain_404": true,
+    "external_binding_explicit": true
+  },
+  "scope": {
+    "service_surface": "EXECUTED_LOCALHOST_CARRIER",
+    "public_domain_binding": "NOT_BOUND",
+    "public_dns_authority": "NOT_BOUND",
+    "public_tls_authority": "NOT_BOUND",
+    "registry_authority": "NOT_BOUND",
+    "wan_ingress": "NOT_PROVEN"
+  },
+  "status": "PASS"
+}
