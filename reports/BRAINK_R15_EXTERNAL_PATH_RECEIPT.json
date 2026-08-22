@@ -1,0 +1,39 @@
+{
+  "schema": "braink.external-path.r15",
+  "domain": "keddeh.com",
+  "probes": [
+    {
+      "probe": "DNS_A",
+      "status": "FAIL",
+      "exit_code": 6,
+      "classification": "DNS_EGRESS_BLOCKED",
+      "output": "curl: (6) Could not resolve host: dns.google\n"
+    },
+    {
+      "probe": "DNS_NS",
+      "status": "FAIL",
+      "exit_code": 6,
+      "classification": "DNS_EGRESS_BLOCKED",
+      "output": "curl: (6) Could not resolve host: dns.google\n"
+    },
+    {
+      "probe": "RDAP",
+      "status": "FAIL",
+      "exit_code": 6,
+      "classification": "DNS_EGRESS_BLOCKED",
+      "output": "curl: (6) Could not resolve host: rdap.verisign.com\n"
+    },
+    {
+      "probe": "HTTPS",
+      "status": "FAIL",
+      "exit_code": 6,
+      "classification": "DNS_EGRESS_BLOCKED",
+      "output": "curl: (6) Could not resolve host: keddeh.com\n"
+    }
+  ],
+  "promotion_rule": "PUBLIC_STATE_ONLY_IF_DIRECT_DOMAIN_READBACK_PASSES",
+  "direct_public_readback": "NO_DIRECT_READBACK",
+  "execution_path": "DNS_EGRESS_BLOCKED",
+  "domain_public_state": "UNKNOWN_FROM_THIS_EXECUTION_LANE",
+  "status": "PASS_BOUNDARY_CLASSIFIED"
+}
