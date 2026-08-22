@@ -1,0 +1,7 @@
+{
+  "schema": "braink.r16.execution-trigger",
+  "head_commit": "cf333332d15c4411df8dc1218a94c4307c2b49b0",
+  "target_branch": "build/service-supervisor-s1-host-survey",
+  "purpose": "Force independently inspectable PR-triggered external observer execution",
+  "probe_semantics_changed": false
+}
