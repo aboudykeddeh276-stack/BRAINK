@@ -1,0 +1,43 @@
+name: BRAINK External Observer R16
+
+on:
+  push:
+    branches:
+      - build/service-supervisor-s1-host-survey
+    paths:
+      - '.github/workflows/braink-external-observer-r16.yml'
+      - 'runtime/braink_external_probe_r15.sh'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  external-observer:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout BRAINK
+        uses: actions/checkout@v4
+      - name: Execute R15 probe from independent runner
+        shell: bash
+        run: |
+          chmod +x runtime/braink_external_probe_r15.sh
+          mkdir -p reports/r16
+          runtime/braink_external_probe_r15.sh keddeh.com reports/r16/BRAINK_R16_EXTERNAL_OBSERVER_RECEIPT.json
+      - name: Assert receipt is classified
+        shell: python
+        run: |
+          import json
+          from pathlib import Path
+          p=Path('reports/r16/BRAINK_R16_EXTERNAL_OBSERVER_RECEIPT.json')
+          r=json.loads(p.read_text())
+          assert r['status'] in {'PASS_PUBLIC_OBSERVED','PASS_BOUNDARY_CLASSIFIED'}, r
+          print(json.dumps(r,indent=2))
+      - name: Upload proof receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: BRAINK_R16_EXTERNAL_OBSERVER_RECEIPT
+          path: reports/r16/BRAINK_R16_EXTERNAL_OBSERVER_RECEIPT.json
+          if-no-files-found: error
+          retention-days: 7
