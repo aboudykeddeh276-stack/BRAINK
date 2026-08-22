@@ -31,6 +31,16 @@ class CompletionRecord:
     receipt_path: str
     completed_by: str
     completed_at: float
+    source_path: str = ""
+    command_path: str = ""
+    positive_tests: int = 0
+    negative_tests: int = 0
+    ledger_path: str = "runtime_volume/proof_bundles.ledger"
+    ledger_entry_hash: str = ""
+    outbox_path: str = ""
+    target_host_evidence_path: str = ""
+    provider_evidence_path: str = ""
+    certification_evidence_path: str = ""
     hash_used_as_functional_proof: bool = False
     telemetry_only: bool = False
 
@@ -123,6 +133,16 @@ def load_completion_records(root: Path, config: Dict[str, Any]) -> List[Completi
             receipt_path=str(raw["receipt_path"]),
             completed_by=str(raw.get("completed_by", "unknown_worker")),
             completed_at=float(raw.get("completed_at", time.time())),
+            source_path=str(raw.get("source_path", "")),
+            command_path=str(raw.get("command_path", "")),
+            positive_tests=int(raw.get("positive_tests", 0) or 0),
+            negative_tests=int(raw.get("negative_tests", 0) or 0),
+            ledger_path=str(raw.get("ledger_path", "runtime_volume/proof_bundles.ledger")),
+            ledger_entry_hash=str(raw.get("ledger_entry_hash", "")),
+            outbox_path=str(raw.get("outbox_path", "")),
+            target_host_evidence_path=str(raw.get("target_host_evidence_path", "")),
+            provider_evidence_path=str(raw.get("provider_evidence_path", "")),
+            certification_evidence_path=str(raw.get("certification_evidence_path", "")),
             hash_used_as_functional_proof=bool(raw.get("hash_used_as_functional_proof", False)),
             telemetry_only=bool(raw.get("telemetry_only", False)),
         ))
@@ -134,8 +154,57 @@ def resolve_under_root(root: Path, raw_path: str) -> Path:
     return path if path.is_absolute() else root / path
 
 
-def validate_completion(root: Path, record: CompletionRecord, task_ids: Set[str], config: Dict[str, Any]) -> Tuple[bool, str]:
-    if record.task_id not in task_ids:
+def path_is_file(root: Path, raw_path: str) -> bool:
+    if not raw_path:
+        return False
+    path = resolve_under_root(root, raw_path)
+    return path.exists() and path.is_file()
+
+
+def ledger_contains_hash(root: Path, ledger_path: str, entry_hash: str) -> bool:
+    if not ledger_path or not entry_hash:
+        return False
+    path = resolve_under_root(root, ledger_path)
+    if not path.exists() or not path.is_file():
+        return False
+    for line in path.read_text(encoding="utf-8").splitlines():
+        if not line.strip():
+            continue
+        try:
+            entry = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if entry.get("entry_hash") == entry_hash or entry.get("receipt_hash") == entry_hash:
+            return True
+    return False
+
+
+def receipt_has_local_pass(root: Path, receipt_path: str, task_id: str) -> bool:
+    path = resolve_under_root(root, receipt_path)
+    try:
+        payload = read_json(path)
+    except (json.JSONDecodeError, OSError):
+        return False
+    if not isinstance(payload, dict):
+        return False
+    candidates = [
+        payload.get("state"),
+        payload.get("status"),
+        payload.get("promotion_state"),
+        (payload.get("receipt") or {}).get("state") if isinstance(payload.get("receipt"), dict) else None,
+        (payload.get("receipt") or {}).get("promotion_state") if isinstance(payload.get("receipt"), dict) else None,
+    ]
+    if "LOCAL_PASS" not in candidates:
+        return False
+    receipt_task = payload.get("task_id")
+    if receipt_task is not None and str(receipt_task) != task_id:
+        return False
+    return True
+
+
+def validate_completion(root: Path, record: CompletionRecord, tasks_by_id: Dict[str, TaskSpec], config: Dict[str, Any]) -> Tuple[bool, str]:
+    task = tasks_by_id.get(record.task_id)
+    if task is None:
         return False, "unknown_task_id"
     if record.state not in set(config["allowed_completion_states"]):
         return False, "state_not_promotable"
@@ -143,19 +212,36 @@ def validate_completion(root: Path, record: CompletionRecord, task_ids: Set[str]
         return False, "hash_used_as_functional_proof"
     if record.telemetry_only:
         return False, "telemetry_only_not_completion"
-    receipt = resolve_under_root(root, record.receipt_path)
-    if not receipt.exists() or not receipt.is_file():
+    if not path_is_file(root, record.source_path):
+        return False, "executable_source_missing"
+    if not path_is_file(root, record.command_path):
+        return False, "command_path_missing"
+    if record.positive_tests <= 0:
+        return False, "positive_tests_missing"
+    if record.negative_tests <= 0:
+        return False, "negative_tests_missing"
+    if not path_is_file(root, record.receipt_path):
         return False, "receipt_path_missing"
-    return True, "valid_receipt_backed_completion"
+    if not receipt_has_local_pass(root, record.receipt_path, record.task_id):
+        return False, "receipt_not_local_pass"
+    if not ledger_contains_hash(root, record.ledger_path, record.ledger_entry_hash):
+        return False, "ledger_readback_missing"
+    if not path_is_file(root, record.outbox_path):
+        return False, "outbox_handoff_missing"
+    if task.deployment_state == "TARGET_HOST_GATED" and not path_is_file(root, record.target_host_evidence_path):
+        return False, "target_host_evidence_missing"
+    if task.deployment_state == "PROVIDER_GATED" and not path_is_file(root, record.provider_evidence_path):
+        return False, "provider_evidence_missing"
+    return True, "valid_executable_receipt_backed_completion"
 
 
 def evaluate_progress(root: Path, config: Dict[str, Any]) -> Tuple[List[TaskSpec], Dict[str, CompletionRecord], List[Dict[str, Any]]]:
     tasks = expand_tasks(config)
-    task_ids = {task.task_id for task in tasks}
+    tasks_by_id = {task.task_id: task for task in tasks}
     valid: Dict[str, CompletionRecord] = {}
     invalid: List[Dict[str, Any]] = []
     for record in load_completion_records(root, config):
-        ok, reason = validate_completion(root, record, task_ids, config)
+        ok, reason = validate_completion(root, record, tasks_by_id, config)
         if ok:
             valid[record.task_id] = record
         else:
@@ -170,7 +256,6 @@ def build_case_study(tasks: List[TaskSpec], completed: Dict[str, CompletionRecor
         group_totals[task.group_id] = group_totals.get(task.group_id, 0) + 1
         if task.task_id in completed:
             group_completed[task.group_id] = group_completed.get(task.group_id, 0) + 1
-
     group_summary = [
         {
             "group_id": group_id,
@@ -180,34 +265,24 @@ def build_case_study(tasks: List[TaskSpec], completed: Dict[str, CompletionRecor
         }
         for group_id, total in sorted(group_totals.items())
     ]
-
     return {
         "trajectory": "receipt_backed_growth" if completed else "planned_growth_pending_receipts",
-        "useful_growth": "counts only tasks with existing receipts and allowed completion states",
-        "environment_relevance": "separates local software work from M3 target-host, provider, and certification gates",
-        "capacity_adequacy": "100-task plan is divided into ten bounded worker lanes of ten tasks each",
-        "logical_progression": "task -> receipt -> ledger -> readback -> milestone -> case-study handoff",
-        "unmet_needs": "target-host/provider tasks remain incomplete until receipts exist",
-        "standards_basis": "ISO/IEC/IEEE 12207 lifecycle, ISO/IEC 42001 AI governance, NIST SSDF, OWASP ASVS, SLSA/CycloneDX and POSIX target-host boundaries are used as control anchors",
-        "next_actions": "execute work orders, attach receipts, rerun monitor, and review at 50/100 milestones",
+        "useful_growth": "counts only tasks with executable source, command path, positive and negative tests, LOCAL_PASS receipt, ledger readback and outbox handoff",
+        "environment_relevance": "separates local software work from M3 target-host, provider and certification gates",
+        "capacity_adequacy": "100-task plan is divided into ten bounded worker lanes of ten tasks each and reviewed every five verified completions",
+        "logical_progression": "task -> executable source -> command -> positive/negative tests -> receipt -> ledger readback -> outbox -> environment gate -> milestone",
+        "unmet_needs": "target-host/provider tasks remain incomplete until their authority-specific evidence files exist",
+        "standards_basis": "ISO/IEC/IEEE 12207 lifecycle, ISO/IEC 25010 quality, ISO/IEC 42001 AI governance, NIST SSDF, OWASP ASVS, SLSA/CycloneDX and POSIX target-host boundaries are control anchors, not certification claims",
+        "executable_receipts": [record.receipt_path for record in completed.values()],
+        "failures": invalid,
+        "next_actions": "execute separately reviewable work orders, persist complete evidence chains, rerun monitor, and emit one case study only at each newly reached multiple of five",
         "group_summary": group_summary,
         "invalid_completion_records": invalid,
     }
 
 
 def record_completion(root: Path, config: Dict[str, Any], task_id: str, receipt_path: str, completed_by: str, state: str = "LOCAL_PASS") -> None:
-    source = root / config["completion_source"]
-    records = read_json(source, default=[])
-    records.append({
-        "task_id": task_id,
-        "state": state,
-        "receipt_path": receipt_path,
-        "completed_by": completed_by,
-        "completed_at": time.time(),
-        "hash_used_as_functional_proof": False,
-        "telemetry_only": False,
-    })
-    write_json(source, records)
+    raise RuntimeError("Direct --record-task promotion is disabled. Completion records must be written by the acceptance harness with the full executable evidence contract.")
 
 
 def run_monitor(root: Path, emit_receipt: bool = False) -> Dict[str, Any]:
@@ -215,11 +290,9 @@ def run_monitor(root: Path, emit_receipt: bool = False) -> Dict[str, Any]:
     config = load_config(root)
     started = time.time()
     tasks, completed, invalid = evaluate_progress(root, config)
-
     total_tasks = len(tasks)
     if total_tasks != int(config["task_total"]):
         raise ValueError(f"task registry expected {config['task_total']} tasks but expanded {total_tasks}")
-
     completed_count = len(completed)
     milestones = [int(m) for m in config["milestones"]]
     milestones_reached = [m for m in milestones if completed_count >= m]
@@ -258,7 +331,6 @@ def run_monitor(root: Path, emit_receipt: bool = False) -> Dict[str, Any]:
     receipt_hash = canonical_hash(pre_receipt)
     receipt_path = evidence_dir / "task_milestone_monitor_receipt.json"
     outbox_path = outbox_dir / f"{receipt_hash}.handoff.json"
-
     handoff = {
         "handoff_id": receipt_hash,
         "source": "KEDDEH_V98_TASK_MILESTONE_MONITOR",
@@ -269,7 +341,6 @@ def run_monitor(root: Path, emit_receipt: bool = False) -> Dict[str, Any]:
         "created_at": started,
     }
     write_json(outbox_path, handoff)
-
     append_ledger(ledger_path, {
         "type": "task_milestone_monitor",
         "entry_hash": receipt_hash,
@@ -277,7 +348,6 @@ def run_monitor(root: Path, emit_receipt: bool = False) -> Dict[str, Any]:
         "outbox_manifest": str(outbox_path),
     })
     ledger_readback = any(entry.get("entry_hash") == receipt_hash for entry in read_ledger(ledger_path))
-
     if notify_required and ledger_readback:
         state["notified_milestones"] = sorted(notified.union(newly_reached))
         write_json(state_path, state)
@@ -320,9 +390,7 @@ def main(argv: Optional[List[str]] = None) -> int:
     root = Path(args.root).expanduser().resolve()
     config = load_config(root)
     if args.record_task:
-        if not args.receipt_path:
-            parser.error("--receipt-path is required with --record-task")
-        record_completion(root, config, args.record_task, args.receipt_path, args.completed_by, args.state)
+        record_completion(root, config, args.record_task, args.receipt_path or "", args.completed_by, args.state)
     result = run_monitor(root, emit_receipt=args.emit_receipt)
     print(json.dumps(result, indent=2, sort_keys=True))
     receipt = result["receipt"]
