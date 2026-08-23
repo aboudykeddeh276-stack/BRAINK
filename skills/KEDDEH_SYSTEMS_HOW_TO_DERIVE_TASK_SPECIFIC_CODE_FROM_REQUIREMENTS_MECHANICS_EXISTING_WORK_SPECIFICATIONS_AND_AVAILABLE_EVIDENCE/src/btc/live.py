@@ -1,35 +1,34 @@
 #!/usr/bin/env python3
-"""CLI: point the real BTC mining control plane at a real Bitcoin Core node.
+"""CLI: bind the BTC mining lifecycle to a real Bitcoin Core node.
 
-Example (private, cookie-authenticated mainnet node with a static payout address):
+The normal mode is continuous: resolve Core, obtain GBT work, hash through KEX
+worker lanes, cancel stale work, roll extranonce/work space, submit candidates,
+reconcile Core's result, and continue until SIGINT/SIGTERM or a fatal invariant.
 
-    python3 -m btc.live \
-        --rpc-host 127.0.0.1 --rpc-port 8332 \
-        --cookie ~/.bitcoin/.cookie \
-        --payout-address bc1q... \
-        --max-nonce 1048576
-
-Or derive a fresh payout from the node's own private wallet:
-
-    python3 -m btc.live --cookie ~/.bitcoin/.cookie --wallet mywallet --from-wallet
-
-This performs REAL RPC I/O. It does not fabricate a node. If ``bitcoind`` is not
-reachable it fails at that exact mechanical boundary, as intended.
+``--once`` retains the bounded one-attempt diagnostic path.
 """
 
 from __future__ import annotations
 
 import argparse
 import json
+import signal
 import sys
+from dataclasses import asdict
+from threading import Event
 
-from .controller import LiveMinerConfig, LiveMinerError, run_live_attempt
+from .controller import (
+    LiveMinerConfig,
+    LiveMinerError,
+    run_continuous_miner,
+    run_live_attempt,
+)
 from .payout import payout_script_from_address, payout_script_from_wallet
 from .rpc import CoreRpcClient, CoreRpcConfig, RpcError
 
 
 def _build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Keddeh BTC live mainnet control plane")
+    parser = argparse.ArgumentParser(description="Keddeh BTC continuous mainnet control plane")
     parser.add_argument("--rpc-host", default="127.0.0.1")
     parser.add_argument("--rpc-port", type=int, default=8332)
     parser.add_argument("--wallet", default=None, help="wallet name for /wallet/<name> RPC")
@@ -42,11 +41,28 @@ def _build_parser() -> argparse.ArgumentParser:
     payout.add_argument("--from-wallet", action="store_true", help="derive payout via wallet RPC")
     parser.add_argument("--chain", default="main")
     parser.add_argument("--max-nonce", type=int, default=1 << 20)
+    parser.add_argument("--workers", type=int, default=4)
+    parser.add_argument("--stale-poll", type=float, default=1.0)
+    parser.add_argument("--retry-initial", type=float, default=1.0)
+    parser.add_argument("--retry-max", type=float, default=30.0)
     parser.add_argument("--allow-nonlocal", action="store_true",
                         help="permit a non-loopback RPC host (secured private network only)")
     parser.add_argument("--no-submit", action="store_true",
-                        help="run the full pipeline but do not call submitblock")
+                        help="hash and validate candidates but do not call submitblock")
+    parser.add_argument("--once", action="store_true",
+                        help="bounded diagnostic: execute one template/hash/submit attempt then exit")
     return parser
+
+
+def _build_config(args: argparse.Namespace) -> LiveMinerConfig:
+    return LiveMinerConfig(
+        expected_chain=args.chain,
+        max_nonce_scan=args.max_nonce,
+        worker_count=args.workers,
+        stale_poll_seconds=args.stale_poll,
+        retry_initial_seconds=args.retry_initial,
+        retry_max_seconds=args.retry_max,
+    )
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -73,33 +89,66 @@ def main(argv: list[str] | None = None) -> int:
             payout_address = args.payout_address
             payout_script = payout_script_from_address(args.payout_address)
 
-        attempt = run_live_attempt(
+        config = _build_config(args)
+
+        if args.once:
+            attempt = run_live_attempt(
+                client=client,
+                payout_script=payout_script,
+                config=config,
+                submit=not args.no_submit,
+            )
+            report = {
+                "status": "DONE_ONCE",
+                "chain": attempt.chain,
+                "height": attempt.height,
+                "payout_address": payout_address,
+                "target": hex(attempt.target),
+                "total_fees": attempt.total_fees,
+                "coinbase_value_sat": attempt.coinbase_value,
+                "stale": attempt.stale,
+                "candidate_found": attempt.candidate_found,
+                "block_hash": attempt.block_hash_display,
+                "submitted": attempt.submitted,
+                "accepted": attempt.submit_result.accepted if attempt.submit_result else None,
+                "reject_reason": attempt.submit_result.reject_reason if attempt.submit_result else None,
+            }
+            print(json.dumps(report, indent=2))
+            return 0
+
+        stop = Event()
+
+        def request_stop(signum: int, _frame: object) -> None:
+            stop.set()
+            print(json.dumps({"event": "STOP_REQUESTED", "signal": signum}), flush=True)
+
+        signal.signal(signal.SIGINT, request_stop)
+        signal.signal(signal.SIGTERM, request_stop)
+
+        def emit(event: dict) -> None:
+            print(json.dumps(event, separators=(",", ":"), sort_keys=True), flush=True)
+
+        emit({
+            "event": "MINING_LIFECYCLE_ACTIVE",
+            "chain": args.chain,
+            "payout_address": payout_address,
+            "worker_count": config.worker_count,
+            "max_nonce_scan": config.max_nonce_scan,
+        })
+        summary = run_continuous_miner(
             client=client,
             payout_script=payout_script,
-            config=LiveMinerConfig(expected_chain=args.chain, max_nonce_scan=args.max_nonce),
+            config=config,
             submit=not args.no_submit,
+            stop_event=stop,
+            on_event=emit,
         )
+        print(json.dumps({"status": "STOPPED", "summary": asdict(summary)}, indent=2))
+        return 0
+
     except (LiveMinerError, RpcError, OSError, ValueError) as exc:
         print(json.dumps({"status": "FAILED_AT_BOUNDARY", "error": str(exc)}))
         return 1
-
-    report = {
-        "status": "DONE",
-        "chain": attempt.chain,
-        "height": attempt.height,
-        "payout_address": payout_address,
-        "target": hex(attempt.target),
-        "total_fees": attempt.total_fees,
-        "coinbase_value_sat": attempt.coinbase_value,
-        "stale": attempt.stale,
-        "candidate_found": attempt.candidate_found,
-        "block_hash": attempt.block_hash_display,
-        "submitted": attempt.submitted,
-        "accepted": attempt.submit_result.accepted if attempt.submit_result else None,
-        "reject_reason": attempt.submit_result.reject_reason if attempt.submit_result else None,
-    }
-    print(json.dumps(report, indent=2))
-    return 0
 
 
 if __name__ == "__main__":
