@@ -42,6 +42,13 @@ class DashboardProjectionTests(unittest.TestCase):
         self.assertIn("Array.from({length:20},(_,i)=>(i+1)*5)", self.html)
         self.assertIn("registry milestones must be exactly 5..100 by five", self.html)
 
+    def test_raw_completion_records_are_never_presented_as_verified_completion(self) -> None:
+        self.assertIn("Raw LOCAL_PASS records (unverified)", self.html)
+        self.assertIn("Raw completion records are shown only for inspection", self.html)
+        self.assertIn("HTML did not authenticate or promote its claims", self.html)
+        self.assertIn("projection_only_unverified_by_html", self.html)
+        self.assertNotIn("<th>Completed</th>", self.html)
+
 
 if __name__ == "__main__":
     unittest.main()
