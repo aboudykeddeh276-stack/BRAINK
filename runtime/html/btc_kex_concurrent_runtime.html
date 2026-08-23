@@ -3,19 +3,21 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>BRAINK / KEX BTC Concurrent Runtime</title>
+<title>BRAINK Runtime Projection Bus / KEX BTC</title>
 <style>
-body{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;margin:24px;background:#0b0d10;color:#e8edf2}button,input{font:inherit}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}.card{border:1px solid #39414a;border-radius:8px;padding:14px}.ok{color:#65d46e}.bad{color:#ff6b6b}.muted{color:#9aa7b2}pre{white-space:pre-wrap;overflow-wrap:anywhere}</style>
+body{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;margin:24px;background:#0b0d10;color:#e8edf2}button,input{font:inherit}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}.card{border:1px solid #39414a;border-radius:8px;padding:14px}.ok{color:#65d46e}.bad{color:#ff6b6b}.muted{color:#9aa7b2}pre{white-space:pre-wrap;overflow-wrap:anywhere}.projection{margin-top:18px}.projection .card{min-height:90px}.kv{font-size:.82rem;white-space:pre-wrap;overflow-wrap:anywhere}
+</style>
 </head>
 <body>
-<h1>BRAINK / KEX BTC Concurrent Runtime</h1>
-<p class="muted">HTML is the execution carrier. Bitcoin consensus remains the candidate authority. KEX controls work partition and concurrent execution only.</p>
+<h1>BRAINK Runtime Projection Bus / KEX BTC</h1>
+<p class="muted">One visual overlay over active runtime state. Projection does not promote or replace subsystem authority.</p>
 <div class="grid">
   <div class="card"><b>Runtime</b><div id="runtime">BOOTING</div></div>
   <div class="card"><b>Self-test</b><div id="selftest">PENDING</div></div>
   <div class="card"><b>Workers</b><div id="workers">0</div></div>
   <div class="card"><b>Hashes</b><div id="hashes">0</div></div>
 </div>
+<div id="projection-grid" class="grid projection"></div>
 <p><button id="genesis">Run Genesis SHA256d self-test</button> <button id="stop">Stop workers</button></p>
 <pre id="log"></pre>
 
@@ -76,6 +78,43 @@ self.onmessage=async e=>{
 const logEl=document.getElementById('log');
 const state={workers:[],hashes:new Map(),candidate:null};
 const log=s=>{logEl.textContent=`${new Date().toISOString()} ${s}\n`+logEl.textContent};
+
+const projectionState=new Map();
+const projectionGrid=document.getElementById('projection-grid');
+function canonicalProjection(value){
+  if(value===undefined)return 'UNDEFINED';
+  if(typeof value==='string')return value;
+  try{return JSON.stringify(value,null,2)}catch{return String(value)}
+}
+function projectionCard(domain){
+  let card=document.getElementById(`projection-${domain}`);
+  if(card)return card;
+  card=document.createElement('div'); card.className='card'; card.id=`projection-${domain}`;
+  const title=document.createElement('b'); title.textContent=domain.toUpperCase();
+  const body=document.createElement('div'); body.className='kv'; body.dataset.role='body'; body.textContent='NO OBSERVATION';
+  card.append(title,body); projectionGrid.appendChild(card); return card;
+}
+function project(domain,observation){
+  if(!domain||typeof domain!=='string')throw new Error('projection domain required');
+  const record={domain,observed_at:new Date().toISOString(),observation};
+  projectionState.set(domain,record);
+  projectionCard(domain).querySelector('[data-role="body"]').textContent=canonicalProjection(record);
+  window.dispatchEvent(new CustomEvent('braink-runtime-projection',{detail:record}));
+  return record;
+}
+function snapshot(){return Object.fromEntries(projectionState.entries())}
+const defaultDomains=['braink','il_llm','kex','btc','linux','proof','storage','agents','network'];
+for(const domain of defaultDomains)projectionCard(domain);
+window.BRAINK_RUNTIME_PROJECTION_BUS={project,snapshot,domains:()=>Array.from(projectionState.keys())};
+window.addEventListener('braink-state',e=>project('braink',e.detail));
+window.addEventListener('il-llm-state',e=>project('il_llm',e.detail));
+window.addEventListener('kex-state',e=>project('kex',e.detail));
+window.addEventListener('linux-state',e=>project('linux',e.detail));
+window.addEventListener('proof-state',e=>project('proof',e.detail));
+window.addEventListener('storage-state',e=>project('storage',e.detail));
+window.addEventListener('agent-state',e=>project('agents',e.detail));
+window.addEventListener('network-state',e=>project('network',e.detail));
+
 function workerURL(){return URL.createObjectURL(new Blob([document.getElementById('worker-source').textContent],{type:'text/javascript'}));}
 function makeWorker(){return new Worker(workerURL());}
 function allocateBounded(start,end,count){
@@ -85,13 +124,13 @@ function allocateBounded(start,end,count){
   for(let i=0;i<count;i++){const size=base+(i<rem?1:0); ranges.push({worker_index:i,nonce_start:cursor,nonce_end:cursor+size}); cursor+=size;}
   return ranges;
 }
-function stopAll(){for(const w of state.workers){try{w.postMessage({type:'STOP'});w.terminate()}catch{}} state.workers=[]; document.getElementById('workers').textContent='0';}
+function stopAll(){for(const w of state.workers){try{w.postMessage({type:'STOP'});w.terminate()}catch{}} state.workers=[]; document.getElementById('workers').textContent='0'; project('kex',{state:'STOPPED',workers:0});}
 async function genesisSelfTest(){
   stopAll();
   const expected='000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f';
   const header='01000000'+'0000000000000000000000000000000000000000000000000000000000000000'+'3ba3edfd7a7b12b27ac72c3e67768f617fc81bc3888a51323a9fb8aa4b1e5e4a'+'29ab5f49'+'ffff001d'+'1dac2b7c';
   const w=makeWorker(); state.workers=[w]; document.getElementById('workers').textContent='1';
-  w.onmessage=e=>{if(e.data.type==='SELFTEST_RESULT'){const ok=e.data.display_hash===expected; document.getElementById('selftest').textContent=ok?'PASS':'FAIL'; document.getElementById('selftest').className=ok?'ok':'bad'; log(`GENESIS ${ok?'PASS':'FAIL'} ${e.data.display_hash}`); stopAll();}};
+  w.onmessage=e=>{if(e.data.type==='SELFTEST_RESULT'){const ok=e.data.display_hash===expected; document.getElementById('selftest').textContent=ok?'PASS':'FAIL'; document.getElementById('selftest').className=ok?'ok':'bad'; project('proof',{mechanic:'bitcoin_genesis_sha256d',status:ok?'EXECUTION_PASS':'EXECUTION_FAIL',observed_hash:e.data.display_hash,expected_hash:expected}); log(`GENESIS ${ok?'PASS':'FAIL'} ${e.data.display_hash}`); stopAll();}};
   w.postMessage({type:'SELFTEST',header_hex:header});
 }
 function mineWork(work){
@@ -100,13 +139,17 @@ function mineWork(work){
   const count=Math.max(1,Math.min(Number(work.worker_count||navigator.hardwareConcurrency||4),64));
   const ranges=allocateBounded(Number(work.nonce_start||0),Number(work.nonce_end||2**32),count);
   document.getElementById('workers').textContent=String(count);
+  project('btc',{state:'HASHING',bits:work.bits,nonce_start:ranges[0].nonce_start,nonce_end:ranges[ranges.length-1].nonce_end});
+  project('kex',{state:'ACTIVE',workers:count,ranges});
   for(const range of ranges){
     const w=makeWorker(); state.workers.push(w); state.hashes.set(range.worker_index,0);
     w.onmessage=e=>{
       const m=e.data;
       if(m.type==='PROGRESS'||m.type==='EXHAUSTED'||m.type==='CANDIDATE') state.hashes.set(m.worker_index,m.hashes);
-      document.getElementById('hashes').textContent=String(Array.from(state.hashes.values()).reduce((a,b)=>a+b,0));
-      if(m.type==='CANDIDATE'&&!state.candidate){state.candidate=m; log(`BITCOIN TARGET CANDIDATE worker=${m.worker_index} nonce=${m.nonce} hash=${m.block_hash_display}`); stopAll(); window.dispatchEvent(new CustomEvent('braink-btc-candidate',{detail:m}));}
+      const total=Array.from(state.hashes.values()).reduce((a,b)=>a+b,0);
+      document.getElementById('hashes').textContent=String(total);
+      project('kex',{state:'ACTIVE',workers:count,total_hashes:total,worker_index:m.worker_index,event:m.type});
+      if(m.type==='CANDIDATE'&&!state.candidate){state.candidate=m; project('btc',{state:'BITCOIN_TARGET_CANDIDATE',nonce:m.nonce,block_hash_display:m.block_hash_display,header_hex:m.header_hex}); log(`BITCOIN TARGET CANDIDATE worker=${m.worker_index} nonce=${m.nonce} hash=${m.block_hash_display}`); stopAll(); window.dispatchEvent(new CustomEvent('braink-btc-candidate',{detail:m}));}
     };
     w.postMessage({type:'MINE',...work,...range});
   }
@@ -114,7 +157,9 @@ function mineWork(work){
 window.BRAINK_BTC_HTML_RUNTIME={mineWork,stopAll,allocateBounded,genesisSelfTest};
 document.getElementById('genesis').onclick=genesisSelfTest; document.getElementById('stop').onclick=stopAll;
 document.getElementById('runtime').textContent='READY'; document.getElementById('runtime').className='ok';
-log('RUNTIME READY: candidate predicate = SHA256d(80-byte header) <= target(bits)');
+project('braink',{projection_bus:'READY',authority:'OBSERVATION_ONLY'});
+project('btc',{runtime:'READY',candidate_predicate:'SHA256d(80-byte header) <= target(bits)'});
+log('RUNTIME READY: projection bus active; projection does not self-promote proof');
 genesisSelfTest();
 </script>
 </body>
