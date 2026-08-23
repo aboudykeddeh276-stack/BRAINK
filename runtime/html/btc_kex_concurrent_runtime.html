@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BRAINK / KEX BTC Concurrent Runtime</title>
+<style>
+body{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;margin:24px;background:#0b0d10;color:#e8edf2}button,input{font:inherit}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}.card{border:1px solid #39414a;border-radius:8px;padding:14px}.ok{color:#65d46e}.bad{color:#ff6b6b}.muted{color:#9aa7b2}pre{white-space:pre-wrap;overflow-wrap:anywhere}</style>
+</head>
+<body>
+<h1>BRAINK / KEX BTC Concurrent Runtime</h1>
+<p class="muted">HTML is the execution carrier. Bitcoin consensus remains the candidate authority. KEX controls work partition and concurrent execution only.</p>
+<div class="grid">
+  <div class="card"><b>Runtime</b><div id="runtime">BOOTING</div></div>
+  <div class="card"><b>Self-test</b><div id="selftest">PENDING</div></div>
+  <div class="card"><b>Workers</b><div id="workers">0</div></div>
+  <div class="card"><b>Hashes</b><div id="hashes">0</div></div>
+</div>
+<p><button id="genesis">Run Genesis SHA256d self-test</button> <button id="stop">Stop workers</button></p>
+<pre id="log"></pre>
+
+<script id="worker-source" type="text/plain">
+const hexToBytes = hex => {
+  if (typeof hex !== 'string' || hex.length % 2) throw new Error('hex must contain complete bytes');
+  const out = new Uint8Array(hex.length / 2);
+  for (let i=0;i<out.length;i++) out[i]=parseInt(hex.slice(i*2,i*2+2),16);
+  return out;
+};
+const bytesToHex = bytes => Array.from(bytes,b=>b.toString(16).padStart(2,'0')).join('');
+const reverseHex = bytes => bytesToHex(Uint8Array.from(bytes).reverse());
+const le32 = n => new Uint8Array([n&255,(n>>>8)&255,(n>>>16)&255,(n>>>24)&255]);
+async function sha256d(bytes){
+  const first = await crypto.subtle.digest('SHA-256', bytes);
+  return new Uint8Array(await crypto.subtle.digest('SHA-256', first));
+}
+function bitsToTarget(bits){
+  const exponent=(bits>>>24)&255;
+  const coefficient=bits&0x007fffff;
+  if (bits&0x00800000) throw new Error('negative compact target');
+  if (!coefficient) return 0n;
+  return exponent<=3 ? BigInt(coefficient) >> BigInt(8*(3-exponent)) : BigInt(coefficient) << BigInt(8*(exponent-3));
+}
+function digestToPowIntegerLE(bytes){
+  let n=0n;
+  for(let i=bytes.length-1;i>=0;i--) n=(n<<8n)|BigInt(bytes[i]);
+  return n;
+}
+let stopped=false;
+self.onmessage=async e=>{
+  const job=e.data;
+  if(job.type==='STOP'){stopped=true;return;}
+  if(job.type==='SELFTEST'){
+    const digest=await sha256d(hexToBytes(job.header_hex));
+    self.postMessage({type:'SELFTEST_RESULT',display_hash:reverseHex(digest)});
+    return;
+  }
+  if(job.type!=='MINE') return;
+  stopped=false;
+  const prefix=hexToBytes(job.header_prefix_hex);
+  if(prefix.length!==76) throw new Error('header_prefix_hex must encode exactly 76 bytes');
+  const target=bitsToTarget(job.bits>>>0);
+  let hashes=0;
+  for(let nonce=job.nonce_start>>>0; nonce < job.nonce_end && !stopped; nonce++){
+    const header=new Uint8Array(80); header.set(prefix,0); header.set(le32(nonce),76);
+    const digest=await sha256d(header); hashes++;
+    if(digestToPowIntegerLE(digest)<=target){
+      self.postMessage({type:'CANDIDATE',worker_index:job.worker_index,nonce,header_hex:bytesToHex(header),block_hash_display:reverseHex(digest),hashes});
+      return;
+    }
+    if((hashes&255)===0) self.postMessage({type:'PROGRESS',worker_index:job.worker_index,hashes});
+  }
+  self.postMessage({type:'EXHAUSTED',worker_index:job.worker_index,hashes});
+};
+</script>
+<script>
+const logEl=document.getElementById('log');
+const state={workers:[],hashes:new Map(),candidate:null};
+const log=s=>{logEl.textContent=`${new Date().toISOString()} ${s}\n`+logEl.textContent};
+function workerURL(){return URL.createObjectURL(new Blob([document.getElementById('worker-source').textContent],{type:'text/javascript'}));}
+function makeWorker(){return new Worker(workerURL());}
+function allocateBounded(start,end,count){
+  if(!Number.isInteger(count)||count<1) throw new Error('worker count must be >= 1');
+  if(!Number.isInteger(start)||!Number.isInteger(end)||start<0||end>2**32||end<=start) throw new Error('invalid nonce interval');
+  const total=end-start, base=Math.floor(total/count), rem=total%count; let cursor=start; const ranges=[];
+  for(let i=0;i<count;i++){const size=base+(i<rem?1:0); ranges.push({worker_index:i,nonce_start:cursor,nonce_end:cursor+size}); cursor+=size;}
+  return ranges;
+}
+function stopAll(){for(const w of state.workers){try{w.postMessage({type:'STOP'});w.terminate()}catch{}} state.workers=[]; document.getElementById('workers').textContent='0';}
+async function genesisSelfTest(){
+  stopAll();
+  const expected='000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f';
+  const header='01000000'+'0000000000000000000000000000000000000000000000000000000000000000'+'3ba3edfd7a7b12b27ac72c3e67768f617fc81bc3888a51323a9fb8aa4b1e5e4a'+'29ab5f49'+'ffff001d'+'1dac2b7c';
+  const w=makeWorker(); state.workers=[w]; document.getElementById('workers').textContent='1';
+  w.onmessage=e=>{if(e.data.type==='SELFTEST_RESULT'){const ok=e.data.display_hash===expected; document.getElementById('selftest').textContent=ok?'PASS':'FAIL'; document.getElementById('selftest').className=ok?'ok':'bad'; log(`GENESIS ${ok?'PASS':'FAIL'} ${e.data.display_hash}`); stopAll();}};
+  w.postMessage({type:'SELFTEST',header_hex:header});
+}
+function mineWork(work){
+  stopAll(); state.hashes.clear(); state.candidate=null;
+  if(typeof work.header_prefix_hex!=='string'||work.header_prefix_hex.length!==152) throw new Error('work requires 76-byte header_prefix_hex');
+  const count=Math.max(1,Math.min(Number(work.worker_count||navigator.hardwareConcurrency||4),64));
+  const ranges=allocateBounded(Number(work.nonce_start||0),Number(work.nonce_end||2**32),count);
+  document.getElementById('workers').textContent=String(count);
+  for(const range of ranges){
+    const w=makeWorker(); state.workers.push(w); state.hashes.set(range.worker_index,0);
+    w.onmessage=e=>{
+      const m=e.data;
+      if(m.type==='PROGRESS'||m.type==='EXHAUSTED'||m.type==='CANDIDATE') state.hashes.set(m.worker_index,m.hashes);
+      document.getElementById('hashes').textContent=String(Array.from(state.hashes.values()).reduce((a,b)=>a+b,0));
+      if(m.type==='CANDIDATE'&&!state.candidate){state.candidate=m; log(`BITCOIN TARGET CANDIDATE worker=${m.worker_index} nonce=${m.nonce} hash=${m.block_hash_display}`); stopAll(); window.dispatchEvent(new CustomEvent('braink-btc-candidate',{detail:m}));}
+    };
+    w.postMessage({type:'MINE',...work,...range});
+  }
+}
+window.BRAINK_BTC_HTML_RUNTIME={mineWork,stopAll,allocateBounded,genesisSelfTest};
+document.getElementById('genesis').onclick=genesisSelfTest; document.getElementById('stop').onclick=stopAll;
+document.getElementById('runtime').textContent='READY'; document.getElementById('runtime').className='ok';
+log('RUNTIME READY: candidate predicate = SHA256d(80-byte header) <= target(bits)');
+genesisSelfTest();
+</script>
+</body>
+</html>
