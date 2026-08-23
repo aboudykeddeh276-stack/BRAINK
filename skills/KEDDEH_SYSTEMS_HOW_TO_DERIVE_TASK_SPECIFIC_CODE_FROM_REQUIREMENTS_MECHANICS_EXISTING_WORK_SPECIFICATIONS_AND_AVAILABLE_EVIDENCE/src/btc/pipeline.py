@@ -7,6 +7,7 @@ KEX-style concurrent lanes, all evaluating the same SHA256d/network-target predi
 from __future__ import annotations
 
 from dataclasses import dataclass
+from threading import Event
 
 from .block import assemble_block
 from .coinbase import TxOutput, build_coinbase_tx, coinbase_txid_internal
@@ -30,6 +31,7 @@ class PipelineResult:
     submit_request: dict | None
     stale: bool
     worker_count: int = 1
+    cancelled: bool = False
 
 
 def run_pipeline(
@@ -40,11 +42,14 @@ def run_pipeline(
     max_nonce_scan: int = 1 << 20,
     total_fees: int = 0,
     worker_count: int = 1,
+    stop_event: Event | None = None,
 ) -> PipelineResult:
     """Run template -> assembly -> concurrent SHA256d -> candidate -> block.
 
-    `worker_count` changes only how the bounded nonce interval is scheduled.  A
-    candidate is still accepted solely by the Bitcoin target predicate.
+    `worker_count` changes only how the bounded nonce interval is scheduled. A
+    candidate is still accepted solely by the Bitcoin target predicate.  A supplied
+    ``stop_event`` lets the live lifecycle cancel active hashing when the chain tip
+    changes or the runtime is explicitly stopped.
     """
     if worker_count < 1:
         raise ValueError("worker_count must be >= 1")
@@ -54,7 +59,10 @@ def run_pipeline(
     tip = current_tip_internal if current_tip_internal is not None else template.prev_hash_internal
     stale = is_stale(template.prev_hash_internal, tip)
     if stale:
-        return PipelineResult("", b"", None, None, None, None, True, worker_count)
+        return PipelineResult("", b"", None, None, None, None, True, worker_count, False)
+
+    if stop_event is not None and stop_event.is_set():
+        return PipelineResult("", b"", None, None, None, None, False, worker_count, True)
 
     non_coinbase_wtxids = [tx.wtxid_internal for tx in template.transactions]
     commitment_script = witness_commitment_script(non_coinbase_wtxids)
@@ -74,13 +82,36 @@ def run_pipeline(
     header_prefix = header_zero_nonce[:76]
 
     if worker_count == 1:
-        winning_nonce = search_nonce(header_prefix, 0, max_nonce_scan, template.bits)
+        winning_nonce = search_nonce(
+            header_prefix,
+            0,
+            max_nonce_scan,
+            template.bits,
+            stop_event=stop_event,
+        )
     else:
         winning_nonce = search_nonce_concurrent(
-            header_prefix, 0, max_nonce_scan, template.bits, worker_count
+            header_prefix,
+            0,
+            max_nonce_scan,
+            template.bits,
+            worker_count,
+            stop_event=stop_event,
         )
+
+    cancelled = bool(stop_event is not None and stop_event.is_set() and winning_nonce is None)
     if winning_nonce is None:
-        return PipelineResult(root[::-1].hex(), root, None, None, None, None, False, worker_count)
+        return PipelineResult(
+            root[::-1].hex(),
+            root,
+            None,
+            None,
+            None,
+            None,
+            False,
+            worker_count,
+            cancelled,
+        )
 
     final_header = reconstruct_candidate(header_prefix, winning_nonce)
     other_txs = [tx.raw for tx in template.transactions if tx.raw]
@@ -96,4 +127,5 @@ def run_pipeline(
         submit_request=submit_request,
         stale=False,
         worker_count=worker_count,
+        cancelled=False,
     )
