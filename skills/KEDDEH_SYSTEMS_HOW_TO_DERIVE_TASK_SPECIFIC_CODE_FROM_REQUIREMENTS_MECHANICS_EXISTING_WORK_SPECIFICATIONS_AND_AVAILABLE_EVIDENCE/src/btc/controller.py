@@ -1,20 +1,7 @@
 """Live control plane: point the real mechanics at a real Bitcoin Core node.
 
-This composes the transport-free mechanics with the real RPC connector to run the
-actual chain the requirement specifies:
-
-    real getblockchaininfo  (assert synced mainnet)
-    -> real getblocktemplate
-    -> parse template
-    -> derive payout script (control-plane only)
-    -> run_pipeline (real coinbase/witness/merkle/header/SHA256d/candidate)
-    -> real submitblock
-    -> real accept/reject
-    -> revenue/cost telemetry
-
-Nothing here is simulated: the difficulty of mainnet simply makes a found block
-improbable within a bounded local nonce scan, which is honest reality — not a
-representation substituted for the target.
+The control plane preserves Bitcoin authority while allowing the hashing workload to
+be scheduled through multiple KEX worker lanes.
 """
 
 from __future__ import annotations
@@ -32,10 +19,11 @@ from .template import BlockTemplate, parse_block_template
 
 @dataclass(frozen=True)
 class LiveMinerConfig:
-    expected_chain: str = "main"      # guard: refuse to mine on the wrong chain
-    require_synced: bool = True       # refuse while initialblockdownload is true
+    expected_chain: str = "main"
+    require_synced: bool = True
     rules: tuple[str, ...] = ("segwit",)
-    max_nonce_scan: int = 1 << 20     # bounded local search window
+    max_nonce_scan: int = 1 << 20
+    worker_count: int = 4
     extranonce: bytes = b""
 
 
@@ -69,10 +57,12 @@ def run_live_attempt(
     config: LiveMinerConfig | None = None,
     submit: bool = True,
 ) -> LiveAttempt:
-    """Run one real template->hash->submit attempt against a live Core node."""
+    """Run one real template -> concurrent hash -> submit attempt against Core."""
     if not payout_script:
         raise LiveMinerError("payout_script is required before any coinbase is built")
     cfg = config or LiveMinerConfig()
+    if cfg.worker_count < 1:
+        raise LiveMinerError("worker_count must be >= 1")
 
     chain_info = client.getblockchaininfo()
     chain = str(chain_info.get("chain", ""))
@@ -85,8 +75,6 @@ def run_live_attempt(
 
     template = parse_block_template(client.getblocktemplate(list(cfg.rules)))
     total_fees = _total_fees(template)
-
-    # Real stale-tip guard: reconcile the template's previous hash with the live tip.
     tip_internal = hash_to_internal(client.getbestblockhash())
 
     result = run_pipeline(
@@ -96,6 +84,7 @@ def run_live_attempt(
         extranonce=cfg.extranonce,
         max_nonce_scan=cfg.max_nonce_scan,
         total_fees=total_fees,
+        worker_count=cfg.worker_count,
     )
 
     submit_result: SubmitResult | None = None
