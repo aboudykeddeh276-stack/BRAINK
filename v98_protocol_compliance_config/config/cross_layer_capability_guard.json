@@ -1,0 +1,53 @@
+{
+  "guard_id": "keddeh_cross_layer_capability_guard_v1",
+  "stage": "STAGE_1_FAIL_CLOSED_TRAVERSAL",
+  "purpose": "Prevent a local-layer miss from becoming a BRAINK-wide capability limitation or substitute implementation decision.",
+  "required_layers": [
+    "BRAINK_RUNTIME",
+    "KEX_MATHEMATICS_AND_CONCURRENCY",
+    "IL_LLM_SEMANTIC_RUNTIME",
+    "SKILL_FABRIC",
+    "LINUX_RUNTIME_CARRIERS",
+    "HTML_RUNTIME_SURFACES",
+    "VIRTUALIZED_VOLUMES_AND_STORAGE_IN_SCRIPT",
+    "BTC_EXECUTABLE_MECHANICS"
+  ],
+  "protected_decisions": [
+    "CAPABILITY_MISSING",
+    "CAPABILITY_LIMITATION",
+    "DERIVE_REPLACEMENT",
+    "SUBSTITUTE_ARCHITECTURE",
+    "SEQUENTIALIZE_CONCURRENT_MECHANIC"
+  ],
+  "required_traversal_fields": [
+    "layer_id",
+    "search_scope",
+    "mechanics_found",
+    "evidence_paths",
+    "result_state"
+  ],
+  "allowed_result_states": [
+    "FOUND_REUSE",
+    "FOUND_ADAPT",
+    "FOUND_BRIDGE",
+    "NO_MATCH_WITH_EVIDENCE"
+  ],
+  "rules": {
+    "all_required_layers_must_be_present": true,
+    "evidence_path_required_per_layer": true,
+    "empty_search_scope_rejected": true,
+    "duplicate_layer_records_rejected": true,
+    "unknown_layer_records_rejected": true,
+    "local_layer_miss_cannot_promote_global_limitation": true,
+    "replacement_blocked_when_any_reusable_mechanic_exists": true,
+    "sequentialization_blocked_when_kex_concurrency_found": true,
+    "receipts_do_not_substitute_for_mechanics": true,
+    "generated_visuals_do_not_substitute_for_runtime": true
+  },
+  "decision_states": {
+    "TRAVERSAL_INCOMPLETE": "FAIL_CLOSED",
+    "REUSE_REQUIRED": "FAIL_CLOSED_AGAINST_REPLACEMENT",
+    "ADAPT_OR_BRIDGE_REQUIRED": "FAIL_CLOSED_AGAINST_REPLACEMENT",
+    "ALL_LAYERS_EXHAUSTED": "NEGATIVE_CLAIM_ELIGIBLE_NOT_PROVEN"
+  }
+}
