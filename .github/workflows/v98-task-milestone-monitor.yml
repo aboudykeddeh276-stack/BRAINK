@@ -24,26 +24,60 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Compile task governor
+
+      - name: Compile milestone governor slice
         run: |
           cd v98_protocol_compliance_config
-          python3 -m compileall src tests
+          python3 -m py_compile src/keddeh_task_milestone_monitor.py tests/test_task_milestone_monitor.py
+
+      - name: Run milestone positive and negative tests
+        run: |
+          cd v98_protocol_compliance_config
+          python3 -m unittest tests.test_task_milestone_monitor -v 2>&1 | tee task-milestone-tests.log
+          grep -Eq '^Ran [1-9][0-9]* tests? in ' task-milestone-tests.log
+          grep -Eq '^OK$' task-milestone-tests.log
+
       - name: Reconstruct task milestones from receipt-backed records
         run: |
           cd v98_protocol_compliance_config
-          python3 src/keddeh_task_milestone_monitor.py --root . --emit-receipt
-      - name: Run task governor positive and negative tests
+          python3 src/keddeh_task_milestone_monitor.py --root . --emit-receipt 2>&1 | tee task-milestone-monitor.log
+
+      - name: Assert five-task contract and readback receipt
         run: |
           cd v98_protocol_compliance_config
-          python3 src/keddeh_test_runner.py --root . --emit-receipt 2>&1 | tee task-test-runner.log
-          grep -Eq '"tests_executed": [1-9][0-9]*' task-test-runner.log
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          cfg = json.loads(Path('config/task_milestone_registry.json').read_text())
+          assert cfg['task_total'] == 100
+          assert cfg['milestone_interval'] == 5
+          assert cfg['milestones'] == list(range(5, 101, 5))
+
+          receipt = json.loads(Path('evidence/task_milestone_monitor_receipt.json').read_text())['receipt']
+          assert receipt['total_tasks'] == 100
+          assert receipt['ledger_readback'] is True
+          assert receipt['valid_completed_tasks'] >= 0
+          assert all(m % 5 == 0 and 5 <= m <= 100 for m in receipt['milestones_reached'])
+          assert all(m % 5 == 0 and 5 <= m <= 100 for m in receipt['newly_reached_milestones'])
+          print(json.dumps({
+              'total_tasks': receipt['total_tasks'],
+              'valid_completed_tasks': receipt['valid_completed_tasks'],
+              'milestones_reached': receipt['milestones_reached'],
+              'newly_reached_milestones': receipt['newly_reached_milestones'],
+              'ledger_readback': receipt['ledger_readback'],
+          }, sort_keys=True))
+          PY
+
       - name: Upload portable task-governor evidence
         uses: actions/upload-artifact@v4
         with:
           name: keddeh-v98-portable-task-governor-evidence
           path: |
             v98_protocol_compliance_config/evidence/task_milestone_monitor_receipt.json
-            v98_protocol_compliance_config/evidence/test_runner_receipt.json
             v98_protocol_compliance_config/exports/task_milestone_matrix.csv
-            v98_protocol_compliance_config/runtime_volume/
-            v98_protocol_compliance_config/task-test-runner.log
+            v98_protocol_compliance_config/runtime_volume/task_milestone_state.json
+            v98_protocol_compliance_config/runtime_volume/proof_bundles.ledger
+            v98_protocol_compliance_config/runtime_volume/outbox/task_milestones/
+            v98_protocol_compliance_config/task-milestone-tests.log
+            v98_protocol_compliance_config/task-milestone-monitor.log
