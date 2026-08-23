@@ -1,0 +1,31 @@
+{
+  "guard_id": "keddeh_progressive_semantic_exposition_guard_v1",
+  "stage": "STAGE_1_SEMANTIC_DECOMPRESSION",
+  "purpose": "Prevent compressed technical terminology from substituting for contextual understanding of the underlying primitive mechanics.",
+  "required_progression": [
+    "TECHNICAL_TERM",
+    "PLAIN_ENGLISH_MEANING",
+    "FAMILIAR_ANALOGY",
+    "SIMPLER_PROCESS_OR_PHYSICAL_ANALOGY",
+    "PRIMITIVE_OPERATION",
+    "SYSTEM_SPECIFIC_BINDING"
+  ],
+  "rules": {
+    "technical_term_alone_is_insufficient": true,
+    "each_new_abstraction_requires_decompression": true,
+    "analogy_must_preserve_causal_structure": true,
+    "analogy_must_not_replace_exact_mechanic": true,
+    "primitive_operation_required_before_terminal_conclusion": true,
+    "system_specific_binding_required_after_primitive": true,
+    "compressed_term_may_be_reused_only_after_grounding": true,
+    "multiple_analogies_required_when_first_analogy_does_not_expose_primitive": true,
+    "jargon_chain_without_primitive_is_rejected": true
+  },
+  "failure_states": [
+    "UNEXPANDED_ABSTRACTION",
+    "JARGON_RECURSION",
+    "ANALOGY_WITHOUT_PRIMITIVE",
+    "ANALOGY_CHANGED_MECHANIC",
+    "PRIMITIVE_NOT_BOUND_TO_SYSTEM"
+  ]
+}
