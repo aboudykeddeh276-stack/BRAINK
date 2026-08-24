@@ -1,0 +1,121 @@
+{
+  "registry_type": "DISCOVERY_REGISTRY",
+  "namespace": "braink",
+  "package": "braink-runtime",
+  "version": "1.0.0",
+  "import_root": "src",
+  "entry_point": "braink_runtime.runtime:BrAInKRuntime",
+  "modules": [
+    {
+      "module": "braink_runtime.canonical",
+      "exports": [
+        "canonical_serialize",
+        "canonical_bytes",
+        "canonical_hash",
+        "stable_namespace"
+      ]
+    },
+    {
+      "module": "braink_runtime.linguistic_core",
+      "exports": [
+        "LinguisticCore",
+        "LexiconVersion",
+        "LEXICON_V1"
+      ]
+    },
+    {
+      "module": "braink_runtime.identity",
+      "exports": [
+        "generate_component_id",
+        "generate_skill_id",
+        "generate_service_id",
+        "detect_collision",
+        "IdentityRegistry",
+        "CollisionError"
+      ]
+    },
+    {
+      "module": "braink_runtime.ledger",
+      "exports": [
+        "Ledger",
+        "LedgerEntry",
+        "GENESIS_HASH"
+      ]
+    },
+    {
+      "module": "braink_runtime.signer",
+      "exports": [
+        "TestSigner",
+        "ProductionSignerPlaceholder",
+        "SignatureEnvelope",
+        "prepare_canonical_payload"
+      ]
+    },
+    {
+      "module": "braink_runtime.dns_transport",
+      "exports": [
+        "DNSTransport",
+        "DNSRecord",
+        "DNSProofReceipt",
+        "build_query",
+        "parse_response",
+        "encode_name"
+      ]
+    },
+    {
+      "module": "braink_runtime.restart",
+      "exports": [
+        "RestartManager",
+        "RestartState"
+      ]
+    },
+    {
+      "module": "braink_runtime.runtime",
+      "exports": [
+        "BrAInKRuntime"
+      ]
+    },
+    {
+      "module": "braink_runtime.receipts",
+      "exports": [
+        "generate_package_manifest",
+        "generate_test_results",
+        "generate_validation_receipt",
+        "sha256_file"
+      ]
+    }
+  ],
+  "services": [
+    {
+      "service_id": "082690515ad0740615bf931d99610ec11bc2e1c432408cfc987d03243bf1450f",
+      "service_name": "dns-resolver",
+      "endpoint": "8.8.8.8:53",
+      "protocol": "DNS over UDP with TCP fallback",
+      "status": "LOCALLY_EXECUTED",
+      "note": "Resolver address is configurable; reachability is not guaranteed in a sandbox."
+    },
+    {
+      "service_id": "4ef0daca87fe086fdb87b65eaa85f30442bb0eac913a584c256a13454d721c7b",
+      "service_name": "ledger-store",
+      "endpoint": "file://braink_ledger.sqlite",
+      "protocol": "sqlite3",
+      "status": "LOCALLY_PROVEN",
+      "note": "Local file-backed append-only store."
+    }
+  ],
+  "schemas": {
+    "component": "schemas/component.schema.json",
+    "skill": "schemas/skill.schema.json",
+    "ledger_event": "schemas/ledger-event.schema.json",
+    "identity": "schemas/identity.schema.json",
+    "dns_proof": "schemas/dns-proof.schema.json",
+    "validation_receipt": "schemas/validation-receipt.schema.json"
+  },
+  "evidence": {
+    "package_manifest": "evidence/PACKAGE_MANIFEST.json",
+    "test_results": "evidence/TEST_RESULTS.json",
+    "ledger_integrity": "evidence/LEDGER_INTEGRITY_RECEIPT.json",
+    "restart": "evidence/RESTART_RECEIPT.json",
+    "dns_proof": "evidence/DNS_PROOF_RECEIPT.json"
+  }
+}

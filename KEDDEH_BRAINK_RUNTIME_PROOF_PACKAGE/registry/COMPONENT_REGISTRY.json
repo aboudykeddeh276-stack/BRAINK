@@ -1,0 +1,443 @@
+{
+  "registry_type": "COMPONENT_REGISTRY",
+  "namespace": "braink",
+  "package_version": "1.0.0",
+  "identity_rule": "id = sha256(canonical_serialize({namespace,name,version}))",
+  "status_vocabulary": [
+    "DEFINED",
+    "IMPLEMENTED",
+    "UNIT_TESTED",
+    "INTEGRATION_TESTED",
+    "RESTART_TESTED",
+    "LOCALLY_EXECUTED",
+    "LOCALLY_PROVEN",
+    "EXTERNALLY_OBSERVED",
+    "PUBLICLY_DEPLOYED",
+    "PRODUCTION_VALIDATED"
+  ],
+  "status_ceiling_note": "No component in this package exceeds LOCALLY_PROVEN. DNS is capped at LOCALLY_EXECUTED and the production signer remains DEFINED.",
+  "component_count": 9,
+  "components": [
+    {
+      "id": "7bca708011009a2f0534be3f017ef3a65448bc1cfc6fbdf732730e54d8bce49f",
+      "namespace": "braink",
+      "version": "1.0.0",
+      "name": "canonical",
+      "purpose": "Deterministic JSON serialization and SHA-256 hashing used by every other component so that identical logical objects always hash identically.",
+      "inputs": [
+        "python dict"
+      ],
+      "outputs": [
+        "canonical JSON string",
+        "UTF-8 bytes",
+        "sha256 hex digest",
+        "namespaced key string"
+      ],
+      "dependencies": [
+        "python:json",
+        "python:hashlib"
+      ],
+      "interfaces": [
+        "canonical_serialize(obj)",
+        "canonical_bytes(obj)",
+        "canonical_hash(obj)",
+        "stable_namespace(namespace,name)"
+      ],
+      "required_skill": "deterministic-serialization",
+      "conceptual_validation": "Argue key-order independence and byte stability from the JSON dump parameters (sort_keys, tight separators, ensure_ascii).",
+      "practical_validation": "pytest assertions that reordered dicts serialize and hash identically and that digests are 64 hex chars.",
+      "status": "UNIT_TESTED",
+      "evidence": [
+        "evidence/TEST_RESULTS.json",
+        "tests/test_identity.py"
+      ],
+      "saved_representations": [
+        "src/braink_runtime/canonical.py",
+        "docs/IDENTITY_MAPPING.md"
+      ],
+      "limitations": [
+        "Only dict roots are accepted.",
+        "Non-JSON-native values are coerced via str() and are therefore lossy."
+      ],
+      "module_path": "src/braink_runtime/canonical.py"
+    },
+    {
+      "id": "3fd83fb16d5b1dac712447108e011c182b9e58da540cf0c05294c97a970ead71",
+      "namespace": "braink",
+      "version": "1.0.0",
+      "name": "linguistic_core",
+      "purpose": "Normalise free text and map it deterministically onto a closed set of runtime intents; the only component permitted to read raw text.",
+      "inputs": [
+        "utf-8 text (1..4096 chars)",
+        "token lists"
+      ],
+      "outputs": [
+        "normalised text",
+        "token list",
+        "intent mapping dict",
+        "ambiguity score dict"
+      ],
+      "dependencies": [
+        "python:re",
+        "python:dataclasses"
+      ],
+      "interfaces": [
+        "normalize(text)",
+        "tokenize(text)",
+        "map_intent(text)",
+        "validate_token(token)",
+        "handle_ambiguity(tokens)",
+        "lexicon_version()"
+      ],
+      "required_skill": "deterministic-intent-mapping",
+      "conceptual_validation": "Show the mapping is a pure function of (lexicon version, normalised tokens) with no clock, randomness or I/O.",
+      "practical_validation": "pytest coverage of normalisation, tokenisation, all five intents, UNKNOWN fallback, token validation bounds and ValueError guards.",
+      "status": "UNIT_TESTED",
+      "evidence": [
+        "evidence/TEST_RESULTS.json",
+        "tests/test_linguistic_core.py"
+      ],
+      "saved_representations": [
+        "src/braink_runtime/linguistic_core.py",
+        "docs/LINGUISTIC_CORE.md"
+      ],
+      "limitations": [
+        "Lexicon is small and English-only.",
+        "No syntax, negation or multi-clause handling."
+      ],
+      "module_path": "src/braink_runtime/linguistic_core.py"
+    },
+    {
+      "id": "346576e4dcc3f03f7ceee89826f516477e498245e82f8faefa8e567ba563f6cc",
+      "namespace": "braink",
+      "version": "1.0.0",
+      "name": "identity",
+      "purpose": "Derive collision-resistant identities for components, skills and services and refuse to let one identity denote two different input tuples.",
+      "inputs": [
+        "namespace",
+        "name",
+        "version",
+        "skill name",
+        "service endpoint"
+      ],
+      "outputs": [
+        "64-hex identity strings",
+        "registry records",
+        "CollisionError"
+      ],
+      "dependencies": [
+        "braink:canonical"
+      ],
+      "interfaces": [
+        "generate_component_id()",
+        "generate_skill_id()",
+        "generate_service_id()",
+        "detect_collision()",
+        "IdentityRegistry.register()"
+      ],
+      "required_skill": "deterministic-identity",
+      "conceptual_validation": "Identity is SHA-256 over a canonical tuple; collision resistance reduces to SHA-256 preimage/collision resistance.",
+      "practical_validation": "pytest determinism, distinctness, collision detection and CollisionError-on-conflict tests.",
+      "status": "UNIT_TESTED",
+      "evidence": [
+        "evidence/TEST_RESULTS.json",
+        "tests/test_identity.py"
+      ],
+      "saved_representations": [
+        "src/braink_runtime/identity.py",
+        "docs/IDENTITY_MAPPING.md"
+      ],
+      "limitations": [
+        "Registry is in-memory only and is not persisted across processes."
+      ],
+      "module_path": "src/braink_runtime/identity.py"
+    },
+    {
+      "id": "a3e4db40fd2ec828cde57d87289520585c577949eb600745ed5bd75584ae6ba9",
+      "namespace": "braink",
+      "version": "1.0.0",
+      "name": "ledger",
+      "purpose": "Append-only SQLite event log whose entries form a SHA-256 hash chain, giving tamper evidence and restart continuity.",
+      "inputs": [
+        "event_type string",
+        "payload dict",
+        "sqlite file path"
+      ],
+      "outputs": [
+        "LedgerEntry records",
+        "chain verification boolean",
+        "tampered entry id list",
+        "integrity receipt"
+      ],
+      "dependencies": [
+        "python:sqlite3",
+        "braink:canonical"
+      ],
+      "interfaces": [
+        "append()",
+        "verify_chain()",
+        "detect_tamper()",
+        "get_all()",
+        "export_receipt()",
+        "close()"
+      ],
+      "required_skill": "tamper-evident-logging",
+      "conceptual_validation": "Each entry hash covers the previous hash, so any mutation invalidates every subsequent link.",
+      "practical_validation": "pytest appends, reopen-continues-chain, direct SQL corruption of payload and of entry_hash, both detected.",
+      "status": "LOCALLY_PROVEN",
+      "evidence": [
+        "evidence/TEST_RESULTS.json",
+        "evidence/LEDGER_INTEGRITY_RECEIPT.json",
+        "tests/test_ledger.py"
+      ],
+      "saved_representations": [
+        "src/braink_runtime/ledger.py",
+        "docs/LEDGER_DURABILITY.md",
+        "schemas/ledger-event.schema.json"
+      ],
+      "limitations": [
+        "Tamper evidence, not tamper prevention: a writer with DB access can rewrite the whole chain unless the root hash is externally anchored.",
+        "No external anchoring is performed in this package."
+      ],
+      "module_path": "src/braink_runtime/ledger.py"
+    },
+    {
+      "id": "e8911ec56ced41f1acb58a398184260875aae60ca16ec24eab283fb210bd226f",
+      "namespace": "braink",
+      "version": "1.0.0",
+      "name": "signer",
+      "purpose": "Provide a proven local signing path (HMAC over the canonical payload) and an explicitly unimplemented production signing boundary.",
+      "inputs": [
+        "payload dict",
+        "signature envelope"
+      ],
+      "outputs": [
+        "SignatureEnvelope",
+        "verification boolean",
+        "NotImplementedError for production path"
+      ],
+      "dependencies": [
+        "python:hmac",
+        "python:hashlib",
+        "braink:canonical"
+      ],
+      "interfaces": [
+        "TestSigner.sign()",
+        "TestSigner.verify()",
+        "ProductionSignerPlaceholder.sign()",
+        "prepare_canonical_payload()"
+      ],
+      "required_skill": "payload-authentication",
+      "conceptual_validation": "Signing over canonical bytes means semantically identical payloads verify and any mutation fails; the production path is intentionally fail-closed.",
+      "practical_validation": "pytest sign/verify round trip, tampered payload, tampered signature, wrong key, NotImplementedError assertions.",
+      "status": "LOCALLY_PROVEN",
+      "evidence": [
+        "evidence/TEST_RESULTS.json",
+        "tests/test_signer.py"
+      ],
+      "saved_representations": [
+        "src/braink_runtime/signer.py",
+        "docs/SIGNER_BOUNDARY.md",
+        "config/signer.example.json"
+      ],
+      "limitations": [
+        "TestSigner uses a published symmetric key and provides no non-repudiation.",
+        "ProductionSignerPlaceholder is DEFINED only and cannot become PRODUCTION_VALIDATED without real KMS/HSM key infrastructure."
+      ],
+      "module_path": "src/braink_runtime/signer.py"
+    },
+    {
+      "id": "94cbbfcf7364b9d764cf729bdbc01b417c8660b87422cb731dd28ed22c5f2d53",
+      "namespace": "braink",
+      "version": "1.0.0",
+      "name": "dns_transport",
+      "purpose": "Build and parse DNS messages on the wire and query resolvers over UDP with TCP fallback, emitting honestly capped proof receipts.",
+      "inputs": [
+        "domain name",
+        "record type",
+        "resolver address",
+        "timeout"
+      ],
+      "outputs": [
+        "DNSRecord list",
+        "DNSProofReceipt",
+        "status string"
+      ],
+      "dependencies": [
+        "python:socket",
+        "python:struct"
+      ],
+      "interfaces": [
+        "build_query()",
+        "parse_response()",
+        "query_udp()",
+        "query_tcp()",
+        "generate_proof_receipt()"
+      ],
+      "required_skill": "raw-protocol-transport",
+      "conceptual_validation": "Header, question and answer encodings are checked against RFC 1035 field layout including label compression pointers.",
+      "practical_validation": "pytest byte-level header assertions plus parsing of synthetic A, TXT, multi-answer and CNAME responses through a mocked socket; live failure path exercised against TEST-NET-3.",
+      "status": "LOCALLY_EXECUTED",
+      "evidence": [
+        "evidence/TEST_RESULTS.json",
+        "evidence/DNS_PROOF_RECEIPT.json",
+        "tests/test_dns_transport.py"
+      ],
+      "saved_representations": [
+        "src/braink_runtime/dns_transport.py",
+        "docs/DNS_TRANSPORT.md",
+        "schemas/dns-proof.schema.json",
+        "config/dns_records.json"
+      ],
+      "limitations": [
+        "Authoritative external DNS confirmation is NOT possible from the sandbox; status is capped at LOCALLY_EXECUTED.",
+        "No DNSSEC validation.",
+        "EDNS0 is not implemented."
+      ],
+      "module_path": "src/braink_runtime/dns_transport.py"
+    },
+    {
+      "id": "ccea6ae070ee13ff568013dd040f8c8f30872dd3b000c99b82a77b5db488089e",
+      "namespace": "braink",
+      "version": "1.0.0",
+      "name": "restart",
+      "purpose": "Persist a restart marker, simulate unclean shutdown and prove that the ledger chain survives process death intact.",
+      "inputs": [
+        "state file path",
+        "ledger path",
+        "Ledger instance"
+      ],
+      "outputs": [
+        "RestartState JSON",
+        "recovery report",
+        "restart proof receipt"
+      ],
+      "dependencies": [
+        "braink:ledger",
+        "python:json",
+        "python:uuid"
+      ],
+      "interfaces": [
+        "save_state()",
+        "load_state()",
+        "recover()",
+        "simulate_unclean_shutdown()",
+        "generate_restart_receipt()"
+      ],
+      "required_skill": "crash-recovery-proof",
+      "conceptual_validation": "Recovery compares the persisted head hash against the recomputed chain head, so silent divergence is impossible.",
+      "practical_validation": "pytest save/load round trip, crash simulation, reopen-and-verify, continuity_proven assertions.",
+      "status": "RESTART_TESTED",
+      "evidence": [
+        "evidence/TEST_RESULTS.json",
+        "evidence/RESTART_RECEIPT.json",
+        "tests/test_restart.py"
+      ],
+      "saved_representations": [
+        "src/braink_runtime/restart.py",
+        "docs/RESTART_AND_RECOVERY.md"
+      ],
+      "limitations": [
+        "Restart is simulated in-process; no OS-level kill -9 or power-loss test is performed.",
+        "Marker file is not itself signed."
+      ],
+      "module_path": "src/braink_runtime/restart.py"
+    },
+    {
+      "id": "485f747c3579b6baf37ba0188384358db2bbdd36391a25f135729ba648f92f34",
+      "namespace": "braink",
+      "version": "1.0.0",
+      "name": "runtime",
+      "purpose": "Orchestrate every subsystem into one lifecycle: start, process commands, report status, shut down cleanly and resume.",
+      "inputs": [
+        "config dict",
+        "command text"
+      ],
+      "outputs": [
+        "status dicts",
+        "ledger entries",
+        "signature envelopes",
+        "restart state"
+      ],
+      "dependencies": [
+        "braink:linguistic_core",
+        "braink:identity",
+        "braink:ledger",
+        "braink:signer",
+        "braink:dns_transport",
+        "braink:restart"
+      ],
+      "interfaces": [
+        "BrAInKRuntime.start()",
+        "process_command()",
+        "shutdown()",
+        "get_status()"
+      ],
+      "required_skill": "runtime-orchestration",
+      "conceptual_validation": "Every externally visible action produces exactly one ledger entry, so the ledger is a complete trace of the session.",
+      "practical_validation": "pytest end-to-end lifecycle, malformed command handling, restart-and-resume with chain verification.",
+      "status": "INTEGRATION_TESTED",
+      "evidence": [
+        "evidence/TEST_RESULTS.json",
+        "tests/test_end_to_end.py"
+      ],
+      "saved_representations": [
+        "src/braink_runtime/runtime.py",
+        "docs/ARCHITECTURE.md"
+      ],
+      "limitations": [
+        "Single-process, single-threaded.",
+        "No network listener and no authentication of the caller."
+      ],
+      "module_path": "src/braink_runtime/runtime.py"
+    },
+    {
+      "id": "4ac7c68a2f2c505c3e233a426696d001e0588846cec9c4874a4267fe9d72405a",
+      "namespace": "braink",
+      "version": "1.0.0",
+      "name": "receipts",
+      "purpose": "Turn execution outcomes into durable evidence artefacts: package manifests, test result records and validation receipts.",
+      "inputs": [
+        "package root path",
+        "test counters",
+        "component id",
+        "evidence dict"
+      ],
+      "outputs": [
+        "manifest dict",
+        "test result dict",
+        "validation receipt dict"
+      ],
+      "dependencies": [
+        "python:os",
+        "python:hashlib",
+        "braink:canonical"
+      ],
+      "interfaces": [
+        "generate_package_manifest()",
+        "generate_test_results()",
+        "generate_validation_receipt()",
+        "sha256_file()"
+      ],
+      "required_skill": "evidence-generation",
+      "conceptual_validation": "Manifest hashing is a pure function of file bytes, so any file edit changes the manifest hash.",
+      "practical_validation": "pytest manifest over a temp tree, stability across repeated runs, PASSED/FAILED status logic, argument guards.",
+      "status": "UNIT_TESTED",
+      "evidence": [
+        "evidence/TEST_RESULTS.json",
+        "evidence/PACKAGE_MANIFEST.json",
+        "tests/test_end_to_end.py"
+      ],
+      "saved_representations": [
+        "src/braink_runtime/receipts.py",
+        "docs/ARCHITECTURE.md",
+        "schemas/validation-receipt.schema.json"
+      ],
+      "limitations": [
+        "Manifest excludes caches and compiled artefacts.",
+        "Receipts are not externally notarised."
+      ],
+      "module_path": "src/braink_runtime/receipts.py"
+    }
+  ]
+}

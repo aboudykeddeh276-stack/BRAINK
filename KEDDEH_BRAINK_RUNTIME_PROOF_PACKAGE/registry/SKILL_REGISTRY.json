@@ -1,0 +1,228 @@
+{
+  "registry_type": "SKILL_REGISTRY",
+  "namespace": "braink",
+  "identity_rule": "skill_id = sha256(canonical_serialize({namespace,skill_name}))",
+  "skill_count": 9,
+  "skills": [
+    {
+      "skill_id": "674ca153ec2be730ed6ab3779277fccb965009de886d95ce91fc38bcc3c9bf5a",
+      "skill_name": "deterministic-serialization",
+      "namespace": "braink",
+      "description": "Produce byte-identical serialisations and digests for logically identical objects.",
+      "components": [
+        "canonical"
+      ],
+      "inputs": [
+        "python dict"
+      ],
+      "outputs": [
+        "canonical JSON",
+        "sha256 digest"
+      ],
+      "status": "UNIT_TESTED",
+      "evidence": [
+        "evidence/TEST_RESULTS.json"
+      ],
+      "limitations": [
+        "Dict roots only."
+      ]
+    },
+    {
+      "skill_id": "03c6cff98abf0f904ccde0a2bbcab962b20c919075a49e26699accfffefbfd00",
+      "skill_name": "deterministic-intent-mapping",
+      "namespace": "braink",
+      "description": "Turn free text into one of a closed set of runtime intents without randomness.",
+      "components": [
+        "linguistic_core"
+      ],
+      "inputs": [
+        "utf-8 text"
+      ],
+      "outputs": [
+        "intent",
+        "tokens",
+        "confidence"
+      ],
+      "status": "UNIT_TESTED",
+      "evidence": [
+        "evidence/TEST_RESULTS.json"
+      ],
+      "limitations": [
+        "Small English-only lexicon."
+      ]
+    },
+    {
+      "skill_id": "e70e0b62e28eaa6818fe81410dc8ad5de7877ac3292c2f36a64c4954380253d3",
+      "skill_name": "deterministic-identity",
+      "namespace": "braink",
+      "description": "Mint stable, collision-resistant identifiers for components, skills and services.",
+      "components": [
+        "identity",
+        "canonical"
+      ],
+      "inputs": [
+        "namespace",
+        "name",
+        "version"
+      ],
+      "outputs": [
+        "64-hex identity"
+      ],
+      "status": "UNIT_TESTED",
+      "evidence": [
+        "evidence/TEST_RESULTS.json"
+      ],
+      "limitations": [
+        "Registry not persisted."
+      ]
+    },
+    {
+      "skill_id": "df9153e409d32e785dccb38d0d21511b493f391d5b0322595ff7418d59a50857",
+      "skill_name": "tamper-evident-logging",
+      "namespace": "braink",
+      "description": "Record events in an append-only hash chain that reveals any later mutation.",
+      "components": [
+        "ledger",
+        "canonical"
+      ],
+      "inputs": [
+        "event_type",
+        "payload"
+      ],
+      "outputs": [
+        "LedgerEntry",
+        "integrity receipt"
+      ],
+      "status": "LOCALLY_PROVEN",
+      "evidence": [
+        "evidence/TEST_RESULTS.json"
+      ],
+      "limitations": [
+        "No external anchoring of the root hash."
+      ]
+    },
+    {
+      "skill_id": "59ba1925aa1d5082b031cef29c27eda5e8f146b93ebed3423a4ef851e64f0e9f",
+      "skill_name": "payload-authentication",
+      "namespace": "braink",
+      "description": "Bind a payload to a key so that any mutation of the payload fails verification.",
+      "components": [
+        "signer",
+        "canonical"
+      ],
+      "inputs": [
+        "payload dict"
+      ],
+      "outputs": [
+        "SignatureEnvelope"
+      ],
+      "status": "LOCALLY_PROVEN",
+      "evidence": [
+        "evidence/TEST_RESULTS.json"
+      ],
+      "limitations": [
+        "Symmetric test key only; production signer is DEFINED."
+      ]
+    },
+    {
+      "skill_id": "77f7bfeca1470ece070c89d625794bed67ba77ff75b2568e2498e46b814b257d",
+      "skill_name": "raw-protocol-transport",
+      "namespace": "braink",
+      "description": "Speak DNS directly on the wire over UDP with TCP fallback and report honestly.",
+      "components": [
+        "dns_transport"
+      ],
+      "inputs": [
+        "domain name",
+        "record type",
+        "resolver"
+      ],
+      "outputs": [
+        "DNSRecord list",
+        "DNSProofReceipt"
+      ],
+      "status": "LOCALLY_EXECUTED",
+      "evidence": [
+        "evidence/TEST_RESULTS.json"
+      ],
+      "limitations": [
+        "Authoritative external confirmation impossible from sandbox."
+      ]
+    },
+    {
+      "skill_id": "d6c87b7bb626ae446c3c7e331ddad63d7a5d7f00c7814a98ed35cbfb76955022",
+      "skill_name": "crash-recovery-proof",
+      "namespace": "braink",
+      "description": "Prove that state survives process death with an unbroken hash chain.",
+      "components": [
+        "restart",
+        "ledger"
+      ],
+      "inputs": [
+        "state path",
+        "ledger path"
+      ],
+      "outputs": [
+        "recovery report",
+        "restart receipt"
+      ],
+      "status": "RESTART_TESTED",
+      "evidence": [
+        "evidence/TEST_RESULTS.json"
+      ],
+      "limitations": [
+        "Simulated in-process, not OS-level."
+      ]
+    },
+    {
+      "skill_id": "556a9161cfd5eca6359fb5fe52e3d753591c12ca8b242fd9751a572c14de47e3",
+      "skill_name": "runtime-orchestration",
+      "namespace": "braink",
+      "description": "Drive the full session lifecycle and ensure every action is ledgered.",
+      "components": [
+        "runtime"
+      ],
+      "inputs": [
+        "config",
+        "command text"
+      ],
+      "outputs": [
+        "status dict",
+        "ledger entries"
+      ],
+      "status": "INTEGRATION_TESTED",
+      "evidence": [
+        "evidence/TEST_RESULTS.json"
+      ],
+      "limitations": [
+        "Single process, no listener."
+      ]
+    },
+    {
+      "skill_id": "8dae878a89d773730ab42d6fe37e7547b93c891a208701fa06b00b59476fa83b",
+      "skill_name": "evidence-generation",
+      "namespace": "braink",
+      "description": "Convert execution outcomes into durable, hashable evidence artefacts.",
+      "components": [
+        "receipts",
+        "canonical"
+      ],
+      "inputs": [
+        "package root",
+        "test counters"
+      ],
+      "outputs": [
+        "manifest",
+        "test results",
+        "validation receipt"
+      ],
+      "status": "UNIT_TESTED",
+      "evidence": [
+        "evidence/TEST_RESULTS.json"
+      ],
+      "limitations": [
+        "Not externally notarised."
+      ]
+    }
+  ]
+}

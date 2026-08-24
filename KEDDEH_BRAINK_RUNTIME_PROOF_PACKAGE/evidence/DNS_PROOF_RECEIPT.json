@@ -1,0 +1,18 @@
+{
+  "authoritative": false,
+  "authoritative_external_confirmed": false,
+  "local_execution_result": "LOCAL_EXECUTION_FAILED",
+  "note": "Authoritative DNS not confirmed from sandbox - capped at LOCALLY_EXECUTED per Rule 3",
+  "query_name": "example.com",
+  "query_wire_hex": "424201000001000000000000076578616d706c6503636f6d0000010001",
+  "query_wire_length": 29,
+  "record_type": "A",
+  "records": [],
+  "resolver": "8.8.8.8",
+  "response_meta": {},
+  "status": "LOCALLY_EXECUTED",
+  "status_explanation": "status=LOCALLY_EXECUTED records that the query was built and transmitted from this host. local_execution_result records whether a parsable response came back; a value of LOCAL_EXECUTION_FAILED means the sandbox has no DNS egress. Neither value ever implies external observation.",
+  "timestamp": "2026-08-06T09:00:30.120815+00:00",
+  "transport_error": "PermissionError: [Errno 1] Operation not permitted",
+  "transport_status": "LOCAL_EXECUTION_FAILED"
+}
