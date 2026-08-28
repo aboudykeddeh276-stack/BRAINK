@@ -1,0 +1,128 @@
+name: BRAINK Bitcoin Core Regtest Acceptance
+
+on:
+  push:
+    branches:
+      - fix/btc-core-regtest-acceptance-20260828
+    paths:
+      - ".github/workflows/btc-core-regtest-acceptance.yml"
+      - "runtime/btc_consensus.py"
+      - "runtime/btc_miner_runtime.py"
+      - "runtime/btc_workload_substrate.py"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/btc-core-regtest-acceptance.yml"
+      - "runtime/btc_consensus.py"
+      - "runtime/btc_miner_runtime.py"
+      - "runtime/btc_workload_substrate.py"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  regtest-acceptance:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Fetch exact BRAINK revision
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+          REVISION: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          git init braink
+          cd braink
+          git remote add origin "https://x-access-token:${GH_TOKEN}@github.com/${REPOSITORY}.git"
+          git fetch --depth=1 origin "${REVISION}"
+          git checkout --detach FETCH_HEAD
+
+      - name: Install official Bitcoin Core 31.1 and verify archive hash
+        shell: bash
+        run: |
+          set -euo pipefail
+          base="https://bitcoincore.org/bin/bitcoin-core-31.1"
+          archive="bitcoin-31.1-x86_64-linux-gnu.tar.gz"
+          curl -fsSLO "${base}/${archive}"
+          curl -fsSLO "${base}/SHA256SUMS"
+          grep " ${archive}$" SHA256SUMS | sha256sum -c -
+          tar -xzf "${archive}"
+          test -x bitcoin-31.1/bin/bitcoind
+          test -x bitcoin-31.1/bin/bitcoin-cli
+
+      - name: Start clean regtest Bitcoin Core authority
+        shell: bash
+        run: |
+          set -euo pipefail
+          datadir="${RUNNER_TEMP}/braink-bitcoin-regtest"
+          mkdir -p "${datadir}"
+          echo "BTC_REGTEST_DATADIR=${datadir}" >> "${GITHUB_ENV}"
+          bitcoin-31.1/bin/bitcoind \
+            -regtest=1 \
+            -server=1 \
+            -daemon=1 \
+            -datadir="${datadir}" \
+            -listen=0 \
+            -fallbackfee=0.00001
+          for attempt in $(seq 1 60); do
+            if bitcoin-31.1/bin/bitcoin-cli -regtest -datadir="${datadir}" getblockchaininfo >/tmp/chain.json 2>/tmp/core.err; then
+              cat /tmp/chain.json
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/core.err >&2 || true
+          exit 1
+
+      - name: Create deterministic regtest payout address
+        shell: bash
+        run: |
+          set -euo pipefail
+          bitcoin-31.1/bin/bitcoin-cli -regtest -datadir="${BTC_REGTEST_DATADIR}" createwallet "braink-regtest-miner" >/tmp/createwallet.json
+          payout="$(bitcoin-31.1/bin/bitcoin-cli -regtest -datadir="${BTC_REGTEST_DATADIR}" -rpcwallet=braink-regtest-miner getnewaddress "" bech32)"
+          test -n "${payout}"
+          echo "BTC_REGTEST_PAYOUT_ADDRESS=${payout}" >> "${GITHUB_ENV}"
+          printf 'payout=%s\n' "${payout}"
+
+      - name: Execute BRAINK complete block-bound miner against real Core
+        shell: bash
+        env:
+          BTC_NETWORK: regtest
+          BTC_RPC_URL: http://127.0.0.1:18443
+          KEX_ALLOW_LIVE_SUBMIT: "1"
+          KEX_MAX_HASHES_PER_JOB: "65536"
+          KEX_BTC_STATE_DIR: ${{ github.workspace }}/braink/state/kex_btc
+          BTC_MIN_VERIFICATION_PROGRESS: "0.0"
+        run: |
+          set -euo pipefail
+          export BTC_DATADIR="${BTC_REGTEST_DATADIR}"
+          export BTC_PAYOUT_ADDRESS="${BTC_REGTEST_PAYOUT_ADDRESS}"
+          python3 braink/runtime/btc_miner_runtime.py | tee /tmp/braink-btc-result.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          result=json.loads(Path('/tmp/braink-btc-result.json').read_text())
+          assert result['state']=='ACCEPTED_BY_NODE', result
+          assert result['submission']['accepted'] is True, result
+          print(json.dumps({'state':result['state'],'hashes_tested':result['hashes_tested'],'block_hash':result['candidate']['block_hash']}, sort_keys=True))
+          PY
+
+      - name: Verify Core chain readback and retain acceptance receipt
+        shell: bash
+        run: |
+          set -euo pipefail
+          count="$(bitcoin-31.1/bin/bitcoin-cli -regtest -datadir="${BTC_REGTEST_DATADIR}" getblockcount)"
+          best="$(bitcoin-31.1/bin/bitcoin-cli -regtest -datadir="${BTC_REGTEST_DATADIR}" getbestblockhash)"
+          test "${count}" -ge 1
+          printf '{"bitcoin_core_version":"31.1","network":"regtest","accepted":true,"blockcount":%s,"bestblockhash":"%s"}\n' "${count}" "${best}" | tee braink/BTC_CORE_REGTEST_ACCEPTANCE_RECEIPT.json
+          cat /tmp/braink-btc-result.json
+
+      - name: Stop Bitcoin Core
+        if: always()
+        shell: bash
+        run: |
+          bitcoin-31.1/bin/bitcoin-cli -regtest -datadir="${BTC_REGTEST_DATADIR}" stop || true
