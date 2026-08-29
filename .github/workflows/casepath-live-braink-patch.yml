@@ -6,6 +6,7 @@ on:
       - keddeh/v98-protocol-compliance-deployment-os
     paths:
       - '.github/workflows/casepath-live-braink-patch.yml'
+      - '.github/scripts/casepath_live_braink_patch.py'
   workflow_dispatch:
 
 permissions:
@@ -19,156 +20,9 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
-
-      - name: Discover current production tree by live fingerprint
-        id: discover
-        shell: bash
-        run: |
-          set -euo pipefail
-          python3 - <<'PY'
-          from pathlib import Path
-          import json, os, hashlib
-
-          marker = '20260727iosscroll1'
-          title = 'CasePath Public Beta - Australian Family Court Guide'
-          explicit = os.environ.get('CASEPATH_DOCROOT','').strip()
-          roots = []
-          if explicit:
-              roots.append(Path(explicit).expanduser())
-          for p in [
-              Path.home(),
-              Path('/Volumes'),
-              Path.home()/'Library/CloudStorage',
-              Path.home()/'Desktop',
-              Path.home()/'Documents',
-          ]:
-              if p.exists() and p not in roots:
-                  roots.append(p)
-
-          skip = {'.git','node_modules','.cache','Caches','Library','DerivedData','.Trash','venv','.venv','__pycache__'}
-          # CloudStorage is intentionally included as its own root; do not descend into
-          # the general ~/Library tree from $HOME.
-          candidates=[]
-          inspected=0
-          for root in roots:
-              if root.is_file():
-                  paths=[root]
-              else:
-                  paths=[]
-                  for dp, dns, fns in os.walk(root):
-                      p=Path(dp)
-                      if root == Path.home() and p == Path.home()/'Library':
-                          dns[:] = []
-                          continue
-                      dns[:] = [d for d in dns if d not in skip]
-                      if 'index.html' in fns:
-                          paths.append(p/'index.html')
-              for path in paths:
-                  try:
-                      if path.stat().st_size > 8_000_000:
-                          continue
-                      raw=path.read_bytes()
-                  except Exception:
-                      continue
-                  inspected += 1
-                  txt=raw.decode('utf-8','ignore')
-                  marker_ok = marker in txt
-                  title_ok = title in txt or 'CasePath Public Beta' in txt
-                  if marker_ok and title_ok:
-                      candidates.append({
-                          'index':str(path),
-                          'root':str(path.parent),
-                          'sha256':hashlib.sha256(raw).hexdigest(),
-                          'bytes':len(raw),
-                          'contact_exists':(path.parent/'contact.html').exists(),
-                      })
-
-          receipt={
-              'schema':'casepath.braink.live-origin-discovery.v1',
-              'fingerprint':{'marker':marker,'title_prefix':title},
-              'roots':[str(x) for x in roots],
-              'inspected_index_files':inspected,
-              'candidates':candidates,
-          }
-          Path('CASEPATH_LIVE_ORIGIN_DISCOVERY.json').write_text(json.dumps(receipt,indent=2))
-          print(json.dumps(receipt,indent=2))
-          if len(candidates) != 1:
-              raise SystemExit(f'REFUSE_PATCH: expected exactly one current-production candidate, found {len(candidates)}')
-          Path('CASEPATH_DOCROOT.resolved').write_text(candidates[0]['root'])
-          PY
-          echo "docroot=$(cat CASEPATH_DOCROOT.resolved)" >> "$GITHUB_OUTPUT"
-
-      - name: Back up current production files
-        shell: bash
-        env:
-          DOCROOT: ${{ steps.discover.outputs.docroot }}
-        run: |
-          set -euo pipefail
-          stamp="$(date -u +%Y%m%dT%H%M%SZ)"
-          backup="$DOCROOT/.casepath-backup-$stamp"
-          mkdir -p "$backup"
-          cp -p "$DOCROOT/index.html" "$backup/index.html"
-          if [ -f "$DOCROOT/contact.html" ]; then cp -p "$DOCROOT/contact.html" "$backup/contact.html"; fi
-          printf '%s\n' "$backup" > CASEPATH_BACKUP_PATH.txt
-
-      - name: Inject BRAINK into current production tree
-        shell: bash
-        env:
-          DOCROOT: ${{ steps.discover.outputs.docroot }}
-        run: |
-          set -euo pipefail
-          python3 - <<'PY'
-          from pathlib import Path
-          import os, json, hashlib, datetime
-
-          root=Path(os.environ['DOCROOT'])
-          index=root/'index.html'
-          html=index.read_text(encoding='utf-8')
-          live_marker='BRAINK-CASEPATH-LIVE-20260829'
-
-          if live_marker not in html:
-              meta=f'<meta name="casepath-braink" content="{live_marker}">'
-              if '</head>' in html:
-                  html=html.replace('</head>',meta+'\n</head>',1)
-              else:
-                  raise SystemExit('REFUSE_PATCH: current index has no </head>')
-
-              link='<a href="/braink-admin.html" data-braink-control="true" style="position:fixed;right:18px;bottom:18px;z-index:9998;padding:10px 14px;border-radius:999px;background:#173f3a;color:#fff;text-decoration:none;font:700 12px system-ui;box-shadow:0 8px 28px rgba(0,0,0,.18)">BRAINK</a>'
-              if '</body>' in html:
-                  html=html.replace('</body>',link+'\n</body>',1)
-              else:
-                  raise SystemExit('REFUSE_PATCH: current index has no </body>')
-              index.write_text(html,encoding='utf-8')
-
-          admin=root/'braink-admin.html'
-          admin.write_text('''<!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="casepath-braink" content="BRAINK-CASEPATH-LIVE-20260829"><title>CasePath · BRAINK Control</title><style>body{margin:0;background:#07110f;color:#e8f2ef;font-family:system-ui}main{max-width:900px;margin:0 auto;padding:48px 24px}.card{border:1px solid #29443f;border-radius:18px;background:#0c1916;padding:24px;margin:16px 0}code,pre{font-family:ui-monospace,monospace}a{color:#9cdbcb}.pill{display:inline-block;border:1px solid #3d7568;border-radius:999px;padding:6px 10px}.muted{color:#9db2ac}</style></head><body><main><div class="pill">BRAINK-CASEPATH-LIVE-20260829</div><h1>CasePath · BRAINK Control Surface</h1><p class="muted">Resident CasePath/BRAINK operational surface. No passwords, API tokens or private keys are embedded in this public file.</p><section class="card"><h2>Projection</h2><pre>app://casepath\n→ casepath.com.au\n→ current production tree</pre></section><section class="card"><h2>Authority boundary</h2><p>Content and runtime changes require the authenticated owner execution path. This public surface exposes status and lineage only; secret-bearing mutation authority remains outside browser-delivered code.</p></section><section class="card"><h2>Runtime marker</h2><pre id="state"></pre></section><p><a href="/">← Return to CasePath</a></p></main><script>document.getElementById('state').textContent=JSON.stringify({schema:'casepath.braink.public-control.v1',marker:'BRAINK-CASEPATH-LIVE-20260829',host:location.host,path:location.pathname,observed_at:new Date().toISOString()},null,2)</script></body></html>''',encoding='utf-8')
-
-          receipt={
-            'schema':'casepath.braink.live-patch.v1',
-            'state':'PATCHED_CURRENT_PRODUCTION_TREE',
-            'docroot':str(root),
-            'index_sha256':hashlib.sha256(index.read_bytes()).hexdigest(),
-            'admin_sha256':hashlib.sha256(admin.read_bytes()).hexdigest(),
-            'marker':live_marker,
-            'time_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),
-          }
-          Path('CASEPATH_BRAINK_LIVE_PATCH_RECEIPT.json').write_text(json.dumps(receipt,indent=2))
-          print(json.dumps(receipt,indent=2))
-          PY
-
-      - name: Local readback before promotion claim
-        shell: bash
-        env:
-          DOCROOT: ${{ steps.discover.outputs.docroot }}
-        run: |
-          set -euo pipefail
-          grep -F 'BRAINK-CASEPATH-LIVE-20260829' "$DOCROOT/index.html"
-          grep -F 'BRAINK-CASEPATH-LIVE-20260829' "$DOCROOT/braink-admin.html"
-          grep -F 'CasePath Public Beta' "$DOCROOT/index.html"
-          test -f "$DOCROOT/contact.html"
-
-      - name: Upload execution receipt
+      - name: Execute bounded current-production patch and public readback
+        run: python3 .github/scripts/casepath_live_braink_patch.py
+      - name: Upload CasePath execution receipts
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -176,4 +30,5 @@ jobs:
           path: |
             CASEPATH_LIVE_ORIGIN_DISCOVERY.json
             CASEPATH_BRAINK_LIVE_PATCH_RECEIPT.json
+            CASEPATH_BRAINK_PUBLIC_READBACK.json
             CASEPATH_BACKUP_PATH.txt
