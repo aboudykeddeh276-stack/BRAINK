@@ -1,0 +1,11 @@
+{
+  "classification": "LOCAL_PASS",
+  "created_at": 1786086742.2759166,
+  "handoff_id": "cd3c2c9b8d3e74c6a09f0d7c6bc85bfaf35fa4c31b1df30e233e271b105e7fc1",
+  "next_target": "acceptance_summary",
+  "payload_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/service_probes/mirror_update_lane.json",
+  "receipt_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/proof_bundles.ledger",
+  "service_id": "mirror_update_lane",
+  "source": "KEDDEH_V98_SERVICE_PROBE",
+  "status": "READY"
+}

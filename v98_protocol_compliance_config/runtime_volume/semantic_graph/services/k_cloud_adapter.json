@@ -1,0 +1,11 @@
+{
+  "code_binding": "config/service_protocols.json::k_cloud_adapter",
+  "conformance_state": "SEMANTICALLY_BOUND",
+  "evidence_contract": "recognize\u2192execute\u2192verify\u2192write_receipt\u2192readback\u2192handoff",
+  "owner_plane": "virtual_cpu_deployment_plane",
+  "reason": "service contract and boundary available",
+  "sector": "sector://application-deployment",
+  "semantic_expression": "expression://run-kapp-on-eligible-node",
+  "semantic_word": "word://deploy",
+  "service_id": "k_cloud_adapter"
+}

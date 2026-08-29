@@ -1,0 +1,8 @@
+{
+  "binding_matrix": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/exports/semantic_knowledge_graph_bindings.csv",
+  "created_at": 1786086741.2366152,
+  "edge_matrix": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/exports/semantic_knowledge_graph_edges.csv",
+  "payload_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/semantic_knowledge_graph_receipt.json",
+  "source": "KEDDEH_V99_SEMANTIC_KNOWLEDGE_GRAPH",
+  "status": "SEMANTIC_GRAPH_READY"
+}

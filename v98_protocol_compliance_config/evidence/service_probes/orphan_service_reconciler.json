@@ -1,0 +1,19 @@
+{
+  "boundary": "maps orphaned procedures to owners/gates; does not claim runtime execution where absent",
+  "classification": "LOCAL_PASS",
+  "details": {
+    "items_reconciled": 10,
+    "resolution_state_counts": {
+      "EXTERNAL_CERTIFICATION_REQUIRED": 1,
+      "PROVIDER_REQUIRED": 3,
+      "TARGET_HOST_REQUIRED": 6
+    }
+  },
+  "executed": true,
+  "negative_test_passed": true,
+  "owner_plane": "virtual_cpu",
+  "positive_test_passed": true,
+  "probe_name": "probe_orphan_service_reconciler",
+  "service_id": "orphan_service_reconciler",
+  "timestamp": 1786086742.27394
+}

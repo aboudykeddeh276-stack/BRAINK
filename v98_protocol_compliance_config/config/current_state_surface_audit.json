@@ -1,0 +1,81 @@
+{
+  "version": "V99",
+  "audit_id": "current_state_surface_audit",
+  "purpose": "Assess current applets, applications, emulator services, server space, user space, hardware abstractions, frameworks and governance lanes using evidence-backed deployability rather than claimed telemetry or UI wiring.",
+  "canonical_rule": "DEPENDENCY_FAILURE_NE_GLOBAL_APPLICATION_FAILURE",
+  "source_basis": [
+    "uploaded_gemini_action_history_2026_08_03",
+    "V99_K_APP_K_CLOUD_DEPLOYMENT",
+    "V99_DEPENDENCY_FAILURE_ISOLATION",
+    "V99_APPLICATION_APPLET_SHIPPING",
+    "V99_DEPLOYMENT_MATURITY_WORKPLAN"
+  ],
+  "completion_rule": [
+    "source_code_or_static_surface_exists",
+    "executable_command_exists",
+    "tests_execute",
+    "manifest_integrity_readback_passes",
+    "receipt_written",
+    "ledger_readback_verified",
+    "outbox_handoff_written",
+    "target_host_or_provider_receipt_where_required"
+  ],
+  "rejected_proof_forms": [
+    "random_metrics",
+    "simulated_telemetry",
+    "UI_wiring_only",
+    "build_success_without_runtime_readback",
+    "report_without_executable_receipt",
+    "manifest_without_integrity_readback"
+  ],
+  "focus_surfaces": [
+    {
+      "surface_id": "google_tpu_server_rack",
+      "surface_type": "HARDWARE_ABSTRACTION_APPLET",
+      "issue": "Displayed as wiring/claims without backend capability receipts.",
+      "required_correction": "Expose explicit task submission, capability envelope, fallback CPU path, evidence receipt, circuit-breaker state and no TPU hardware claim without target receipt.",
+      "dependency_class": "REPLACEABLE",
+      "fallback_adapter": "adapter.local-cpu-tensor-runner"
+    },
+    {
+      "surface_id": "provision_agent",
+      "surface_type": "AGENT_WORKER_APPLET",
+      "issue": "Does not declare user purpose, function, work environment, VFS namespace, task queue, capability set, response contract or proof path.",
+      "required_correction": "Bind worker identity, team, tenant boundary, VFS namespace, queue, skills, policy set, runtime allocation, telemetry channel, receipt ledger and lineage address.",
+      "dependency_class": "CORE_DEGRADED",
+      "fallback_adapter": "adapter.agent-runtime-work-order"
+    },
+    {
+      "surface_id": "linux_microvm_v86",
+      "surface_type": "EMULATOR_SERVICE_APPLET",
+      "issue": "Boot claims require BIOS/kernel/rootfs asset receipts, v86 presence readback, serial output and disk/volume mapping receipts before promoted runtime status.",
+      "required_correction": "Classify as emulator runtime with boot asset readback, manifest integrity, VFS volume binding and degraded state when boot assets are absent.",
+      "dependency_class": "CORE_DEGRADED",
+      "fallback_adapter": "adapter.terminal-sandbox-static-desktop"
+    },
+    {
+      "surface_id": "simulated_agent_telemetry",
+      "surface_type": "OBSERVABILITY_PIPELINE",
+      "issue": "Random/generated metrics were presented as capability status.",
+      "required_correction": "Replace random health claims with receipt-backed health state, heartbeat records, circuit-breaker state and explicit simulated/demo labels where applicable.",
+      "dependency_class": "DEFERRED_COMMIT",
+      "fallback_adapter": "adapter.local-telemetry-outbox"
+    },
+    {
+      "surface_id": "server_runtime_exec_endpoints",
+      "surface_type": "SERVER_SPACE_RUNTIME",
+      "issue": "Shell execution endpoints require strict command allowlisting, timeout, path isolation, audit receipts and user-facing response boundaries.",
+      "required_correction": "Gate commands by policy, write execution receipts, keep forbidden operations failed-closed and preserve degraded UI state on backend outage.",
+      "dependency_class": "CORE_MANDATORY",
+      "fallback_adapter": "adapter.read-only-diagnostic-mode"
+    },
+    {
+      "surface_id": "desktop_icon_applet_launchers",
+      "surface_type": "USER_SPACE_APPLICATION_SURFACE",
+      "issue": "Icon launch and drag behavior was improved, but a launcher is not itself an applet unless it binds to an executable command and receipt path.",
+      "required_correction": "Every desktop icon must resolve to a K-APP package, route, capability contract, readback status and failure-domain policy.",
+      "dependency_class": "CORE_DEGRADED",
+      "fallback_adapter": "adapter.static-k-app-catalog"
+    }
+  ]
+}

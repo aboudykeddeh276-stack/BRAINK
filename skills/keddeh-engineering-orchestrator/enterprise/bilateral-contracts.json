@@ -1,0 +1,78 @@
+{
+  "registry_id": "registry://keddeh/bilateral-contracts",
+  "version": "1.0.0",
+  "contract_rule": "A bilateral interface preserves the source owner's canonical identity and business meaning while allowing a target umbrella to consume or project the object through a declared adapter. Bilateral use is not hierarchy, merger, or semantic replacement.",
+  "contracts": [
+    {
+      "id": "contract://keddeh/playwrite-formpath/document-filing/v1",
+      "source_owner": "umbrella://keddeh/playwrite",
+      "target_owner": "umbrella://keddeh/formpath",
+      "source_objects": ["document", "section", "citation", "attachment"],
+      "target_projection": ["filing narrative", "supporting document", "attachment manifest"],
+      "preserved_invariants": ["source attribution", "version", "editorial state", "citation lineage"],
+      "target_added_semantics": ["form edition", "field binding", "filing requirement", "submission state"],
+      "evidence_required": ["source fingerprint", "transformation map", "filing package receipt"]
+    },
+    {
+      "id": "contract://keddeh/formpath-claimpath/claim-document/v1",
+      "source_owner": "umbrella://keddeh/formpath",
+      "target_owner": "umbrella://keddeh/claimpath",
+      "source_objects": ["form authority", "form edition", "field rule", "attachment requirement", "submission receipt"],
+      "target_projection": ["claim requirement", "evidence request", "complaint package", "external dispute package"],
+      "preserved_invariants": ["authority", "edition", "mandatory fields", "submission channel", "receipt"],
+      "target_added_semantics": ["claim identity", "coverage issue", "loss item", "complaint state"],
+      "evidence_required": ["authority source", "edition currency", "validation result", "submission readback"]
+    },
+    {
+      "id": "contract://keddeh/claimpath-lawpath/dispute-escalation/v1",
+      "source_owner": "umbrella://keddeh/claimpath",
+      "target_owner": "umbrella://keddeh/lawpath",
+      "source_objects": ["claim", "policy", "coverage issue", "decision", "complaint", "evidence ledger"],
+      "target_projection": ["legal issue", "matter chronology", "authority question", "remedy path", "deadline"],
+      "preserved_invariants": ["claim identity", "policy version", "decision history", "evidence provenance", "uncertainty"],
+      "target_added_semantics": ["jurisdiction", "procedure", "authority", "legal-review state"],
+      "evidence_required": ["professional review where required", "authority references", "procedural receipt"]
+    },
+    {
+      "id": "contract://keddeh/coms-claimpath/regulated-correspondence/v1",
+      "source_owner": "umbrella://keddeh/coms",
+      "target_owner": "umbrella://keddeh/claimpath",
+      "source_objects": ["message", "participant", "channel", "delivery event", "acknowledgement", "retention state"],
+      "target_projection": ["claim correspondence", "information request", "insurer response", "complaint communication"],
+      "preserved_invariants": ["sender", "recipient", "time", "channel", "delivery evidence", "content fingerprint"],
+      "target_added_semantics": ["claim event type", "response deadline", "evidence relevance"],
+      "evidence_required": ["delivery receipt", "content hash", "retention policy"]
+    },
+    {
+      "id": "contract://keddeh/spin-coms/service-runtime/v1",
+      "source_owner": "umbrella://keddeh/spin",
+      "target_owner": "umbrella://keddeh/coms",
+      "source_objects": ["service", "workflow", "queue", "retry policy", "rate limit", "health state"],
+      "target_projection": ["message delivery worker", "notification router", "correspondence gateway"],
+      "preserved_invariants": ["idempotency", "ordering", "failure radius", "retry budget", "observability"],
+      "target_added_semantics": ["communication channel", "consent", "delivery class", "retention"],
+      "evidence_required": ["runtime receipt", "delivery receipt", "failure and recovery test"]
+    },
+    {
+      "id": "contract://keddeh/keo-all/engineering-description/v1",
+      "source_owner": "umbrella://keddeh/keo",
+      "target_owner": "portfolio://keddeh/systems",
+      "source_objects": ["architecture", "topology", "interface", "ADR", "iteration", "release gate"],
+      "target_projection": ["product-specific engineering model"],
+      "preserved_invariants": ["canonical owner", "responsibility", "dependency direction", "lineage", "promotion state"],
+      "target_added_semantics": ["domain-specific objects and rules"],
+      "evidence_required": ["topology validation", "interface compatibility", "iteration receipt"]
+    },
+    {
+      "id": "contract://keddeh/evidence-all/attestation/v1",
+      "source_owner": "umbrella://keddeh/evidence-assurance-deployment",
+      "target_owner": "portfolio://keddeh/systems",
+      "source_objects": ["evidence envelope", "test result", "SBOM", "provenance", "signature", "release receipt"],
+      "target_projection": ["capability promotion evidence"],
+      "preserved_invariants": ["scope tested", "environment", "source revision", "limitations", "artifact digest"],
+      "target_added_semantics": ["product promotion decision"],
+      "evidence_required": ["independent readback", "promotion authority"]
+    }
+  ],
+  "global_stop": false
+}

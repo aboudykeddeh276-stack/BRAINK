@@ -1,0 +1,11 @@
+{
+  "classification": "UNSUPPORTED_IN_THIS_RUNTIME",
+  "created_at": 1786086742.324932,
+  "handoff_id": "4ea0aa61cf85eb0a5e653df9a5c2c19b363b631aade9c1ef8e1767b943f99d1f",
+  "next_target": "implementation_backlog",
+  "payload_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/service_probes/four_plane_context_framework.json",
+  "receipt_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/proof_bundles.ledger",
+  "service_id": "four_plane_context_framework",
+  "source": "KEDDEH_V98_SERVICE_PROBE",
+  "status": "READY"
+}

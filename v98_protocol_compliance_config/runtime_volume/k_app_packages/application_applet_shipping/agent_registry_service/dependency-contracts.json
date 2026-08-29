@@ -1,0 +1,37 @@
+{
+  "circuitBreakerLimits": {
+    "failureThreshold": 2,
+    "recoveryTimeoutSeconds": 60
+  },
+  "criticalityClass": "CORE_DEGRADED",
+  "degradedModeBehaviour": "preserve core runtime and expose degraded capability state",
+  "fallbackAdapter": "adapter.local-static-applet",
+  "identity": "agent_registry_service",
+  "optionalDependencies": [
+    "service.audio-output",
+    "service.native-gpu",
+    "service.remote-telemetry"
+  ],
+  "queueOutboxPolicy": "runtime_volume/outbox/application_applet_shipping/agent_registry_service",
+  "recoveryConditions": [
+    "dependency health check passes",
+    "manifest integrity readback passes",
+    "node capability readback passes"
+  ],
+  "reintegrationTests": [
+    "tests/test_application_applet_packager.py",
+    "tests/test_k_cloud_adapter.py"
+  ],
+  "rollbackContract": "retain previous package directory until new package receipt and integrity readback pass",
+  "runtimeDependencies": [
+    "service.agent-registry-service"
+  ],
+  "startupDependencies": [
+    "service.vfs",
+    "service.runtime-config"
+  ],
+  "suppliedCapabilities": [
+    "agent_registry_service",
+    "virtual_cpu_governance_plane"
+  ]
+}

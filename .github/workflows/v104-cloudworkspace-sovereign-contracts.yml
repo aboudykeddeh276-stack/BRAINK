@@ -1,0 +1,45 @@
+name: KEDDEH V104 CloudWorkspace Sovereign Contracts
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'v98_protocol_compliance_config/deploy/cloudworkspace-engine/**'
+      - 'v98_protocol_compliance_config/api/mesh-engine-node-registry.openapi.yaml'
+      - 'v98_protocol_compliance_config/web/src/failure-ledger.ts'
+      - 'v98_protocol_compliance_config/src/keddeh_cloudworkspace_contract_validator.py'
+      - 'v98_protocol_compliance_config/tests/test_cloudworkspace_contract_validator.py'
+      - '.github/workflows/v104-cloudworkspace-sovereign-contracts.yml'
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  validate-contracts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile Python validator and tests
+        run: |
+          cd v98_protocol_compliance_config
+          python3 -m compileall src tests
+      - name: Run repository tests
+        run: |
+          cd v98_protocol_compliance_config
+          python3 src/keddeh_test_runner.py --root . --emit-receipt
+      - name: Validate Kubernetes, OpenAPI and FailureLedger contracts
+        run: |
+          cd v98_protocol_compliance_config
+          python3 src/keddeh_cloudworkspace_contract_validator.py --root . --emit-receipt
+      - name: Upload sovereign contract evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: keddeh-v104-cloudworkspace-sovereign-contracts
+          path: |
+            v98_protocol_compliance_config/evidence/cloudworkspace_sovereign_contract_receipt.json
+            v98_protocol_compliance_config/deploy/cloudworkspace-engine/
+            v98_protocol_compliance_config/api/mesh-engine-node-registry.openapi.yaml
+            v98_protocol_compliance_config/web/src/failure-ledger.ts

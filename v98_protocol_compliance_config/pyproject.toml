@@ -1,0 +1,21 @@
+[project]
+name = "keddeh-v98-protocol-compliance-deployment-os"
+version = "0.98.0"
+description = "KEDDEH V98 protocol, compliance and deployment acceptance harness"
+requires-python = ">=3.10"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.mypy]
+python_version = "3.10"
+warn_unused_ignores = true
+warn_redundant_casts = true
+warn_return_any = true
+no_implicit_optional = true

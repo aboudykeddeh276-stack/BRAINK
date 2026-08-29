@@ -1,0 +1,11 @@
+{
+  "classification": "LOCAL_PASS",
+  "created_at": 1786086742.2716336,
+  "handoff_id": "6a2ff988c6dd737e49ec81d31bdaaa812b4ff3bc454b640b5ab3d1bf555bf2e9",
+  "next_target": "acceptance_summary",
+  "payload_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/service_probes/vfs_volume_custody.json",
+  "receipt_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/proof_bundles.ledger",
+  "service_id": "vfs_volume_custody",
+  "source": "KEDDEH_V98_SERVICE_PROBE",
+  "status": "READY"
+}

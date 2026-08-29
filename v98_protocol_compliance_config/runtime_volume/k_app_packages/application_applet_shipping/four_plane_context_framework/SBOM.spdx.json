@@ -1,0 +1,10 @@
+{
+  "name": "four_plane_context_framework",
+  "packages": [
+    {
+      "name": "four_plane_context_framework",
+      "versionInfo": "1.0.0"
+    }
+  ],
+  "spdxVersion": "SPDX-2.3"
+}

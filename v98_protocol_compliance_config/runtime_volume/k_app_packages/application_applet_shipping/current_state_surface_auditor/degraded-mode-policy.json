@@ -1,0 +1,10 @@
+{
+  "canonicalRule": "DEPENDENCY_FAILURE_NE_GLOBAL_APPLICATION_FAILURE",
+  "fallbackAdapters": {
+    "service.audio-output": "adapter.visual-notification",
+    "service.current-state-surface-auditor": "adapter.local-static-applet",
+    "service.mesh-registry": "adapter.local-mesh-outbox",
+    "service.native-gpu": "adapter.canvas-cpu-renderer",
+    "service.remote-telemetry": "adapter.local-telemetry-outbox"
+  }
+}

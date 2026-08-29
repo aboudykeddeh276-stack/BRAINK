@@ -1,0 +1,23 @@
+{
+  "version": "1.0.0",
+  "iteration_states": [
+    {"id": "I0_OBSERVE", "required_outputs": ["observations", "source_baseline", "problem_statement"]},
+    {"id": "I1_DEFINE", "required_outputs": ["objective", "scope", "non_goals", "quality_goals"]},
+    {"id": "I2_DESIGN", "required_outputs": ["topology_delta", "interface_contracts", "adrs", "risk_register"]},
+    {"id": "I3_IMPLEMENT", "required_outputs": ["source_changes", "migration_changes", "implementation_receipt"]},
+    {"id": "I4_STATIC_VALIDATE", "required_outputs": ["lint", "type_check", "schema_validation", "security_scan"]},
+    {"id": "I5_EXECUTE", "required_outputs": ["unit_tests", "runtime_receipts", "negative_tests"]},
+    {"id": "I6_INTEGRATE", "required_outputs": ["contract_tests", "integration_tests", "failover_tests", "topology_readback"]},
+    {"id": "I7_PROMOTE", "required_outputs": ["promotion_decision", "compatibility_result", "rollback_plan"]},
+    {"id": "I8_PRESERVE", "required_outputs": ["durable_artifacts", "hashes", "stable_ids", "independent_readback"]},
+    {"id": "I9_REVIEW", "required_outputs": ["outcome_review", "remaining_gates", "next_iteration"]}
+  ],
+  "transition_rule": "Only the next sequential state may be entered unless an explicit rollback transition is recorded.",
+  "rollback_rule": "Rollback preserves the failed state, evidence, and superseding transition; it never deletes lineage.",
+  "required_iteration_fields": [
+    "iteration_id", "system_id", "domain_id", "source_baseline", "objective", "scope",
+    "non_goals", "affected_topology_nodes", "adrs", "changes", "tests", "evidence",
+    "artifact_states", "promotion_result", "remaining_gates", "next_iteration"
+  ],
+  "global_stop": false
+}

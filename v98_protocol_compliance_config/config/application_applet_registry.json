@@ -1,0 +1,78 @@
+{
+  "version": "V99",
+  "registry_id": "application_applet_shipping_registry",
+  "purpose": "Assess every V98/V99 service module as a deployable application, applet, service, agent or infrastructure runtime domain and package each shippable surface as an immutable K-APP with manifest integrity readback before node-side execution.",
+  "canonical_runtime_rule": "DEPENDENCY_FAILURE_NE_GLOBAL_APPLICATION_FAILURE",
+  "required_k_app_files": [
+    "application/index.html",
+    "k-app.manifest.json",
+    "asset-manifest.json",
+    "route-manifest.json",
+    "agent-bindings.json",
+    "vfs-namespaces.json",
+    "telemetry-schema.json",
+    "permission-policy.json",
+    "dependency-contracts.json",
+    "degraded-mode-policy.json",
+    "recovery-policy.json",
+    "SBOM.spdx.json",
+    "build-receipt.json",
+    "integrity.sha256"
+  ],
+  "required_runtime_contract_fields": [
+    "identity",
+    "suppliedCapabilities",
+    "startupDependencies",
+    "runtimeDependencies",
+    "optionalDependencies",
+    "criticalityClass",
+    "fallbackAdapter",
+    "degradedModeBehaviour",
+    "queueOutboxPolicy",
+    "circuitBreakerLimits",
+    "rollbackContract",
+    "recoveryConditions",
+    "reintegrationTests"
+  ],
+  "primary_applications": [
+    {
+      "component_id": "kex.workstation.core",
+      "component_type": "APPLICATION",
+      "source_surface": "vite_or_static_browser_surface",
+      "supplied_capabilities": ["workstation_shell", "application_catalog", "runtime_projection"],
+      "criticality": "CORE_MANDATORY",
+      "fallback_adapter": "adapter.static-local-launcher"
+    }
+  ],
+  "component_type_overrides": {
+    "virtual_gpu_hci_dashboard": "APPLICATION",
+    "k_cloud_adapter": "APPLICATION",
+    "software_design_deployment_workflow": "APPLET",
+    "workflow_schema_guard": "APPLET",
+    "dependency_failure_orchestrator": "APPLET",
+    "task_milestone_monitor": "APPLET",
+    "btc_core_protocol_router": "APPLET",
+    "agent_registry_service": "SERVICE",
+    "agent_runtime_service": "SERVICE",
+    "failure_ledger": "SERVICE",
+    "health_state_monitor": "SERVICE",
+    "test_runner": "SERVICE"
+  },
+  "default_dependency_policy": "CORE_DEGRADED",
+  "default_required_services": ["service.vfs", "service.runtime-config"],
+  "default_optional_services": ["service.audio-output", "service.native-gpu", "service.remote-telemetry"],
+  "default_fallback_adapters": {
+    "service.audio-output": "adapter.visual-notification",
+    "service.native-gpu": "adapter.canvas-cpu-renderer",
+    "service.remote-telemetry": "adapter.local-telemetry-outbox",
+    "service.mesh-registry": "adapter.local-mesh-outbox"
+  },
+  "target_gates": ["AUTHORIZED_DOMAIN", "TLS_READBACK", "BROWSER_SECURITY", "WCAG", "MESH_NODE_READBACK"],
+  "shipping_maturity_states": [
+    "LOCAL_SHIPPABLE_K_APP",
+    "TARGET_HOST_REQUIRED",
+    "PROVIDER_REQUIRED",
+    "NOT_SHIPPABLE_MISSING_CONTRACT",
+    "NOT_SHIPPABLE_INTEGRITY_FAILURE"
+  ]
+}

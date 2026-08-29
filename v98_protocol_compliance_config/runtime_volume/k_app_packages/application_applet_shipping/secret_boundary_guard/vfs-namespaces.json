@@ -1,0 +1,6 @@
+{
+  "namespaces": [
+    "vfs://apps/secret-boundary-guard/",
+    "vfs://agents/secret-boundary-guard/receipts/"
+  ]
+}

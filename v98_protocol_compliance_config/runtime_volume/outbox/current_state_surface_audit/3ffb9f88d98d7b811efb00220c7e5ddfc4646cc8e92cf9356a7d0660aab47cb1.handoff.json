@@ -1,0 +1,8 @@
+{
+  "created_at": 1786086740.7898064,
+  "matrix_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/exports/current_state_surface_audit_matrix.csv",
+  "next_target": "ship_applications_then_target_host_readback",
+  "payload_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/current_state_surface_audit_receipt.json",
+  "source": "KEDDEH_V99_CURRENT_STATE_SURFACE_AUDITOR",
+  "status": "ACTIONABLE_CURRENT_STATE_AUDIT_READY"
+}

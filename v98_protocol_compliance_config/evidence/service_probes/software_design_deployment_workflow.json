@@ -1,0 +1,14 @@
+{
+  "boundary": "executes the design-to-deployment lifecycle as receipt-backed phases; documentation, telemetry, manifests, hashes and dashboards are not completion by themselves",
+  "classification": "UNSUPPORTED_IN_THIS_RUNTIME",
+  "details": {
+    "gate_reason": "No executable probe is registered for this declared service."
+  },
+  "executed": false,
+  "negative_test_passed": false,
+  "owner_plane": "virtual_cpu_delivery_governance",
+  "positive_test_passed": false,
+  "probe_name": "unregistered_probe",
+  "service_id": "software_design_deployment_workflow",
+  "timestamp": 1786086742.302844
+}

@@ -1,0 +1,6 @@
+{
+  "namespaces": [
+    "vfs://apps/k-cloud-adapter/",
+    "vfs://agents/k-cloud-adapter/receipts/"
+  ]
+}

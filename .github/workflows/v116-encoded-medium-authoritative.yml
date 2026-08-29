@@ -1,0 +1,63 @@
+name: KEDDEH V116 Encoded-Medium Authoritative Architecture
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'v98_protocol_compliance_config/src/keddeh_encoded_medium_storage_runtime_v1.py'
+      - 'v98_protocol_compliance_config/tests/test_encoded_medium_storage_runtime_v1.py'
+      - 'v98_protocol_compliance_config/config/encoded_medium_authoritative_reconciliation_v1.json'
+      - 'v98_protocol_compliance_config/docs/AUTHORITATIVE_ENCODED_MEDIUM_ARCHITECTURE_V1.md'
+      - '.github/workflows/v116-encoded-medium-authoritative.yml'
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  verify-encoded-medium:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile encoded-medium runtime
+        run: |
+          cd v98_protocol_compliance_config
+          python3 -m compileall src/keddeh_encoded_medium_storage_runtime_v1.py tests/test_encoded_medium_storage_runtime_v1.py
+      - name: Run encoded-medium authoritative tests
+        run: |
+          cd v98_protocol_compliance_config
+          python3 -m unittest tests.test_encoded_medium_storage_runtime_v1 -v
+      - name: Execute encoded-medium activation
+        run: |
+          cd v98_protocol_compliance_config
+          python3 src/keddeh_encoded_medium_storage_runtime_v1.py --root . --activate
+      - name: Assert authoritative architecture and activation contract
+        run: |
+          cd v98_protocol_compliance_config
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          cfg=json.loads(Path('config/encoded_medium_authoritative_reconciliation_v1.json').read_text())
+          receipt=json.loads(Path('evidence/encoded_medium_reconciliation_receipt.json').read_text())
+          outbox=json.loads(Path('runtime_volume/outbox/encoded_medium_reconciliation/authoritative.handoff.json').read_text())
+          assert cfg['authoritative_primitive'] == 'encoded script runtime structure is the software-defined storage medium'
+          assert cfg['authoritative_relations']['source_lines'] == 'provenance/authoring coordinates'
+          assert cfg['authoritative_relations']['vfs'] == 'logical interpretation/navigation over decoded logical objects'
+          assert 'L# as storage address' in cfg['rejected_promotions']
+          assert 'VFS as substrate' in cfg['rejected_promotions']
+          assert receipt['status'] == 'VERIFIED'
+          assert receipt['boot']['root_verified'] is True
+          assert receipt['domain_readback']['verified'] is True
+          assert outbox['state'] == 'VERIFIED'
+          assert outbox['receipt_proof'] == receipt['proof']
+          PY
+      - name: Upload encoded-medium evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: keddeh-v116-encoded-medium-authoritative
+          path: |
+            v98_protocol_compliance_config/evidence/encoded_medium_reconciliation_receipt.json
+            v98_protocol_compliance_config/runtime_volume/encoded_medium/current.json
+            v98_protocol_compliance_config/runtime_volume/outbox/encoded_medium_reconciliation/authoritative.handoff.json

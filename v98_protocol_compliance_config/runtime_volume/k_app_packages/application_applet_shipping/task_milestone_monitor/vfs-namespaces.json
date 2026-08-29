@@ -1,0 +1,6 @@
+{
+  "namespaces": [
+    "vfs://apps/task-milestone-monitor/",
+    "vfs://agents/task-milestone-monitor/receipts/"
+  ]
+}

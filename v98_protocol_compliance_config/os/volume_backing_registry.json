@@ -1,0 +1,64 @@
+{
+  "version": "V109-VOLUME-BACKING-2",
+  "volumeId": "volume://prime-tensor/8x8x8",
+  "canonicalRule": "Volume identity is created by the scripted coordinate domain and remains invariant across physical, persistent, workbook, browser, VM, simulated, and software backing projections.",
+  "volume": {
+    "dimensions": [8, 8, 8],
+    "cellCount": 512,
+    "canonicalSlot": "64*x + 8*y + z",
+    "routeResidue": "((97*x)+(199*y)+(401*z)) mod 823",
+    "routeAddress": "routeBase + routeResidue*1667*4096",
+    "physicalBackingRequired": false
+  },
+  "selection": {
+    "mode": "FIRST_COMPLETE_ADAPTER_IN_STRICT_PATH_ORDER",
+    "pathOrder": ["path_a", "path_b", "path_c"],
+    "allowPartialPathMerge": false,
+    "allPathsUnavailableEffect": "BINDING_ONLY_BOUNDED_STOP_VOLUME_IDENTITY_PRESERVED"
+  },
+  "paths": [
+    {
+      "pathId": "path_a",
+      "class": "PHYSICAL_PROJECTION",
+      "adapters": [
+        {"kind": "physical_frame", "order": 1},
+        {"kind": "device_mmio", "order": 2}
+      ]
+    },
+    {
+      "pathId": "path_b",
+      "class": "PERSISTENT_OR_EXTERNAL_PROJECTION",
+      "adapters": [
+        {"kind": "persistent_volume", "order": 1},
+        {"kind": "file_backed_storage", "order": 2},
+        {"kind": "workbook_cells", "order": 3},
+        {"kind": "browser_buffer", "order": 4}
+      ]
+    },
+    {
+      "pathId": "path_c",
+      "class": "VOLATILE_SOFTWARE_EXECUTION",
+      "adapters": [
+        {"kind": "vm_memory", "order": 1},
+        {"kind": "simulated_memory", "order": 2},
+        {"kind": "software_memory", "order": 3}
+      ]
+    }
+  ],
+  "preservedAcrossBackingChanges": [
+    "coordinate",
+    "canonical_slot",
+    "route_residue",
+    "occupancy_state",
+    "allocation_lineage",
+    "release_reentry_semantics",
+    "receipt_identity"
+  ],
+  "invariants": [
+    "volume_identity != backing_identity",
+    "unavailable_physical_adapter != unavailable_tensor_volume",
+    "backing_address = adapter_base + canonical_slot*4096",
+    "backing_failure removes only backing capability",
+    "path selection is deterministic A then B then C"
+  ]
+}

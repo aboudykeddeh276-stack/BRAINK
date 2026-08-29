@@ -1,0 +1,34 @@
+name: KEDDEH V99 Semantic Knowledge Graph
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'v98_protocol_compliance_config/**'
+      - '.github/workflows/v99-semantic-knowledge-graph.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  semantic-knowledge-graph:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile and run semantic graph
+        run: |
+          cd v98_protocol_compliance_config
+          python3 -m compileall src tests
+          python3 src/keddeh_semantic_knowledge_graph.py --root . --emit-receipt
+          python3 -m unittest tests.test_semantic_knowledge_graph -v
+      - name: Upload semantic graph evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: keddeh-v99-semantic-knowledge-graph
+          path: |
+            v98_protocol_compliance_config/evidence/semantic_knowledge_graph_receipt.json
+            v98_protocol_compliance_config/exports/semantic_knowledge_graph_edges.csv
+            v98_protocol_compliance_config/exports/semantic_knowledge_graph_bindings.csv
+            v98_protocol_compliance_config/runtime_volume/semantic_graph/

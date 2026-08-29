@@ -1,0 +1,57 @@
+{
+  "version": "V103-ACTIVE-WORD-FULL-ENGAGEMENT-1",
+  "policyId": "keddeh.active-word.full-engagement",
+  "canonicalEquation": "A_W=f(W,C,E,S,V,O,L,T)",
+  "engagementRule": "every source point remains complete; every derivation creates a linked point; every runtime finding returns to source lineage through Mirror Lane",
+  "iterations": 3,
+  "phases": [
+    "DISCOVER",
+    "ACTIVATE",
+    "COMPOSE",
+    "EXECUTE",
+    "OBSERVE",
+    "VALIDATE",
+    "DERIVE",
+    "RETURN",
+    "REINTEGRATE"
+  ],
+  "derivationTypes": [
+    "WORD_TO_EXPRESSION",
+    "EXPRESSION_TO_SERVICE",
+    "SERVICE_TO_HANDLER",
+    "WORD_TO_SECTOR",
+    "WORD_TO_EVIDENCE",
+    "SOURCE_TO_RUNTIME",
+    "RUNTIME_TO_SOURCE",
+    "SHARED_INVARIANT",
+    "SHARED_DEPENDENCY",
+    "SHARED_OBSERVER",
+    "SHARED_EXECUTION_PLANE"
+  ],
+  "requiredBilateralIndexes": [
+    "forward",
+    "reverse",
+    "source_to_runtime",
+    "runtime_to_source",
+    "word_to_expression",
+    "expression_to_word",
+    "service_to_transition",
+    "transition_to_service"
+  ],
+  "boundedStates": [
+    "ACTIVE",
+    "OBSERVED",
+    "VERIFIED",
+    "PRESERVED",
+    "DEGRADED",
+    "DEFERRED",
+    "RECOVERING",
+    "REINTEGRATED",
+    "LEARNING_REQUIRED",
+    "EVIDENCE_CORRELATION_REQUIRED",
+    "CONTEXT_RESOLUTION_REQUIRED"
+  ],
+  "promotionRule": "promote only the exact contextual capability supported by evidence; never promote a word globally",
+  "returnRule": "new meanings, contradictions, missing bindings and emergent relations become Mirror Lane proposals linked to every originating source point",
+  "globalStopRule": "global stop requires a proven global safety, semantic or integrity invariant violation"
+}

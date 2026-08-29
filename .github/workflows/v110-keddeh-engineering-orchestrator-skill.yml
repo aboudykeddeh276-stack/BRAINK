@@ -1,0 +1,44 @@
+name: KEDDEH V110 Engineering Orchestrator Skill
+
+on:
+  pull_request:
+    paths:
+      - 'skills/keddeh-engineering-orchestrator/**'
+      - '.github/workflows/v110-keddeh-engineering-orchestrator-skill.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-skill-and-product:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate Python syntax
+        run: python3 -m compileall skills/keddeh-engineering-orchestrator
+
+      - name: Validate skill contract
+        working-directory: skills/keddeh-engineering-orchestrator
+        run: python3 validate_skill.py
+
+      - name: Validate naming attribution and lineage
+        working-directory: skills/keddeh-engineering-orchestrator
+        run: python3 validate_naming_attribution.py
+
+      - name: Validate market product contract
+        working-directory: skills/keddeh-engineering-orchestrator
+        run: python3 validate_product.py
+
+      - name: Execute all dependency-free tests
+        working-directory: skills/keddeh-engineering-orchestrator
+        run: python3 -m unittest discover -s . -p 'test_*.py' -v
+
+      - name: Exercise five-minute server quickstart
+        working-directory: skills/keddeh-engineering-orchestrator
+        run: |
+          tmpdir="$(mktemp -d)"
+          python3 keo.py init "$tmpdir/demo-server" --name "CI Demo Server" --profile server
+          python3 keo.py validate "$tmpdir/demo-server"
+          python3 keo.py inspect "$tmpdir/demo-server"

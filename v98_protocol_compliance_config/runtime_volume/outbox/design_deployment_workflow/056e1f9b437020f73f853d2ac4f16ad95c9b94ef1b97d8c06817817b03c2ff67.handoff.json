@@ -1,0 +1,9 @@
+{
+  "created_at": 1786086741.1645148,
+  "handoff_id": "056e1f9b437020f73f853d2ac4f16ad95c9b94ef1b97d8c06817817b03c2ff67",
+  "next_target": "acceptance_harness_then_self_hosted_m3_runner",
+  "payload_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/software_design_deployment_workflow_receipt.json",
+  "receipt_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/proof_bundles.ledger",
+  "source": "KEDDEH_V99_SOFTWARE_DESIGN_DEPLOYMENT_WORKFLOW",
+  "status": "READY_FOR_TARGET_HOST_EXECUTION"
+}

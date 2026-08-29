@@ -1,0 +1,6 @@
+{
+  "namespaces": [
+    "vfs://apps/workflow-schema-guard/",
+    "vfs://agents/workflow-schema-guard/receipts/"
+  ]
+}

@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>current_state_surface_auditor — K-APP</title>
+  <style>
+    body { font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; margin: 2rem; max-width: 980px; }
+    .card { border: 1px solid #bbb; border-radius: 14px; padding: 1rem; margin: 1rem 0; }
+    code { background: #f2f2f2; padding: .15rem .3rem; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <h1>current_state_surface_auditor</h1>
+  <p><strong>Component type:</strong> APPLET</p>
+  <p><strong>Shipping state:</strong> LOCAL_SHIPPABLE_K_APP</p>
+  <div class="card">
+    <h2>Runtime independence contract</h2>
+    <p><strong>Canonical rule:</strong> <code>Dependency failure != global application failure</code></p>
+    <p><strong>Capabilities:</strong> current_state_surface_auditor, virtual_cpu_current_state_audit_plane</p>
+    <p><strong>Fallback adapter:</strong> adapter.local-static-applet</p>
+    <p><strong>Outbox:</strong> <code>runtime_volume/outbox/application_applet_shipping/current_state_surface_auditor</code></p>
+  </div>
+  <div class="card">
+    <h2>Readback requirement</h2>
+    <p>Node-side execution is permitted only after <code>k-app.manifest.json</code> matches <code>integrity.sha256</code> and all K-APP files are present.</p>
+  </div>
+</body>
+</html>

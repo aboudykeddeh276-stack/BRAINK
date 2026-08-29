@@ -1,0 +1,14 @@
+{
+  "boundary": "renders and visualizes state; does not promote pass state",
+  "classification": "TARGET_HOST_REQUIRED",
+  "details": {
+    "gate_reason": "Dashboard source exists, but framebuffer/render/readback execution requires the target workstation runtime."
+  },
+  "executed": false,
+  "negative_test_passed": false,
+  "owner_plane": "virtual_gpu",
+  "positive_test_passed": false,
+  "probe_name": "probe_virtual_gpu_hci_dashboard",
+  "service_id": "virtual_gpu_hci_dashboard",
+  "timestamp": 1786086742.2697418
+}

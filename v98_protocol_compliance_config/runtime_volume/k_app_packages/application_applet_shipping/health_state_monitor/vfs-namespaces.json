@@ -1,0 +1,6 @@
+{
+  "namespaces": [
+    "vfs://apps/health-state-monitor/",
+    "vfs://agents/health-state-monitor/receipts/"
+  ]
+}

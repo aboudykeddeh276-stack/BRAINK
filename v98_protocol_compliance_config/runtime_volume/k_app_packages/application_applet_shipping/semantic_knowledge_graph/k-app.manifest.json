@@ -1,0 +1,81 @@
+{
+  "applicationId": "kex.semantic.knowledge.graph",
+  "boundary": "turns words, expressions, services, code bindings, transitions and receipts into an executable knowledge graph so implementations can explain their meaning, authority, sector, service and evidence lineage",
+  "canonicalRuntimeRule": "DEPENDENCY_FAILURE_NE_GLOBAL_APPLICATION_FAILURE",
+  "componentId": "semantic_knowledge_graph",
+  "componentType": "APPLET",
+  "dependencyPolicies": {
+    "service.audio-output": "OPTIONAL",
+    "service.native-gpu": "OPTIONAL",
+    "service.remote-telemetry": "OPTIONAL",
+    "service.runtime-config": "CORE_MANDATORY",
+    "service.semantic-knowledge-graph": "CORE_DEGRADED",
+    "service.vfs": "CORE_MANDATORY"
+  },
+  "deploymentMode": "MESH_REPLICATED",
+  "entrypoint": "/index.html",
+  "fallbackAdapters": {
+    "service.audio-output": "adapter.visual-notification",
+    "service.mesh-registry": "adapter.local-mesh-outbox",
+    "service.native-gpu": "adapter.canvas-cpu-renderer",
+    "service.remote-telemetry": "adapter.local-telemetry-outbox",
+    "service.semantic-knowledge-graph": "adapter.local-static-applet"
+  },
+  "optionalServices": [
+    "service.audio-output",
+    "service.native-gpu",
+    "service.remote-telemetry"
+  ],
+  "ownerPlane": "virtual_cpu_semantic_governance_plane",
+  "requiredServices": [
+    "service.vfs",
+    "service.runtime-config"
+  ],
+  "runtime": "BROWSER_ESM",
+  "runtimeIndependenceContract": {
+    "circuitBreakerLimits": {
+      "failureThreshold": 2,
+      "recoveryTimeoutSeconds": 60
+    },
+    "criticalityClass": "CORE_DEGRADED",
+    "degradedModeBehaviour": "preserve core runtime and expose degraded capability state",
+    "fallbackAdapter": "adapter.local-static-applet",
+    "identity": "semantic_knowledge_graph",
+    "optionalDependencies": [
+      "service.audio-output",
+      "service.native-gpu",
+      "service.remote-telemetry"
+    ],
+    "queueOutboxPolicy": "runtime_volume/outbox/application_applet_shipping/semantic_knowledge_graph",
+    "recoveryConditions": [
+      "dependency health check passes",
+      "manifest integrity readback passes",
+      "node capability readback passes"
+    ],
+    "reintegrationTests": [
+      "tests/test_application_applet_packager.py",
+      "tests/test_k_cloud_adapter.py"
+    ],
+    "rollbackContract": "retain previous package directory until new package receipt and integrity readback pass",
+    "runtimeDependencies": [
+      "service.semantic-knowledge-graph"
+    ],
+    "startupDependencies": [
+      "service.vfs",
+      "service.runtime-config"
+    ],
+    "suppliedCapabilities": [
+      "semantic_knowledge_graph",
+      "virtual_cpu_semantic_governance_plane"
+    ]
+  },
+  "sourceSurface": "service_protocol_runtime_surface",
+  "targetGates": [
+    "AUTHORIZED_DOMAIN",
+    "TLS_READBACK",
+    "BROWSER_SECURITY",
+    "WCAG",
+    "MESH_NODE_READBACK"
+  ],
+  "version": "1.0.0"
+}

@@ -1,0 +1,68 @@
+{
+  "backlinks": {
+    "code_bindings": [
+      "config/service_protocols.json::btc_core_protocol_router",
+      "config/service_protocols.json::evidence_context_resolver",
+      "config/service_protocols.json::four_plane_context_framework",
+      "config/service_protocols.json::hemos_family_of_five_runtime",
+      "config/service_protocols.json::hyper_explicit_mesh_runtime",
+      "config/service_protocols.json::indefinite_network_runtime",
+      "config/service_protocols.json::orphan_service_reconciler",
+      "config/service_protocols.json::peer_ack_verifier",
+      "config/service_protocols.json::safe_asset_receipt_pipeline",
+      "config/service_protocols.json::secret_boundary_guard",
+      "config/service_protocols.json::semantic_knowledge_graph",
+      "config/service_protocols.json::task_milestone_monitor",
+      "config/service_protocols.json::test_runner",
+      "config/service_protocols.json::vfs_volume_custody",
+      "config/service_protocols.json::virtual_gpu_hci_dashboard",
+      "config/service_protocols.json::workflow_schema_guard",
+      "config/service_protocols.json::zero_heap_compiler"
+    ],
+    "services": [
+      "service://btc_core_protocol_router",
+      "service://evidence_context_resolver",
+      "service://four_plane_context_framework",
+      "service://hemos_family_of_five_runtime",
+      "service://hyper_explicit_mesh_runtime",
+      "service://indefinite_network_runtime",
+      "service://orphan_service_reconciler",
+      "service://peer_ack_verifier",
+      "service://safe_asset_receipt_pipeline",
+      "service://secret_boundary_guard",
+      "service://semantic_knowledge_graph",
+      "service://task_milestone_monitor",
+      "service://test_runner",
+      "service://vfs_volume_custody",
+      "service://virtual_gpu_hci_dashboard",
+      "service://workflow_schema_guard",
+      "service://zero_heap_compiler"
+    ],
+    "story_transitions": []
+  },
+  "composed_definition": "read and compare the application package manifest against integrity data before node-side execution can start",
+  "expression_id": "expression://verify-manifest-before-node-execution",
+  "not_allowed": [
+    "existence check only",
+    "node execution before integrity readback"
+  ],
+  "source_meaning": {
+    "deploy": "word://deploy",
+    "node": "word://node",
+    "verify": "word://verify"
+  },
+  "words": [
+    {
+      "canonical": "word://verify",
+      "grammatical_role": "predicate"
+    },
+    {
+      "canonical": "word://deploy",
+      "grammatical_role": "deployment_constraint"
+    },
+    {
+      "canonical": "word://node",
+      "grammatical_role": "execution_target"
+    }
+  ]
+}

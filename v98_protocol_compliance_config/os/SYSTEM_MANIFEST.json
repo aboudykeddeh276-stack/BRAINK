@@ -1,0 +1,148 @@
+{
+  "manifest_version": "CASS-OS-PHASE1-2",
+  "system_state": {
+    "execution_ring": "Ring0_Freestanding",
+    "paging_mode": "LongMode_4Level_Planned_NotInitialized",
+    "active_descriptor_tables": [],
+    "memory_allocator_state": "PrimeTensorSoftwareVolume_Active_PhysicalAdapterPending",
+    "kernel_model": "Monolithic_StrictSubsystemBoundaries",
+    "target_isa": "x86_64",
+    "boot_protocol": "Multiboot2",
+    "kernel_virtual_base": "0xFFFFFFFF80000000",
+    "kernel_physical_load_base": "0x00100000",
+    "standard_library": "Forbidden",
+    "ambient_runtime": "None"
+  },
+  "compilation_units": {
+    "current_target": "Architecture_Linker_FoundationTypes_PrimeTensorVolume_BuildVerification",
+    "implemented": [
+      "ARCHITECTURE.md",
+      "OS_STATE.md",
+      "linker.ld",
+      "include/kernel_types.hpp",
+      "include/prime_tensor_volume.hpp",
+      "tests/kernel_types_compile.cpp",
+      "tests/prime_tensor_volume_compile.cpp",
+      "Makefile"
+    ],
+    "verified_dependencies": [
+      "512-cell tensor coordinate domain",
+      "canonical non-aliasing cell slot",
+      "prime-modulo routing residue",
+      "ordered backing paths A/B/C"
+    ],
+    "blocked_by": [
+      "x86_64-elf cross-toolchain version and execution receipt",
+      "target-linker parse and ELF section readback",
+      "Multiboot2 assembly entry",
+      "temporary page tables for higher-half transition",
+      "QEMU VGA execution receipt"
+    ]
+  },
+  "software_volume": {
+    "state": "ACTIVE",
+    "identity": "volume://prime-tensor/8x8x8",
+    "dimensions": [8, 8, 8],
+    "cell_count": 512,
+    "occupancy_words": 8,
+    "coordinate_identity": "canonical_slot=(x*64)+(y*8)+z",
+    "route_key": "((97*x)+(199*y)+(401*z)) mod 823",
+    "route_residue_count": 432,
+    "known_route_residue_collisions": 80,
+    "collision_policy": "Residue is routing metadata; canonical slot remains the unique cell identity.",
+    "backing_failover_order": [
+      "path_a_physical",
+      "path_b_persistent",
+      "path_c_software"
+    ],
+    "partial_path_blending": false,
+    "physical_backing_required_for_volume_identity": false
+  },
+  "compiler_contract": {
+    "language": "C++23 freestanding",
+    "compiler": "x86_64-elf-g++",
+    "baseline_flags": [
+      "-std=c++23",
+      "-O2",
+      "-ffreestanding",
+      "-fno-builtin",
+      "-nostdinc++",
+      "-fno-exceptions",
+      "-fno-rtti",
+      "-fno-threadsafe-statics",
+      "-fno-use-cxa-atexit",
+      "-fno-omit-frame-pointer",
+      "-mno-red-zone",
+      "-mcmodel=kernel",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Wconversion",
+      "-Wsign-conversion",
+      "-Wdouble-promotion",
+      "-Wshadow",
+      "-fstrict-aliasing",
+      "-fno-delete-null-pointer-checks"
+    ],
+    "trap_ubsan_profile": [
+      "-fsanitize=undefined",
+      "-fsanitize-undefined-trap-on-error"
+    ],
+    "deferred_flags": {
+      "-fstack-protector-all": "blocked until __stack_chk_guard initialization and __stack_chk_fail exist",
+      "ordinary -fsanitize=undefined": "blocked because it requires sanitizer runtime handlers"
+    }
+  },
+  "memory_map": {
+    "null_guard": "0x0000000000000000-0x00000000001FFFFF",
+    "user_lower_half": "0x0000000000200000-0x00007FFFFFFFFFFF",
+    "direct_physical_map_base": "0xFFFF800000000000",
+    "kernel_higher_half_base": "0xFFFFFFFF80000000",
+    "vga_text_physical": "0x00000000000B8000",
+    "prime_tensor_route_base_default": "0x0000000002000000",
+    "page_size": 4096,
+    "page_table_management_window": "UNRESOLVED",
+    "mmio_window": "UNRESOLVED"
+  },
+  "interrupt_state": {
+    "interrupts_enabled": false,
+    "exception_vectors_reserved": "0-31",
+    "external_vectors": "UNASSIGNED",
+    "double_fault_ist": "REQUIRED_NOT_IMPLEMENTED",
+    "page_fault_diagnostics": "REQUIRED_NOT_IMPLEMENTED"
+  },
+  "mathematical_invariants": [
+    "PAGE_SIZE == 4096",
+    "CACHE_LINE_SIZE == 64",
+    "KERNEL_VIRTUAL_BASE == 0xFFFFFFFF80000000",
+    "BOOT_PHYSICAL_BASE == 0x00100000",
+    "sizeof(SpinlockStorage) == 64",
+    "alignof(SpinlockStorage) == 64",
+    "PrimeTensorVolume cell count == 512",
+    "PrimeTensorVolume canonical slots span exactly 0..511",
+    "PrimeTensorVolume backing selection order == path_a then path_b then path_c",
+    "route residue collision never aliases canonical cell identity",
+    "sizeof(GDTDescriptorPointer64) == 10 [prospective]",
+    "sizeof(IDTEntry64) == 16 [prospective]",
+    "Expected<T,E> contains exactly one active alternative"
+  ],
+  "verification_gates": {
+    "GATE_00_ARCHITECTURE_FROZEN": "IMPLEMENTED",
+    "GATE_01_TOOLCHAIN_REPRODUCIBLE": "PENDING_EXECUTION",
+    "GATE_02_PRIME_TENSOR_VOLUME_STATIC_CONTRACT": "IMPLEMENTED_PENDING_CROSS_COMPILE",
+    "GATE_03_MULTIBOOT2_HEADER_VALID": "NOT_STARTED",
+    "GATE_04_KERNEL_ENTRY_REACHED": "NOT_STARTED",
+    "GATE_05_VGA_ANCHOR_READBACK": "NOT_STARTED",
+    "GATE_06_GDT_TSS_LOADED": "NOT_STARTED",
+    "GATE_07_IDT_EXCEPTION_MATRIX": "NOT_STARTED",
+    "GATE_08_BOOT_MEMORY_MAP_PROTECTED": "NOT_STARTED",
+    "GATE_09_PHYSICAL_BACKING_ADAPTER": "NOT_STARTED",
+    "GATE_10_PAGING_PROTECTIONS": "NOT_STARTED"
+  },
+  "artifact_preservation": {
+    "completion_rule": "No build is saved until durable bytes, stable ID, exact filename, size, SHA-256 and independent readback exist.",
+    "guard": "../src/keddeh_artifact_preservation_guard.py",
+    "state": "REQUIRED_FOR_EVERY_RELEASE"
+  },
+  "next_immediate_dependency": "Cross-compile the active tensor volume and foundation; then implement Multiboot2 entry while retaining software/persistent backing when physical backing is unavailable."
+}

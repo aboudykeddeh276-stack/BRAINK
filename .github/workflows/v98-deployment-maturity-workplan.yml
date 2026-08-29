@@ -1,0 +1,37 @@
+name: KEDDEH V98 Deployment Maturity Workplan
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'v98_protocol_compliance_config/**'
+      - '.github/workflows/v98-deployment-maturity-workplan.yml'
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  deployment-maturity-workplan:
+    name: deployment maturity and corrective workflow matrix
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Python version
+        run: python3 --version
+      - name: Run deployment maturity workplan
+        run: |
+          cd v98_protocol_compliance_config
+          bash scripts/deployment_maturity.command
+      - name: Upload deployment maturity evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: keddeh-v99-deployment-maturity
+          path: |
+            v98_protocol_compliance_config/evidence/deployment_maturity_workplan_receipt.json
+            v98_protocol_compliance_config/exports/deployment_maturity_workplan_matrix.csv
+            v98_protocol_compliance_config/runtime_volume/workplans/deployment_maturity/
+            v98_protocol_compliance_config/runtime_volume/outbox/deployment_maturity_workplan/

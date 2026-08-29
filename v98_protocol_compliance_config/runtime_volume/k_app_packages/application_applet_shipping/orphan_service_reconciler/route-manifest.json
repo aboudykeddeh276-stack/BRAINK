@@ -1,0 +1,8 @@
+{
+  "routes": [
+    {
+      "entrypoint": "/index.html",
+      "path": "/"
+    }
+  ]
+}

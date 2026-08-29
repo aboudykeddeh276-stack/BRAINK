@@ -1,0 +1,9 @@
+{
+  "classification": "LOCAL_PASS",
+  "handoff_id": "4a7dece2b4f526312521c18925de99cfc4a903594e32108559cf97de66b90bb0",
+  "next_target": "service_probe_integration_then_target_host_worker_adapter",
+  "payload_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/mesh_scheduler_receipt.json",
+  "receipt_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/proof_bundles.ledger",
+  "source": "KEDDEH_V98_MESH_SCHEDULER",
+  "status": "READY"
+}

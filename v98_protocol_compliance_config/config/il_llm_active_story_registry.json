@@ -1,0 +1,36 @@
+{
+  "version": "V101-ILLLM-1",
+  "registryId": "keddeh.il-llm.active-story",
+  "canonicalTransition": ["ANCHOR", "FACTOR", "TRANSLATE", "ACT", "VALIDATE", "TOKENIZE", "PRESERVE", "RETURN"],
+  "architecture": "SYSTEM == DOMAIN == COMPLETE_CONTEXTUAL_VALUE",
+  "wordModel": "(- WORD +)",
+  "invariants": [
+    "preserve imported word identity",
+    "preserve source definition and source location",
+    "preserve observer-state manifestation",
+    "preserve relation, environment and lineage",
+    "grouped expression must retain every source word",
+    "unresolved terms create bounded learning work rather than erasure"
+  ],
+  "sourceSurfaces": [
+    "all_word_complete_values.json",
+    "KEDDEH_RECURSIVE_CONTEXTUAL_VALUE_ALGEBRA_FOUNDATIONAL_SPECIFICATION.docx",
+    "KEDDEH_KEX_ILLLM_ITERATIVE_MODULE_LIBRARY_CONTROL_PLANE_V19.xlsx",
+    "module_registry_v19.json",
+    "kex_rehydration_proof_canonical.json",
+    "il-llm:// active lexicon code mappings"
+  ],
+  "canonicalConcepts": {
+    "zeroless": {"concept":"ZERO_AS_CALIBRATION_SEAM","role":"Reject zero as active state while preserving calibration and null-presence context."},
+    "agent": {"concept":"EXECUTABLE_RESPONSIBILITY_LOOP","role":"Callable worker that consumes a queue item and emits a receipt."},
+    "wire": {"concept":"TYPED_STATE_CHANNEL","role":"Typed transition with invariant, source and receipt."},
+    "substrate": {"concept":"SOFTWARE_DEFINED_OPERATIONAL_SUBSTRATE","role":"Coordinate software-instantiated infrastructure functions."},
+    "il-llm": {"concept":"INTEGRATED_LINGUISTIC_CONTEXT_RUNTIME","role":"Ingest complete words, resolve linked definitions, compose contextual expressions and return preserved transitions."}
+  },
+  "services": [
+    {"serviceId":"service://il-llm-ingestion","sector":"sector://learning-and-knowledge","function":"source-bound mass ingestion"},
+    {"serviceId":"service://il-llm-lexicon-resolution","sector":"sector://language-runtime","function":"resolve canonical word identities and synonyms"},
+    {"serviceId":"service://il-llm-context-integration","sector":"sector://contextual-execution","function":"compose complete contextual expressions"},
+    {"serviceId":"service://il-llm-mirror-learning","sector":"sector://recursive-learning","function":"stage unresolved terms and validated adaptations"}
+  ]
+}

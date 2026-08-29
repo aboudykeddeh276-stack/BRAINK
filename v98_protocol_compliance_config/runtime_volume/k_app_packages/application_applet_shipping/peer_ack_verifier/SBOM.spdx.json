@@ -1,0 +1,10 @@
+{
+  "name": "peer_ack_verifier",
+  "packages": [
+    {
+      "name": "peer_ack_verifier",
+      "versionInfo": "1.0.0"
+    }
+  ],
+  "spdxVersion": "SPDX-2.3"
+}

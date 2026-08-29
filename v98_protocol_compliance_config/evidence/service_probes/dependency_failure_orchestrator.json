@@ -1,0 +1,14 @@
+{
+  "boundary": "classifies blocked dependencies, isolates failure domains, preserves unaffected runtimes, emits bounded task packets and prevents dependency failure from becoming global runtime failure unless a proven invariant would be violated",
+  "classification": "UNSUPPORTED_IN_THIS_RUNTIME",
+  "details": {
+    "gate_reason": "No executable probe is registered for this declared service."
+  },
+  "executed": false,
+  "negative_test_passed": false,
+  "owner_plane": "virtual_cpu_resilience_plane",
+  "positive_test_passed": false,
+  "probe_name": "unregistered_probe",
+  "service_id": "dependency_failure_orchestrator",
+  "timestamp": 1786086742.3067904
+}

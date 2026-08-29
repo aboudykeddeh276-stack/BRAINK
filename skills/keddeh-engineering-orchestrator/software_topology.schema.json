@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema://keddeh/software-topology/v1",
+  "title": "KEDDEH Software Topology",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "topology_id",
+    "system_id",
+    "version",
+    "nodes",
+    "edges",
+    "views",
+    "adrs",
+    "iteration_id",
+    "validation_gates",
+    "artifact_state",
+    "promotion_state",
+    "global_stop"
+  ],
+  "properties": {
+    "topology_id": {"type": "string", "pattern": "^topology://[a-z0-9][a-z0-9-]*(/[a-z0-9][a-z0-9-]*)+$"},
+    "system_id": {"type": "string", "pattern": "^system://[a-z0-9][a-z0-9-]*(/[a-z0-9][a-z0-9-]*)+$"},
+    "version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
+    "nodes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "level", "kind", "name", "responsibility", "owner", "status"],
+        "properties": {
+          "id": {"type": "string"},
+          "level": {"enum": ["L0_ECOSYSTEM", "L1_SYSTEM", "L2_DOMAIN", "L3_RUNTIME_CONTAINER", "L4_COMPONENT", "L5_CODE_UNIT", "L6_EXECUTION_TRANSITION", "L7_DEPLOYMENT_PROJECTION"]},
+          "kind": {"type": "string"},
+          "name": {"type": "string", "minLength": 1},
+          "responsibility": {"type": "string", "minLength": 1},
+          "owner": {"type": "string", "minLength": 1},
+          "status": {"enum": ["PROPOSED", "ACTIVE", "DEGRADED", "DEPRECATED", "RETIRED", "SUPERSEDED"]},
+          "source_paths": {"type": "array", "items": {"type": "string"}},
+          "capabilities": {"type": "array", "items": {"type": "string"}},
+          "invariants": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    },
+    "edges": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "source", "target", "relationship", "capability", "data", "criticality", "failure_impact_radius"],
+        "properties": {
+          "id": {"type": "string"},
+          "source": {"type": "string"},
+          "target": {"type": "string"},
+          "relationship": {"enum": ["CONTAINS", "DEPENDS_ON", "CALLS", "PUBLISHES_TO", "SUBSCRIBES_TO", "READS", "WRITES", "DEPLOYS_TO", "PROVIDES", "OBSERVES", "VALIDATES", "SUPERSEDES"]},
+          "capability": {"type": "string", "minLength": 1},
+          "data": {"type": "array", "items": {"type": "string"}},
+          "criticality": {"enum": ["COMPILE_TIME", "STARTUP_REQUIRED", "RUNTIME_REQUIRED", "OPTIONAL", "REPLACEABLE", "DEFERRED_COMMIT", "OBSERVATION_ONLY", "AUTHORITY_GATE"]},
+          "selected_path": {"enum": ["path_a", "path_b", "path_c"]},
+          "failure_impact_radius": {"type": "array", "items": {"type": "string"}},
+          "reentry_conditions": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    },
+    "views": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["view_id", "viewpoint", "audience", "concerns", "model_kind", "source_of_truth"],
+        "properties": {
+          "view_id": {"type": "string"},
+          "viewpoint": {"enum": ["CONTEXT_VIEW", "BUILDING_BLOCK_VIEW", "RUNTIME_VIEW", "DEPLOYMENT_VIEW", "DATA_LINEAGE_VIEW", "FAILURE_AND_RECOVERY_VIEW", "SECURITY_AND_TRUST_VIEW", "EVIDENCE_AND_PROMOTION_VIEW"]},
+          "audience": {"type": "array", "items": {"type": "string"}},
+          "concerns": {"type": "array", "items": {"type": "string"}},
+          "model_kind": {"type": "string"},
+          "source_of_truth": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    },
+    "adrs": {"type": "array", "items": {"type": "string", "pattern": "^ADR-[0-9]{4}-[a-z0-9-]+\\.md$"}},
+    "iteration_id": {"type": "string", "pattern": "^iteration://[a-z0-9][a-z0-9-]*(/[a-z0-9][a-z0-9-]*)+/[0-9]{4}-[0-9]{2}-[0-9]{2}/[0-9]+$"},
+    "validation_gates": {"type": "object", "additionalProperties": {"enum": ["PASS", "FAIL", "PENDING", "NOT_APPLICABLE"]}},
+    "artifact_state": {"enum": ["DURABLE_BYTES", "DURABLE_NATIVE_RECORD", "REFERENCE_ONLY", "EPHEMERAL_OR_EXPIRED_PATH", "RECONSTRUCTION_REQUIRED"]},
+    "promotion_state": {"enum": ["CONCEPTUAL", "FORMALISED", "IMPLEMENTED", "STATICALLY_VALIDATED", "LOCALLY_EXECUTED", "CI_PASS", "TARGET_HOST_PASS", "PROVIDER_PASS", "DEPLOYED", "EXTERNALLY_PROVEN", "CERTIFIED_OR_AUTHORITY_CONFIRMED"]},
+    "global_stop": {"const": false}
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "boundary": "observes registered mesh nodes and projects capability-specific degraded UI state while preserving healthy runtime domains",
+  "classification": "UNSUPPORTED_IN_THIS_RUNTIME",
+  "details": {
+    "gate_reason": "No executable probe is registered for this declared service."
+  },
+  "executed": false,
+  "negative_test_passed": false,
+  "owner_plane": "virtual_cpu_health_plane",
+  "positive_test_passed": false,
+  "probe_name": "unregistered_probe",
+  "service_id": "health_state_monitor",
+  "timestamp": 1786086742.3127859
+}

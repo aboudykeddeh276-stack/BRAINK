@@ -1,0 +1,6 @@
+{
+  "namespaces": [
+    "vfs://apps/four-plane-context-framework/",
+    "vfs://agents/four-plane-context-framework/receipts/"
+  ]
+}

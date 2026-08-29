@@ -1,0 +1,18 @@
+{
+  "version": "V98",
+  "target_host": "macOS Apple Silicon M3 self-hosted runner",
+  "required_runner_labels": ["self-hosted", "macOS", "ARM64", "KEDDEH-M3"],
+  "runtime_supervisor": "launchd LaunchAgent",
+  "launch_agent_template": "launchd/com.keddeh.service-spine.plist.template",
+  "target_gates": [
+    {"gate_id":"TG-01","gate_type":"self_hosted_runner_labels","promotion_state":"TARGET_HOST_REQUIRED","receipt_required":"GitHub Actions job log showing labels and job execution"},
+    {"gate_id":"TG-02","gate_type":"launchd_installation","promotion_state":"TARGET_HOST_REQUIRED","receipt_required":"launchctl print gui/$UID/com.keddeh.service-spine output"},
+    {"gate_id":"TG-03","gate_type":"local_ledger_write_readback","promotion_state":"LOCAL_PASS","receipt_required":"runtime_volume/proof_bundles.ledger readback"},
+    {"gate_id":"TG-04","gate_type":"m3_iostat_throughput","promotion_state":"TARGET_HOST_REQUIRED","receipt_required":"iostat/sample receipt captured on the M3 host"},
+    {"gate_id":"TG-05","gate_type":"secret_store","promotion_state":"TARGET_HOST_REQUIRED","receipt_required":"macOS keychain or approved secret manager injection receipt"},
+    {"gate_id":"TG-06","gate_type":"provider_peer_ack","promotion_state":"PROVIDER_REQUIRED","receipt_required":"valid multi-root peer acknowledgement envelope"},
+    {"gate_id":"TG-07","gate_type":"drive_archive","promotion_state":"PROVIDER_REQUIRED","receipt_required":"Drive upload/import result with file IDs"},
+    {"gate_id":"TG-08","gate_type":"virtual_cpu","promotion_state":"LOCAL_PASS","receipt_required":"acceptance harness service receipt"},
+    {"gate_id":"TG-09","gate_type":"virtual_gpu","promotion_state":"TARGET_HOST_REQUIRED","receipt_required":"dashboard/frame state readback on target workstation"}
+  ]
+}

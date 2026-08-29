@@ -1,0 +1,31 @@
+{
+  "version": "V100-KAPP-LEGAL-1",
+  "registryId": "keddeh.kcloud.legal-process-extension",
+  "sourceDesign": "KEX Legal Process v0.14.0 request guard contract supplied by the architecture owner",
+  "products": [
+    {
+      "applicationId": "keddeh.request-guard",
+      "kind": "APPLET",
+      "entrypoint": "src/keddeh_persistent_request_guard.py",
+      "runtime": "PYTHON_LIBRARY",
+      "route": "applet://request-guard",
+      "vfsNamespace": "vfs://applets/keddeh.request-guard/",
+      "suppliedCapabilities": [
+        "PERSISTENT_REPLAY_PREVENTION",
+        "PER_AGENT_MUTATION_RATE_LIMITING",
+        "REQUEST_FRESHNESS_VALIDATION",
+        "FAIL_CLOSED_GUARD_STATE",
+        "AUTHENTICATED_GUARD_STATUS"
+      ],
+      "modules": [
+        "src/keddeh_persistent_request_guard.py"
+      ],
+      "criticality": "CORE_MANDATORY",
+      "fallbackAdapter": "adapter.read-only-mutation-suspension",
+      "launchCommand": "python3 src/keddeh_product_runtime.py --root . --product keddeh.request-guard --emit-receipt",
+      "testCommand": "python3 -m unittest tests.test_persistent_request_guard -v",
+      "deploymentTarget": "PORTABLE_AND_M3_SHARED_GUARD_STORAGE_REQUIRED_FOR_MULTI_INSTANCE",
+      "maturity": "LOCAL_PASS_PENDING_PORTABLE_CI_AND_MULTI_INSTANCE_TRANSACTIONAL_STORE"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "boundary": "identifies issues, corrective workflows and pending workloads for every module and emits executable work packets for local shipping, target-host proof, provider proof and release splitting without using simulation or telemetry as deployment proof",
+  "classification": "UNSUPPORTED_IN_THIS_RUNTIME",
+  "details": {
+    "gate_reason": "No executable probe is registered for this declared service."
+  },
+  "executed": false,
+  "negative_test_passed": false,
+  "owner_plane": "virtual_cpu_release_governance_plane",
+  "positive_test_passed": false,
+  "probe_name": "unregistered_probe",
+  "service_id": "deployment_maturity_workplan",
+  "timestamp": 1786086742.3168573
+}

@@ -1,0 +1,11 @@
+{
+  "classification": "LOCAL_PASS",
+  "created_at": 1786086742.258601,
+  "handoff_id": "e6e989d09468e12079df4ab98d709c28a264beb34fe30e3ce1bb49c4d883b92e",
+  "next_target": "acceptance_summary",
+  "payload_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/service_probes/hyper_explicit_mesh_runtime.json",
+  "receipt_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/proof_bundles.ledger",
+  "service_id": "hyper_explicit_mesh_runtime",
+  "source": "KEDDEH_V98_SERVICE_PROBE",
+  "status": "READY"
+}

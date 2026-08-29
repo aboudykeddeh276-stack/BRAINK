@@ -1,0 +1,15 @@
+{
+  "boundary": "non-secret receipt pipeline; no plaintext private-key logging",
+  "classification": "LOCAL_PASS",
+  "details": {
+    "asset_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/service_probe_assets/asset.json",
+    "secret_payload_rejected": true
+  },
+  "executed": true,
+  "negative_test_passed": true,
+  "owner_plane": "virtual_cpu_volume_adapter",
+  "positive_test_passed": true,
+  "probe_name": "probe_safe_asset_receipt_pipeline",
+  "service_id": "safe_asset_receipt_pipeline",
+  "timestamp": 1786086742.267675
+}

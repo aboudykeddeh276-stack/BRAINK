@@ -1,0 +1,68 @@
+name: KEDDEH V106 Hypervisor Provider Resolution
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'v98_protocol_compliance_config/config/hypervisor_provider_registry.json'
+      - 'v98_protocol_compliance_config/src/keddeh_hypervisor_provider_resolver.py'
+      - 'v98_protocol_compliance_config/tests/test_hypervisor_provider_resolver.py'
+      - '.github/workflows/v98-host-acceptance.yml'
+      - '.github/workflows/v98-task-milestone-host-readback.yml'
+      - '.github/workflows/v98-mirror-host-commit.yml'
+      - '.github/workflows/v106-hypervisor-provider-resolution.yml'
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  provider-resolution:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile and execute repository tests
+        run: |
+          cd v98_protocol_compliance_config
+          python3 -m compileall src tests
+          python3 src/keddeh_test_runner.py --root . --emit-receipt
+      - name: Verify portable provider selection
+        run: |
+          cd v98_protocol_compliance_config
+          python3 src/keddeh_hypervisor_provider_resolver.py \
+            --root . \
+            --workload workload://host-acceptance/portable \
+            --emit-receipt
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          result = json.loads(Path('evidence/hypervisor_provider_resolution_receipt.json').read_text())['result']
+          assert result['promotion_state'] == 'PROVIDER_SELECTED'
+          assert result['selected_provider'] == 'provider://github-hosted/ubuntu-x64'
+          assert result['bilateral_readback'] is True
+          assert result['global_stop'] is False
+          PY
+      - name: Verify Apple provider absence is deferred
+        run: |
+          cd v98_protocol_compliance_config
+          python3 src/keddeh_hypervisor_provider_resolver.py \
+            --root . \
+            --workload workload://apple/native-validation
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          result = json.loads(Path('runtime_volume/hypervisor_provider_resolution/current_resolution.json').read_text())
+          assert result['promotion_state'] == 'DEFERRED'
+          assert result['selected_provider'] is None
+          assert result['global_stop'] is False
+          PY
+      - name: Upload provider topology and receipts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: keddeh-v106-hypervisor-provider-resolution
+          path: |
+            v98_protocol_compliance_config/evidence/hypervisor_provider_resolution_receipt.json
+            v98_protocol_compliance_config/runtime_volume/hypervisor_provider_resolution/
+            v98_protocol_compliance_config/runtime_volume/workplans/provider_reentry/

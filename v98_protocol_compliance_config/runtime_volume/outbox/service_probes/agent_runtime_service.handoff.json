@@ -1,0 +1,11 @@
+{
+  "classification": "LOCAL_PASS",
+  "created_at": 1786086742.286054,
+  "handoff_id": "1408529575c405ef93652edb33ca0119ca9c6b47327505dbe356b5054dc43a55",
+  "next_target": "acceptance_summary",
+  "payload_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/service_probes/agent_runtime_service.json",
+  "receipt_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/proof_bundles.ledger",
+  "service_id": "agent_runtime_service",
+  "source": "KEDDEH_V98_SERVICE_PROBE",
+  "status": "READY"
+}

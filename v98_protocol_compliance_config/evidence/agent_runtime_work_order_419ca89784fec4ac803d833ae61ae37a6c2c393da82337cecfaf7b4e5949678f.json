@@ -1,0 +1,23 @@
+{
+  "action": "execute_service_contract",
+  "agent_id": "virtual_cpu_executor",
+  "authorized": true,
+  "executed": true,
+  "ledger_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/proof_bundles.ledger",
+  "outbox_manifest": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/outbox/agent_runtime/419ca89784fec4ac803d833ae61ae37a6c2c393da82337cecfaf7b4e5949678f.handoff.json",
+  "reason": "authorized",
+  "receipt_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/agent_runtime_work_order_419ca89784fec4ac803d833ae61ae37a6c2c393da82337cecfaf7b4e5949678f.json",
+  "result": {
+    "known_agents": 6,
+    "known_services": 29,
+    "operation": "execute_service_contract",
+    "payload_keys": [
+      "path"
+    ],
+    "service_id": "hyper_explicit_mesh_runtime",
+    "service_known": true
+  },
+  "service_id": "hyper_explicit_mesh_runtime",
+  "timestamp": 1786086740.519271,
+  "work_order_id": "419ca89784fec4ac803d833ae61ae37a6c2c393da82337cecfaf7b4e5949678f"
+}

@@ -1,0 +1,42 @@
+{
+  "backlinks": {
+    "code_bindings": [
+      "config/service_protocols.json::agent_registry_service",
+      "config/service_protocols.json::agent_runtime_service",
+      "config/service_protocols.json::agent_static_guard",
+      "config/service_protocols.json::current_state_surface_auditor"
+    ],
+    "services": [
+      "service://agent_registry_service",
+      "service://agent_runtime_service",
+      "service://agent_static_guard",
+      "service://current_state_surface_auditor"
+    ],
+    "story_transitions": []
+  },
+  "composed_definition": "create a functioning worker by binding identity, role, team, tenant boundary, VFS namespace, queue, skills, policy, runtime allocation, telemetry channel, receipt ledger and lineage",
+  "expression_id": "expression://instantiate-governed-agent-worker",
+  "not_allowed": [
+    "definition-only agent",
+    "button-only provision action"
+  ],
+  "source_meaning": {
+    "agent": "word://agent",
+    "service": "word://service",
+    "verify": "word://verify"
+  },
+  "words": [
+    {
+      "canonical": "word://agent",
+      "grammatical_role": "worker_identity"
+    },
+    {
+      "canonical": "word://service",
+      "grammatical_role": "execution_service"
+    },
+    {
+      "canonical": "word://verify",
+      "grammatical_role": "admission_gate"
+    }
+  ]
+}

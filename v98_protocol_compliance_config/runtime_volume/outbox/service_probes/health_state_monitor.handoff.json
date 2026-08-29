@@ -1,0 +1,11 @@
+{
+  "classification": "UNSUPPORTED_IN_THIS_RUNTIME",
+  "created_at": 1786086742.3127859,
+  "handoff_id": "a62da5c828658b8bd92c906a5a5306044485e2bcadb00235813ab2d37db243eb",
+  "next_target": "implementation_backlog",
+  "payload_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/service_probes/health_state_monitor.json",
+  "receipt_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/proof_bundles.ledger",
+  "service_id": "health_state_monitor",
+  "source": "KEDDEH_V98_SERVICE_PROBE",
+  "status": "READY"
+}

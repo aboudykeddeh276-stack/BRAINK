@@ -1,0 +1,10 @@
+gate_id,gate_type,promotion_state,receipt_required,executed,evidence_path,detail
+TG-01,self_hosted_runner_labels,TARGET_HOST_REQUIRED,GitHub Actions job log showing labels and job execution,False,,No executable target-host or provider receipt has been ingested.
+TG-02,launchd_installation,TARGET_HOST_REQUIRED,launchctl print gui/$UID/com.keddeh.service-spine output,False,,No executable target-host or provider receipt has been ingested.
+TG-03,local_ledger_write_readback,LOCAL_PASS,runtime_volume/proof_bundles.ledger readback,True,/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/proof_bundles.ledger,Executable ledger readback verified with 182 entries across 29 service receipts.
+TG-04,m3_iostat_throughput,TARGET_HOST_REQUIRED,iostat/sample receipt captured on the M3 host,False,,No executable target-host or provider receipt has been ingested.
+TG-05,secret_store,TARGET_HOST_REQUIRED,macOS keychain or approved secret manager injection receipt,False,,No executable target-host or provider receipt has been ingested.
+TG-06,provider_peer_ack,PROVIDER_REQUIRED,valid multi-root peer acknowledgement envelope,False,,No executable target-host or provider receipt has been ingested.
+TG-07,drive_archive,PROVIDER_REQUIRED,Drive upload/import result with file IDs,False,,No executable target-host or provider receipt has been ingested.
+TG-08,virtual_cpu,LOCAL_PASS,acceptance harness service receipt,True,/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/service_probes/agent_runtime_service.json,Executable virtual-CPU proof supplied by service agent_runtime_service.
+TG-09,virtual_gpu,TARGET_HOST_REQUIRED,dashboard/frame state readback on target workstation,False,,No executable target-host or provider receipt has been ingested.

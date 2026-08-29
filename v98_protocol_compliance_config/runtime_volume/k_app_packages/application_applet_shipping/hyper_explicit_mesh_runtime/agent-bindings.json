@@ -1,0 +1,7 @@
+{
+  "agents": [
+    "acceptance_harness_agent",
+    "virtual_cpu_executor"
+  ],
+  "component": "hyper_explicit_mesh_runtime"
+}

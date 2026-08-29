@@ -1,0 +1,10 @@
+{
+  "name": "evidence_context_resolver",
+  "packages": [
+    {
+      "name": "evidence_context_resolver",
+      "versionInfo": "1.0.0"
+    }
+  ],
+  "spdxVersion": "SPDX-2.3"
+}

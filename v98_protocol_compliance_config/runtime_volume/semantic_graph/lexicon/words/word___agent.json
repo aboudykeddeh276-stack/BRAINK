@@ -1,0 +1,46 @@
+{
+  "allowed_variants": [
+    "human_agent",
+    "software_agent",
+    "acceptance_harness_agent",
+    "worker_agent"
+  ],
+  "backlinks": {
+    "code_bindings": [
+      "config/service_protocols.json::agent_registry_service",
+      "config/service_protocols.json::agent_runtime_service",
+      "config/service_protocols.json::agent_static_guard",
+      "config/service_protocols.json::current_state_surface_auditor"
+    ],
+    "expressions": [
+      "expression://instantiate-governed-agent-worker"
+    ],
+    "services": [
+      "service://agent_registry_service",
+      "service://agent_runtime_service",
+      "service://agent_static_guard",
+      "service://current_state_surface_auditor"
+    ]
+  },
+  "canonical_id": "word://agent",
+  "invariants": [
+    "identity",
+    "role",
+    "vfs_namespace",
+    "task_queue",
+    "policy_set",
+    "receipt_ledger",
+    "lineage_address"
+  ],
+  "part_of_speech": "noun",
+  "prohibited_conflations": [
+    "agent_definition_is_not_functioning_worker",
+    "button_is_not_agent"
+  ],
+  "source_definitions": {
+    "computer_science": "bounded actor executing assigned work under policy",
+    "keddeh": "governed worker identity with role, team, tenant boundary, VFS namespace, task queue, skills, policy, telemetry, receipt ledger and lineage",
+    "linguistic": "one that acts"
+  },
+  "word": "AGENT"
+}

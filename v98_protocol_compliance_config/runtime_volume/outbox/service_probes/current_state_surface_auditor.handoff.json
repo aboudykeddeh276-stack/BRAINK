@@ -1,0 +1,11 @@
+{
+  "classification": "UNSUPPORTED_IN_THIS_RUNTIME",
+  "created_at": 1786086742.3188617,
+  "handoff_id": "91e255c5977f1abde903a006c4fd4583b51ba25f475730cf7a7d45fad5e4658f",
+  "next_target": "implementation_backlog",
+  "payload_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/service_probes/current_state_surface_auditor.json",
+  "receipt_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/proof_bundles.ledger",
+  "service_id": "current_state_surface_auditor",
+  "source": "KEDDEH_V98_SERVICE_PROBE",
+  "status": "READY"
+}

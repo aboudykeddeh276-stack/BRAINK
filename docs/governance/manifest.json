@@ -6,7 +6,7 @@
   },
   "ARTIFACT_DOCS_GOVERNANCE_MANIFEST_JSON": {
     "path": "docs/governance/manifest.json",
-    "sha256": "c3e9f605dcd7675b19b1ce119a3b03bb167d2fff912f3983787b0756662fbc8d",
+    "sha256": "e75751dc277889cd9033482701ebf09577b969a04eb325ebfa9e52fd0b7d2d39",
     "state": "STATE_MODEL_LOCAL"
   },
   "ARTIFACT_DOCS_GOVERNANCE_REPOSITORY_GOVERNANCE_STANDARD_MD": {
@@ -41,7 +41,7 @@
   },
   "ARTIFACT_SCRIPTS_BRAINK_AGENT_CLI_PY": {
     "path": "scripts/braink-agent-cli.py",
-    "sha256": "e20397cfb193bce8632f2e804b0b8cf642f19fc185491c4fc133f6366d8f5f5b",
+    "sha256": "87255f368e9a4384891d5127d114c6c2ace136e86d38029a85a9b5179efbd989",
     "state": "STATE_MODEL_LOCAL"
   },
   "ARTIFACT_SCRIPTS_VALIDATE_GOVERNANCE_PY": {

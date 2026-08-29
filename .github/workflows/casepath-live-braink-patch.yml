@@ -1,0 +1,34 @@
+name: CasePath Live BRAINK Patch
+
+on:
+  push:
+    branches:
+      - keddeh/v98-protocol-compliance-deployment-os
+    paths:
+      - '.github/workflows/casepath-live-braink-patch.yml'
+      - '.github/scripts/casepath_live_braink_patch.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  casepath-live-patch:
+    name: Discover current CasePath origin and inject BRAINK
+    runs-on: [self-hosted, macOS, ARM64, KEDDEH-M3]
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Execute bounded current-production patch and public readback
+        run: python3 .github/scripts/casepath_live_braink_patch.py
+      - name: Upload CasePath execution receipts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: casepath-live-braink-patch-receipt
+          path: |
+            CASEPATH_LIVE_ORIGIN_DISCOVERY.json
+            CASEPATH_BRAINK_LIVE_PATCH_RECEIPT.json
+            CASEPATH_BRAINK_PUBLIC_READBACK.json
+            CASEPATH_BACKUP_PATH.txt

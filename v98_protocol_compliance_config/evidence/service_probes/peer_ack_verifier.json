@@ -1,0 +1,14 @@
+{
+  "boundary": "local HMAC envelope; remote attestation provider-gated",
+  "classification": "PROVIDER_REQUIRED",
+  "details": {
+    "gate_reason": "A real provider-signed acknowledgement envelope is required; local schema or HMAC data is insufficient."
+  },
+  "executed": false,
+  "negative_test_passed": false,
+  "owner_plane": "virtual_cpu",
+  "positive_test_passed": false,
+  "probe_name": "probe_peer_ack_verifier",
+  "service_id": "peer_ack_verifier",
+  "timestamp": 1786086742.2566707
+}

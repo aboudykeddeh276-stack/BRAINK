@@ -1,0 +1,63 @@
+{
+  "allowed_variants": [
+    "local_service",
+    "provider_service",
+    "agent_service",
+    "applet_service"
+  ],
+  "backlinks": {
+    "code_bindings": [
+      "config/service_protocols.json::btc_core_protocol_router",
+      "config/service_protocols.json::evidence_context_resolver",
+      "config/service_protocols.json::four_plane_context_framework",
+      "config/service_protocols.json::hemos_family_of_five_runtime",
+      "config/service_protocols.json::hyper_explicit_mesh_runtime",
+      "config/service_protocols.json::indefinite_network_runtime",
+      "config/service_protocols.json::orphan_service_reconciler",
+      "config/service_protocols.json::peer_ack_verifier",
+      "config/service_protocols.json::secret_boundary_guard",
+      "config/service_protocols.json::test_runner",
+      "config/service_protocols.json::vfs_volume_custody",
+      "config/service_protocols.json::virtual_gpu_hci_dashboard",
+      "config/service_protocols.json::zero_heap_compiler"
+    ],
+    "expressions": [
+      "expression://instantiate-governed-agent-worker",
+      "expression://reconcile-deferred-work-after-dependency-recovery"
+    ],
+    "services": [
+      "service://btc_core_protocol_router",
+      "service://evidence_context_resolver",
+      "service://four_plane_context_framework",
+      "service://hemos_family_of_five_runtime",
+      "service://hyper_explicit_mesh_runtime",
+      "service://indefinite_network_runtime",
+      "service://orphan_service_reconciler",
+      "service://peer_ack_verifier",
+      "service://secret_boundary_guard",
+      "service://test_runner",
+      "service://vfs_volume_custody",
+      "service://virtual_gpu_hci_dashboard",
+      "service://zero_heap_compiler"
+    ]
+  },
+  "canonical_id": "word://service",
+  "invariants": [
+    "service_identity",
+    "owner_plane",
+    "contract",
+    "dependency_boundary",
+    "evidence_boundary"
+  ],
+  "part_of_speech": "noun",
+  "prohibited_conflations": [
+    "service_label_is_not_service_execution",
+    "route_exists_is_not_service_success"
+  ],
+  "source_definitions": {
+    "computer_science": "bounded executable capability exposed through an interface",
+    "keddeh": "owned execution domain with declared contract, dependencies, evidence boundary and recovery behaviour",
+    "linguistic": "useful work supplied to another"
+  },
+  "word": "SERVICE"
+}

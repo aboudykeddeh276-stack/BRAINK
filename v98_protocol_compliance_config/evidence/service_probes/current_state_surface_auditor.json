@@ -1,0 +1,14 @@
+{
+  "boundary": "audits current desktop, emulator, server, hardware abstraction and agent surfaces against shippable K-APP and receipt-backed deployment criteria; action history, random telemetry and UI wiring are diagnostic inputs only, not proof",
+  "classification": "UNSUPPORTED_IN_THIS_RUNTIME",
+  "details": {
+    "gate_reason": "No executable probe is registered for this declared service."
+  },
+  "executed": false,
+  "negative_test_passed": false,
+  "owner_plane": "virtual_cpu_current_state_audit_plane",
+  "positive_test_passed": false,
+  "probe_name": "unregistered_probe",
+  "service_id": "current_state_surface_auditor",
+  "timestamp": 1786086742.3188617
+}

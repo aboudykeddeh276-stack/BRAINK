@@ -1,0 +1,259 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: keddeh-sovereign-mesh
+  labels:
+    app.kubernetes.io/part-of: keddeh-sovereign-mesh
+    keddeh.systems/governance: active-word-il-llm
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: cloudworkspace-engine
+  namespace: keddeh-sovereign-mesh
+  labels:
+    app.kubernetes.io/name: cloudworkspace-engine
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cloudworkspace-engine-config
+  namespace: keddeh-sovereign-mesh
+  labels:
+    app.kubernetes.io/name: cloudworkspace-engine
+data:
+  NODE_ENV: production
+  PORT: "8080"
+  LOG_LEVEL: info
+  MESH_NODE_ID: cloudworkspace-engine
+  MESH_REGION_ID: sovereign-primary
+  MESH_REGISTRY_URL: http://mesh-engine-node-registry.keddeh-sovereign-mesh.svc.cluster.local:8081
+  FAILURE_LEDGER_MODE: persistent
+  FAILURE_LEDGER_RECONCILE_INTERVAL_MS: "15000"
+  ACTIVE_WORD_EQUATION: A_W=f(W,C,E,S,V,O,L,T)
+  IL_LLM_TRANSITION: ANCHOR,FACTOR,TRANSLATE,ACT,VALIDATE,TOKENIZE,PRESERVE,RETURN
+  DEPENDENCY_POLICY_JSON: >-
+    {"mesh-registry":"CORE_DEGRADED","vfs":"CORE_MANDATORY","runtime-config":"CORE_MANDATORY","remote-telemetry":"DEFERRED_COMMIT","native-gpu":"REPLACEABLE","audio-output":"OPTIONAL"}
+  FALLBACK_ADAPTERS_JSON: >-
+    {"mesh-registry":"adapter.local-registry-cache","remote-telemetry":"adapter.local-telemetry-outbox","native-gpu":"adapter.canvas-cpu-renderer","audio-output":"adapter.visual-notification"}
+  READINESS_REQUIRED_CAPABILITIES: application-core,vfs,runtime-config
+  LIVENESS_INVARIANT: process-progress-and-event-loop-responsive
+  PROMOTION_POLICY: receipt-backed-capability-only
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cloudworkspace-engine
+  namespace: keddeh-sovereign-mesh
+  labels:
+    app.kubernetes.io/name: cloudworkspace-engine
+    app.kubernetes.io/component: workspace-runtime
+    app.kubernetes.io/part-of: keddeh-sovereign-mesh
+spec:
+  replicas: 3
+  revisionHistoryLimit: 10
+  progressDeadlineSeconds: 600
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: cloudworkspace-engine
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: cloudworkspace-engine
+        app.kubernetes.io/component: workspace-runtime
+        keddeh.systems/failure-domain: cloudworkspace-engine
+      annotations:
+        keddeh.systems/semantic-contract: word-identity-invariant-context-active
+    spec:
+      serviceAccountName: cloudworkspace-engine
+      automountServiceAccountToken: false
+      terminationGracePeriodSeconds: 45
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: cloudworkspace-engine
+      containers:
+        - name: cloudworkspace-engine
+          image: ghcr.io/aboudykeddeh276-stack/cloudworkspace-engine:1.0.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: cloudworkspace-engine-config
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+          startupProbe:
+            httpGet:
+              path: /startupz
+              port: http
+            periodSeconds: 5
+            timeoutSeconds: 2
+            failureThreshold: 30
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: http
+            periodSeconds: 5
+            timeoutSeconds: 2
+            failureThreshold: 3
+            successThreshold: 1
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            periodSeconds: 15
+            timeoutSeconds: 2
+            failureThreshold: 4
+          lifecycle:
+            preStop:
+              httpGet:
+                path: /drain
+                port: http
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: "2"
+              memory: 2Gi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - name: runtime-tmp
+              mountPath: /tmp
+            - name: runtime-state
+              mountPath: /var/lib/cloudworkspace-engine
+      volumes:
+        - name: runtime-tmp
+          emptyDir: {}
+        - name: runtime-state
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cloudworkspace-engine
+  namespace: keddeh-sovereign-mesh
+  labels:
+    app.kubernetes.io/name: cloudworkspace-engine
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: cloudworkspace-engine
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: http
+  sessionAffinity: None
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: cloudworkspace-engine
+  namespace: keddeh-sovereign-mesh
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: cloudworkspace-engine
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: cloudworkspace-engine
+  namespace: keddeh-sovereign-mesh
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: cloudworkspace-engine
+  minReplicas: 3
+  maxReplicas: 12
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 30
+      policies:
+        - type: Percent
+          value: 100
+          periodSeconds: 60
+        - type: Pods
+          value: 2
+          periodSeconds: 60
+      selectPolicy: Max
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+        - type: Percent
+          value: 25
+          periodSeconds: 60
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 65
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: cloudworkspace-engine-default-deny
+  namespace: keddeh-sovereign-mesh
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: cloudworkspace-engine
+  policyTypes: [Ingress, Egress]
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: keddeh-sovereign-mesh
+      ports:
+        - protocol: TCP
+          port: 8080
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: keddeh-sovereign-mesh
+      ports:
+        - protocol: TCP
+          port: 8081
+    - to:
+        - namespaceSelector: {}
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53

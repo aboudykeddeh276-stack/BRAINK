@@ -1,0 +1,9 @@
+{
+  "created_at": 1786086742.3286664,
+  "handoff_id": "ff4d173bfd5e5beb4d0da921cb798a69e3213b836da8b4b738a77b8977286bc5",
+  "next_target": "github_rulesets_hooks_and_project_fields",
+  "payload_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/workflow_schema_guard_receipt.json",
+  "receipt_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/proof_bundles.ledger",
+  "source": "KEDDEH_V98_WORKFLOW_SCHEMA_GUARD",
+  "status": "READY_FOR_TARGET_HOST_EXECUTION"
+}

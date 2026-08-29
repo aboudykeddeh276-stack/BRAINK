@@ -1,0 +1,24 @@
+{
+  "version": "V98",
+  "certification_claim": false,
+  "certification_boundary": "Reference alignment only unless an external certificate or qualified assessment report exists.",
+  "standards": [
+    {"id":"ISO_56001_2024","title":"Innovation management system — Requirements","type":"innovation_management_system","promotion":"reference_alignment_only"},
+    {"id":"ISO_IEC_IEEE_12207_2026","title":"Systems and software engineering — Software life cycle processes","type":"software_lifecycle","promotion":"reference_alignment_only"},
+    {"id":"ISO_IEC_42001_2023","title":"Artificial intelligence management system","type":"ai_management_system","promotion":"reference_alignment_only"},
+    {"id":"ISO_IEC_27001_2022","title":"Information security management systems — Requirements","type":"isms","promotion":"reference_alignment_only"},
+    {"id":"ISO_IEC_27002_2022","title":"Information security controls","type":"security_controls","promotion":"reference_alignment_only"},
+    {"id":"ISO_IEC_27018_2025","title":"Protection of PII in public clouds acting as PII processors","type":"privacy_cloud_control","promotion":"reference_alignment_only"},
+    {"id":"ISO_IEC_23894_2023","title":"Artificial intelligence — Guidance on risk management","type":"ai_risk_management","promotion":"reference_alignment_only"},
+    {"id":"ISO_IEC_25010_2023","title":"Software quality model","type":"software_quality","promotion":"reference_alignment_only"},
+    {"id":"NIST_CSF_2_0_2024","title":"NIST Cybersecurity Framework 2.0","type":"cybersecurity_risk_framework","promotion":"reference_alignment_only"},
+    {"id":"NIST_SP_800_218_SSDF_1_1","title":"Secure Software Development Framework Version 1.1","type":"secure_sdlc","promotion":"reference_alignment_only"},
+    {"id":"OWASP_SAMM","title":"Software Assurance Maturity Model","type":"software_assurance_maturity","promotion":"reference_alignment_only"},
+    {"id":"OWASP_ASVS","title":"Application Security Verification Standard","type":"application_security_verification","promotion":"reference_alignment_only"},
+    {"id":"SLSA","title":"Supply-chain Levels for Software Artifacts","type":"supply_chain_provenance","promotion":"reference_alignment_only"},
+    {"id":"CycloneDX_ECMA_424","title":"CycloneDX BOM / SBOM object model","type":"software_bill_of_materials","promotion":"reference_alignment_only"},
+    {"id":"POSIX_1_2024","title":"IEEE Std 1003.1-2024 / POSIX.1-2024","type":"portable_os_interface","promotion":"target_host_receipt_gate"},
+    {"id":"MISRA_C_2012","title":"MISRA C:2012","type":"critical_c_guideline","promotion":"qualified_toolchain_gate"},
+    {"id":"DO_178C","title":"Aerospace software assurance framework","type":"external_assurance","promotion":"external_certification_gate"}
+  ]
+}

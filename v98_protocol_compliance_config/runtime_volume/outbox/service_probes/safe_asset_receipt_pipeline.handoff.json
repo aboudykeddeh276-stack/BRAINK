@@ -1,0 +1,11 @@
+{
+  "classification": "LOCAL_PASS",
+  "created_at": 1786086742.267675,
+  "handoff_id": "083adb903fbad139a88cf0797d6be3e3b2a936c4db9bc6cf11233616dc880f99",
+  "next_target": "acceptance_summary",
+  "payload_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/service_probes/safe_asset_receipt_pipeline.json",
+  "receipt_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/proof_bundles.ledger",
+  "service_id": "safe_asset_receipt_pipeline",
+  "source": "KEDDEH_V98_SERVICE_PROBE",
+  "status": "READY"
+}

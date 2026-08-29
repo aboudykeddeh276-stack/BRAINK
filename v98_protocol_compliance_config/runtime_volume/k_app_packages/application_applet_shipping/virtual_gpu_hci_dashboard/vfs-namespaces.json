@@ -1,0 +1,6 @@
+{
+  "namespaces": [
+    "vfs://apps/virtual-gpu-hci-dashboard/",
+    "vfs://agents/virtual-gpu-hci-dashboard/receipts/"
+  ]
+}

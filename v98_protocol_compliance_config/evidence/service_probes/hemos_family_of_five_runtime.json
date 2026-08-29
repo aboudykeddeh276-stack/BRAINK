@@ -1,0 +1,14 @@
+{
+  "boundary": "local consensus model; not external human governance proof",
+  "classification": "UNSUPPORTED_IN_THIS_RUNTIME",
+  "details": {
+    "gate_reason": "No executable Family-of-Five consensus engine and adversarial consensus receipt are present."
+  },
+  "executed": false,
+  "negative_test_passed": false,
+  "owner_plane": "virtual_cpu",
+  "positive_test_passed": false,
+  "probe_name": "probe_hemos_family_of_five_runtime",
+  "service_id": "hemos_family_of_five_runtime",
+  "timestamp": 1786086742.2628891
+}

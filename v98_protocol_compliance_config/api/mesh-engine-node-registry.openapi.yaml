@@ -1,0 +1,643 @@
+openapi: 3.0.3
+info:
+  title: Mesh-Engine Node Registry API
+  version: 1.0.0
+  description: >-
+    Sovereign mesh control-plane API for node health, immutable K-APP package
+    manifest admission, and dependency failure-ledger retrieval. Capability
+    failures are bounded to their declared domains and do not imply global
+    application failure.
+  contact:
+    name: KEDDEH Systems
+servers:
+  - url: http://mesh-engine-node-registry.keddeh-sovereign-mesh.svc.cluster.local:8081
+    description: Kubernetes ClusterIP service
+  - url: https://mesh-registry.example.invalid
+    description: Authorized external gateway placeholder
+security:
+  - bearerAuth: []
+tags:
+  - name: Health
+  - name: Nodes
+  - name: Packages
+  - name: FailureLedger
+paths:
+  /healthz:
+    get:
+      tags: [Health]
+      operationId: getLiveness
+      summary: Process liveness
+      security: []
+      responses:
+        '200':
+          description: Registry process is alive and capable of progress.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+  /readyz:
+    get:
+      tags: [Health]
+      operationId: getReadiness
+      summary: Traffic readiness and mandatory capability state
+      security: []
+      responses:
+        '200':
+          description: Mandatory capabilities are ready.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReadinessResponse'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+  /v1/nodes:
+    post:
+      tags: [Nodes]
+      operationId: registerNode
+      summary: Register or refresh a sovereign mesh node
+      parameters:
+        - $ref: '#/components/parameters/RequestId'
+        - $ref: '#/components/parameters/RequestTimestamp'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NodeRegistration'
+      responses:
+        '201':
+          description: Node identity registered.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NodeRecord'
+        '200':
+          description: Existing node record refreshed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NodeRecord'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+  /v1/nodes/{nodeId}/health:
+    get:
+      tags: [Nodes, Health]
+      operationId: getNodeHealth
+      summary: Retrieve capability-scoped node health
+      parameters:
+        - $ref: '#/components/parameters/NodeId'
+      responses:
+        '200':
+          description: Current node health observation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NodeHealth'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /v1/nodes/{nodeId}/heartbeat:
+    post:
+      tags: [Nodes, Health]
+      operationId: recordHeartbeat
+      summary: Record a receipt-backed node heartbeat
+      parameters:
+        - $ref: '#/components/parameters/NodeId'
+        - $ref: '#/components/parameters/RequestId'
+        - $ref: '#/components/parameters/RequestTimestamp'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HeartbeatRequest'
+      responses:
+        '202':
+          description: Heartbeat accepted and observation receipt created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HeartbeatReceipt'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+  /v1/packages/manifests:
+    post:
+      tags: [Packages]
+      operationId: submitPackageManifest
+      summary: Submit an immutable K-APP manifest for admission
+      parameters:
+        - $ref: '#/components/parameters/RequestId'
+        - $ref: '#/components/parameters/RequestTimestamp'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PackageManifestSubmission'
+      responses:
+        '202':
+          description: Manifest accepted for integrity readback and policy resolution.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PackageAdmissionReceipt'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+  /v1/packages/manifests/{applicationId}/{version}:
+    get:
+      tags: [Packages]
+      operationId: getPackageManifest
+      summary: Retrieve an admitted manifest and its promotion boundary
+      parameters:
+        - name: applicationId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: version
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Manifest and admission status.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PackageAdmissionReceipt'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /v1/failures:
+    get:
+      tags: [FailureLedger]
+      operationId: listFailureLedger
+      summary: Retrieve dependency failure records
+      parameters:
+        - name: state
+          in: query
+          schema:
+            $ref: '#/components/schemas/FailureState'
+        - name: criticality
+          in: query
+          schema:
+            $ref: '#/components/schemas/DependencyCriticality'
+        - name: domain
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 500
+            default: 100
+        - name: cursor
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Failure-ledger page.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureLedgerPage'
+  /v1/failures/{failureId}:
+    get:
+      tags: [FailureLedger]
+      operationId: getFailure
+      summary: Retrieve one failure and its recovery contract
+      parameters:
+        - name: failureId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Failure record.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureRecord'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /v1/failures/{failureId}/reconcile:
+    post:
+      tags: [FailureLedger]
+      operationId: reconcileFailure
+      summary: Test re-entry conditions and reconcile deferred work
+      parameters:
+        - name: failureId
+          in: path
+          required: true
+          schema:
+            type: string
+        - $ref: '#/components/parameters/RequestId'
+        - $ref: '#/components/parameters/RequestTimestamp'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReconciliationRequest'
+      responses:
+        '200':
+          description: Reconciliation completed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReconciliationReceipt'
+        '202':
+          description: Reconciliation remains deferred.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReconciliationReceipt'
+        '404':
+          $ref: '#/components/responses/NotFound'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  parameters:
+    NodeId:
+      name: nodeId
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: '^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$'
+    RequestId:
+      name: X-KEX-Request-Id
+      in: header
+      required: true
+      schema:
+        type: string
+        minLength: 16
+        maxLength: 256
+    RequestTimestamp:
+      name: X-KEX-Request-Timestamp
+      in: header
+      required: true
+      schema:
+        type: string
+        format: date-time
+  responses:
+    NotFound:
+      description: Requested identity was not found.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    Conflict:
+      description: Replay, identity, version, or state-transition conflict.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    ValidationError:
+      description: Context, manifest, dependency, or evidence validation failed.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    ServiceUnavailable:
+      description: Mandatory capability unavailable; optional failures remain bounded.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+  schemas:
+    HealthResponse:
+      type: object
+      required: [status, observedAt, processProgress]
+      properties:
+        status:
+          type: string
+          enum: [ALIVE]
+        observedAt:
+          type: string
+          format: date-time
+        processProgress:
+          type: boolean
+        receiptId:
+          type: string
+    ReadinessResponse:
+      type: object
+      required: [ready, overallState, coreSemanticValidity, capabilities]
+      properties:
+        ready:
+          type: boolean
+        overallState:
+          type: string
+          enum: [OPERATIONAL, OPERATIONAL_DEGRADED, NOT_READY]
+        coreSemanticValidity:
+          type: string
+          enum: [PRESERVED, VIOLATED]
+        capabilities:
+          type: array
+          items:
+            $ref: '#/components/schemas/CapabilityState'
+    CapabilityState:
+      type: object
+      required: [capability, state, criticality]
+      properties:
+        capability:
+          type: string
+        state:
+          type: string
+          enum: [HEALTHY, DEGRADED, DEFERRED_COMMIT, REPLACEABLE, FAILED_OPTIONAL, EXTERNAL_GATE, BOUNDED_STOP]
+        criticality:
+          $ref: '#/components/schemas/DependencyCriticality'
+        observer:
+          type: string
+        observedAt:
+          type: string
+          format: date-time
+        evidenceClass:
+          type: string
+          enum: [DECLARED, GENERATED, MODELED, OBSERVED, MEASURED, RECEIPT_BACKED, HOST_VERIFIED, PROVIDER_VERIFIED]
+    NodeRegistration:
+      type: object
+      required: [nodeId, regionId, lineageRoot, serviceAddress, capabilities, policySet]
+      properties:
+        nodeId:
+          type: string
+        regionId:
+          type: string
+        parentNodeId:
+          type: string
+          nullable: true
+        lineageRoot:
+          type: string
+        domainAddress:
+          type: string
+        serviceAddress:
+          type: string
+          format: uri
+        vfsVolume:
+          type: string
+        runtime:
+          type: string
+        capabilities:
+          type: array
+          items: {type: string}
+        policySet:
+          type: array
+          items: {type: string}
+        currentVersion:
+          type: string
+        attestationState:
+          type: string
+          enum: [DECLARED, LOCAL_PASS, HOST_VERIFIED, PROVIDER_VERIFIED]
+    NodeRecord:
+      allOf:
+        - $ref: '#/components/schemas/NodeRegistration'
+        - type: object
+          required: [registeredAt, healthState]
+          properties:
+            registeredAt:
+              type: string
+              format: date-time
+            healthState:
+              type: string
+              enum: [HEALTHY, DEGRADED, STALE, UNAVAILABLE]
+    NodeHealth:
+      type: object
+      required: [nodeId, overallState, observedAt, freshnessSeconds, capabilities]
+      properties:
+        nodeId: {type: string}
+        overallState:
+          type: string
+          enum: [HEALTHY, OPERATIONAL_DEGRADED, STALE, UNAVAILABLE]
+        observedAt:
+          type: string
+          format: date-time
+        freshnessSeconds:
+          type: integer
+          minimum: 0
+        capabilities:
+          type: array
+          items:
+            $ref: '#/components/schemas/CapabilityState'
+    HeartbeatRequest:
+      type: object
+      required: [observedAt, observer, capabilities]
+      properties:
+        observedAt:
+          type: string
+          format: date-time
+        observer:
+          type: string
+        capabilities:
+          type: array
+          items:
+            $ref: '#/components/schemas/CapabilityState'
+        activeWordStates:
+          type: array
+          items:
+            type: string
+            pattern: '^word://'
+    HeartbeatReceipt:
+      type: object
+      required: [receiptId, nodeId, acceptedAt, evidenceClass]
+      properties:
+        receiptId: {type: string}
+        nodeId: {type: string}
+        acceptedAt:
+          type: string
+          format: date-time
+        evidenceClass:
+          type: string
+          enum: [RECEIPT_BACKED]
+    PackageManifestSubmission:
+      type: object
+      required: [manifest, expectedIntegrity]
+      properties:
+        manifest:
+          $ref: '#/components/schemas/KAppManifest'
+        expectedIntegrity:
+          type: string
+          pattern: '^sha256:[a-fA-F0-9]{64}$'
+        sbomUri:
+          type: string
+          format: uri
+        buildReceiptUri:
+          type: string
+          format: uri
+    KAppManifest:
+      type: object
+      required: [applicationId, version, entrypoint, runtime, deploymentMode, requiredServices, dependencyPolicies, fallbackAdapters]
+      properties:
+        applicationId: {type: string}
+        version: {type: string}
+        entrypoint: {type: string}
+        runtime:
+          type: string
+          enum: [BROWSER_ESM, NODE_SERVICE, PYTHON_SERVICE, MICROVM, WASM]
+        deploymentMode:
+          type: string
+          enum: [SINGLE_NODE, MESH_REPLICATED, MESH_SHARDED]
+        requiredServices:
+          type: array
+          items: {type: string}
+        optionalServices:
+          type: array
+          items: {type: string}
+        dependencyPolicies:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/DependencyCriticality'
+        fallbackAdapters:
+          type: object
+          additionalProperties: {type: string}
+        targetGates:
+          type: array
+          items: {type: string}
+        activeWordEquation:
+          type: string
+          enum: ['A_W=f(W,C,E,S,V,O,L,T)']
+    PackageAdmissionReceipt:
+      type: object
+      required: [receiptId, applicationId, version, integrityReadback, admissionState, promotionBoundary]
+      properties:
+        receiptId: {type: string}
+        applicationId: {type: string}
+        version: {type: string}
+        integrityReadback:
+          type: object
+          required: [expected, actual, matched]
+          properties:
+            expected: {type: string}
+            actual: {type: string}
+            matched: {type: boolean}
+        admissionState:
+          type: string
+          enum: [REJECTED, CONTEXT_RESOLUTION_REQUIRED, ADMITTED_DEGRADED, ADMITTED]
+        promotionBoundary:
+          type: string
+          enum: [IMPLEMENTED, LOCAL_PASS, CI_PASS, TARGET_HOST_PASS, PROVIDER_PASS, DEPLOYED, EXTERNALLY_PROVEN]
+        missingCapabilities:
+          type: array
+          items: {type: string}
+    DependencyCriticality:
+      type: string
+      enum: [CORE_MANDATORY, CORE_DEGRADED, OPTIONAL, EXTERNAL_GATE, REPLACEABLE, DEFERRED_COMMIT]
+    FailureState:
+      type: string
+      enum: [ACTIVE, DEGRADED, DEFERRED, RECOVERING, REINTEGRATED, BOUNDED_STOP]
+    FailureRecord:
+      type: object
+      required: [failureId, blockedCapability, blockedDomain, criticality, rootCause, state, impactRadius, unaffectedDomains, createdAt]
+      properties:
+        failureId: {type: string}
+        blockedCapability: {type: string}
+        blockedDomain: {type: string}
+        criticality:
+          $ref: '#/components/schemas/DependencyCriticality'
+        rootCause: {type: string}
+        state:
+          $ref: '#/components/schemas/FailureState'
+        impactRadius:
+          type: array
+          items: {type: string}
+        unaffectedDomains:
+          type: array
+          items: {type: string}
+        continuationMode: {type: string}
+        fallbackAdapter: {type: string}
+        durableOutbox: {type: string}
+        recoveryConditions:
+          type: array
+          items: {type: string}
+        deferredWork:
+          type: array
+          items:
+            $ref: '#/components/schemas/DeferredWorkItem'
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    DeferredWorkItem:
+      type: object
+      required: [workId, payload, state]
+      properties:
+        workId: {type: string}
+        payload:
+          type: object
+          additionalProperties: true
+        state:
+          type: string
+          enum: [QUEUED, REPLAYING, COMPLETED, FAILED]
+        attempts:
+          type: integer
+          minimum: 0
+    FailureLedgerPage:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/FailureRecord'
+        nextCursor:
+          type: string
+          nullable: true
+    ReconciliationRequest:
+      type: object
+      required: [observer, observedAt, dependencyHealthy, evidence]
+      properties:
+        observer: {type: string}
+        observedAt:
+          type: string
+          format: date-time
+        dependencyHealthy: {type: boolean}
+        evidence:
+          type: object
+          additionalProperties: true
+        replayDeferredWork:
+          type: boolean
+          default: true
+    ReconciliationReceipt:
+      type: object
+      required: [receiptId, failureId, state, replayed, remaining, globalStop]
+      properties:
+        receiptId: {type: string}
+        failureId: {type: string}
+        state:
+          $ref: '#/components/schemas/FailureState'
+        replayed:
+          type: integer
+          minimum: 0
+        remaining:
+          type: integer
+          minimum: 0
+        globalStop:
+          type: boolean
+          enum: [false]
+    Problem:
+      type: object
+      required: [type, title, status]
+      properties:
+        type: {type: string, format: uri}
+        title: {type: string}
+        status: {type: integer}
+        detail: {type: string}
+        instance: {type: string}
+        boundedDomain: {type: string}
+        globalStop:
+          type: boolean

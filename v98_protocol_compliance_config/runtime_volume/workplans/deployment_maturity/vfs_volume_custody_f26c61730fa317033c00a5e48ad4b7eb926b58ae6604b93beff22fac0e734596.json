@@ -1,0 +1,23 @@
+{
+  "action_command": "bash scripts/run.command",
+  "component_id": "vfs_volume_custody",
+  "corrective_workflow": "full_local_acceptance",
+  "dependency_class": "CORE_MANDATORY",
+  "fallback_path": "adapter.local-static-applet",
+  "issue_code": "INTEGRITY_READBACK_REQUIRED",
+  "maturity_state": "LOCAL_SHIPPABLE",
+  "pending_workload": "Preserve module as local shippable K-APP and keep running acceptance receipts until target host deployment is available.",
+  "promotion_boundary": "LOCAL_PASS_WITH_TARGET_HOST_BOUNDARY_IF_APPLICABLE",
+  "reentry_condition": "local receipts pass and no target-host gate is required for local surface",
+  "required_receipts": [
+    "evidence/application_applet_shipping_receipt.json",
+    "evidence/k_cloud_deployment_receipt.json",
+    "evidence/test_runner_receipt.json"
+  ],
+  "research_basis": [
+    "DORA continuous delivery small-batch deployability",
+    "NIST SSDF lifecycle-integrated secure development",
+    "GitHub deployment environments and protected gates",
+    "fault-domain isolation and durable outbox pattern"
+  ]
+}

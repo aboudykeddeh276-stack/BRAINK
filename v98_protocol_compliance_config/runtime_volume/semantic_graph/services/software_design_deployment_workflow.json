@@ -1,0 +1,11 @@
+{
+  "code_binding": "config/service_protocols.json::software_design_deployment_workflow",
+  "conformance_state": "SEMANTICALLY_BOUND",
+  "evidence_contract": "recognize\u2192execute\u2192verify\u2192write_receipt\u2192readback\u2192handoff",
+  "owner_plane": "virtual_cpu_delivery_governance",
+  "reason": "service contract and boundary available",
+  "sector": "sector://application-deployment",
+  "semantic_expression": "expression://run-kapp-on-eligible-node",
+  "semantic_word": "word://deploy",
+  "service_id": "software_design_deployment_workflow"
+}

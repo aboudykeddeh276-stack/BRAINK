@@ -1,0 +1,6 @@
+{
+  "namespaces": [
+    "vfs://apps/hemos-family-of-five-runtime/",
+    "vfs://agents/hemos-family-of-five-runtime/receipts/"
+  ]
+}

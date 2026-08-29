@@ -1,0 +1,41 @@
+name: KEDDEH V99 Evidence Context Resolution
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'v98_protocol_compliance_config/config/evidence_context_resolution_policy.json'
+      - 'v98_protocol_compliance_config/src/keddeh_evidence_context_resolver.py'
+      - 'v98_protocol_compliance_config/tests/test_evidence_context_resolver.py'
+      - 'v98_protocol_compliance_config/docs/EVIDENCE_CONTEXT_RESOLUTION.md'
+      - 'v98_protocol_compliance_config/scripts/evidence_context.command'
+      - '.github/workflows/v99-evidence-context-resolution.yml'
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  evidence-context-resolution:
+    name: contextual evidence resolver
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Python version
+        run: python3 --version
+      - name: Execute resolver
+        run: |
+          cd v98_protocol_compliance_config
+          bash scripts/evidence_context.command
+      - name: Upload evidence context artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: keddeh-v99-evidence-context-resolution
+          path: |
+            v98_protocol_compliance_config/evidence/evidence_context_resolution_receipt.json
+            v98_protocol_compliance_config/exports/evidence_context_resolution_matrix.csv
+            v98_protocol_compliance_config/runtime_volume/workplans/evidence_context/
+            v98_protocol_compliance_config/runtime_volume/outbox/evidence_context_resolution/

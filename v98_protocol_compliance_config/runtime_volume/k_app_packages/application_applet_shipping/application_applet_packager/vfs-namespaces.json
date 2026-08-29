@@ -1,0 +1,6 @@
+{
+  "namespaces": [
+    "vfs://apps/application-applet-packager/",
+    "vfs://agents/application-applet-packager/receipts/"
+  ]
+}

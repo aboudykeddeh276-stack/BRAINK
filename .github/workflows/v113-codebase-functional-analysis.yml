@@ -1,0 +1,72 @@
+name: KEDDEH V113 Codebase Functional Analysis
+
+on:
+  pull_request:
+    paths:
+      - 'v98_protocol_compliance_config/src/**'
+      - 'v98_protocol_compliance_config/tests/**'
+      - 'v98_protocol_compliance_config/services/**'
+      - 'v98_protocol_compliance_config/web/**'
+      - 'v98_protocol_compliance_config/os/**'
+      - 'skills/keddeh-engineering-orchestrator/**'
+      - '.github/workflows/v113-codebase-functional-analysis.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  functional-analysis:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Compile analyzer and tests
+        run: python3 -m compileall -q v98_protocol_compliance_config/src/keddeh_codebase_function_analyzer.py v98_protocol_compliance_config/tests/test_codebase_function_analyzer.py
+
+      - name: Execute analyzer tests
+        working-directory: v98_protocol_compliance_config
+        run: python3 -m unittest tests.test_codebase_function_analyzer -v
+
+      - name: Analyze complete checked-out codebase
+        run: |
+          python3 v98_protocol_compliance_config/src/keddeh_codebase_function_analyzer.py \
+            --root . \
+            --emit \
+            | tee codebase-functional-analysis-summary.json
+
+      - name: Assert inventory integrity
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          payload = json.loads(Path('evidence/codebase_analysis/function_inventory.json').read_text())
+          summary = payload['summary']
+          assert summary['source_files'] > 50
+          assert summary['production_functions'] > 50
+          assert summary['test_functions'] > 20
+          assert summary['parse_errors'] == 0
+          assert payload['analysis_sha256']
+          assert Path('evidence/codebase_analysis/function_inventory.csv').is_file()
+          assert Path('evidence/codebase_analysis/unpaired_functions.csv').is_file()
+          assert Path('evidence/codebase_analysis/FUNCTIONAL_ANALYSIS.md').is_file()
+          PY
+
+      - name: Upload codebase functional evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: v113-codebase-functional-analysis-${{ github.sha }}
+          retention-days: 30
+          if-no-files-found: error
+          path: |
+            evidence/codebase_analysis/function_inventory.json
+            evidence/codebase_analysis/function_inventory.csv
+            evidence/codebase_analysis/unpaired_functions.csv
+            evidence/codebase_analysis/FUNCTIONAL_ANALYSIS.md
+            codebase-functional-analysis-summary.json

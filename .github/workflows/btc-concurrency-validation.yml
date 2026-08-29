@@ -1,0 +1,41 @@
+name: BRAINK BTC Mining Lifecycle Validation
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'skills/KEDDEH_SYSTEMS_HOW_TO_DERIVE_TASK_SPECIFIC_CODE_FROM_REQUIREMENTS_MECHANICS_EXISTING_WORK_SPECIFICATIONS_AND_AVAILABLE_EVIDENCE/src/btc/**'
+      - 'skills/KEDDEH_SYSTEMS_HOW_TO_DERIVE_TASK_SPECIFIC_CODE_FROM_REQUIREMENTS_MECHANICS_EXISTING_WORK_SPECIFICATIONS_AND_AVAILABLE_EVIDENCE/tests/test_btc_mechanics.py'
+      - 'skills/KEDDEH_SYSTEMS_HOW_TO_DERIVE_TASK_SPECIFIC_CODE_FROM_REQUIREMENTS_MECHANICS_EXISTING_WORK_SPECIFICATIONS_AND_AVAILABLE_EVIDENCE/tests/test_btc_concurrency.py'
+      - 'skills/KEDDEH_SYSTEMS_HOW_TO_DERIVE_TASK_SPECIFIC_CODE_FROM_REQUIREMENTS_MECHANICS_EXISTING_WORK_SPECIFICATIONS_AND_AVAILABLE_EVIDENCE/tests/test_btc_lifecycle.py'
+      - '.github/workflows/btc-concurrency-validation.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  btc-lifecycle-validation:
+    name: canonical BTC mechanics, concurrency, and continuous lifecycle
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Python version
+        run: python3 --version
+      - name: Compile BTC source and tests
+        run: |
+          cd skills/KEDDEH_SYSTEMS_HOW_TO_DERIVE_TASK_SPECIFIC_CODE_FROM_REQUIREMENTS_MECHANICS_EXISTING_WORK_SPECIFICATIONS_AND_AVAILABLE_EVIDENCE
+          python3 -m compileall src/btc tests/test_btc_mechanics.py tests/test_btc_concurrency.py tests/test_btc_lifecycle.py
+      - name: Run canonical BTC mechanics
+        run: |
+          cd skills/KEDDEH_SYSTEMS_HOW_TO_DERIVE_TASK_SPECIFIC_CODE_FROM_REQUIREMENTS_MECHANICS_EXISTING_WORK_SPECIFICATIONS_AND_AVAILABLE_EVIDENCE
+          python3 -m unittest tests.test_btc_mechanics -v
+      - name: Run concurrent BTC execution tests
+        run: |
+          cd skills/KEDDEH_SYSTEMS_HOW_TO_DERIVE_TASK_SPECIFIC_CODE_FROM_REQUIREMENTS_MECHANICS_EXISTING_WORK_SPECIFICATIONS_AND_AVAILABLE_EVIDENCE
+          python3 -m unittest tests.test_btc_concurrency -v
+      - name: Run continuous BTC lifecycle tests
+        run: |
+          cd skills/KEDDEH_SYSTEMS_HOW_TO_DERIVE_TASK_SPECIFIC_CODE_FROM_REQUIREMENTS_MECHANICS_EXISTING_WORK_SPECIFICATIONS_AND_AVAILABLE_EVIDENCE
+          python3 -m unittest tests.test_btc_lifecycle -v

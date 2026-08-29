@@ -1,0 +1,50 @@
+{
+  "boundary": "local route controller; not public internet tunnel claim",
+  "classification": "LOCAL_PASS",
+  "details": {
+    "decision": {
+      "destination": "10.10.20.55",
+      "interface": "mesh1",
+      "matched_prefix": "10.10.20.0/24",
+      "metric": 20,
+      "next_hop": "10.10.0.1"
+    },
+    "kernel_route_table_modified": false,
+    "negative_vectors": {
+      "malformed_prefix_rejected": true,
+      "routing_loop_rejected": true,
+      "unreachable_destination_rejected": true
+    },
+    "next_hop_path": [
+      {
+        "destination": "10.10.20.55",
+        "interface": "mesh1",
+        "matched_prefix": "10.10.20.0/24",
+        "metric": 20,
+        "next_hop": "10.10.0.1"
+      },
+      {
+        "destination": "10.10.0.1",
+        "interface": "mesh0",
+        "matched_prefix": "10.10.0.0/16",
+        "metric": 100,
+        "next_hop": null
+      }
+    ],
+    "packets_transmitted": false,
+    "route_controller_receipt": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/route_controller_receipt.json",
+    "validation": {
+      "duplicates": 0,
+      "loop_errors": [],
+      "route_count": 4,
+      "valid": true
+    }
+  },
+  "executed": true,
+  "negative_test_passed": true,
+  "owner_plane": "virtual_cpu_network_adapter",
+  "positive_test_passed": true,
+  "probe_name": "probe_indefinite_network_runtime",
+  "service_id": "indefinite_network_runtime",
+  "timestamp": 1786086742.264781
+}

@@ -1,0 +1,23 @@
+{
+  "corrective_workflow": "Expose explicit task submission, capability envelope, fallback CPU path, evidence receipt, circuit-breaker state and no TPU hardware claim without target receipt.",
+  "dependency_class": "REPLACEABLE",
+  "deployability_state": "CORRECTIVE_WORKFLOW_REQUIRED",
+  "evidence_state": "CLAIM_OR_SIMULATION_REJECTED_AS_PROOF",
+  "fallback_adapter": "adapter.local-cpu-tensor-runner",
+  "issue_code": "Displayed as wiring/claims without backend capability receipts.",
+  "next_action": "bind TPU applet to explicit tensor job endpoint or local CPU fallback receipt",
+  "promotion_boundary": "PROMOTE_ONLY_RECEIPT_BACKED_CAPABILITIES",
+  "required_receipts": [
+    "evidence/current_state_surface_audit_receipt.json",
+    "exports/current_state_surface_audit_matrix.csv",
+    "hardware/provider capability receipt or local CPU fallback receipt"
+  ],
+  "research_basis": [
+    "source action history is diagnostic, not proof",
+    "K-APP manifest integrity readback before node execution",
+    "dependency failure is not global application failure",
+    "observability is not execution proof"
+  ],
+  "surface_id": "google_tpu_server_rack",
+  "surface_type": "HARDWARE_ABSTRACTION_APPLET"
+}

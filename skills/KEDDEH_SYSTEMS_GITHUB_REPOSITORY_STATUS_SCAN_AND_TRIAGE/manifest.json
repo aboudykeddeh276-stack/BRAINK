@@ -1,0 +1,19 @@
+{
+  "canonical_skill_name": "Keddeh Systems \u2014 GitHub Repository Status Scan and Triage",
+  "canonical_identifier": "KEDDEH_SYSTEMS_GITHUB_REPOSITORY_STATUS_SCAN_AND_TRIAGE",
+  "version": "1.0.0",
+  "status": "implemented_and_tested",
+  "methodology_reference": "KEDDEH_SYSTEMS_HOW_TO_DESIGN_MAKE_VALIDATE_SAVE_MAINTAIN_AND_REUSE_A_SKILL",
+  "purpose": "Query all open pull requests in a GitHub repository, check CI status per branch, and produce a structured JSON triage report categorising each PR as ready, draft, stale, CI-failing, or merge-ready.",
+  "dependencies": [],
+  "execution_environment": {
+    "python_minimum": "3.10",
+    "external_packages_required": false,
+    "platform": "POSIX or GitHub Actions runner"
+  },
+  "claim_boundary": {
+    "repository_status_scan_implemented": true,
+    "ci_status_per_branch_checked": true,
+    "network_calls_required_at_runtime": true
+  }
+}

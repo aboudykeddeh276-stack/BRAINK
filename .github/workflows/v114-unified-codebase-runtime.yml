@@ -1,0 +1,77 @@
+name: KEDDEH V114 Unified Codebase Runtime
+
+on:
+  pull_request:
+    paths:
+      - 'v98_protocol_compliance_config/config/codebase_runtime_registry.json'
+      - 'v98_protocol_compliance_config/src/keddeh_unified_codebase_runtime.py'
+      - 'v98_protocol_compliance_config/tests/test_unified_codebase_runtime.py'
+      - '.github/workflows/v114-unified-codebase-runtime.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: v114-unified-runtime-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  unified-runtime:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: v98_protocol_compliance_config
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Compile unified runtime and tests
+        run: python3 -m compileall -q src/keddeh_unified_codebase_runtime.py tests/test_unified_codebase_runtime.py
+
+      - name: Execute supervisor tests
+        run: python3 -m unittest tests.test_unified_codebase_runtime -v
+
+      - name: Execute registered codebase runtimes
+        run: |
+          mkdir -p evidence runtime_volume/outbox/unified_runtime
+          python3 src/keddeh_unified_codebase_runtime.py \
+            --root . \
+            --registry config/codebase_runtime_registry.json \
+            --emit-receipt \
+            | tee evidence/unified_codebase_runtime_cli.json
+
+      - name: Assert operational receipt and bounded failure law
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          receipt_path = Path('evidence/unified_codebase_runtime_receipt.json')
+          payload = json.loads(receipt_path.read_text())
+          receipt = payload['receipt']
+          assert receipt['runtimes_declared'] >= 7
+          assert receipt['runtimes_executed'] >= 1
+          assert receipt['ledger_readback_passed'] is True
+          assert receipt['global_stop'] is False
+          assert receipt['overall_state'] in {'OPERATIONAL', 'OPERATIONAL_DEGRADED'}
+          assert Path('runtime_volume/unified_runtime.ledger.jsonl').is_file()
+          assert Path('runtime_volume/outbox/unified_runtime/current.handoff.json').is_file()
+          PY
+
+      - name: Upload runtime receipts and state
+        uses: actions/upload-artifact@v4
+        with:
+          name: v114-unified-codebase-runtime-${{ github.sha }}
+          if-no-files-found: error
+          retention-days: 30
+          path: |
+            v98_protocol_compliance_config/evidence/unified_codebase_runtime_receipt.json
+            v98_protocol_compliance_config/evidence/unified_codebase_runtime_cli.json
+            v98_protocol_compliance_config/runtime_volume/unified_runtime.ledger.jsonl
+            v98_protocol_compliance_config/runtime_volume/outbox/unified_runtime/current.handoff.json
+            skills/keddeh-engineering-orchestrator/enterprise/runtime/enterprise-portfolio.sqlite3

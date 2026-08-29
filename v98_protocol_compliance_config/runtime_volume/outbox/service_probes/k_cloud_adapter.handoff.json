@@ -1,0 +1,11 @@
+{
+  "classification": "UNSUPPORTED_IN_THIS_RUNTIME",
+  "created_at": 1786086742.3087966,
+  "handoff_id": "415fb6a160c99a84552ce486123e905577de4369af18719b6e38316e0aab1706",
+  "next_target": "implementation_backlog",
+  "payload_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/service_probes/k_cloud_adapter.json",
+  "receipt_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/proof_bundles.ledger",
+  "service_id": "k_cloud_adapter",
+  "source": "KEDDEH_V98_SERVICE_PROBE",
+  "status": "READY"
+}

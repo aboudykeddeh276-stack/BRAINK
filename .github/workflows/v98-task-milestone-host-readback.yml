@@ -1,0 +1,61 @@
+name: KEDDEH V98 Task Milestone Host Readback
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'v98_protocol_compliance_config/config/task_milestone_registry.json'
+      - 'v98_protocol_compliance_config/config/hypervisor_provider_registry.json'
+      - 'v98_protocol_compliance_config/src/keddeh_task_milestone_monitor.py'
+      - 'v98_protocol_compliance_config/src/keddeh_hypervisor_provider_resolver.py'
+      - '.github/workflows/v98-task-milestone-host-readback.yml'
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  hypervisor-task-readback:
+    name: Hypervisor-routed task receipt readback
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Resolve provider and reconstruct task state
+        run: |
+          cd v98_protocol_compliance_config
+          python3 -m compileall src tests
+          python3 src/keddeh_hypervisor_provider_resolver.py \
+            --root . \
+            --workload workload://task-milestone/readback \
+            --emit-receipt
+          python3 src/keddeh_task_milestone_monitor.py --root . --emit-receipt
+          python3 src/keddeh_test_runner.py --root . --emit-receipt
+      - name: Upload task and provider evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: keddeh-v98-hypervisor-task-readback
+          path: |
+            v98_protocol_compliance_config/evidence/
+            v98_protocol_compliance_config/runtime_volume/
+            v98_protocol_compliance_config/exports/
+
+  m3-target-extension:
+    name: Optional M3 target-host task extension
+    if: vars.KEDDEH_M3_AVAILABLE == 'true'
+    runs-on: [self-hosted, macOS, ARM64, KEDDEH-M3]
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Capture Apple target-host receipt
+        run: |
+          cd v98_protocol_compliance_config
+          python3 src/keddeh_target_host_receipts.py --root . --emit-receipt
+          python3 src/keddeh_task_milestone_monitor.py --root . --emit-receipt
+      - name: Upload M3 extension evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: keddeh-v98-m3-task-extension
+          path: v98_protocol_compliance_config/evidence/

@@ -1,0 +1,14 @@
+{
+  "boundary": "mechanical scanner; MISRA certification not claimed",
+  "classification": "UNSUPPORTED_IN_THIS_RUNTIME",
+  "details": {
+    "gate_reason": "No qualified C/Rust no-heap compiler implementation or compile receipt exists in the portable runtime."
+  },
+  "executed": false,
+  "negative_test_passed": false,
+  "owner_plane": "virtual_cpu",
+  "positive_test_passed": false,
+  "probe_name": "probe_zero_heap_compiler",
+  "service_id": "zero_heap_compiler",
+  "timestamp": 1786086742.2547572
+}

@@ -1,0 +1,9 @@
+{
+  "created_at": 1786086742.0044863,
+  "handoff_id": "bbb0092955e242fd7f653f825755a73653728a78b58c8ce8e55ce79a752f03ee",
+  "next_target": "acceptance_harness_then_self_hosted_m3_runner",
+  "payload_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/agent_runtime_work_order_bbb0092955e242fd7f653f825755a73653728a78b58c8ce8e55ce79a752f03ee.json",
+  "receipt_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/proof_bundles.ledger",
+  "source": "KEDDEH_V98_AGENT_RUNTIME_SERVICE",
+  "status": "READY_FOR_TARGET_HOST_EXECUTION"
+}

@@ -1,0 +1,106 @@
+{
+  "receipt": {
+    "audited_surfaces": 6,
+    "corrective_workflows": 6,
+    "ledger_readback": true,
+    "local_shippable": 0,
+    "matrix_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/exports/current_state_surface_audit_matrix.csv",
+    "outbox_manifest": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/outbox/current_state_surface_audit/3ffb9f88d98d7b811efb00220c7e5ddfc4646cc8e92cf9356a7d0660aab47cb1.handoff.json",
+    "receipt_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/current_state_surface_audit_receipt.json",
+    "rejected_claim_count": 2,
+    "target_or_provider_gated": 2,
+    "timestamp": 1786086740.7898064,
+    "version": "V99"
+  },
+  "rows": [
+    {
+      "corrective_workflow": "Expose explicit task submission, capability envelope, fallback CPU path, evidence receipt, circuit-breaker state and no TPU hardware claim without target receipt.",
+      "dependency_class": "REPLACEABLE",
+      "deployability_state": "CORRECTIVE_WORKFLOW_REQUIRED",
+      "evidence_state": "CLAIM_OR_SIMULATION_REJECTED_AS_PROOF",
+      "fallback_adapter": "adapter.local-cpu-tensor-runner",
+      "issue_code": "Displayed as wiring/claims without backend capability receipts.",
+      "next_action": "bind TPU applet to explicit tensor job endpoint or local CPU fallback receipt",
+      "promotion_boundary": "PROMOTE_ONLY_RECEIPT_BACKED_CAPABILITIES",
+      "required_receipts": "evidence/current_state_surface_audit_receipt.json;exports/current_state_surface_audit_matrix.csv;hardware/provider capability receipt or local CPU fallback receipt",
+      "surface_id": "google_tpu_server_rack",
+      "surface_type": "HARDWARE_ABSTRACTION_APPLET"
+    },
+    {
+      "corrective_workflow": "Bind worker identity, team, tenant boundary, VFS namespace, queue, skills, policy set, runtime allocation, telemetry channel, receipt ledger and lineage address.",
+      "dependency_class": "CORE_DEGRADED",
+      "deployability_state": "CORRECTIVE_WORKFLOW_REQUIRED",
+      "evidence_state": "WORKER_CONTEXT_AND_RECEIPT_REQUIRED",
+      "fallback_adapter": "adapter.agent-runtime-work-order",
+      "issue_code": "Does not declare user purpose, function, work environment, VFS namespace, task queue, capability set, response contract or proof path.",
+      "next_action": "bind provision agent to worker identity, VFS namespace, queue, policy, capability and receipt ledger",
+      "promotion_boundary": "PROMOTE_ONLY_RECEIPT_BACKED_CAPABILITIES",
+      "required_receipts": "evidence/current_state_surface_audit_receipt.json;exports/current_state_surface_audit_matrix.csv;agent worker VFS namespace receipt;agent runtime work-order receipt",
+      "surface_id": "provision_agent",
+      "surface_type": "AGENT_WORKER_APPLET"
+    },
+    {
+      "corrective_workflow": "Classify as emulator runtime with boot asset readback, manifest integrity, VFS volume binding and degraded state when boot assets are absent.",
+      "dependency_class": "CORE_DEGRADED",
+      "deployability_state": "CORRECTIVE_WORKFLOW_REQUIRED",
+      "evidence_state": "BOOT_ASSET_AND_SERIAL_READBACK_REQUIRED",
+      "fallback_adapter": "adapter.terminal-sandbox-static-desktop",
+      "issue_code": "Boot claims require BIOS/kernel/rootfs asset receipts, v86 presence readback, serial output and disk/volume mapping receipts before promoted runtime status.",
+      "next_action": "capture BIOS/kernel/rootfs/v86 serial readback receipts",
+      "promotion_boundary": "PROMOTE_ONLY_RECEIPT_BACKED_CAPABILITIES",
+      "required_receipts": "evidence/current_state_surface_audit_receipt.json;exports/current_state_surface_audit_matrix.csv;v86 boot asset receipt;serial output receipt",
+      "surface_id": "linux_microvm_v86",
+      "surface_type": "EMULATOR_SERVICE_APPLET"
+    },
+    {
+      "corrective_workflow": "Replace random health claims with receipt-backed health state, heartbeat records, circuit-breaker state and explicit simulated/demo labels where applicable.",
+      "dependency_class": "DEFERRED_COMMIT",
+      "deployability_state": "CORRECTIVE_WORKFLOW_REQUIRED",
+      "evidence_state": "CLAIM_OR_SIMULATION_REJECTED_AS_PROOF",
+      "fallback_adapter": "adapter.local-telemetry-outbox",
+      "issue_code": "Random/generated metrics were presented as capability status.",
+      "next_action": "bash scripts/ship_applications.command && bash scripts/current_state_audit.command",
+      "promotion_boundary": "PROMOTE_ONLY_RECEIPT_BACKED_CAPABILITIES",
+      "required_receipts": "evidence/current_state_surface_audit_receipt.json;exports/current_state_surface_audit_matrix.csv",
+      "surface_id": "simulated_agent_telemetry",
+      "surface_type": "OBSERVABILITY_PIPELINE"
+    },
+    {
+      "corrective_workflow": "Gate commands by policy, write execution receipts, keep forbidden operations failed-closed and preserve degraded UI state on backend outage.",
+      "dependency_class": "CORE_MANDATORY",
+      "deployability_state": "LOCAL_REPAIR_REQUIRED_BEFORE_PROMOTION",
+      "evidence_state": "SECURITY_AND_AUDIT_RECEIPT_REQUIRED",
+      "fallback_adapter": "adapter.read-only-diagnostic-mode",
+      "issue_code": "Shell execution endpoints require strict command allowlisting, timeout, path isolation, audit receipts and user-facing response boundaries.",
+      "next_action": "bash scripts/ship_applications.command && bash scripts/current_state_audit.command",
+      "promotion_boundary": "PROMOTE_ONLY_RECEIPT_BACKED_CAPABILITIES",
+      "required_receipts": "evidence/current_state_surface_audit_receipt.json;exports/current_state_surface_audit_matrix.csv",
+      "surface_id": "server_runtime_exec_endpoints",
+      "surface_type": "SERVER_SPACE_RUNTIME"
+    },
+    {
+      "corrective_workflow": "Every desktop icon must resolve to a K-APP package, route, capability contract, readback status and failure-domain policy.",
+      "dependency_class": "CORE_DEGRADED",
+      "deployability_state": "CORRECTIVE_WORKFLOW_REQUIRED",
+      "evidence_state": "K_APP_OR_RECEIPT_REQUIRED",
+      "fallback_adapter": "adapter.static-k-app-catalog",
+      "issue_code": "Icon launch and drag behavior was improved, but a launcher is not itself an applet unless it binds to an executable command and receipt path.",
+      "next_action": "bash scripts/ship_applications.command && bash scripts/current_state_audit.command",
+      "promotion_boundary": "PROMOTE_ONLY_RECEIPT_BACKED_CAPABILITIES",
+      "required_receipts": "evidence/current_state_surface_audit_receipt.json;exports/current_state_surface_audit_matrix.csv",
+      "surface_id": "desktop_icon_applet_launchers",
+      "surface_type": "USER_SPACE_APPLICATION_SURFACE"
+    }
+  ],
+  "runtime_rule": "DEPENDENCY_FAILURE_NE_GLOBAL_APPLICATION_FAILURE",
+  "simulation_or_fake_telemetry_promoted": false,
+  "source_history_treated_as_proof": false,
+  "work_packets": [
+    "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/workplans/current_state_surface/google_tpu_server_rack_9c02227ccec63f886b210cdc9d40bfbf03541e59d2fdae8875af8f66033cfd9e.json",
+    "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/workplans/current_state_surface/provision_agent_082bc644fb7847820cfeec72bde04f3c27fc238be920445b219c92eb5c748224.json",
+    "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/workplans/current_state_surface/linux_microvm_v86_a0e187d416c0c1c76bd930b4ef4b84343aee72626eb9e961d96a13a6dd949c35.json",
+    "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/workplans/current_state_surface/simulated_agent_telemetry_3b82b0b3a547fb0827f94a373cc530f69c520a94afe62af6e2bb5a022061f404.json",
+    "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/workplans/current_state_surface/server_runtime_exec_endpoints_0ec4d9360573092d5035f694a49c2e1107dfe0cfe2898940d2d7d8b0e84252a3.json",
+    "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/workplans/current_state_surface/desktop_icon_applet_launchers_6bdb92b7a28628333506bcd687a01ceef6040d4c61c14ab169c1aeae8dc60c65.json"
+  ]
+}

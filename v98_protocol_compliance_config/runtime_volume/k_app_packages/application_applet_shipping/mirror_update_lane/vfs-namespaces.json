@@ -1,0 +1,6 @@
+{
+  "namespaces": [
+    "vfs://apps/mirror-update-lane/",
+    "vfs://agents/mirror-update-lane/receipts/"
+  ]
+}

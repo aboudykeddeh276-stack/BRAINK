@@ -1,0 +1,47 @@
+{
+  "version": "V99-EVIDENCE-CONTEXT-1",
+  "canonical_rule": "status derives from invariant-preserving contextual resolution, not one-word matching",
+  "allowed_execution_planes": [
+    "BROWSER_PROJECTION",
+    "LOCAL_PROCESS",
+    "LOCAL_CPU",
+    "WEBGPU",
+    "EMULATOR",
+    "MICROVM_GUEST",
+    "TARGET_HOST",
+    "REMOTE_PROVIDER",
+    "IMPORTED_EVIDENCE"
+  ],
+  "allowed_evidence_classes": [
+    "DECLARED",
+    "GENERATED",
+    "MODELED",
+    "OBSERVED",
+    "MEASURED",
+    "RECEIPT_BACKED",
+    "HOST_VERIFIED",
+    "PROVIDER_VERIFIED"
+  ],
+  "contexts": [
+    {
+      "path_pattern": "tests/**",
+      "capability": "TEST_EXECUTION",
+      "purpose": "FIXTURE",
+      "observer": "TEST_HARNESS",
+      "environment": "PORTABLE_CI",
+      "execution_plane": "LOCAL_PROCESS",
+      "evidence_class": "GENERATED",
+      "promotion_boundary": "TEST_ONLY"
+    },
+    {
+      "path_pattern": "**/*dashboard*",
+      "capability": "STATE_PROJECTION",
+      "purpose": "PROJECTION",
+      "observer": "BROWSER_UI",
+      "environment": "WORKSTATION_SURFACE",
+      "execution_plane": "BROWSER_PROJECTION",
+      "evidence_class": "DECLARED",
+      "promotion_boundary": "PROJECTION_ONLY"
+    }
+  ]
+}

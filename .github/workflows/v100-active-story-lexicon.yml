@@ -1,0 +1,41 @@
+name: KEDDEH V100 Active Story Lexicon
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'v98_protocol_compliance_config/config/active_story_lexicon.json'
+      - 'v98_protocol_compliance_config/src/keddeh_active_story_runtime.py'
+      - 'v98_protocol_compliance_config/tests/test_active_story_runtime.py'
+      - '.github/workflows/v100-active-story-lexicon.yml'
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  active-story-lexicon:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile runtime and tests
+        run: |
+          cd v98_protocol_compliance_config
+          python3 -m compileall src tests
+      - name: Run active-story tests through repository runner
+        run: |
+          cd v98_protocol_compliance_config
+          python3 src/keddeh_test_runner.py --root . --emit-receipt
+      - name: Execute active-story transition
+        run: |
+          cd v98_protocol_compliance_config
+          python3 src/keddeh_active_story_runtime.py --root . --emit-receipt
+      - name: Upload active-story evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: keddeh-v100-active-story-lexicon
+          path: |
+            v98_protocol_compliance_config/runtime_volume/active_story/
+            v98_protocol_compliance_config/evidence/test_runner_receipt.json

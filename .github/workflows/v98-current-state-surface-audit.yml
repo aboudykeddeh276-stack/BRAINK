@@ -1,0 +1,35 @@
+name: KEDDEH V98 Current State Surface Audit
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'v98_protocol_compliance_config/**'
+      - '.github/workflows/v98-current-state-surface-audit.yml'
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  current-state-surface-audit:
+    name: current state surface audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Run current state surface audit
+        run: |
+          cd v98_protocol_compliance_config
+          bash scripts/current_state_audit.command
+      - name: Upload current state evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: keddeh-v99-current-state-surface-audit
+          path: |
+            v98_protocol_compliance_config/evidence/current_state_surface_audit_receipt.json
+            v98_protocol_compliance_config/exports/current_state_surface_audit_matrix.csv
+            v98_protocol_compliance_config/runtime_volume/workplans/current_state_surface/
+            v98_protocol_compliance_config/runtime_volume/outbox/current_state_surface_audit/

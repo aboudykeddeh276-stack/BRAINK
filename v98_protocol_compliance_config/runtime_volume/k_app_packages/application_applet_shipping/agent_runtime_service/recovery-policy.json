@@ -1,0 +1,8 @@
+{
+  "recoveryConditions": [
+    "dependency health check passes",
+    "manifest integrity readback passes",
+    "node capability readback passes"
+  ],
+  "rollback": "retain previous package directory until new package receipt and integrity readback pass"
+}

@@ -1,0 +1,6 @@
+{
+  "namespaces": [
+    "vfs://apps/deployment-maturity-workplan/",
+    "vfs://agents/deployment-maturity-workplan/receipts/"
+  ]
+}

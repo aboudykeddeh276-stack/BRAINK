@@ -1,0 +1,10 @@
+{
+  "name": "btc_core_protocol_router",
+  "packages": [
+    {
+      "name": "btc_core_protocol_router",
+      "versionInfo": "1.0.0"
+    }
+  ],
+  "spdxVersion": "SPDX-2.3"
+}

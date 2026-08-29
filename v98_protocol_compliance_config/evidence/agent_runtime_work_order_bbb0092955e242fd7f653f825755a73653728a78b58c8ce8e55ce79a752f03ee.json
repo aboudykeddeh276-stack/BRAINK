@@ -1,0 +1,23 @@
+{
+  "action": "write_receipt",
+  "agent_id": "acceptance_harness_agent",
+  "authorized": true,
+  "executed": true,
+  "ledger_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/proof_bundles.ledger",
+  "outbox_manifest": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/outbox/agent_runtime/bbb0092955e242fd7f653f825755a73653728a78b58c8ce8e55ce79a752f03ee.handoff.json",
+  "reason": "authorized",
+  "receipt_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/agent_runtime_work_order_bbb0092955e242fd7f653f825755a73653728a78b58c8ce8e55ce79a752f03ee.json",
+  "result": {
+    "known_agents": 6,
+    "known_services": 29,
+    "operation": "write_receipt",
+    "payload_keys": [
+      "probe"
+    ],
+    "service_id": "agent_registry_service",
+    "service_known": true
+  },
+  "service_id": "agent_registry_service",
+  "timestamp": 1786086742.0044863,
+  "work_order_id": "bbb0092955e242fd7f653f825755a73653728a78b58c8ce8e55ce79a752f03ee"
+}

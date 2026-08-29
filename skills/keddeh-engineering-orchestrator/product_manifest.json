@@ -1,0 +1,66 @@
+{
+  "product_id": "product://keddeh/engineering-orchestrator",
+  "name": "KEDDEH Engineering Orchestrator",
+  "short_name": "KEO",
+  "version": "0.1.0-mmp",
+  "category": "Engineering Synthesis and Evidence Platform",
+  "status": "MINIMUM_MARKETABLE_PRODUCT_IMPLEMENTATION",
+  "primary_value": "Preserve engineering meaning across requirements, topology, source languages, runtimes, hardware abstractions, and execution evidence.",
+  "primary_users": [
+    "systems architects",
+    "platform engineers",
+    "firmware engineers",
+    "systems programmers",
+    "verification engineers",
+    "technical leads"
+  ],
+  "primary_interfaces": [
+    "dependency-free Python CLI",
+    "JSON model files",
+    "Markdown state records",
+    "CI validation"
+  ],
+  "cli": {
+    "entrypoint": "keo.py",
+    "commands": ["init", "validate", "inspect", "profiles", "version"],
+    "python_minimum": "3.10",
+    "third_party_runtime_dependencies": []
+  },
+  "starter_profiles": [
+    "server",
+    "bios-firmware",
+    "hardware-abstraction"
+  ],
+  "generated_project_contract": [
+    "keo.project.json",
+    "kir.json",
+    "topology.json",
+    "iteration.json",
+    "PRODUCT_STATE.md",
+    "README.md"
+  ],
+  "editions": {
+    "community": "Local CLI, open project format, validators, profiles, examples, CI integration.",
+    "team": "Shared catalog, policy packs, topology registry, evidence history, private templates, support.",
+    "enterprise": "Self-hosted control plane, SSO, audit exports, policy enforcement, custom adapters, assurance packs.",
+    "managed": "Future hosted control plane with explicit sovereignty and source-ingestion boundaries."
+  },
+  "privacy_default": "LOCAL_ONLY_NO_SOURCE_UPLOAD",
+  "excluded_tools": ["Lovable"],
+  "market_readiness_gates": {
+    "GATE_PRODUCT_01_CLEAR_CATEGORY_AND_USER": "IMPLEMENTED",
+    "GATE_PRODUCT_02_FIVE_MINUTE_QUICKSTART": "IMPLEMENTED",
+    "GATE_PRODUCT_03_DEPENDENCY_FREE_LOCAL_RUN": "IMPLEMENTED_PENDING_CI_READBACK",
+    "GATE_PRODUCT_04_THREE_REAL_ENGINEERING_PROFILES": "IMPLEMENTED",
+    "GATE_PRODUCT_05_ACTIONABLE_VALIDATION_ERRORS": "IMPLEMENTED_PENDING_CI_READBACK",
+    "GATE_PRODUCT_06_VERSIONED_OPEN_PROJECT_FORMAT": "IMPLEMENTED",
+    "GATE_PRODUCT_07_CI_REFERENCE_INTEGRATION": "IMPLEMENTED",
+    "GATE_PRODUCT_08_SECURITY_AND_PRIVACY_BOUNDARY": "FORMALISED",
+    "GATE_PRODUCT_09_LICENSE_AND_EDITION_MODEL": "FORMALISED_NOT_LEGALLY_REVIEWED",
+    "GATE_PRODUCT_10_SUPPORT_AND_UPDATE_POLICY": "FORMALISED",
+    "GATE_PRODUCT_11_REAL_CASE_STUDY": "BLOCKED_BY_EXTERNAL_ADOPTER",
+    "GATE_PRODUCT_12_RELEASE_ARTIFACT_READBACK": "NOT_STARTED"
+  },
+  "promotion_state": "IMPLEMENTED",
+  "global_stop": false
+}

@@ -1,0 +1,22 @@
+{
+  "corrective_workflow": "Replace random health claims with receipt-backed health state, heartbeat records, circuit-breaker state and explicit simulated/demo labels where applicable.",
+  "dependency_class": "DEFERRED_COMMIT",
+  "deployability_state": "CORRECTIVE_WORKFLOW_REQUIRED",
+  "evidence_state": "CLAIM_OR_SIMULATION_REJECTED_AS_PROOF",
+  "fallback_adapter": "adapter.local-telemetry-outbox",
+  "issue_code": "Random/generated metrics were presented as capability status.",
+  "next_action": "bash scripts/ship_applications.command && bash scripts/current_state_audit.command",
+  "promotion_boundary": "PROMOTE_ONLY_RECEIPT_BACKED_CAPABILITIES",
+  "required_receipts": [
+    "evidence/current_state_surface_audit_receipt.json",
+    "exports/current_state_surface_audit_matrix.csv"
+  ],
+  "research_basis": [
+    "source action history is diagnostic, not proof",
+    "K-APP manifest integrity readback before node execution",
+    "dependency failure is not global application failure",
+    "observability is not execution proof"
+  ],
+  "surface_id": "simulated_agent_telemetry",
+  "surface_type": "OBSERVABILITY_PIPELINE"
+}

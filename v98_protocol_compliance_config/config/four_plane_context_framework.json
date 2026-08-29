@@ -1,0 +1,93 @@
+{
+  "version": "V99",
+  "framework_id": "four_plane_context_framework",
+  "canonical_statement": "Output, thinking, legal perspective and software service are coupled but non-collapsible planes. Each plane preserves its own I,V,O,E,X,R,L.",
+  "formula": "S=f(I,V,O,E,X,R,L)",
+  "non_inheritance_rules": [
+    "legal_conclusion_cannot_be_inherited_from_software_test",
+    "polished_output_cannot_prove_reasoning_path",
+    "internal_reasoning_state_cannot_silently_become_court_fact",
+    "software_receipt_cannot_become_admissibility_determination",
+    "legal_perspective_cannot_become_court_finding_without_authority_and_procedure"
+  ],
+  "required_context_fields": ["I", "V", "O", "E", "X", "R", "L"],
+  "framework_nodes": [
+    {
+      "node_id": "framework://output",
+      "plane": "output_framework",
+      "definition": "What the service presents, renders, exports or communicates to a user or downstream system.",
+      "cannot_mean": ["truth", "legal_determination", "reasoning_proof", "execution_proof_by_itself"],
+      "context": {
+        "I": ["presentation_identity", "declared audience", "export format", "source lineage"],
+        "V": ["draft", "summary", "UI projection", "formal artifact", "degraded output"],
+        "O": "user_or_export_consumer",
+        "E": "UI/export surface",
+        "X": "presentation_or_export_plane",
+        "R": "output_receipt_or_file_readback",
+        "L": "artifact lineage and source references"
+      },
+      "evidence_contract": ["render_or_export_path", "source linkage", "timestamp", "readback", "boundary note"]
+    },
+    {
+      "node_id": "framework://thinking",
+      "plane": "thinking_framework",
+      "definition": "How propositions are formed, tested, compared, revised and bounded before any claim is presented.",
+      "cannot_mean": ["court fact", "user-visible proof by itself", "private thought disclosed as authority", "software pass state"],
+      "context": {
+        "I": ["proposition identity", "assumption boundary", "test method", "uncertainty state"],
+        "V": ["hypothesis", "inference", "counterexample", "correlation", "revision"],
+        "O": "reasoning_controller_or_auditor",
+        "E": "analysis environment",
+        "X": "reasoning_plane",
+        "R": "reasoning_trace_summary_or_test_receipt",
+        "L": "proposition lineage"
+      },
+      "evidence_contract": ["proposition", "test", "result", "limitations", "linked output or code decision"]
+    },
+    {
+      "node_id": "framework://legal-perspective",
+      "plane": "legal_perspective",
+      "definition": "Party account, authority, evidence, admissibility, procedure and legal determination kept distinct.",
+      "cannot_mean": ["court finding", "legal advice as certainty", "software proof", "polished advocacy as adjudication"],
+      "context": {
+        "I": ["party identity", "jurisdiction", "authority class", "evidence origin", "procedure stage"],
+        "V": ["party account", "allegation", "submission", "authority", "admissibility issue", "court determination"],
+        "O": "party_advisor_court_or_registry_observer",
+        "E": "legal proceeding or preparation context",
+        "X": "legal_analysis_or_procedure_plane",
+        "R": "source authority, evidence item, filing, order or transcript class",
+        "L": "legal evidence and procedural lineage"
+      },
+      "evidence_contract": ["jurisdiction", "party position", "source authority", "evidence class", "procedure status", "no inherited court fact"]
+    },
+    {
+      "node_id": "framework://software-service",
+      "plane": "software_service",
+      "definition": "Schemas, APIs, execution, persistence, UI, security and receipts for a bounded service.",
+      "cannot_mean": ["legal conclusion", "truth without readback", "UI claim without execution", "provider proof without provider receipt"],
+      "context": {
+        "I": ["service identity", "schema", "API contract", "state boundary", "receipt boundary"],
+        "V": ["local execution", "host execution", "provider execution", "fixture", "fallback", "deferred commit"],
+        "O": "service_monitor_acceptance_harness_or_user",
+        "E": "runtime environment",
+        "X": "execution_plane",
+        "R": "test, receipt, ledger, outbox or provider readback",
+        "L": "source, build, deployment and receipt lineage"
+      },
+      "evidence_contract": ["source path", "command", "test", "receipt", "ledger readback", "outbox", "target/provider receipt where required"]
+    }
+  ],
+  "canonical_words": [
+    {"word": "OUTPUT", "canonical_id": "word://output", "authorized_meaning": "presented or exported result with source linkage", "prohibited_conflations": ["output_is_truth", "output_is_legal_determination"]},
+    {"word": "THINKING", "canonical_id": "word://thinking", "authorized_meaning": "bounded proposition formation and testing process", "prohibited_conflations": ["thinking_is_court_fact", "thinking_is_public_evidence_by_default"]},
+    {"word": "LEGAL_PERSPECTIVE", "canonical_id": "word://legal-perspective", "authorized_meaning": "structured legal viewpoint with party, authority, evidence, admissibility and procedure separated", "prohibited_conflations": ["legal_perspective_is_court_finding", "software_pass_is_legal_result"]},
+    {"word": "SOFTWARE_SERVICE", "canonical_id": "word://software-service", "authorized_meaning": "bounded executable service with schema, API, state, security and receipts", "prohibited_conflations": ["software_receipt_is_legal_conclusion", "UI_route_is_execution_proof"]},
+    {"word": "VERIFY", "canonical_id": "word://verify", "authorized_meaning": "read, compare, validate, record and emit evidence", "prohibited_conflations": ["verify_means_file_exists", "verify_means_polished_output"]}
+  ],
+  "expressions": [
+    {"expression_id": "expression://separate-legal-perspective-from-software-proof", "words": ["word://legal-perspective", "word://software-service", "word://verify"], "definition": "Keep legal determination, party account, source authority and software receipt in distinct evidence classes until procedure-authorized linkage exists."},
+    {"expression_id": "expression://output-is-not-proof-without-context", "words": ["word://output", "word://verify"], "definition": "An output is only a presented/exported result unless linked to source, context, readback and lineage."},
+    {"expression_id": "expression://thinking-tests-proposition-not-court-fact", "words": ["word://thinking", "word://legal-perspective"], "definition": "Reasoning may test legal propositions but cannot silently become admissible evidence or a court finding."},
+    {"expression_id": "expression://service-receipt-bounds-software-capability", "words": ["word://software-service", "word://verify"], "definition": "A software receipt proves only the bounded software capability that was executed and read back in its environment."}
+  ]
+}

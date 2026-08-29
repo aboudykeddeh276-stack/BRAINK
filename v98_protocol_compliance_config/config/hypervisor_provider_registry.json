@@ -1,0 +1,87 @@
+{
+  "version": "V106-HYPERVISOR-PROVIDER-1",
+  "registryId": "keddeh.hypervisor.provider-registry",
+  "canonicalRule": "GitHub-hosted execution ignites the control runtime; hypervisors resolve provider dependencies; provider absence never erases unrelated workloads.",
+  "states": ["DECLARED", "AVAILABLE", "DEGRADED", "UNAVAILABLE", "DEFERRED", "SELECTED", "EXECUTING", "REINTEGRATED"],
+  "providers": [
+    {
+      "providerId": "provider://github-hosted/ubuntu-x64",
+      "class": "GITHUB_HOSTED",
+      "runner": "ubuntu-latest",
+      "capabilities": ["linux", "x64", "python", "portable-ci", "semantic-graph", "il-llm", "k-app-packaging", "contract-validation"],
+      "priority": 10,
+      "availability": "ASSUMED_BY_WORKFLOW_DISPATCH",
+      "evidenceClass": "OBSERVED"
+    },
+    {
+      "providerId": "provider://github-hosted/ubuntu-arm64",
+      "class": "GITHUB_HOSTED",
+      "runner": "ubuntu-24.04-arm",
+      "capabilities": ["linux", "arm64", "python", "container-build", "kubernetes-client", "portable-ci"],
+      "priority": 20,
+      "availability": "DECLARED_GITHUB_HOSTED",
+      "evidenceClass": "DECLARED"
+    },
+    {
+      "providerId": "provider://github-hosted/macos-arm64",
+      "class": "GITHUB_HOSTED",
+      "runner": "macos-15",
+      "capabilities": ["macos", "arm64", "python", "xcode-cli", "portable-macos"],
+      "priority": 25,
+      "availability": "DECLARED_GITHUB_HOSTED",
+      "evidenceClass": "DECLARED"
+    },
+    {
+      "providerId": "provider://kubernetes/arc",
+      "class": "RUNNER_SCALE_SET",
+      "runner": "keddeh-arc-runner-set",
+      "capabilities": ["linux", "container", "kubernetes", "ephemeral-runner", "horizontal-scale"],
+      "priority": 30,
+      "availability": "RECEIPT_REQUIRED",
+      "evidenceClass": "RECEIPT_BACKED"
+    },
+    {
+      "providerId": "provider://local/m3",
+      "class": "TARGET_HOST",
+      "runner": ["self-hosted", "macOS", "ARM64", "KEDDEH-M3"],
+      "capabilities": ["macos", "arm64", "apple-silicon", "metal", "xcode-signing", "native-macos-package", "local-workstation", "target-host-readback"],
+      "priority": 40,
+      "availability": "HOST_RECEIPT_REQUIRED",
+      "evidenceClass": "HOST_VERIFIED"
+    }
+  ],
+  "workloads": [
+    {
+      "workloadId": "workload://host-acceptance/portable",
+      "requiredCapabilities": ["python", "portable-ci"],
+      "preferredProviders": ["provider://github-hosted/ubuntu-x64", "provider://github-hosted/ubuntu-arm64"],
+      "substitutionPolicy": "FIRST_ELIGIBLE",
+      "unavailablePolicy": "DEFER_WITHOUT_GLOBAL_STOP",
+      "appleSpecific": false
+    },
+    {
+      "workloadId": "workload://task-milestone/readback",
+      "requiredCapabilities": ["python", "portable-ci"],
+      "preferredProviders": ["provider://github-hosted/ubuntu-x64", "provider://kubernetes/arc", "provider://local/m3"],
+      "substitutionPolicy": "FIRST_ELIGIBLE",
+      "unavailablePolicy": "DEFER_WITHOUT_GLOBAL_STOP",
+      "appleSpecific": false
+    },
+    {
+      "workloadId": "workload://mirror/commit-readback",
+      "requiredCapabilities": ["python", "portable-ci"],
+      "preferredProviders": ["provider://github-hosted/ubuntu-x64", "provider://kubernetes/arc", "provider://local/m3"],
+      "substitutionPolicy": "FIRST_ELIGIBLE",
+      "unavailablePolicy": "DEFER_WITHOUT_GLOBAL_STOP",
+      "appleSpecific": false
+    },
+    {
+      "workloadId": "workload://apple/native-validation",
+      "requiredCapabilities": ["macos", "arm64", "apple-silicon", "target-host-readback"],
+      "preferredProviders": ["provider://local/m3"],
+      "substitutionPolicy": "EXACT_CAPABILITY_ONLY",
+      "unavailablePolicy": "DEFER_WITHOUT_GLOBAL_STOP",
+      "appleSpecific": true
+    }
+  ]
+}

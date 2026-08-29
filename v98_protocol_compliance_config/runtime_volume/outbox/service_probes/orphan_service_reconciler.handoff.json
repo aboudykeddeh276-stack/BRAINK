@@ -1,0 +1,11 @@
+{
+  "classification": "LOCAL_PASS",
+  "created_at": 1786086742.27394,
+  "handoff_id": "05325f606da8f1b1c527ffc51fbf8ddcc3ea95d06524307533cb91bdf640bc0b",
+  "next_target": "acceptance_summary",
+  "payload_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/service_probes/orphan_service_reconciler.json",
+  "receipt_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/proof_bundles.ledger",
+  "service_id": "orphan_service_reconciler",
+  "source": "KEDDEH_V98_SERVICE_PROBE",
+  "status": "READY"
+}

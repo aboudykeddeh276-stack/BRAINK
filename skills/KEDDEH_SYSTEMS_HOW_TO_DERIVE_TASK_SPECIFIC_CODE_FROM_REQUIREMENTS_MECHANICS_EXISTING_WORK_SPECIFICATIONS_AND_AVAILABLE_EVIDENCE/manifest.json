@@ -1,0 +1,38 @@
+{
+  "canonical_skill_name": "Keddeh Systems — How to Derive Task-Specific Code from Requirements, Mechanics, Existing Work, Specifications, and Available Evidence",
+  "canonical_identifier": "KEDDEH_SYSTEMS_HOW_TO_DERIVE_TASK_SPECIFIC_CODE_FROM_REQUIREMENTS_MECHANICS_EXISTING_WORK_SPECIFICATIONS_AND_AVAILABLE_EVIDENCE",
+  "version": "1.0.0",
+  "status": "implemented_and_tested",
+  "methodology_reference": "KEDDEH_SYSTEMS_HOW_TO_DESIGN_MAKE_VALIDATE_SAVE_MAINTAIN_AND_REUSE_A_SKILL",
+  "authoritative_naming_rule": "full semantic names are authoritative; abbreviations may only be secondary aliases after demonstrated semantic equivalence",
+  "purpose": "Derive and validate the task-specific code required by a capability by decomposing the capability into mechanics, mechanics into functions, and functions into required knowledge, reference, and test oracles, then selecting derivation pathways. The underlying mechanics are the governing object; acquisition (and download within it) is a subordinate pathway that supplies source, reference, or oracles and can never be promoted into a capability limitation while other pathways remain available or untested.",
+  "governing_rule": "A failed acquisition method cannot be promoted into a capability limitation while other derivation pathways remain available or untested.",
+  "working_principle": "One mechanic, one authoritative implementation, many consumers. Tests verify mechanics; packaging relocates them; repository organisation describes them. None re-implement business logic.",
+  "governing_doctrine": "Capability is the centre; evidence is a by-product. ACHIEVE -> VERIFY -> IMPROVE -> VERIFY AGAIN -> PRESERVE THE MECHANICS. Exhaust engineering pathways before arguing any limitation.",
+  "case_studies": {
+    "btc": "Two faithful projections: resources/btc_case_study.json (amendable derivation-planning data for the general engine) and src/btc/ (executable mechanics implemented once and composed in src/btc/pipeline.py). The Bitcoin protocol is illustrative, not a locked topic."
+  },
+  "dependencies": [],
+  "execution_environment": {
+    "python_minimum": "3.10",
+    "external_packages_required": false,
+    "platform": "POSIX or GitHub Actions runner"
+  },
+  "claim_boundary": {
+    "domain_general_derivation_engine_implemented": true,
+    "acquisition_is_modeled_as_subordinate_to_derivation": true,
+    "failed_acquisition_not_promoted_to_limitation_while_pathways_remain": true,
+    "amendable_btc_case_study_provided": true,
+    "executable_btc_mechanics_implemented_once_and_composed": true,
+    "btc_mechanics_verified_against_genesis_block_and_independent_oracles": true,
+    "miner_measures_real_sha256d_execution_rate_and_economics": true,
+    "one_mechanic_one_implementation_many_consumers_enforced": true,
+    "live_control_plane_implemented_real_core_rpc_transport": true,
+    "rpc_and_wallet_kept_private_by_default_public_boundary_is_stratum_and_p2p": true,
+    "payout_script_derived_in_control_plane_never_exposed_to_hashing_workers": true,
+    "controller_runs_real_template_to_submitblock_chain_against_a_live_node": true,
+    "live_control_plane_verified_with_injected_transport_and_bip173_bip350_vectors": true,
+    "engine_and_case_study_tested": true,
+    "download_is_required_at_runtime": false
+  }
+}

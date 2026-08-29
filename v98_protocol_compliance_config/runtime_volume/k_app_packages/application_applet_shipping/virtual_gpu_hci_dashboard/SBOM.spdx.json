@@ -1,0 +1,10 @@
+{
+  "name": "virtual_gpu_hci_dashboard",
+  "packages": [
+    {
+      "name": "virtual_gpu_hci_dashboard",
+      "versionInfo": "1.0.0"
+    }
+  ],
+  "spdxVersion": "SPDX-2.3"
+}

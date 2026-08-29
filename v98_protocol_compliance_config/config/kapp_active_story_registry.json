@@ -1,0 +1,33 @@
+{
+  "version": "V100-ACTIVE-STORY-1",
+  "registryId": "keddeh.active-story.products",
+  "products": [
+    {
+      "applicationId": "keddeh.active-story-lexicon",
+      "kind": "APPLET",
+      "entrypoint": "src/keddeh_active_story_runtime.py",
+      "runtime": "PYTHON_SERVICE",
+      "route": "applet://active-story-lexicon",
+      "vfsNamespace": "vfs://applets/keddeh.active-story-lexicon/",
+      "suppliedCapabilities": [
+        "CANONICAL_WORD_IDENTITY",
+        "CONTEXTUAL_WORD_INSTANTIATION",
+        "EXPRESSION_COMPOSITION",
+        "SEMANTIC_CODE_BINDING",
+        "STORY_TRANSITION_RECEIPTS",
+        "WIKIPEDIA_STYLE_BACKLINKS",
+        "SEMANTIC_IMPACT_ANALYSIS"
+      ],
+      "modules": [
+        "src/keddeh_active_story_runtime.py",
+        "config/active_story_lexicon.json"
+      ],
+      "criticality": "CORE_DEGRADED",
+      "fallbackAdapter": "adapter.static-lexicon-readonly",
+      "launchCommand": "python3 src/keddeh_product_runtime.py --root . --product keddeh.active-story-lexicon --emit-receipt",
+      "testCommand": "python3 -m unittest tests.test_active_story_runtime -v",
+      "deploymentTarget": "PORTABLE_AND_M3",
+      "maturity": "IMPLEMENTED_PENDING_PRODUCT_RUNTIME_RECEIPT"
+    }
+  ]
+}

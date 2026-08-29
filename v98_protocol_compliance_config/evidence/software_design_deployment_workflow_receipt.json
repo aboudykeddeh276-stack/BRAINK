@@ -1,0 +1,19 @@
+{
+  "certification_claimed": false,
+  "hash_used_as_functional_proof": false,
+  "receipt": {
+    "completion_rule_count": 8,
+    "forbidden_solo_proof_blocked": true,
+    "ledger_readback": true,
+    "outbox_manifest": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/outbox/design_deployment_workflow/056e1f9b437020f73f853d2ac4f16ad95c9b94ef1b97d8c06817817b03c2ff67.handoff.json",
+    "phase_count": 12,
+    "promotion_state": "LOCAL_PASS",
+    "timestamp": 1786086741.1645148,
+    "valid_phase_count": 12,
+    "version": "V99",
+    "workflow_id": "software_design_deployment_workflow"
+  },
+  "receipt_hash": "056e1f9b437020f73f853d2ac4f16ad95c9b94ef1b97d8c06817817b03c2ff67",
+  "target_host_deployed_here": false,
+  "telemetry_used_as_functional_proof": false
+}

@@ -1,0 +1,6 @@
+{
+  "builder": "keddeh_application_applet_packager",
+  "component_id": "agent_registry_service",
+  "source_surface": "service_protocol_runtime_surface",
+  "timestamp": 1786086741.1185856
+}

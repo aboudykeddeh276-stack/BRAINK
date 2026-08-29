@@ -1,0 +1,6 @@
+{
+  "namespaces": [
+    "vfs://apps/vfs-volume-custody/",
+    "vfs://agents/vfs-volume-custody/receipts/"
+  ]
+}

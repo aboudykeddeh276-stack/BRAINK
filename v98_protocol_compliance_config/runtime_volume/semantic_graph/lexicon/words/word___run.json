@@ -1,0 +1,35 @@
+{
+  "allowed_variants": [
+    "process_run",
+    "test_run",
+    "workflow_run",
+    "application_run",
+    "node_run",
+    "recovery_run"
+  ],
+  "backlinks": {
+    "code_bindings": [],
+    "expressions": [
+      "expression://run-kapp-on-eligible-node"
+    ],
+    "services": []
+  },
+  "canonical_id": "word://run",
+  "invariants": [
+    "runnable_subject_exists",
+    "execution_environment_identified",
+    "executing_service_known",
+    "evidence_preservable"
+  ],
+  "part_of_speech": "verb",
+  "prohibited_conflations": [
+    "declared_run_is_not_executed_run",
+    "ui_animation_is_not_process_execution"
+  ],
+  "source_definitions": {
+    "computer_science": "initiate or continue execution of instructions",
+    "keddeh": "transition an authorized contextual object into an active execution state",
+    "linguistic": "cause a process or system to operate"
+  },
+  "word": "RUN"
+}

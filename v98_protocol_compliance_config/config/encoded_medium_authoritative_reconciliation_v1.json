@@ -1,0 +1,40 @@
+{
+  "authoritative_primitive": "encoded script runtime structure is the software-defined storage medium",
+  "authoritative_relations": {
+    "source_lines": "provenance/authoring coordinates",
+    "matrix": "address geometry",
+    "adapter_controller": "operational semantics, address translation, allocation, read/write, integrity, lineage",
+    "vfs": "logical interpretation/navigation over decoded logical objects",
+    "braink_root": "pre-encoded resolvable root object inside the medium",
+    "network_ip_http": "carrier/adaptor projection, not native BRAINK identity"
+  },
+  "demotions": {
+    "volume_registry": "observation/proof registry",
+    "L#": "source provenance",
+    "sheet_rows": "projection/readback",
+    "100TB rows": "projection of address law",
+    "nine L19-L27 volumes": "instrumented logical address-space instances, not proof of fundamental medium architecture"
+  },
+  "preserved_evidence": [
+    "causal workbook execution/readback",
+    "zero-less address geometry experiments",
+    "lineage-separated addressing",
+    "observer/frame provenance",
+    "lexical/vector network resolution",
+    "open 0.0.0.0 listener separation",
+    "HTTP write-persist-readback-SHA256 verification",
+    "semantic route isolation",
+    "concurrent workbook lanes",
+    "vGPU/HD observer causality",
+    "CPU/compiler/storage causal tests",
+    "BRAINK identity versus carrier-address distinction",
+    "external-authority promotion evidence"
+  ],
+  "rejected_promotions": [
+    "L# as storage address",
+    "rows as literal volumes",
+    "VFS as substrate",
+    "900TB result as reconstruction proof of true encoded BRAINK medium",
+    "IP endpoint as foundational BRAINK address"
+  ]
+}

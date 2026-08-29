@@ -1,0 +1,5 @@
+{
+  "filesystem": "vfs_namespace_only",
+  "network": "policy_resolved",
+  "secrets": "host_injected_only"
+}

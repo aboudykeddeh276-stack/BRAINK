@@ -1,0 +1,24 @@
+{
+  "corrective_workflow": "Classify as emulator runtime with boot asset readback, manifest integrity, VFS volume binding and degraded state when boot assets are absent.",
+  "dependency_class": "CORE_DEGRADED",
+  "deployability_state": "CORRECTIVE_WORKFLOW_REQUIRED",
+  "evidence_state": "BOOT_ASSET_AND_SERIAL_READBACK_REQUIRED",
+  "fallback_adapter": "adapter.terminal-sandbox-static-desktop",
+  "issue_code": "Boot claims require BIOS/kernel/rootfs asset receipts, v86 presence readback, serial output and disk/volume mapping receipts before promoted runtime status.",
+  "next_action": "capture BIOS/kernel/rootfs/v86 serial readback receipts",
+  "promotion_boundary": "PROMOTE_ONLY_RECEIPT_BACKED_CAPABILITIES",
+  "required_receipts": [
+    "evidence/current_state_surface_audit_receipt.json",
+    "exports/current_state_surface_audit_matrix.csv",
+    "v86 boot asset receipt",
+    "serial output receipt"
+  ],
+  "research_basis": [
+    "source action history is diagnostic, not proof",
+    "K-APP manifest integrity readback before node execution",
+    "dependency failure is not global application failure",
+    "observability is not execution proof"
+  ],
+  "surface_id": "linux_microvm_v86",
+  "surface_type": "EMULATOR_SERVICE_APPLET"
+}

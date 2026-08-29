@@ -1,0 +1,8 @@
+{
+  "signals": [
+    "receipt_event",
+    "health_state",
+    "capability_readback"
+  ],
+  "telemetry_is_not_proof": true
+}

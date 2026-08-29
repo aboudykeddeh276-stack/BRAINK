@@ -1,0 +1,47 @@
+name: KEDDEH V98 Mirror Update Lane
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'v98_protocol_compliance_config/mirror_update_lane/**'
+      - 'v98_protocol_compliance_config/config/mirror_update_lane.json'
+      - 'v98_protocol_compliance_config/src/keddeh_mirror_update_lane.py'
+      - 'v98_protocol_compliance_config/tests/test_mirror_update_lane.py'
+      - '.github/workflows/v98-mirror-update-lane.yml'
+      - '.github/workflows/v98-mirror-host-commit.yml'
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  portable-mirror-preparation:
+    name: portable mirror bundle, receipt and deferred handoff
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Compile mirror runtime
+        run: |
+          cd v98_protocol_compliance_config
+          python3 -m compileall src tests
+      - name: Build versioned mirror bundle and deferred host handoff
+        run: |
+          cd v98_protocol_compliance_config
+          python3 src/keddeh_mirror_update_lane.py --root . --emit-receipt
+      - name: Run mirror positive, negative and readback tests
+        run: |
+          cd v98_protocol_compliance_config
+          python3 -m unittest tests.test_mirror_update_lane -v 2>&1 | tee mirror-unittest.log
+          grep -Eq '^Ran [1-9][0-9]* tests? in ' mirror-unittest.log
+      - name: Upload portable mirror evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: keddeh-v98-portable-mirror-evidence
+          path: |
+            v98_protocol_compliance_config/evidence/mirror_update_lane_receipt.json
+            v98_protocol_compliance_config/runtime_volume/
+            v98_protocol_compliance_config/exports/mirror_update_lane_matrix.csv
+            v98_protocol_compliance_config/mirror-unittest.log

@@ -1,0 +1,9 @@
+{
+  "created_at": 1786086741.5747364,
+  "handoff_id": "b10b47e2e9190016d7a2da5b45cd5e8cd03ec2e1e63b01a005ec888293d4f07a",
+  "next_target": "self_hosted_macos_arm64_runner_with_optional_bitcoind",
+  "payload_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/btc_core_protocol_router_receipt.json",
+  "receipt_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/btc_core_protocol_router.ledger",
+  "source": "KEDDEH_V99_BTC_CORE_PROTOCOL_ROUTER",
+  "status": "READY_FOR_TARGET_HOST_EXECUTION"
+}

@@ -1,0 +1,53 @@
+{
+  "trajectory_id": "trajectory://keddeh/enterprise-productisation",
+  "version": "1.0.0",
+  "objective": "Progressively organise, populate, design, engineer, validate, package, and commercialise the KEDDEH Systems portfolio without erasing source lineage or overstating evidence.",
+  "execution_law": "Each release train must preserve canonical identities, update topology and bilateral contracts, execute the strongest available validation path, classify unresolved proof, and produce durable artifacts and readback.",
+  "release_trains": [
+    {
+      "id": "RT0_PORTFOLIO_AUTHORITY",
+      "state": "IMPLEMENTED",
+      "outputs": ["portfolio registry", "naming lineage", "bilateral contracts", "product ownership map", "market and regulatory profiles"],
+      "gates": ["all umbrellas independently addressable", "all names attributable", "no hierarchy inferred from bilateral use", "global_stop false"]
+    },
+    {
+      "id": "RT1_COMMON_PLATFORM_ALPHA",
+      "state": "ACTIVE",
+      "products": ["KEO", "KEX", "BRAINK", "Spin^", "Infrastructure and Cloud", "Evidence, Assurance, and Deployment"],
+      "outputs": ["common CLI", "portfolio catalog", "KIR registry", "topology explorer", "policy packs", "provider adapters", "signed local packages"],
+      "gates": ["clean install", "dependency inventory", "SBOM", "provenance", "CI pass", "rollback", "independent artifact readback"]
+    },
+    {
+      "id": "RT2_PRODUCTIVITY_AND_DATA_BETA",
+      "state": "PLANNED",
+      "products": ["Keddeh PlayWrite", "Keddeh Coms", "Data/Workbook Systems"],
+      "outputs": ["controlled document workspace", "communications service", "workbook-runtime adapters", "shared catalog integrations"],
+      "gates": ["privacy mapping", "accessibility", "retention", "cross-product contract tests", "external pilot evidence"]
+    },
+    {
+      "id": "RT3_REGULATED_WORKFLOW_PILOTS",
+      "state": "PLANNED",
+      "products": ["LawPath", "FormPath", "ClaimPath", "Legal/Regulatory Conformity"],
+      "outputs": ["Australian jurisdiction packs", "professional-review controls", "form authority registry", "insurance claim workflow", "legal matter workflow", "regulatory evidence matrix"],
+      "gates": ["qualified legal review", "insurance regulatory review", "privacy impact assessment", "human approval", "complaint and incident procedures", "claims substantiation"]
+    },
+    {
+      "id": "RT4_HARDWARE_AND_OEM",
+      "state": "PLANNED",
+      "products": ["Hardware/Firmware", "KEX", "KEO", "Evidence, Assurance, and Deployment"],
+      "outputs": ["firmware reference platform", "HAL contracts", "simulation harness", "FPGA profile", "board readback", "OEM support policy"],
+      "gates": ["toolchain receipt", "simulation", "hardware-in-loop", "secure boot", "signed image", "SBOM", "physical readback"]
+    },
+    {
+      "id": "RT5_ENTERPRISE_GA",
+      "state": "PLANNED",
+      "outputs": ["self-hosted control plane", "SSO and RBAC", "audit export", "tenant isolation", "backup and recovery", "support SLAs", "commercial terms", "vulnerability disclosure"],
+      "gates": ["external security review", "licence clearance", "production operations", "disaster recovery exercise", "customer acceptance", "public claim review"]
+    }
+  ],
+  "work_unit_contract": {
+    "required": ["canonical identities", "source lineage", "topology delta", "interfaces affected", "iteration state", "tests", "promotion state", "artifact state", "impact radius", "remaining gates"],
+    "states": ["I0_OBSERVE", "I1_DEFINE", "I2_DESIGN", "I3_IMPLEMENT", "I4_STATIC_VALIDATE", "I5_EXECUTE", "I6_INTEGRATE", "I7_ASSURE_AND_PROMOTE", "I8_PRESERVE", "I9_REVIEW"]
+  },
+  "global_stop": false
+}

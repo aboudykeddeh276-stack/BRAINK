@@ -1,0 +1,6 @@
+{
+  "namespaces": [
+    "vfs://apps/safe-asset-receipt-pipeline/",
+    "vfs://agents/safe-asset-receipt-pipeline/receipts/"
+  ]
+}

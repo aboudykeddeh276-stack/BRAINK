@@ -1,0 +1,164 @@
+{
+  "version": "V99",
+  "policy_id": "evidence_context_resolution_policy",
+  "formula": "S=f(I,V,O,E,X,R,L)",
+  "purpose": "Classify evidence as contextual state-resolution instead of one-word terminal judgement. A single signal cannot determine full capability state.",
+  "terms": {
+    "I": "invariant",
+    "V": "variant",
+    "O": "observer",
+    "E": "environment",
+    "X": "execution_plane",
+    "R": "evidence_readback_class",
+    "L": "lineage"
+  },
+  "invariants": [
+    "identity",
+    "source_state",
+    "declared_capability",
+    "dependency_boundary",
+    "observer",
+    "environment",
+    "execution_plane",
+    "evidence_origin",
+    "time_freshness",
+    "lineage",
+    "impact_radius"
+  ],
+  "variants": [
+    "projection",
+    "simulation",
+    "fixture",
+    "benchmark",
+    "fallback",
+    "emulator",
+    "local_execution",
+    "host_execution",
+    "provider_execution",
+    "imported_observation",
+    "target_declaration",
+    "degraded_execution",
+    "deferred_execution"
+  ],
+  "single_signal_findings": [
+    "Math.random()",
+    "ONLINE",
+    "ATTESTED",
+    "TPU",
+    "quantum core",
+    "simulated"
+  ],
+  "forbidden_direct_outputs_from_single_signal": [
+    "FAKE",
+    "IMPOSSIBLE",
+    "FAILED",
+    "GLOBAL_STOP"
+  ],
+  "resolution_pipeline": [
+    "identify_character_capability",
+    "identify_purpose",
+    "identify_observer",
+    "identify_environment",
+    "identify_execution_plane",
+    "identify_evidence_class",
+    "determine_freshness_and_lineage",
+    "derive_capability_scoped_state"
+  ],
+  "valid_derived_states": [
+    "DECLARED_TARGET",
+    "DECLARED_VARIANT",
+    "PROJECTION_ACTIVE",
+    "FIXTURE_ACTIVE",
+    "EMULATOR_ACTIVE",
+    "LOCAL_EXECUTED",
+    "HOST_EXECUTED",
+    "PROVIDER_EXECUTED",
+    "DEGRADED_VALID",
+    "DEFERRED_COMMIT",
+    "EVIDENCE_CORRELATION_REQUIRED",
+    "CONTEXT_RESOLUTION_REQUIRED",
+    "REINTEGRATION_REQUIRED"
+  ],
+  "bounded_stop_allowed_only_when": [
+    "proven_invariant_violation"
+  ],
+  "global_safety_stop_allowed_only_when": [
+    "proven_global_safety_violation",
+    "proven_global_semantic_violation",
+    "proven_global_integrity_violation"
+  ],
+  "sample_resolution_items": [
+    {
+      "finding": "Math.random()",
+      "character_capability": "randomized_metric_source",
+      "purpose": "UI demo, fixture, benchmark noise, or provisional telemetry placeholder",
+      "observer": "current_state_surface_auditor",
+      "environment": "browser_or_node_local",
+      "execution_plane": "projection_or_fixture",
+      "evidence_class": "single_signal_uncorroborated",
+      "freshness": "requires_runtime_receipt",
+      "lineage": "uploaded_action_history_or_source_scan",
+      "derived_state": "CONTEXT_RESOLUTION_REQUIRED"
+    },
+    {
+      "finding": "ONLINE",
+      "character_capability": "health_label",
+      "purpose": "declared status or heartbeat projection",
+      "observer": "health_state_monitor",
+      "environment": "mesh_ui_or_server_health_api",
+      "execution_plane": "imported_observation",
+      "evidence_class": "label_without_readback",
+      "freshness": "requires_timestamped_heartbeat",
+      "lineage": "node_status_surface",
+      "derived_state": "EVIDENCE_CORRELATION_REQUIRED"
+    },
+    {
+      "finding": "ATTESTED",
+      "character_capability": "attestation_claim",
+      "purpose": "target or provider proof declaration",
+      "observer": "evidence_context_resolver",
+      "environment": "provider_or_target_host_gate",
+      "execution_plane": "target_declaration",
+      "evidence_class": "declaration_without_signed_receipt",
+      "freshness": "requires_signed_readback",
+      "lineage": "provider_gate_or_manifest",
+      "derived_state": "DECLARED_TARGET"
+    },
+    {
+      "finding": "TPU",
+      "character_capability": "hardware_target_label",
+      "purpose": "target hardware class or simulated rack projection",
+      "observer": "current_state_surface_auditor",
+      "environment": "desktop_google_tpu_rack_surface",
+      "execution_plane": "target_declaration_or_projection",
+      "evidence_class": "hardware_label_without_provider_receipt",
+      "freshness": "requires_provider_or_local_fallback_receipt",
+      "lineage": "desktop_surface",
+      "derived_state": "DECLARED_TARGET"
+    },
+    {
+      "finding": "quantum core",
+      "character_capability": "architecture_branding_or_declared_capability",
+      "purpose": "projection, narrative label, or future hardware target",
+      "observer": "evidence_context_resolver",
+      "environment": "workstation_projection_surface",
+      "execution_plane": "projection",
+      "evidence_class": "capability_label_without_execution_receipt",
+      "freshness": "requires capability readback",
+      "lineage": "ui_text_or_action_history",
+      "derived_state": "PROJECTION_ACTIVE"
+    },
+    {
+      "finding": "simulated",
+      "character_capability": "variant_disclosure",
+      "purpose": "fixture, projection, or degraded substitute",
+      "observer": "evidence_context_resolver",
+      "environment": "local_workbench",
+      "execution_plane": "fixture_or_projection",
+      "evidence_class": "declared_variant",
+      "freshness": "valid_when_disclosed_and_bounded",
+      "lineage": "source_surface_or_receipt",
+      "derived_state": "DECLARED_VARIANT"
+    }
+  ]
+}

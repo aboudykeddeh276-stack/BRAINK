@@ -1,0 +1,109 @@
+name: KEDDEH V112 Enterprise Portfolio Runtime and Alpha Release
+
+on:
+  pull_request:
+    paths:
+      - 'skills/keddeh-engineering-orchestrator/enterprise/**'
+      - 'skills/keddeh-engineering-orchestrator/keo.py'
+      - 'skills/keddeh-engineering-orchestrator/pyproject.toml'
+      - '.github/workflows/v112-enterprise-portfolio-runtime-and-release.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  runtime-and-release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: skills/keddeh-engineering-orchestrator/enterprise
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Compile runtime release builder and tests
+        run: python3 -m compileall -q enterprise_portfolio_runtime.py build_alpha_release.py test_enterprise_portfolio_runtime.py
+
+      - name: Execute portfolio runtime tests
+        run: python3 -m unittest -v test_enterprise_portfolio_runtime.py
+
+      - name: Synchronise persistent portfolio database
+        run: |
+          mkdir -p runtime dist
+          python3 enterprise_portfolio_runtime.py --database runtime/enterprise-portfolio.sqlite3 sync | tee runtime/sync-receipt.json
+          python3 enterprise_portfolio_runtime.py --database runtime/enterprise-portfolio.sqlite3 list | tee runtime/identity-readback.json
+          python3 enterprise_portfolio_runtime.py --database runtime/enterprise-portfolio.sqlite3 resolve umbrella://keddeh/keo | tee runtime/namespace-readback.json
+          python3 enterprise_portfolio_runtime.py --database runtime/enterprise-portfolio.sqlite3 export runtime/export | tee runtime/export-readback.json
+
+      - name: Exercise bilateral adapter
+        run: |
+          python3 - <<'PY'
+          import json
+          import subprocess
+          import sys
+          from pathlib import Path
+
+          contract = json.loads(Path('bilateral-contracts.json').read_text())['contracts'][0]
+          payload = {field: f'ci:{field}' for field in contract['preserved_invariants']}
+          completed = subprocess.run(
+              [
+                  sys.executable,
+                  'enterprise_portfolio_runtime.py',
+                  '--database',
+                  'runtime/enterprise-portfolio.sqlite3',
+                  'translate',
+                  contract['id'],
+                  'document://ci/source',
+                  json.dumps(payload),
+              ],
+              check=True,
+              capture_output=True,
+              text=True,
+          )
+          Path('runtime/bilateral-readback.json').write_text(completed.stdout)
+          result = json.loads(completed.stdout)
+          assert result['receipt']['equivalence_state'] == 'SEMANTIC_EQUIVALENT_WITH_DECLARED_ADAPTERS'
+          assert result['receipt']['global_stop'] is False
+          PY
+
+      - name: Build deterministic controlled-alpha release
+        run: python3 build_alpha_release.py --destination dist --version 0.2.0-alpha.1 | tee dist/build-readback.json
+
+      - name: Assert release bytes and independent readback
+        run: |
+          python3 - <<'PY'
+          import hashlib
+          import json
+          import zipfile
+          from pathlib import Path
+
+          receipt = json.loads(Path('dist/KEDDEH_ENGINEERING_REGULATED_WORKFLOW_ALPHA_0.2.0-alpha.1.receipt.json').read_text())
+          archive = Path(receipt['archive_path'])
+          assert archive.is_file()
+          assert archive.stat().st_size == receipt['archive_size']
+          assert hashlib.sha256(archive.read_bytes()).hexdigest() == receipt['archive_sha256']
+          with zipfile.ZipFile(archive) as bundle:
+              assert bundle.testzip() is None
+              assert 'keddeh-engineering-orchestrator/RELEASE-MANIFEST.json' in bundle.namelist()
+          assert receipt['zip_integrity_passed'] is True
+          assert receipt['independent_readback_passed'] is True
+          PY
+
+      - name: Upload runtime database and alpha release
+        uses: actions/upload-artifact@v4
+        with:
+          name: v112-enterprise-runtime-alpha-${{ github.sha }}
+          if-no-files-found: error
+          retention-days: 30
+          path: |
+            skills/keddeh-engineering-orchestrator/enterprise/runtime/enterprise-portfolio.sqlite3
+            skills/keddeh-engineering-orchestrator/enterprise/runtime/*.json
+            skills/keddeh-engineering-orchestrator/enterprise/runtime/export/*
+            skills/keddeh-engineering-orchestrator/enterprise/dist/*.zip
+            skills/keddeh-engineering-orchestrator/enterprise/dist/*.json
+            skills/keddeh-engineering-orchestrator/enterprise/dist/*.sha256

@@ -1,0 +1,63 @@
+name: KEDDEH V103 Active Word Full Engagement
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'v98_protocol_compliance_config/config/active_word_full_engagement.json'
+      - 'v98_protocol_compliance_config/config/active_word_governance.json'
+      - 'v98_protocol_compliance_config/config/active_story_lexicon.json'
+      - 'v98_protocol_compliance_config/config/il_llm_active_story_registry.json'
+      - 'v98_protocol_compliance_config/src/keddeh_active_word_full_engagement.py'
+      - 'v98_protocol_compliance_config/tests/test_active_word_full_engagement.py'
+      - '.github/workflows/v103-active-word-full-engagement.yml'
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  full-engagement:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile runtime and tests
+        run: |
+          cd v98_protocol_compliance_config
+          python3 -m compileall src tests
+      - name: Run repository test runner
+        run: |
+          cd v98_protocol_compliance_config
+          python3 src/keddeh_test_runner.py --root . --emit-receipt
+      - name: Execute iterative active-word engagement
+        run: |
+          cd v98_protocol_compliance_config
+          python3 src/keddeh_active_word_full_engagement.py --root . --iterations 5 --emit-receipt
+      - name: Verify receipt and indexes
+        run: |
+          cd v98_protocol_compliance_config
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          receipt = json.loads(Path('evidence/active_word_full_engagement_receipt.json').read_text())
+          assert receipt['bilateral_readback'] is True
+          assert receipt['promotion_state'] == 'REINTEGRATED'
+          assert receipt['derivations_preserved'] > 0
+          assert receipt['iteration_receipts'][-1]['converged'] is True
+          assert set(receipt['indexes_written']) == {
+              'forward','reverse','source_to_runtime','runtime_to_source',
+              'word_to_expression','expression_to_word',
+              'service_to_transition','transition_to_service'
+          }
+          PY
+      - name: Upload engagement evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: keddeh-v103-active-word-full-engagement
+          path: |
+            v98_protocol_compliance_config/evidence/active_word_full_engagement_receipt.json
+            v98_protocol_compliance_config/evidence/test_runner_receipt.json
+            v98_protocol_compliance_config/runtime_volume/active_word_full_engagement/
+            v98_protocol_compliance_config/runtime_volume/workplans/active_word_mirror_lane/

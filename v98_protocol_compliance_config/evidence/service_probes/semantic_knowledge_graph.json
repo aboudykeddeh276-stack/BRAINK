@@ -1,0 +1,14 @@
+{
+  "boundary": "turns words, expressions, services, code bindings, transitions and receipts into an executable knowledge graph so implementations can explain their meaning, authority, sector, service and evidence lineage",
+  "classification": "UNSUPPORTED_IN_THIS_RUNTIME",
+  "details": {
+    "gate_reason": "No executable probe is registered for this declared service."
+  },
+  "executed": false,
+  "negative_test_passed": false,
+  "owner_plane": "virtual_cpu_semantic_governance_plane",
+  "positive_test_passed": false,
+  "probe_name": "unregistered_probe",
+  "service_id": "semantic_knowledge_graph",
+  "timestamp": 1786086742.322918
+}

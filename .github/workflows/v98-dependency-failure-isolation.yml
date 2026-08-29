@@ -1,0 +1,41 @@
+name: KEDDEH V99 Dependency Failure Isolation
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'v98_protocol_compliance_config/config/dependency_failure_policy.json'
+      - 'v98_protocol_compliance_config/src/keddeh_dependency_failure_orchestrator.py'
+      - 'v98_protocol_compliance_config/tests/test_dependency_failure_orchestrator.py'
+      - 'v98_protocol_compliance_config/docs/DEPENDENCY_FAILURE_ISOLATION.md'
+      - 'v98_protocol_compliance_config/scripts/dependency_failure.command'
+      - '.github/workflows/v98-dependency-failure-isolation.yml'
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  dependency-failure-isolation:
+    name: portable dependency failure isolation validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Execute dependency failure isolation
+        run: |
+          cd v98_protocol_compliance_config
+          python3 -m compileall src tests
+          python3 src/keddeh_dependency_failure_orchestrator.py --root . --emit-receipt
+          python3 src/keddeh_test_runner.py --root . --emit-receipt
+      - name: Upload dependency failure evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: keddeh-v99-dependency-failure-evidence
+          path: |
+            v98_protocol_compliance_config/evidence/dependency_failure_receipt.json
+            v98_protocol_compliance_config/exports/dependency_failure_matrix.csv
+            v98_protocol_compliance_config/runtime_volume/outbox/dependency_failure/
+            v98_protocol_compliance_config/runtime_volume/task_packets/dependency_failure/

@@ -1,0 +1,108 @@
+{
+  "canonical_statement": "Output, thinking, legal perspective and software service are coupled but non-collapsible planes. Each plane preserves its own I,V,O,E,X,R,L.",
+  "cross_plane_guards": [
+    {
+      "protected_planes": "legal_perspective;software_service",
+      "reason": "non-collapsible plane boundary preserved",
+      "rule": "legal_conclusion_cannot_be_inherited_from_software_test",
+      "status": "ENFORCED"
+    },
+    {
+      "protected_planes": "output_framework;thinking_framework",
+      "reason": "non-collapsible plane boundary preserved",
+      "rule": "polished_output_cannot_prove_reasoning_path",
+      "status": "ENFORCED"
+    },
+    {
+      "protected_planes": "thinking_framework;legal_perspective",
+      "reason": "non-collapsible plane boundary preserved",
+      "rule": "internal_reasoning_state_cannot_silently_become_court_fact",
+      "status": "ENFORCED"
+    },
+    {
+      "protected_planes": "all",
+      "reason": "non-collapsible plane boundary preserved",
+      "rule": "software_receipt_cannot_become_admissibility_determination",
+      "status": "ENFORCED"
+    },
+    {
+      "protected_planes": "all",
+      "reason": "non-collapsible plane boundary preserved",
+      "rule": "legal_perspective_cannot_become_court_finding_without_authority_and_procedure",
+      "status": "ENFORCED"
+    }
+  ],
+  "formula": "S=f(I,V,O,E,X,R,L)",
+  "internal_reasoning_state_promoted_to_court_fact": false,
+  "legal_conclusion_inherited_from_software_test": false,
+  "plane_assessments": [
+    {
+      "context_complete": true,
+      "corrective_workflow": "maintain_plane_specific_receipts",
+      "derived_state": "FRAMEWORK_NODE_BOUND",
+      "evidence_contract_complete": true,
+      "formula": "S=f(I,V,O,E,X,R,L)",
+      "issue_count": 0,
+      "node_id": "framework://output",
+      "non_collapsible": true,
+      "plane": "output_framework",
+      "reason": "plane preserves independent I,V,O,E,X,R,L",
+      "required_receipts": "evidence/four_plane_context_framework_receipt.json;exports/four_plane_context_framework_matrix.csv"
+    },
+    {
+      "context_complete": true,
+      "corrective_workflow": "maintain_plane_specific_receipts",
+      "derived_state": "FRAMEWORK_NODE_BOUND",
+      "evidence_contract_complete": true,
+      "formula": "S=f(I,V,O,E,X,R,L)",
+      "issue_count": 0,
+      "node_id": "framework://thinking",
+      "non_collapsible": true,
+      "plane": "thinking_framework",
+      "reason": "plane preserves independent I,V,O,E,X,R,L",
+      "required_receipts": "evidence/four_plane_context_framework_receipt.json;exports/four_plane_context_framework_matrix.csv"
+    },
+    {
+      "context_complete": true,
+      "corrective_workflow": "maintain_plane_specific_receipts",
+      "derived_state": "FRAMEWORK_NODE_BOUND",
+      "evidence_contract_complete": true,
+      "formula": "S=f(I,V,O,E,X,R,L)",
+      "issue_count": 0,
+      "node_id": "framework://legal-perspective",
+      "non_collapsible": true,
+      "plane": "legal_perspective",
+      "reason": "plane preserves independent I,V,O,E,X,R,L",
+      "required_receipts": "evidence/four_plane_context_framework_receipt.json;exports/four_plane_context_framework_matrix.csv"
+    },
+    {
+      "context_complete": true,
+      "corrective_workflow": "maintain_plane_specific_receipts",
+      "derived_state": "FRAMEWORK_NODE_BOUND",
+      "evidence_contract_complete": true,
+      "formula": "S=f(I,V,O,E,X,R,L)",
+      "issue_count": 0,
+      "node_id": "framework://software-service",
+      "non_collapsible": true,
+      "plane": "software_service",
+      "reason": "plane preserves independent I,V,O,E,X,R,L",
+      "required_receipts": "evidence/four_plane_context_framework_receipt.json;exports/four_plane_context_framework_matrix.csv"
+    }
+  ],
+  "polished_output_used_as_reasoning_proof": false,
+  "receipt": {
+    "conformance_issue_count": 0,
+    "cross_plane_guard_count": 5,
+    "formula": "S=f(I,V,O,E,X,R,L)",
+    "ledger_readback": true,
+    "matrix_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/exports/four_plane_context_framework_matrix.csv",
+    "outbox_manifest": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/runtime_volume/outbox/four_plane_context_framework/5c87958e0dc7d316c10dd54784f32b3bb527e31e318edb976f1b682150af4212.handoff.json",
+    "plane_count": 4,
+    "receipt_path": "/home/runner/work/BRAINK/BRAINK/v98_protocol_compliance_config/evidence/four_plane_context_framework_receipt.json",
+    "timestamp": 1786086741.171715,
+    "valid_plane_count": 4,
+    "version": "V99"
+  },
+  "software_receipt_promoted_to_legal_determination": false,
+  "work_packets": []
+}

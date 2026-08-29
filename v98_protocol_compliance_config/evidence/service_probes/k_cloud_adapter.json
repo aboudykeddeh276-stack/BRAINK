@@ -1,0 +1,14 @@
+{
+  "boundary": "converts Vite/application output into an immutable K-APP package, performs manifest integrity readback before node execution, activates dependency policies and emits K-Cloud deployment receipts",
+  "classification": "UNSUPPORTED_IN_THIS_RUNTIME",
+  "details": {
+    "gate_reason": "No executable probe is registered for this declared service."
+  },
+  "executed": false,
+  "negative_test_passed": false,
+  "owner_plane": "virtual_cpu_deployment_plane",
+  "positive_test_passed": false,
+  "probe_name": "unregistered_probe",
+  "service_id": "k_cloud_adapter",
+  "timestamp": 1786086742.3087966
+}

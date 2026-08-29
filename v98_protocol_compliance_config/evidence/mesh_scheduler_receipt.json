@@ -1,0 +1,23 @@
+{
+  "allocation_map": {
+    "frame-plan": "beta",
+    "route-batch": "alpha",
+    "route-index": "alpha"
+  },
+  "boundary": "Portable deterministic scheduler model; no OS thread execution, remote transport, process launch or host resource reservation.",
+  "classification": "LOCAL_PASS",
+  "component_id": "hyper_explicit_mesh_runtime",
+  "deferred_tasks": [
+    "unsupported-capability"
+  ],
+  "duplicate_worker_rejected": true,
+  "host_resources_reserved": false,
+  "invalid_transition_rejected": true,
+  "negative_test_passed": true,
+  "os_threads_created": false,
+  "positive_test_passed": true,
+  "remote_workers_contacted": false,
+  "timed_out_tasks": [
+    "deadline-vector"
+  ]
+}

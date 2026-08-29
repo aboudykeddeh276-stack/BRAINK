@@ -1,0 +1,6 @@
+{
+  "namespaces": [
+    "vfs://apps/agent-runtime-service/",
+    "vfs://agents/agent-runtime-service/receipts/"
+  ]
+}

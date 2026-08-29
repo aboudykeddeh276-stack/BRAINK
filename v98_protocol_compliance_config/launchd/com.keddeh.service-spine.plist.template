@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.keddeh.service-spine</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/usr/bin/python3</string>
+    <string>__KEDDEH_V98_ROOT__/src/keddeh_v98_acceptance_harness.py</string>
+    <string>--root</string>
+    <string>__KEDDEH_V98_ROOT__</string>
+    <string>--emit-receipt</string>
+  </array>
+  <key>RunAtLoad</key>
+  <true/>
+  <key>StartInterval</key>
+  <integer>3600</integer>
+  <key>StandardOutPath</key>
+  <string>__KEDDEH_V98_ROOT__/logs/service-spine.out.log</string>
+  <key>StandardErrorPath</key>
+  <string>__KEDDEH_V98_ROOT__/logs/service-spine.err.log</string>
+  <key>WorkingDirectory</key>
+  <string>__KEDDEH_V98_ROOT__</string>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>KEDDEH_SERVICE_SPINE_MODE</key>
+    <string>V98_ACCEPTANCE</string>
+  </dict>
+</dict>
+</plist>
