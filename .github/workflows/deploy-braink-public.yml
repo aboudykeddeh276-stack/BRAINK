@@ -1,0 +1,37 @@
+name: Deploy BRAINK Public Services
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'deploy/braink-public/**'
+      - '.github/workflows/deploy-braink-public.yml'
+concurrency:
+  group: braink-public-production
+  cancel-in-progress: false
+jobs:
+  deploy:
+    runs-on: [self-hosted]
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify resident KEDDEH fabric
+        run: |
+          test -x /mnt/data/keddeh_deploy/resident_v5/KEDDEH_REGISTRAR_V5/START_FULL_DOMAIN_FABRIC.command
+          ps -ef | grep -E 'KEDDEH_RECURSIVE_EDGE_NODE_R1|authoritative_dns.py|registrar_server.py|webspace_server.py' | grep -v grep
+      - name: Build canonical BRAINK surface and governed replicas
+        run: python3 deploy/braink-public/build_sites.py
+      - name: Deploy through resident Layer-2 domain fabric
+        env:
+          KEDDEH_DOMAIN_FABRIC_ROOT: /mnt/data/keddeh_deploy/resident_v5/KEDDEH_REGISTRAR_V5
+          KEDDEH_EVIDENCE_ROOT: /mnt/data/keddeh_deploy/resident_v5/KEDDEH_REGISTRAR_V5_EVIDENCE
+        run: python3 deploy/braink-public/deploy_live.py
+      - name: Publish execution receipts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: braink-public-deployment-receipts
+          path: |
+            deploy/braink-public/*READBACK*.json
+            deploy/braink-public/*RECEIPT*.json
+            /mnt/data/keddeh_deploy/resident_v5/KEDDEH_REGISTRAR_V5_EVIDENCE/BRAINK_PUBLIC_LAYER2_READBACK.json
