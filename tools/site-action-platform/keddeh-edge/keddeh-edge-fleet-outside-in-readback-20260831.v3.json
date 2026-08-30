@@ -1,0 +1,55 @@
+{
+  "schema": "kex.braink.keddeh-edge.fleet-outside-in-readback.v3",
+  "authority": "A. Keddeh / Keddeh Systems",
+  "edge": "KEX://EDGE/KEDDEH/V1",
+  "observed_at": "2026-08-31T00:46:00+09:30",
+  "source_instruction": "Latest Gmail successor operations handoff: change execution carrier, preserve DNS/mail state, perform per-domain handoff and outside-in readback.",
+  "orchestration": {
+    "requested_mode": "FULL_RESIDENT_AGENT_SKILL_STACK_WITH_SUPERAGENT",
+    "resident_orchestrator": "braink://local/orchestrator",
+    "agent_root": "KEX://ROOT/KEX-BRAINK-MESH-V2/AGENT/ROOT/D1",
+    "resident_provider": "resident://r4/continuation-kex",
+    "applicable_skills": [
+      "personal:kex-domain-hosting-handoff",
+      "personal:kex-self-host-domain-runtime-suite",
+      "personal:kex-outbound-self-host-lease-loop",
+      "plugin:gmail:gmail:gmail",
+      "plugin:sites:sites-building:sites-building"
+    ],
+    "evidence_rule": "Agent/skill identity or registry presence is not promoted to execution without observable invocation/readback."
+  },
+  "readback": {
+    "casepath.com.au": {
+      "state": "PUBLIC_CONTENT_REACHABLE",
+      "evidence": "HTTPS page retrieved outside-in; CasePath Public Beta content observed."
+    },
+    "claimpath.org": {
+      "state": "NOT_OBSERVED_CURRENT_RUN",
+      "evidence": "Public fetch returned tool/internal error; not promoted to DOWN or ABSENT."
+    },
+    "braink.com.au": {
+      "state": "NOT_OBSERVED_CURRENT_RUN",
+      "evidence": "Public fetch returned tool/internal error; not promoted to DOWN or ABSENT."
+    },
+    "braink.store": {"state": "NOT_OBSERVED_CURRENT_RUN"},
+    "braink.studio": {"state": "NOT_OBSERVED_CURRENT_RUN"},
+    "keddeh.com": {"state": "NOT_OBSERVED_CURRENT_RUN"},
+    "braink.keddeh.com": {"state": "NOT_OBSERVED_CURRENT_RUN"},
+    "kex.keddeh.com": {"state": "NOT_OBSERVED_CURRENT_RUN"},
+    "casepath.keddeh.com": {"state": "NOT_OBSERVED_CURRENT_RUN"}
+  },
+  "carrier_state": {
+    "github_hosted_runner_family": "REJECTED_FOR_REPEAT_WITHOUT_CHANGED_CARRIER",
+    "required_next_carrier": "KEDDEH_AUTHORED_EXECUTION_CARRIER_OR_DIRECT_RESIDENT_NODE",
+    "application_self_test_on_failed_hosted_runs": false
+  },
+  "next_obligations": [
+    "ADVANCE_INGRESS_BIND",
+    "ADVANCE_DOMAIN_HANDOFF",
+    "PRESERVE_DNS_AND_MAIL_ZONE_BEFORE_MUTATION",
+    "BIND_SERVER_RUNTIME_TO_KEX_EDGE_COORDINATE",
+    "OUTSIDE_IN_DNS_TLS_HTTP_READBACK",
+    "RETAIN_TYPED_FAILURE_AND_CONTINUE_WITH_CHANGED_PATH"
+  ],
+  "promotion_boundary": "Only casepath.com.au is promoted to PUBLIC_CONTENT_REACHABLE in this receipt. All other domains remain NOT_OBSERVED_CURRENT_RUN until direct evidence changes that state."
+}
