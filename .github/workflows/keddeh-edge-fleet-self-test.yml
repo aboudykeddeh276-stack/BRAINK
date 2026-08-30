@@ -1,0 +1,45 @@
+name: KEDDEH Edge Fleet Self-Test
+
+on:
+  push:
+    branches:
+      - kex-keddeh-edge-v1
+    paths:
+      - 'tools/site-action-platform/keddeh-edge/**'
+      - '.github/workflows/keddeh-edge-fleet-self-test.yml'
+  workflow_dispatch:
+
+jobs:
+  fleet-self-test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout authored branch state
+        uses: actions/checkout@v4
+      - name: Node runtime
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Execute KEDDEH Edge fleet self-test
+        shell: bash
+        run: |
+          set -euo pipefail
+          node tools/site-action-platform/keddeh-edge/keddeh-edge-fleet-self-test.mjs | tee KEDDEH_EDGE_FLEET_SELF_TEST_RESULT.json
+      - name: Require typed PASS result
+        shell: bash
+        run: |
+          node - <<'NODE'
+          const fs = require('fs');
+          const r = JSON.parse(fs.readFileSync('KEDDEH_EDGE_FLEET_SELF_TEST_RESULT.json','utf8'));
+          if (r.state !== 'PASS') {
+            console.error(JSON.stringify(r,null,2));
+            process.exit(1);
+          }
+          console.log(`PASS ${r.passed}/${r.total}`);
+          NODE
+      - name: Upload execution receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: keddeh-edge-fleet-self-test-result
+          path: KEDDEH_EDGE_FLEET_SELF_TEST_RESULT.json
