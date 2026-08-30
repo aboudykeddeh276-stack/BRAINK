@@ -1,0 +1,54 @@
+{
+  "schema": "kex.braink.keddeh-edge.execution-carrier-failure.v2",
+  "authority": "A. Keddeh / Keddeh Systems",
+  "edge": "KEX://EDGE/KEDDEH/V1",
+  "relation": "FAILURE_EVIDENCE_PRESERVED_ABOVE_SUCCESSOR_REPAIR",
+  "classification": "WORKFLOW_EXECUTION_ENVIRONMENT_FAILURE",
+  "application_self_test_executed": false,
+  "failure_is_application_result": false,
+  "attempts": [
+    {
+      "run_id": 33311455131,
+      "head_sha": "281ef43eaac71175698b6f45ba64687bf5afce53",
+      "runner_label": "ubuntu-latest",
+      "conclusion": "failure",
+      "steps": [],
+      "runner_id": 0,
+      "runner_name": "",
+      "interpretation": "NO_RUNNER_ASSIGNED_BEFORE_APPLICATION_EXECUTION"
+    },
+    {
+      "run_id": 33311504347,
+      "head_sha": "4209848b783133b758b3376f3b57a9448a54da39",
+      "runner_label": "ubuntu-latest",
+      "conclusion": "failure",
+      "steps": [],
+      "runner_id": 0,
+      "runner_name": "",
+      "interpretation": "NO_RUNNER_ASSIGNED_BEFORE_APPLICATION_EXECUTION"
+    },
+    {
+      "run_id": 33311545069,
+      "head_sha": "928d19aa82501a7ea43b94016d151e6251a71385",
+      "runner_label": "ubuntu-24.04",
+      "conclusion": "failure",
+      "steps": [],
+      "runner_id": 0,
+      "runner_name": "",
+      "interpretation": "NO_RUNNER_ASSIGNED_BEFORE_APPLICATION_EXECUTION"
+    }
+  ],
+  "anti_repeat": {
+    "same_known_failure_retry_forbidden": true,
+    "runner_label_change_did_not_change_failure_class": true,
+    "do_not_retry_hosted_runner_without_changed_execution_carrier": true
+  },
+  "preserved_application_state": {
+    "fleet_extension": "CREATED_AND_READ_BACK",
+    "fleet_runtime_adapter": "CREATED_AND_READ_BACK",
+    "fleet_self_test_source": "CREATED_AND_READ_BACK",
+    "fleet_publication_receipt": "CREATED_AND_READ_BACK"
+  },
+  "next_process": "USE_KEDDEH_AUTHORED_EXECUTION_CARRIER_OR_DIRECT_RESIDENT_NODE_THEN_RETAIN_TYPED_SELF_TEST_RECEIPT",
+  "digest_role": "INTEGRITY_ONLY"
+}
