@@ -4,6 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { KeddehEdgeRuntime } from './keddeh-edge-runtime.mjs';
+import { fetchGoogleIpAuthority, summarizeGoogleIpAuthority } from './google-ip-authority.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const BASE_SEED = path.join(HERE, 'keddeh-edge.seed.v1.json');
@@ -22,9 +23,6 @@ export function composeFleetSeed(basePath = BASE_SEED, extensionPath = EXTENSION
   assert(extension.rules?.digest_role === 'INTEGRITY_ONLY', 'DIGEST_ROLE_VIOLATION');
 
   const successor = clone(base);
-  // Preserve the executable seed schema expected by the authored v1 runtime.
-  // Fleet succession is represented as typed metadata, not by mutating the
-  // base runtime's parser contract.
   successor.schema = base.schema;
   successor.seed = `${base.seed}::FLEET-V2`;
   successor.predecessor = { seed: base.seed, edge_coordinate: base.edge_coordinate };
@@ -58,12 +56,27 @@ export function instantiateFleetRuntime() {
   return { runtime, seed, seedPath, cleanup: () => fs.rmSync(dir, { recursive: true, force: true }) };
 }
 
+export async function loadGoogleNetworkAuthority(options = {}) {
+  const authority = await fetchGoogleIpAuthority(options);
+  return {
+    authority,
+    summary: summarizeGoogleIpAuthority(authority),
+    policy: {
+      ingress_use: 'EVIDENCE_INPUT_ONLY',
+      ip_ownership_is_service_identity: false,
+      require_hostname_tls_route_evidence: true,
+      refresh_before_authority_sensitive_decision: true
+    }
+  };
+}
+
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  const googleAuthorityRequested = process.argv.includes('--google-ip-authority');
   const { runtime, seed, cleanup } = instantiateFleetRuntime();
   try {
     const snapshot = runtime.stateSnapshot();
-    process.stdout.write(`${JSON.stringify({
-      schema: 'kex.braink.keddeh-edge.fleet-runtime.readback.v2',
+    const output = {
+      schema: 'kex.braink.keddeh-edge.fleet-runtime.readback.v3',
       executable_seed_schema: seed.schema,
       fleet_schema: seed.fleet_schema,
       predecessor: seed.predecessor,
@@ -74,8 +87,12 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
       semantic_state: snapshot.semantic_state,
       terminal_semantic_capability: snapshot.terminal_semantic_capability,
       digest_is_authority: false,
-      fleet_agent_rule: seed.fleet_extension.agent_fleet.isolation_rule
-    }, null, 2)}\n`);
+      fleet_agent_rule: seed.fleet_extension.agent_fleet.isolation_rule,
+      google_ip_authority: googleAuthorityRequested
+        ? (await loadGoogleNetworkAuthority()).summary
+        : { state: 'AVAILABLE_ON_DEMAND', flag: '--google-ip-authority' }
+    };
+    process.stdout.write(`${JSON.stringify(output, null, 2)}\n`);
   } finally {
     cleanup();
   }
