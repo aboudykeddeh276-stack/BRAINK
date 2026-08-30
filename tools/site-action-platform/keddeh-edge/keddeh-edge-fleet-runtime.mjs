@@ -22,9 +22,14 @@ export function composeFleetSeed(basePath = BASE_SEED, extensionPath = EXTENSION
   assert(extension.rules?.digest_role === 'INTEGRITY_ONLY', 'DIGEST_ROLE_VIOLATION');
 
   const successor = clone(base);
-  successor.schema = 'kex.braink.keddeh-edge.seed.v2-fleet';
+  // Preserve the executable seed schema expected by the authored v1 runtime.
+  // Fleet succession is represented as typed metadata, not by mutating the
+  // base runtime's parser contract.
+  successor.schema = base.schema;
   successor.seed = `${base.seed}::FLEET-V2`;
   successor.predecessor = { seed: base.seed, edge_coordinate: base.edge_coordinate };
+  successor.successor_relation = 'TYPED_SUCCESSOR_EXTENSION';
+  successor.fleet_schema = extension.schema;
   successor.fleet_extension = {
     schema: extension.schema,
     relation: extension.relation,
@@ -59,7 +64,10 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
     const snapshot = runtime.stateSnapshot();
     process.stdout.write(`${JSON.stringify({
       schema: 'kex.braink.keddeh-edge.fleet-runtime.readback.v2',
+      executable_seed_schema: seed.schema,
+      fleet_schema: seed.fleet_schema,
       predecessor: seed.predecessor,
+      successor_relation: seed.successor_relation,
       edge_coordinate: seed.edge_coordinate,
       binding_count: seed.domain_space.bindings.length,
       hosts: seed.domain_space.bindings.map((binding) => binding.host),
