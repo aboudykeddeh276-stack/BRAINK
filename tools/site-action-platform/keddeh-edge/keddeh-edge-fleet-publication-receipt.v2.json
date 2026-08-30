@@ -1,0 +1,32 @@
+{
+  "schema": "kex.braink.keddeh-edge.fleet-publication-receipt.v2",
+  "authority": "A. Keddeh / Keddeh Systems",
+  "branch": "kex-keddeh-edge-v1",
+  "predecessor": "KEX-KEDDEH-EDGE-V1",
+  "relation": "TYPED_SUCCESSOR_PUBLICATION",
+  "source_changes": [
+    {"path":"tools/site-action-platform/keddeh-edge/keddeh-edge.fleet-extension.v2.json","commit":"5d3c083c19487dfef555af88f51bead4ca1b9a75","state":"CREATED_AND_READ_BACK"},
+    {"path":"tools/site-action-platform/keddeh-edge/keddeh-edge-fleet-runtime.mjs","commit":"25db9df34d5da1eb0db266784c4ae85a55a83544","state":"CREATED_AND_READ_BACK"},
+    {"path":"tools/site-action-platform/keddeh-edge/keddeh-edge-fleet-self-test.mjs","commit":"112b9919b53f09a6495a1ea741e319b1189c1fcb","state":"CREATED_AND_READ_BACK"}
+  ],
+  "fleet": [
+    {"domain":"keddeh.com","site":"keddeh-root","state":"EDGE_SEED_BINDING_PRESENT","public_readback":"NOT_OBSERVED_CURRENT_RUN"},
+    {"domain":"braink.keddeh.com","site":"braink-keddeh-systems","state":"EDGE_SEED_BINDING_PRESENT","public_readback":"NOT_OBSERVED_CURRENT_RUN"},
+    {"domain":"kex.keddeh.com","site":"kex-geometric-address","state":"EDGE_SEED_BINDING_PRESENT","public_readback":"CHATGPT_SITE_SLUG_CACHE_MISS"},
+    {"domain":"casepath.keddeh.com","site":"casepath-legal-secondary","state":"EDGE_SEED_BINDING_PRESENT","public_readback":"NOT_OBSERVED_CURRENT_RUN"},
+    {"domain":"braink.com.au","site":"braink-systems","state":"FLEET_EXTENSION_BINDING_PRESENT","public_readback":"NOT_OBSERVED_CURRENT_RUN"},
+    {"domain":"casepath.com.au","site":"casepath-legal","state":"FLEET_EXTENSION_BINDING_PRESENT","public_readback":"PUBLIC_CONTENT_REACHABLE"},
+    {"domain":"claimpath.org","site":"claimpath","state":"FLEET_EXTENSION_BINDING_PRESENT","public_readback":"NOT_OBSERVED_CURRENT_RUN"},
+    {"domain":"braink.store","site":"braink-store","state":"FLEET_EXTENSION_BINDING_PRESENT","public_readback":"NOT_OBSERVED_CURRENT_RUN"},
+    {"domain":"braink.studio","site":"braink-studio","state":"FLEET_EXTENSION_BINDING_PRESENT","public_readback":"NOT_OBSERVED_CURRENT_RUN"}
+  ],
+  "agent_fleet": {
+    "execution_owner":"BRAINK_LOCAL_ORCHESTRATOR",
+    "frameworks":["BRAINK/KEX","ADK_TO_KEX_BRIDGE"],
+    "isolation":"ONE_SITE_ONE_AGENT_FLEET_ONE_CONTINUATION_FRAME_ONE_FAILURE_LEDGER"
+  },
+  "failure_semantics":"FAILURE_IS_TYPED_SIGNAL_FOR_REPAIR",
+  "digest_role":"INTEGRITY_ONLY",
+  "public_promotion":false,
+  "next_obligation":"EXECUTE_FLEET_SELF_TEST_THEN_DOMAIN_DNS_TLS_INGRESS_OUTSIDE_IN_READBACK"
+}
