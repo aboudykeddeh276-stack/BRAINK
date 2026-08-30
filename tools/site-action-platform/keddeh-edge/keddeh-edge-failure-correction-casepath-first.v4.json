@@ -1,0 +1,32 @@
+{
+  "schema": "kex.braink.keddeh-edge.failure-correction.v4",
+  "authority": "A. Keddeh / Keddeh Systems",
+  "classification": "DISCOVERY_AUTHORITY_MODEL_CORRECTION",
+  "supersedes_assumption": "GOOGLE_IP_AUTHORITY_AS_PRIMARY_ROUTE_DISCOVERY",
+  "correct_model": {
+    "primary": "CASEPATH_PUBLIC_ROUTE_GRAPH",
+    "secondary": "GOOGLE_PUBLISHED_IP_RANGE_CORROBORATION",
+    "mutation_authority": "CURRENT_AUTHENTICATED_EDGE_OR_ORIGIN_CONTROL_CHANNEL"
+  },
+  "evidence": {
+    "public_surface": "https://casepath.com.au/",
+    "historical_live_route_count": 123,
+    "preserved_route": "/contact.html",
+    "runtime_signals": [
+      "shared JavaScript loaders",
+      "auth gates",
+      "nested application surfaces",
+      "Cloudflare proxy",
+      "LiteSpeed origin signal",
+      "Supabase JavaScript client",
+      "Cloudflare Turnstile"
+    ]
+  },
+  "repair": {
+    "route_discovery_module": "casepath-public-route-discovery.mjs",
+    "google_ip_module": "google-ip-authority.mjs",
+    "rule": "Enumerate and classify live CasePath routes first. Use Google IP ranges only to corroborate network ownership/range evidence. Never infer a specific CasePath route or Google product solely from a CIDR match."
+  },
+  "remaining_failure": "CONTROL_PLANE_WRITE_AUTHORITY_NOT_YET_BOUND_TO_CURRENT_EDGE_OR_OWNER_LITESPEED_DOCROOT",
+  "next_action": "USE_DISCOVERED_CASEPATH_ROUTE_GRAPH_TO_IDENTIFY_CURRENT_DEPLOYMENT/ORIGIN PATH, CAPTURE ROLLBACK, THEN APPLY THE AUTHORIZED CONTENT OR ROUTE MUTATION THROUGH THE BOUND CONTROL CHANNEL"
+}
