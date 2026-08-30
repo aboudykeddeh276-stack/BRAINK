@@ -1,0 +1,105 @@
+{
+  "schema": "kex.braink.keddeh-edge.fleet-extension.v2",
+  "authority": "A. Keddeh / Keddeh Systems",
+  "parent_seed": "KEX-KEDDEH-EDGE-V1",
+  "parent_edge_coordinate": "KEX://EDGE/KEDDEH/V1",
+  "relation": "TYPED_SUCCESSOR_EXTENSION",
+  "rules": {
+    "preserve_parent_seed": true,
+    "one_domain_one_site_identity": true,
+    "external_carrier_in_lineage": false,
+    "digest_role": "INTEGRITY_ONLY",
+    "failure_semantics": "TYPED_FAILURE_CONTINUES_TO_REPAIR",
+    "sites_role": "BOOTSTRAP_OR_PROJECTION_CARRIER_NOT_KEX_AUTHORITY"
+  },
+  "bindings": [
+    {
+      "host": "braink.com.au",
+      "site_id": "site://braink/systems",
+      "slug": "braink-systems",
+      "public_binding_intended": true,
+      "runtime": "runtime://braink/systems",
+      "routes": [
+        {"prefix":"/","methods":["GET","HEAD"],"coordinate":"KEX://DOMAIN-SPACE/braink.com.au/site"},
+        {"prefix":"/chat","methods":["GET","POST"],"coordinate":"KEX://DOMAIN-SPACE/braink.com.au/chat"},
+        {"prefix":"/api","methods":["GET","POST"],"coordinate":"KEX://DOMAIN-SPACE/braink.com.au/api"},
+        {"prefix":"/state","methods":["GET"],"coordinate":"KEX://DOMAIN-SPACE/braink.com.au/state"}
+      ]
+    },
+    {
+      "host": "casepath.com.au",
+      "site_id": "app://casepath",
+      "slug": "casepath-legal",
+      "public_binding_intended": true,
+      "runtime": "server://casepath/intake",
+      "routes": [
+        {"prefix":"/","methods":["GET","HEAD"],"coordinate":"KEX://DOMAIN-SPACE/casepath.com.au/site"},
+        {"prefix":"/intake","methods":["GET","POST"],"coordinate":"KEX://API/CASEPATH/INTAKE"},
+        {"prefix":"/evidence","methods":["GET","POST"],"coordinate":"KEX://API/CASEPATH/EVIDENCE"}
+      ]
+    },
+    {
+      "host": "claimpath.org",
+      "site_id": "app://claimpath",
+      "slug": "claimpath",
+      "public_binding_intended": true,
+      "runtime": "app://claimpath",
+      "routes": [
+        {"prefix":"/","methods":["GET","HEAD"],"coordinate":"KEX://DOMAIN-SPACE/claimpath.org/site"},
+        {"prefix":"/api","methods":["GET","POST"],"coordinate":"KEX://DOMAIN-SPACE/claimpath.org/api"}
+      ]
+    },
+    {
+      "host": "braink.store",
+      "site_id": "site://braink/store",
+      "slug": "braink-store",
+      "public_binding_intended": true,
+      "runtime": "runtime://braink/store",
+      "routes": [
+        {"prefix":"/","methods":["GET","HEAD"],"coordinate":"KEX://DOMAIN-SPACE/braink.store/site"},
+        {"prefix":"/api","methods":["GET","POST"],"coordinate":"KEX://DOMAIN-SPACE/braink.store/api"}
+      ]
+    },
+    {
+      "host": "braink.studio",
+      "site_id": "site://braink/studio",
+      "slug": "braink-studio",
+      "public_binding_intended": true,
+      "runtime": "runtime://braink/studio",
+      "routes": [
+        {"prefix":"/","methods":["GET","HEAD"],"coordinate":"KEX://DOMAIN-SPACE/braink.studio/site"},
+        {"prefix":"/api","methods":["GET","POST"],"coordinate":"KEX://DOMAIN-SPACE/braink.studio/api"}
+      ]
+    }
+  ],
+  "agent_fleet": {
+    "execution_owner": "BRAINK_LOCAL_ORCHESTRATOR",
+    "frameworks": ["BRAINK/KEX", "ADK_TO_KEX_BRIDGE"],
+    "agents_per_site": [
+      "BRAINK_OPERATOR",
+      "BRAINK_VERIFIER",
+      "BRAINK_COORDINATOR",
+      "BRAINK_MIRROR",
+      "Cognition Agent",
+      "Coding Agent",
+      "Architecture Agent",
+      "Research Falsifier",
+      "Verifier Agent",
+      "Adversarial Super-Agent",
+      "Provenance Agent",
+      "Workflow Agent",
+      "Supervisor Agent",
+      "Composition Agent",
+      "Adaptation Agent",
+      "ADK Coordinator",
+      "ADK Site Operator",
+      "ADK Domain & Server Agent",
+      "ADK Mail Agent",
+      "ADK Deployment Agent",
+      "ADK Research & Market Agent",
+      "ADK Verifier",
+      "ADK Recovery & Continuation Agent"
+    ],
+    "isolation_rule": "ONE_SITE_ONE_AGENT_FLEET_ONE_CONTINUATION_FRAME_ONE_FAILURE_LEDGER"
+  }
+}
