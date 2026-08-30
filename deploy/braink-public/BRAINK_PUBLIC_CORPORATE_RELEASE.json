@@ -1,0 +1,36 @@
+{
+  "schema": "kex.braink.public-corporate-release.v1",
+  "authority": {
+    "authorship": "A. Keddeh",
+    "ownership": "KEDDEH_SYSTEMS",
+    "execution_owner": "BRAINK_LOCAL_ORCHESTRATOR",
+    "publication_authority": "BRAINK_PUBLICATION_TEAM",
+    "domain_authority": "DOMAIN_OWNER_AT_REGISTRAR",
+    "dns_authority": "AUTHORITATIVE_DNS_OPERATOR",
+    "tls_authority": "APPLICATION_TLS_EDGE_OPERATOR",
+    "certificate_authority": "CERTIFICATE_OPERATOR",
+    "oauth_authority": "BRAINK_GOOGLE_OAUTH_RAIL",
+    "payment_authority": "BRAINK_STRIPE_PAYMENT_RAIL"
+  },
+  "shared_corpus": {
+    "semantic_root": "il-llm://braink/public-corpus",
+    "runtime_root": "resident://r4/continuation-kex",
+    "orchestrator": "braink://local/orchestrator",
+    "server": "server://keddeh/global-presence",
+    "mesh": "mesh://braink/infrastructure",
+    "vfs_root": "vfs://keddeh/domain-environments",
+    "machine": "machine://kex/hardware-contract",
+    "network": "adapter://host/p17/network"
+  },
+  "publishing_team": ["BRAINK_OPERATOR","BRAINK_VERIFIER","BRAINK_COORDINATOR","BRAINK_MIRROR","Cognition Agent","Coding Agent","Architecture Agent","Research Falsifier","Verifier Agent","Provenance Agent","Workflow Agent","Supervisor Agent","Composition Agent","Adaptation Agent"],
+  "domains": {
+    "braink.com.au": {"site":"site://braink/user","runtime":"runtime://braink/user","workspace":"workspace://keddeh/domain/braink-user","vfs":"vfs://keddeh/domain-environments/braink-user","purpose":"BRAINK public AI and user runtime"},
+    "braink-intelligence.com.au": {"site":"site://braink/intelligence","runtime":"runtime://braink/intelligence","workspace":"workspace://keddeh/domain/braink-intelligence","vfs":"vfs://keddeh/domain-environments/braink-intelligence","purpose":"BRAINK intelligence, enterprise and research surface"},
+    "braink-learning.com.au": {"site":"site://braink/learning","runtime":"runtime://braink/learning","workspace":"workspace://keddeh/domain/braink-learning","vfs":"vfs://keddeh/domain-environments/braink-learning","purpose":"BRAINK learning and education surface"}
+  },
+  "rails": {
+    "google_oauth": {"process":"server://braink/rails/google-oauth","transport":"unix://braink/oauth.sock","protocol":"kex.braink.oauth-rail.v1","secret_policy":"SECRETS_RESIDENT_IN_DEDICATED_RAIL_PROCESS_ONLY"},
+    "stripe": {"process":"server://braink/rails/stripe","transport":"unix://braink/stripe.sock","protocol":"kex.braink.payment-rail.v1","secret_policy":"SECRETS_RESIDENT_IN_DEDICATED_RAIL_PROCESS_ONLY"}
+  },
+  "publication_chain": ["CORPUS_BIND","DEFINITION_BIND","AUTHORITY_BIND","WORKSPACE_BIND","VFS_BIND","SERVER_ROOM_BIND","LINUX_CARRIER_BIND","AI_RUNTIME_BIND","GOOGLE_OAUTH_BIND","STRIPE_RAIL_BIND","DNS_ZONE_PRESERVE","TLS_IDENTITY","INGRESS_BIND","DOMAIN_PUBLICATION","OUTSIDE_IN_READBACK"]
+}
