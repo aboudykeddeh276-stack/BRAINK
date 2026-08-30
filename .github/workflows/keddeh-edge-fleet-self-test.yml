@@ -9,37 +9,43 @@ on:
       - '.github/workflows/keddeh-edge-fleet-self-test.yml'
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   fleet-self-test:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
+    runs-on: ubuntu-24.04
     steps:
-      - name: Checkout authored branch state
-        uses: actions/checkout@v4
-      - name: Node runtime
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-      - name: Execute KEDDEH Edge fleet self-test
+      - name: Fetch authored BRAINK successor revision
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          git init braink
+          cd braink
+          git remote add origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git fetch --depth=1 origin "${GITHUB_SHA}"
+          git checkout --detach FETCH_HEAD
+
+      - name: Execute published KEDDEH Edge fleet self-test
         shell: bash
         run: |
           set -euo pipefail
-          node tools/site-action-platform/keddeh-edge/keddeh-edge-fleet-self-test.mjs | tee KEDDEH_EDGE_FLEET_SELF_TEST_RESULT.json
-      - name: Require typed PASS result
+          node braink/tools/site-action-platform/keddeh-edge/keddeh-edge-fleet-self-test.mjs | tee KEDDEH_EDGE_FLEET_SELF_TEST_RESULT.json
+
+      - name: Read back typed execution result
+        if: always()
         shell: bash
         run: |
+          set -euo pipefail
+          if [ ! -f KEDDEH_EDGE_FLEET_SELF_TEST_RESULT.json ]; then
+            echo '{"state":"FAIL","failure":"NO_EXECUTION_RECEIPT"}'
+            exit 1
+          fi
+          cat KEDDEH_EDGE_FLEET_SELF_TEST_RESULT.json
           node - <<'NODE'
           const fs = require('fs');
           const r = JSON.parse(fs.readFileSync('KEDDEH_EDGE_FLEET_SELF_TEST_RESULT.json','utf8'));
-          if (r.state !== 'PASS') {
-            console.error(JSON.stringify(r,null,2));
-            process.exit(1);
-          }
-          console.log(`PASS ${r.passed}/${r.total}`);
+          if (r.state !== 'PASS') process.exit(1);
+          console.log(`KEDDEH_EDGE_FLEET_SELF_TEST_PASS ${r.passed}/${r.total}`);
           NODE
-      - name: Upload execution receipt
-        uses: actions/upload-artifact@v4
-        with:
-          name: keddeh-edge-fleet-self-test-result
-          path: KEDDEH_EDGE_FLEET_SELF_TEST_RESULT.json
