@@ -37,18 +37,35 @@
     "signed_deployment_receipt": "VERIFIED",
     "chromium_set_content_projection": "PASS",
     "chromium_direct_localhost_route": "BLOCKED_BY_ADMINISTRATOR_POLICY",
-    "native_fence_model": {
+    "native_fence_r1": {
       "component": "KOS-MF-15",
       "classification": "FIXED_MEMBERSHIP_CRASH_FAULT_FENCE_MODEL_VALIDATED",
       "hostile_suite": "6/6 PASS",
       "source_release_root": "2cd6cd4f2068d2e70e91bb16b4248ef84ceca30f0cfd2a79c2af417223b45d7e",
       "scheduler_receipt": "runtime/KOS_MF_15_EVIDENCE_INGEST_RECOMPUTE_R1.json"
+    },
+    "native_fence_r2": {
+      "source_commit": "9255c7bc5d2ee1df9f909cfaf139549ac8a9000b",
+      "test_commit": "0472c71bdcd816ef696df862cab92c9e3669854d",
+      "classification": "IMPLEMENTED_SOURCE_EXECUTION_UNPROVEN",
+      "features": [
+        "Ed25519 owner signatures",
+        "signed quorum votes",
+        "membership epoch/root binding",
+        "certificate-root verification",
+        "persistent certificate history",
+        "resource-side fence validation",
+        "persistent replay high-water"
+      ],
+      "github_hardening_run": 33571725008,
+      "github_hardening_steps_executed": 0,
+      "scheduler_receipt": "runtime/KOS_MF_15_R2_SOURCE_EVIDENCE_RECOMPUTE_R1.json"
     }
   },
   "scheduler_state": {
-    "latest_evidence_delta": "KOS-MF-15-NATIVE-FENCE-R1",
-    "database_hash": "b4661425e39e9fb50f099ce2f1bfacdbf2c6b5772ba2fb077df7907ebe46c216",
-    "selection_hash": "daa297608459860b7464365e49fd7efab3fd4e75e2f95ddc152a37ef099c23f8",
+    "latest_evidence_delta": "KOS-MF-15-R2-SIGNED-SOURCE",
+    "database_hash": "34c1bb9492ce8a26f735e6ba43a11634249ed904c4d1c37046862012331762e6",
+    "selection_hash": "93c8b13d8ef75403f4b2b09998e61edea411c2c764193d8e61344b303ee33e07",
     "selected": null,
     "decision": "NO_ELIGIBLE_OBLIGATION_AFTER_EVIDENCE_RECOMPUTE"
   },
