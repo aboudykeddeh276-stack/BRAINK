@@ -1,7 +1,7 @@
 {
-  "record_id": "KEX_RESIDENT_SERVICE_BINDING_R1",
+  "record_id": "KEX_RESIDENT_SERVICE_BINDING_R2",
   "authority": "A.KEDDEH / KEDDEH_SYSTEMS / BRAINK / CASEPATH",
-  "architecture_correction": "Runtime liveness, recovery, local verification and continuation are resident-runtime responsibilities. GitHub is source/history and optional external audit, not a runtime host dependency.",
+  "architecture_correction": "Runtime liveness, recovery, service authority, virtual state and continuation are resident-system responsibilities. GitHub is source/history and optional external audit, not a runtime host dependency.",
   "host_lineage": {
     "artifact": "K_Cloud_Substrate_Master_Daemon.ipynb",
     "classification": "existing K-Cloud daemon/server design lineage",
@@ -9,6 +9,65 @@
   },
   "runtime_controller": "runtime://kex/resident-controller",
   "controller_source": "modules/kex_wbos/resident_runtime_controller.py",
+  "service_authority_fabric": [
+    {
+      "class": "SERVER_RUNTIME",
+      "identity": "server://keddeh/global-presence",
+      "state_carrier": "vfs://keddeh/domain-environments/server-runtime",
+      "resident_role": "owns persistent runtime/service generations",
+      "external_actuator": "optional physical host/process binding"
+    },
+    {
+      "class": "HTTP_SERVICE",
+      "identity": "service://wbos/action-server",
+      "state_carrier": "vfs://keddeh/domain-environments/http-services",
+      "resident_role": "HTTP action/data/service surface",
+      "external_actuator": "socket/process listener on resident server"
+    },
+    {
+      "class": "DOMAIN_AUTHORITY",
+      "identity": "domain://keddeh/authority",
+      "state_carrier": "vfs://keddeh/domain-environments/domain-authority",
+      "resident_role": "domain ownership, zone intent, publication state and promotion ledger",
+      "external_actuator": "registrar/domain-provider mutation when bound"
+    },
+    {
+      "class": "DNS_AUTHORITY",
+      "identity": "dns://keddeh/authoritative",
+      "state_carrier": "vfs://keddeh/domain-environments/dns-authority",
+      "resident_role": "authoritative zone/service object independent of public publication",
+      "external_actuator": "authoritative_dns.py/socket/provider adapter when resident"
+    },
+    {
+      "class": "REGISTRAR_SERVICE",
+      "identity": "registrar://keddeh/control",
+      "state_carrier": "vfs://keddeh/domain-environments/registrar",
+      "resident_role": "registration/portfolio/control-plane state",
+      "external_actuator": "registrar_server.py/EPP/provider route when bound"
+    },
+    {
+      "class": "MAIL_MESSAGING",
+      "identity": "mail://keddeh/service",
+      "state_carrier": "vfs://keddeh/domain-environments/mail",
+      "resident_role": "mail/message intent, queue, identity, delivery evidence and retry state",
+      "external_actuator": "SMTP/API/provider transport when bound",
+      "claim_boundary": "Resident mail service state does not by itself prove external delivery."
+    },
+    {
+      "class": "MESH_NETWORK",
+      "identity": "mesh://braink/infrastructure",
+      "state_carrier": "vfs://keddeh/domain-environments/mesh",
+      "resident_role": "network topology, route and node state",
+      "external_actuator": "TL2/host-network adapter when bound"
+    },
+    {
+      "class": "VFS_MEMORY",
+      "identity": "vfs://keddeh/domain-environments",
+      "state_carrier": "scripted VFS/memory arrays and persisted runtime objects",
+      "resident_role": "logical state/memory/workspace substrate when physical/external actuator is absent",
+      "external_actuator": "filesystem/storage provider when present"
+    }
+  ],
   "service_children": [
     {
       "service": "service://wbos/action-server",
@@ -23,6 +82,7 @@
       ]
     }
   ],
+  "resolution_rule": "For every subsystem resolve resident authority object -> VFS-backed state contract -> resident process/service -> optional external actuator. Absence of the final actuator must not erase the resident subsystem or make unrelated runtime liveness dependent on it.",
   "resident_control_loop": [
     "spawn service supervisor",
     "read service generation/state",
@@ -30,18 +90,25 @@
     "run local hostile oracles on cadence",
     "write runtime state and proof",
     "recover supervisor after exit or repeated health failure",
-    "preserve continuation state independently of GitHub Actions"
+    "preserve continuation state independently of GitHub Actions",
+    "retain virtual service state for unavailable external actuators"
   ],
   "external_surfaces": {
     "github": "OPTIONAL_SOURCE_AND_AUDIT",
     "tl2": "OPTIONAL_TRANSPORT_AND_DEPLOYMENT_SCOPE",
-    "public_web": "SEPARATE_PUBLICATION_SCOPE"
+    "public_web": "SEPARATE_PUBLICATION_SCOPE",
+    "registrar_provider": "OPTIONAL_EXTERNAL_ACTUATOR",
+    "dns_provider": "OPTIONAL_EXTERNAL_ACTUATOR",
+    "mail_provider": "OPTIONAL_EXTERNAL_TRANSPORT"
   },
   "forbidden_substitutions": [
     "GitHub workflow success == runtime alive",
+    "external adapter absent == subsystem nonexistent",
+    "public DNS unavailable == private runtime unavailable",
+    "mail provider unavailable == mail service state nonexistent",
     "source committed == service resident",
     "HTTP response from stale process == current deployment generation verified",
     "test artifact == production proof ledger"
   ],
-  "promotion_rule": "Resident runtime claims require local process identity, health/readback, lifecycle proof and current-generation evidence. GitHub status is not a prerequisite."
+  "promotion_rule": "Resident runtime claims require local process identity, health/readback, lifecycle proof and current-generation evidence. External publication/delivery claims additionally require their specific actuator receipts."
 }
