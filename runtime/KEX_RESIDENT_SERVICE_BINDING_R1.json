@@ -1,0 +1,47 @@
+{
+  "record_id": "KEX_RESIDENT_SERVICE_BINDING_R1",
+  "authority": "A.KEDDEH / KEDDEH_SYSTEMS / BRAINK / CASEPATH",
+  "architecture_correction": "Runtime liveness, recovery, local verification and continuation are resident-runtime responsibilities. GitHub is source/history and optional external audit, not a runtime host dependency.",
+  "host_lineage": {
+    "artifact": "K_Cloud_Substrate_Master_Daemon.ipynb",
+    "classification": "existing K-Cloud daemon/server design lineage",
+    "claim_boundary": "The artifact is used as architectural host lineage; this binding record does not claim the notebook itself is currently executing."
+  },
+  "runtime_controller": "runtime://kex/resident-controller",
+  "controller_source": "modules/kex_wbos/resident_runtime_controller.py",
+  "service_children": [
+    {
+      "service": "service://wbos/action-server",
+      "supervisor": "modules/kex_wbos/service_supervisor.py",
+      "default_port": 8790,
+      "responsibilities": [
+        "action API",
+        "WBOS data API",
+        "Casepath managed dispatch",
+        "proof writes",
+        "workbook substrate operations"
+      ]
+    }
+  ],
+  "resident_control_loop": [
+    "spawn service supervisor",
+    "read service generation/state",
+    "perform resident health readback",
+    "run local hostile oracles on cadence",
+    "write runtime state and proof",
+    "recover supervisor after exit or repeated health failure",
+    "preserve continuation state independently of GitHub Actions"
+  ],
+  "external_surfaces": {
+    "github": "OPTIONAL_SOURCE_AND_AUDIT",
+    "tl2": "OPTIONAL_TRANSPORT_AND_DEPLOYMENT_SCOPE",
+    "public_web": "SEPARATE_PUBLICATION_SCOPE"
+  },
+  "forbidden_substitutions": [
+    "GitHub workflow success == runtime alive",
+    "source committed == service resident",
+    "HTTP response from stale process == current deployment generation verified",
+    "test artifact == production proof ledger"
+  ],
+  "promotion_rule": "Resident runtime claims require local process identity, health/readback, lifecycle proof and current-generation evidence. GitHub status is not a prerequisite."
+}
