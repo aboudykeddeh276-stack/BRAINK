@@ -13,6 +13,7 @@ from typing import Any
 
 from openpyxl import load_workbook
 from casepath_management import managed_dispatch
+from hardening import append_jsonl_fsync, atomic_write_text, contained_path
 
 BASE = Path(__file__).resolve().parents[2]
 RUNTIME = BASE / "runtime"
@@ -54,11 +55,7 @@ def _receipt(action_id: str, status: str, mutated: bool, target: str, *, before:
         "timestamp": _now(),
         "details": details or {},
     }
-    ACTION_LEDGER.parent.mkdir(parents=True, exist_ok=True)
-    line = json.dumps(receipt, sort_keys=True)
-    with ACTION_LEDGER.open("a", encoding="utf-8") as f:
-        f.write(line + "\n")
-    receipt["proofLedgerRow"] = sum(1 for _ in ACTION_LEDGER.open("r", encoding="utf-8"))
+    receipt["proofLedgerRow"] = append_jsonl_fsync(ACTION_LEDGER, receipt)
     return receipt
 
 
@@ -99,9 +96,9 @@ def ingest_source(request: dict[str, Any]) -> dict[str, Any]:
         return _receipt(action_id, "FAIL", False, target, details={"error": "sourceText_required"})
     SOURCE_ROOT.mkdir(parents=True, exist_ok=True)
     ext = {"markdown": "md", "json": "json", "html": "html", "text": "txt"}.get(request.get("sourceFormat"), "txt")
-    path = SOURCE_ROOT / f"{action_id}.{ext}"
+    path = contained_path(SOURCE_ROOT, SOURCE_ROOT / f"{action_id}.{ext}")
     before = _sha(path.read_bytes()) if path.exists() else None
-    path.write_text(text, encoding="utf-8")
+    atomic_write_text(path, text)
     after = _sha(path.read_bytes())
     return _receipt(action_id, "MUTATED", True, target, before=before, after=after, details={"path": path.relative_to(BASE).as_posix(), "bytes": path.stat().st_size})
 
@@ -122,13 +119,11 @@ def dispatch_casepath(request: dict[str, Any]) -> dict[str, Any]:
 def write_proof(request: dict[str, Any]) -> dict[str, Any]:
     action_id = f"PRF-{uuid.uuid4().hex[:12]}"
     event = {"ts": time.time(), "authority": request.get("authority"), "eventType": request.get("eventType"), "payload": request.get("payload", {}), "targetLedger": request.get("targetLedger", "KEX_ACTION_LEDGER")}
-    PROOF_ROOT.mkdir(parents=True, exist_ok=True)
     path = PROOF_ROOT / "action-proof-ledger.jsonl"
     before = _sha(path.read_bytes()) if path.exists() else None
-    with path.open("a", encoding="utf-8") as f:
-        f.write(json.dumps(event, sort_keys=True) + "\n")
+    row = append_jsonl_fsync(path, event)
     after = _sha(path.read_bytes())
-    return _receipt(action_id, "MUTATED", True, str(event["targetLedger"]), before=before, after=after, details={"event": event})
+    return _receipt(action_id, "MUTATED", True, str(event["targetLedger"]), before=before, after=after, details={"event": event, "proofEventRow": row})
 
 
 def readback_runtime(request: dict[str, Any]) -> dict[str, Any]:
@@ -143,10 +138,15 @@ def readback_runtime(request: dict[str, Any]) -> dict[str, Any]:
                 return {"status": "VERIFIED" if matched else "FAIL", "target": target, "matched": matched, "observedState": f"HTTP_{response.status}", "proofHash": _sha(body)}
         except Exception as exc:
             return {"status": "FAIL", "target": target, "matched": False, "observedState": type(exc).__name__, "proofHash": None}
-    path = Path(target)
-    if not path.is_absolute():
-        path = BASE / path
-    if path.exists():
+
+    candidate = Path(target)
+    if not candidate.is_absolute():
+        candidate = BASE / candidate
+    try:
+        path = contained_path(BASE, candidate)
+    except ValueError:
+        return {"status": "FAIL", "target": target, "matched": False, "observedState": "PATH_OUTSIDE_RUNTIME_ROOT", "proofHash": None}
+    if path.exists() and path.is_file():
         raw = path.read_bytes()
         text = raw.decode("utf-8", errors="replace")
         matched = expected_text is None or expected_text in text
@@ -166,7 +166,7 @@ def launch_runtime(request: dict[str, Any]) -> dict[str, Any]:
     command = allowed.get(route)
     if not command:
         return _receipt(action_id, "BLOCKED", False, runtime_id, details={"error": "commandRoute_not_bound", "allowedRoutes": sorted(allowed)})
-    proc = subprocess.run(command, cwd=BASE, capture_output=True, text=True, timeout=120)
+    proc = subprocess.run(command, cwd=BASE, capture_output=True, text=True, timeout=120, shell=False)
     output = (proc.stdout + "\n" + proc.stderr).encode()
     return _receipt(action_id, "VERIFIED" if proc.returncode == 0 else "FAIL", False, runtime_id, after=_sha(output), details={"returnCode": proc.returncode, "stdout": proc.stdout[-4000:], "stderr": proc.stderr[-4000:]})
 
@@ -181,7 +181,8 @@ def read_workbook_table(workbook_id: str, table_id: str) -> tuple[int, dict[str,
         candidates.extend(p for p in root.rglob("*.xlsm") if p.stem == workbook_id or p.name == workbook_id)
     if not candidates:
         return 404, {"error": "workbook_not_found", "workbookId": workbook_id, "tableId": table_id}
-    wb = load_workbook(candidates[0], data_only=False, read_only=True)
+    workbook = contained_path(BASE, candidates[0])
+    wb = load_workbook(workbook, data_only=False, read_only=True)
     if table_id not in wb.sheetnames:
         return 404, {"error": "table_not_found", "workbookId": workbook_id, "tableId": table_id}
     ws = wb[table_id]
