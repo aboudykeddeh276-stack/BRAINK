@@ -1,0 +1,103 @@
+{
+  "schema": "kex.braink.mail-service-child-team.v1",
+  "identity": "braink://agent-team/mail-service/keddeh.com/1",
+  "authority": "USER_AUTHORIZED_LIVE",
+  "system": "KEDDEH_SYSTEMS",
+  "domain": "keddeh.com",
+  "system_mail_identity": "systems@keddeh.com",
+  "parent_skill": "personal:kex-domain-hosting-handoff",
+  "execution_mode": "CHILD_TEAM",
+  "laws": [
+    "SEMANTIC_STATE != EXECUTION_STATE != EVIDENCE_STATE != PROJECTION_STATE",
+    "ACTION -> EVIDENCE -> READBACK -> PROMOTION",
+    "AUTHORITY_GATES_MUTATION; READBACK_GATES_PROMOTION",
+    "MAILBOX_REGISTERED != MAILBOX_PROVIDER_PROVISIONED != MAILBOX_SEND_VERIFIED != MAILBOX_RECEIVE_VERIFIED",
+    "AGENT_DISPATCH != PROVIDER_MUTATION"
+  ],
+  "agents": {
+    "LEXICON": ["Lexicon Agent"],
+    "RETRIEVAL": ["Retrieval Agent"],
+    "OPERATIONS": ["BRAINK_OPERATOR", "Workflow Agent", "Supervisor Agent"],
+    "AUTHORITY": ["BRAINK_COORDINATOR", "BRAINK_MIRROR"],
+    "VERIFICATION": ["BRAINK_VERIFIER", "Verifier Agent", "Provenance Agent"],
+    "COGNITION": ["Cognition Agent"]
+  },
+  "observed_provider_state": {
+    "domain_registration": "OBSERVED",
+    "workspace_organization": "OBSERVED",
+    "system_account": "OBSERVED",
+    "mailbox_send": "UNVERIFIED",
+    "mailbox_receive": "UNVERIFIED",
+    "mx_state": "UNVERIFIED",
+    "domain_contact_verification": "PENDING_EXTERNAL_READBACK"
+  },
+  "processes": [
+    {
+      "id": "MAIL_AUTHORITY_RESOLUTION",
+      "owner": "AUTHORITY",
+      "lead": "BRAINK_COORDINATOR",
+      "inputs": ["domain", "system_mail_identity", "provider_receipt_state"],
+      "actions": ["resolve domain authority", "resolve mail service identity", "bind provider-state evidence", "classify unresolved external gates"],
+      "outputs": ["mail authority state", "unresolved gate set"],
+      "promotion_gate": "DOMAIN_AND_SYSTEM_IDENTITY_OBSERVED"
+    },
+    {
+      "id": "MAIL_DNS_MX_VERIFICATION",
+      "owner": "VERIFICATION",
+      "lead": "BRAINK_VERIFIER",
+      "inputs": ["domain", "expected provider mail route"],
+      "actions": ["read authoritative DNS", "inspect MX records", "inspect SPF policy", "inspect DKIM selector state when available", "inspect DMARC policy", "record exact observed values"],
+      "outputs": ["dns mail readback receipt"],
+      "promotion_gate": "MX_ROUTE_READBACK_VERIFIED"
+    },
+    {
+      "id": "MAILBOX_PROVIDER_PROVISIONING",
+      "owner": "OPERATIONS",
+      "lead": "BRAINK_OPERATOR",
+      "inputs": ["system mail identity", "provider administrative authority", "mail policy"],
+      "actions": ["resolve provider mailbox state", "provision only through an authenticated provider actuator", "record provider result", "reject synthetic success"],
+      "outputs": ["provider provisioning receipt"],
+      "promotion_gate": "PROVIDER_MAILBOX_READBACK_VERIFIED"
+    },
+    {
+      "id": "MAIL_SEND_RECEIVE_ORACLE",
+      "owner": "VERIFICATION",
+      "lead": "Verifier Agent",
+      "inputs": ["verified mailbox", "controlled test recipient", "controlled test sender"],
+      "actions": ["send uniquely identified test message", "read provider send result", "confirm receipt through independent inbox readback", "reply or inject controlled inbound message", "confirm inbound mailbox readback", "record timestamps and message identities without secrets"],
+      "outputs": ["send verification receipt", "receive verification receipt"],
+      "promotion_gate": "SEND_AND_RECEIVE_VERIFIED"
+    },
+    {
+      "id": "MAIL_SECURITY_POLICY",
+      "owner": "AUTHORITY",
+      "lead": "BRAINK_MIRROR",
+      "inputs": ["mail identity", "DNS readback", "provider state"],
+      "actions": ["bind least-privilege mail capability", "separate admin identity from service identity", "bind SPF/DKIM/DMARC evidence", "prevent credential material from entering IL-LLM graph or public receipts"],
+      "outputs": ["mail security policy receipt"],
+      "promotion_gate": "POLICY_BOUND_AND_SECRETS_EXCLUDED"
+    },
+    {
+      "id": "MAIL_ILLLM_TRANSLATION_BINDING",
+      "owner": "COGNITION",
+      "lead": "Cognition Agent",
+      "inputs": ["mail process definitions", "mail capability state", "proof receipts"],
+      "actions": ["define AUTHORITY/DOMAIN/MAIL/SERVER relations", "bind contextual mail traversal", "lower only authorized mail intents to scoped runtime capabilities", "return provider/readback state into global IL-LLM context"],
+      "outputs": ["IL-LLM mail definition graph", "scoped translation contract"],
+      "promotion_gate": "MAIL_CONTEXT_TRANSLATION_BOUND"
+    }
+  ],
+  "final_promotion": {
+    "state": "KEDDEH_MAIL_SERVICE_VERIFIED",
+    "requires": [
+      "DOMAIN_AND_SYSTEM_IDENTITY_OBSERVED",
+      "MX_ROUTE_READBACK_VERIFIED",
+      "PROVIDER_MAILBOX_READBACK_VERIFIED",
+      "SEND_AND_RECEIVE_VERIFIED",
+      "POLICY_BOUND_AND_SECRETS_EXCLUDED",
+      "MAIL_CONTEXT_TRANSLATION_BOUND"
+    ]
+  },
+  "current_state": "ASSIGNED_AWAITING_EXECUTION_READBACK",
+  "claim_boundary": "This child-team packet assigns governed work. It does not itself mutate Google Workspace, DNS, or a mailbox, and cannot promote any provider state without external readback."
+}
