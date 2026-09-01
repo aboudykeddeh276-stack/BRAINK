@@ -1,0 +1,37 @@
+{
+  "schema": "kex.illlm.evidence-ingest-recompute/v2",
+  "evidence_id": "KOS-MF-15-R2-SIGNED-SOURCE",
+  "source_commit": "9255c7bc5d2ee1df9f909cfaf139549ac8a9000b",
+  "test_commit": "0472c71bdcd816ef696df862cab92c9e3669854d",
+  "workflow_run": 33571725008,
+  "workflow_job_steps": 0,
+  "observed_source_features": [
+    "Ed25519 owner signatures",
+    "signed quorum votes",
+    "membership epoch/root binding",
+    "certificate-root verification",
+    "persistent certificate history",
+    "resource-side fence validation",
+    "persistent replay high-water"
+  ],
+  "classification": "IMPLEMENTED_SOURCE_EXECUTION_UNPROVEN",
+  "database_hash": "34c1bb9492ce8a26f735e6ba43a11634249ed904c4d1c37046862012331762e6",
+  "selection_hash": "93c8b13d8ef75403f4b2b09998e61edea411c2c764193d8e61344b303ee33e07",
+  "selected": null,
+  "frontier": {
+    "OBL-FENCING-MULTIHOST": {
+      "dependency_ready": 0,
+      "executable_now": 0,
+      "eligible": 0,
+      "boundary": "R1 model execution passed. R2 signed source and hostile test source exist, but the current GitHub hardening job executed zero steps and actual transport-bound multi-host/partition execution remains unproven."
+    }
+  },
+  "promotion_denied": [
+    "R2_TEST_EXECUTION_PASS",
+    "PHYSICAL_MULTI_HOST",
+    "WAN_PARTITION_SAFETY",
+    "LINEARIZABLE_MULTI_HOST_AUTHORITY"
+  ],
+  "mutation_boundary": "R2 source/test evidence was ingested and scheduler recomputed. Zero-step CI is not test execution. No obligation was executed because selected remained null.",
+  "receipt_root": "57e4bf23ee11f6c66a3fa3f23a224ff08ec2213b80c1ef13c4935c06d7814d6a"
+}
