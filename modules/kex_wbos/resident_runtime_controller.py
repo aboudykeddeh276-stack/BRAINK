@@ -114,6 +114,9 @@ def _run_local_oracles() -> dict[str, Any]:
         [sys.executable, str(BASE / "scripts" / "kex-ci" / "test_runtime_hardening.py")],
         [sys.executable, str(BASE / "scripts" / "kex-ci" / "exercise_capability_fabric.py")],
         [sys.executable, str(BASE / "scripts" / "kex-ci" / "test_illlm_recursive_runtime.py")],
+        [sys.executable, str(BASE / "scripts" / "kex-ci" / "test_lease_fencing.py")],
+        [sys.executable, str(BASE / "scripts" / "kex-ci" / "test_resident_oracle_projection.py")],
+        [sys.executable, str(BASE / "scripts" / "kex-ci" / "test_vfs_generation_mirror_learning.py")],
     ]
     results: list[dict[str, Any]] = []
     for command in commands:
