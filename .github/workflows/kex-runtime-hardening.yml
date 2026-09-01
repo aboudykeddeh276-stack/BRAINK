@@ -10,6 +10,7 @@ on:
       - "scripts/kex-ci/test_illlm_advanced_runtime.py"
       - "scripts/kex-ci/test_resident_oracle_projection.py"
       - "scripts/kex-ci/test_lease_fencing.py"
+      - "scripts/kex-ci/test_vfs_address_bridge.py"
       - "scripts/kex-ci/verify_action_ledger.py"
       - "scripts/kex-ci/exercise_capability_fabric.py"
       - "openapi/kex-unified-action-runtime.yaml"
@@ -26,6 +27,7 @@ on:
       - "scripts/kex-ci/test_illlm_advanced_runtime.py"
       - "scripts/kex-ci/test_resident_oracle_projection.py"
       - "scripts/kex-ci/test_lease_fencing.py"
+      - "scripts/kex-ci/test_vfs_address_bridge.py"
       - "scripts/kex-ci/verify_action_ledger.py"
       - "scripts/kex-ci/exercise_capability_fabric.py"
       - "openapi/kex-unified-action-runtime.yaml"
@@ -49,7 +51,7 @@ jobs:
         run: python -m pip install --disable-pip-version-check openpyxl==3.1.5 PyYAML==6.0.2
       - name: Compile Python surfaces
         run: |
-          python -m compileall -q modules/kex_wbos deploy/tl2_deploy.py scripts/kex-ci/test_runtime_hardening.py scripts/kex-ci/test_illlm_recursive_runtime.py scripts/kex-ci/test_illlm_advanced_runtime.py scripts/kex-ci/test_resident_oracle_projection.py scripts/kex-ci/test_lease_fencing.py scripts/kex-ci/verify_action_ledger.py scripts/kex-ci/exercise_capability_fabric.py
+          python -m compileall -q modules/kex_wbos deploy/tl2_deploy.py scripts/kex-ci/test_runtime_hardening.py scripts/kex-ci/test_illlm_recursive_runtime.py scripts/kex-ci/test_illlm_advanced_runtime.py scripts/kex-ci/test_resident_oracle_projection.py scripts/kex-ci/test_lease_fencing.py scripts/kex-ci/test_vfs_address_bridge.py scripts/kex-ci/verify_action_ledger.py scripts/kex-ci/exercise_capability_fabric.py
       - name: Validate OpenAPI YAML syntax and version
         run: |
           python - <<'PY'
@@ -78,6 +80,8 @@ jobs:
         run: python scripts/kex-ci/test_resident_oracle_projection.py
       - name: Verify stale-owner fencing and effect ambiguity
         run: python scripts/kex-ci/test_lease_fencing.py
+      - name: Exercise Ring-1 addressability against fenced VFS generation HEAD
+        run: python scripts/kex-ci/test_vfs_address_bridge.py
       - name: Exercise integrated capability fabric
         run: python scripts/kex-ci/exercise_capability_fabric.py
       - name: Verify action ledger replay
