@@ -6,6 +6,7 @@ import json
 import os
 import subprocess
 import time
+import urllib.error
 import urllib.request
 import uuid
 from pathlib import Path
@@ -16,7 +17,7 @@ from capabilities import verify_capability
 from casepath_management import managed_dispatch
 from hardening import append_jsonl_fsync, atomic_write_text, contained_path
 from idempotency import IdempotencyRegistry
-from network_policy import readback_url_allowed
+from network_policy import readback_url_allowed, runtime_auth_allowed
 from object_store import ContentAddressedStore
 
 BASE = Path(__file__).resolve().parents[2]
@@ -37,6 +38,14 @@ EXTERNAL_ACTIONS = {
     "DRIVE_WRITEBACK": "GOOGLE_DRIVE_ADAPTER",
     "LIVE_PUBLIC_DEPLOYMENT": "DEPLOYMENT_ADAPTER",
 }
+
+
+class _NoRedirect(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):  # noqa: ANN001
+        return None
+
+
+NO_REDIRECT_OPENER = urllib.request.build_opener(_NoRedirect())
 
 
 def _sha(data: bytes) -> str:
@@ -102,7 +111,8 @@ def _execute_action_once(request: dict[str, Any]) -> dict[str, Any]:
         if not adapter:
             return _receipt(action_id, "BLOCKED", False, target, details={"requiredAdapter": EXTERNAL_ACTIONS[action_type], "claimBoundary": "External mutation is not claimed without a bound actuator and receipt."})
     if action_type == "SOURCE_INGEST":
-        return ingest_source({"authority": request["authority"], "sourceText": request.get("payload", {}).get("sourceText", ""), "sourceFormat": request.get("payload", {}).get("sourceFormat", "markdown"), "target": target})
+        payload = request.get("payload", {})
+        return ingest_source({"authority": request["authority"], "sourceText": payload.get("sourceText", ""), "sourceFormat": payload.get("sourceFormat", "markdown"), "target": target})
     if action_type == "CASEPATH_DISPATCH":
         payload = request.get("payload", {})
         return dispatch_casepath({
@@ -207,13 +217,19 @@ def readback_runtime(request: dict[str, Any]) -> dict[str, Any]:
         try:
             req = urllib.request.Request(target)
             token = os.getenv("KEX_BEARER_TOKEN")
-            if token:
+            if token and request.get("sendRuntimeAuth", True) and runtime_auth_allowed(target):
                 req.add_header("Authorization", f"Bearer {token}")
-            with urllib.request.urlopen(req, timeout=10) as response:
+            try:
+                response = NO_REDIRECT_OPENER.open(req, timeout=10)
+            except urllib.error.HTTPError as exc:
+                if 300 <= exc.code < 400:
+                    return {"status": "FAIL", "target": target, "matched": False, "observedState": "REDIRECT_BLOCKED", "proofHash": None, "policy": policy, "location": exc.headers.get("Location")}
+                raise
+            with response:
                 body = response.read()
                 text = body.decode("utf-8", errors="replace")
                 matched = response.status < 400 and (expected_text is None or expected_text in text)
-                return {"status": "VERIFIED" if matched else "FAIL", "target": target, "matched": matched, "observedState": f"HTTP_{response.status}", "proofHash": _sha(body), "policy": policy}
+                return {"status": "VERIFIED" if matched else "FAIL", "target": target, "matched": matched, "observedState": f"HTTP_{response.status}", "proofHash": _sha(body), "policy": policy, "runtimeAuthSent": bool(token and request.get("sendRuntimeAuth", True) and runtime_auth_allowed(target))}
         except Exception as exc:
             return {"status": "FAIL", "target": target, "matched": False, "observedState": type(exc).__name__, "proofHash": None, "policy": policy}
     candidate = Path(target)
@@ -252,19 +268,28 @@ def read_workbook_table(workbook_id: str, table_id: str) -> tuple[int, dict[str,
     for root in roots:
         if not root.exists():
             continue
-        candidates.extend(p for p in root.rglob("*.xlsx") if p.stem == workbook_id or p.name == workbook_id)
-        candidates.extend(p for p in root.rglob("*.xlsm") if p.stem == workbook_id or p.name == workbook_id)
+        for pattern in ("*.xlsx", "*.xlsm"):
+            for candidate in root.rglob(pattern):
+                try:
+                    safe = contained_path(BASE, candidate)
+                except ValueError:
+                    continue
+                if safe.stem == workbook_id or safe.name == workbook_id:
+                    candidates.append(safe)
     if not candidates:
         return 404, {"error": "workbook_not_found", "workbookId": workbook_id, "tableId": table_id}
-    workbook = contained_path(BASE, candidates[0])
+    workbook = candidates[0]
     wb = load_workbook(workbook, data_only=False, read_only=True)
-    if table_id not in wb.sheetnames:
-        return 404, {"error": "table_not_found", "workbookId": workbook_id, "tableId": table_id}
-    ws = wb[table_id]
-    values = list(ws.iter_rows(values_only=True))
-    if not values:
-        rows: list[dict[str, Any]] = []
-    else:
-        headers = [str(v) if v is not None else f"column_{i+1}" for i, v in enumerate(values[0])]
-        rows = [{headers[i]: row[i] if i < len(row) else None for i in range(len(headers))} for row in values[1:] if any(v is not None for v in row)]
-    return 200, {"workbookId": workbook_id, "tableId": table_id, "rowCount": len(rows), "rows": rows}
+    try:
+        if table_id not in wb.sheetnames:
+            return 404, {"error": "table_not_found", "workbookId": workbook_id, "tableId": table_id}
+        ws = wb[table_id]
+        values = list(ws.iter_rows(values_only=True))
+        if not values:
+            rows: list[dict[str, Any]] = []
+        else:
+            headers = [str(v) if v is not None else f"column_{i+1}" for i, v in enumerate(values[0])]
+            rows = [{headers[i]: row[i] if i < len(row) else None for i in range(len(headers))} for row in values[1:] if any(v is not None for v in row)]
+        return 200, {"workbookId": workbook_id, "tableId": table_id, "rowCount": len(rows), "rows": rows}
+    finally:
+        wb.close()
