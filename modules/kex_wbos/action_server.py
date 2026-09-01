@@ -4,11 +4,13 @@ from __future__ import annotations
 import json
 import os
 from http.server import ThreadingHTTPServer
+from pathlib import Path
 from urllib.parse import urlparse
 
 import server as data_server
 from action_extensions import append_workbook_rows, commit_braink_migration
 from action_runtime import (
+    BASE,
     dispatch_casepath,
     execute_action,
     ingest_source,
@@ -18,8 +20,10 @@ from action_runtime import (
     write_proof,
 )
 from hardening import constant_time_bearer_matches, require_secure_bind
+from idempotency import IdempotencyRegistry
 
 PORT = 8790
+IDEMPOTENCY = IdempotencyRegistry(BASE / "runtime" / "idempotency" / "actions.json")
 
 ACTION_TYPE_BY_PATH = {
     "/deployment/dns/apply": "PUBLIC_DNS",
@@ -61,6 +65,39 @@ class ActionHandler(data_server.Handler):
         self._json({"error": "unauthorized"}, 401)
         return False
 
+    def _execute_idempotent(self, payload: dict) -> tuple[int, dict]:
+        key = str(payload.get("idempotencyKey") or self.headers.get("Idempotency-Key", ""))
+        if not key:
+            # Compatibility mode: callers that need retry safety must supply a key.
+            return 200, execute_action(payload)
+
+        state = IDEMPOTENCY.begin(key, payload)
+        if state["state"] == "REPLAY":
+            receipt = state.get("receipt")
+            if not isinstance(receipt, dict):
+                return 500, {"error": "idempotency_receipt_missing", "idempotencyKey": key}
+            return 200, receipt
+        if state["state"] == "CONFLICT":
+            return 409, {
+                "error": "idempotency_key_payload_conflict",
+                "idempotencyKey": key,
+                "requestHash": state.get("requestHash"),
+                "existingRequestHash": state.get("existingRequestHash"),
+            }
+        if state["state"] == "INFLIGHT":
+            return 409, {
+                "error": "idempotency_command_inflight",
+                "idempotencyKey": key,
+                "requestHash": state.get("requestHash"),
+                "claimBoundary": "The prior command has no completed receipt. Retry is blocked to avoid duplicate mutation until the interrupted command is reconciled.",
+            }
+        if state["state"] != "NEW":
+            return 400, {"error": "invalid_idempotency_key", "idempotencyKey": key}
+
+        receipt = execute_action(payload)
+        IDEMPOTENCY.complete(key, state["requestHash"], receipt)
+        return 200, receipt
+
     def do_GET(self) -> None:
         if not self._require_auth():
             return
@@ -84,7 +121,8 @@ class ActionHandler(data_server.Handler):
         payload = self._read_json()
 
         if path == "/actions/execute":
-            return self._json(execute_action(payload))
+            status, result = self._execute_idempotent(payload)
+            return self._json(result, status)
 
         if len(parts) == 5 and parts[0] == "workbooks" and parts[2] == "tables" and parts[4] == "append":
             return self._json(append_workbook_rows(parts[1], parts[3], payload))
