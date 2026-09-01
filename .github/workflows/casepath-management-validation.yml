@@ -1,0 +1,40 @@
+name: Casepath Management Validation
+
+on:
+  pull_request:
+    paths:
+      - 'casepath/**'
+      - 'modules/kex_wbos/casepath_management.py'
+      - 'modules/kex_wbos/action_runtime.py'
+      - 'scripts/kex-ci/test_casepath_management.py'
+      - '.github/workflows/casepath-management-validation.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'casepath/**'
+      - 'modules/kex_wbos/casepath_management.py'
+      - 'modules/kex_wbos/action_runtime.py'
+      - 'scripts/kex-ci/test_casepath_management.py'
+      - '.github/workflows/casepath-management-validation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-managed-dispatch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install runtime dependency
+        run: python -m pip install --disable-pip-version-check openpyxl==3.1.5
+      - name: Validate Casepath managed dispatch
+        run: python scripts/kex-ci/test_casepath_management.py
+      - name: Require management proof output
+        run: |
+          test -f runtime/casepath-dispatch/CASEPATH_MANAGEMENT_PROOF.jsonl
+          test -f runtime/casepath-dispatch/CASEPATH_MANAGEMENT_TEST_R1.json
