@@ -1,0 +1,259 @@
+openapi: 3.1.0
+info:
+  title: KEX Unified API
+  version: 2.0.0
+  description: >
+    Unified contract for KEX workbook-native data surfaces and KEX-WBOS cascade
+    execution surfaces. Workbook routes expose SOURCE_NOT_RESIDENT rather than
+    inventing rows when source workbook bytes are not mounted.
+servers:
+  - url: http://127.0.0.1:8765
+    description: Local resident WBOS execution surface. Public deployment is separate evidence.
+paths:
+  /:
+    get:
+      operationId: getApex
+      summary: Show the KEX K.0 Apex HTML page
+      responses:
+        '200': {description: Apex HTML}
+  /hybrid-os:
+    get:
+      operationId: getHybridOs
+      summary: Show the Hybrid OS HTML page
+      responses:
+        '200': {description: Hybrid OS HTML}
+  /api/health:
+    get:
+      operationId: getHealth
+      summary: Get WBOS health and workbook discovery state
+      responses:
+        '200': {description: Health response}
+  /api/services:
+    get:
+      operationId: listServices
+      summary: List resident services
+      responses:
+        '200': {description: Service list}
+  /api/routes:
+    get:
+      operationId: listRoutes
+      summary: List route mappings
+      responses:
+        '200': {description: Route list}
+  /api/resolve:
+    get:
+      operationId: resolveUri
+      summary: Resolve a KEX URI
+      parameters:
+        - name: uri
+          in: query
+          required: false
+          schema: {type: string, default: 'KEX://ROOT/OS'}
+      responses:
+        '200': {description: Resolution result}
+  /mesh:
+    get:
+      operationId: getMeshStatus
+      summary: Get BRAINK mesh registry state
+      responses:
+        '200': {description: Mesh state}
+  /cascade:
+    get:
+      operationId: getCascade
+      summary: Get cascade order and children
+      responses:
+        '200': {description: Cascade state}
+  /api/proof-ledger:
+    get:
+      operationId: getProofLedger
+      summary: Retrieve proof ledger entries
+      responses:
+        '200': {description: Proof entries}
+  /core-lattice:
+    get:
+      operationId: getCoreLattice
+      responses:
+        '200': {$ref: '#/components/responses/WorkbookDataset'}
+  /flow-territories:
+    get:
+      operationId: getFlowTerritories
+      responses:
+        '200': {$ref: '#/components/responses/WorkbookDataset'}
+  /genome-store:
+    get:
+      operationId: getGenomeStore
+      responses:
+        '200': {$ref: '#/components/responses/WorkbookDataset'}
+  /kex-dna:
+    get:
+      operationId: getKexDna
+      responses:
+        '200': {$ref: '#/components/responses/WorkbookDataset'}
+  /substrate-grid:
+    get:
+      operationId: getSubstrateGrid
+      responses:
+        '200': {$ref: '#/components/responses/WorkbookDataset'}
+  /system-state:
+    get:
+      operationId: getSystemState
+      responses:
+        '200': {$ref: '#/components/responses/WorkbookDataset'}
+  /work-log:
+    get:
+      operationId: getWorkLog
+      responses:
+        '200': {$ref: '#/components/responses/WorkbookDataset'}
+  /global-index:
+    get:
+      operationId: getGlobalIndex
+      parameters:
+        - {name: timestampFrom, in: query, required: false, schema: {type: string, format: date-time}}
+        - {name: timestampTo, in: query, required: false, schema: {type: string, format: date-time}}
+      responses:
+        '200': {$ref: '#/components/responses/WorkbookDataset'}
+  /root-matrix:
+    get:
+      operationId: getRootMatrix
+      responses:
+        '200': {$ref: '#/components/responses/WorkbookDataset'}
+  /root-matrix/statistics:
+    get:
+      operationId: getRootMatrixStatistics
+      responses:
+        '200': {description: Statistics derived from resident root-matrix rows}
+  /benchmarks:
+    get:
+      operationId: getBenchmarks
+      parameters:
+        - {name: operation, in: query, required: false, schema: {type: string}}
+      responses:
+        '200': {$ref: '#/components/responses/WorkbookDataset'}
+  /hyper-cores:
+    get:
+      operationId: getHyperCores
+      responses:
+        '200': {$ref: '#/components/responses/WorkbookDataset'}
+  /hyper-cores/{coreId}:
+    get:
+      operationId: getHyperCore
+      parameters:
+        - {name: coreId, in: path, required: true, schema: {type: string}}
+      responses:
+        '200': {description: Hyper-core detail}
+        '404': {description: Source or identifier unresolved}
+  /servers:
+    get:
+      operationId: getServers
+      responses:
+        '200': {$ref: '#/components/responses/WorkbookDataset'}
+  /servers/{serverId}:
+    get:
+      operationId: getServer
+      parameters:
+        - {name: serverId, in: path, required: true, schema: {type: string}}
+      responses:
+        '200': {description: Server detail}
+        '404': {description: Source or identifier unresolved}
+  /storage-devices:
+    get:
+      operationId: getStorageDevices
+      responses:
+        '200': {$ref: '#/components/responses/WorkbookDataset'}
+  /storage-devices/{deviceId}:
+    get:
+      operationId: getStorageDevice
+      parameters:
+        - {name: deviceId, in: path, required: true, schema: {type: string}}
+      responses:
+        '200': {description: Storage detail}
+        '404': {description: Source or identifier unresolved}
+  /storage-summary:
+    get:
+      operationId: getStorageSummary
+      responses:
+        '200': {description: Storage summary derived from resident rows}
+  /system-summary:
+    get:
+      operationId: getSystemSummary
+      responses:
+        '200': {description: System summary derived from resident rows}
+  /logs:
+    get:
+      operationId: getLogs
+      parameters:
+        - {name: since, in: query, required: false, schema: {type: string, format: date-time}}
+      responses:
+        '200': {$ref: '#/components/responses/WorkbookDataset'}
+  /activate-workbook:
+    post:
+      operationId: activateWorkbook
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [workbook]
+              properties:
+                workbook: {type: string, format: binary}
+      responses:
+        '200': {description: Workbook storage/activation receipt}
+        '400': {description: Workbook missing}
+  /workbooks/apply:
+    post:
+      operationId: applyWorkbooks
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [workbook1, workbook2]
+              properties:
+                workbook1: {type: string, format: binary}
+                workbook2: {type: string, format: binary}
+      responses:
+        '200':
+          description: Combined workbook with collision-safe sheet prefixes
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema: {type: string, format: binary}
+  /virtualization-metrics:
+    get:
+      operationId: getVirtualizationMetrics
+      responses:
+        '200': {description: Measured metrics or explicit UNMEASURED state}
+components:
+  responses:
+    WorkbookDataset:
+      description: Workbook-backed dataset or explicit unresolved source state
+      content:
+        application/json:
+          schema: {$ref: '#/components/schemas/WorkbookDatasetEnvelope'}
+  schemas:
+    WorkbookDatasetEnvelope:
+      type: object
+      required: [state, dataset, rows, workbooks_discovered, claim_boundary]
+      properties:
+        state: {type: string, enum: [SOURCE_NOT_RESIDENT, RESIDENT]}
+        dataset: {type: string}
+        rows: {type: array, items: {type: object, additionalProperties: true}}
+        workbooks_discovered: {type: array, items: {$ref: '#/components/schemas/WorkbookIdentity'}}
+        claim_boundary: {type: string}
+    WorkbookIdentity:
+      type: object
+      required: [path, bytes, sha256]
+      properties:
+        path: {type: string}
+        bytes: {type: integer}
+        sha256: {type: string}
+    ProofEntry:
+      type: object
+      required: [ts, event, target, value, actor]
+      properties:
+        ts: {type: number}
+        event: {type: string}
+        target: {type: string}
+        value: {type: string}
+        actor: {type: string}
