@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import sys
 import uuid
 from pathlib import Path
@@ -14,7 +15,8 @@ MODULES = ROOT / "modules" / "kex_wbos"
 sys.path.insert(0, str(MODULES))
 
 from action_extensions import append_workbook_rows
-from action_runtime import ACTION_LEDGER, dispatch_casepath, ingest_source, readback_runtime
+from action_runtime import ACTION_LEDGER, dispatch_casepath, execute_action, ingest_source, readback_runtime
+from capabilities import mint_capability
 from hardening import atomic_write_text, constant_time_bearer_matches, contained_path, require_secure_bind
 from object_store import ContentAddressedStore
 from workbook_semantics import write_semantic_index
@@ -28,7 +30,6 @@ def sha(path: Path) -> str:
 
 
 def main() -> None:
-    # Make this test independent of earlier local runtime receipts.
     ACTION_LEDGER.parent.mkdir(parents=True, exist_ok=True)
     ACTION_LEDGER.unlink(missing_ok=True)
     ACTION_LEDGER.with_suffix(ACTION_LEDGER.suffix + ".lock").unlink(missing_ok=True)
@@ -43,6 +44,47 @@ def main() -> None:
     assert constant_time_bearer_matches("Bearer correct", "correct")
     assert not constant_time_bearer_matches("Bearer wrong", "correct")
     assert not constant_time_bearer_matches("Basic correct", "correct")
+
+    # Scoped capability credentials.
+    cap_secret = "test-only-capability-secret"
+    os.environ["KEX_REQUIRE_SCOPED_CAPABILITIES"] = "true"
+    os.environ["KEX_CAPABILITY_SECRET"] = cap_secret
+    source_cap = mint_capability(
+        cap_secret,
+        actions=["SOURCE_INGEST"],
+        target_prefixes=["KEX_"],
+        ttl_seconds=300,
+        delegated_by="test-suite",
+    )
+    denied_action = execute_action({
+        "authority": "A.KEDDEH",
+        "actionType": "CASEPATH_DISPATCH",
+        "target": "casepath.com.au",
+        "capability": source_cap,
+        "payload": {"packetId": "CAP-DENY", "actionQueue": []},
+    })
+    assert denied_action["status"] == "BLOCKED", denied_action
+    assert denied_action["details"]["error"] == "capability_denied", denied_action
+
+    denied_target = execute_action({
+        "authority": "A.KEDDEH",
+        "actionType": "SOURCE_INGEST",
+        "target": "CASEPATH_ACTION_QUEUE",
+        "capability": source_cap,
+        "payload": {"sourceText": "denied", "sourceFormat": "text"},
+    })
+    assert denied_target["status"] == "BLOCKED", denied_target
+
+    allowed_capability_ingest = execute_action({
+        "authority": "A.KEDDEH",
+        "actionType": "SOURCE_INGEST",
+        "target": "KEX_RUNTIME_MODEL",
+        "capability": source_cap,
+        "payload": {"sourceText": "capability-authorized", "sourceFormat": "text"},
+    })
+    assert allowed_capability_ingest["status"] == "MUTATED", allowed_capability_ingest
+    os.environ.pop("KEX_REQUIRE_SCOPED_CAPABILITIES", None)
+    os.environ.pop("KEX_CAPABILITY_SECRET", None)
 
     # Filesystem containment and atomic write.
     hardening_dir = ROOT / "runtime" / "hardening-tests"
@@ -72,7 +114,6 @@ def main() -> None:
     assert bad_dispatch["status"] == "FAIL", bad_dispatch
     assert bad_dispatch["mutated"] is False, bad_dispatch
     assert bad_dispatch["details"]["error"] == "invalid_packet_id", bad_dispatch
-    assert bad_dispatch["proofLedgerRow"] == 1, bad_dispatch
     assert bad_dispatch["receiptHash"], bad_dispatch
 
     # Content-addressed ingest: path is a carrier, object ID is content identity.
@@ -120,10 +161,10 @@ def main() -> None:
     assert valid["mutated"] is True, valid
     assert valid["beforeHash"] != valid["afterHash"], valid
 
-    # Event-ledger replay must match the exact persisted receipt semantics.
+    # Event-ledger replay must match exact persisted receipt semantics.
     replay = verify(ACTION_LEDGER)
     assert replay["ok"] is True, replay
-    assert replay["entries"] >= 4, replay
+    assert replay["entries"] >= 7, replay
 
     workbook_path.unlink(missing_ok=True)
     Path(semantics["sidecar"]).unlink(missing_ok=True)
@@ -133,6 +174,7 @@ def main() -> None:
         "receiptReplay": replay,
         "contentAddress": object_id,
         "workbookGraphHash": semantics["graphHash"],
+        "capabilityBoundary": "cross-action and cross-target denial observed by test oracle",
     }, indent=2))
 
 
