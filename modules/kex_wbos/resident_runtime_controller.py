@@ -14,6 +14,7 @@ from typing import Any
 
 from hardening import append_jsonl_fsync, atomic_write_text
 from illlm_higher_order import build_topology, route_to_role
+from illlm_executable_graph import build_executable_graph
 
 BASE = Path(__file__).resolve().parents[2]
 MODULES = BASE / "modules" / "kex_wbos"
@@ -22,6 +23,7 @@ HISTORY = BASE / "runtime" / "resident-controller" / "history.jsonl"
 PROOF = BASE / "reports" / "kex-wbos" / "resident-runtime-proof.jsonl"
 CONTINUATION = BASE / "continuation" / "KEX_RUNTIME_HARDENING_CONTINUATION_R2.json"
 SERVICE_STATE = BASE / "runtime" / "supervisor" / "wbos-action-server.json"
+SERVICE_BINDING = BASE / "runtime" / "KEX_RESIDENT_SERVICE_BINDING_R1.json"
 ILLLM_BENCHMARK = BASE / "reports" / "kex-wbos" / "illlm-higher-order-benchmark.json"
 STOP = False
 
@@ -96,16 +98,62 @@ def _health(host: str, port: int) -> dict[str, Any]:
         return {"ok": False, "status": None, "error": type(exc).__name__, "url": url}
 
 
-def _load_illlm_topology() -> dict[str, Any]:
+def _service_objects() -> list[dict[str, Any]]:
+    if not SERVICE_BINDING.exists():
+        return []
+    try:
+        payload = json.loads(SERVICE_BINDING.read_text(encoding="utf-8"))
+    except Exception:
+        return []
+    objects: list[dict[str, Any]] = []
+    for item in payload.get("service_authority_fabric", []):
+        identity = str(item.get("identity", ""))
+        if not identity:
+            continue
+        execution_edges = []
+        actuator = item.get("external_actuator")
+        if actuator:
+            execution_edges.append(str(actuator))
+        objects.append({
+            "identity": identity,
+            "objectClass": item.get("class", "SERVICE"),
+            "source": "runtime/KEX_RESIDENT_SERVICE_BINDING_R1.json",
+            "role": item.get("resident_role"),
+            "stateCarrier": item.get("state_carrier"),
+            "knowledgeEdges": [str(item.get("state_carrier"))] if item.get("state_carrier") else [],
+            "executionEdges": execution_edges,
+            "proofEdges": ["reports/kex-wbos/resident-runtime-proof.jsonl"],
+            "executionState": "REGISTERED",
+        })
+    return objects
+
+
+def _load_illlm_state() -> dict[str, Any]:
     started = time.perf_counter_ns()
     topology = build_topology()
-    elapsed = time.perf_counter_ns() - started
     role_index: dict[str, list[str]] = {}
     for role in {str(node.get("role", "GENERAL")).upper() for node in topology.get("nodes", [])}:
         role_index[role] = route_to_role(role, topology)
+
+    executable_objects = []
+    for node in topology.get("nodes", []):
+        executable_objects.append({
+            "identity": node.get("identity"),
+            "objectClass": node.get("role"),
+            "source": "runtime/ILLLM_FEDERATION_SEED_R1.json",
+            "knowledgeEdges": list(node.get("children", [])),
+            "executionEdges": [],
+            "stateEdges": [node.get("continuation")] if node.get("continuation") else [],
+            "proofEdges": ["runtime/illlm/traversal-ledger.jsonl"],
+            "executionState": node.get("execution_state", "REGISTERED"),
+        })
+    executable_objects.extend(_service_objects())
+    executable_graph = build_executable_graph(executable_objects)
+    elapsed = time.perf_counter_ns() - started
     return {
         "topology": topology,
         "roleIndex": role_index,
+        "executableGraph": executable_graph,
         "buildNs": elapsed,
         "loadedAt": time.time(),
     }
@@ -122,13 +170,7 @@ def _run_local_oracles() -> dict[str, Any]:
     for command in commands:
         try:
             proc = subprocess.run(command, cwd=BASE, capture_output=True, text=True, timeout=180, shell=False)
-            results.append({
-                "command": command[-1],
-                "returnCode": proc.returncode,
-                "ok": proc.returncode == 0,
-                "stdoutTail": proc.stdout[-2000:],
-                "stderrTail": proc.stderr[-2000:],
-            })
+            results.append({"command": command[-1], "returnCode": proc.returncode, "ok": proc.returncode == 0, "stdoutTail": proc.stdout[-2000:], "stderrTail": proc.stderr[-2000:]})
         except Exception as exc:
             results.append({"command": command[-1], "returnCode": None, "ok": False, "error": type(exc).__name__})
     return {"ok": all(item["ok"] for item in results), "results": results}
@@ -146,19 +188,9 @@ def _read_benchmark() -> dict[str, Any] | None:
 def run(host: str, port: int, oracle_interval: int, health_interval: int, illlm_refresh_interval: int) -> int:
     signal.signal(signal.SIGTERM, _signal_handler)
     signal.signal(signal.SIGINT, _signal_handler)
-
     service = _spawn_service(host, port)
-    illlm = _load_illlm_topology()
-    _event(
-        "RESIDENT_CONTROLLER_STARTED",
-        pid=os.getpid(),
-        serviceSupervisorPid=service.pid,
-        host=host,
-        port=port,
-        illlmTopologyHash=illlm["topology"]["topologyHash"],
-        illlmNodes=illlm["topology"]["nodeCount"],
-        illlmEdges=illlm["topology"]["edgeCount"],
-    )
+    illlm = _load_illlm_state()
+    _event("RESIDENT_CONTROLLER_STARTED", pid=os.getpid(), serviceSupervisorPid=service.pid, host=host, port=port, illlmTopologyHash=illlm["topology"]["topologyHash"], illlmExecutableGraphHash=illlm["executableGraph"]["graphHash"], illlmNodes=illlm["topology"]["nodeCount"])
     last_oracle = 0.0
     last_illlm_refresh = time.time()
     consecutive_health_failures = 0
@@ -166,10 +198,7 @@ def run(host: str, port: int, oracle_interval: int, health_interval: int, illlm_
     while not STOP:
         service_state = _read_service_state()
         health = _health(host, port)
-        if health["ok"]:
-            consecutive_health_failures = 0
-        else:
-            consecutive_health_failures += 1
+        consecutive_health_failures = 0 if health["ok"] else consecutive_health_failures + 1
 
         if service.poll() is not None:
             _event("SERVICE_SUPERVISOR_EXITED", exitCode=service.returncode)
@@ -178,21 +207,13 @@ def run(host: str, port: int, oracle_interval: int, health_interval: int, illlm_
 
         now = time.time()
         if now - last_illlm_refresh >= illlm_refresh_interval:
-            previous_hash = illlm["topology"]["topologyHash"]
-            candidate = _load_illlm_topology()
-            illlm = candidate
+            previous_topology = illlm["topology"]["topologyHash"]
+            previous_exec = illlm["executableGraph"]["graphHash"]
+            illlm = _load_illlm_state()
             last_illlm_refresh = now
-            _event(
-                "ILLLM_TOPOLOGY_REFRESH",
-                previousHash=previous_hash,
-                topologyHash=illlm["topology"]["topologyHash"],
-                changed=previous_hash != illlm["topology"]["topologyHash"],
-                nodes=illlm["topology"]["nodeCount"],
-                edges=illlm["topology"]["edgeCount"],
-                buildNs=illlm["buildNs"],
-            )
+            _event("ILLLM_STATE_REFRESH", previousTopologyHash=previous_topology, topologyHash=illlm["topology"]["topologyHash"], previousExecutableGraphHash=previous_exec, executableGraphHash=illlm["executableGraph"]["graphHash"], changed=(previous_topology != illlm["topology"]["topologyHash"] or previous_exec != illlm["executableGraph"]["graphHash"]), buildNs=illlm["buildNs"])
 
-        oracle_state: dict[str, Any] | None = None
+        oracle_state = None
         if now - last_oracle >= oracle_interval:
             oracle_state = _run_local_oracles()
             _event("LOCAL_ORACLE_CYCLE", result=oracle_state)
@@ -209,8 +230,9 @@ def run(host: str, port: int, oracle_interval: int, health_interval: int, illlm_
             illlm={
                 "root": illlm["topology"]["root"],
                 "topologyHash": illlm["topology"]["topologyHash"],
+                "executableGraphHash": illlm["executableGraph"]["graphHash"],
                 "nodeCount": illlm["topology"]["nodeCount"],
-                "edgeCount": illlm["topology"]["edgeCount"],
+                "executableNodeCount": illlm["executableGraph"]["nodeCount"],
                 "roleIndexCounts": {role: len(ids) for role, ids in illlm["roleIndex"].items()},
                 "lastBuildNs": illlm["buildNs"],
                 "benchmark": _read_benchmark(),
@@ -226,8 +248,7 @@ def run(host: str, port: int, oracle_interval: int, health_interval: int, illlm_
                 try:
                     service.wait(timeout=8)
                 except subprocess.TimeoutExpired:
-                    service.kill()
-                    service.wait(timeout=5)
+                    service.kill(); service.wait(timeout=5)
             service = _spawn_service(host, port)
             consecutive_health_failures = 0
             _event("HEALTH_RECOVERY_RESPAWNED", serviceSupervisorPid=service.pid)
@@ -239,8 +260,7 @@ def run(host: str, port: int, oracle_interval: int, health_interval: int, illlm_
         try:
             service.wait(timeout=8)
         except subprocess.TimeoutExpired:
-            service.kill()
-            service.wait(timeout=5)
+            service.kill(); service.wait(timeout=5)
     _write_state(desiredState="STOPPED", observedState="STOPPED", serviceSupervisorPid=service.pid, serviceSupervisorAlive=False)
     _event("RESIDENT_CONTROLLER_STOPPED", pid=os.getpid())
     return 0
