@@ -19,7 +19,9 @@ from object_store import ContentAddressedStore
 
 BASE = Path(__file__).resolve().parents[2]
 RUNTIME = BASE / "runtime"
-ACTION_LEDGER = BASE / "reports" / "kex-wbos" / "action-ledger.jsonl"
+# V1 remains immutable legacy evidence. V2 is the canonical chained receipt ledger.
+LEGACY_ACTION_LEDGER = BASE / "reports" / "kex-wbos" / "action-ledger.jsonl"
+ACTION_LEDGER = BASE / "reports" / "kex-wbos" / "action-ledger-v2.jsonl"
 SOURCE_ROOT = RUNTIME / "sources"
 DISPATCH_ROOT = RUNTIME / "casepath-dispatch"
 PROOF_ROOT = BASE / "reports" / "kex-wbos"
@@ -46,6 +48,7 @@ def _now() -> str:
 
 def _receipt(action_id: str, status: str, mutated: bool, target: str, *, before: str | None = None, after: str | None = None, external_readback: bool = False, details: dict[str, Any] | None = None) -> dict[str, Any]:
     receipt = {
+        "ledgerVersion": 2,
         "status": status,
         "actionId": action_id,
         "mutated": mutated,
