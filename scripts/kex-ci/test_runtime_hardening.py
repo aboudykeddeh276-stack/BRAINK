@@ -36,7 +36,6 @@ def main() -> None:
     ACTION_LEDGER.unlink(missing_ok=True)
     ACTION_LEDGER.with_suffix(ACTION_LEDGER.suffix + ".lock").unlink(missing_ok=True)
 
-    # Authentication membrane.
     require_secure_bind("127.0.0.1", None)
     try:
         require_secure_bind("10.8.0.2", None)
@@ -47,17 +46,10 @@ def main() -> None:
     assert not constant_time_bearer_matches("Bearer wrong", "correct")
     assert not constant_time_bearer_matches("Basic correct", "correct")
 
-    # Scoped capability credentials.
     cap_secret = "test-only-capability-secret"
     os.environ["KEX_REQUIRE_SCOPED_CAPABILITIES"] = "true"
     os.environ["KEX_CAPABILITY_SECRET"] = cap_secret
-    source_cap = mint_capability(
-        cap_secret,
-        actions=["SOURCE_INGEST"],
-        target_prefixes=["KEX_"],
-        ttl_seconds=300,
-        delegated_by="test-suite",
-    )
+    source_cap = mint_capability(cap_secret, actions=["SOURCE_INGEST"], target_prefixes=["KEX_"], ttl_seconds=300, delegated_by="test-suite")
     denied_action = execute_action({
         "authority": "A.KEDDEH",
         "actionType": "CASEPATH_DISPATCH",
@@ -67,7 +59,6 @@ def main() -> None:
     })
     assert denied_action["status"] == "BLOCKED", denied_action
     assert denied_action["details"]["error"] == "capability_denied", denied_action
-
     denied_target = execute_action({
         "authority": "A.KEDDEH",
         "actionType": "SOURCE_INGEST",
@@ -76,7 +67,6 @@ def main() -> None:
         "payload": {"sourceText": "denied", "sourceFormat": "text"},
     })
     assert denied_target["status"] == "BLOCKED", denied_target
-
     allowed_capability_ingest = execute_action({
         "authority": "A.KEDDEH",
         "actionType": "SOURCE_INGEST",
@@ -88,7 +78,7 @@ def main() -> None:
     os.environ.pop("KEX_REQUIRE_SCOPED_CAPABILITIES", None)
     os.environ.pop("KEX_CAPABILITY_SECRET", None)
 
-    # Idempotency reservation/replay/conflict semantics.
+    # Registry primitive and dispatcher integration both get tested.
     idem_path = ROOT / "runtime" / "hardening-tests" / "idempotency.json"
     idem_path.parent.mkdir(parents=True, exist_ok=True)
     idem_path.unlink(missing_ok=True)
@@ -97,17 +87,28 @@ def main() -> None:
     command = {"authority": "A.KEDDEH", "actionType": "SOURCE_INGEST", "target": "KEX_RUNTIME_MODEL", "payload": {"sourceText": "once"}}
     begin = idem.begin("CMD-001", command)
     assert begin["state"] == "NEW", begin
-    inflight = idem.begin("CMD-001", command)
-    assert inflight["state"] == "INFLIGHT", inflight
+    assert idem.begin("CMD-001", command)["state"] == "INFLIGHT"
     synthetic_receipt = {"receiptHash": "abc123", "status": "MUTATED", "mutated": True}
     idem.complete("CMD-001", begin["requestHash"], synthetic_receipt)
-    replayed = idem.begin("CMD-001", command)
-    assert replayed["state"] == "REPLAY", replayed
-    assert replayed["receipt"] == synthetic_receipt, replayed
-    conflict = idem.begin("CMD-001", {**command, "target": "DIFFERENT"})
-    assert conflict["state"] == "CONFLICT", conflict
+    assert idem.begin("CMD-001", command)["receipt"] == synthetic_receipt
+    assert idem.begin("CMD-001", {**command, "target": "DIFFERENT"})["state"] == "CONFLICT"
 
-    # Filesystem containment and atomic write.
+    dispatch_key = f"E2E-{uuid.uuid4().hex}"
+    idempotent_request = {
+        "authority": "A.KEDDEH",
+        "actionType": "SOURCE_INGEST",
+        "target": "KEX_RUNTIME_MODEL",
+        "idempotencyKey": dispatch_key,
+        "payload": {"sourceText": "execute-once-through-dispatcher", "sourceFormat": "text"},
+    }
+    first_receipt = execute_action(idempotent_request)
+    second_receipt = execute_action(idempotent_request)
+    assert first_receipt["status"] == "MUTATED", first_receipt
+    assert second_receipt == first_receipt, (first_receipt, second_receipt)
+    conflict_receipt = execute_action({**idempotent_request, "target": "OTHER_TARGET"})
+    assert conflict_receipt["status"] == "BLOCKED", conflict_receipt
+    assert conflict_receipt["details"]["error"] == "idempotency_key_conflict", conflict_receipt
+
     hardening_dir = ROOT / "runtime" / "hardening-tests"
     hardening_dir.mkdir(parents=True, exist_ok=True)
     target = contained_path(ROOT, hardening_dir / "atomic.txt")
@@ -119,19 +120,15 @@ def main() -> None:
     except ValueError:
         pass
 
-    # Arbitrary host-file and network readback must be rejected.
     outside = readback_runtime({"target": "/etc/passwd"})
-    assert outside["status"] == "FAIL", outside
-    assert outside["observedState"] == "PATH_OUTSIDE_RUNTIME_ROOT", outside
+    assert outside["status"] == "FAIL" and outside["observedState"] == "PATH_OUTSIDE_RUNTIME_ROOT", outside
     metadata_allowed, metadata_policy = readback_url_allowed("http://169.254.169.254/latest/meta-data")
     assert metadata_allowed is False, metadata_policy
     metadata_readback = readback_runtime({"target": "http://169.254.169.254/latest/meta-data"})
-    assert metadata_readback["status"] == "FAIL", metadata_readback
-    assert metadata_readback["observedState"] == "READBACK_DESTINATION_BLOCKED", metadata_readback
+    assert metadata_readback["status"] == "FAIL" and metadata_readback["observedState"] == "READBACK_DESTINATION_BLOCKED", metadata_readback
     loopback_allowed, _ = readback_url_allowed("http://127.0.0.1:8790/api/health")
     assert loopback_allowed is True
 
-    # Casepath packet IDs cannot become paths.
     bad_dispatch = dispatch_casepath({
         "authority": "A.KEDDEH / KEDDEH_SYSTEMS / BRAINK / CASEPATH",
         "packetId": "../../escape",
@@ -139,27 +136,18 @@ def main() -> None:
         "processId": "CASEPATH-PROC-001",
         "actionQueue": [],
     })
-    assert bad_dispatch["status"] == "FAIL", bad_dispatch
-    assert bad_dispatch["mutated"] is False, bad_dispatch
+    assert bad_dispatch["status"] == "FAIL" and bad_dispatch["mutated"] is False, bad_dispatch
     assert bad_dispatch["details"]["error"] == "invalid_packet_id", bad_dispatch
     assert bad_dispatch["receiptHash"], bad_dispatch
 
-    # Content-addressed ingest: path is a carrier, object ID is content identity.
     payload = "KEX hardening content-address test"
-    ingest = ingest_source({
-        "authority": "A.KEDDEH / KEDDEH_SYSTEMS / BRAINK / CASEPATH",
-        "sourceText": payload,
-        "sourceFormat": "text",
-        "target": "KEX_RUNTIME_MODEL",
-    })
+    ingest = ingest_source({"authority": "A.KEDDEH / KEDDEH_SYSTEMS / BRAINK / CASEPATH", "sourceText": payload, "sourceFormat": "text", "target": "KEX_RUNTIME_MODEL"})
     assert ingest["status"] == "MUTATED", ingest
     object_id = ingest["details"]["objectId"]
     expected_digest = hashlib.sha256(payload.encode()).hexdigest()
     assert object_id == f"sha256:{expected_digest}", ingest
-    store = ContentAddressedStore(ROOT / "runtime" / "objects")
-    assert store.get(object_id) == payload.encode()
+    assert ContentAddressedStore(ROOT / "runtime" / "objects").get(object_id) == payload.encode()
 
-    # Workbook mutation must prevalidate the whole request before writing.
     workbook_id = f"HARDENING_{uuid.uuid4().hex[:8]}"
     workbook_path = ROOT / "runtime" / "workbooks" / f"{workbook_id}.xlsx"
     workbook_path.parent.mkdir(parents=True, exist_ok=True)
@@ -169,32 +157,30 @@ def main() -> None:
     ws.append(["id", "value", "derived"])
     ws.append([1, 10, "=B2*2"])
     ws.append([2, 20, "=B3*2"])
+    cycle = wb.create_sheet("CYCLE")
+    cycle["A1"] = "=B1"
+    cycle["B1"] = "=A1"
     wb.save(workbook_path)
 
     semantics = write_semantic_index(workbook_path)
-    assert semantics["formulaCellCount"] == 2, semantics
-    assert semantics["dependencyEdgeCount"] >= 2, semantics
+    assert semantics["formulaCellCount"] == 4, semantics
+    assert semantics["dependencyEdgeCount"] >= 4, semantics
+    assert semantics["cycleCount"] >= 1, semantics
     semantic_payload = json.loads(Path(semantics["sidecar"]).read_text())
     assert semantic_payload["graphHash"] == semantics["graphHash"], semantics
+    assert any(len(component) >= 2 for component in semantic_payload["cycles"]), semantic_payload["cycles"]
 
     before = sha(workbook_path)
     invalid = append_workbook_rows(workbook_id, "LEDGER", {"rows": [{"id": 3, "value": 30, "derived": "=B4*2"}, "not-an-object"]})
     after = sha(workbook_path)
-    assert invalid["status"] == "FAIL", invalid
-    assert invalid["mutated"] is False, invalid
-    assert before == after, (before, after)
-
+    assert invalid["status"] == "FAIL" and invalid["mutated"] is False and before == after, invalid
     valid = append_workbook_rows(workbook_id, "LEDGER", {"rows": [{"id": 3, "value": 30, "derived": "=B4*2"}]})
-    assert valid["status"] == "MUTATED", valid
-    assert valid["mutated"] is True, valid
+    assert valid["status"] == "MUTATED" and valid["mutated"] is True, valid
     assert valid["beforeHash"] != valid["afterHash"], valid
 
-    # Event-ledger replay must match exact persisted receipt semantics and chain.
     replay = verify(ACTION_LEDGER)
-    assert replay["ok"] is True, replay
-    assert replay["ledgerVersion"] == 2, replay
-    assert replay["entries"] >= 7, replay
-    assert replay["head"] != "GENESIS", replay
+    assert replay["ok"] is True and replay["ledgerVersion"] == 2, replay
+    assert replay["entries"] >= 9 and replay["head"] != "GENESIS", replay
 
     workbook_path.unlink(missing_ok=True)
     Path(semantics["sidecar"]).unlink(missing_ok=True)
@@ -206,8 +192,10 @@ def main() -> None:
         "receiptReplay": replay,
         "contentAddress": object_id,
         "workbookGraphHash": semantics["graphHash"],
+        "workbookCycleCount": semantics["cycleCount"],
+        "idempotencyReceipt": first_receipt["receiptId"],
         "capabilityBoundary": "cross-action and cross-target denial covered by test oracle",
-        "idempotencyBoundary": "replay/conflict/inflight semantics covered; distributed exactly-once is not claimed",
+        "idempotencyBoundary": "duplicate suppression and ambiguous-inflight blocking covered; distributed exactly-once is not claimed",
         "networkBoundary": "metadata/link-local readback blocked unless policy changes explicitly",
     }, indent=2))
 
