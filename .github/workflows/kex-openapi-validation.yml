@@ -36,7 +36,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Exercise WBOS API and proof ledger
+      - name: Install workbook runtime dependency
+        run: python -m pip install --disable-pip-version-check openpyxl==3.1.5
+      - name: Exercise Unified WBOS API and proof ledger
         run: python scripts/kex-ci/test_wbos_api.py
       - name: Validate KEX repository surface
         run: python scripts/kex-ci/validate_control_plane.py --mode openapi
@@ -57,7 +59,9 @@ jobs:
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
-      - name: Exercise WBOS API
+      - name: Install workbook runtime dependency
+        run: python3 -m pip install --disable-pip-version-check openpyxl==3.1.5
+      - name: Exercise Unified WBOS API
         run: python3 scripts/kex-ci/test_wbos_api.py
       - name: Validate specialist surface
         run: |
