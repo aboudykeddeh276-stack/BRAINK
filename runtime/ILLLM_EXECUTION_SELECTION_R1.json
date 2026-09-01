@@ -1,0 +1,24 @@
+{
+  "schema": "kex.illlm.execution-selection.v1",
+  "queue": "runtime/ILLLM_EXECUTION_QUEUE_R1.json",
+  "selectionLaw": "3*dependencyImpact + 3*evidenceDeficit + 2*downstreamUnlock + 2*executionFeasibility + 2*criticality - 4*alreadyClosed",
+  "ranking": [
+    {"taskId": "EXEC-RESIDENT-ORACLE-VFS-MIRROR-FENCE", "score": 57, "ordinal": 1},
+    {"taskId": "EXEC-DESTRUCTIVE-REHYDRATION-8CLASS", "score": 54, "ordinal": 2},
+    {"taskId": "EXEC-GITHUB-PRESTEP-BOUNDARY", "score": 42, "ordinal": 4},
+    {"taskId": "EXEC-VFS-FENCE-SOURCE-INTEGRATION", "score": 42, "ordinal": 5},
+    {"taskId": "EXEC-CONTROLLED-STATISTICAL-SUITE", "score": 40, "ordinal": 3}
+  ],
+  "selectedTaskId": "EXEC-RESIDENT-ORACLE-VFS-MIRROR-FENCE",
+  "selectedScore": 57,
+  "execution": {
+    "state": "SOURCE_MUTATION_EXECUTED",
+    "commit": "a288638f4d48c68cf0e36e74d6fa4c3c9b0dac4b",
+    "mutation": "Resident runtime local oracle now invokes test_lease_fencing.py, test_resident_oracle_projection.py and test_vfs_generation_mirror_learning.py in addition to its prior oracle set.",
+    "runtimeReadback": "PENDING_RESIDENT_ORACLE_EXECUTION",
+    "currentHostCheckoutAttempt": "BLOCKED_GITHUB_DNS",
+    "githubActionsState": "PRE_STEP_EXECUTOR_BOUNDARY"
+  },
+  "nextSelectionRule": "Do not manually advance the plan. Update candidate evidence from the resident oracle readback or other new observations, recompute the queue, and execute the new highest-scoring unresolved task.",
+  "claimBoundary": "The repository mutation and deterministic ranking are observed. The new oracle tests are not promoted to runtime-pass until a resident oracle cycle executes them and records return-code/readback evidence."
+}
