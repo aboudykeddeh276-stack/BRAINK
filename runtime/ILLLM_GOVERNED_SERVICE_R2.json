@@ -1,0 +1,58 @@
+{
+  "schema": "kex.illlm.governed-service.registry.v2",
+  "status": "EXECUTED_LOCAL_PRIVATE",
+  "control_model": "database-determined execution",
+  "service": {
+    "id": "service://local/illlm-governed-control",
+    "surfaces": [
+      "/health",
+      "/agenda",
+      "/next",
+      "/governance",
+      "/lifecycle",
+      "/policy/evaluate",
+      "/console"
+    ]
+  },
+  "modules": [
+    "agent_identity.py",
+    "runtime_policy.py",
+    "lifecycle_eval.py",
+    "illlm_control_plane.py"
+  ],
+  "executed_receipts": {
+    "agent_identity": "AGENT_IDENTITY_SIGNED_RECEIPT_EXECUTION_R1.json",
+    "runtime_policy": "RUNTIME_POLICY_EXECUTION_RECEIPT_R1.json",
+    "lifecycle": "LIFECYCLE_EVAL_EXECUTION_RECEIPT_R1.json",
+    "deployment": "GOVERNED_SERVICE_V2_DEPLOYMENT_READBACK_R1.json",
+    "signed_deployment": "GOVERNED_SERVICE_SIGNED_DEPLOYMENT_RECEIPT_R1.json"
+  },
+  "observed_results": {
+    "agent_signature_verified": "200/200",
+    "tamper_rejected": "200/200",
+    "unbound_signing_denied": "200/200",
+    "policy_adversarial_cycles": 500,
+    "receipt_coverage": 1.0,
+    "lifecycle_gates": "HEALTHY",
+    "signed_deployment_receipt": "VERIFIED",
+    "chromium_set_content_projection": "PASS",
+    "chromium_direct_localhost_route": "BLOCKED_BY_ADMINISTRATOR_POLICY"
+  },
+  "claim_boundary": {
+    "public_saas": "NOT_CLAIMED",
+    "external_key_trust_anchor": "NOT_YET_PROVEN",
+    "multi_host_linearizable_authority": "NOT_YET_PROVEN",
+    "power_loss_durability": "NOT_YET_PROVEN",
+    "customer_roi": "NOT_YET_PROVEN"
+  },
+  "library": {
+    "folder": "/IL_LLM_DB_DRIVEN_EXECUTION/",
+    "report": "IL_LLM_GOVERNED_EXECUTION_SERVICE_STREAM_R2.md",
+    "release": "IL_LLM_GOVERNED_EXECUTION_SERVICE_STREAM_R2.zip"
+  },
+  "sha256": {
+    "release": "57495f55a78487a3443cfa18b418de226066c32c225d6da3355b2e6b88f990b4",
+    "report": "31fe87b6c1aaae1d4876088fdd8914f6ef8a6bb02af313d4889de2a0e7a9d1d0",
+    "manifest": "1a73e68cfe885bed90b9cc5a620248eca03d73c6459057a4abb0f873e11baf5e"
+  }
+}
