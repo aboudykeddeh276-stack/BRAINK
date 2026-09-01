@@ -4,17 +4,24 @@
   "branch": "kex-runtime-hardening-r3",
   "pull_request": 58,
   "continuation_rule": "Resume from this record and attack the latest observed state. Do not restart from the original baseline and do not promote claims beyond receipts.",
-  "current_cycle": 2,
-  "cycle_objective": "Repeat the systems-engineering research-to-implementation attack using findings from cycle 1 as the new baseline.",
+  "current_cycle": 3,
+  "cycle_objective": "Exploit the hardened primitives as one integrated capability fabric and convert unavailable external execution into durable reconciliable intent rather than false completion.",
+  "implemented_in_cycle_3": [
+    "integrated capability fabric orchestrator combines scoped credentials, idempotent commands, content-addressed ingest, managed Casepath dispatch, workbook semantic analysis, durable outbox, proof mutation and ledger checkpointing",
+    "durable external-action outbox separates local commit from participant execution and preserves idempotency identity",
+    "retained action-ledger head checkpoint materializes rows, ledger SHA-256, headReceiptHash and checkpointHash",
+    "capability exercise creates a workbook dependency graph with an intentional cycle oracle and reconciles the graph hash into proof",
+    "capability exercise can optionally invoke the real TL2 deployer on a tunnel-capable host while leaving unavailable TL2 work PENDING rather than executed",
+    "KEX Runtime Hardening workflow now executes the integrated capability fabric after hostile hardening tests",
+    "case study records transactional-outbox, saga, capability, content-addressing, event-ledger and workbook-programming mappings with invalid promotions"
+  ],
   "implemented_in_cycle_2": [
     "action receipt ledger versioned to action-ledger-v2.jsonl while legacy v1 evidence remains untouched",
     "receipt chain uses parentReceiptHash -> receiptHash and verifier checks row/order/hash ancestry",
     "generic action dispatcher supports persistent idempotency reservation, replay, conflict rejection and ambiguous INFLIGHT blocking",
-    "dispatcher-level idempotencyKey integration suppresses same-intent duplicate mutation",
-    "OpenAPI advanced to 5.2.0 with chained receipt and idempotency semantics",
-    "workbook semantic analysis now computes strongly connected components and formula dependency cycles",
-    "TL2 service supervisor persists generation/restart/exit history instead of only overwriting current state",
-    "hardening CI validates the 5.2 contract and hostile runtime suite"
+    "OpenAPI 5.2.0 declares chained receipt and idempotency semantics",
+    "workbook semantic analysis computes strongly connected components and formula dependency cycles",
+    "TL2 service supervisor persists generation/restart/exit history instead of only overwriting current state"
   ],
   "prior_cycle_mechanics_preserved": [
     "constant-time bearer authentication",
@@ -33,13 +40,13 @@
   "research_paradigms_applied": [
     {
       "paradigm": "event sourcing / append-only replay",
-      "transferred_mechanic": "ordered durable receipts, deterministic replay verification, parent hash chain",
-      "invalid_promotion": "does not prove distributed consensus or prevent undetectable tail truncation without an externally retained head"
+      "transferred_mechanic": "ordered durable receipts, deterministic replay verification, parent hash chain and retained head checkpoint",
+      "invalid_promotion": "does not prove distributed consensus; checkpoint protection depends on independent checkpoint survival"
     },
     {
       "paradigm": "content-addressed storage",
       "transferred_mechanic": "sha256 content identity independent of carrier path",
-      "invalid_promotion": "does not imply physical storage replacement"
+      "invalid_promotion": "does not imply physical storage replacement or a complete Merkle DAG"
     },
     {
       "paradigm": "capability security",
@@ -59,32 +66,39 @@
     {
       "paradigm": "idempotent command processing",
       "transferred_mechanic": "durable INFLIGHT reservation, same-request replay, conflicting-key rejection, ambiguous-outcome stop",
-      "invalid_promotion": "not distributed exactly-once execution; external actuator atomicity would require participant transaction/outbox semantics"
+      "invalid_promotion": "not distributed exactly-once execution"
+    },
+    {
+      "paradigm": "transactional outbox",
+      "transferred_mechanic": "persist external actuator intent before delivery and reconcile participant receipts separately",
+      "invalid_promotion": "a pending outbox record is not external execution and the participant is not made transactional by the sender"
+    },
+    {
+      "paradigm": "saga/orchestration",
+      "transferred_mechanic": "multi-step capability exercise uses locally provable stages and explicit external participant boundaries",
+      "invalid_promotion": "no general rollback guarantee exists until participant-specific compensations are designed"
     }
   ],
   "latest_readback": {
     "hardening_workflow": {
-      "run_id": 33546026957,
-      "run_number": 18,
-      "status": "completed",
-      "conclusion": "failure",
-      "job_id": 99983605984,
-      "job_steps_observed": 0,
-      "classification": "EXECUTOR_NOT_ASSIGNED_OR_JOB_NOT_STARTED; no software test step was observed"
+      "run_id": 33547066515,
+      "run_number": 24,
+      "status": "queued",
+      "conclusion": null,
+      "classification": "CAPABILITY_FABRIC_HEAD_QUEUED; no execution receipt yet"
     },
     "pull_request": {
       "number": 58,
       "state": "open",
-      "mergeable": true,
-      "qualification": "not merged because hostile test execution has not yet been observed"
+      "qualification": "not merged because hostile/integrated test execution has not yet been observed"
     }
   },
   "observed_external_blockers": [
     {
       "object": "GitHub hosted validation",
-      "state": "EXECUTOR_NOT_ASSIGNED",
-      "evidence": "hardening run 18 completed with a hardening job object but zero observed steps; prior runs also reported runner_id=0",
-      "classification": "CI executor/account scheduling boundary, not a code test failure"
+      "state": "QUEUED_OR_EXECUTOR_UNASSIGNED",
+      "evidence": "run 24 is queued; earlier runs repeatedly created jobs with zero executed steps and runner_id=0",
+      "classification": "CI executor/account scheduling boundary until a test step is actually observed"
     },
     {
       "object": "TL2 deployment",
@@ -94,12 +108,14 @@
     }
   ],
   "next_attack_queue": [
-    "run hardening suite when an executor becomes available and classify exact test failures",
-    "test supervisor restart generation/history under forced child failure",
-    "add retained ledger-head/root export so tail truncation can be detected against an external checkpoint",
-    "consider transactional outbox/participant reconciliation for external actuator commands; do not claim exactly-once before this exists",
+    "run hostile hardening and integrated capability-fabric suite when an executor becomes available and classify exact test failures",
+    "force supervisor child failure and verify generation/restart history",
+    "move retained ledger-head checkpoint to an independently persisted carrier before claiming tail-rollback detection against host loss",
+    "implement outbox relay adapters one participant at a time and reconcile participant receipt hashes",
+    "define compensation contracts only for external actions that genuinely have a reversible operation",
     "extend workbook semantic graph to named ranges/table references and distinguish range dependencies from exact-cell dependencies",
-    "re-run PR diff audit after any further mutation",
+    "audit capability fabric report for any local-success/external-success conflation",
+    "re-run PR diff audit after further mutation",
     "merge PR #58 only when mergeability and available validation evidence are reconciled",
     "after merge, re-attempt TL2 deployment without attaching public DNS/TLS/Drive/Bitcoin/full migration blockers"
   ],
@@ -114,15 +130,19 @@
     "repeat until no actionable defect remains under current oracles"
   ],
   "promotion_boundaries": {
+    "LOCAL_CAPABILITY_FABRIC_VERIFIED": "requires one integrated harness run satisfying all local capability checks",
     "TL2_LIVE": "requires actual tunnel runner, runtime bind and inside-tunnel readback",
     "PUBLIC_LIVE": "not implied by TL2_LIVE",
     "DISTRIBUTED_CONSENSUS": "not claimed",
     "EXACTLY_ONCE": "not claimed",
     "FULL_OBJECT_CAPABILITY_OS": "not claimed",
-    "WORKBOOK_EXECUTION": "formula graph analysis does not prove formula/macro execution"
+    "WORKBOOK_EXECUTION": "formula graph analysis does not prove formula/macro execution",
+    "OUTBOX_PENDING": "durable intent only; not participant execution"
   },
   "continuity": {
     "repository_record": "continuation/KEX_RUNTIME_HARDENING_CONTINUATION_R2.json",
-    "scheduled_monitor": "hourly condition watch configured to resume when GitHub/PR/TL2 state becomes actionable"
+    "scheduled_monitor": "hourly condition watch configured to resume when GitHub/PR/TL2 state becomes actionable",
+    "capability_case_study": "docs/KEX_CAPABILITY_FABRIC_CASE_STUDY_R1.md",
+    "capability_harness": "scripts/kex-ci/exercise_capability_fabric.py"
   }
 }
