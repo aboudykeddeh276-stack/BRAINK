@@ -19,6 +19,7 @@ from hardening import append_jsonl_fsync, atomic_write_text
 
 REPORT = BASE / "reports/kex-wbos/tl2-deployment.json"
 PROOF = BASE / "reports/kex-wbos/tl2-proof-ledger.jsonl"
+SUPERVISOR_STATE = BASE / "runtime/supervisor/wbos-action-server.json"
 SOURCE_ID = "source://github/BRAINK/modules/kex_wbos/action_server.py"
 SERVICE_ID = "service://wbos/action-server"
 RUNTIME_ID = "runtime://kex/wbos"
@@ -77,23 +78,37 @@ def _wait(url: str, token: str, timeout: int = 20) -> dict:
     return {"url": url, "status": None, "bytes": 0, "sha256": None, "ok": False, "error": last}
 
 
-def _spawn(host: str, port: int) -> subprocess.Popen:
-    code = (
-        "import sys; "
-        f"sys.path.insert(0,{str(MODULES)!r}); "
-        "import action_server; "
-        f"action_server.serve({host!r},{port})"
-    )
+def _spawn_supervisor(host: str, port: int) -> subprocess.Popen:
     env = os.environ.copy()
     env["RUNNER_TRACKING_ID"] = ""
     return subprocess.Popen(
-        [sys.executable, "-c", code],
+        [
+            sys.executable,
+            str(MODULES / "service_supervisor.py"),
+            "--host",
+            host,
+            "--port",
+            str(port),
+            "--max-restarts",
+            "5",
+            "--restart-window",
+            "60",
+        ],
         cwd=BASE,
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
         start_new_session=True,
         env=env,
     )
+
+
+def _read_supervisor_state() -> dict:
+    if not SUPERVISOR_STATE.exists():
+        return {"observedState": "UNOBSERVED"}
+    try:
+        return json.loads(SUPERVISOR_STATE.read_text(encoding="utf-8"))
+    except Exception as exc:
+        return {"observedState": "STATE_READ_FAILED", "error": type(exc).__name__}
 
 
 def deploy(daemon: bool) -> int:
@@ -143,15 +158,18 @@ def deploy(daemon: bool) -> int:
     _proof("TL2_SOURCE_BOUND", {"source_object": SOURCE_ID, "service": SERVICE_ID, "runtime": RUNTIME_ID, "transport": TL2_ID})
     _proof("TL2_TUNNEL_BOUND", {"identity": TL2_ID, "address": host, "source": source})
 
-    process = _spawn(host, 8790)
+    supervisor = _spawn_supervisor(host, 8790)
     checks = [
         _wait(f"http://{host}:8790/api/health", token),
         _wait(f"http://{host}:8790/api/services", token),
         _wait(f"http://{host}:8790/api/routes", token),
         _wait(f"http://{host}:8790/api/proof-ledger", token),
     ]
-    alive = process.poll() is None
-    ok = alive and all(check["ok"] for check in checks)
+    time.sleep(0.25)
+    supervisor_alive = supervisor.poll() is None
+    supervisor_state = _read_supervisor_state()
+    child_running = supervisor_state.get("observedState") in {"STARTING", "RUNNING", "RESTARTING"}
+    ok = supervisor_alive and child_running and all(check["ok"] for check in checks)
     result = {
         "status": "VERIFIED" if ok else "FAIL",
         "promotion": "TL2_LIVE" if ok else None,
@@ -161,7 +179,11 @@ def deploy(daemon: bool) -> int:
         "source_object": SOURCE_ID,
         "service": SERVICE_ID,
         "runtime": RUNTIME_ID,
-        "process": {"pid": process.pid, "port": 8790, "alive_after_readback": alive},
+        "supervision": {
+            "supervisorPid": supervisor.pid,
+            "aliveAfterReadback": supervisor_alive,
+            "state": supervisor_state,
+        },
         "readback": checks,
         "proof_ledger": str(PROOF.relative_to(BASE)),
         "excluded_from_deploy": ["PUBLIC_LIVE", "LIBRARY_PERSISTED", "BITCOIN_LIVE", "BRAINK_MIGRATED"],
@@ -170,13 +192,14 @@ def deploy(daemon: bool) -> int:
     _write_report(result)
     _proof("TL2_DEPLOYMENT_READBACK", result)
     print(json.dumps(result, indent=2))
+
     if not ok or not daemon:
-        process.terminate()
+        supervisor.terminate()
         try:
-            process.wait(timeout=5)
+            supervisor.wait(timeout=8)
         except subprocess.TimeoutExpired:
-            process.kill()
-            process.wait(timeout=5)
+            supervisor.kill()
+            supervisor.wait(timeout=5)
     return 0 if ok else 4
 
 
