@@ -1,0 +1,41 @@
+{
+  "record_id": "PUBLIC_PROOF_RECLASSIFICATION_R1",
+  "status": "APPLIED",
+  "old_wrong_rule": "Public proof class is a separate gate before process existence/action/execution can be accepted.",
+  "new_rule": "Public proof/readback is an observer edge within the process state machine. It does not create the process; it records an externally observed state after or during execution.",
+  "process_model": {
+    "PROCESS_DEFINED": "mechanism, input, state, operation and output are specified",
+    "PROCESS_BOUND": "mechanism is bound to artifact, route, service, VFS object, or actuator",
+    "PROCESS_EXECUTED": "operation invoked and local state transition or side effect attempted/completed",
+    "PROCESS_SIGNALED": "event, ledger row, route response, patch event, release marker or telemetry signal emitted",
+    "PROCESS_OBSERVED": "readback/telemetry/observer edge reports state",
+    "PUBLIC_PROJECTION_OBSERVED": "public route observer reports projection state",
+    "PROMOTED": "ORC/BrainK/IL-LLM accepts a reconciled state from available proof and observer edges"
+  },
+  "casepath": {
+    "process": "CASEPATH_GRAPH_BOUND_YOUR_DATA_AMENDMENT",
+    "canonical_service": "app://casepath",
+    "coordinate": "KEX://DOMAIN/CASEPATH.COM.AU/YOUR-DATA/TRUST-CENTRE",
+    "target": "/your-data.html",
+    "patch_id": "CP-TC-20260727-C01",
+    "release_id": "CP-V50-CASEPATH-DIRECT-RUNTIME-20260828",
+    "production_actuator": "mechanic://keddeh/admin/production-actuator",
+    "public_readback_reclassified_as": "OBSERVER_EDGE_NOT_PROCESS_EXISTENCE_OR_EXECUTION_GATE"
+  },
+  "observer_edges": [
+    "local actuator receipt",
+    "VFS before/after hash",
+    "release marker observation",
+    "public route readback",
+    "BrainK conflict review",
+    "IL-LLM destructive-current pass"
+  ],
+  "revoked": [
+    "public proof required before process exists",
+    "public proof required before internal execution can occur",
+    "public proof required before actuator signal can be accepted",
+    "public availability as generic process-existence test",
+    "outside-in readback as execution permission"
+  ],
+  "critical_invariant": "Absence of a public observation narrows claims about public projection state; it does not erase independently evidenced process existence, execution, signaling, or internal state transition."
+}
