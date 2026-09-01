@@ -14,6 +14,7 @@ from typing import Any
 from openpyxl import load_workbook
 from casepath_management import managed_dispatch
 from hardening import append_jsonl_fsync, atomic_write_text, contained_path
+from object_store import ContentAddressedStore
 
 BASE = Path(__file__).resolve().parents[2]
 RUNTIME = BASE / "runtime"
@@ -21,6 +22,7 @@ ACTION_LEDGER = BASE / "reports" / "kex-wbos" / "action-ledger.jsonl"
 SOURCE_ROOT = RUNTIME / "sources"
 DISPATCH_ROOT = RUNTIME / "casepath-dispatch"
 PROOF_ROOT = BASE / "reports" / "kex-wbos"
+OBJECT_STORE = ContentAddressedStore(RUNTIME / "objects")
 
 EXTERNAL_ACTIONS = {
     "PUBLIC_DNS": "DNS_PROVIDER_ADAPTER",
@@ -101,12 +103,36 @@ def ingest_source(request: dict[str, Any]) -> dict[str, Any]:
     if not isinstance(text, str) or not text:
         return _receipt(action_id, "FAIL", False, target, details={"error": "sourceText_required"})
     SOURCE_ROOT.mkdir(parents=True, exist_ok=True)
-    ext = {"markdown": "md", "json": "json", "html": "html", "text": "txt"}.get(request.get("sourceFormat"), "txt")
+    source_format = request.get("sourceFormat", "text")
+    ext = {"markdown": "md", "json": "json", "html": "html", "text": "txt"}.get(source_format, "txt")
+    raw = text.encode("utf-8")
+    object_receipt = OBJECT_STORE.put_bytes(
+        raw,
+        media_type={"markdown": "text/markdown", "json": "application/json", "html": "text/html", "text": "text/plain"}.get(source_format, "text/plain"),
+        metadata={"target": target, "authority": request.get("authority"), "ingestActionId": action_id},
+    )
+    OBJECT_STORE.bind_ref(f"source-{action_id}", object_receipt["objectId"])
     path = contained_path(SOURCE_ROOT, SOURCE_ROOT / f"{action_id}.{ext}")
     before = _sha(path.read_bytes()) if path.exists() else None
     atomic_write_text(path, text)
     after = _sha(path.read_bytes())
-    return _receipt(action_id, "MUTATED", True, target, before=before, after=after, details={"path": path.relative_to(BASE).as_posix(), "bytes": path.stat().st_size})
+    if after != object_receipt["sha256"]:
+        return _receipt(action_id, "FAIL", False, target, before=before, after=after, details={"error": "source_carrier_hash_mismatch", "objectId": object_receipt["objectId"]})
+    return _receipt(
+        action_id,
+        "MUTATED",
+        True,
+        target,
+        before=before,
+        after=after,
+        details={
+            "path": path.relative_to(BASE).as_posix(),
+            "bytes": path.stat().st_size,
+            "objectId": object_receipt["objectId"],
+            "contentAddress": object_receipt["sha256"],
+            "identityBoundary": "Filesystem path is a carrier; sha256 object ID is the immutable content identity.",
+        },
+    )
 
 
 def dispatch_casepath(request: dict[str, Any]) -> dict[str, Any]:
