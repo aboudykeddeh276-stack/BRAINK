@@ -1,15 +1,18 @@
 openapi: 3.1.0
 info:
   title: KEX Unified Action Runtime API
-  version: 5.0.0
+  version: 5.1.0
   description: >
     Mutation-oriented KEX/BRAINK/Casepath control surface. A route is not evidence
     of mutation by itself: action receipts carry status, mutation state, hashes,
-    readback state, and blocker details. External actions remain BLOCKED until a
-    corresponding actuator is bound.
+    readback state, blocker details and a canonical receipt hash. External actions
+    remain BLOCKED until a corresponding actuator is bound. Non-loopback binds
+    require bearer authentication. When KEX_REQUIRE_SCOPED_CAPABILITIES=true,
+    /actions/execute additionally requires a signed capability scoped to the
+    requested action class and target prefix.
 servers:
   - url: http://127.0.0.1:8790
-    description: Local resident action runtime. Public deployment requires separate evidence.
+    description: Local resident action runtime. TL2/public bindings require separate deployment receipts.
 security:
   - KexBearer: []
 paths:
@@ -230,16 +233,17 @@ components:
       enum: [PASS, FAIL, PARTIAL, BLOCKED, ARMED, PENDING, LIVE, MUTATED, VERIFIED]
     MutationReceipt:
       type: object
-      required: [status, actionId, mutated]
+      required: [status, actionId, mutated, receiptId, receiptHash, proofLedgerRow]
       properties:
         status: {$ref: '#/components/schemas/ActionStatus'}
         actionId: {type: string}
         mutated: {type: boolean}
         target: {type: [string, 'null']}
         receiptId: {type: string}
+        receiptHash: {type: string, description: SHA-256 of the canonical persisted receipt with receiptHash omitted.}
         beforeHash: {type: [string, 'null']}
         afterHash: {type: [string, 'null']}
-        proofLedgerRow: {type: [integer, 'null']}
+        proofLedgerRow: {type: integer, minimum: 1}
         externalReadback: {type: boolean}
         timestamp: {type: string, format: date-time}
         details: {type: object, additionalProperties: true}
@@ -254,6 +258,9 @@ components:
           enum: [PUBLIC_DNS, PUBLIC_TLS, ROUTER_FIREWALL, BITCOIN_IBD_GUARD, BITCOIN_LIVE_SUBMISSION, BRAINK_MIGRATION_COMMIT, LIVE_PUBLIC_DEPLOYMENT, EXTERNAL_READBACK, RUNTIME_LAUNCH, DRIVE_WRITEBACK, PROOF_LEDGER_WRITE, CASEPATH_DISPATCH, SOURCE_INGEST, WORKBOOK_APPEND]
         target: {type: string}
         controlRoute: {type: string}
+        capability:
+          type: string
+          description: Signed scoped capability credential required when KEX_REQUIRE_SCOPED_CAPABILITIES=true.
         payload: {type: object, additionalProperties: true}
         requireReceipt: {type: boolean, default: true}
         forbidReportOnly: {type: boolean, default: true}
@@ -296,7 +303,7 @@ components:
       type: object
       required: [packetId, activeTarget, actionQueue]
       properties:
-        packetId: {type: string}
+        packetId: {type: string, pattern: '^[A-Za-z0-9._-]{1,128}$'}
         activeTarget: {type: string}
         actionQueue: {type: array, items: {type: object, additionalProperties: true}}
         proofTarget: {type: string}
