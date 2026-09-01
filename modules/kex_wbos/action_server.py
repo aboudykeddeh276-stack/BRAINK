@@ -17,6 +17,7 @@ from action_runtime import (
     readback_runtime,
     write_proof,
 )
+from hardening import constant_time_bearer_matches, require_secure_bind
 
 PORT = 8790
 
@@ -31,17 +32,22 @@ ACTION_TYPE_BY_PATH = {
 
 
 class ActionHandler(data_server.Handler):
-    server_version = "KEX-Unified-Action/5.0"
+    server_version = "KEX-Unified-Action/5.1"
 
     def _authorized(self) -> bool:
         token = os.getenv("KEX_BEARER_TOKEN")
         if not token:
+            # Tokenless operation is permitted only when the server itself is
+            # bound to loopback. serve() rejects tokenless non-loopback binds.
             return True
-        return self.headers.get("Authorization", "") == f"Bearer {token}"
+        return constant_time_bearer_matches(self.headers.get("Authorization", ""), token)
 
     def _read_json(self) -> dict:
-        length = int(self.headers.get("Content-Length", "0"))
-        if length <= 0:
+        try:
+            length = int(self.headers.get("Content-Length", "0"))
+        except ValueError:
+            return {}
+        if length <= 0 or length > 16 * 1024 * 1024:
             return {}
         try:
             payload = json.loads(self.rfile.read(length).decode("utf-8"))
@@ -72,7 +78,6 @@ class ActionHandler(data_server.Handler):
         path = parsed.path
         parts = [p for p in path.split("/") if p]
 
-        # Preserve multipart workbook endpoints from the base WBOS server.
         if path in {"/activate-workbook", "/workbooks/apply"}:
             return super().do_POST()
 
@@ -147,6 +152,8 @@ class ActionHandler(data_server.Handler):
 
 
 def serve(host: str = "127.0.0.1", port: int = PORT) -> None:
+    token = os.getenv("KEX_BEARER_TOKEN")
+    require_secure_bind(host, token)
     data_server.append_proof("ACTION_RUNTIME_BOOT", "KEX://ROOT/ACTION_RUNTIME", f"{host}:{port}")
     ThreadingHTTPServer((host, port), ActionHandler).serve_forever()
 
