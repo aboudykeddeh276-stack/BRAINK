@@ -11,6 +11,9 @@ from typing import Any
 
 from openpyxl import load_workbook
 
+from hardening import atomic_write_bytes, contained_path
+from workbook_semantics import write_semantic_index
+
 BASE = Path(__file__).resolve().parents[2]
 WORKBOOK_ROOT = BASE / "workbooks"
 UPLOAD_ROOT = BASE / "runtime" / "workbooks"
@@ -56,7 +59,7 @@ def _workbook_paths() -> list[Path]:
             continue
         for path in sorted(root.rglob("*")):
             if path.is_file() and path.suffix.lower() in {".xlsx", ".xlsm"}:
-                found.append(path)
+                found.append(contained_path(BASE, path))
     return found
 
 
@@ -104,26 +107,22 @@ def _sheet_rows(path: Path, canonical_sheet: str) -> tuple[str, list[dict[str, A
     if selected is None:
         wb.close()
         return None
-
     ws = wb[selected]
     values = list(ws.iter_rows(values_only=True))
     if not values:
         wb.close()
         return selected, []
-
     header_row_index = 0
     for idx, row in enumerate(values[:25]):
         if sum(v is not None and str(v).strip() != "" for v in row) >= 2:
             header_row_index = idx
             break
-
     headers = [_normalise_header(value, idx) for idx, value in enumerate(values[header_row_index])]
     rows: list[dict[str, Any]] = []
     for row in values[header_row_index + 1:]:
         if not any(value is not None and str(value).strip() != "" for value in row):
             continue
-        record = {headers[idx]: _json_value(value) for idx, value in enumerate(row) if idx < len(headers)}
-        rows.append(record)
+        rows.append({headers[idx]: _json_value(value) for idx, value in enumerate(row) if idx < len(headers)})
     wb.close()
     return selected, rows
 
@@ -145,7 +144,6 @@ def dataset_response(dataset: str, *, timestamp_from: str | None = None, timesta
         if resolved is None:
             continue
         sheet, rows = resolved
-
         if dataset in {"global-index", "logs"} and (timestamp_from or timestamp_to):
             def keep(row: dict[str, Any]) -> bool:
                 value = row.get("timestamp")
@@ -154,19 +152,13 @@ def dataset_response(dataset: str, *, timestamp_from: str | None = None, timesta
                 text = str(value)
                 return (not timestamp_from or text >= timestamp_from) and (not timestamp_to or text <= timestamp_to)
             rows = [row for row in rows if keep(row)]
-
         if dataset == "benchmarks" and operation:
             rows = [row for row in rows if str(row.get("operation", "")) == operation]
-
         return {
             "state": "RESIDENT",
             "dataset": dataset,
             "sheet": sheet,
-            "source": {
-                "path": path.relative_to(BASE).as_posix(),
-                "bytes": path.stat().st_size,
-                "sha256": sha256_file(path),
-            },
+            "source": {"path": path.relative_to(BASE).as_posix(), "bytes": path.stat().st_size, "sha256": sha256_file(path)},
             "rows": rows,
             "row_count": len(rows),
             "workbooks_discovered": discover_workbooks(),
@@ -191,22 +183,13 @@ def root_matrix_statistics(rows: list[dict[str, Any]]) -> dict[str, Any]:
     values: list[float] = []
     for row in rows:
         candidate = row.get("values")
-        if isinstance(candidate, (list, tuple)):
-            seq = candidate
-        else:
-            seq = [value for key, value in row.items() if key.lower() not in {"id", "identifier"}]
+        seq = candidate if isinstance(candidate, (list, tuple)) else [value for key, value in row.items() if key.lower() not in {"id", "identifier"}]
         for value in seq:
             if isinstance(value, (int, float)) and not isinstance(value, bool):
                 values.append(float(value))
     if not values:
         return {"count": 0, "mean": None, "min": None, "max": None, "state": "SOURCE_NOT_RESIDENT"}
-    return {
-        "count": len(values),
-        "mean": statistics.fmean(values),
-        "min": min(values),
-        "max": max(values),
-        "state": "COMPUTED_FROM_RESIDENT_ROWS",
-    }
+    return {"count": len(values), "mean": statistics.fmean(values), "min": min(values), "max": max(values), "state": "COMPUTED_FROM_RESIDENT_ROWS"}
 
 
 def _capacity_tb(value: Any) -> float | None:
@@ -231,11 +214,7 @@ def storage_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
         capacity = _capacity_tb(row.get("capacity"))
         if capacity is not None:
             slot["totalCapacityTb"] += capacity
-    return {
-        "state": "SOURCE_NOT_RESIDENT" if not rows else "COMPUTED_FROM_RESIDENT_ROWS",
-        "categories": list(categories.values()),
-        "source_row_count": len(rows),
-    }
+    return {"state": "SOURCE_NOT_RESIDENT" if not rows else "COMPUTED_FROM_RESIDENT_ROWS", "categories": list(categories.values()), "source_row_count": len(rows)}
 
 
 def system_summary(hyper_cores: list[dict[str, Any]], servers: list[dict[str, Any]], storage: list[dict[str, Any]]) -> dict[str, Any]:
@@ -264,18 +243,24 @@ def virtualization_metrics() -> dict[str, Any]:
 def activation_receipt(filename: str, payload: bytes) -> dict[str, Any]:
     UPLOAD_ROOT.mkdir(parents=True, exist_ok=True)
     safe = Path(filename).name
-    target = UPLOAD_ROOT / safe
-    target.write_bytes(payload)
+    if not safe or Path(safe).suffix.lower() not in {".xlsx", ".xlsm"}:
+        return {"signal": "WORKBOOK_REJECTED", "parse_state": "INVALID_EXTENSION", "sheets": [], "bytes": len(payload), "sha256": hashlib.sha256(payload).hexdigest()}
+    target = contained_path(UPLOAD_ROOT, UPLOAD_ROOT / safe)
+    atomic_write_bytes(target, payload)
 
     sheets: list[str] = []
     parse_state = "STORED_UNPARSED"
+    semantics: dict[str, Any] | None = None
     try:
-        wb = load_workbook(target, read_only=True, data_only=True)
+        wb = load_workbook(target, read_only=True, data_only=False)
         sheets = wb.sheetnames
         wb.close()
         parse_state = "STORED_AND_INDEXED"
-    except Exception:
+        semantics = write_semantic_index(target)
+        semantics["sidecar"] = str(Path(semantics["sidecar"]).relative_to(BASE))
+    except Exception as exc:
         parse_state = "STORED_PARSE_FAILED"
+        semantics = {"error": type(exc).__name__}
 
     return {
         "signal": "WORKBOOK_STORED_FOR_RESOLUTION",
@@ -286,5 +271,6 @@ def activation_receipt(filename: str, payload: bytes) -> dict[str, Any]:
         "timestamp": time.time(),
         "parse_state": parse_state,
         "sheets": sheets,
-        "claim_boundary": "The receipt proves workbook bytes were accepted and, when parse_state is STORED_AND_INDEXED, that workbook metadata was successfully read. It does not prove all sheet mechanics executed.",
+        "semantics": semantics,
+        "claim_boundary": "The receipt proves workbook bytes were accepted and indexed. Formula dependency extraction produces a semantic graph; it does not itself execute workbook formulas, macros, external links, or service triggers.",
     }
