@@ -3,201 +3,118 @@
   "authority": "A.KEDDEH / KEDDEH_SYSTEMS / BRAINK / CASEPATH",
   "branch": "kex-runtime-hardening-r3",
   "pull_request": 58,
-  "continuation_rule": "Resume from this record and attack the latest observed state. Do not restart from the original baseline and do not promote claims beyond receipts.",
   "current_cycle": 4,
-  "cycle_objective": "Promote the hardened runtime into a resident recursive IL-LLM capability substrate while preserving scoped authority, context isolation, incremental evaluation, proof boundaries and external-execution separation.",
-  "implemented_in_cycle_4": [
-    "resident recursive IL-LLM runtime with acyclic containment, cyclic traversal, contextual candidate indices, continuation frames and graph hashing",
-    "cross-repository IL-LLM carrier ingestion for observed KEX/BRAINK repositories without treating repository identity as capability proof",
-    "IL-LLM context translator compiles caller-local/global context plus intent into a selected execution route and narrowly scoped signed capability",
-    "semi-naive delta engine evaluates only consequences of newly inserted facts and performs zero rule evaluations for duplicate no-op insertion",
-    "bounded equivalence store preserves alternate semantic/execution forms and extracts by cost subject to proof-status and executability constraints",
-    "resident IL-LLM service exposes query, traversal, contextual translation, delta facts, equivalence registration/extraction and rebuild behind the runtime security membrane",
-    "sector invocation roots formalise seed, KEX DNA, VFS, quantum, observer and mirror-lane as typed global IL-LLM contexts rather than free-text aliases",
-    "advanced IL-LLM hostile suite asserts context isolation, capability narrowing, warm delta no-op behavior and deterministic equivalence extraction",
-    "KEX Runtime Hardening workflow now compiles and executes recursive and advanced IL-LLM suites in addition to the prior hostile/runtime/capability-fabric gates"
-  ],
-  "implemented_in_cycle_3": [
-    "integrated capability fabric orchestrator combines scoped credentials, idempotent commands, content-addressed ingest, managed Casepath dispatch, workbook semantic analysis, durable outbox, proof mutation and ledger checkpointing",
-    "durable external-action outbox separates local commit from participant execution and preserves idempotency identity",
-    "retained action-ledger head checkpoint materializes rows, ledger SHA-256, headReceiptHash and checkpointHash",
-    "capability exercise creates a workbook dependency graph with an intentional cycle oracle and reconciles the graph hash into proof",
-    "capability exercise can optionally invoke the real TL2 deployer on a tunnel-capable host while leaving unavailable TL2 work PENDING rather than executed",
-    "KEX Runtime Hardening workflow executes the integrated capability fabric after hostile hardening tests",
-    "case study records transactional-outbox, saga, capability, content-addressing, event-ledger and workbook-programming mappings with invalid promotions"
-  ],
-  "implemented_in_cycle_2": [
-    "action receipt ledger versioned to action-ledger-v2.jsonl while legacy v1 evidence remains untouched",
-    "receipt chain uses parentReceiptHash -> receiptHash and verifier checks row/order/hash ancestry",
-    "generic action dispatcher supports persistent idempotency reservation, replay, conflict rejection and ambiguous INFLIGHT blocking",
-    "OpenAPI 5.2.0 declares chained receipt and idempotency semantics",
-    "workbook semantic analysis computes strongly connected components and formula dependency cycles",
-    "TL2 service supervisor persists generation/restart/exit history instead of only overwriting current state"
-  ],
-  "prior_cycle_mechanics_preserved": [
-    "constant-time bearer authentication",
-    "non-loopback authentication requirement",
-    "scoped signed action capabilities",
-    "filesystem containment",
-    "atomic/fsync writes",
-    "SSRF/readback destination policy",
-    "content-addressed source object identity",
-    "atomic workbook append",
-    "bounded BrainK migration source policy",
-    "managed Casepath dispatch",
-    "TL2 scope separation from PUBLIC_LIVE",
-    "bounded supervisor restart intensity"
-  ],
-  "research_paradigms_applied": [
+  "current_recursive_pass": 4,
+  "governing_review_law": "docs/ILLLM_RECURSIVE_REVIEW_CONTRACT_R1.md",
+  "authoritative_current_corpus": "docs/recursive-review/ILLLM_PASS_4_REPLACEMENT_CURRENT_STATE_R1.md",
+  "superseded_current_corpus": "docs/recursive-review/ILLLM_PASS_3_REPLACEMENT_CURRENT_STATE_R1.md",
+  "continuation_rule": "Treat the authoritative current corpus itself as untrusted input in the next pass. Reclassify all claims from current evidence; do not inherit VERIFIED/IMPLEMENTED/MARKET-RELEVANT status from prior passes.",
+  "lineage": {
+    "prior_continuation_blob_sha": "c2b1b71ad300e757a8d628d200cc643b5c351099",
+    "pass_1": "docs/recursive-review/ILLLM_PASS_1_CURRENT_STATE_R1.md",
+    "pass_2": "docs/recursive-review/ILLLM_PASS_2_REPLACEMENT_CURRENT_STATE_R1.md",
+    "pass_3": "docs/recursive-review/ILLLM_PASS_3_REPLACEMENT_CURRENT_STATE_R1.md",
+    "pass_4": "docs/recursive-review/ILLLM_PASS_4_REPLACEMENT_CURRENT_STATE_R1.md"
+  },
+  "pass_4_mutations": [
     {
-      "paradigm": "event sourcing / append-only replay",
-      "transferred_mechanic": "ordered durable receipts, deterministic replay verification, parent hash chain and retained head checkpoint",
-      "invalid_promotion": "does not prove distributed consensus; checkpoint protection depends on independent checkpoint survival"
+      "commit": "fc17013d38e839784fa4f67d4200b8c0de490607",
+      "artifact": "modules/kex_wbos/resident_runtime_controller.py",
+      "effect": "retain latest completed oracle result across non-oracle health cycles and STOPPED projection",
+      "claim_boundary": "source mutation only; resident-host execution not yet reproven"
     },
     {
-      "paradigm": "content-addressed storage",
-      "transferred_mechanic": "sha256 content identity independent of carrier path",
-      "invalid_promotion": "does not imply physical storage replacement or a complete Merkle DAG"
+      "commit": "14f8489ca2e8d9b9d3d3e2498143147fff5196d5",
+      "artifact": "scripts/kex-ci/test_resident_oracle_projection.py",
+      "effect": "focused regression oracle for current-state validation projection continuity",
+      "claim_boundary": "test source resident; execution receipt pending"
     },
     {
-      "paradigm": "capability security / reference-monitor discipline",
-      "transferred_mechanic": "signed action/target-scoped authority plus IL-LLM context-to-capability translation before actuator access",
-      "invalid_promotion": "not a full object-capability operating system and does not make semantic selection equivalent to authorization proof"
+      "commit": "37507bee772b2efeb8bed48ea3a8338d6e0b8911",
+      "artifact": ".github/workflows/kex-runtime-hardening.yml",
+      "effect": "compile and execute resident oracle projection regression in configured hardening CI",
+      "claim_boundary": "workflow configured; GitHub executor has not yet produced executed-step evidence"
     },
     {
-      "paradigm": "OTP supervision",
-      "transferred_mechanic": "worker/supervisor separation, generation lineage, bounded restart intensity and escalation",
-      "invalid_promotion": "not Erlang/OTP and not a distributed supervisor tree"
-    },
-    {
-      "paradigm": "spreadsheet programming and dependency analysis",
-      "transferred_mechanic": "formula dependency graph, semantic sidecar, SCC/cycle detection",
-      "invalid_promotion": "static analysis does not execute Excel formulas, macros, volatile functions or external links"
-    },
-    {
-      "paradigm": "idempotent command processing",
-      "transferred_mechanic": "durable INFLIGHT reservation, same-request replay, conflicting-key rejection, ambiguous-outcome stop",
-      "invalid_promotion": "not distributed exactly-once execution"
-    },
-    {
-      "paradigm": "transactional outbox",
-      "transferred_mechanic": "persist external actuator intent before delivery and reconcile participant receipts separately",
-      "invalid_promotion": "a pending outbox record is not external execution and the participant is not made transactional by the sender"
-    },
-    {
-      "paradigm": "saga/orchestration",
-      "transferred_mechanic": "multi-step capability exercise uses locally provable stages and explicit external participant boundaries",
-      "invalid_promotion": "no general rollback guarantee exists until participant-specific compensations are designed"
-    },
-    {
-      "paradigm": "semi-naive / differential evaluation",
-      "transferred_mechanic": "derive consequences from delta facts rather than recomputing the complete resident fact estate",
-      "invalid_promotion": "does not prove universal inference acceleration; performance remains workload-dependent and benchmark-gated"
-    },
-    {
-      "paradigm": "e-graph / equality-saturation style representation",
-      "transferred_mechanic": "preserve multiple candidate forms and extract a bounded low-cost verified executable representation",
-      "invalid_promotion": "registered equivalence is model-local unless the equivalence relation itself is independently proven"
+      "commit": "73ad1f0aa213741da8238e05d7a0100b155c8976",
+      "artifact": "docs/recursive-review/ILLLM_PASS_4_REPLACEMENT_CURRENT_STATE_R1.md",
+      "effect": "Pass 4 replacement current-state corpus",
+      "claim_boundary": "report is current interpretation, not validation authority for Pass 5"
     }
   ],
-  "latest_readback": {
-    "branch_head": "be776d6e41f3edb5728b57ce27bfb3bf89184fd3",
-    "hardening_workflow_previous_head": {
-      "head_sha": "8731158adbeb1614bb5a111ed1ea998926fcb626",
-      "run_id": 33552467955,
-      "run_number": 68,
+  "fresh_workflow_evidence": {
+    "evaluated_head": "90005b2434064b10ffb7d0c494a3078938addd56",
+    "kex_runtime_hardening": {
+      "run_id": 33557360294,
+      "run_number": 100,
       "status": "completed",
       "conclusion": "failure",
-      "job_id": 100004999783,
+      "job_id": 100021339391,
       "job_name": "hardening",
       "executed_steps": 0,
-      "classification": "EXECUTOR_OR_SCHEDULING_FAILURE_BEFORE_STEP_EXECUTION; not a code/test failure receipt"
+      "classification": "PRE_STEP_EXECUTOR_BOUNDARY; NOT A CODE_OR_TEST_FAILURE_RECEIPT"
     },
-    "casepath_workflow_previous_head": {
-      "head_sha": "8731158adbeb1614bb5a111ed1ea998926fcb626",
-      "run_id": 33552468318,
-      "run_number": 70,
+    "casepath_management_validation": {
+      "run_id": 33557360308,
+      "run_number": 102,
       "status": "completed",
       "conclusion": "failure",
-      "job_id": 100005000835,
-      "job_name": "validate-managed-dispatch",
       "executed_steps": 0,
-      "classification": "EXECUTOR_OR_SCHEDULING_FAILURE_BEFORE_STEP_EXECUTION; not a Casepath validation failure receipt"
-    },
-    "hardening_workflow_current_head": {
-      "run_id": 33552635094,
-      "run_number": 71,
-      "status": "queued",
-      "conclusion": null,
-      "classification": "ILLLM_EXPANDED_VALIDATOR_HEAD_QUEUED; no execution receipt yet"
-    },
-    "pull_request": {
-      "number": 58,
-      "state": "open",
-      "merged": false,
-      "mergeable_before_cycle4_mutation": true,
-      "mergeable_immediately_after_cycle4_mutation": false,
-      "qualification": "do not classify the post-push mergeable=false observation as a merge conflict without stable GitHub mergeability evidence; validation remains unresolved"
+      "classification": "PRE_STEP_EXECUTOR_BOUNDARY; NOT A CASEPATH_CODE_FAILURE_RECEIPT"
     }
   },
-  "observed_external_blockers": [
-    {
-      "object": "GitHub hosted validation",
-      "state": "EXECUTOR_UNASSIGNED_OR_PRE_STEP_FAILURE",
-      "evidence": "hardening run 68 and Casepath run 70 completed failure with job objects containing zero executed steps; new hardening run 71 is queued",
-      "classification": "CI executor/account scheduling boundary until at least one configured test step is observed"
-    },
-    {
-      "object": "TL2 deployment",
-      "state": "WAITING_FOR_MATCHING_SELF_HOSTED_RUNNER",
-      "required_labels": ["self-hosted", "kex", "tl2"],
-      "workflow_contract": "KEX TL2 Deploy runs only on [self-hosted,kex,tl2] and requires KEX_TL2_ADDRESS plus KEX_BEARER_TOKEN before TL2_LIVE readback",
-      "classification": "deployment executor binding boundary"
-    }
-  ],
+  "latest_repository_readback": {
+    "head_after_pass_4_report": "73ad1f0aa213741da8238e05d7a0100b155c8976",
+    "pr_state": "open",
+    "merged": false,
+    "mergeable_observation": false,
+    "mergeability_qualification": "Immediately post-mutation mergeable=false is not promoted to a conflict claim; prior current-head readback was mergeable=true and GitHub mergeability may be transient while recomputing. Re-read before any merge decision."
+  },
+  "current_claims": {
+    "recursive_illlm_definition_context_substrate": "IMPLEMENTED_SOURCE",
+    "workbook_semantic_carrier_analysis": "IMPLEMENTED_SOURCE",
+    "intent_to_capability_translation": "IMPLEMENTED_SOURCE_END_TO_END_AUTHORIZATION_PENDING",
+    "resident_latest_oracle_projection_retention": "IMPLEMENTED_SOURCE_PASS_4_EXECUTION_PENDING",
+    "single_carrier_atomic_replacement": "IMPLEMENTED_SOURCE",
+    "compound_kex_vfs_generation_commit": "NOT_IMPLEMENTED",
+    "destructive_projection_rehydration_suite": "NOT_IMPLEMENTED",
+    "stale_owner_fencing": "INCOMPLETE",
+    "external_effect_reconciliation": "PARTIAL_PARTICIPANT_DEPENDENT",
+    "controlled_statistical_experiment_suite": "NOT_IMPLEMENTED",
+    "universal_illlm_speedup": "REJECTED",
+    "tl2_live": "NOT_PROMOTED",
+    "public_live": "NOT_PROMOTED_AND_NOT_IMPLIED_BY_TL2"
+  },
+  "promotion_boundaries": {
+    "LOCAL_CAPABILITY_FABRIC_VERIFIED": "requires observed successful integrated harness execution on branch-equivalent bytes",
+    "ILLLM_RECURSIVE_RUNTIME_VERIFIED": "requires observed recursive and advanced suite execution on branch-equivalent bytes",
+    "RESIDENT_ORACLE_PROJECTION_VERIFIED": "requires execution of scripts/kex-ci/test_resident_oracle_projection.py plus resident-controller readback demonstrating lastOracle survives intervening health cycles",
+    "KEX_VFS_GENERATION_COMMIT_VERIFIED": "requires compound-generation implementation plus crash/fault recovery oracle distinguishing old committed, new committed, and incomplete candidate generations",
+    "STALE_OWNER_RECOVERY_VERIFIED": "requires monotonic fencing and rejection of stale owner writes at the governed resource plus participant reconciliation for external effects",
+    "STATISTICAL_ACCELERATION_CLAIM": "requires raw samples, controlled regime, competent baseline, uncertainty/effect-size reporting, correctness oracle, and resident-host fingerprint",
+    "TL2_LIVE": "requires matching self-hosted runner, configured address/token, live bind and inside-tunnel readback",
+    "PUBLIC_LIVE": "requires separate public DNS/TLS/HTTPS evidence and is not implied by TL2"
+  },
   "next_attack_queue": [
-    "observe hardening run 71 and classify whether any configured step actually executes",
-    "if run 71 executes, classify the first failing hostile/recursive/advanced IL-LLM/capability-fabric/replay assertion and repair that exact defect",
-    "force supervisor child failure and verify generation/restart history",
-    "move retained ledger-head checkpoint to an independently persisted carrier before claiming tail-rollback detection against host loss",
-    "implement outbox relay adapters one participant at a time and reconcile participant receipt hashes",
-    "define compensation contracts only for external actions that genuinely have a reversible operation",
-    "extend workbook semantic graph to named ranges/table references and distinguish range dependencies from exact-cell dependencies",
-    "audit capability fabric and IL-LLM translation reports for local-success/external-success or semantic-selection/authorization conflation",
-    "re-run PR diff audit after further mutation",
-    "merge PR #58 only when stable mergeability and available validation evidence are reconciled",
-    "after merge, re-attempt TL2 deployment without attaching public DNS/TLS/Drive/Bitcoin/full migration blockers"
+    "observe workflows triggered by the Pass 4 commits and classify whether any configured step executes",
+    "if executable steps run, repair the first actual failing assertion rather than the workflow conclusion label",
+    "execute the resident oracle projection regression on branch-equivalent bytes and capture readback",
+    "implement compound local KEX/VFS generation commit semantics and destructive crash recovery oracle",
+    "implement stale-owner generation/fencing for governed local mutations and explicit EFFECT_AMBIGUOUS reconciliation",
+    "build destructive rehydration experiments across canonical carrier, semantic index, observer projection, runtime, global topology, definition lineage, authority and proof lineage",
+    "upgrade IL-LLM benchmarks to retain raw samples, competent indexed/materialized baselines, confidence/effect-size statistics and sequence dependence evidence",
+    "re-read PR mergeability after GitHub recomputes the post-mutation head",
+    "run Pass 5 treating Pass 4 as hostile current input"
   ],
   "restart_protocol": [
     "read this continuation record",
+    "read the authoritative Pass 4 corpus as untrusted current input",
     "read PR #58 head and workflow state",
-    "compare branch against main",
-    "take the first unresolved item with actionable evidence",
-    "mutate code/tests/docs",
-    "write/read back the resulting state",
-    "update this record",
-    "repeat until no actionable defect remains under current oracles"
-  ],
-  "promotion_boundaries": {
-    "LOCAL_CAPABILITY_FABRIC_VERIFIED": "requires one integrated harness run satisfying all local capability checks",
-    "ILLLM_RECURSIVE_RUNTIME_VERIFIED": "requires observed execution of recursive and advanced IL-LLM suites on branch-equivalent bytes",
-    "ILLLM_TRANSLATION_AUTHORIZED": "requires both contextual selection and independent capability verification; selection alone is not authority",
-    "TL2_LIVE": "requires actual tunnel runner, runtime bind and inside-tunnel readback",
-    "PUBLIC_LIVE": "not implied by TL2_LIVE",
-    "DISTRIBUTED_CONSENSUS": "not claimed",
-    "EXACTLY_ONCE": "not claimed",
-    "FULL_OBJECT_CAPABILITY_OS": "not claimed",
-    "WORKBOOK_EXECUTION": "formula graph analysis does not prove formula/macro execution",
-    "OUTBOX_PENDING": "durable intent only; not participant execution",
-    "UNIVERSAL_INFERENCE_ACCELERATION": "not claimed; incremental/equivalence optimisations require workload-specific benchmark receipts"
-  },
-  "continuity": {
-    "repository_record": "continuation/KEX_RUNTIME_HARDENING_CONTINUATION_R2.json",
-    "capability_case_study": "docs/KEX_CAPABILITY_FABRIC_CASE_STUDY_R1.md",
-    "capability_harness": "scripts/kex-ci/exercise_capability_fabric.py",
-    "illlm_recursive_test": "scripts/kex-ci/test_illlm_recursive_runtime.py",
-    "illlm_advanced_test": "scripts/kex-ci/test_illlm_advanced_runtime.py",
-    "hardening_workflow": ".github/workflows/kex-runtime-hardening.yml",
-    "tl2_workflow": ".github/workflows/kex-tl2-deploy.yml"
-  }
+    "reclassify current evidence rather than inheriting prior labels",
+    "take the first actionable defect with direct evidence",
+    "mutate code/tests/docs only where mechanically justified",
+    "capture repository/workflow/runtime readback",
+    "emit the next replacement current-state corpus",
+    "update this record"
+  ]
 }
