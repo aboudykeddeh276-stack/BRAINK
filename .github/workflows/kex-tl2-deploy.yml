@@ -1,0 +1,56 @@
+name: KEX TL2 Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      leave_resident:
+        description: "Leave verified services resident on the TL2 host"
+        required: false
+        default: true
+        type: boolean
+
+permissions:
+  contents: read
+
+jobs:
+  deploy-tl2:
+    runs-on: [self-hosted, kex, tl2]
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install workbook runtime dependency
+        run: python -m pip install --disable-pip-version-check openpyxl==3.1.5
+      - name: Observe TL2 identity and deploy
+        env:
+          KEX_TL2_ADDRESS: ${{ vars.KEX_TL2_ADDRESS }}
+          KEX_BEARER_TOKEN: ${{ secrets.KEX_BEARER_TOKEN }}
+        run: |
+          FLAGS=""
+          if [ "${{ inputs.leave_resident }}" = "true" ]; then FLAGS="--daemon"; fi
+          python deploy/tl2_deploy.py $FLAGS
+      - name: Require TL2_LIVE receipt
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('reports/kex-wbos/tl2-deployment.json')
+          r=json.loads(p.read_text())
+          assert r['status']=='VERIFIED', r
+          assert r['promotion']=='TL2_LIVE', r
+          assert all(x['ok'] for x in r['readback']), r
+          assert r['public_promotions']==['NOT_CLAIMED'], r
+          print(json.dumps(r, indent=2))
+          PY
+      - name: Upload TL2 deployment receipts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kex-tl2-deployment-${{ github.run_id }}
+          path: |
+            reports/kex-wbos/tl2-deployment.json
+            reports/kex-wbos/tl2-proof-ledger.jsonl
+            reports/kex-wbos/proof-ledger.jsonl
+          if-no-files-found: warn
