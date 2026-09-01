@@ -12,7 +12,7 @@ from typing import Any
 
 from openpyxl import Workbook
 
-from action_runtime import ACTION_LEDGER, BASE, execute_action, write_proof
+from action_runtime import ACTION_LEDGER, BASE, execute_action
 from capabilities import mint_capability
 from hardening import atomic_write_text, canonical_json_bytes, sha256_bytes
 from ledger_checkpoint import checkpoint_ledger
@@ -111,10 +111,7 @@ def exercise(*, engage_tl2: bool = False) -> dict[str, Any]:
             idempotency_key=outbox_key,
         )
 
-        tl2_result: dict[str, Any] = {
-            "state": "NOT_REQUESTED",
-            "promotion": None,
-        }
+        tl2_result: dict[str, Any] = {"state": "NOT_REQUESTED", "promotion": None}
         if engage_tl2:
             proc = subprocess.run(
                 [sys.executable, str(BASE / "deploy" / "tl2_deploy.py")],
@@ -154,7 +151,6 @@ def exercise(*, engage_tl2: bool = False) -> dict[str, Any]:
             },
         }
         proof = execute_action(proof_request)
-
         checkpoint = checkpoint_ledger(ACTION_LEDGER, BASE / "runtime" / "checkpoints")
 
         checks = {
@@ -170,12 +166,15 @@ def exercise(*, engage_tl2: bool = False) -> dict[str, Any]:
         }
         local_clean = all(checks.values())
 
+        REPORT_ROOT.mkdir(parents=True, exist_ok=True)
+        report_path = REPORT_ROOT / f"{run_id}.json"
         report = {
             "recordId": "KEX_CAPABILITY_FABRIC_EXERCISE_R1",
             "runId": run_id,
             "status": "LOCAL_CAPABILITY_FABRIC_VERIFIED" if local_clean else "LOCAL_CAPABILITY_FABRIC_DEFECT",
             "startedAt": started,
             "finishedAt": time.time(),
+            "reportPath": report_path.relative_to(BASE).as_posix(),
             "checks": checks,
             "receipts": {
                 "source": source_first,
@@ -207,15 +206,16 @@ def exercise(*, engage_tl2: bool = False) -> dict[str, Any]:
                 "pending outbox intent is not external execution",
                 "formula graph analysis is not workbook formula or macro execution",
                 "idempotency suppresses duplicate local commands but is not distributed exactly-once execution",
-                "retained checkpoint detects tail rollback only if checkpoint storage remains independent of the damaged ledger",
+                "retained checkpoint detects rollback/divergence only if checkpoint storage remains independent of the damaged ledger",
             ],
         }
-        REPORT_ROOT.mkdir(parents=True, exist_ok=True)
-        report_path = REPORT_ROOT / f"{run_id}.json"
-        report["reportHash"] = sha256_bytes(canonical_json_bytes(report))
+        unsigned = dict(report)
+        report["reportHash"] = sha256_bytes(canonical_json_bytes(unsigned))
         atomic_write_text(report_path, json.dumps(report, indent=2, sort_keys=True) + "\n")
-        report["reportPath"] = report_path.relative_to(BASE).as_posix()
-        return report
+        persisted = json.loads(report_path.read_text(encoding="utf-8"))
+        if persisted != report:
+            raise RuntimeError("capability fabric report persistence divergence")
+        return persisted
     finally:
         if prior_require is None:
             os.environ.pop("KEX_REQUIRE_SCOPED_CAPABILITIES", None)
