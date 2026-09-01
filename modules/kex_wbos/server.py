@@ -5,7 +5,6 @@ import io
 import json
 import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
-from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
 from workbook_api import (
@@ -13,6 +12,7 @@ from workbook_api import (
     activation_receipt,
     dataset_response,
     discover_workbooks,
+    find_by_id,
     root_matrix_statistics,
     storage_summary,
     system_summary,
@@ -28,6 +28,7 @@ CASCADE_ORDER = [
     "PROOF_COMMIT", "REHYDRATE_ON_FAILURE",
 ]
 
+from pathlib import Path
 BASE = Path(__file__).resolve().parents[2]
 LEDGER = BASE / "reports" / "kex-wbos" / "proof-ledger.jsonl"
 
@@ -37,7 +38,7 @@ SERVICES = [
     {"service": "health", "route": "/api/health", "port": PORT, "role": "runtime health"},
     {"service": "resolver", "route": "/api/resolve", "port": PORT, "role": "KEX URI resolution"},
     {"service": "proof-ledger", "route": "/api/proof-ledger", "port": PORT, "role": "proof readback"},
-    {"service": "workbook-api", "route": "/core-lattice", "port": PORT, "role": "workbook source adapter"},
+    {"service": "workbook-api", "route": "/core-lattice", "port": PORT, "role": "resident workbook data adapter"},
 ]
 
 ROUTES = [
@@ -50,6 +51,8 @@ ROUTES = [
     {"host": "127.0.0.1", "path": "/cascade", "target": "wbos.cascade", "kex": "KEX://ROOT/OS/CASCADE"},
     {"host": "127.0.0.1", "path": "/core-lattice", "target": "wbos.workbook.core-lattice", "kex": "KEX://ROOT/WORKBOOK/CORE_LATTICE"},
     {"host": "127.0.0.1", "path": "/genome-store", "target": "wbos.workbook.genome-store", "kex": "KEX://ROOT/WORKBOOK/GENOME_STORE"},
+    {"host": "127.0.0.1", "path": "/global-index", "target": "wbos.workbook.global-index", "kex": "KEX://ROOT/WORKBOOK/GLOBAL_INDEX"},
+    {"host": "127.0.0.1", "path": "/root-matrix", "target": "wbos.workbook.root-matrix", "kex": "KEX://ROOT/WORKBOOK/ROOT_MATRIX"},
 ]
 ROUTE_BY_KEX = {row["kex"].upper(): row for row in ROUTES}
 
@@ -118,10 +121,7 @@ def parse_multipart(content_type: str, body: bytes) -> dict[str, tuple[str, byte
 
 
 def combine_xlsx(first: tuple[str, bytes], second: tuple[str, bytes]) -> bytes:
-    try:
-        from openpyxl import Workbook, load_workbook
-    except ImportError as exc:
-        raise RuntimeError("openpyxl is required for workbook combination") from exc
+    from openpyxl import Workbook, load_workbook
     output = Workbook()
     output.remove(output.active)
     for prefix, pair in (("A", first), ("B", second)):
@@ -139,7 +139,7 @@ def combine_xlsx(first: tuple[str, bytes], second: tuple[str, bytes]) -> bytes:
 
 
 class Handler(BaseHTTPRequestHandler):
-    server_version = "KEX-Unified/2.0"
+    server_version = "KEX-Systems/2.0"
 
     def _json(self, payload: object, status: int = 200) -> None:
         body = json.dumps(payload, indent=2).encode("utf-8")
@@ -171,11 +171,12 @@ class Handler(BaseHTTPRequestHandler):
     def do_GET(self) -> None:
         parsed = urlparse(self.path)
         path = parsed.path
+        query = parse_qs(parsed.query)
         dataset_key = path.lstrip("/")
 
         if path == "/":
             append_proof("PROJECT_UI", "wbos.apex", "rendered")
-            return self._html("KEX K.0 Apex", "KEX Unified API and WBOS local apex projection.")
+            return self._html("KEX K.0 Apex", "KEX Systems API and WBOS local apex projection.")
         if path == "/hybrid-os":
             append_proof("PROJECT_UI", "wbos.hybrid", "rendered")
             return self._html("KEX Hybrid OS", "Hybrid OS local projection.")
@@ -189,7 +190,7 @@ class Handler(BaseHTTPRequestHandler):
             append_proof("ROUTE_LIST_READ", ROOT_URI, str(len(ROUTES)))
             return self._json({"routes": ROUTES})
         if path == "/api/resolve":
-            uri = parse_qs(parsed.query).get("uri", [ROOT_URI])[0]
+            uri = query.get("uri", [ROOT_URI])[0]
             result = resolve_kex(uri)
             append_proof("RESOLVE_KEX_URI", uri, "found" if result["found"] else "unresolved")
             return self._json({"uri": uri, "result": result})
@@ -202,8 +203,13 @@ class Handler(BaseHTTPRequestHandler):
         if path == "/api/proof-ledger":
             return self._json({"entries": read_proofs(100)})
         if dataset_key in DATASETS:
-            result = dataset_response(dataset_key)
-            append_proof("WORKBOOK_DATA_READ", dataset_key, result["state"])
+            result = dataset_response(
+                dataset_key,
+                timestamp_from=query.get("timestampFrom", [None])[0],
+                timestamp_to=query.get("timestampTo", [None])[0],
+                operation=query.get("operation", [None])[0],
+            )
+            append_proof("WORKBOOK_DATA_READ", dataset_key, f'{result["state"]}:{len(result["rows"])}')
             return self._json(result)
         if path == "/root-matrix/statistics":
             rows = dataset_response("root-matrix")["rows"]
@@ -219,14 +225,20 @@ class Handler(BaseHTTPRequestHandler):
                 dataset_response("servers")["rows"],
                 dataset_response("storage-devices")["rows"],
             ))
+        if path.startswith("/hyper-cores/"):
+            object_id = path.rsplit("/", 1)[-1]
+            row = find_by_id("hyper-cores", object_id)
+            return self._json(row if row else {"error": "not_found", "id": object_id}, 200 if row else 404)
+        if path.startswith("/servers/"):
+            object_id = path.rsplit("/", 1)[-1]
+            row = find_by_id("servers", object_id)
+            return self._json(row if row else {"error": "not_found", "id": object_id}, 200 if row else 404)
+        if path.startswith("/storage-devices/"):
+            object_id = path.rsplit("/", 1)[-1]
+            row = find_by_id("storage-devices", object_id)
+            return self._json(row if row else {"error": "not_found", "id": object_id}, 200 if row else 404)
         if path == "/virtualization-metrics":
             return self._json(virtualization_metrics())
-        if path.startswith("/hyper-cores/"):
-            return self._json({"state": "SOURCE_NOT_RESIDENT", "id": path.rsplit("/", 1)[-1]}, 404)
-        if path.startswith("/servers/"):
-            return self._json({"state": "SOURCE_NOT_RESIDENT", "id": path.rsplit("/", 1)[-1]}, 404)
-        if path.startswith("/storage-devices/"):
-            return self._json({"state": "SOURCE_NOT_RESIDENT", "id": path.rsplit("/", 1)[-1]}, 404)
         return self._json({"error": "not_found", "path": path}, 404)
 
     def do_POST(self) -> None:
