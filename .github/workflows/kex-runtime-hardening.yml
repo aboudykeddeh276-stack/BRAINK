@@ -7,6 +7,7 @@ on:
       - "deploy/tl2_deploy.py"
       - "scripts/kex-ci/test_runtime_hardening.py"
       - "scripts/kex-ci/verify_action_ledger.py"
+      - "scripts/kex-ci/exercise_capability_fabric.py"
       - "openapi/kex-unified-action-runtime.yaml"
       - "docs/KEX_SYSTEMS_ENGINEERING_PARADIGM_EXPLOITATION_R1.md"
       - "continuation/KEX_RUNTIME_HARDENING_CONTINUATION_R2.json"
@@ -18,6 +19,7 @@ on:
       - "deploy/tl2_deploy.py"
       - "scripts/kex-ci/test_runtime_hardening.py"
       - "scripts/kex-ci/verify_action_ledger.py"
+      - "scripts/kex-ci/exercise_capability_fabric.py"
       - "openapi/kex-unified-action-runtime.yaml"
       - "continuation/KEX_RUNTIME_HARDENING_CONTINUATION_R2.json"
       - ".github/workflows/kex-runtime-hardening.yml"
@@ -39,7 +41,7 @@ jobs:
         run: python -m pip install --disable-pip-version-check openpyxl==3.1.5 PyYAML==6.0.2
       - name: Compile Python surfaces
         run: |
-          python -m compileall -q modules/kex_wbos deploy/tl2_deploy.py scripts/kex-ci/test_runtime_hardening.py scripts/kex-ci/verify_action_ledger.py
+          python -m compileall -q modules/kex_wbos deploy/tl2_deploy.py scripts/kex-ci/test_runtime_hardening.py scripts/kex-ci/verify_action_ledger.py scripts/kex-ci/exercise_capability_fabric.py
       - name: Validate OpenAPI YAML syntax and version
         run: |
           python - <<'PY'
@@ -60,5 +62,7 @@ jobs:
           PY
       - name: Run hostile runtime hardening suite
         run: python scripts/kex-ci/test_runtime_hardening.py
+      - name: Exercise integrated capability fabric
+        run: python scripts/kex-ci/exercise_capability_fabric.py
       - name: Verify action ledger replay
         run: python scripts/kex-ci/verify_action_ledger.py
