@@ -1,0 +1,187 @@
+openapi: 3.1.0
+info:
+  title: KEX-WBOS Cascade OS
+  description: API for the KEX Workbook Operating System cascade layer. Provides status pages, service and route listings, URI resolution, mesh and cascade info, and proof ledger retrieval.
+  version: 1.0.0
+servers:
+  - url: http://127.0.0.1:8765
+    description: Local WBOS runtime. Public authority is not implied by this development server.
+paths:
+  /:
+    get:
+      operationId: getApex
+      summary: Show the KEX K.0 Apex HTML page
+      responses:
+        "200":
+          description: The K.0 Apex page rendered as HTML.
+          content:
+            text/html:
+              schema: {type: string}
+  /hybrid-os:
+    get:
+      operationId: getHybridOs
+      summary: Show the Hybrid OS HTML page
+      responses:
+        "200":
+          description: The Hybrid OS page rendered as HTML.
+          content:
+            text/html:
+              schema: {type: string}
+  /api/health:
+    get:
+      operationId: getHealth
+      summary: Get health status
+      responses:
+        "200":
+          description: Health status and proof entry.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [status, os, cascade_order, proof]
+                properties:
+                  status: {type: string}
+                  os: {type: string}
+                  cascade_order:
+                    type: array
+                    items: {type: string}
+                  proof: {$ref: '#/components/schemas/ProofEntry'}
+  /api/services:
+    get:
+      operationId: getServices
+      summary: List available services
+      responses:
+        "200":
+          description: A list of services.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [services]
+                properties:
+                  services:
+                    type: array
+                    items: {$ref: '#/components/schemas/Service'}
+  /api/routes:
+    get:
+      operationId: getRoutes
+      summary: List route mappings
+      responses:
+        "200":
+          description: A list of route entries.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [routes]
+                properties:
+                  routes:
+                    type: array
+                    items: {$ref: '#/components/schemas/Route'}
+  /api/resolve:
+    get:
+      operationId: resolveUri
+      summary: Resolve a KEX URI
+      parameters:
+        - name: uri
+          in: query
+          required: false
+          schema:
+            type: string
+            default: KEX://ROOT/OS
+      responses:
+        "200":
+          description: Resolution result for the provided URI.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [uri, result]
+                properties:
+                  uri: {type: string}
+                  result:
+                    type: object
+                    additionalProperties: true
+  /mesh:
+    get:
+      operationId: getMeshStatus
+      summary: Get BRAINK mesh status
+      responses:
+        "200":
+          description: Mesh status and node list.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/MeshStatus'}
+  /cascade:
+    get:
+      operationId: getCascadeInfo
+      summary: Get cascade order and children
+      responses:
+        "200":
+          description: Cascade order and children.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/CascadeInfo'}
+  /api/proof-ledger:
+    get:
+      operationId: getProofLedger
+      summary: Retrieve proof ledger entries
+      responses:
+        "200":
+          description: Proof ledger entries.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [entries]
+                properties:
+                  entries:
+                    type: array
+                    items: {$ref: '#/components/schemas/ProofEntry'}
+components:
+  schemas:
+    ProofEntry:
+      type: object
+      required: [ts, event, target, value, actor]
+      properties:
+        ts: {type: number}
+        event: {type: string}
+        target: {type: string}
+        value: {type: string}
+        actor: {type: string}
+    Service:
+      type: object
+      required: [service, route, port, role]
+      properties:
+        service: {type: string}
+        route: {type: string}
+        port: {type: integer}
+        role: {type: string}
+    Route:
+      type: object
+      required: [host, path, target, kex]
+      properties:
+        host: {type: string}
+        path: {type: string}
+        target: {type: string}
+        kex: {type: string}
+    MeshStatus:
+      type: object
+      required: [braink_mesh, nodes, state]
+      properties:
+        braink_mesh: {type: string}
+        nodes:
+          type: array
+          items: {type: string}
+        state: {type: string}
+    CascadeInfo:
+      type: object
+      required: [root, order, children]
+      properties:
+        root: {type: string}
+        order:
+          type: array
+          items: {type: string}
+        children:
+          type: array
+          items: {type: string}
