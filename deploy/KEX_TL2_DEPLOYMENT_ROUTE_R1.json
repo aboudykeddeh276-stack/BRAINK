@@ -1,0 +1,27 @@
+{
+  "schema": "kex.tl2.deployment-route.v1",
+  "authority": "A.KEDDEH / KEDDEH_SYSTEMS / BRAINK / CASEPATH",
+  "identity": "tlvpn://kex/tl2",
+  "promotion_target": "TL2_LIVE",
+  "publication_boundary": {
+    "allowed": ["TL2_LIVE"],
+    "forbidden_without_separate_receipts": ["PUBLIC_LIVE", "PUBLIC_DNS_VERIFIED", "PUBLIC_TLS_VERIFIED"]
+  },
+  "steps": [
+    "TL2_TUNNEL_BIND",
+    "RUNTIME_BIND",
+    "SERVICE_BIND",
+    "IN_TUNNEL_READBACK",
+    "PROOF_LEDGER_WRITE",
+    "TL2_PROMOTION"
+  ],
+  "services": [
+    {"id": "KEXAPI", "port": 8790, "health": "/api/health"},
+    {"id": "WBOS", "port": 8765, "health": "/api/health"},
+    {"id": "HybridOS", "port": 8790, "health": "/hybrid-os"},
+    {"id": "BrainK", "port": 8790, "health": "/api/services"},
+    {"id": "CasePathDispatch", "port": 8790, "health": "/api/routes"},
+    {"id": "ProofLedger", "port": 8790, "health": "/api/proof-ledger"},
+    {"id": "WorkbookSubstrate", "port": 8790, "health": "/core-lattice"}
+  ]
+}
