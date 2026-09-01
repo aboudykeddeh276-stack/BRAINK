@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import Any
 
 from openpyxl import load_workbook
+from capabilities import verify_capability
 from casepath_management import managed_dispatch
 from hardening import append_jsonl_fsync, atomic_write_text, contained_path
 from object_store import ContentAddressedStore
@@ -58,13 +59,18 @@ def _receipt(action_id: str, status: str, mutated: bool, target: str, *, before:
         "timestamp": _now(),
         "details": details or {},
     }
-    _, persisted = append_jsonl_fsync(
-        ACTION_LEDGER,
-        receipt,
-        row_field="proofLedgerRow",
-        hash_field="receiptHash",
-    )
+    _, persisted = append_jsonl_fsync(ACTION_LEDGER, receipt, row_field="proofLedgerRow", hash_field="receiptHash")
     return persisted
+
+
+def _capability_check(request: dict[str, Any], action_type: str, target: str) -> tuple[bool, dict[str, Any] | None]:
+    if os.getenv("KEX_REQUIRE_SCOPED_CAPABILITIES", "false").lower() != "true":
+        return True, None
+    secret = os.getenv("KEX_CAPABILITY_SECRET", "")
+    if not secret:
+        return False, {"error": "capability_secret_not_configured"}
+    ok, detail = verify_capability(secret, str(request.get("capability", "")), action=action_type, target=target)
+    return ok, detail
 
 
 def execute_action(request: dict[str, Any]) -> dict[str, Any]:
@@ -75,6 +81,11 @@ def execute_action(request: dict[str, Any]) -> dict[str, Any]:
         return _receipt(action_id, "FAIL", False, target, details={"error": "authority_required"})
     if not action_type or not target:
         return _receipt(action_id, "FAIL", False, target, details={"error": "actionType_and_target_required"})
+
+    capability_ok, capability_detail = _capability_check(request, action_type, target)
+    if not capability_ok:
+        return _receipt(action_id, "BLOCKED", False, target, details={"error": "capability_denied", "capability": capability_detail})
+
     if action_type in EXTERNAL_ACTIONS:
         adapter = request.get("controlRoute") or os.getenv(f"KEX_{EXTERNAL_ACTIONS[action_type]}")
         if not adapter:
@@ -93,7 +104,7 @@ def execute_action(request: dict[str, Any]) -> dict[str, Any]:
         })
     if action_type == "PROOF_LEDGER_WRITE":
         return write_proof({"authority": request["authority"], "eventType": request.get("payload", {}).get("eventType", action_type), "payload": request.get("payload", {}), "targetLedger": target})
-    return _receipt(action_id, "ARMED", False, target, details={"actionType": action_type, "controlRoute": request.get("controlRoute"), "claimBoundary": "Action class is resident but no local executor was selected for this request."})
+    return _receipt(action_id, "ARMED", False, target, details={"actionType": action_type, "controlRoute": request.get("controlRoute"), "capability": capability_detail, "claimBoundary": "Action class is resident but no local executor was selected for this request."})
 
 
 def ingest_source(request: dict[str, Any]) -> dict[str, Any]:
@@ -137,15 +148,7 @@ def ingest_source(request: dict[str, Any]) -> dict[str, Any]:
 
 def dispatch_casepath(request: dict[str, Any]) -> dict[str, Any]:
     action_id = f"DSP-{uuid.uuid4().hex[:12]}"
-    return managed_dispatch(
-        base=BASE,
-        dispatch_root=DISPATCH_ROOT,
-        request=request,
-        receipt=_receipt,
-        now=_now,
-        sha=_sha,
-        action_id=action_id,
-    )
+    return managed_dispatch(base=BASE, dispatch_root=DISPATCH_ROOT, request=request, receipt=_receipt, now=_now, sha=_sha, action_id=action_id)
 
 
 def write_proof(request: dict[str, Any]) -> dict[str, Any]:
@@ -174,7 +177,6 @@ def readback_runtime(request: dict[str, Any]) -> dict[str, Any]:
                 return {"status": "VERIFIED" if matched else "FAIL", "target": target, "matched": matched, "observedState": f"HTTP_{response.status}", "proofHash": _sha(body)}
         except Exception as exc:
             return {"status": "FAIL", "target": target, "matched": False, "observedState": type(exc).__name__, "proofHash": None}
-
     candidate = Path(target)
     if not candidate.is_absolute():
         candidate = BASE / candidate
@@ -196,9 +198,7 @@ def launch_runtime(request: dict[str, Any]) -> dict[str, Any]:
     route = str(request.get("commandRoute", ""))
     if not runtime_id or not route:
         return _receipt(action_id, "FAIL", False, runtime_id, details={"error": "runtimeId_and_commandRoute_required"})
-    allowed = {
-        "kex-wbos-self-test": [os.sys.executable, str(BASE / "scripts" / "kex-ci" / "test_wbos_api.py")],
-    }
+    allowed = {"kex-wbos-self-test": [os.sys.executable, str(BASE / "scripts" / "kex-ci" / "test_wbos_api.py")]}
     command = allowed.get(route)
     if not command:
         return _receipt(action_id, "BLOCKED", False, runtime_id, details={"error": "commandRoute_not_bound", "allowedRoutes": sorted(allowed)})
