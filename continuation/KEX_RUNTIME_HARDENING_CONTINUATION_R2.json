@@ -1,0 +1,110 @@
+{
+  "record_id": "KEX_RUNTIME_HARDENING_CONTINUATION_R2",
+  "authority": "A.KEDDEH / KEDDEH_SYSTEMS / BRAINK / CASEPATH",
+  "branch": "kex-runtime-hardening-r3",
+  "pull_request": 58,
+  "continuation_rule": "Resume from this record and attack the latest observed state. Do not restart from the original baseline and do not promote claims beyond receipts.",
+  "current_cycle": 2,
+  "cycle_objective": "Repeat the systems-engineering research-to-implementation attack using findings from cycle 1 as the new baseline.",
+  "implemented_in_cycle_2": [
+    "action receipt ledger versioned to action-ledger-v2.jsonl while legacy v1 evidence remains untouched",
+    "receipt chain uses parentReceiptHash -> receiptHash and verifier checks row/order/hash ancestry",
+    "generic action dispatcher supports persistent idempotency reservation, replay, conflict rejection and ambiguous INFLIGHT blocking",
+    "OpenAPI advanced to 5.2.0 with chained receipt and idempotency semantics",
+    "workbook semantic analysis now computes strongly connected components and formula dependency cycles",
+    "TL2 service supervisor now persists generation/restart/exit history instead of only overwriting current state",
+    "hardening CI updated to validate the 5.2 contract"
+  ],
+  "prior_cycle_mechanics_preserved": [
+    "constant-time bearer authentication",
+    "non-loopback authentication requirement",
+    "scoped signed action capabilities",
+    "filesystem containment",
+    "atomic/fsync writes",
+    "SSRF/readback destination policy",
+    "content-addressed source object identity",
+    "atomic workbook append",
+    "bounded BrainK migration source policy",
+    "managed Casepath dispatch",
+    "TL2 scope separation from PUBLIC_LIVE",
+    "bounded supervisor restart intensity"
+  ],
+  "research_paradigms_applied": [
+    {
+      "paradigm": "event sourcing / append-only replay",
+      "transferred_mechanic": "ordered durable receipts, deterministic replay verification, parent hash chain",
+      "invalid_promotion": "does not prove distributed consensus or prevent undetectable tail truncation without an externally retained head"
+    },
+    {
+      "paradigm": "content-addressed storage",
+      "transferred_mechanic": "sha256 content identity independent of carrier path",
+      "invalid_promotion": "does not imply physical storage replacement"
+    },
+    {
+      "paradigm": "capability security",
+      "transferred_mechanic": "signed action/target-scoped authority",
+      "invalid_promotion": "not a full object-capability operating system"
+    },
+    {
+      "paradigm": "OTP supervision",
+      "transferred_mechanic": "worker/supervisor separation, generation lineage, bounded restart intensity and escalation",
+      "invalid_promotion": "not Erlang/OTP and not a distributed supervisor tree"
+    },
+    {
+      "paradigm": "spreadsheet programming and dependency analysis",
+      "transferred_mechanic": "formula dependency graph, semantic sidecar, SCC/cycle detection",
+      "invalid_promotion": "static analysis does not execute Excel formulas, macros, volatile functions or external links"
+    },
+    {
+      "paradigm": "idempotent command processing",
+      "transferred_mechanic": "durable INFLIGHT reservation, same-request replay, conflicting-key rejection, ambiguous-outcome stop",
+      "invalid_promotion": "not distributed exactly-once execution; external actuator atomicity would require participant transaction/outbox semantics"
+    }
+  ],
+  "observed_external_blockers": [
+    {
+      "object": "GitHub hosted validation",
+      "state": "EXECUTOR_NOT_ASSIGNED",
+      "evidence": "latest observed hardening and Casepath jobs ended with runner_id=0 and zero steps",
+      "classification": "CI executor/account scheduling boundary, not a code test failure"
+    },
+    {
+      "object": "TL2 deployment",
+      "state": "WAITING_FOR_MATCHING_SELF_HOSTED_RUNNER",
+      "required_labels": ["self-hosted", "kex", "tl2"],
+      "classification": "deployment executor binding boundary"
+    }
+  ],
+  "next_attack_queue": [
+    "run hardening suite when an executor becomes available and classify exact test failures",
+    "test supervisor restart generation/history under forced child failure",
+    "add retained ledger-head/root export so tail truncation can be detected against an external checkpoint",
+    "consider transactional outbox/participant reconciliation for external actuator commands; do not claim exactly-once before this exists",
+    "extend workbook semantic graph to named ranges/table references and distinguish range dependencies from exact-cell dependencies",
+    "re-run PR diff audit after all cycle-2 mutations",
+    "merge PR #58 only when mergeability and available validation evidence are reconciled",
+    "after merge, re-attempt TL2 deployment without attaching public DNS/TLS/Drive/Bitcoin/full migration blockers"
+  ],
+  "restart_protocol": [
+    "read this continuation record",
+    "read PR #58 head and workflow state",
+    "compare branch against main",
+    "take the first unresolved item with actionable evidence",
+    "mutate code/tests/docs",
+    "write/read back the resulting state",
+    "update this record",
+    "repeat until no actionable defect remains under current oracles"
+  ],
+  "promotion_boundaries": {
+    "TL2_LIVE": "requires actual tunnel runner, runtime bind and inside-tunnel readback",
+    "PUBLIC_LIVE": "not implied by TL2_LIVE",
+    "DISTRIBUTED_CONSENSUS": "not claimed",
+    "EXACTLY_ONCE": "not claimed",
+    "FULL_OBJECT_CAPABILITY_OS": "not claimed",
+    "WORKBOOK_EXECUTION": "formula graph analysis does not prove formula/macro execution"
+  },
+  "continuity": {
+    "repository_record": "continuation/KEX_RUNTIME_HARDENING_CONTINUATION_R2.json",
+    "scheduled_monitor": "hourly condition watch configured to resume when GitHub/PR/TL2 state becomes actionable"
+  }
+}
