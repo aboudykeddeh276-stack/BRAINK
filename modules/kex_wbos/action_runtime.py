@@ -15,6 +15,7 @@ from openpyxl import load_workbook
 from capabilities import verify_capability
 from casepath_management import managed_dispatch
 from hardening import append_jsonl_fsync, atomic_write_text, contained_path
+from network_policy import readback_url_allowed
 from object_store import ContentAddressedStore
 
 BASE = Path(__file__).resolve().parents[2]
@@ -175,6 +176,9 @@ def readback_runtime(request: dict[str, Any]) -> dict[str, Any]:
     target = str(request.get("target", ""))
     expected_text = request.get("expectedText")
     if target.startswith("http://") or target.startswith("https://"):
+        allowed, policy = readback_url_allowed(target)
+        if not allowed:
+            return {"status": "FAIL", "target": target, "matched": False, "observedState": "READBACK_DESTINATION_BLOCKED", "proofHash": None, "policy": policy}
         try:
             req = urllib.request.Request(target)
             token = os.getenv("KEX_BEARER_TOKEN")
@@ -184,9 +188,9 @@ def readback_runtime(request: dict[str, Any]) -> dict[str, Any]:
                 body = response.read()
                 text = body.decode("utf-8", errors="replace")
                 matched = response.status < 400 and (expected_text is None or expected_text in text)
-                return {"status": "VERIFIED" if matched else "FAIL", "target": target, "matched": matched, "observedState": f"HTTP_{response.status}", "proofHash": _sha(body)}
+                return {"status": "VERIFIED" if matched else "FAIL", "target": target, "matched": matched, "observedState": f"HTTP_{response.status}", "proofHash": _sha(body), "policy": policy}
         except Exception as exc:
-            return {"status": "FAIL", "target": target, "matched": False, "observedState": type(exc).__name__, "proofHash": None}
+            return {"status": "FAIL", "target": target, "matched": False, "observedState": type(exc).__name__, "proofHash": None, "policy": policy}
     candidate = Path(target)
     if not candidate.is_absolute():
         candidate = BASE / candidate
