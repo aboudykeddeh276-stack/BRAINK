@@ -1,0 +1,146 @@
+{
+  "schema": "casepath.dynamic-management-process-ledger.v1",
+  "authority_chain": [
+    "A. KEDDEH",
+    "KEDDEH SYSTEMS UMBRELLA",
+    "BRAINK OPERATING ORGANISM",
+    "CASEPATH DOMAIN / SERVICE SURFACE"
+  ],
+  "governing_model": [
+    "authority",
+    "governance",
+    "administration",
+    "runtime management",
+    "service delivery",
+    "evolution",
+    "evidence",
+    "sector output",
+    "achievement ledger"
+  ],
+  "rejected_model": [
+    "HTML page",
+    "injected script",
+    "pretend runtime"
+  ],
+  "operating_register_schema": [
+    "PROCESS ID",
+    "PROCESS NAME",
+    "AUTHORITY",
+    "UMBRELLA",
+    "OWNER TEAM",
+    "ADMIN SCOPE",
+    "MANAGEMENT SCOPE",
+    "RUNTIME SCOPE",
+    "SERVICE DELIVERY SCOPE",
+    "EVOLUTION SCOPE",
+    "SECTOR / SCIENCE SCOPE",
+    "INPUTS",
+    "ACTIONS",
+    "OUTPUTS",
+    "DEPENDENCIES",
+    "EVIDENCE",
+    "READBACK",
+    "FAILURE MODES",
+    "RECOVERY",
+    "PROMOTION CRITERION"
+  ],
+  "process_classes": [
+    {
+      "id": "CASEPATH-AUTHORITY-001",
+      "name": "Authority and ownership",
+      "owner": "KEDDEH_AUTHORITY_ADMINISTRATION_TEAM",
+      "scope": ["brand authority","domain authority","system naming","service legitimacy","umbrella inheritance","rights to create, modify, operate, evolve, and publish"],
+      "outputs": ["authority register","domain ownership map","umbrella inheritance map","active service register","naming ledger"],
+      "failure_mode": "process exists without named authority"
+    },
+    {
+      "id": "CASEPATH-ADMIN-001",
+      "name": "Administration",
+      "owner": "KEDDEH_SYSTEMS_ADMIN_TEAM",
+      "scope": ["responsibility mapping","system inventory","service state","agent assignment","ledger authority","evolution permission","proof requirements"],
+      "outputs": ["admin register","agent responsibility matrix","service ownership matrix","operational policy ledger","promotion rules"],
+      "failure_mode": "work occurs without owner, role, or promotion rule"
+    },
+    {
+      "id": "CASEPATH-MANAGEMENT-001",
+      "name": "Management",
+      "owner": "BRAINK_MANAGEMENT_ORCHESTRATION_TEAM",
+      "scope": ["route management","service management","content intent management","customer interaction management","internal process management","evidence management","agent/team management","delivery management","escalation management"],
+      "outputs": ["management ledger","function ledger","process register","escalation register","active obligation register"],
+      "failure_mode": "function exists as isolated page, file, note, or idea"
+    },
+    {
+      "id": "CASEPATH-RUNTIME-001",
+      "name": "Runtime operation",
+      "owner": "BRAINK_RUNTIME_OPERATIONS_TEAM",
+      "scope": ["active routes","service calls","user-facing flows","internal service actions","state changes","publishing events","form handling","content changes","monitoring","error handling","continuation"],
+      "outputs": ["runtime process map","event ledger","service call ledger","state transition ledger","runtime health ledger"],
+      "validity_requirements": ["trigger","execution owner","state effect","writeback or record","readback","proof","iteration route"],
+      "failure_mode": "visible function has no traced runtime responsibility"
+    },
+    {
+      "id": "CASEPATH-SURFACE-001",
+      "name": "Website as service surface",
+      "owner": "CASEPATH_SERVICE_SURFACE_TEAM",
+      "scope": ["page structure","content hierarchy","service descriptions","calls to action","forms","navigation","trust markers","sector language","user journey","conversion logic","accessibility","published claims"],
+      "outputs": ["page responsibility map","content intent ledger","service description ledger","claim/evidence matrix","user journey map"],
+      "failure_mode": "published element has no accountable purpose"
+    },
+    {
+      "id": "CASEPATH-DELIVERY-001",
+      "name": "Service delivery",
+      "owner": "BRAINK_SERVICE_DELIVERY_TEAM",
+      "scope": ["intake","classification","routing","response","fulfilment","escalation","outcome tracking","quality control","feedback","improvement"],
+      "outputs": ["service catalogue","intake process","fulfilment process","delivery proof","client outcome ledger","quality review ledger"],
+      "failure_mode": "website promises service without delivery trace"
+    },
+    {
+      "id": "CASEPATH-EVOLUTION-001",
+      "name": "Evolution",
+      "owner": "BRAINK_EVOLUTION_TEAM",
+      "scope": ["requirement discovery","defect discovery","sector research","user feedback","performance review","wording improvement","function improvement","architecture improvement","service expansion","agent reassignment"],
+      "outputs": ["change request ledger","improvement queue","evolution decision record","before/after proof","rollback/recovery route","promotion rule"],
+      "failure_mode": "system changes without accountable reason, evidence, owner, or effect"
+    },
+    {
+      "id": "CASEPATH-SECTOR-001",
+      "name": "Science and sector achievement",
+      "owner": "KEDDEH_RESEARCH_AND_SECTOR_ADVANCEMENT_TEAM",
+      "scope": ["research claims","technical discoveries","sector positioning","methodology","experiments","benchmarks","proof packages","publications","demonstrations","invention records","achievement ledger"],
+      "outputs": ["research ledger","claim matrix","experiment register","benchmark record","sector impact register","achievement dossier"],
+      "failure_mode": "major claim has no method, benchmark, or readback"
+    },
+    {
+      "id": "CASEPATH-PROOF-001",
+      "name": "Proof and readback",
+      "owner": "BRAINK_PROOF_READBACK_TEAM",
+      "scope": ["action proof","publication proof","deployment proof","service proof","runtime proof","user journey proof","external observation","unresolved obligation tracking"],
+      "outputs": ["proof ledger","readback ledger","unresolved predecessor ledger","promotion evidence","rejection evidence","iteration route"],
+      "failure_mode": "completion inferred from writing, publication, or local testing alone"
+    }
+  ],
+  "processes": [
+    {
+      "process_id": "CASEPATH-PROC-001",
+      "process_name": "Casepath Public Service Surface Governance",
+      "authority": "A. KEDDEH",
+      "umbrella": "Keddeh Systems / BrainK / Casepath",
+      "owner_team": "CASEPATH_SERVICE_SURFACE_TEAM",
+      "admin_scope": "Maintain authoritative responsibility for public website structure, claims, wording, routes, service descriptions, and published identity.",
+      "management_scope": "Ensure each page section connects to a real service, owner, update path, and proof source.",
+      "runtime_scope": "Track how users enter, navigate, read, submit, contact, or trigger Casepath service processes.",
+      "service_delivery_scope": "Map public descriptions to actual intake, response, fulfilment, and outcome processes.",
+      "evolution_scope": "Review wording, function, conversion, trust, evidence, accessibility, and sector positioning through controlled change.",
+      "sector_science_scope": "Ensure innovation, research, methodology, or achievement claims are backed by evidence, experiment, benchmark, or formal position.",
+      "inputs": ["domain","pages","content","service catalogue","claims","forms","user paths","internal service processes","evidence sources"],
+      "actions": ["classify each public element","assign owner","bind to service function","bind to evidence","bind to maintenance rule","bind to improvement route"],
+      "outputs": ["service surface ledger","content responsibility map","claim evidence matrix","user journey process map","evolution queue"],
+      "dependencies": ["current Casepath content/source","current service catalogue","current claims","current operating model"],
+      "evidence": ["page inventory","wording inventory","service mapping","claim/evidence matrix","change history"],
+      "readback": ["public page can be reviewed against ledger","each claim resolves to support","each service description resolves to delivery process","each user action resolves to handling process"],
+      "failure_modes": ["claim without evidence","service without delivery path","page without owner","wording without intent","action without handler","achievement without benchmark","update without review"],
+      "recovery": "Create missing owner, service path, evidence record, or evolution task.",
+      "promotion_criterion": "Public surface is administratively owned, service-linked, evidence-linked, and evolution-managed."
+    }
+  ]
+}
