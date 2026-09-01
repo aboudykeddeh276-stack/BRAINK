@@ -4,13 +4,11 @@ from __future__ import annotations
 import json
 import os
 from http.server import ThreadingHTTPServer
-from pathlib import Path
 from urllib.parse import urlparse
 
 import server as data_server
 from action_extensions import append_workbook_rows, commit_braink_migration
 from action_runtime import (
-    BASE,
     dispatch_casepath,
     execute_action,
     ingest_source,
@@ -20,10 +18,8 @@ from action_runtime import (
     write_proof,
 )
 from hardening import constant_time_bearer_matches, require_secure_bind
-from idempotency import IdempotencyRegistry
 
 PORT = 8790
-IDEMPOTENCY = IdempotencyRegistry(BASE / "runtime" / "idempotency" / "actions.json")
 
 ACTION_TYPE_BY_PATH = {
     "/deployment/dns/apply": "PUBLIC_DNS",
@@ -36,13 +32,11 @@ ACTION_TYPE_BY_PATH = {
 
 
 class ActionHandler(data_server.Handler):
-    server_version = "KEX-Unified-Action/5.1"
+    server_version = "KEX-Unified-Action/5.3"
 
     def _authorized(self) -> bool:
         token = os.getenv("KEX_BEARER_TOKEN")
         if not token:
-            # Tokenless operation is permitted only when the server itself is
-            # bound to loopback. serve() rejects tokenless non-loopback binds.
             return True
         return constant_time_bearer_matches(self.headers.get("Authorization", ""), token)
 
@@ -64,39 +58,6 @@ class ActionHandler(data_server.Handler):
             return True
         self._json({"error": "unauthorized"}, 401)
         return False
-
-    def _execute_idempotent(self, payload: dict) -> tuple[int, dict]:
-        key = str(payload.get("idempotencyKey") or self.headers.get("Idempotency-Key", ""))
-        if not key:
-            # Compatibility mode: callers that need retry safety must supply a key.
-            return 200, execute_action(payload)
-
-        state = IDEMPOTENCY.begin(key, payload)
-        if state["state"] == "REPLAY":
-            receipt = state.get("receipt")
-            if not isinstance(receipt, dict):
-                return 500, {"error": "idempotency_receipt_missing", "idempotencyKey": key}
-            return 200, receipt
-        if state["state"] == "CONFLICT":
-            return 409, {
-                "error": "idempotency_key_payload_conflict",
-                "idempotencyKey": key,
-                "requestHash": state.get("requestHash"),
-                "existingRequestHash": state.get("existingRequestHash"),
-            }
-        if state["state"] == "INFLIGHT":
-            return 409, {
-                "error": "idempotency_command_inflight",
-                "idempotencyKey": key,
-                "requestHash": state.get("requestHash"),
-                "claimBoundary": "The prior command has no completed receipt. Retry is blocked to avoid duplicate mutation until the interrupted command is reconciled.",
-            }
-        if state["state"] != "NEW":
-            return 400, {"error": "invalid_idempotency_key", "idempotencyKey": key}
-
-        receipt = execute_action(payload)
-        IDEMPOTENCY.complete(key, state["requestHash"], receipt)
-        return 200, receipt
 
     def do_GET(self) -> None:
         if not self._require_auth():
@@ -121,8 +82,9 @@ class ActionHandler(data_server.Handler):
         payload = self._read_json()
 
         if path == "/actions/execute":
-            status, result = self._execute_idempotent(payload)
-            return self._json(result, status)
+            # execute_action is the single owner of command idempotency. Keeping a
+            # second registry here creates split-brain retry state after crashes.
+            return self._json(execute_action(payload))
 
         if len(parts) == 5 and parts[0] == "workbooks" and parts[2] == "tables" and parts[4] == "append":
             return self._json(append_workbook_rows(parts[1], parts[3], payload))
@@ -145,7 +107,11 @@ class ActionHandler(data_server.Handler):
         if path == "/deployment/public/readback":
             results = []
             for target in payload.get("targets", []):
-                result = readback_runtime({"target": target.get("url", ""), "expectedText": target.get("expectedText")})
+                result = readback_runtime({
+                    "target": target.get("url", ""),
+                    "expectedText": target.get("expectedText"),
+                    "sendRuntimeAuth": False,
+                })
                 result["expectedStatus"] = target.get("expectedStatus", 200)
                 result["requireTls"] = target.get("requireTls", True)
                 results.append(result)
@@ -158,13 +124,15 @@ class ActionHandler(data_server.Handler):
                 "actionType": "BITCOIN_IBD_GUARD",
                 "target": payload.get("rpcRoute", "bitcoin-rpc"),
                 "controlRoute": payload.get("rpcRoute"),
+                "capability": payload.get("capability"),
+                "idempotencyKey": payload.get("idempotencyKey"),
                 "payload": payload,
             }
             receipt = execute_action(request)
             status = receipt["status"]
             return self._json({
                 "status": status,
-                "initialBlockDownload": True if status != "VERIFIED" else False,
+                "initialBlockDownload": status != "VERIFIED",
                 "peers": 0,
                 "blockHeight": 0,
                 "canMine": False,
@@ -182,6 +150,8 @@ class ActionHandler(data_server.Handler):
                 "actionType": ACTION_TYPE_BY_PATH[path],
                 "target": payload.get("targetDomain") or payload.get("publicIp") or payload.get("targetPath") or payload.get("rpcRoute") or path,
                 "controlRoute": payload.get("providerRoute") or payload.get("acmeRoute") or payload.get("routerRoute") or payload.get("deploymentRoute") or payload.get("rpcRoute"),
+                "capability": payload.get("capability"),
+                "idempotencyKey": payload.get("idempotencyKey"),
                 "payload": payload,
             }
             return self._json(execute_action(action_request))
