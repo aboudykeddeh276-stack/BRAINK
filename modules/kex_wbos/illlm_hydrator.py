@@ -9,6 +9,7 @@ from illlm_recursive_runtime import ILLLMNode, RecursiveILLLMRuntime, TraversalE
 
 BASE = Path(__file__).resolve().parents[2]
 CARRIER_PATH = BASE / "runtime" / "ILLLM_CROSS_REPOSITORY_CARRIERS_R1.json"
+SECTOR_ROOTS_PATH = BASE / "runtime" / "ILLLM_SECTOR_INVOCATION_ROOTS_R1.json"
 
 
 def _safe_identity(raw: str) -> str:
@@ -47,7 +48,6 @@ def hydrate_recursive_runtime(topology: dict[str, Any]) -> RecursiveILLLMRuntime
         parent = _safe_identity(str(record.get("parent") or "il-llm://braink"))
         pending.append((identity, parent, record))
 
-    # Resolve parents before children without assuming the input is topologically sorted.
     remaining = pending
     while remaining:
         next_round = []
@@ -74,7 +74,6 @@ def hydrate_recursive_runtime(topology: dict[str, Any]) -> RecursiveILLLMRuntime
             ))
             progressed = True
         if not progressed:
-            # Preserve unresolved lineage without inventing ancestry.
             for identity, parent, record in next_round:
                 _ensure_container(runtime, parent)
             remaining = next_round
@@ -87,14 +86,47 @@ def hydrate_recursive_runtime(topology: dict[str, Any]) -> RecursiveILLLMRuntime
         if source not in runtime.nodes or target not in runtime.nodes:
             continue
         relation = str(edge.get("relation") or "RELATED")
-        # CONTAINS is already represented by parent/children; keep traversal edges
-        # for re-entry/continuation and other semantic relations.
         if relation == "CONTAINS":
             continue
         runtime.add_edge(TraversalEdge(source, target, relation, cost=0.25 if relation == "REENTERS" else 1.0))
 
+    ingest_sector_invocation_roots(runtime)
     ingest_cross_repository_carriers(runtime)
     return runtime
+
+
+def ingest_sector_invocation_roots(runtime: RecursiveILLLMRuntime) -> None:
+    if not SECTOR_ROOTS_PATH.exists():
+        return
+    payload = json.loads(SECTOR_ROOTS_PATH.read_text(encoding="utf-8"))
+    parent = "il-llm://braink"
+    _ensure_container(runtime, parent, "BRAINK_ROOT")
+    for record in payload.get("roots", []):
+        identity = _safe_identity(str(record.get("identity", "")))
+        if not identity:
+            continue
+        terms = [identity, str(record.get("role", "SECTOR")), str(record.get("meaning", "")), *record.get("relations", [])]
+        node = ILLLMNode(
+            identity=identity,
+            role=str(record.get("role") or "SECTOR"),
+            parent=parent,
+            semantic_terms=_tokens(terms),
+            mathematical_state={"sectorInvocation": True, "relationCount": len(record.get("relations", []))},
+            proof_refs=("runtime/ILLLM_SECTOR_INVOCATION_ROOTS_R1.json",),
+            observed_state="REGISTERED",
+            metadata={"meaning": record.get("meaning"), "relations": record.get("relations", [])},
+        )
+        if identity in runtime.nodes:
+            runtime.register_node(node)
+        else:
+            runtime.register_node(node)
+    for triple in payload.get("cross_relations", []):
+        if not isinstance(triple, list) or len(triple) != 3:
+            continue
+        source, relation, target = map(str, triple)
+        source = _safe_identity(source); target = _safe_identity(target)
+        if source in runtime.nodes and target in runtime.nodes:
+            runtime.add_edge(TraversalEdge(source, target, relation, cost=0.5))
 
 
 def ingest_cross_repository_carriers(runtime: RecursiveILLLMRuntime) -> None:
