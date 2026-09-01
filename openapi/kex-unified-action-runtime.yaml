@@ -1,0 +1,355 @@
+openapi: 3.1.0
+info:
+  title: KEX Unified Action Runtime API
+  version: 5.0.0
+  description: >
+    Mutation-oriented KEX/BRAINK/Casepath control surface. A route is not evidence
+    of mutation by itself: action receipts carry status, mutation state, hashes,
+    readback state, and blocker details. External actions remain BLOCKED until a
+    corresponding actuator is bound.
+servers:
+  - url: http://127.0.0.1:8790
+    description: Local resident action runtime. Public deployment requires separate evidence.
+security:
+  - KexBearer: []
+paths:
+  /actions/execute:
+    post:
+      operationId: executeAction
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ActionExecutionRequest'}
+      responses:
+        '200': {$ref: '#/components/responses/MutationReceipt'}
+  /workbooks/{workbookId}/tables/{tableId}:
+    get:
+      operationId: getWorkbookTable
+      parameters:
+        - {$ref: '#/components/parameters/WorkbookId'}
+        - {$ref: '#/components/parameters/TableId'}
+      responses:
+        '200':
+          description: Workbook table rows
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/TableReadResponse'}
+        '404': {description: Workbook or table not found}
+  /workbooks/{workbookId}/tables/{tableId}/append:
+    post:
+      operationId: appendWorkbookRows
+      parameters:
+        - {$ref: '#/components/parameters/WorkbookId'}
+        - {$ref: '#/components/parameters/TableId'}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/TableAppendRequest'}
+      responses:
+        '200': {$ref: '#/components/responses/MutationReceipt'}
+  /notebooklm/sources/ingest:
+    post:
+      operationId: ingestNotebookSources
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/SourceIngestRequest'}
+      responses:
+        '200': {$ref: '#/components/responses/MutationReceipt'}
+  /braink/migration/commit:
+    post:
+      operationId: commitBrainkMigration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/BrainkMigrationCommitRequest'}
+      responses:
+        '200': {$ref: '#/components/responses/MutationReceipt'}
+  /casepath/dispatch:
+    post:
+      operationId: dispatchCasepathPacket
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/CasepathDispatchRequest'}
+      responses:
+        '200': {$ref: '#/components/responses/MutationReceipt'}
+  /runtime/launch:
+    post:
+      operationId: launchRuntime
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/RuntimeLaunchRequest'}
+      responses:
+        '200': {$ref: '#/components/responses/MutationReceipt'}
+  /runtime/readback:
+    post:
+      operationId: readbackRuntime
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ReadbackRequest'}
+      responses:
+        '200':
+          description: Runtime readback receipt
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ReadbackReceipt'}
+  /deployment/dns/apply:
+    post:
+      operationId: applyPublicDns
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/DnsApplyRequest'}
+      responses:
+        '200': {$ref: '#/components/responses/MutationReceipt'}
+  /deployment/tls/issue:
+    post:
+      operationId: issuePublicTls
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ExternalActionRequest'}
+      responses:
+        '200': {$ref: '#/components/responses/MutationReceipt'}
+  /deployment/router/apply:
+    post:
+      operationId: applyRouterFirewall
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ExternalActionRequest'}
+      responses:
+        '200': {$ref: '#/components/responses/MutationReceipt'}
+  /deployment/public/publish:
+    post:
+      operationId: publishPublicDeployment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ExternalActionRequest'}
+      responses:
+        '200': {$ref: '#/components/responses/MutationReceipt'}
+  /deployment/public/readback:
+    post:
+      operationId: readbackPublicDeployment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/PublicReadbackRequest'}
+      responses:
+        '200':
+          description: Outside-in readback results
+          content:
+            application/json:
+              schema: {type: object, additionalProperties: true}
+  /bitcoin/guard:
+    post:
+      operationId: guardBitcoinIbd
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ExternalActionRequest'}
+      responses:
+        '200':
+          description: Bitcoin readiness receipt
+          content:
+            application/json:
+              schema: {type: object, additionalProperties: true}
+  /bitcoin/submit:
+    post:
+      operationId: submitBitcoinBlock
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ExternalActionRequest'}
+      responses:
+        '200': {$ref: '#/components/responses/MutationReceipt'}
+  /drive/writeback:
+    post:
+      operationId: writebackDrive
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ExternalActionRequest'}
+      responses:
+        '200': {$ref: '#/components/responses/MutationReceipt'}
+  /proof/ledger/write:
+    post:
+      operationId: writeProofLedger
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ProofLedgerWriteRequest'}
+      responses:
+        '200': {$ref: '#/components/responses/MutationReceipt'}
+components:
+  securitySchemes:
+    KexBearer:
+      type: http
+      scheme: bearer
+      bearerFormat: KEX
+  parameters:
+    WorkbookId:
+      name: workbookId
+      in: path
+      required: true
+      schema: {type: string}
+    TableId:
+      name: tableId
+      in: path
+      required: true
+      schema: {type: string}
+  responses:
+    MutationReceipt:
+      description: Mutation/action receipt
+      content:
+        application/json:
+          schema: {$ref: '#/components/schemas/MutationReceipt'}
+  schemas:
+    ActionStatus:
+      type: string
+      enum: [PASS, FAIL, PARTIAL, BLOCKED, ARMED, PENDING, LIVE, MUTATED, VERIFIED]
+    MutationReceipt:
+      type: object
+      required: [status, actionId, mutated]
+      properties:
+        status: {$ref: '#/components/schemas/ActionStatus'}
+        actionId: {type: string}
+        mutated: {type: boolean}
+        target: {type: [string, 'null']}
+        receiptId: {type: string}
+        beforeHash: {type: [string, 'null']}
+        afterHash: {type: [string, 'null']}
+        proofLedgerRow: {type: [integer, 'null']}
+        externalReadback: {type: boolean}
+        timestamp: {type: string, format: date-time}
+        details: {type: object, additionalProperties: true}
+    ActionExecutionRequest:
+      type: object
+      additionalProperties: false
+      required: [authority, actionType, target]
+      properties:
+        authority: {type: string}
+        actionType:
+          type: string
+          enum: [PUBLIC_DNS, PUBLIC_TLS, ROUTER_FIREWALL, BITCOIN_IBD_GUARD, BITCOIN_LIVE_SUBMISSION, BRAINK_MIGRATION_COMMIT, LIVE_PUBLIC_DEPLOYMENT, EXTERNAL_READBACK, RUNTIME_LAUNCH, DRIVE_WRITEBACK, PROOF_LEDGER_WRITE, CASEPATH_DISPATCH, SOURCE_INGEST, WORKBOOK_APPEND]
+        target: {type: string}
+        controlRoute: {type: string}
+        payload: {type: object, additionalProperties: true}
+        requireReceipt: {type: boolean, default: true}
+        forbidReportOnly: {type: boolean, default: true}
+    TableReadResponse:
+      type: object
+      required: [workbookId, tableId, rows]
+      properties:
+        workbookId: {type: string}
+        tableId: {type: string}
+        rowCount: {type: integer}
+        rows: {type: array, items: {type: object, additionalProperties: true}}
+    TableAppendRequest:
+      type: object
+      required: [authority, rows]
+      properties:
+        authority: {type: string}
+        rows: {type: array, items: {type: object, additionalProperties: true}}
+        proofLedgerWrite: {type: boolean, default: true}
+    SourceIngestRequest:
+      type: object
+      required: [authority, sourceText, target]
+      properties:
+        authority: {type: string}
+        sourceText: {type: string}
+        sourceFormat: {type: string, enum: [text, markdown, json, html], default: markdown}
+        notebookUrl: {type: string}
+        target: {type: string}
+    BrainkMigrationCommitRequest:
+      type: object
+      required: [authority, sourcePath, targetWorkbook]
+      properties:
+        authority: {type: string}
+        sourcePath: {type: string}
+        targetWorkbook: {type: string}
+        migrateTranscripts: {type: boolean, default: true}
+        migrateArtifacts: {type: boolean, default: true}
+        requireHashManifest: {type: boolean, default: true}
+        deleteRawAfterVerified: {type: boolean, default: false}
+    CasepathDispatchRequest:
+      type: object
+      required: [packetId, activeTarget, actionQueue]
+      properties:
+        packetId: {type: string}
+        activeTarget: {type: string}
+        actionQueue: {type: array, items: {type: object, additionalProperties: true}}
+        proofTarget: {type: string}
+    RuntimeLaunchRequest:
+      type: object
+      required: [authority, runtimeId, commandRoute]
+      properties:
+        authority: {type: string}
+        runtimeId: {type: string}
+        commandRoute: {type: string}
+        requireProof: {type: boolean, default: true}
+        requireReadback: {type: boolean, default: true}
+    ReadbackRequest:
+      type: object
+      required: [authority, target]
+      properties:
+        authority: {type: string}
+        target: {type: string}
+        expectedState: {type: string}
+        expectedText: {type: string}
+    ReadbackReceipt:
+      type: object
+      required: [status, target, matched]
+      properties:
+        status: {$ref: '#/components/schemas/ActionStatus'}
+        target: {type: string}
+        matched: {type: boolean}
+        observedState: {type: string}
+        proofHash: {type: [string, 'null']}
+    DnsApplyRequest:
+      type: object
+      required: [authority, providerRoute, records]
+      properties:
+        authority: {type: string}
+        providerRoute: {type: string}
+        records: {type: array, items: {type: object, additionalProperties: true}}
+        verifyAfterApply: {type: boolean, default: true}
+    ExternalActionRequest:
+      type: object
+      additionalProperties: true
+      properties:
+        authority: {type: string}
+    PublicReadbackRequest:
+      type: object
+      required: [authority, targets]
+      properties:
+        authority: {type: string}
+        targets: {type: array, items: {type: object, additionalProperties: true}}
+    ProofLedgerWriteRequest:
+      type: object
+      required: [authority, eventType, payload]
+      properties:
+        authority: {type: string}
+        eventType: {type: string}
+        payload: {type: object, additionalProperties: true}
+        targetLedger: {type: string, default: KEX_ACTION_LEDGER}
