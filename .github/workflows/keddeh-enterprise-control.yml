@@ -1,0 +1,32 @@
+name: KEDDEH Enterprise Control Validation
+
+on:
+  pull_request:
+    paths:
+      - 'enterprise/**'
+      - 'scripts/kex-ci/test_enterprise_control.py'
+      - '.github/workflows/keddeh-enterprise-control.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'enterprise/**'
+      - 'scripts/kex-ci/test_enterprise_control.py'
+      - '.github/workflows/keddeh-enterprise-control.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Compile enterprise control modules
+        run: python -m compileall -q enterprise scripts/kex-ci/test_enterprise_control.py
+      - name: Execute enterprise invariants
+        run: python scripts/kex-ci/test_enterprise_control.py
