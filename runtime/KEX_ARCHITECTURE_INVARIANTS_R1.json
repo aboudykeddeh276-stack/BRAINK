@@ -1,0 +1,70 @@
+{
+  "record_id": "KEX_ARCHITECTURE_INVARIANTS_R1",
+  "authority": "A.KEDDEH / KEDDEH_SYSTEMS / BRAINK / CASEPATH",
+  "purpose": "Prevent local implementations or agent actions from violating global KEX/BRAINK runtime architecture.",
+  "invariants": [
+    {
+      "id": "INV-HOST-001",
+      "name": "Resident host ownership",
+      "rule": "A production runtime service must be owned by a resident server/daemon/runtime substrate. Source-control automation may validate or distribute source but may not be the liveness dependency.",
+      "current_binding": "K_Cloud_Substrate_Master_Daemon.ipynb -> runtime://kex/resident-controller -> service://wbos/action-server",
+      "failure_class": "HOST_OWNERSHIP_BYPASS"
+    },
+    {
+      "id": "INV-LIFE-001",
+      "name": "Current-generation lifecycle identity",
+      "rule": "A service may be promoted RUNNING/LIVE only when the observed child PID/generation belongs to the current supervisor/controller and current launch attempt.",
+      "failure_class": "STALE_PROCESS_FALSE_PROMOTION"
+    },
+    {
+      "id": "INV-PROOF-001",
+      "name": "Evidence non-substitution",
+      "rule": "Test output, source commit, workflow status, static artifact, or stale sidecar may not substitute for current execution/readback evidence.",
+      "failure_class": "EVIDENCE_SUBSTITUTION"
+    },
+    {
+      "id": "INV-AUTH-001",
+      "name": "Least authority",
+      "rule": "Authentication proves caller identity; scoped capability proves action/target authority. Credentials are never forwarded to unrelated readback origins.",
+      "failure_class": "AMBIENT_AUTHORITY_LEAK"
+    },
+    {
+      "id": "INV-IDEM-001",
+      "name": "Single idempotency owner",
+      "rule": "One logical command has one durable idempotency coordinator. Facades may delegate but may not independently reserve the same command in a second registry.",
+      "failure_class": "DUPLICATE_IDEMPOTENCY_COORDINATOR"
+    },
+    {
+      "id": "INV-WB-001",
+      "name": "Workbook semantic boundedness",
+      "rule": "Semantic indexing must operate on bounded resident cell objects/ranges and must reject or limit pathological worksheet dimensions; mutation must refresh or invalidate semantic sidecars.",
+      "failure_class": "WORKBOOK_SEMANTIC_STATE_DIVERGENCE"
+    },
+    {
+      "id": "INV-FS-001",
+      "name": "Substrate containment",
+      "rule": "Every discovered or migrated filesystem object is resolved and containment-checked individually; escaped symlinks are rejected/skipped without poisoning unrelated discovery.",
+      "failure_class": "SUBSTRATE_BOUNDARY_ESCAPE"
+    },
+    {
+      "id": "INV-LEDGER-001",
+      "name": "Proof lineage preservation",
+      "rule": "Resident ledgers are never deleted or repurposed by tests. Test ledgers are isolated. Delivered participant receipts and retained checkpoints are append-preserving and may not silently overwrite contradictory evidence.",
+      "failure_class": "PROOF_HISTORY_DESTRUCTION"
+    },
+    {
+      "id": "INV-TL2-001",
+      "name": "TL2 scope promotion",
+      "rule": "TL2_LIVE requires resident current-generation service liveness and inside-tunnel readback. It does not require or imply PUBLIC_LIVE.",
+      "failure_class": "TL2_SCOPE_FALSE_PROMOTION"
+    },
+    {
+      "id": "INV-RECOVERY-001",
+      "name": "Self-sustaining recovery",
+      "rule": "Runtime controller owns health cadence, supervisor recovery, local hostile oracles, proof emission and continuation state. External CI failure cannot terminate or suspend the resident runtime.",
+      "failure_class": "EXTERNAL_AUTOMATION_LIVENESS_DEPENDENCY"
+    }
+  ],
+  "agent_execution_rule": "Every new function or mutation must identify the applicable invariants before implementation and must emit a defect rather than silently bypassing an invariant.",
+  "promotion_rule": "No capability claim may exceed the strongest invariant-backed receipt currently observed."
+}
