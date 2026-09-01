@@ -20,16 +20,28 @@ def check():
       Obligation("ready-high",True,True,1,1,1,1,.2),
     ]
     t("selector_feasibility_first", select(obs).id=="ready-high")
+
     seen=set(); i=Intent("P1","acct","CASEPATH_CLARITY_14900",14900)
     t("authorized_not_entitled", apply_event(i,"e1","AUTHORIZED","r1",seen)["entitled"] is False)
     t("captured_entitles", apply_event(i,"e2","CAPTURED","r1",seen)["entitled"] is True)
     t("idempotent", apply_event(i,"e2","CAPTURED","r1",seen)["status"]=="IDEMPOTENT_REPLAY")
     t("refund_revokes", apply_event(i,"e3","REFUNDED","r1",seen)["entitled"] is False)
-    q=qualify({"REGISTRAR":"PASS","DNS":"PASS","INGRESS":"PASS","TLS":"PASS"})
-    t("four_receipts_not_live", q["state"]!="PUBLIC_LIVE" and q["missing"]==["HTTP_READBACK"])
-    q=qualify({k:"PASS" for k in REQUIRED_RECEIPTS})
-    t("five_receipts_live", q["state"]=="PUBLIC_LIVE")
+
+    # Process-native execution model: public observation is orthogonal to execution.
+    ps=classify_process(mechanism_defined=True,target_bound=True,operation_invoked=True,signal_emitted=True)
+    t("process_signaled_without_public_readback", ps=="PROCESS_SIGNALED")
+    q=classify_projection({})
+    t("public_unobserved_does_not_erase_process", q["state"]=="PUBLIC_PROJECTION_UNOBSERVED" and ps=="PROCESS_SIGNALED")
+    q2=classify_projection({"HTTP_READBACK":"PASS"})
+    t("http_readback_is_observer_edge", q2["state"]=="PUBLIC_PROJECTION_OBSERVED")
+    rec=reconcile(process_state=ps,observations={},conflicts=[])
+    t("promotion_can_consume_native_process_evidence_without_public_observation", rec["promotion_state"]=="PROMOTED" and rec["projection_observation_state"]=="PUBLIC_PROJECTION_UNOBSERVED")
+    rec2=reconcile(process_state=ps,observations={"HTTP_READBACK":"PASS"},conflicts=["BODY_HASH_MISMATCH"])
+    t("public_observation_does_not_override_conflict", rec2["promotion_state"]=="RECONCILIATION_REQUIRED")
+
     t("casepath_claimpath_separate", DOMAIN_BINDINGS["casepath.com.au"] != DOMAIN_BINDINGS["claimpath.org"])
+    t("casepath_public_readback_not_gate", CASEPATH_CURRENT_PATCH["public_readback_role"]=="OBSERVER_EDGE_NOT_EXECUTION_GATE")
+
     p=partition_model()
     t("state_machine_stale_fenced", p["stale_A"]=="FENCED")
     t("state_machine_current_commits", p["current_B"]=="COMMITTED")
