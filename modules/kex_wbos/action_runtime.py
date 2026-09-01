@@ -54,12 +54,19 @@ def _receipt(action_id: str, status: str, mutated: bool, target: str, *, before:
         "beforeHash": before,
         "afterHash": after,
         "proofLedgerRow": None,
+        "parentReceiptHash": None,
         "receiptHash": None,
         "externalReadback": external_readback,
         "timestamp": _now(),
         "details": details or {},
     }
-    _, persisted = append_jsonl_fsync(ACTION_LEDGER, receipt, row_field="proofLedgerRow", hash_field="receiptHash")
+    _, persisted = append_jsonl_fsync(
+        ACTION_LEDGER,
+        receipt,
+        row_field="proofLedgerRow",
+        hash_field="receiptHash",
+        parent_hash_field="parentReceiptHash",
+    )
     return persisted
 
 
