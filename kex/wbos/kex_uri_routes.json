@@ -1,0 +1,12 @@
+{
+  "routes": [
+    {"kex":"KEX://ROOT/OS","path":"/","target":"wbos.apex"},
+    {"kex":"KEX://ROOT/HYBRID_OS","path":"/hybrid-os","target":"wbos.hybrid"},
+    {"kex":"KEX://ROOT/OS/HEALTH","path":"/api/health","target":"wbos.health"},
+    {"kex":"KEX://ROOT/OS/SERVICES","path":"/api/services","target":"wbos.services"},
+    {"kex":"KEX://ROOT/OS/ROUTES","path":"/api/routes","target":"wbos.routes"},
+    {"kex":"KEX://BRAINK/MESH","path":"/mesh","target":"braink.mesh"},
+    {"kex":"KEX://ROOT/OS/CASCADE","path":"/cascade","target":"wbos.cascade"}
+  ],
+  "boundary": "Registry routes are resident mappings. External network reachability is separately evidenced."
+}

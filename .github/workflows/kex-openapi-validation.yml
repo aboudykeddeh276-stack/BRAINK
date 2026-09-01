@@ -18,12 +18,11 @@ on:
   push:
     branches: [main]
     paths:
-      - ".kex/**"
+      - "openapi/**"
+      - "modules/kex_wbos/**"
       - "scripts/kex-ci/**"
+      - ".kex/**"
       - ".github/workflows/kex-*.yml"
-      - "kex/**"
-      - "modules/**"
-      - "deploy/**"
 
 permissions:
   contents: read
@@ -31,27 +30,46 @@ permissions:
 jobs:
   control-plane:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
-        with: {python-version: "3.12"}
-      - run: python scripts/kex-ci/validate_control_plane.py --mode openapi
-      - if: always()
+        with:
+          python-version: "3.12"
+      - name: Exercise WBOS API and proof ledger
+        run: python scripts/kex-ci/test_wbos_api.py
+      - name: Validate KEX repository surface
+        run: python scripts/kex-ci/validate_control_plane.py --mode openapi
+      - name: Upload receipts
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: kex-openapi-${{ github.run_id }}-control
-          path: reports/kex-ci/openapi.json
+          path: |
+            reports/kex-ci/openapi.json
+            reports/kex-wbos/integration.json
+            reports/kex-wbos/proof-ledger.jsonl
           if-no-files-found: error
+
   specialist:
     if: ${{ github.event_name == 'workflow_dispatch' && inputs.use_self_hosted }}
     runs-on: [self-hosted, kex, api, fastapi, openapi]
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
-      - run: |
-          STRICT=""; if [ "${{ inputs.strict_unresolved }}" = "true" ]; then STRICT="--strict-unresolved"; fi
+      - name: Exercise WBOS API
+        run: python3 scripts/kex-ci/test_wbos_api.py
+      - name: Validate specialist surface
+        run: |
+          STRICT=""
+          if [ "${{ inputs.strict_unresolved }}" = "true" ]; then STRICT="--strict-unresolved"; fi
           python3 scripts/kex-ci/validate_control_plane.py --mode openapi $STRICT
       - if: always()
         uses: actions/upload-artifact@v4
         with:
           name: kex-openapi-${{ github.run_id }}-specialist
-          path: reports/kex-ci/openapi.json
+          path: |
+            reports/kex-ci/openapi.json
+            reports/kex-wbos/integration.json
+            reports/kex-wbos/proof-ledger.jsonl
+          if-no-files-found: error
