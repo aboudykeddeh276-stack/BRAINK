@@ -10,10 +10,11 @@
     "action receipt ledger versioned to action-ledger-v2.jsonl while legacy v1 evidence remains untouched",
     "receipt chain uses parentReceiptHash -> receiptHash and verifier checks row/order/hash ancestry",
     "generic action dispatcher supports persistent idempotency reservation, replay, conflict rejection and ambiguous INFLIGHT blocking",
+    "dispatcher-level idempotencyKey integration suppresses same-intent duplicate mutation",
     "OpenAPI advanced to 5.2.0 with chained receipt and idempotency semantics",
     "workbook semantic analysis now computes strongly connected components and formula dependency cycles",
-    "TL2 service supervisor now persists generation/restart/exit history instead of only overwriting current state",
-    "hardening CI updated to validate the 5.2 contract"
+    "TL2 service supervisor persists generation/restart/exit history instead of only overwriting current state",
+    "hardening CI validates the 5.2 contract and hostile runtime suite"
   ],
   "prior_cycle_mechanics_preserved": [
     "constant-time bearer authentication",
@@ -61,11 +62,28 @@
       "invalid_promotion": "not distributed exactly-once execution; external actuator atomicity would require participant transaction/outbox semantics"
     }
   ],
+  "latest_readback": {
+    "hardening_workflow": {
+      "run_id": 33546026957,
+      "run_number": 18,
+      "status": "completed",
+      "conclusion": "failure",
+      "job_id": 99983605984,
+      "job_steps_observed": 0,
+      "classification": "EXECUTOR_NOT_ASSIGNED_OR_JOB_NOT_STARTED; no software test step was observed"
+    },
+    "pull_request": {
+      "number": 58,
+      "state": "open",
+      "mergeable": true,
+      "qualification": "not merged because hostile test execution has not yet been observed"
+    }
+  },
   "observed_external_blockers": [
     {
       "object": "GitHub hosted validation",
       "state": "EXECUTOR_NOT_ASSIGNED",
-      "evidence": "latest observed hardening and Casepath jobs ended with runner_id=0 and zero steps",
+      "evidence": "hardening run 18 completed with a hardening job object but zero observed steps; prior runs also reported runner_id=0",
       "classification": "CI executor/account scheduling boundary, not a code test failure"
     },
     {
@@ -81,7 +99,7 @@
     "add retained ledger-head/root export so tail truncation can be detected against an external checkpoint",
     "consider transactional outbox/participant reconciliation for external actuator commands; do not claim exactly-once before this exists",
     "extend workbook semantic graph to named ranges/table references and distinguish range dependencies from exact-cell dependencies",
-    "re-run PR diff audit after all cycle-2 mutations",
+    "re-run PR diff audit after any further mutation",
     "merge PR #58 only when mergeability and available validation evidence are reconciled",
     "after merge, re-attempt TL2 deployment without attaching public DNS/TLS/Drive/Bitcoin/full migration blockers"
   ],
