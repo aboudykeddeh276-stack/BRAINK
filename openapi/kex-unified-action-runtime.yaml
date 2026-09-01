@@ -1,15 +1,17 @@
 openapi: 3.1.0
 info:
   title: KEX Unified Action Runtime API
-  version: 5.1.0
+  version: 5.2.0
   description: >
     Mutation-oriented KEX/BRAINK/Casepath control surface. A route is not evidence
     of mutation by itself: action receipts carry status, mutation state, hashes,
-    readback state, blocker details and a canonical receipt hash. External actions
-    remain BLOCKED until a corresponding actuator is bound. Non-loopback binds
-    require bearer authentication. When KEX_REQUIRE_SCOPED_CAPABILITIES=true,
+    readback state, blocker details and a canonical chained receipt hash. External
+    actions remain BLOCKED until a corresponding actuator is bound. Non-loopback
+    binds require bearer authentication. When KEX_REQUIRE_SCOPED_CAPABILITIES=true,
     /actions/execute additionally requires a signed capability scoped to the
-    requested action class and target prefix.
+    requested action class and target prefix. Optional idempotency keys suppress
+    duplicate replay and leave ambiguous interrupted requests blocked for explicit
+    reconciliation rather than silently re-executing mutation.
 servers:
   - url: http://127.0.0.1:8790
     description: Local resident action runtime. TL2/public bindings require separate deployment receipts.
@@ -233,14 +235,16 @@ components:
       enum: [PASS, FAIL, PARTIAL, BLOCKED, ARMED, PENDING, LIVE, MUTATED, VERIFIED]
     MutationReceipt:
       type: object
-      required: [status, actionId, mutated, receiptId, receiptHash, proofLedgerRow]
+      required: [ledgerVersion, status, actionId, mutated, receiptId, parentReceiptHash, receiptHash, proofLedgerRow]
       properties:
+        ledgerVersion: {type: integer, const: 2}
         status: {$ref: '#/components/schemas/ActionStatus'}
         actionId: {type: string}
         mutated: {type: boolean}
         target: {type: [string, 'null']}
         receiptId: {type: string}
-        receiptHash: {type: string, description: SHA-256 of the canonical persisted receipt with receiptHash omitted.}
+        parentReceiptHash: {type: string, description: Previous v2 receipt hash or GENESIS for the first receipt.}
+        receiptHash: {type: string, description: SHA-256 of the canonical persisted receipt with receiptHash omitted, including parentReceiptHash.}
         beforeHash: {type: [string, 'null']}
         afterHash: {type: [string, 'null']}
         proofLedgerRow: {type: integer, minimum: 1}
@@ -261,6 +265,10 @@ components:
         capability:
           type: string
           description: Signed scoped capability credential required when KEX_REQUIRE_SCOPED_CAPABILITIES=true.
+        idempotencyKey:
+          type: string
+          maxLength: 200
+          description: Stable caller-supplied command key. Same key plus same request returns the prior receipt; conflicting reuse is blocked; an interrupted INFLIGHT reservation is not automatically re-executed.
         payload: {type: object, additionalProperties: true}
         requireReceipt: {type: boolean, default: true}
         forbidReportOnly: {type: boolean, default: true}
