@@ -51,12 +51,18 @@ def _receipt(action_id: str, status: str, mutated: bool, target: str, *, before:
         "beforeHash": before,
         "afterHash": after,
         "proofLedgerRow": None,
+        "receiptHash": None,
         "externalReadback": external_readback,
         "timestamp": _now(),
         "details": details or {},
     }
-    receipt["proofLedgerRow"] = append_jsonl_fsync(ACTION_LEDGER, receipt)
-    return receipt
+    _, persisted = append_jsonl_fsync(
+        ACTION_LEDGER,
+        receipt,
+        row_field="proofLedgerRow",
+        hash_field="receiptHash",
+    )
+    return persisted
 
 
 def execute_action(request: dict[str, Any]) -> dict[str, Any]:
@@ -121,9 +127,9 @@ def write_proof(request: dict[str, Any]) -> dict[str, Any]:
     event = {"ts": time.time(), "authority": request.get("authority"), "eventType": request.get("eventType"), "payload": request.get("payload", {}), "targetLedger": request.get("targetLedger", "KEX_ACTION_LEDGER")}
     path = PROOF_ROOT / "action-proof-ledger.jsonl"
     before = _sha(path.read_bytes()) if path.exists() else None
-    row = append_jsonl_fsync(path, event)
+    row, persisted_event = append_jsonl_fsync(path, event)
     after = _sha(path.read_bytes())
-    return _receipt(action_id, "MUTATED", True, str(event["targetLedger"]), before=before, after=after, details={"event": event, "proofEventRow": row})
+    return _receipt(action_id, "MUTATED", True, str(event["targetLedger"]), before=before, after=after, details={"event": persisted_event, "proofEventRow": row})
 
 
 def readback_runtime(request: dict[str, Any]) -> dict[str, Any]:
@@ -131,7 +137,11 @@ def readback_runtime(request: dict[str, Any]) -> dict[str, Any]:
     expected_text = request.get("expectedText")
     if target.startswith("http://") or target.startswith("https://"):
         try:
-            with urllib.request.urlopen(target, timeout=10) as response:
+            req = urllib.request.Request(target)
+            token = os.getenv("KEX_BEARER_TOKEN")
+            if token:
+                req.add_header("Authorization", f"Bearer {token}")
+            with urllib.request.urlopen(req, timeout=10) as response:
                 body = response.read()
                 text = body.decode("utf-8", errors="replace")
                 matched = response.status < 400 and (expected_text is None or expected_text in text)
