@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import Any
 
 from openpyxl import load_workbook
+from casepath_management import managed_dispatch
 
 BASE = Path(__file__).resolve().parents[2]
 RUNTIME = BASE / "runtime"
@@ -77,7 +78,14 @@ def execute_action(request: dict[str, Any]) -> dict[str, Any]:
         return ingest_source({"authority": request["authority"], "sourceText": request.get("payload", {}).get("sourceText", ""), "sourceFormat": request.get("payload", {}).get("sourceFormat", "markdown"), "target": target})
     if action_type == "CASEPATH_DISPATCH":
         payload = request.get("payload", {})
-        return dispatch_casepath({"packetId": payload.get("packetId", action_id), "activeTarget": target, "actionQueue": payload.get("actionQueue", []), "proofTarget": payload.get("proofTarget")})
+        return dispatch_casepath({
+            "authority": request["authority"],
+            "packetId": payload.get("packetId", action_id),
+            "activeTarget": target,
+            "processId": payload.get("processId", "CASEPATH-PROC-001"),
+            "actionQueue": payload.get("actionQueue", []),
+            "proofTarget": payload.get("proofTarget"),
+        })
     if action_type == "PROOF_LEDGER_WRITE":
         return write_proof({"authority": request["authority"], "eventType": request.get("payload", {}).get("eventType", action_type), "payload": request.get("payload", {}), "targetLedger": target})
     return _receipt(action_id, "ARMED", False, target, details={"actionType": action_type, "controlRoute": request.get("controlRoute"), "claimBoundary": "Action class is resident but no local executor was selected for this request."})
@@ -100,21 +108,15 @@ def ingest_source(request: dict[str, Any]) -> dict[str, Any]:
 
 def dispatch_casepath(request: dict[str, Any]) -> dict[str, Any]:
     action_id = f"DSP-{uuid.uuid4().hex[:12]}"
-    packet = {
-        "packetId": request.get("packetId"),
-        "activeTarget": request.get("activeTarget"),
-        "actionQueue": request.get("actionQueue", []),
-        "proofTarget": request.get("proofTarget"),
-        "receivedAt": _now(),
-    }
-    if not packet["packetId"] or not packet["activeTarget"] or not isinstance(packet["actionQueue"], list):
-        return _receipt(action_id, "FAIL", False, str(packet.get("activeTarget", "")), details={"error": "packetId_activeTarget_actionQueue_required"})
-    DISPATCH_ROOT.mkdir(parents=True, exist_ok=True)
-    path = DISPATCH_ROOT / f"{packet['packetId']}.json"
-    before = _sha(path.read_bytes()) if path.exists() else None
-    raw = json.dumps(packet, indent=2, sort_keys=True).encode()
-    path.write_bytes(raw)
-    return _receipt(action_id, "MUTATED", True, str(packet["activeTarget"]), before=before, after=_sha(raw), details={"path": path.relative_to(BASE).as_posix(), "queueLength": len(packet["actionQueue"])})
+    return managed_dispatch(
+        base=BASE,
+        dispatch_root=DISPATCH_ROOT,
+        request=request,
+        receipt=_receipt,
+        now=_now,
+        sha=_sha,
+        action_id=action_id,
+    )
 
 
 def write_proof(request: dict[str, Any]) -> dict[str, Any]:
