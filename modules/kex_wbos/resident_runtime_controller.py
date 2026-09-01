@@ -60,6 +60,11 @@ def _read_state(path: Path) -> dict[str, Any]:
         return {"observedState": "STATE_READ_FAILED", "error": type(exc).__name__}
 
 
+def retain_latest_oracle(previous: dict[str, Any] | None, current: dict[str, Any] | None) -> dict[str, Any] | None:
+    """Keep the latest completed oracle result until a newer cycle replaces it."""
+    return current if current is not None else previous
+
+
 def _spawn_supervisor(script: str, host: str, port: int) -> subprocess.Popen:
     return subprocess.Popen(
         [
@@ -142,6 +147,7 @@ def run(host: str, wbos_port: int, illlm_port: int, oracle_interval: int, health
         illlmPort=illlm_port,
     )
     last_oracle = 0.0
+    latest_oracle_state: dict[str, Any] | None = None
     wbos_failures = 0
     illlm_failures = 0
 
@@ -166,6 +172,7 @@ def run(host: str, wbos_port: int, illlm_port: int, oracle_interval: int, health
             oracle_state = _run_local_oracles()
             _event("LOCAL_ORACLE_CYCLE", result=oracle_state)
             last_oracle = now
+        latest_oracle_state = retain_latest_oracle(latest_oracle_state, oracle_state)
 
         _write_state(
             desiredState="RUNNING",
@@ -186,7 +193,7 @@ def run(host: str, wbos_port: int, illlm_port: int, oracle_interval: int, health
                     "consecutiveHealthFailures": illlm_failures,
                 },
             },
-            lastOracle=oracle_state,
+            lastOracle=latest_oracle_state,
             continuationRecord=CONTINUATION.relative_to(BASE).as_posix() if CONTINUATION.exists() else None,
         )
 
@@ -205,7 +212,7 @@ def run(host: str, wbos_port: int, illlm_port: int, oracle_interval: int, health
 
     _terminate(wbos)
     _terminate(illlm)
-    _write_state(desiredState="STOPPED", observedState="STOPPED")
+    _write_state(desiredState="STOPPED", observedState="STOPPED", lastOracle=latest_oracle_state)
     _event("RESIDENT_CONTROLLER_STOPPED", pid=os.getpid())
     return 0
 
