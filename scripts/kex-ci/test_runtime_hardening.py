@@ -18,6 +18,8 @@ from action_extensions import append_workbook_rows
 from action_runtime import ACTION_LEDGER, dispatch_casepath, execute_action, ingest_source, readback_runtime
 from capabilities import mint_capability
 from hardening import atomic_write_text, constant_time_bearer_matches, contained_path, require_secure_bind
+from idempotency import IdempotencyRegistry
+from network_policy import readback_url_allowed
 from object_store import ContentAddressedStore
 from workbook_semantics import write_semantic_index
 
@@ -86,6 +88,25 @@ def main() -> None:
     os.environ.pop("KEX_REQUIRE_SCOPED_CAPABILITIES", None)
     os.environ.pop("KEX_CAPABILITY_SECRET", None)
 
+    # Idempotency reservation/replay/conflict semantics.
+    idem_path = ROOT / "runtime" / "hardening-tests" / "idempotency.json"
+    idem_path.parent.mkdir(parents=True, exist_ok=True)
+    idem_path.unlink(missing_ok=True)
+    idem_path.with_suffix(idem_path.suffix + ".lock").unlink(missing_ok=True)
+    idem = IdempotencyRegistry(idem_path)
+    command = {"authority": "A.KEDDEH", "actionType": "SOURCE_INGEST", "target": "KEX_RUNTIME_MODEL", "payload": {"sourceText": "once"}}
+    begin = idem.begin("CMD-001", command)
+    assert begin["state"] == "NEW", begin
+    inflight = idem.begin("CMD-001", command)
+    assert inflight["state"] == "INFLIGHT", inflight
+    synthetic_receipt = {"receiptHash": "abc123", "status": "MUTATED", "mutated": True}
+    idem.complete("CMD-001", begin["requestHash"], synthetic_receipt)
+    replayed = idem.begin("CMD-001", command)
+    assert replayed["state"] == "REPLAY", replayed
+    assert replayed["receipt"] == synthetic_receipt, replayed
+    conflict = idem.begin("CMD-001", {**command, "target": "DIFFERENT"})
+    assert conflict["state"] == "CONFLICT", conflict
+
     # Filesystem containment and atomic write.
     hardening_dir = ROOT / "runtime" / "hardening-tests"
     hardening_dir.mkdir(parents=True, exist_ok=True)
@@ -98,10 +119,17 @@ def main() -> None:
     except ValueError:
         pass
 
-    # Arbitrary host-file readback must be rejected.
+    # Arbitrary host-file and network readback must be rejected.
     outside = readback_runtime({"target": "/etc/passwd"})
     assert outside["status"] == "FAIL", outside
     assert outside["observedState"] == "PATH_OUTSIDE_RUNTIME_ROOT", outside
+    metadata_allowed, metadata_policy = readback_url_allowed("http://169.254.169.254/latest/meta-data")
+    assert metadata_allowed is False, metadata_policy
+    metadata_readback = readback_runtime({"target": "http://169.254.169.254/latest/meta-data"})
+    assert metadata_readback["status"] == "FAIL", metadata_readback
+    assert metadata_readback["observedState"] == "READBACK_DESTINATION_BLOCKED", metadata_readback
+    loopback_allowed, _ = readback_url_allowed("http://127.0.0.1:8790/api/health")
+    assert loopback_allowed is True
 
     # Casepath packet IDs cannot become paths.
     bad_dispatch = dispatch_casepath({
@@ -161,20 +189,26 @@ def main() -> None:
     assert valid["mutated"] is True, valid
     assert valid["beforeHash"] != valid["afterHash"], valid
 
-    # Event-ledger replay must match exact persisted receipt semantics.
+    # Event-ledger replay must match exact persisted receipt semantics and chain.
     replay = verify(ACTION_LEDGER)
     assert replay["ok"] is True, replay
+    assert replay["ledgerVersion"] == 2, replay
     assert replay["entries"] >= 7, replay
+    assert replay["head"] != "GENESIS", replay
 
     workbook_path.unlink(missing_ok=True)
     Path(semantics["sidecar"]).unlink(missing_ok=True)
     target.unlink(missing_ok=True)
+    idem_path.unlink(missing_ok=True)
+    idem_path.with_suffix(idem_path.suffix + ".lock").unlink(missing_ok=True)
     print(json.dumps({
         "status": "RUNTIME_HARDENING_PASS",
         "receiptReplay": replay,
         "contentAddress": object_id,
         "workbookGraphHash": semantics["graphHash"],
-        "capabilityBoundary": "cross-action and cross-target denial observed by test oracle",
+        "capabilityBoundary": "cross-action and cross-target denial covered by test oracle",
+        "idempotencyBoundary": "replay/conflict/inflight semantics covered; distributed exactly-once is not claimed",
+        "networkBoundary": "metadata/link-local readback blocked unless policy changes explicitly",
     }, indent=2))
 
 
