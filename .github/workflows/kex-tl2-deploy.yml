@@ -1,6 +1,13 @@
 name: KEX TL2 Deploy
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - "deploy/tl2_deploy.py"
+      - "deploy/KEX_TL2_DEPLOYMENT_ROUTE_R1.json"
+      - ".github/workflows/kex-tl2-deploy.yml"
+      - "modules/kex_wbos/**"
   workflow_dispatch:
     inputs:
       leave_resident:
@@ -28,16 +35,15 @@ jobs:
           KEX_TL2_ADDRESS: ${{ vars.KEX_TL2_ADDRESS }}
           KEX_BEARER_TOKEN: ${{ secrets.KEX_BEARER_TOKEN }}
         run: |
-          FLAGS=""
-          if [ "${{ inputs.leave_resident }}" = "true" ]; then FLAGS="--daemon"; fi
+          FLAGS="--daemon"
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.leave_resident }}" != "true" ]; then FLAGS=""; fi
           python deploy/tl2_deploy.py $FLAGS
       - name: Require TL2_LIVE receipt
         run: |
           python - <<'PY'
           import json
           from pathlib import Path
-          p=Path('reports/kex-wbos/tl2-deployment.json')
-          r=json.loads(p.read_text())
+          r=json.loads(Path('reports/kex-wbos/tl2-deployment.json').read_text())
           assert r['status']=='VERIFIED', r
           assert r['promotion']=='TL2_LIVE', r
           assert all(x['ok'] for x in r['readback']), r
