@@ -1,0 +1,21 @@
+{
+  "record_id": "ILLLM_PRIMITIVE_STRATIFICATION_R1",
+  "authority": "A.KEDDEH / KEDDEH_SYSTEMS / BRAINK",
+  "purpose": "Define the canonical lower-to-higher semantic strata used by recursive IL-LLM traversal so contextual relevance resolves through shared primitive ancestry rather than surface lexical similarity alone.",
+  "strata": [
+    {"order": 1, "id": "PRIMITIVES", "examples": ["presence", "identity", "relation", "state", "transition", "sequence", "containment", "comparison"]},
+    {"order": 2, "id": "NUMBERS", "examples": ["integer", "ratio", "magnitude", "ordinal", "cardinal", "sequence"]},
+    {"order": 3, "id": "ELEMENTS", "examples": ["element identity", "symbol", "role", "composition", "periodic relation"]},
+    {"order": 4, "id": "LANGUAGE_SYMBOLS", "examples": ["alphabet", "token", "term", "grammar", "symbol", "semantic relation"]},
+    {"order": 5, "id": "MATHEMATICS", "examples": ["arithmetic", "algebra", "logic", "set", "graph", "function", "recurrence"]},
+    {"order": 6, "id": "COMPUTER_SCIENCE", "examples": ["data structure", "algorithm", "state machine", "protocol", "type", "memory", "process", "concurrency"]},
+    {"order": 7, "id": "SOURCE_CODE", "examples": ["module", "function", "class", "interface", "dependency", "call graph", "test", "build artifact"]},
+    {"order": 8, "id": "SECTOR_ONTOLOGY", "examples": ["domain object", "sector process", "professional vocabulary", "workflow", "standard", "constraint"]},
+    {"order": 9, "id": "PROFESSIONAL_PRACTICE", "examples": ["standard", "regulation", "procedure", "evidence", "quality criterion", "benchmark", "delivery process"]},
+    {"order": 10, "id": "RUNTIME_SERVICE", "examples": ["service object", "route", "action", "state mutation", "readback", "proof", "recovery"]},
+    {"order": 11, "id": "CONTEXTUAL_TRAVERSAL", "examples": ["frame", "anchor", "entry", "inheritance", "re-entry", "continuation", "promotion"]}
+  ],
+  "resolution_rule": "A higher-order object should retain links to the lowest reliable primitive strata supporting it. Contextual traversal may descend to shared primitive ancestry, then ascend along typed relations into the most relevant source-code, sector, professional, or runtime descendant.",
+  "optimization_effect": "Repeated queries need not rescan unrelated carriers when the current context already resolves to primitive/sector anchors and descendant routes.",
+  "claim_boundary": "This is a semantic/runtime indexing architecture. It does not claim that every professional sector source corpus is currently resident or fully formalized."
+}
