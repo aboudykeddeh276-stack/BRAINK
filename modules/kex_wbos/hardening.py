@@ -9,6 +9,11 @@ import tempfile
 from pathlib import Path
 from typing import Any
 
+try:
+    import fcntl
+except ImportError:  # pragma: no cover - Windows fallback remains process-local only.
+    fcntl = None
+
 
 def canonical_json_bytes(value: Any) -> bytes:
     return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
@@ -77,14 +82,46 @@ def atomic_write_text(path: Path, text: str) -> None:
     atomic_write_bytes(path, text.encode("utf-8"))
 
 
-def append_jsonl_fsync(path: Path, value: Any) -> int:
+def append_jsonl_fsync(
+    path: Path,
+    value: Any,
+    *,
+    row_field: str | None = None,
+    hash_field: str | None = None,
+) -> tuple[int, Any]:
+    """Append one canonical JSON event under an inter-process file lock.
+
+    If row_field is supplied and value is a dict, the assigned 1-based ledger row
+    is inserted before serialization. If hash_field is supplied, a SHA-256 of the
+    canonical object without that field is inserted before persistence. The returned
+    object is exactly the object persisted to disk.
+    """
     path.parent.mkdir(parents=True, exist_ok=True)
-    line = canonical_json_bytes(value) + b"\n"
-    fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_APPEND, 0o600)
+    lock_path = path.with_suffix(path.suffix + ".lock")
+    lock_fd = os.open(lock_path, os.O_RDWR | os.O_CREAT, 0o600)
     try:
-        os.write(fd, line)
-        os.fsync(fd)
+        if fcntl is not None:
+            fcntl.flock(lock_fd, fcntl.LOCK_EX)
+        row = 1
+        if path.exists():
+            with path.open("rb") as existing:
+                row += sum(1 for _ in existing)
+        persisted = dict(value) if isinstance(value, dict) else value
+        if isinstance(persisted, dict) and row_field:
+            persisted[row_field] = row
+        if isinstance(persisted, dict) and hash_field:
+            unsigned = dict(persisted)
+            unsigned.pop(hash_field, None)
+            persisted[hash_field] = sha256_bytes(canonical_json_bytes(unsigned))
+        line = canonical_json_bytes(persisted) + b"\n"
+        fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_APPEND, 0o600)
+        try:
+            os.write(fd, line)
+            os.fsync(fd)
+        finally:
+            os.close(fd)
+        return row, persisted
     finally:
-        os.close(fd)
-    with path.open("rb") as handle:
-        return sum(1 for _ in handle)
+        if fcntl is not None:
+            fcntl.flock(lock_fd, fcntl.LOCK_UN)
+        os.close(lock_fd)
