@@ -15,8 +15,8 @@ LEDGER = ROOT / "reports" / "kex-wbos" / "action-ledger.jsonl"
 
 def verify(path: Path = LEDGER) -> dict:
     if not path.exists():
-        return {"ok": True, "entries": 0, "lastReceiptHash": None}
-    last_hash = None
+        return {"ok": True, "entries": 0, "lastReceiptHash": None, "head": "GENESIS"}
+    last_hash = "GENESIS"
     entries = 0
     for expected_row, raw in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
         if not raw.strip():
@@ -25,6 +25,8 @@ def verify(path: Path = LEDGER) -> dict:
         item = json.loads(raw)
         if item.get("proofLedgerRow") != expected_row:
             return {"ok": False, "row": expected_row, "error": "proofLedgerRow_mismatch", "observed": item.get("proofLedgerRow")}
+        if item.get("parentReceiptHash") != last_hash:
+            return {"ok": False, "row": expected_row, "error": "parentReceiptHash_mismatch", "observed": item.get("parentReceiptHash"), "expected": last_hash}
         observed_hash = item.get("receiptHash")
         unsigned = dict(item)
         unsigned.pop("receiptHash", None)
@@ -32,7 +34,7 @@ def verify(path: Path = LEDGER) -> dict:
         if observed_hash != expected_hash:
             return {"ok": False, "row": expected_row, "error": "receiptHash_mismatch", "observed": observed_hash, "expected": expected_hash}
         last_hash = observed_hash
-    return {"ok": True, "entries": entries, "lastReceiptHash": last_hash}
+    return {"ok": True, "entries": entries, "lastReceiptHash": last_hash if entries else None, "head": last_hash}
 
 
 if __name__ == "__main__":
