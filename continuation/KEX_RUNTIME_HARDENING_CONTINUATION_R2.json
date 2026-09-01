@@ -4,15 +4,26 @@
   "branch": "kex-runtime-hardening-r3",
   "pull_request": 58,
   "continuation_rule": "Resume from this record and attack the latest observed state. Do not restart from the original baseline and do not promote claims beyond receipts.",
-  "current_cycle": 3,
-  "cycle_objective": "Exploit the hardened primitives as one integrated capability fabric and convert unavailable external execution into durable reconciliable intent rather than false completion.",
+  "current_cycle": 4,
+  "cycle_objective": "Promote the hardened runtime into a resident recursive IL-LLM capability substrate while preserving scoped authority, context isolation, incremental evaluation, proof boundaries and external-execution separation.",
+  "implemented_in_cycle_4": [
+    "resident recursive IL-LLM runtime with acyclic containment, cyclic traversal, contextual candidate indices, continuation frames and graph hashing",
+    "cross-repository IL-LLM carrier ingestion for observed KEX/BRAINK repositories without treating repository identity as capability proof",
+    "IL-LLM context translator compiles caller-local/global context plus intent into a selected execution route and narrowly scoped signed capability",
+    "semi-naive delta engine evaluates only consequences of newly inserted facts and performs zero rule evaluations for duplicate no-op insertion",
+    "bounded equivalence store preserves alternate semantic/execution forms and extracts by cost subject to proof-status and executability constraints",
+    "resident IL-LLM service exposes query, traversal, contextual translation, delta facts, equivalence registration/extraction and rebuild behind the runtime security membrane",
+    "sector invocation roots formalise seed, KEX DNA, VFS, quantum, observer and mirror-lane as typed global IL-LLM contexts rather than free-text aliases",
+    "advanced IL-LLM hostile suite asserts context isolation, capability narrowing, warm delta no-op behavior and deterministic equivalence extraction",
+    "KEX Runtime Hardening workflow now compiles and executes recursive and advanced IL-LLM suites in addition to the prior hostile/runtime/capability-fabric gates"
+  ],
   "implemented_in_cycle_3": [
     "integrated capability fabric orchestrator combines scoped credentials, idempotent commands, content-addressed ingest, managed Casepath dispatch, workbook semantic analysis, durable outbox, proof mutation and ledger checkpointing",
     "durable external-action outbox separates local commit from participant execution and preserves idempotency identity",
     "retained action-ledger head checkpoint materializes rows, ledger SHA-256, headReceiptHash and checkpointHash",
     "capability exercise creates a workbook dependency graph with an intentional cycle oracle and reconciles the graph hash into proof",
     "capability exercise can optionally invoke the real TL2 deployer on a tunnel-capable host while leaving unavailable TL2 work PENDING rather than executed",
-    "KEX Runtime Hardening workflow now executes the integrated capability fabric after hostile hardening tests",
+    "KEX Runtime Hardening workflow executes the integrated capability fabric after hostile hardening tests",
     "case study records transactional-outbox, saga, capability, content-addressing, event-ledger and workbook-programming mappings with invalid promotions"
   ],
   "implemented_in_cycle_2": [
@@ -49,9 +60,9 @@
       "invalid_promotion": "does not imply physical storage replacement or a complete Merkle DAG"
     },
     {
-      "paradigm": "capability security",
-      "transferred_mechanic": "signed action/target-scoped authority",
-      "invalid_promotion": "not a full object-capability operating system"
+      "paradigm": "capability security / reference-monitor discipline",
+      "transferred_mechanic": "signed action/target-scoped authority plus IL-LLM context-to-capability translation before actuator access",
+      "invalid_promotion": "not a full object-capability operating system and does not make semantic selection equivalent to authorization proof"
     },
     {
       "paradigm": "OTP supervision",
@@ -77,46 +88,84 @@
       "paradigm": "saga/orchestration",
       "transferred_mechanic": "multi-step capability exercise uses locally provable stages and explicit external participant boundaries",
       "invalid_promotion": "no general rollback guarantee exists until participant-specific compensations are designed"
+    },
+    {
+      "paradigm": "semi-naive / differential evaluation",
+      "transferred_mechanic": "derive consequences from delta facts rather than recomputing the complete resident fact estate",
+      "invalid_promotion": "does not prove universal inference acceleration; performance remains workload-dependent and benchmark-gated"
+    },
+    {
+      "paradigm": "e-graph / equality-saturation style representation",
+      "transferred_mechanic": "preserve multiple candidate forms and extract a bounded low-cost verified executable representation",
+      "invalid_promotion": "registered equivalence is model-local unless the equivalence relation itself is independently proven"
     }
   ],
   "latest_readback": {
-    "hardening_workflow": {
-      "run_id": 33547066515,
-      "run_number": 24,
+    "branch_head": "be776d6e41f3edb5728b57ce27bfb3bf89184fd3",
+    "hardening_workflow_previous_head": {
+      "head_sha": "8731158adbeb1614bb5a111ed1ea998926fcb626",
+      "run_id": 33552467955,
+      "run_number": 68,
+      "status": "completed",
+      "conclusion": "failure",
+      "job_id": 100004999783,
+      "job_name": "hardening",
+      "executed_steps": 0,
+      "classification": "EXECUTOR_OR_SCHEDULING_FAILURE_BEFORE_STEP_EXECUTION; not a code/test failure receipt"
+    },
+    "casepath_workflow_previous_head": {
+      "head_sha": "8731158adbeb1614bb5a111ed1ea998926fcb626",
+      "run_id": 33552468318,
+      "run_number": 70,
+      "status": "completed",
+      "conclusion": "failure",
+      "job_id": 100005000835,
+      "job_name": "validate-managed-dispatch",
+      "executed_steps": 0,
+      "classification": "EXECUTOR_OR_SCHEDULING_FAILURE_BEFORE_STEP_EXECUTION; not a Casepath validation failure receipt"
+    },
+    "hardening_workflow_current_head": {
+      "run_id": 33552635094,
+      "run_number": 71,
       "status": "queued",
       "conclusion": null,
-      "classification": "CAPABILITY_FABRIC_HEAD_QUEUED; no execution receipt yet"
+      "classification": "ILLLM_EXPANDED_VALIDATOR_HEAD_QUEUED; no execution receipt yet"
     },
     "pull_request": {
       "number": 58,
       "state": "open",
-      "qualification": "not merged because hostile/integrated test execution has not yet been observed"
+      "merged": false,
+      "mergeable_before_cycle4_mutation": true,
+      "mergeable_immediately_after_cycle4_mutation": false,
+      "qualification": "do not classify the post-push mergeable=false observation as a merge conflict without stable GitHub mergeability evidence; validation remains unresolved"
     }
   },
   "observed_external_blockers": [
     {
       "object": "GitHub hosted validation",
-      "state": "QUEUED_OR_EXECUTOR_UNASSIGNED",
-      "evidence": "run 24 is queued; earlier runs repeatedly created jobs with zero executed steps and runner_id=0",
-      "classification": "CI executor/account scheduling boundary until a test step is actually observed"
+      "state": "EXECUTOR_UNASSIGNED_OR_PRE_STEP_FAILURE",
+      "evidence": "hardening run 68 and Casepath run 70 completed failure with job objects containing zero executed steps; new hardening run 71 is queued",
+      "classification": "CI executor/account scheduling boundary until at least one configured test step is observed"
     },
     {
       "object": "TL2 deployment",
       "state": "WAITING_FOR_MATCHING_SELF_HOSTED_RUNNER",
       "required_labels": ["self-hosted", "kex", "tl2"],
+      "workflow_contract": "KEX TL2 Deploy runs only on [self-hosted,kex,tl2] and requires KEX_TL2_ADDRESS plus KEX_BEARER_TOKEN before TL2_LIVE readback",
       "classification": "deployment executor binding boundary"
     }
   ],
   "next_attack_queue": [
-    "run hostile hardening and integrated capability-fabric suite when an executor becomes available and classify exact test failures",
+    "observe hardening run 71 and classify whether any configured step actually executes",
+    "if run 71 executes, classify the first failing hostile/recursive/advanced IL-LLM/capability-fabric/replay assertion and repair that exact defect",
     "force supervisor child failure and verify generation/restart history",
     "move retained ledger-head checkpoint to an independently persisted carrier before claiming tail-rollback detection against host loss",
     "implement outbox relay adapters one participant at a time and reconcile participant receipt hashes",
     "define compensation contracts only for external actions that genuinely have a reversible operation",
     "extend workbook semantic graph to named ranges/table references and distinguish range dependencies from exact-cell dependencies",
-    "audit capability fabric report for any local-success/external-success conflation",
+    "audit capability fabric and IL-LLM translation reports for local-success/external-success or semantic-selection/authorization conflation",
     "re-run PR diff audit after further mutation",
-    "merge PR #58 only when mergeability and available validation evidence are reconciled",
+    "merge PR #58 only when stable mergeability and available validation evidence are reconciled",
     "after merge, re-attempt TL2 deployment without attaching public DNS/TLS/Drive/Bitcoin/full migration blockers"
   ],
   "restart_protocol": [
@@ -131,18 +180,24 @@
   ],
   "promotion_boundaries": {
     "LOCAL_CAPABILITY_FABRIC_VERIFIED": "requires one integrated harness run satisfying all local capability checks",
+    "ILLLM_RECURSIVE_RUNTIME_VERIFIED": "requires observed execution of recursive and advanced IL-LLM suites on branch-equivalent bytes",
+    "ILLLM_TRANSLATION_AUTHORIZED": "requires both contextual selection and independent capability verification; selection alone is not authority",
     "TL2_LIVE": "requires actual tunnel runner, runtime bind and inside-tunnel readback",
     "PUBLIC_LIVE": "not implied by TL2_LIVE",
     "DISTRIBUTED_CONSENSUS": "not claimed",
     "EXACTLY_ONCE": "not claimed",
     "FULL_OBJECT_CAPABILITY_OS": "not claimed",
     "WORKBOOK_EXECUTION": "formula graph analysis does not prove formula/macro execution",
-    "OUTBOX_PENDING": "durable intent only; not participant execution"
+    "OUTBOX_PENDING": "durable intent only; not participant execution",
+    "UNIVERSAL_INFERENCE_ACCELERATION": "not claimed; incremental/equivalence optimisations require workload-specific benchmark receipts"
   },
   "continuity": {
     "repository_record": "continuation/KEX_RUNTIME_HARDENING_CONTINUATION_R2.json",
-    "scheduled_monitor": "hourly condition watch configured to resume when GitHub/PR/TL2 state becomes actionable",
     "capability_case_study": "docs/KEX_CAPABILITY_FABRIC_CASE_STUDY_R1.md",
-    "capability_harness": "scripts/kex-ci/exercise_capability_fabric.py"
+    "capability_harness": "scripts/kex-ci/exercise_capability_fabric.py",
+    "illlm_recursive_test": "scripts/kex-ci/test_illlm_recursive_runtime.py",
+    "illlm_advanced_test": "scripts/kex-ci/test_illlm_advanced_runtime.py",
+    "hardening_workflow": ".github/workflows/kex-runtime-hardening.yml",
+    "tl2_workflow": ".github/workflows/kex-tl2-deploy.yml"
   }
 }
