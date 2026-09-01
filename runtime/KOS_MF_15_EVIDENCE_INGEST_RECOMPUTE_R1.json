@@ -1,0 +1,59 @@
+{
+  "schema": "kex.illlm.evidence-ingest-recompute/v1",
+  "evidence_id": "KOS-MF-15-NATIVE-FENCE-R1",
+  "source_release_root": "2cd6cd4f2068d2e70e91bb16b4248ef84ceca30f0cfd2a79c2af417223b45d7e",
+  "classification": "FIXED_MEMBERSHIP_CRASH_FAULT_FENCE_MODEL_VALIDATED",
+  "observed": {
+    "hostile_model_tests": "6/6 PASS",
+    "minority_partition_quorum_refused": true,
+    "stale_owner_rejected_after_successor_fence": true,
+    "stale_owner_rejected_after_partition_heal": true,
+    "conflicting_same_generation_certificates_both_possible": false,
+    "conflicting_vote_survives_restart": true,
+    "persistent_replay_high_water": true,
+    "membership_epoch_root_bound": true
+  },
+  "promotion_denied": [
+    "PHYSICAL_MULTI_HOST",
+    "WAN_PARTITION_SAFETY",
+    "LEADER_VIEW_CHANGE_LIVENESS",
+    "DYNAMIC_MEMBERSHIP",
+    "BYZANTINE_SAFETY",
+    "HARDWARE_ROOTED_IDENTITY"
+  ],
+  "scheduler_recompute": {
+    "database_hash": "b4661425e39e9fb50f099ce2f1bfacdbf2c6b5772ba2fb077df7907ebe46c216",
+    "selection_hash": "daa297608459860b7464365e49fd7efab3fd4e75e2f95ddc152a37ef099c23f8",
+    "selected": null,
+    "open_frontier": {
+      "OBL-FENCING-MULTIHOST": {
+        "dependency_ready": 0,
+        "executable_now": 0,
+        "eligible": 0,
+        "boundary": "Actual transport-bound multi-host/partition execution with an independently shared authority remains unproven."
+      },
+      "OBL-POWERLOSS": {
+        "dependency_ready": 1,
+        "executable_now": 0,
+        "eligible": 0
+      },
+      "OBL-EXTERNAL-TARGET": {
+        "dependency_ready": 0,
+        "executable_now": 0,
+        "eligible": 0
+      },
+      "OBL-MARKET-OUTCOME": {
+        "dependency_ready": 0,
+        "executable_now": 0,
+        "eligible": 0
+      },
+      "OBL-RECEIPT-TRUST-ANCHOR": {
+        "dependency_ready": 0,
+        "executable_now": 0,
+        "eligible": 0
+      }
+    }
+  },
+  "mutation_boundary": "Evidence was ingested and the scheduler was recomputed. No obligation was executed because selected remained null. Eligibility and executable-now flags were not promoted by inference.",
+  "receipt_root": "142a418f845372de2e52a3fcf55e74c4f58df4feb17b9c32ee40f6eb09ed5918"
+}
