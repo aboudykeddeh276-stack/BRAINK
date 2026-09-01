@@ -29,6 +29,50 @@ def _formula_dependencies(formula: str, current_sheet: str) -> list[str]:
     return deps
 
 
+def _strongly_connected_components(edges: list[dict[str, str]]) -> list[list[str]]:
+    graph: dict[str, set[str]] = {}
+    for edge in edges:
+        graph.setdefault(edge["from"], set()).add(edge["to"])
+        graph.setdefault(edge["to"], set())
+
+    index = 0
+    stack: list[str] = []
+    on_stack: set[str] = set()
+    indices: dict[str, int] = {}
+    lowlink: dict[str, int] = {}
+    components: list[list[str]] = []
+
+    def visit(node: str) -> None:
+        nonlocal index
+        indices[node] = index
+        lowlink[node] = index
+        index += 1
+        stack.append(node)
+        on_stack.add(node)
+
+        for nxt in sorted(graph[node]):
+            if nxt not in indices:
+                visit(nxt)
+                lowlink[node] = min(lowlink[node], lowlink[nxt])
+            elif nxt in on_stack:
+                lowlink[node] = min(lowlink[node], indices[nxt])
+
+        if lowlink[node] == indices[node]:
+            component: list[str] = []
+            while True:
+                member = stack.pop()
+                on_stack.remove(member)
+                component.append(member)
+                if member == node:
+                    break
+            components.append(sorted(component))
+
+    for node in sorted(graph):
+        if node not in indices:
+            visit(node)
+    return components
+
+
 def analyze_workbook(path: Path) -> dict[str, Any]:
     wb = load_workbook(path, read_only=False, data_only=False)
     objects: list[dict[str, Any]] = []
@@ -66,6 +110,10 @@ def analyze_workbook(path: Path) -> dict[str, Any]:
                     })
     wb.close()
 
+    components = _strongly_connected_components(edges)
+    self_edges = {edge["from"] for edge in edges if edge["from"] == edge["to"]}
+    cycles = [component for component in components if len(component) > 1 or any(node in self_edges for node in component)]
+
     canonical_graph = {
         "workbook": path.name,
         "sheetCount": len({obj["sheet"] for obj in objects}),
@@ -73,8 +121,12 @@ def analyze_workbook(path: Path) -> dict[str, Any]:
         "formulaCellCount": formulas,
         "objectCount": len(objects),
         "dependencyEdgeCount": len(edges),
+        "stronglyConnectedComponentCount": len(components),
+        "cycleCount": len(cycles),
+        "cycles": cycles,
         "objects": objects,
         "edges": edges,
+        "claimBoundary": "Dependency and cycle analysis is static formula-graph analysis. It does not execute Excel calculation, macros, volatile functions, or external links.",
     }
     canonical_graph["graphHash"] = sha256_bytes(canonical_json_bytes(canonical_graph))
     return canonical_graph
@@ -92,4 +144,6 @@ def write_semantic_index(workbook_path: Path) -> dict[str, Any]:
         "formulaCellCount": graph["formulaCellCount"],
         "objectCount": graph["objectCount"],
         "dependencyEdgeCount": graph["dependencyEdgeCount"],
+        "cycleCount": graph["cycleCount"],
+        "cycles": graph["cycles"],
     }
