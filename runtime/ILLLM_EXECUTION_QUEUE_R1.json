@@ -1,0 +1,94 @@
+{
+  "schema": "kex.illlm.execution-queue.v1",
+  "selectionLaw": {
+    "score": "3*dependencyImpact + 3*evidenceDeficit + 2*downstreamUnlock + 2*executionFeasibility + 2*criticality - 4*alreadyClosed",
+    "tieBreak": ["lowerOrdinal", "lexicalTaskId"],
+    "rule": "Conversation deltas may mutate candidate evidence, constraints or scores, but may not replace the selected primary task unless the recomputed queue changes priority."
+  },
+  "sourceCorpus": [
+    "docs/recursive-review/ILLLM_PASS_5_REPLACEMENT_CURRENT_STATE_R1.md",
+    "modules/kex_wbos/lease_fencing.py",
+    "modules/kex_wbos/vfs_generation.py",
+    "modules/kex_wbos/mirror_learning.py",
+    "scripts/kex-ci/test_vfs_generation_mirror_learning.py"
+  ],
+  "environmentObservations": {
+    "githubActionsConfiguredStepsObserved": false,
+    "githubActionsObservedState": "PRE_STEP_EXECUTOR_BOUNDARY",
+    "currentHostGithubDns": "UNRESOLVED",
+    "repositoryWriteConnector": "AVAILABLE",
+    "residentRuntimeLocalOracle": "SOURCE_AVAILABLE"
+  },
+  "candidates": [
+    {
+      "ordinal": 1,
+      "taskId": "EXEC-RESIDENT-ORACLE-VFS-MIRROR-FENCE",
+      "action": "Bind lease fencing, VFS generation/Mirror learning and projection continuity regressions into the resident runtime local oracle set.",
+      "dependencyImpact": 5,
+      "evidenceDeficit": 4,
+      "downstreamUnlock": 5,
+      "executionFeasibility": 5,
+      "criticality": 5,
+      "alreadyClosed": 0,
+      "evidence": [
+        "Pass 5 requires actual execution of lease fencing and governed canonical mutation tests.",
+        "VFS promotion now validates the fence at canonical HEAD publication.",
+        "GitHub Actions currently fails before configured steps execute.",
+        "Resident controller already owns an independent local oracle mechanism."
+      ],
+      "promotionEvidence": "Resident oracle cycle executes the new regressions and records return codes/stdout/stderr in resident proof/state."
+    },
+    {
+      "ordinal": 2,
+      "taskId": "EXEC-DESTRUCTIVE-REHYDRATION-8CLASS",
+      "action": "Implement destructive rehydration experiments across canonical carrier, semantic index, observer/mirror, services, IL-LLM topology, definitions, authority and proof lineage.",
+      "dependencyImpact": 5,
+      "evidenceDeficit": 5,
+      "downstreamUnlock": 4,
+      "executionFeasibility": 3,
+      "criticality": 5,
+      "alreadyClosed": 0,
+      "evidence": ["Pass 5 classifies the destructive eight-class rehydration suite as not implemented."],
+      "promotionEvidence": "Independent destructive restart/rebuild receipts for all eight rehydration classes."
+    },
+    {
+      "ordinal": 3,
+      "taskId": "EXEC-CONTROLLED-STATISTICAL-SUITE",
+      "action": "Execute the controlled repeated-experiment harness and bind raw distributions and uncertainty outputs to the claim ledger.",
+      "dependencyImpact": 4,
+      "evidenceDeficit": 4,
+      "downstreamUnlock": 3,
+      "executionFeasibility": 2,
+      "criticality": 3,
+      "alreadyClosed": 0,
+      "evidence": ["Counterbalanced experiment harness is source-resident; current host checkout is blocked by DNS."],
+      "promotionEvidence": "Raw samples, counterbalanced order, confidence intervals, autocorrelation and workload metadata from executable branch-equivalent bytes."
+    },
+    {
+      "ordinal": 4,
+      "taskId": "EXEC-GITHUB-PRESTEP-BOUNDARY",
+      "action": "Diagnose the GitHub Actions pre-step executor boundary without retrying unchanged failures.",
+      "dependencyImpact": 4,
+      "evidenceDeficit": 4,
+      "downstreamUnlock": 4,
+      "executionFeasibility": 2,
+      "criticality": 3,
+      "alreadyClosed": 0,
+      "evidence": ["Current jobs fail with zero configured steps exposed."],
+      "promotionEvidence": "A workflow job begins configured steps, or the exact external runner/account gate is independently identified."
+    },
+    {
+      "ordinal": 5,
+      "taskId": "EXEC-VFS-FENCE-SOURCE-INTEGRATION",
+      "action": "Integrate resource-side fence validation at canonical VFS publication.",
+      "dependencyImpact": 5,
+      "evidenceDeficit": 1,
+      "downstreamUnlock": 4,
+      "executionFeasibility": 5,
+      "criticality": 5,
+      "alreadyClosed": 1,
+      "evidence": ["Current VFSGenerationStore.promote already validates the resource fence before HEAD publication and hostile source test rejects the stale owner."],
+      "promotionEvidence": "Source requirement is already closed; execution evidence is represented by EXEC-RESIDENT-ORACLE-VFS-MIRROR-FENCE."
+    }
+  ]
+}
