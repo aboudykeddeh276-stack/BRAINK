@@ -9,6 +9,7 @@ on:
       - "scripts/kex-ci/verify_action_ledger.py"
       - "openapi/kex-unified-action-runtime.yaml"
       - "docs/KEX_SYSTEMS_ENGINEERING_PARADIGM_EXPLOITATION_R1.md"
+      - "continuation/KEX_RUNTIME_HARDENING_CONTINUATION_R2.json"
       - ".github/workflows/kex-runtime-hardening.yml"
   push:
     branches: [main]
@@ -18,6 +19,7 @@ on:
       - "scripts/kex-ci/test_runtime_hardening.py"
       - "scripts/kex-ci/verify_action_ledger.py"
       - "openapi/kex-unified-action-runtime.yaml"
+      - "continuation/KEX_RUNTIME_HARDENING_CONTINUATION_R2.json"
       - ".github/workflows/kex-runtime-hardening.yml"
   workflow_dispatch:
 
@@ -46,9 +48,14 @@ jobs:
           p=Path('openapi/kex-unified-action-runtime.yaml')
           data=yaml.safe_load(p.read_text())
           assert data['openapi']=='3.1.0', data.get('openapi')
-          assert data['info']['version']=='5.1.0', data['info']['version']
-          assert 'capability' in data['components']['schemas']['ActionExecutionRequest']['properties']
-          assert 'receiptHash' in data['components']['schemas']['MutationReceipt']['properties']
+          assert data['info']['version']=='5.2.0', data['info']['version']
+          req=data['components']['schemas']['ActionExecutionRequest']['properties']
+          receipt=data['components']['schemas']['MutationReceipt']['properties']
+          assert 'capability' in req
+          assert 'idempotencyKey' in req
+          assert 'receiptHash' in receipt
+          assert 'parentReceiptHash' in receipt
+          assert 'ledgerVersion' in receipt
           print('OPENAPI_HARDENING_PASS')
           PY
       - name: Run hostile runtime hardening suite
