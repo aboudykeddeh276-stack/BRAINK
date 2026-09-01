@@ -15,18 +15,19 @@ from openpyxl import load_workbook
 from capabilities import verify_capability
 from casepath_management import managed_dispatch
 from hardening import append_jsonl_fsync, atomic_write_text, contained_path
+from idempotency import IdempotencyRegistry
 from network_policy import readback_url_allowed
 from object_store import ContentAddressedStore
 
 BASE = Path(__file__).resolve().parents[2]
 RUNTIME = BASE / "runtime"
-# V1 remains immutable legacy evidence. V2 is the canonical chained receipt ledger.
 LEGACY_ACTION_LEDGER = BASE / "reports" / "kex-wbos" / "action-ledger.jsonl"
 ACTION_LEDGER = BASE / "reports" / "kex-wbos" / "action-ledger-v2.jsonl"
 SOURCE_ROOT = RUNTIME / "sources"
 DISPATCH_ROOT = RUNTIME / "casepath-dispatch"
 PROOF_ROOT = BASE / "reports" / "kex-wbos"
 OBJECT_STORE = ContentAddressedStore(RUNTIME / "objects")
+IDEMPOTENCY = IdempotencyRegistry(RUNTIME / "idempotency" / "action-registry-v1.json")
 
 EXTERNAL_ACTIONS = {
     "PUBLIC_DNS": "DNS_PROVIDER_ADAPTER",
@@ -80,11 +81,10 @@ def _capability_check(request: dict[str, Any], action_type: str, target: str) ->
     secret = os.getenv("KEX_CAPABILITY_SECRET", "")
     if not secret:
         return False, {"error": "capability_secret_not_configured"}
-    ok, detail = verify_capability(secret, str(request.get("capability", "")), action=action_type, target=target)
-    return ok, detail
+    return verify_capability(secret, str(request.get("capability", "")), action=action_type, target=target)
 
 
-def execute_action(request: dict[str, Any]) -> dict[str, Any]:
+def _execute_action_once(request: dict[str, Any]) -> dict[str, Any]:
     action_type = str(request.get("actionType", "")).upper()
     target = str(request.get("target", ""))
     action_id = f"ACT-{uuid.uuid4().hex[:12]}"
@@ -116,6 +116,31 @@ def execute_action(request: dict[str, Any]) -> dict[str, Any]:
     if action_type == "PROOF_LEDGER_WRITE":
         return write_proof({"authority": request["authority"], "eventType": request.get("payload", {}).get("eventType", action_type), "payload": request.get("payload", {}), "targetLedger": target})
     return _receipt(action_id, "ARMED", False, target, details={"actionType": action_type, "controlRoute": request.get("controlRoute"), "capability": capability_detail, "claimBoundary": "Action class is resident but no local executor was selected for this request."})
+
+
+def execute_action(request: dict[str, Any]) -> dict[str, Any]:
+    key = str(request.get("idempotencyKey", "")).strip()
+    if not key:
+        return _execute_action_once(request)
+
+    begin = IDEMPOTENCY.begin(key, request)
+    state = begin.get("state")
+    target = str(request.get("target", ""))
+    if state == "REPLAY":
+        receipt = begin.get("receipt")
+        if isinstance(receipt, dict):
+            return receipt
+        return _receipt(f"IDEM-{uuid.uuid4().hex[:12]}", "FAIL", False, target, details={"error": "idempotency_replay_receipt_missing", "idempotencyKey": key})
+    if state == "CONFLICT":
+        return _receipt(f"IDEM-{uuid.uuid4().hex[:12]}", "BLOCKED", False, target, details={"error": "idempotency_key_conflict", "idempotencyKey": key, **begin})
+    if state == "INFLIGHT":
+        return _receipt(f"IDEM-{uuid.uuid4().hex[:12]}", "BLOCKED", False, target, details={"error": "idempotency_outcome_ambiguous", "idempotencyKey": key, "claimBoundary": "A prior execution reserved this key but did not commit a terminal receipt. Automatic replay is suppressed to avoid duplicate mutation; reconcile the original effect before retrying."})
+    if state != "NEW":
+        return _receipt(f"IDEM-{uuid.uuid4().hex[:12]}", "FAIL", False, target, details={"error": "invalid_idempotency_key", "idempotencyKey": key})
+
+    receipt = _execute_action_once(request)
+    IDEMPOTENCY.complete(key, str(begin["requestHash"]), receipt)
+    return receipt
 
 
 def ingest_source(request: dict[str, Any]) -> dict[str, Any]:
