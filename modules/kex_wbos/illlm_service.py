@@ -6,14 +6,22 @@ import os
 import threading
 import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from pathlib import Path
 from typing import Any
 
-from hardening import constant_time_bearer_matches, require_secure_bind
+from hardening import constant_time_bearer_matches, contained_path, require_secure_bind
 from illlm_context_translator import ILLLMContextTranslator, TranslationContext
 from illlm_delta_engine import DeltaEngine, Fact, default_kex_rules
 from illlm_equivalence import EquivalenceStore, EquivalentForm
 from illlm_higher_order import build_topology
 from illlm_hydrator import apply_delta, hydrate_recursive_runtime
+from workbook_illlm_bridge import hydrate_workbook_into_illlm
+
+BASE = Path(__file__).resolve().parents[2]
+WORKBOOK_ROOTS = (
+    BASE / "workbooks",
+    BASE / "runtime" / "workbooks",
+)
 
 
 class RuntimeHolder:
@@ -27,6 +35,7 @@ class RuntimeHolder:
         self.loaded_at = time.time()
         self.last_delta: dict[str, Any] | None = None
         self.last_fact_delta: dict[str, Any] | None = None
+        self.last_workbook_hydration: dict[str, Any] | None = None
 
     def snapshot(self) -> dict[str, Any]:
         with self.lock:
@@ -34,6 +43,7 @@ class RuntimeHolder:
             snap.update({
                 "loadedAt": self.loaded_at,
                 "lastGraphDelta": self.last_delta,
+                "lastWorkbookHydration": self.last_workbook_hydration,
                 "factEngine": {
                     "generation": self.delta_engine.generation,
                     "residentFactCount": len(self.delta_engine.facts),
@@ -134,18 +144,53 @@ class RuntimeHolder:
                 allowed_proof_status=allowed,
             )
 
+    def _resolve_workbook_path(self, raw: str) -> Path:
+        supplied = Path(raw)
+        candidates: list[Path] = []
+        if supplied.is_absolute():
+            candidates.append(supplied)
+        else:
+            candidates.extend(root / supplied for root in WORKBOOK_ROOTS)
+        for candidate in candidates:
+            for root in WORKBOOK_ROOTS:
+                try:
+                    resolved = contained_path(root, candidate)
+                except ValueError:
+                    continue
+                if resolved.is_file() and resolved.suffix.lower() in {".xlsx", ".xlsm"}:
+                    return resolved
+        raise ValueError("workbook_not_found_or_outside_allowed_roots")
+
+    def workbook_hydrate(self, payload: dict[str, Any]) -> dict[str, Any]:
+        workbook = self._resolve_workbook_path(str(payload["path"]))
+        raw_routes = payload.get("executionRoutes", {})
+        if raw_routes is None:
+            raw_routes = {}
+        if not isinstance(raw_routes, dict):
+            raise ValueError("executionRoutes_must_be_object")
+        routes: dict[str, tuple[str, ...]] = {}
+        for object_id, values in raw_routes.items():
+            if not isinstance(values, list) or not all(isinstance(v, str) for v in values):
+                raise ValueError("executionRoutes_values_must_be_string_arrays")
+            routes[str(object_id)] = tuple(values)
+        with self.lock:
+            receipt = hydrate_workbook_into_illlm(self.runtime, workbook, execution_routes=routes)
+            self.last_workbook_hydration = {"at": time.time(), **receipt}
+            return receipt
+
     def rebuild(self) -> dict[str, Any]:
         with self.lock:
             previous = self.runtime.graph_hash()
             self.runtime = hydrate_recursive_runtime(build_topology())
             self.loaded_at = time.time()
+            self.last_workbook_hydration = None
             return {
                 "status": "REBUILT",
                 "previousGraphHash": previous,
                 "graphHash": self.runtime.graph_hash(),
                 "nodeCount": len(self.runtime.nodes),
                 "generation": self.runtime.generation,
-                "claimBoundary": "Full rebuild is a recovery/reindex operation. Warm fact/equivalence state is intentionally separate and is not silently fabricated from the rebuilt topology.",
+                "claimBoundary": "Full rebuild is a recovery/reindex operation. Warm fact/equivalence/workbook state is intentionally separate and is not silently fabricated from the rebuilt topology.",
             }
 
 
@@ -153,7 +198,7 @@ HOLDER = RuntimeHolder()
 
 
 class Handler(BaseHTTPRequestHandler):
-    server_version = "KEX-ILLLM/2.0"
+    server_version = "KEX-ILLLM/2.1"
 
     def log_message(self, fmt: str, *args: Any) -> None:
         return
@@ -205,6 +250,7 @@ class Handler(BaseHTTPRequestHandler):
                 "/facts/query": HOLDER.fact_query,
                 "/equivalence/register": HOLDER.equivalence_register,
                 "/equivalence/extract": HOLDER.equivalence_extract,
+                "/workbooks/hydrate": HOLDER.workbook_hydrate,
             }
             handler = handlers.get(self.path)
             if handler:
