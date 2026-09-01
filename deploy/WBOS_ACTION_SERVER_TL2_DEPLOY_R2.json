@@ -1,0 +1,42 @@
+{
+  "schema": "kex.tl2.wbos-action-server-deploy.v2",
+  "deploy_packet": "WBOS_ACTION_SERVER_TL2_DEPLOY_R2",
+  "authority": "A.KEDDEH / KEDDEH_SYSTEMS / BRAINK / CASEPATH",
+  "target_state": "TL2_LIVE",
+  "source_object": {
+    "identity": "source://github/BRAINK/modules/kex_wbos/action_server.py",
+    "source": "https://raw.githubusercontent.com/aboudykeddeh276-stack/BRAINK/main/modules/kex_wbos/action_server.py",
+    "runtime_service": "service://wbos/action-server",
+    "runtime": "runtime://kex/wbos",
+    "transport": "tlvpn://kex/tl2"
+  },
+  "required_for_tl2_live": [
+    "source/object binding",
+    "runtime launch",
+    "service route bind",
+    "TL2 readback",
+    "runtime proof event"
+  ],
+  "not_prerequisites": [
+    "public DNS",
+    "public TLS",
+    "public router/firewall",
+    "public website update",
+    "Google Drive writeback",
+    "Bitcoin IBD=false",
+    "full BrainK migration",
+    "OpenAPI presence"
+  ],
+  "readback_targets": [
+    "/api/health",
+    "/api/services",
+    "/api/routes",
+    "/api/proof-ledger"
+  ],
+  "blocked_promotions": [
+    "PUBLIC_LIVE",
+    "LIBRARY_PERSISTED",
+    "BITCOIN_LIVE",
+    "BRAINK_MIGRATED"
+  ]
+}
