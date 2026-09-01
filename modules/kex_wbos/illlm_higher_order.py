@@ -4,6 +4,7 @@ from __future__ import annotations
 import json
 import re
 import time
+import uuid
 from collections import defaultdict, deque
 from dataclasses import dataclass, asdict
 from pathlib import Path
@@ -59,10 +60,10 @@ def _role(identity: str) -> str:
     low = identity.lower()
     if "/planning/" in low or "/plan/" in low:
         return "PLANNING"
-    if "/sector/" in low:
-        return "SECTOR"
     if "/research/" in low:
         return "RESEARCH"
+    if "/sector/" in low:
+        return "SECTOR"
     if "/capability/" in low:
         return "CAPABILITY"
     if "/infrastructure/" in low or "/edge/" in low:
@@ -76,11 +77,12 @@ def _role(identity: str) -> str:
 
 def _infer_parent(identity: str) -> str | None:
     low = identity.lower()
+    # Specific paths must precede generic /sector/ matching.
+    if "/research/sector/" in low:
+        return "il-llm://braink/research"
     match = SECTOR_RE.search(low)
     if match:
         return "il-llm://braink/sector"
-    if "/research/sector/" in low:
-        return "il-llm://braink/research"
     if "/planning/" in low:
         return "il-llm://braink/planning"
     if "/capability/" in low:
@@ -194,7 +196,7 @@ def build_topology(discovered: list[dict[str, Any]] | None = None) -> dict[str, 
 
 
 def begin_frame(root: str = "il-llm://braink") -> TraversalFrame:
-    frame_id = f"continuation://braink/illlm/frame/{int(time.time() * 1000)}"
+    frame_id = f"continuation://braink/illlm/frame/{uuid.uuid4().hex}"
     frame = TraversalFrame(frame_id, root, root, [root], [root], 1, "OPEN")
     append_jsonl_fsync(TRAVERSAL_LEDGER, {"ts": time.time(), "event": "FRAME_OPEN", **asdict(frame)})
     return frame
