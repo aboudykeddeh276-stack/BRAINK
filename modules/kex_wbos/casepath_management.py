@@ -114,7 +114,7 @@ def managed_dispatch(
         "dispatchHash": after,
         "queueLength": len(resolved_actions),
     }
-    proof_row = append_jsonl_fsync(proof_path, proof_event)
+    proof_row, persisted_proof_event = append_jsonl_fsync(proof_path, proof_event)
     proof_after = sha(proof_path.read_bytes())
 
     return receipt(
@@ -134,6 +134,7 @@ def managed_dispatch(
             "proofBeforeHash": proof_before,
             "proofAfterHash": proof_after,
             "proofRow": proof_row,
+            "proofEvent": persisted_proof_event,
             "claimBoundary": "Managed dispatch persisted and proved; downstream service actions remain separately executable and separately provable.",
         },
     )
