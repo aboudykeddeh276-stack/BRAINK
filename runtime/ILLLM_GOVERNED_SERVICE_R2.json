@@ -36,19 +36,40 @@
     "lifecycle_gates": "HEALTHY",
     "signed_deployment_receipt": "VERIFIED",
     "chromium_set_content_projection": "PASS",
-    "chromium_direct_localhost_route": "BLOCKED_BY_ADMINISTRATOR_POLICY"
+    "chromium_direct_localhost_route": "BLOCKED_BY_ADMINISTRATOR_POLICY",
+    "native_fence_model": {
+      "component": "KOS-MF-15",
+      "classification": "FIXED_MEMBERSHIP_CRASH_FAULT_FENCE_MODEL_VALIDATED",
+      "hostile_suite": "6/6 PASS",
+      "source_release_root": "2cd6cd4f2068d2e70e91bb16b4248ef84ceca30f0cfd2a79c2af417223b45d7e",
+      "scheduler_receipt": "runtime/KOS_MF_15_EVIDENCE_INGEST_RECOMPUTE_R1.json"
+    }
+  },
+  "scheduler_state": {
+    "latest_evidence_delta": "KOS-MF-15-NATIVE-FENCE-R1",
+    "database_hash": "b4661425e39e9fb50f099ce2f1bfacdbf2c6b5772ba2fb077df7907ebe46c216",
+    "selection_hash": "daa297608459860b7464365e49fd7efab3fd4e75e2f95ddc152a37ef099c23f8",
+    "selected": null,
+    "decision": "NO_ELIGIBLE_OBLIGATION_AFTER_EVIDENCE_RECOMPUTE"
   },
   "claim_boundary": {
     "public_saas": "NOT_CLAIMED",
     "external_key_trust_anchor": "NOT_YET_PROVEN",
     "multi_host_linearizable_authority": "NOT_YET_PROVEN",
+    "physical_multi_host_fencing": "NOT_YET_PROVEN",
+    "wan_partition_safety": "NOT_YET_PROVEN",
+    "leader_view_change_liveness": "NOT_YET_PROVEN",
+    "dynamic_membership": "NOT_YET_PROVEN",
+    "byzantine_safety": "NOT_YET_PROVEN",
+    "hardware_rooted_identity": "NOT_YET_PROVEN",
     "power_loss_durability": "NOT_YET_PROVEN",
     "customer_roi": "NOT_YET_PROVEN"
   },
   "library": {
     "folder": "/IL_LLM_DB_DRIVEN_EXECUTION/",
     "report": "IL_LLM_GOVERNED_EXECUTION_SERVICE_STREAM_R2.md",
-    "release": "IL_LLM_GOVERNED_EXECUTION_SERVICE_STREAM_R2.zip"
+    "release": "IL_LLM_GOVERNED_EXECUTION_SERVICE_STREAM_R2.zip",
+    "native_fence_evidence": "KOS_MF_15_NATIVE_FENCE_R1"
   },
   "sha256": {
     "release": "57495f55a78487a3443cfa18b418de226066c32c225d6da3355b2e6b88f990b4",
