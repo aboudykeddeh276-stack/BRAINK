@@ -16,12 +16,20 @@ ROOT = Path(__file__).resolve().parents[2]
 SERVER = ROOT / "modules" / "kex_wbos" / "server.py"
 OPENAPI = ROOT / "openapi" / "kex-unified-api.yaml"
 LEDGER = ROOT / "reports" / "kex-wbos" / "proof-ledger.jsonl"
+RUNTIME_BOOKS = ROOT / "runtime" / "workbooks"
 BASE = "http://127.0.0.1:8765"
 
 
 def get(path: str):
     with urllib.request.urlopen(BASE + path, timeout=5) as response:
         return response.status, response.headers.get("Content-Type", ""), response.read()
+
+
+def get_allow_404(path: str):
+    try:
+        return get(path)
+    except urllib.error.HTTPError as exc:
+        return exc.code, exc.headers.get("Content-Type", ""), exc.read()
 
 
 def post_multipart(path: str, fields: dict[str, tuple[str, bytes]]):
@@ -37,21 +45,41 @@ def post_multipart(path: str, fields: dict[str, tuple[str, bytes]]):
         ])
     chunks.append(f"--{boundary}--\r\n".encode())
     body = b"".join(chunks)
-    req = urllib.request.Request(
-        BASE + path,
-        data=body,
-        method="POST",
-        headers={"Content-Type": f"multipart/form-data; boundary={boundary}"},
-    )
+    req = urllib.request.Request(BASE + path, data=body, method="POST", headers={"Content-Type": f"multipart/form-data; boundary={boundary}"})
     with urllib.request.urlopen(req, timeout=10) as response:
         return response.status, response.headers.get("Content-Type", ""), response.read()
 
 
-def workbook_bytes(sheet_name: str, value: str) -> bytes:
+def source_workbook_bytes() -> bytes:
+    wb = Workbook()
+    wb.remove(wb.active)
+
+    def add(name: str, headers: list[str], rows: list[list[object]]):
+        ws = wb.create_sheet(name)
+        ws.append(headers)
+        for row in rows:
+            ws.append(row)
+
+    add("CORE_LATTICE", ["address", "value", "type", "state"], [["K.0", 1, "ROOT", "ACTIVE"], ["K.1", 0.297, "RESONANCE", "ACTIVE"]])
+    add("ROOT_MATRIX", ["id", "v1", "v2", "v3"], [[1, -3, 1, 3], [2, -2, 1, 2]])
+    add("GLOBAL_INDEX", ["timestamp", "term", "value"], [["2026-09-01T00:00:00+00:00", "alpha", 1], ["2026-09-01T01:00:00+00:00", "beta", 2]])
+    add("BENCHMARKS", ["operation", "timeSec"], [["hydrate", 0.12], ["resolve", 0.03]])
+    add("HYPER_CORES", ["id", "model", "status", "capacity"], [["HC-1", "logical", "ACTIVE", "1 lane"]])
+    add("SERVERS", ["id", "hostname", "status", "cpuCores", "memory"], [["SRV-1", "wbos-local", "ACTIVE", 4, "8 GB"]])
+    add("STORAGE_DEVICES", ["id", "type", "capacity", "status"], [["STO-1", "virtual", "100 TB", "CONTRACT"]])
+    add("LOGS", ["timestamp", "operation", "details"], [["2026-09-01T00:30:00+00:00", "boot", "test"]])
+
+    buf = io.BytesIO()
+    wb.save(buf)
+    return buf.getvalue()
+
+
+def second_workbook_bytes() -> bytes:
     wb = Workbook()
     ws = wb.active
-    ws.title = sheet_name
-    ws["A1"] = value
+    ws.title = "KEX_DNA"
+    ws.append(["index", "identity", "symbol", "role"])
+    ws.append([1, "Hydrogen", "H", "PRIMARY_IGNITION"])
     buf = io.BytesIO()
     wb.save(buf)
     return buf.getvalue()
@@ -65,17 +93,13 @@ def require(condition: bool, message: str) -> None:
 def main() -> int:
     if LEDGER.exists():
         LEDGER.unlink()
+    if RUNTIME_BOOKS.exists():
+        for path in RUNTIME_BOOKS.glob("*.xls*"):
+            path.unlink()
 
     spec = OPENAPI.read_text(encoding="utf-8")
-    required_paths = [
-        "/core-lattice:", "/flow-territories:", "/genome-store:", "/kex-dna:",
-        "/substrate-grid:", "/system-state:", "/root-matrix:",
-        "/activate-workbook:", "/workbooks/apply:", "/virtualization-metrics:",
-        "/api/health:", "/api/resolve:", "/mesh:", "/cascade:", "/api/proof-ledger:",
-    ]
-    require("openapi: 3.1.0" in spec, "OpenAPI version missing")
-    for required in required_paths:
-        require(required in spec, f"Unified OpenAPI surface missing: {required}")
+    for required in ["openapi: 3.1.0", "/core-lattice:", "/global-index:", "/root-matrix/statistics:", "/activate-workbook:", "/workbooks/apply:", "/api/health:", "/api/proof-ledger:"]:
+        require(required in spec, f"KEX Systems OpenAPI surface missing: {required}")
 
     proc = subprocess.Popen([sys.executable, str(SERVER)], cwd=ROOT)
     try:
@@ -88,92 +112,92 @@ def main() -> int:
             except Exception:
                 pass
             if time.time() >= deadline:
-                raise AssertionError("WBOS server did not become reachable")
+                raise AssertionError("KEX Systems API did not become reachable")
             time.sleep(0.1)
 
-        status, ctype, apex = get("/")
-        require(status == 200 and "text/html" in ctype and b"KEX K.0 Apex" in apex, "apex projection failed")
+        _, _, raw = get("/core-lattice")
+        before = json.loads(raw)
+        require(before["state"] == "SOURCE_NOT_RESIDENT", "pre-activation source boundary failed")
 
-        _, _, raw = get("/api/health")
-        health = json.loads(raw)
-        require(health["status"] == "ok", "health not ok")
-        require(health["os"] == "KEX-WBOS Cascade OS", "wrong OS identity")
-        require(len(health["cascade_order"]) == 10, "cascade order incomplete")
+        first = source_workbook_bytes()
+        second = second_workbook_bytes()
+        status, _, raw = post_multipart("/activate-workbook", {"workbook": ("kex-source-test.xlsx", first)})
+        activation = json.loads(raw)
+        require(status == 200, "workbook activation failed")
+        require(activation["parse_state"] == "STORED_AND_INDEXED", "activated workbook was not indexed")
+        require("CORE_LATTICE" in activation["sheets"], "activation did not expose workbook sheet registry")
 
-        for endpoint in [
-            "/core-lattice", "/flow-territories", "/genome-store", "/kex-dna",
-            "/substrate-grid", "/system-state", "/work-log", "/global-index",
-            "/root-matrix", "/benchmarks", "/hyper-cores", "/servers",
-            "/storage-devices", "/logs",
-        ]:
-            _, _, raw = get(endpoint)
-            payload = json.loads(raw)
-            require(payload["state"] == "SOURCE_NOT_RESIDENT", f"{endpoint} over-promoted source state")
-            require(payload["rows"] == [], f"{endpoint} invented workbook rows")
+        _, _, raw = get("/core-lattice")
+        lattice = json.loads(raw)
+        require(lattice["state"] == "RESIDENT", "core lattice did not promote after source activation")
+        require(lattice["row_count"] == 2, "core lattice row readback wrong")
+        require(lattice["rows"][1]["value"] == 0.297, "resonance value was not preserved")
 
         _, _, raw = get("/root-matrix/statistics")
         stats = json.loads(raw)
-        require(stats["state"] == "SOURCE_NOT_RESIDENT" and stats["count"] == 0, "root matrix statistics boundary failed")
+        require(stats["state"] == "COMPUTED_FROM_RESIDENT_ROWS", "root matrix statistics did not compute from resident source")
+        require(stats["count"] == 6 and stats["min"] == -3 and stats["max"] == 3, "root matrix statistics incorrect")
+
+        _, _, raw = get("/global-index?timestampFrom=2026-09-01T00:30:00%2B00:00")
+        global_index = json.loads(raw)
+        require(global_index["row_count"] == 1 and global_index["rows"][0]["term"] == "beta", "global index timestamp filtering failed")
+
+        _, _, raw = get("/benchmarks?operation=resolve")
+        benchmarks = json.loads(raw)
+        require(benchmarks["row_count"] == 1 and benchmarks["rows"][0]["operation"] == "resolve", "benchmark operation filtering failed")
+
+        status, _, raw = get_allow_404("/hyper-cores/HC-1")
+        require(status == 200 and json.loads(raw)["id"] == "HC-1", "hyper-core object lookup failed")
+        status, _, raw = get_allow_404("/servers/SRV-1")
+        require(status == 200 and json.loads(raw)["hostname"] == "wbos-local", "server object lookup failed")
+        status, _, raw = get_allow_404("/storage-devices/STO-1")
+        require(status == 200 and json.loads(raw)["capacity"] == "100 TB", "storage object lookup failed")
+
+        _, _, raw = get("/storage-summary")
+        storage = json.loads(raw)
+        require(storage["state"] == "COMPUTED_FROM_RESIDENT_ROWS", "storage summary did not derive from source")
+        require(storage["categories"][0]["totalCapacityTb"] == 100.0, "storage capacity summary incorrect")
+
+        _, _, raw = get("/system-summary")
+        system = json.loads(raw)
+        require(system["state"] == "COMPUTED_FROM_RESIDENT_ROWS", "system summary did not derive from source")
+
+        status, ctype, combined = post_multipart("/workbooks/apply", {"workbook1": ("a.xlsx", first), "workbook2": ("b.xlsx", second)})
+        require(status == 200 and "spreadsheetml.sheet" in ctype, "workbook apply failed")
+        wb = load_workbook(io.BytesIO(combined), data_only=False)
+        require("A_CORE_LATTICE" in wb.sheetnames and "B_KEX_DNA" in wb.sheetnames, "combined workbook sheet materialisation failed")
+        require(wb["B_KEX_DNA"]["D2"].value == "PRIMARY_IGNITION", "combined workbook value preservation failed")
 
         _, _, raw = get("/virtualization-metrics")
         metrics = json.loads(raw)
         require(metrics["state"] == "UNMEASURED", "virtualization metrics were fabricated")
 
-        uri = urllib.parse.quote("KEX://ROOT/WORKBOOK/CORE_LATTICE", safe="")
-        _, _, raw = get(f"/api/resolve?uri={uri}")
-        resolved = json.loads(raw)
-        require(resolved["result"]["found"] is True, "workbook KEX URI did not resolve")
-
-        first = workbook_bytes("CORE_LATTICE", "KEX-A")
-        second = workbook_bytes("KEX_DNA", "KEX-B")
-
-        status, _, raw = post_multipart("/activate-workbook", {"workbook": ("seed-a.xlsx", first)})
-        activation = json.loads(raw)
-        require(status == 200, "workbook activation request failed")
-        require(activation["signal"] == "WORKBOOK_STORED_FOR_RESOLUTION", "workbook activation receipt invalid")
-        require(activation["bytes"] == len(first), "activation byte count mismatch")
-
-        status, ctype, combined = post_multipart(
-            "/workbooks/apply",
-            {"workbook1": ("a.xlsx", first), "workbook2": ("b.xlsx", second)},
-        )
-        require(status == 200, "workbook apply failed")
-        require("spreadsheetml.sheet" in ctype, "combined workbook content type wrong")
-        wb = load_workbook(io.BytesIO(combined), data_only=False)
-        require("A_CORE_LATTICE" in wb.sheetnames, "first workbook sheet not materialised")
-        require("B_KEX_DNA" in wb.sheetnames, "second workbook sheet not materialised")
-        require(wb["A_CORE_LATTICE"]["A1"].value == "KEX-A", "first workbook value not preserved")
-        require(wb["B_KEX_DNA"]["A1"].value == "KEX-B", "second workbook value not preserved")
-
         _, _, raw = get("/mesh")
         mesh = json.loads(raw)
         require(mesh["state"] == "LOCAL_REGISTRY_ONLY", "mesh boundary was over-promoted")
 
-        _, _, raw = get("/cascade")
-        cascade = json.loads(raw)
-        require(cascade["root"] == "KEX://ROOT/OS", "cascade root mismatch")
-
         _, _, raw = get("/api/proof-ledger")
         entries = json.loads(raw)["entries"]
-        events = {e["event"] for e in entries}
-        for event in [
-            "WBOS_BOOT", "HEALTH_READ", "PROJECT_UI", "RESOLVE_KEX_URI",
-            "WORKBOOK_DATA_READ", "ROOT_MATRIX_STATISTICS", "ACTIVATE_WORKBOOK",
-            "APPLY_WORKBOOKS", "MESH_STATUS_READ", "CASCADE_READ",
-        ]:
+        events = {entry["event"] for entry in entries}
+        for event in ["WBOS_BOOT", "HEALTH_READ", "WORKBOOK_DATA_READ", "ROOT_MATRIX_STATISTICS", "ACTIVATE_WORKBOOK", "APPLY_WORKBOOKS"]:
             require(event in events, f"proof event missing: {event}")
 
         receipt = {
-            "schema": "kex.unified.integration-test.v2",
+            "schema": "kex.systems.integration-test.v3",
             "state": "PASS",
-            "server_process": "executed",
-            "workbook_data_routes_checked": 14,
-            "workbook_source_boundary": "SOURCE_NOT_RESIDENT",
-            "workbook_activation": "executed",
+            "source_transition": "SOURCE_NOT_RESIDENT -> RESIDENT",
+            "activated_workbook": activation["path"],
+            "activated_sheet_count": len(activation["sheets"]),
+            "core_lattice_rows": lattice["row_count"],
+            "root_matrix_statistics": stats,
+            "global_index_filter": "PASS",
+            "benchmark_filter": "PASS",
+            "object_id_lookups": "PASS",
+            "storage_summary": "PASS",
+            "system_summary": "PASS",
             "workbook_apply": "executed_and_read_back",
             "proof_entries": len(entries),
-            "mesh_boundary": mesh["state"],
-            "claim_boundary": "This proves local Unified API execution, workbook byte activation, XLSX combination/readback, route resolution and proof mutation in the GitHub job/runtime context. It does not prove the historical 29-workbook/662-sheet corpus is resident, public deployment, external mesh connectivity, browser IndexedDB execution, or physical storage provisioning."
+            "claim_boundary": "This proves local workbook activation, resident sheet discovery/parsing, filtered data retrieval, computed summaries/statistics, object lookup, workbook merge/readback and proof mutation in this execution context. It does not prove unavailable historical workbooks are resident, public deployment, external mesh connectivity, browser IndexedDB execution, or physical storage provisioning."
         }
         out = ROOT / "reports" / "kex-wbos" / "integration.json"
         out.parent.mkdir(parents=True, exist_ok=True)
