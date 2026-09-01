@@ -3,21 +3,27 @@
   "selectionLaw": {
     "score": "3*dependencyImpact + 3*evidenceDeficit + 2*downstreamUnlock + 2*executionFeasibility + 2*criticality - 4*alreadyClosed",
     "tieBreak": ["lowerOrdinal", "lexicalTaskId"],
-    "rule": "Conversation deltas may mutate candidate evidence, constraints or scores, but may not replace the selected primary task unless the recomputed queue changes priority."
+    "rule": "Conversation deltas mutate evidence, constraints and scores; the highest-scoring unresolved feasible task remains primary unless recomputation changes the ranking."
   },
   "sourceCorpus": [
     "docs/recursive-review/ILLLM_PASS_5_REPLACEMENT_CURRENT_STATE_R1.md",
     "modules/kex_wbos/lease_fencing.py",
     "modules/kex_wbos/vfs_generation.py",
     "modules/kex_wbos/mirror_learning.py",
-    "scripts/kex-ci/test_vfs_generation_mirror_learning.py"
+    "modules/kex_wbos/resident_runtime_controller.py",
+    "scripts/kex-ci/test_vfs_generation_mirror_learning.py",
+    "Library:KEDDEH_BRAINK_QUANTUM_RESIDENT_APEX_R1_BROWSER_READBACK.json"
   ],
   "environmentObservations": {
     "githubActionsConfiguredStepsObserved": false,
     "githubActionsObservedState": "PRE_STEP_EXECUTOR_BOUNDARY",
-    "currentHostGithubDns": "UNRESOLVED",
+    "currentHostGithubDns": "UNRESOLVED_FOR_CHECKOUT_PATH",
     "repositoryWriteConnector": "AVAILABLE",
-    "residentRuntimeLocalOracle": "SOURCE_AVAILABLE"
+    "residentRuntimeLocalOracle": "BOUND_IN_SOURCE",
+    "browserCarrierHistoricalState": "OBSERVED_PASS",
+    "browserCarrierHistoricalMode": "Chromium page.set_content",
+    "browserCarrierDirectNavigation": "ROUTE_DEPENDENT_BLOCKS_OBSERVED",
+    "browserCapabilityClassification": "AVAILABLE_ROUTE_REQUIRES_TARGET_BINDING"
   },
   "candidates": [
     {
@@ -25,18 +31,16 @@
       "taskId": "EXEC-RESIDENT-ORACLE-VFS-MIRROR-FENCE",
       "action": "Bind lease fencing, VFS generation/Mirror learning and projection continuity regressions into the resident runtime local oracle set.",
       "dependencyImpact": 5,
-      "evidenceDeficit": 4,
+      "evidenceDeficit": 2,
       "downstreamUnlock": 5,
       "executionFeasibility": 5,
       "criticality": 5,
-      "alreadyClosed": 0,
+      "alreadyClosed": 1,
       "evidence": [
-        "Pass 5 requires actual execution of lease fencing and governed canonical mutation tests.",
-        "VFS promotion now validates the fence at canonical HEAD publication.",
-        "GitHub Actions currently fails before configured steps execute.",
-        "Resident controller already owns an independent local oracle mechanism."
+        "Resident controller source now invokes test_lease_fencing.py, test_resident_oracle_projection.py and test_vfs_generation_mirror_learning.py.",
+        "Runtime execution/readback remains pending."
       ],
-      "promotionEvidence": "Resident oracle cycle executes the new regressions and records return codes/stdout/stderr in resident proof/state."
+      "promotionEvidence": "Resident oracle cycle records successful return codes and proof output for all newly bound regressions."
     },
     {
       "ordinal": 2,
@@ -44,12 +48,16 @@
       "action": "Implement destructive rehydration experiments across canonical carrier, semantic index, observer/mirror, services, IL-LLM topology, definitions, authority and proof lineage.",
       "dependencyImpact": 5,
       "evidenceDeficit": 5,
-      "downstreamUnlock": 4,
-      "executionFeasibility": 3,
+      "downstreamUnlock": 5,
+      "executionFeasibility": 4,
       "criticality": 5,
       "alreadyClosed": 0,
-      "evidence": ["Pass 5 classifies the destructive eight-class rehydration suite as not implemented."],
-      "promotionEvidence": "Independent destructive restart/rebuild receipts for all eight rehydration classes."
+      "evidence": [
+        "Pass 5 classifies the destructive eight-class rehydration suite as not implemented.",
+        "VFS generation and Mirror Lane primitives now provide concrete canonical/projection state to destroy and rebuild.",
+        "Lease fencing provides ownership-generation lineage for recovery tests."
+      ],
+      "promotionEvidence": "Independent destructive restart/rebuild receipts for all eight rehydration classes with explicit stale/rebuild/version-transition outcomes."
     },
     {
       "ordinal": 3,
@@ -58,10 +66,10 @@
       "dependencyImpact": 4,
       "evidenceDeficit": 4,
       "downstreamUnlock": 3,
-      "executionFeasibility": 2,
+      "executionFeasibility": 3,
       "criticality": 3,
       "alreadyClosed": 0,
-      "evidence": ["Counterbalanced experiment harness is source-resident; current host checkout is blocked by DNS."],
+      "evidence": ["Counterbalanced experiment harness is source-resident; multiple execution carriers exist but current branch-equivalent execution receipt is pending."],
       "promotionEvidence": "Raw samples, counterbalanced order, confidence intervals, autocorrelation and workload metadata from executable branch-equivalent bytes."
     },
     {
@@ -74,7 +82,7 @@
       "executionFeasibility": 2,
       "criticality": 3,
       "alreadyClosed": 0,
-      "evidence": ["Current jobs fail with zero configured steps exposed."],
+      "evidence": ["Current jobs still fail with zero configured steps exposed."],
       "promotionEvidence": "A workflow job begins configured steps, or the exact external runner/account gate is independently identified."
     },
     {
@@ -87,8 +95,24 @@
       "executionFeasibility": 5,
       "criticality": 5,
       "alreadyClosed": 1,
-      "evidence": ["Current VFSGenerationStore.promote already validates the resource fence before HEAD publication and hostile source test rejects the stale owner."],
-      "promotionEvidence": "Source requirement is already closed; execution evidence is represented by EXEC-RESIDENT-ORACLE-VFS-MIRROR-FENCE."
+      "evidence": ["VFSGenerationStore.promote validates the resource fence immediately before canonical HEAD publication and hostile source test rejects the stale owner."],
+      "promotionEvidence": "Source integration closed; runtime execution evidence is tracked separately."
+    },
+    {
+      "ordinal": 6,
+      "taskId": "EXEC-BROWSER-CARRIER-ORACLE",
+      "action": "Bind a target-neutral Chromium page.set_content/browser-carrier oracle route for browser-executable projections and runtime surfaces.",
+      "dependencyImpact": 4,
+      "evidenceDeficit": 3,
+      "downstreamUnlock": 4,
+      "executionFeasibility": 3,
+      "criticality": 3,
+      "alreadyClosed": 0,
+      "evidence": [
+        "Historical browser receipt observed Chromium page.set_content execution with 27/27 JavaScript syntax checks and 12/12 integrated harness tests passing.",
+        "Direct file/loopback Chromium navigation has separately been blocked or timed out in some environments, so route selection must be target-aware."
+      ],
+      "promotionEvidence": "Current branch/browser target executes through the carrier and emits page/runtime readback without relying on blocked direct navigation."
     }
   ]
 }
