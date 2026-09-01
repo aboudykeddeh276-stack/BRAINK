@@ -32,7 +32,7 @@ def checkpoint_ledger(ledger: Path, checkpoint_dir: Path) -> dict[str, Any]:
         "headReceiptHash": head,
         "ledgerSha256": ledger_sha,
         "createdAt": time.time(),
-        "boundary": "A retained checkpoint can expose later tail truncation only when the checkpoint itself survives independently of the truncated ledger.",
+        "boundary": "A retained checkpoint can expose later tail truncation or divergent continuation only when the checkpoint itself survives independently of the damaged ledger.",
     }
     payload["checkpointHash"] = sha256_bytes(canonical_json_bytes(payload))
     target = checkpoint_dir / f"action-ledger-v2-head-{rows:08d}.json"
@@ -41,23 +41,53 @@ def checkpoint_ledger(ledger: Path, checkpoint_dir: Path) -> dict[str, Any]:
 
 
 def verify_checkpoint(ledger: Path, checkpoint: dict[str, Any]) -> dict[str, Any]:
-    current = checkpoint_ledger(ledger, ledger.parent / ".checkpoint-probe")
-    try:
-        ok = (
-            int(current["rows"]) >= int(checkpoint["rows"])
-            and (current["rows"] != checkpoint["rows"] or current["headReceiptHash"] == checkpoint["headReceiptHash"])
-        )
+    checkpoint_rows = int(checkpoint.get("rows", -1))
+    checkpoint_head = str(checkpoint.get("headReceiptHash", ""))
+    if checkpoint_rows < 0 or not checkpoint_head:
+        return {"ok": False, "error": "checkpoint_format_invalid"}
+
+    if not ledger.exists():
         return {
-            "ok": ok,
-            "checkpointRows": checkpoint["rows"],
-            "currentRows": current["rows"],
-            "checkpointHead": checkpoint["headReceiptHash"],
-            "currentHead": current["headReceiptHash"],
+            "ok": checkpoint_rows == 0 and checkpoint_head == "GENESIS",
+            "checkpointRows": checkpoint_rows,
+            "currentRows": 0,
+            "checkpointHead": checkpoint_head,
+            "observedCheckpointRowHash": None,
         }
-    finally:
-        probe = Path(current["path"])
-        probe.unlink(missing_ok=True)
+
+    lines = [line for line in ledger.read_text(encoding="utf-8").splitlines() if line.strip()]
+    current_rows = len(lines)
+    if current_rows < checkpoint_rows:
+        return {
+            "ok": False,
+            "error": "ledger_shorter_than_checkpoint",
+            "checkpointRows": checkpoint_rows,
+            "currentRows": current_rows,
+            "checkpointHead": checkpoint_head,
+            "observedCheckpointRowHash": None,
+        }
+
+    if checkpoint_rows == 0:
+        observed = "GENESIS"
+    else:
         try:
-            probe.parent.rmdir()
-        except OSError:
-            pass
+            historical_row = json.loads(lines[checkpoint_rows - 1])
+            observed = str(historical_row.get("receiptHash") or "")
+        except Exception:
+            return {
+                "ok": False,
+                "error": "checkpoint_row_unreadable",
+                "checkpointRows": checkpoint_rows,
+                "currentRows": current_rows,
+            }
+
+    ok = observed == checkpoint_head
+    return {
+        "ok": ok,
+        "error": None if ok else "checkpoint_ancestry_mismatch",
+        "checkpointRows": checkpoint_rows,
+        "currentRows": current_rows,
+        "checkpointHead": checkpoint_head,
+        "observedCheckpointRowHash": observed,
+        "currentHead": "GENESIS" if not lines else str(json.loads(lines[-1]).get("receiptHash") or ""),
+    }
