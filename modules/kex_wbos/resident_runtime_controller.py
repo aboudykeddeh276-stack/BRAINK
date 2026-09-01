@@ -13,6 +13,7 @@ from pathlib import Path
 from typing import Any
 
 from hardening import append_jsonl_fsync, atomic_write_text
+from illlm_higher_order import build_topology, route_to_role
 
 BASE = Path(__file__).resolve().parents[2]
 MODULES = BASE / "modules" / "kex_wbos"
@@ -21,6 +22,7 @@ HISTORY = BASE / "runtime" / "resident-controller" / "history.jsonl"
 PROOF = BASE / "reports" / "kex-wbos" / "resident-runtime-proof.jsonl"
 CONTINUATION = BASE / "continuation" / "KEX_RUNTIME_HARDENING_CONTINUATION_R2.json"
 SERVICE_STATE = BASE / "runtime" / "supervisor" / "wbos-action-server.json"
+ILLLM_BENCHMARK = BASE / "reports" / "kex-wbos" / "illlm-higher-order-benchmark.json"
 STOP = False
 
 
@@ -41,6 +43,7 @@ def _write_state(**payload: Any) -> None:
         "controllerId": "runtime://kex/resident-controller",
         "hostLineage": "K_Cloud_Substrate_Master_Daemon.ipynb",
         "serviceChild": "service://wbos/action-server",
+        "semanticControl": "il-llm://braink",
         "gitDependency": "NONE_FOR_RUNTIME_LIVENESS",
         "updatedAt": time.time(),
         **payload,
@@ -93,11 +96,27 @@ def _health(host: str, port: int) -> dict[str, Any]:
         return {"ok": False, "status": None, "error": type(exc).__name__, "url": url}
 
 
+def _load_illlm_topology() -> dict[str, Any]:
+    started = time.perf_counter_ns()
+    topology = build_topology()
+    elapsed = time.perf_counter_ns() - started
+    role_index: dict[str, list[str]] = {}
+    for role in {str(node.get("role", "GENERAL")).upper() for node in topology.get("nodes", [])}:
+        role_index[role] = route_to_role(role, topology)
+    return {
+        "topology": topology,
+        "roleIndex": role_index,
+        "buildNs": elapsed,
+        "loadedAt": time.time(),
+    }
+
+
 def _run_local_oracles() -> dict[str, Any]:
     commands = [
         [sys.executable, str(BASE / "scripts" / "kex-ci" / "verify_action_ledger.py")],
         [sys.executable, str(BASE / "scripts" / "kex-ci" / "test_runtime_hardening.py")],
         [sys.executable, str(BASE / "scripts" / "kex-ci" / "exercise_capability_fabric.py")],
+        [sys.executable, str(BASE / "scripts" / "kex-ci" / "benchmark_illlm_higher_order.py")],
     ]
     results: list[dict[str, Any]] = []
     for command in commands:
@@ -115,13 +134,33 @@ def _run_local_oracles() -> dict[str, Any]:
     return {"ok": all(item["ok"] for item in results), "results": results}
 
 
-def run(host: str, port: int, oracle_interval: int, health_interval: int) -> int:
+def _read_benchmark() -> dict[str, Any] | None:
+    if not ILLLM_BENCHMARK.exists():
+        return None
+    try:
+        return json.loads(ILLLM_BENCHMARK.read_text(encoding="utf-8"))
+    except Exception:
+        return {"status": "BENCHMARK_READ_FAILED"}
+
+
+def run(host: str, port: int, oracle_interval: int, health_interval: int, illlm_refresh_interval: int) -> int:
     signal.signal(signal.SIGTERM, _signal_handler)
     signal.signal(signal.SIGINT, _signal_handler)
 
     service = _spawn_service(host, port)
-    _event("RESIDENT_CONTROLLER_STARTED", pid=os.getpid(), serviceSupervisorPid=service.pid, host=host, port=port)
+    illlm = _load_illlm_topology()
+    _event(
+        "RESIDENT_CONTROLLER_STARTED",
+        pid=os.getpid(),
+        serviceSupervisorPid=service.pid,
+        host=host,
+        port=port,
+        illlmTopologyHash=illlm["topology"]["topologyHash"],
+        illlmNodes=illlm["topology"]["nodeCount"],
+        illlmEdges=illlm["topology"]["edgeCount"],
+    )
     last_oracle = 0.0
+    last_illlm_refresh = time.time()
     consecutive_health_failures = 0
 
     while not STOP:
@@ -137,8 +176,23 @@ def run(host: str, port: int, oracle_interval: int, health_interval: int) -> int
             service = _spawn_service(host, port)
             _event("SERVICE_SUPERVISOR_RESPAWNED", serviceSupervisorPid=service.pid)
 
-        oracle_state: dict[str, Any] | None = None
         now = time.time()
+        if now - last_illlm_refresh >= illlm_refresh_interval:
+            previous_hash = illlm["topology"]["topologyHash"]
+            candidate = _load_illlm_topology()
+            illlm = candidate
+            last_illlm_refresh = now
+            _event(
+                "ILLLM_TOPOLOGY_REFRESH",
+                previousHash=previous_hash,
+                topologyHash=illlm["topology"]["topologyHash"],
+                changed=previous_hash != illlm["topology"]["topologyHash"],
+                nodes=illlm["topology"]["nodeCount"],
+                edges=illlm["topology"]["edgeCount"],
+                buildNs=illlm["buildNs"],
+            )
+
+        oracle_state: dict[str, Any] | None = None
         if now - last_oracle >= oracle_interval:
             oracle_state = _run_local_oracles()
             _event("LOCAL_ORACLE_CYCLE", result=oracle_state)
@@ -152,6 +206,15 @@ def run(host: str, port: int, oracle_interval: int, health_interval: int) -> int
             serviceState=service_state,
             health=health,
             consecutiveHealthFailures=consecutive_health_failures,
+            illlm={
+                "root": illlm["topology"]["root"],
+                "topologyHash": illlm["topology"]["topologyHash"],
+                "nodeCount": illlm["topology"]["nodeCount"],
+                "edgeCount": illlm["topology"]["edgeCount"],
+                "roleIndexCounts": {role: len(ids) for role, ids in illlm["roleIndex"].items()},
+                "lastBuildNs": illlm["buildNs"],
+                "benchmark": _read_benchmark(),
+            },
             lastOracle=oracle_state,
             continuationRecord=CONTINUATION.relative_to(BASE).as_posix() if CONTINUATION.exists() else None,
         )
@@ -189,5 +252,6 @@ if __name__ == "__main__":
     parser.add_argument("--port", type=int, default=int(os.getenv("KEX_RESIDENT_PORT", "8790")))
     parser.add_argument("--oracle-interval", type=int, default=int(os.getenv("KEX_RESIDENT_ORACLE_INTERVAL", "300")))
     parser.add_argument("--health-interval", type=int, default=int(os.getenv("KEX_RESIDENT_HEALTH_INTERVAL", "5")))
+    parser.add_argument("--illlm-refresh-interval", type=int, default=int(os.getenv("KEX_ILLLM_REFRESH_INTERVAL", "60")))
     args = parser.parse_args()
-    raise SystemExit(run(args.host, args.port, args.oracle_interval, args.health_interval))
+    raise SystemExit(run(args.host, args.port, args.oracle_interval, args.health_interval, args.illlm_refresh_interval))
