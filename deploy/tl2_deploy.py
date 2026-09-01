@@ -2,7 +2,14 @@
 from __future__ import annotations
 import argparse, hashlib, json, os, socket, subprocess, sys, time, urllib.request
 from pathlib import Path
-BASE=Path(__file__).resolve().parents[1]; REPORT=BASE/'reports/kex-wbos/tl2-deployment.json'; PROOF=BASE/'reports/kex-wbos/tl2-proof-ledger.jsonl'
+BASE=Path(__file__).resolve().parents[1]
+REPORT=BASE/'reports/kex-wbos/tl2-deployment.json'
+PROOF=BASE/'reports/kex-wbos/tl2-proof-ledger.jsonl'
+SOURCE_ID='source://github/BRAINK/modules/kex_wbos/action_server.py'
+SERVICE_ID='service://wbos/action-server'
+RUNTIME_ID='runtime://kex/wbos'
+TL2_ID='tlvpn://kex/tl2'
+
 def _sha(b): return hashlib.sha256(b).hexdigest()
 def _detect():
     if os.getenv('KEX_TL2_ADDRESS'): return os.environ['KEX_TL2_ADDRESS'],'KEX_TL2_ADDRESS'
@@ -26,25 +33,27 @@ def _wait(url,timeout=20):
                 b=r.read(); return {'url':url,'status':r.status,'bytes':len(b),'sha256':_sha(b),'ok':r.status<400}
         except Exception as e: last=type(e).__name__; time.sleep(.25)
     return {'url':url,'status':None,'bytes':0,'sha256':None,'ok':False,'error':last}
-def _spawn(module,host,port):
-    code=f"import sys; sys.path.insert(0,{str(BASE/'modules/kex_wbos')!r}); import {module}; {module}.serve({host!r},{port})"
+def _spawn(host,port):
+    code=f"import sys; sys.path.insert(0,{str(BASE/'modules/kex_wbos')!r}); import action_server; action_server.serve({host!r},{port})"
     env=os.environ.copy(); env['RUNNER_TRACKING_ID']=''
     return subprocess.Popen([sys.executable,'-c',code],cwd=BASE,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,start_new_session=True,env=env)
 def deploy(daemon):
     host,src=_detect(); REPORT.parent.mkdir(parents=True,exist_ok=True)
     if not host:
-        r={'status':'BLOCKED_TL2_ACTUATOR','promotion':None,'identity':'tlvpn://kex/tl2','reason':'No KEX_TL2_ADDRESS or observed TL2/tunnel interface address','public_promotions':['BLOCKED']}; REPORT.write_text(json.dumps(r,indent=2)+'\n'); _proof('TL2_BIND_BLOCKED',r); print(json.dumps(r,indent=2)); return 2
+        r={'status':'BLOCKED_TL2_ACTUATOR','promotion':None,'identity':TL2_ID,'source_object':SOURCE_ID,'service':SERVICE_ID,'runtime':RUNTIME_ID,'reason':'No KEX_TL2_ADDRESS or observed TL2/tunnel interface address','unrelated_blocks_excluded':['PUBLIC_DNS','PUBLIC_TLS','DRIVE_WRITEBACK','BITCOIN_IBD','BRAINK_FULL_MIGRATION']}; REPORT.write_text(json.dumps(r,indent=2)+'\n'); _proof('TL2_BIND_BLOCKED',r); print(json.dumps(r,indent=2)); return 2
     s=socket.socket()
     try: s.bind((host,0))
     except OSError as e:
-        r={'status':'BLOCKED_TL2_BIND','promotion':None,'address':host,'error':str(e)}; REPORT.write_text(json.dumps(r,indent=2)+'\n'); _proof('TL2_BIND_BLOCKED',r); print(json.dumps(r,indent=2)); return 3
+        r={'status':'BLOCKED_TL2_BIND','promotion':None,'identity':TL2_ID,'address':host,'error':str(e)}; REPORT.write_text(json.dumps(r,indent=2)+'\n'); _proof('TL2_BIND_BLOCKED',r); print(json.dumps(r,indent=2)); return 3
     finally: s.close()
-    _proof('TL2_TUNNEL_BOUND',{'identity':'tlvpn://kex/tl2','address':host,'source':src})
-    w=_spawn('server',host,8765); a=_spawn('action_server',host,8790)
-    checks=[_wait(f'http://{host}:8765/api/health'),_wait(f'http://{host}:8790/api/health'),_wait(f'http://{host}:8790/api/services'),_wait(f'http://{host}:8790/api/routes'),_wait(f'http://{host}:8790/api/proof-ledger')]
-    ok=all(c['ok'] for c in checks); r={'status':'VERIFIED' if ok else 'FAIL','promotion':'TL2_LIVE' if ok else None,'identity':'tlvpn://kex/tl2','address':host,'identity_source':src,'services':{'wbos':{'pid':w.pid,'port':8765},'action_runtime':{'pid':a.pid,'port':8790}},'readback':checks,'proof_ledger':str(PROOF.relative_to(BASE)),'public_promotions':['NOT_CLAIMED']}; REPORT.write_text(json.dumps(r,indent=2)+'\n'); _proof('TL2_DEPLOYMENT_READBACK',r); print(json.dumps(r,indent=2))
-    if not ok or not daemon:
-        for p in (a,w): p.terminate()
+    _proof('TL2_SOURCE_BOUND',{'source_object':SOURCE_ID,'service':SERVICE_ID,'runtime':RUNTIME_ID,'transport':TL2_ID})
+    _proof('TL2_TUNNEL_BOUND',{'identity':TL2_ID,'address':host,'source':src})
+    p=_spawn(host,8790)
+    checks=[_wait(f'http://{host}:8790/api/health'),_wait(f'http://{host}:8790/api/services'),_wait(f'http://{host}:8790/api/routes'),_wait(f'http://{host}:8790/api/proof-ledger')]
+    ok=all(c['ok'] for c in checks)
+    r={'status':'VERIFIED' if ok else 'FAIL','promotion':'TL2_LIVE' if ok else None,'identity':TL2_ID,'address':host,'identity_source':src,'source_object':SOURCE_ID,'service':SERVICE_ID,'runtime':RUNTIME_ID,'process':{'pid':p.pid,'port':8790},'readback':checks,'proof_ledger':str(PROOF.relative_to(BASE)),'excluded_from_deploy':['PUBLIC_LIVE','LIBRARY_PERSISTED','BITCOIN_LIVE','BRAINK_MIGRATED']}
+    REPORT.write_text(json.dumps(r,indent=2)+'\n'); _proof('TL2_DEPLOYMENT_READBACK',r); print(json.dumps(r,indent=2))
+    if not ok or not daemon: p.terminate()
     return 0 if ok else 4
 if __name__=='__main__':
     p=argparse.ArgumentParser(); p.add_argument('--daemon',action='store_true'); raise SystemExit(deploy(p.parse_args().daemon))
