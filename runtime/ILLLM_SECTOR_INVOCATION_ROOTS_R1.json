@@ -1,0 +1,67 @@
+{
+  "schema": "kex.illlm.sector-invocation-roots.v1",
+  "authority": "A.KEDDEH / KEDDEH_SYSTEMS / BRAINK / KEX",
+  "purpose": "Register previously invoked KEX sectors as typed global IL-LLM context roots rather than flattening them into keywords.",
+  "shared_substrate": {
+    "identity_model": "KEX",
+    "composition_statement": "HEXxHEX = KEX",
+    "semantic_runtime": "IL-LLM",
+    "host_runtime": "BRAINK",
+    "state_projection": "observer-relative typed state",
+    "writeback_projection": "Mirror Lane / mirror-writeback",
+    "memory_projection": "VFS-backed virtual state"
+  },
+  "roots": [
+    {
+      "identity": "il-llm://kex/seed",
+      "role": "SEED",
+      "meaning": "Generative/minimal identity and rehydration entry context.",
+      "relations": ["EXPANDS_TO_KEX_OBJECTS", "REHYDRATES_RUNTIME_STATE", "LINKS_TO_DNA"]
+    },
+    {
+      "identity": "il-llm://kex/dna",
+      "role": "DNA",
+      "meaning": "Typed elemental identity, symbol and system-role definitions used as machine-addressable classification state.",
+      "relations": ["CLASSIFIES_OBJECT", "BINDS_ROLE", "LINKS_TO_SEED"]
+    },
+    {
+      "identity": "il-llm://kex/vfs",
+      "role": "VFS",
+      "meaning": "Virtual file/state/memory carrier for resident machine-addressable state independent of whether a particular external adapter is present.",
+      "relations": ["CARRIES_STATE", "CARRIES_MEMORY", "CARRIES_PROOF", "REHYDRATES_CONTEXT"]
+    },
+    {
+      "identity": "il-llm://kex/quantum",
+      "role": "QUANTUM_SECTOR",
+      "meaning": "Invoked sector for formal state/transition/observer/recursive-operator and runtime experiments; does not by itself claim quantum hardware execution.",
+      "relations": ["EXPLORES_STATE_SPACE", "BINDS_OBSERVER", "USES_RECURSIVE_OPERATORS", "LOWERS_TO_RUNTIME"]
+    },
+    {
+      "identity": "il-llm://kex/observer",
+      "role": "OBSERVER_STATE",
+      "meaning": "Explicit observer/environment binding that preserves the distinction between canonical state and observer-relative projection.",
+      "relations": ["PROJECTS_STATE", "PRESERVES_CANONICAL_IDENTITY", "CONTEXTUALISES_RESULT"]
+    },
+    {
+      "identity": "il-llm://kex/mirror-lane",
+      "role": "MIRROR_WRITEBACK",
+      "meaning": "Evidence/state projection and writeback lane used to preserve alternate observer/runtime representations without replacing canonical identity.",
+      "relations": ["MIRRORS_STATE", "WRITES_BACK_RECEIPT", "PRESERVES_LINEAGE", "SUPPORTS_REENTRY"]
+    }
+  ],
+  "cross_relations": [
+    ["il-llm://kex/seed", "GENERATES", "il-llm://kex/dna"],
+    ["il-llm://kex/dna", "CLASSIFIES", "il-llm://kex/vfs"],
+    ["il-llm://kex/vfs", "CARRIES", "il-llm://kex/observer"],
+    ["il-llm://kex/observer", "PROJECTS_TO", "il-llm://kex/mirror-lane"],
+    ["il-llm://kex/quantum", "USES", "il-llm://kex/observer"],
+    ["il-llm://kex/quantum", "PERSISTS_THROUGH", "il-llm://kex/vfs"],
+    ["il-llm://kex/mirror-lane", "REENTERS", "il-llm://kex/seed"]
+  ],
+  "claim_boundaries": [
+    "Sector invocation establishes a software context and relation model, not external scientific validation.",
+    "Quantum-sector registration does not claim a quantum computer is executing unless separately proven by hardware/runtime receipts.",
+    "Mirror Lane is a software state/writeback abstraction unless a concrete external mirror actuator is separately evidenced.",
+    "VFS registration proves a virtual state contract only where its carrier/readback exists."
+  ]
+}
