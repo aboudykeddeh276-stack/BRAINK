@@ -6,6 +6,8 @@ on:
       - "modules/kex_wbos/**"
       - "deploy/tl2_deploy.py"
       - "scripts/kex-ci/test_runtime_hardening.py"
+      - "scripts/kex-ci/test_illlm_recursive_runtime.py"
+      - "scripts/kex-ci/test_illlm_advanced_runtime.py"
       - "scripts/kex-ci/verify_action_ledger.py"
       - "scripts/kex-ci/exercise_capability_fabric.py"
       - "openapi/kex-unified-action-runtime.yaml"
@@ -18,6 +20,8 @@ on:
       - "modules/kex_wbos/**"
       - "deploy/tl2_deploy.py"
       - "scripts/kex-ci/test_runtime_hardening.py"
+      - "scripts/kex-ci/test_illlm_recursive_runtime.py"
+      - "scripts/kex-ci/test_illlm_advanced_runtime.py"
       - "scripts/kex-ci/verify_action_ledger.py"
       - "scripts/kex-ci/exercise_capability_fabric.py"
       - "openapi/kex-unified-action-runtime.yaml"
@@ -41,7 +45,7 @@ jobs:
         run: python -m pip install --disable-pip-version-check openpyxl==3.1.5 PyYAML==6.0.2
       - name: Compile Python surfaces
         run: |
-          python -m compileall -q modules/kex_wbos deploy/tl2_deploy.py scripts/kex-ci/test_runtime_hardening.py scripts/kex-ci/verify_action_ledger.py scripts/kex-ci/exercise_capability_fabric.py
+          python -m compileall -q modules/kex_wbos deploy/tl2_deploy.py scripts/kex-ci/test_runtime_hardening.py scripts/kex-ci/test_illlm_recursive_runtime.py scripts/kex-ci/test_illlm_advanced_runtime.py scripts/kex-ci/verify_action_ledger.py scripts/kex-ci/exercise_capability_fabric.py
       - name: Validate OpenAPI YAML syntax and version
         run: |
           python - <<'PY'
@@ -62,6 +66,10 @@ jobs:
           PY
       - name: Run hostile runtime hardening suite
         run: python scripts/kex-ci/test_runtime_hardening.py
+      - name: Run recursive IL-LLM runtime suite
+        run: python scripts/kex-ci/test_illlm_recursive_runtime.py
+      - name: Run advanced IL-LLM security and delta suite
+        run: python scripts/kex-ci/test_illlm_advanced_runtime.py
       - name: Exercise integrated capability fabric
         run: python scripts/kex-ci/exercise_capability_fabric.py
       - name: Verify action ledger replay
