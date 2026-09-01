@@ -1,0 +1,81 @@
+{
+  "schema": "kex.illlm.cross-repository-carriers.v1",
+  "root": "il-llm://meta/il-llm-of-il-llms",
+  "authority": "A.KEDDEH / KEDDEH_SYSTEMS / BRAINK / KEX",
+  "purpose": "Represent repositories as source/execution carriers inside recursive IL-LLM traversal without treating repository boundaries as semantic boundaries.",
+  "carriers": [
+    {
+      "repository": "aboudykeddeh276-stack/BRAINK",
+      "role": "PRIMARY_RUNTIME_AND_INTEGRATION_CARRIER",
+      "observed": [
+        "WBOS action runtime",
+        "resident runtime controller",
+        "workbook substrate API",
+        "IL-LLM higher-order topology",
+        "capability/proof/idempotency hardening"
+      ],
+      "state": "OBSERVED_REPOSITORY"
+    },
+    {
+      "repository": "aboudykeddeh276-stack/quantum-computer-by-keddeh-systems",
+      "role": "KEX_RECURSIVE_OPERATOR_AND_NAMESPACE_CARRIER",
+      "observed": [
+        "KEX recursive STATE/TRANSITION/DEFINITION operator definitions",
+        "application namespace runtime",
+        "post-execution receipts and BRAINK learning packets",
+        "workload and constraint ledgers",
+        "KEX address/runtime source"
+      ],
+      "evidence": [
+        "docs/KEX_RECURSIVE_OPERATORS.md",
+        "docs/KEX_NAMESPACE_RUNTIME.md",
+        "src/lib/kex.ts"
+      ],
+      "state": "OBSERVED_REPOSITORY"
+    },
+    {
+      "repository": "aboudykeddeh276-stack/KEDDEH-SYSTEMS-QUANTUM-RUNTIME-MATRIX-",
+      "role": "KEX_ADDRESS_AND_RUNTIME_MATRIX_CARRIER",
+      "observed": [
+        "KEX address construction source"
+      ],
+      "evidence": ["src/lib/kex.ts"],
+      "state": "OBSERVED_REPOSITORY"
+    },
+    {
+      "repository": "aboudykeddeh276-stack/KEX_HYPERDRIVE_DASHBOARD_UI",
+      "role": "HYPERDRIVE_PROJECTION_AND_CONSTRAINT_CARRIER",
+      "observed": [
+        "KEX/BRAINK constraint and affect-boundary material"
+      ],
+      "state": "OBSERVED_REPOSITORY"
+    },
+    {
+      "repository": "aboudykeddeh276-stack/BRAINK_DESKTOP_ORGANISED",
+      "role": "DESKTOP_LINEAGE_CARRIER",
+      "observed": [],
+      "state": "DISCOVERED_NOT_CODE_INDEXED"
+    },
+    {
+      "repository": "aboudykeddeh276-stack/Braink-Beta",
+      "role": "BETA_LINEAGE_CARRIER",
+      "observed": [],
+      "state": "DISCOVERED_NOT_CODE_INDEXED"
+    },
+    {
+      "repository": "aboudykeddeh276-stack/BRAINK-CONSOLE-PLUS",
+      "role": "CONSOLE_LINEAGE_CARRIER",
+      "observed": [],
+      "state": "DISCOVERED_NOT_CODE_INDEXED"
+    }
+  ],
+  "rules": {
+    "repository_is_carrier_not_identity": true,
+    "cross_repository_traversal_allowed": true,
+    "source_revision_required_for_promotion": true,
+    "copying_source_not_required_for_semantic_link": true,
+    "execution_claim_requires_runtime_receipt": true,
+    "unindexed_repository_is_not_treated_as_empty": true
+  },
+  "claimBoundary": "This register records observed/discovered repository carriers and representative capabilities. It does not assert exhaustive inventory of every repository or executable residency of every listed artifact."
+}
