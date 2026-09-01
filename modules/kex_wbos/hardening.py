@@ -11,7 +11,7 @@ from typing import Any
 
 try:
     import fcntl
-except ImportError:  # pragma: no cover - Windows fallback remains process-local only.
+except ImportError:  # pragma: no cover
     fcntl = None
 
 
@@ -88,13 +88,15 @@ def append_jsonl_fsync(
     *,
     row_field: str | None = None,
     hash_field: str | None = None,
+    parent_hash_field: str | None = None,
 ) -> tuple[int, Any]:
-    """Append one canonical JSON event under an inter-process file lock.
+    """Append one canonical JSON event under an inter-process lock.
 
-    If row_field is supplied and value is a dict, the assigned 1-based ledger row
-    is inserted before serialization. If hash_field is supplied, a SHA-256 of the
-    canonical object without that field is inserted before persistence. The returned
-    object is exactly the object persisted to disk.
+    Optional row/hash/parent fields are assigned before serialization, so the
+    returned object is byte-semantically identical to the persisted object.
+    Parent chaining detects reorder, insertion, predecessor substitution and
+    middle deletion. Detecting tail truncation still requires an externally
+    retained head/root receipt.
     """
     path.parent.mkdir(parents=True, exist_ok=True)
     lock_path = path.with_suffix(path.suffix + ".lock")
@@ -102,17 +104,30 @@ def append_jsonl_fsync(
     try:
         if fcntl is not None:
             fcntl.flock(lock_fd, fcntl.LOCK_EX)
+
         row = 1
+        previous_hash = "GENESIS"
         if path.exists():
             with path.open("rb") as existing:
-                row += sum(1 for _ in existing)
+                lines = [line for line in existing if line.strip()]
+            row += len(lines)
+            if lines and hash_field:
+                try:
+                    previous = json.loads(lines[-1].decode("utf-8"))
+                    previous_hash = str(previous.get(hash_field) or "GENESIS")
+                except Exception as exc:
+                    raise RuntimeError("cannot extend malformed ledger tail") from exc
+
         persisted = dict(value) if isinstance(value, dict) else value
         if isinstance(persisted, dict) and row_field:
             persisted[row_field] = row
+        if isinstance(persisted, dict) and parent_hash_field:
+            persisted[parent_hash_field] = previous_hash
         if isinstance(persisted, dict) and hash_field:
             unsigned = dict(persisted)
             unsigned.pop(hash_field, None)
             persisted[hash_field] = sha256_bytes(canonical_json_bytes(unsigned))
+
         line = canonical_json_bytes(persisted) + b"\n"
         fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_APPEND, 0o600)
         try:
