@@ -5,12 +5,14 @@ on:
     paths:
       - 'enterprise/**'
       - 'scripts/kex-ci/test_enterprise_control.py'
+      - 'scripts/kex-ci/test_addressability_fabric.py'
       - '.github/workflows/keddeh-enterprise-control.yml'
   push:
     branches: [main]
     paths:
       - 'enterprise/**'
       - 'scripts/kex-ci/test_enterprise_control.py'
+      - 'scripts/kex-ci/test_addressability_fabric.py'
       - '.github/workflows/keddeh-enterprise-control.yml'
   workflow_dispatch:
 
@@ -27,6 +29,8 @@ jobs:
         with:
           python-version: '3.13'
       - name: Compile enterprise control modules
-        run: python -m compileall -q enterprise scripts/kex-ci/test_enterprise_control.py
+        run: python -m compileall -q enterprise scripts/kex-ci/test_enterprise_control.py scripts/kex-ci/test_addressability_fabric.py
       - name: Execute enterprise invariants
         run: python scripts/kex-ci/test_enterprise_control.py
+      - name: Execute addressability fabric invariants
+        run: python scripts/kex-ci/test_addressability_fabric.py
