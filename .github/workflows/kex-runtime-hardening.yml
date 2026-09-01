@@ -1,0 +1,57 @@
+name: KEX Runtime Hardening
+
+on:
+  pull_request:
+    paths:
+      - "modules/kex_wbos/**"
+      - "deploy/tl2_deploy.py"
+      - "scripts/kex-ci/test_runtime_hardening.py"
+      - "scripts/kex-ci/verify_action_ledger.py"
+      - "openapi/kex-unified-action-runtime.yaml"
+      - "docs/KEX_SYSTEMS_ENGINEERING_PARADIGM_EXPLOITATION_R1.md"
+      - ".github/workflows/kex-runtime-hardening.yml"
+  push:
+    branches: [main]
+    paths:
+      - "modules/kex_wbos/**"
+      - "deploy/tl2_deploy.py"
+      - "scripts/kex-ci/test_runtime_hardening.py"
+      - "scripts/kex-ci/verify_action_ledger.py"
+      - "openapi/kex-unified-action-runtime.yaml"
+      - ".github/workflows/kex-runtime-hardening.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  hardening:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install deterministic test dependencies
+        run: python -m pip install --disable-pip-version-check openpyxl==3.1.5 PyYAML==6.0.2
+      - name: Compile Python surfaces
+        run: |
+          python -m compileall -q modules/kex_wbos deploy/tl2_deploy.py scripts/kex-ci/test_runtime_hardening.py scripts/kex-ci/verify_action_ledger.py
+      - name: Validate OpenAPI YAML syntax and version
+        run: |
+          python - <<'PY'
+          import yaml
+          from pathlib import Path
+          p=Path('openapi/kex-unified-action-runtime.yaml')
+          data=yaml.safe_load(p.read_text())
+          assert data['openapi']=='3.1.0', data.get('openapi')
+          assert data['info']['version']=='5.1.0', data['info']['version']
+          assert 'capability' in data['components']['schemas']['ActionExecutionRequest']['properties']
+          assert 'receiptHash' in data['components']['schemas']['MutationReceipt']['properties']
+          print('OPENAPI_HARDENING_PASS')
+          PY
+      - name: Run hostile runtime hardening suite
+        run: python scripts/kex-ci/test_runtime_hardening.py
+      - name: Verify action ledger replay
+        run: python scripts/kex-ci/verify_action_ledger.py
