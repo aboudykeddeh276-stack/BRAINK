@@ -1,120 +1,47 @@
 {
   "record_id": "KEX_RUNTIME_HARDENING_CONTINUATION_R2",
-  "authority": "A.KEDDEH / KEDDEH_SYSTEMS / BRAINK / CASEPATH",
   "branch": "kex-runtime-hardening-r3",
   "pull_request": 58,
-  "current_cycle": 4,
-  "current_recursive_pass": 4,
+  "current_cycle": 5,
+  "current_recursive_pass": 5,
   "governing_review_law": "docs/ILLLM_RECURSIVE_REVIEW_CONTRACT_R1.md",
-  "authoritative_current_corpus": "docs/recursive-review/ILLLM_PASS_4_REPLACEMENT_CURRENT_STATE_R1.md",
-  "superseded_current_corpus": "docs/recursive-review/ILLLM_PASS_3_REPLACEMENT_CURRENT_STATE_R1.md",
-  "continuation_rule": "Treat the authoritative current corpus itself as untrusted input in the next pass. Reclassify all claims from current evidence; do not inherit VERIFIED/IMPLEMENTED/MARKET-RELEVANT status from prior passes.",
+  "authoritative_current_corpus": "docs/recursive-review/ILLLM_PASS_5_REPLACEMENT_CURRENT_STATE_R1.md",
   "lineage": {
-    "prior_continuation_blob_sha": "c2b1b71ad300e757a8d628d200cc643b5c351099",
-    "pass_1": "docs/recursive-review/ILLLM_PASS_1_CURRENT_STATE_R1.md",
-    "pass_2": "docs/recursive-review/ILLLM_PASS_2_REPLACEMENT_CURRENT_STATE_R1.md",
     "pass_3": "docs/recursive-review/ILLLM_PASS_3_REPLACEMENT_CURRENT_STATE_R1.md",
-    "pass_4": "docs/recursive-review/ILLLM_PASS_4_REPLACEMENT_CURRENT_STATE_R1.md"
+    "pass_4": "docs/recursive-review/ILLLM_PASS_4_REPLACEMENT_CURRENT_STATE_R1.md",
+    "pass_5": "docs/recursive-review/ILLLM_PASS_5_REPLACEMENT_CURRENT_STATE_R1.md"
   },
-  "pass_4_mutations": [
-    {
-      "commit": "fc17013d38e839784fa4f67d4200b8c0de490607",
-      "artifact": "modules/kex_wbos/resident_runtime_controller.py",
-      "effect": "retain latest completed oracle result across non-oracle health cycles and STOPPED projection",
-      "claim_boundary": "source mutation only; resident-host execution not yet reproven"
-    },
-    {
-      "commit": "14f8489ca2e8d9b9d3d3e2498143147fff5196d5",
-      "artifact": "scripts/kex-ci/test_resident_oracle_projection.py",
-      "effect": "focused regression oracle for current-state validation projection continuity",
-      "claim_boundary": "test source resident; execution receipt pending"
-    },
-    {
-      "commit": "37507bee772b2efeb8bed48ea3a8338d6e0b8911",
-      "artifact": ".github/workflows/kex-runtime-hardening.yml",
-      "effect": "compile and execute resident oracle projection regression in configured hardening CI",
-      "claim_boundary": "workflow configured; GitHub executor has not yet produced executed-step evidence"
-    },
-    {
-      "commit": "73ad1f0aa213741da8238e05d7a0100b155c8976",
-      "artifact": "docs/recursive-review/ILLLM_PASS_4_REPLACEMENT_CURRENT_STATE_R1.md",
-      "effect": "Pass 4 replacement current-state corpus",
-      "claim_boundary": "report is current interpretation, not validation authority for Pass 5"
-    }
+  "latest_head_before_report": "5db8692a6996076804c48f22a2ec1ee6e53dbc13",
+  "pass_5_mutations": [
+    "4788d954423c25bd38377820261aab99f441a778 modules/kex_wbos/lease_fencing.py",
+    "673106630ba14432bdf698d305cc3278acffec2f scripts/kex-ci/test_lease_fencing.py",
+    "5db8692a6996076804c48f22a2ec1ee6e53dbc13 .github/workflows/kex-runtime-hardening.yml",
+    "f56a32f8db388c5652f291b5e07ef3565574f8da docs/recursive-review/ILLLM_PASS_5_REPLACEMENT_CURRENT_STATE_R1.md"
   ],
-  "fresh_workflow_evidence": {
-    "evaluated_head": "90005b2434064b10ffb7d0c494a3078938addd56",
-    "kex_runtime_hardening": {
-      "run_id": 33557360294,
-      "run_number": 100,
-      "status": "completed",
-      "conclusion": "failure",
-      "job_id": 100021339391,
-      "job_name": "hardening",
-      "executed_steps": 0,
-      "classification": "PRE_STEP_EXECUTOR_BOUNDARY; NOT A CODE_OR_TEST_FAILURE_RECEIPT"
-    },
-    "casepath_management_validation": {
-      "run_id": 33557360308,
-      "run_number": 102,
-      "status": "completed",
-      "conclusion": "failure",
-      "executed_steps": 0,
-      "classification": "PRE_STEP_EXECUTOR_BOUNDARY; NOT A CASEPATH_CODE_FAILURE_RECEIPT"
-    }
-  },
-  "latest_repository_readback": {
-    "head_after_pass_4_report": "73ad1f0aa213741da8238e05d7a0100b155c8976",
-    "pr_state": "open",
-    "merged": false,
-    "mergeable_observation": false,
-    "mergeability_qualification": "Immediately post-mutation mergeable=false is not promoted to a conflict claim; prior current-head readback was mergeable=true and GitHub mergeability may be transient while recomputing. Re-read before any merge decision."
+  "workflow_evidence": {
+    "kex_runtime_hardening_run": 33558330435,
+    "kex_runtime_hardening_job": 100024528731,
+    "kex_runtime_hardening_classification": "PRE_STEP_EXECUTOR_BOUNDARY_NOT_CODE_FAILURE",
+    "casepath_run": 33558330479
   },
   "current_claims": {
-    "recursive_illlm_definition_context_substrate": "IMPLEMENTED_SOURCE",
-    "workbook_semantic_carrier_analysis": "IMPLEMENTED_SOURCE",
-    "intent_to_capability_translation": "IMPLEMENTED_SOURCE_END_TO_END_AUTHORIZATION_PENDING",
-    "resident_latest_oracle_projection_retention": "IMPLEMENTED_SOURCE_PASS_4_EXECUTION_PENDING",
-    "single_carrier_atomic_replacement": "IMPLEMENTED_SOURCE",
+    "local_lease_fence_registry": "IMPLEMENTED_SOURCE_EXECUTION_PENDING",
+    "stale_owner_rejection_test": "IMPLEMENTED_TEST_SOURCE_EXECUTION_PENDING",
+    "resource_side_fence_enforcement": "NOT_YET_INTEGRATED_COMPLETELY",
     "compound_kex_vfs_generation_commit": "NOT_IMPLEMENTED",
     "destructive_projection_rehydration_suite": "NOT_IMPLEMENTED",
-    "stale_owner_fencing": "INCOMPLETE",
-    "external_effect_reconciliation": "PARTIAL_PARTICIPANT_DEPENDENT",
     "controlled_statistical_experiment_suite": "NOT_IMPLEMENTED",
-    "universal_illlm_speedup": "REJECTED",
     "tl2_live": "NOT_PROMOTED",
-    "public_live": "NOT_PROMOTED_AND_NOT_IMPLIED_BY_TL2"
-  },
-  "promotion_boundaries": {
-    "LOCAL_CAPABILITY_FABRIC_VERIFIED": "requires observed successful integrated harness execution on branch-equivalent bytes",
-    "ILLLM_RECURSIVE_RUNTIME_VERIFIED": "requires observed recursive and advanced suite execution on branch-equivalent bytes",
-    "RESIDENT_ORACLE_PROJECTION_VERIFIED": "requires execution of scripts/kex-ci/test_resident_oracle_projection.py plus resident-controller readback demonstrating lastOracle survives intervening health cycles",
-    "KEX_VFS_GENERATION_COMMIT_VERIFIED": "requires compound-generation implementation plus crash/fault recovery oracle distinguishing old committed, new committed, and incomplete candidate generations",
-    "STALE_OWNER_RECOVERY_VERIFIED": "requires monotonic fencing and rejection of stale owner writes at the governed resource plus participant reconciliation for external effects",
-    "STATISTICAL_ACCELERATION_CLAIM": "requires raw samples, controlled regime, competent baseline, uncertainty/effect-size reporting, correctness oracle, and resident-host fingerprint",
-    "TL2_LIVE": "requires matching self-hosted runner, configured address/token, live bind and inside-tunnel readback",
-    "PUBLIC_LIVE": "requires separate public DNS/TLS/HTTPS evidence and is not implied by TL2"
+    "public_live": "NOT_PROMOTED"
   },
   "next_attack_queue": [
-    "observe workflows triggered by the Pass 4 commits and classify whether any configured step executes",
-    "if executable steps run, repair the first actual failing assertion rather than the workflow conclusion label",
-    "execute the resident oracle projection regression on branch-equivalent bytes and capture readback",
-    "implement compound local KEX/VFS generation commit semantics and destructive crash recovery oracle",
-    "implement stale-owner generation/fencing for governed local mutations and explicit EFFECT_AMBIGUOUS reconciliation",
-    "build destructive rehydration experiments across canonical carrier, semantic index, observer projection, runtime, global topology, definition lineage, authority and proof lineage",
-    "upgrade IL-LLM benchmarks to retain raw samples, competent indexed/materialized baselines, confidence/effect-size statistics and sequence dependence evidence",
-    "re-read PR mergeability after GitHub recomputes the post-mutation head",
-    "run Pass 5 treating Pass 4 as hostile current input"
+    "observe current-head workflow configured-step evidence",
+    "execute test_lease_fencing.py on branch-equivalent bytes",
+    "integrate validate_fence at one governed canonical local mutation boundary",
+    "implement compound local KEX/VFS generation commit plus crash recovery oracle",
+    "implement destructive eight-class rehydration experiments",
+    "upgrade IL-LLM benchmarks to controlled raw-sample experiments",
+    "run the next recursive pass treating Pass 5 as untrusted input"
   ],
-  "restart_protocol": [
-    "read this continuation record",
-    "read the authoritative Pass 4 corpus as untrusted current input",
-    "read PR #58 head and workflow state",
-    "reclassify current evidence rather than inheriting prior labels",
-    "take the first actionable defect with direct evidence",
-    "mutate code/tests/docs only where mechanically justified",
-    "capture repository/workflow/runtime readback",
-    "emit the next replacement current-state corpus",
-    "update this record"
-  ]
+  "continuation_rule": "Reclassify every claim from current evidence. Prior pass status is lineage only."
 }
