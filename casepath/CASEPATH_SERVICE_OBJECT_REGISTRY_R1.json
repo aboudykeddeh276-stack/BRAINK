@@ -1,0 +1,21 @@
+{
+  "schema": "casepath.service-object-registry.v1",
+  "authority": "A. KEDDEH",
+  "umbrella": "Keddeh Systems / BrainK / Casepath",
+  "objects": [
+    {"objectId":"service://casepath/authority","processClass":"CASEPATH-AUTHORITY-001","ownerTeam":"KEDDEH_AUTHORITY_ADMINISTRATION_TEAM","function":"authority and ownership","state":"REGISTERED"},
+    {"objectId":"service://casepath/administration","processClass":"CASEPATH-ADMIN-001","ownerTeam":"KEDDEH_SYSTEMS_ADMIN_TEAM","function":"administrative control","state":"REGISTERED"},
+    {"objectId":"service://casepath/management","processClass":"CASEPATH-MANAGEMENT-001","ownerTeam":"BRAINK_MANAGEMENT_ORCHESTRATION_TEAM","function":"dynamic management","state":"REGISTERED"},
+    {"objectId":"service://casepath/runtime","processClass":"CASEPATH-RUNTIME-001","ownerTeam":"BRAINK_RUNTIME_OPERATIONS_TEAM","function":"runtime operation","state":"REGISTERED"},
+    {"objectId":"service://casepath/public-surface","processClass":"CASEPATH-SURFACE-001","ownerTeam":"CASEPATH_SERVICE_SURFACE_TEAM","function":"published service surface","state":"REGISTERED"},
+    {"objectId":"service://casepath/delivery","processClass":"CASEPATH-DELIVERY-001","ownerTeam":"BRAINK_SERVICE_DELIVERY_TEAM","function":"service delivery","state":"REGISTERED"},
+    {"objectId":"service://casepath/evolution","processClass":"CASEPATH-EVOLUTION-001","ownerTeam":"BRAINK_EVOLUTION_TEAM","function":"controlled evolution","state":"REGISTERED"},
+    {"objectId":"service://casepath/sector-achievement","processClass":"CASEPATH-SECTOR-001","ownerTeam":"KEDDEH_RESEARCH_AND_SECTOR_ADVANCEMENT_TEAM","function":"science and sector achievement","state":"REGISTERED"},
+    {"objectId":"service://casepath/proof-readback","processClass":"CASEPATH-PROOF-001","ownerTeam":"BRAINK_PROOF_READBACK_TEAM","function":"proof and readback","state":"REGISTERED"}
+  ],
+  "state_boundary": {
+    "REGISTERED": "Object identity, owner and function are resident in the registry.",
+    "ACTIVE": "Requires observed execution of the object's runtime/service process.",
+    "VERIFIED": "Requires process result plus declared readback/proof."
+  }
+}
