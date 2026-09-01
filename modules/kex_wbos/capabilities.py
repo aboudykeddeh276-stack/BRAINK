@@ -32,10 +32,16 @@ def mint_capability(
         raise ValueError("capability secret required")
     if ttl_seconds <= 0 or ttl_seconds > 86400:
         raise ValueError("ttl_seconds must be in 1..86400")
+    normalized_actions = sorted({str(action).upper() for action in actions if str(action).strip()})
+    normalized_prefixes = sorted({str(prefix) for prefix in target_prefixes if str(prefix)})
+    if not normalized_actions:
+        raise ValueError("at least one capability action is required")
+    if not normalized_prefixes:
+        raise ValueError("at least one explicit target prefix is required; use '*' only when deliberately granting wildcard scope")
     payload = {
         "capabilityId": f"KEXCAP-{uuid.uuid4().hex[:16]}",
-        "actions": sorted({str(action).upper() for action in actions if str(action).strip()}),
-        "targetPrefixes": sorted({str(prefix) for prefix in target_prefixes if str(prefix)}),
+        "actions": normalized_actions,
+        "targetPrefixes": normalized_prefixes,
         "issuedAt": int(time.time()),
         "expiresAt": int(time.time()) + ttl_seconds,
         "delegatedBy": delegated_by,
@@ -72,7 +78,9 @@ def verify_capability(
     allowed_actions = {str(item).upper() for item in payload.get("actions", [])}
     if action.upper() not in allowed_actions and "*" not in allowed_actions:
         return False, {"error": "capability_action_denied", "capabilityId": payload.get("capabilityId")}
-    prefixes = [str(item) for item in payload.get("targetPrefixes", [])]
-    if prefixes and not any(target.startswith(prefix) for prefix in prefixes):
+    prefixes = [str(item) for item in payload.get("targetPrefixes", []) if str(item)]
+    if not prefixes:
+        return False, {"error": "capability_target_scope_missing", "capabilityId": payload.get("capabilityId")}
+    if "*" not in prefixes and not any(target.startswith(prefix) for prefix in prefixes):
         return False, {"error": "capability_target_denied", "capabilityId": payload.get("capabilityId")}
     return True, payload
