@@ -1,35 +1,8 @@
 {
   "schema": "kex.github-runner-control-plane.v1",
-  "cascade_order": [
-    "MOUNT",
-    "VERIFY_ALL",
-    "HYDRATE_INDEXEDDB",
-    "RESOLVE_KEX_URI",
-    "PROJECT_UI",
-    "DISPATCH_TRIGGER",
-    "MUTATE_STATE",
-    "WRITEBACK",
-    "PROOF_COMMIT",
-    "REHYDRATE_ON_FAILURE"
-  ],
-  "warm_boot_order": [
-    "VERIFY_SEED",
-    "MOUNT_WORKBOOK_SUBSTRATE",
-    "OPEN_INDEXEDDB_NAMESPACE",
-    "HYDRATE_PULSES",
-    "VERIFY_PROOFS",
-    "MOUNT_OBJECTS",
-    "SUBSCRIBE_UI_COMPONENTS",
-    "START_HEARTBEAT",
-    "ENTER_REHYDRATE_LOOP"
-  ],
-  "acceptance_rule": [
-    "VISIBLE_ACTION_HAS_TRIGGER",
-    "TRIGGER_MUTATES_STATE",
-    "MUTATION_WRITES_BACK",
-    "WRITEBACK_APPENDS_PROOF",
-    "PROOF_SUPPORTS_REHYDRATION"
-  ],
+  "cascade_order": ["MOUNT", "VERIFY_ALL", "HYDRATE_INDEXEDDB", "RESOLVE_KEX_URI", "PROJECT_UI", "DISPATCH_TRIGGER", "MUTATE_STATE", "WRITEBACK", "PROOF_COMMIT", "REHYDRATE_ON_FAILURE"],
+  "warm_boot_order": ["VERIFY_SEED", "MOUNT_WORKBOOK_SUBSTRATE", "OPEN_INDEXEDDB_NAMESPACE", "HYDRATE_PULSES", "VERIFY_PROOFS", "MOUNT_OBJECTS", "SUBSCRIBE_UI_COMPONENTS", "START_HEARTBEAT", "ENTER_REHYDRATE_LOOP"],
+  "acceptance_rule": ["VISIBLE_ACTION_HAS_TRIGGER", "TRIGGER_MUTATES_STATE", "MUTATION_WRITES_BACK", "WRITEBACK_APPENDS_PROOF", "PROOF_SUPPORTS_REHYDRATION"],
   "teams": {
     "substrate": ["self-hosted", "kex", "substrate", "workbook", "python"],
     "cascade": ["self-hosted", "kex", "cascade", "hyperk0", "warmboot"],
@@ -48,6 +21,7 @@
     ".github/workflows/kex-proof-ledger.yml",
     ".github/workflows/kex-object-runtime.yml",
     ".github/workflows/kex-stress-test.yml",
+    ".github/workflows/kex-security-boundary.yml",
     ".github/workflows/kex-deploy.yml"
   ]
 }
