@@ -3,8 +3,19 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Mapping
 
-from virtual_address_fabric import VirtualAddressFabric, sha
+from virtual_address_fabric import (
+    AddressState,
+    ExecutionReceipt,
+    ObserverClass,
+    ObserverEvent,
+    VirtualAddressFabric,
+    sha,
+)
 from vfs_generation import VFSGenerationStore
+
+
+class VFSAddressRejection(RuntimeError):
+    pass
 
 
 @dataclass
@@ -56,7 +67,7 @@ class VFSGenerationHeadAdapter:
             now=payload.get("now"),
         )
         if result.get("state") != "PROMOTED":
-            raise RuntimeError(f"VFS_PROMOTION_REJECTED:{result.get('reason')}")
+            raise VFSAddressRejection(f"VFS_PROMOTION_REJECTED:{result.get('reason')}")
         return {
             "state": "PROMOTED",
             "backingRef": backing_ref,
@@ -88,3 +99,41 @@ def bind_vfs_head(
         writable=True,
     )
     return adapter
+
+
+def execute_vfs_address_operation(
+    fabric: VirtualAddressFabric,
+    logical_address: str,
+    operation: str,
+    payload: Any,
+) -> ExecutionReceipt:
+    """Execute a VFS-bound address operation while preserving rule rejection as a receipt."""
+    route = fabric.resolve(logical_address)
+    if route.state in {AddressState.HOLE, AddressState.REJECTED}:
+        return fabric.apply(logical_address, operation, payload)
+    try:
+        return fabric.apply(logical_address, operation, payload)
+    except VFSAddressRejection as exc:
+        event = ObserverEvent(
+            ObserverClass.CONTRADICTION,
+            "adapter://kex/vfs-generation-head",
+            {
+                "logical_address": logical_address,
+                "operation": operation,
+                "reason": str(exc),
+                "route_root": route.route_root,
+            },
+        )
+        fabric.observer.integrate(event)
+        return ExecutionReceipt(
+            logical_address=logical_address,
+            generation=route.generation,
+            operation=operation,
+            status="REJECTED_EFFECT",
+            adapter_id=route.aperture.adapter_id if route.aperture else None,
+            backing_ref=route.aperture.backing_ref if route.aperture else None,
+            effect_root=None,
+            failure_reason=str(exc),
+            observer_root=fabric.observer.root,
+            produced_at_ns=event.observed_at_ns,
+        )
