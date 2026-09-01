@@ -1,5 +1,5 @@
 {
-  "record_id": "KEX_ARCHITECTURE_INVARIANTS_R1",
+  "record_id": "KEX_ARCHITECTURE_INVARIANTS_R2",
   "authority": "A.KEDDEH / KEDDEH_SYSTEMS / BRAINK / CASEPATH",
   "purpose": "Prevent local implementations or agent actions from violating global KEX/BRAINK runtime architecture.",
   "invariants": [
@@ -9,6 +9,18 @@
       "rule": "A production runtime service must be owned by a resident server/daemon/runtime substrate. Source-control automation may validate or distribute source but may not be the liveness dependency.",
       "current_binding": "K_Cloud_Substrate_Master_Daemon.ipynb -> runtime://kex/resident-controller -> service://wbos/action-server",
       "failure_class": "HOST_OWNERSHIP_BYPASS"
+    },
+    {
+      "id": "INV-SVC-001",
+      "name": "Service authority persistence",
+      "rule": "HTTP, DNS/domain, registrar, mail/messaging, mesh, server and storage/memory subsystems retain resident authority objects and VFS-backed state even when an external provider actuator is unavailable.",
+      "failure_class": "SERVICE_EXISTENCE_COLLAPSED_TO_EXTERNAL_ADAPTER"
+    },
+    {
+      "id": "INV-SVC-002",
+      "name": "Three-layer service resolution",
+      "rule": "Every service resolves resident authority object -> VFS-backed state contract -> resident process/service -> optional external actuator. Missing the final actuator blocks only the external effect/promotion it owns.",
+      "failure_class": "UNRELATED_EXTERNAL_DEPENDENCY_FALSE_BLOCK"
     },
     {
       "id": "INV-LIFE-001",
@@ -47,6 +59,12 @@
       "failure_class": "SUBSTRATE_BOUNDARY_ESCAPE"
     },
     {
+      "id": "INV-VFS-001",
+      "name": "Virtual substrate continuity",
+      "rule": "Scripted VFS/memory state is a valid resident logical substrate and continuation carrier. Physical or provider-backed storage may extend it but is not required for the existence of the logical service object.",
+      "failure_class": "VIRTUAL_SUBSTRATE_DISCARDED"
+    },
+    {
       "id": "INV-LEDGER-001",
       "name": "Proof lineage preservation",
       "rule": "Resident ledgers are never deleted or repurposed by tests. Test ledgers are isolated. Delivered participant receipts and retained checkpoints are append-preserving and may not silently overwrite contradictory evidence.",
@@ -57,6 +75,18 @@
       "name": "TL2 scope promotion",
       "rule": "TL2_LIVE requires resident current-generation service liveness and inside-tunnel readback. It does not require or imply PUBLIC_LIVE.",
       "failure_class": "TL2_SCOPE_FALSE_PROMOTION"
+    },
+    {
+      "id": "INV-DNS-001",
+      "name": "DNS/domain scope separation",
+      "rule": "Domain/DNS authority can exist as resident authoritative state independently of public-provider mutation. Provider receipts gate PUBLIC_DNS_VERIFIED, not private runtime liveness.",
+      "failure_class": "DNS_PUBLICATION_CONFUSED_WITH_RUNTIME_EXISTENCE"
+    },
+    {
+      "id": "INV-MAIL-001",
+      "name": "Mail service state versus delivery",
+      "rule": "Mail/message intent, queue, identity and delivery ledger remain resident service state. SMTP/API/provider receipts are required only to claim external delivery.",
+      "failure_class": "MAIL_TRANSPORT_CONFUSED_WITH_MAIL_SERVICE"
     },
     {
       "id": "INV-RECOVERY-001",
