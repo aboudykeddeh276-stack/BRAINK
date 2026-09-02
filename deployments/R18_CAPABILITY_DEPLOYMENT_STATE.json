@@ -1,1 +1,63 @@
-{"schema":"braink.deployment-state.r18/v2","status":"DEPLOYED_SOURCE_AND_PERSISTENT_EVIDENCE__CI_RUNNER_NOT_ALLOCATED","braink_main_base_commit":"a6f8be565dc295eb5a9eb413fb77d0eb1c09cd8b","runtime":"enterprise/capability_deployment_runtime.py","invariant":"scripts/kex-ci/test_capability_deployment_runtime.py","workflows":[".github/workflows/keddeh-enterprise-control.yml",".github/workflows/r18-capability-deployment.yml"],"local_execution":{"status":"PASS","deployment_root":"8cd1cf0a7a1125390c4529d334f560c4b48c6158188578879264b2d7b8202c40","server_sets":18,"requirements":72,"work_modules":72},"github_ci":{"enterprise_run_id":33579978734,"r18_run_id":33580250782,"status":"FAILURE_PRE_STEP","runner_id":0,"steps":0,"classification":"RUNNER_NOT_ALLOCATED_OR_PRE_EXECUTION_ACTIONS_FAILURE","not_proven":["test failure","source compile failure","runtime invariant failure"]},"release":{"release_root":"f48b99cc271f8440fe9656553ec8a6326e903d7a93d065999d5adf8ab63c025f","zip_sha256":"1717ca6316cea792bc5b679ee878b954d43d93eeb63c923da63b4d39e1031f1e"},"library":"/BRAINK_DEPLOYMENTS/R18_CAPABILITY_DEPLOYMENT/","google_drive":"/Google Drive/KEDDEH_SYSTEMS_DEPLOYMENTS/","sector_bindings":{"runtime_servers":"KERA_SERVER/braink_sector/DEPLOYMENT_BINDING_R18.json","storage_memory":"virtualized-storage/braink_sector/DEPLOYMENT_BINDING_R18.json","research_learning_evolution":"KSYSTEMS_LEARNING-/braink_sector/DEPLOYMENT_BINDING_R18.json","code_synthesis":"K-SYSTEMS-CODE-SPACE-/braink_sector/DEPLOYMENT_BINDING_R18.json","mesh_nodes":"KEDDEH_SOFTWARE_NODES/braink_sector/DEPLOYMENT_BINDING_R18.json","mining":"MINING/braink_sector/DEPLOYMENT_BINDING_R18.json","console_ui":"BRAINK-CONSOLE-PLUS/braink_sector/DEPLOYMENT_BINDING_R18.json"},"next_runtime_transition":"consume highest-unlock generated WorkModule through owner-sector runtime; use local/runtime invariant execution while GitHub-hosted CI runner allocation remains unresolved; bind result and recompile undertaking"}
+{
+  "schema": "braink.deployment-state.r18/v3",
+  "status": "RESIDENT_CAPABILITY_BINDING_ADVANCED__CI_EXECUTOR_BOUNDARY",
+  "braink_main_base_commit": "a6f8be565dc295eb5a9eb413fb77d0eb1c09cd8b",
+  "runtime": "enterprise/capability_deployment_runtime.py",
+  "binding_registry": "enterprise/R18_CAPABILITY_BINDINGS.json",
+  "invariant": "scripts/kex-ci/test_capability_deployment_runtime.py",
+  "undertaking": "LEGAL_SERVICE",
+  "current_graph": {
+    "server_sets": 18,
+    "requirements": 72,
+    "resident_capabilities": 9,
+    "unresolved_capability_holes": 63,
+    "selected_work_module": "WM://GENERAL_GOVERNANCE/assignment",
+    "selection_classification": "REUSE",
+    "implementation_ref": "aboudykeddeh276-stack/GENERAL-GOVERNANCE-/braink_hr/hr_runtime.py::HRRuntime.assign",
+    "authority_evidence_ref": "aboudykeddeh276-stack/GENERAL-GOVERNANCE-/braink_hr/HR_FEDERATION_R1.json"
+  },
+  "transition": {
+    "binding_commit": "5b13097584745bab321a7f2c61b2f1c151e5ee7d",
+    "recompile_invariant_commit": "67a5b0b6eb9da36f377ebd6d378c411ce349472b",
+    "receipt_path": "deployments/R18_WORK_MODULE_ASSIGNMENT_BIND_RECEIPT_R1.json",
+    "receipt_commit": "65a1c516f9948cd93204f90eaceabee6fc481670",
+    "prior_source_resident": 8,
+    "prior_source_holes": 64,
+    "resident_delta": 1,
+    "hole_delta": -1
+  },
+  "local_release_lineage": {
+    "status": "PASS",
+    "deployment_root": "8cd1cf0a7a1125390c4529d334f560c4b48c6158188578879264b2d7b8202c40",
+    "release_root": "f48b99cc271f8440fe9656553ec8a6326e903d7a93d065999d5adf8ab63c025f",
+    "zip_sha256": "1717ca6316cea792bc5b679ee878b954d43d93eeb63c923da63b4d39e1031f1e"
+  },
+  "github_ci": {
+    "r18_run_id": 33580347544,
+    "r18_job_id": 100093121463,
+    "enterprise_run_id": 33580347681,
+    "enterprise_job_id": 100093121963,
+    "status": "FAILURE_PRE_STEP",
+    "runner_id": 0,
+    "steps_executed": 0,
+    "classification": "EXECUTOR_OR_PRE_STEP_BOUNDARY",
+    "not_proven": [
+      "test failure",
+      "source compile failure",
+      "capability binding failure",
+      "recompile invariant failure"
+    ]
+  },
+  "persistent_mirrors": {
+    "library": "/BRAINK_DEPLOYMENTS/R18_CAPABILITY_DEPLOYMENT/",
+    "google_drive": "/Google Drive/KEDDEH_SYSTEMS_DEPLOYMENTS/"
+  },
+  "claim_boundary": [
+    "resident capability provenance is not equivalent to executed workflow verification",
+    "observer signals remain reconciliation evidence and do not create execution permission",
+    "assignment binding does not promote identity, supervision, lease, replacement or rehydration",
+    "A_executed != A_claimed",
+    "S_observed != S_claimed"
+  ],
+  "next_runtime_transition": "re-rank remaining 63 typed capability holes against resident implementations; prefer another owner-authority-backed REUSE/BIND transition over synthesis; validation of the current binding remains pending an executor that actually starts configured steps"
+}
