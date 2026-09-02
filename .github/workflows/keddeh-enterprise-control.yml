@@ -10,6 +10,7 @@ on:
       - 'scripts/kex-ci/test_self_evolution_runtime.py'
       - 'scripts/kex-ci/test_autonomous_evolution_runtime.py'
       - 'scripts/kex-ci/test_route_actuation_runtime.py'
+      - 'scripts/kex-ci/test_market_control_plane.py'
       - '.github/workflows/keddeh-enterprise-control.yml'
   push:
     branches: [main]
@@ -21,6 +22,7 @@ on:
       - 'scripts/kex-ci/test_self_evolution_runtime.py'
       - 'scripts/kex-ci/test_autonomous_evolution_runtime.py'
       - 'scripts/kex-ci/test_route_actuation_runtime.py'
+      - 'scripts/kex-ci/test_market_control_plane.py'
       - '.github/workflows/keddeh-enterprise-control.yml'
   workflow_dispatch:
 
@@ -37,7 +39,7 @@ jobs:
         with:
           python-version: '3.13'
       - name: Compile enterprise control modules
-        run: python -m compileall -q enterprise scripts/kex-ci/test_enterprise_control.py scripts/kex-ci/test_addressability_fabric.py scripts/kex-ci/test_evolution_paths.py scripts/kex-ci/test_self_evolution_runtime.py scripts/kex-ci/test_autonomous_evolution_runtime.py scripts/kex-ci/test_route_actuation_runtime.py
+        run: python -m compileall -q enterprise scripts/kex-ci/test_enterprise_control.py scripts/kex-ci/test_addressability_fabric.py scripts/kex-ci/test_evolution_paths.py scripts/kex-ci/test_self_evolution_runtime.py scripts/kex-ci/test_autonomous_evolution_runtime.py scripts/kex-ci/test_route_actuation_runtime.py scripts/kex-ci/test_market_control_plane.py
       - name: Execute enterprise invariants
         run: python scripts/kex-ci/test_enterprise_control.py
       - name: Execute addressability fabric invariants
@@ -50,3 +52,5 @@ jobs:
         run: python scripts/kex-ci/test_autonomous_evolution_runtime.py
       - name: Execute route and actuation invariants
         run: python scripts/kex-ci/test_route_actuation_runtime.py
+      - name: Execute market control plane invariants
+        run: python scripts/kex-ci/test_market_control_plane.py
