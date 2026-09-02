@@ -1,0 +1,37 @@
+{
+  "schema": "braink.r23.frontage-publication-reconciliation/v1",
+  "classification": "REUSE_AND_BIND",
+  "status": "EXECUTED_LOCAL_INVARIANT",
+  "governing_runtime": "enterprise/foundry_closure_r23.py",
+  "resident_inputs": {
+    "r22_frontage_registration": "FRONTAGES_SERVICES_GROWING_MESH_WEBSITES_DOMAIN_MASTERY_FOUNDARY.register_frontage",
+    "r22_landing_manufacture": "LANDING_PAGE_FOUNDARY.manufacture",
+    "r23_publication": ["publishing.stage", "publishing.project_internal"]
+  },
+  "transition": {
+    "operation": "frontage.release_internal",
+    "release_id": "release://1",
+    "frontage_id": "frontage://1",
+    "page_id": "casepath-home",
+    "route_path": "/",
+    "activation_state": "READY_FOR_EXTERNAL_ACTUATOR",
+    "frontage_release_root": "eb75aeb075b15095108662f450533fa9ed9ee9d7f8f5cde62d8fcff9d7f160fe"
+  },
+  "execution": {
+    "status": "PASS",
+    "receipt_count": 16,
+    "state_root": "e1426325334ff874db57a08e3789f0c16b6e467cbab5d354ea2b8b7e0247e6a7",
+    "frontage_receipt_root": "a18c0b1deb3a00b1690e1c21b7ca8d328e1fd39c98088b4c2046af3b269fceef",
+    "public_activation_receipt_root": "ff7438364621b5409797fcce42fc5f8ee2ebf10eb8c7f68a210456a22e55b8f6"
+  },
+  "claim_boundary": {
+    "internal_frontage_release_binding": "EXECUTED",
+    "public_dns_tls_activation": "DEFERRED_EXTERNAL_ACTUATOR",
+    "physical_multi_host_execution": "NOT_CLAIMED"
+  },
+  "source_commits": {
+    "closure_runtime": "393bbad54c280b9375d0609fe06c95fd53a28fa9",
+    "http_service": "16dd6659582e238a726baf626ca129a9a7840002",
+    "invariant": "432bc346fdc9848bd1ed6b1c203980da3b4d01bf"
+  }
+}
