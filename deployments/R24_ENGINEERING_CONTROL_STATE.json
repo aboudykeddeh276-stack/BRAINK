@@ -107,6 +107,30 @@
       "decision": "REUSE_RESIDENT_KOS_MESH_DO_NOT_REIMPLEMENT",
       "next_dependency": "DEPLOY_SAME_HASHED_PACKAGE_ON_DISTINCT_AUTHORISED_HOSTS_AND_READ_BACK_UNIQUE_HOST_IDENTITIES_AND_QUORUM_STATE",
       "promotion": "REJECTED_PENDING_PHYSICAL_MULTI_HOST_EXECUTION_AND_REMAINING_R24_GATES"
+    },
+    "publication_domain_durable_execution_r5": {
+      "status": "IMPLEMENTED_AND_ADVERSARIALLY_QUALIFIED_LOCAL_NOT_PROMOTED",
+      "binding": "enterprise/orchestration/durable_execution_r5.py",
+      "receipt": "deployments/R24_DOMAIN_DURABLE_EXECUTION_RECONCILIATION_R1.json",
+      "receipt_root": "279c9eadb50ca49d7dad90f28b9bc8da0e01fd94cba059796ea5b017e46dcb49",
+      "replay_rejection": "PASS",
+      "tamper_rejection": "PASS",
+      "lease_fencing": "PASS_LOCAL",
+      "crash_atomicity": "PASS_LOCAL",
+      "concurrent_writers": "200_ATTEMPTS_0_FAILURES",
+      "fresh_process_replacement": "PASS",
+      "hard_process_crash_rollback": "PASS",
+      "local_split_brain_race": "20_CONTENDERS_1_WINNER_FENCED",
+      "physical_multi_host": "UNPROVEN",
+      "wan_partition": "UNPROVEN",
+      "public_authoritative_dns": "UNPROVEN",
+      "registrar_epp_authority": "UNPROVEN",
+      "independent_verify": "PENDING",
+      "quality_gate": "PENDING_FULL_R24_PROFILE",
+      "release_manifest": "PENDING",
+      "market_readiness": "PENDING",
+      "decision": "REUSE_RESIDENT_DURABLE_EXECUTION_R5_DO_NOT_REIMPLEMENT",
+      "promotion": "REJECTED_PENDING_REMAINING_R24_GATES"
     }
   },
   "observed_external_transitions": {
