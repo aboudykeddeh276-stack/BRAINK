@@ -112,28 +112,3 @@ jobs:
             v98_protocol_compliance_config/runtime_volume/outbox/encoded_medium_reconciliation/authoritative.handoff.json
             v98_protocol_compliance_config/runtime_volume/outbox/unified_runtime/current.handoff.json
             skills/keddeh-engineering-orchestrator/enterprise/runtime/enterprise-portfolio.sqlite3
-
-  m3-target-host-acceptance:
-    name: Optional KEDDEH M3 target-host acceptance
-    needs: unified-runtime
-    if: vars.KEDDEH_M3_AVAILABLE == 'true'
-    runs-on: [self-hosted, macOS, ARM64, KEDDEH-M3]
-    timeout-minutes: 30
-    steps:
-      - uses: actions/checkout@v4
-      - name: Execute existing M3 host acceptance mechanic
-        run: |
-          cd v98_protocol_compliance_config
-          bash scripts/install.command
-          python3 src/keddeh_target_host_receipts.py --root . --emit-receipt
-          bash scripts/run_m3_host_acceptance.command
-      - name: Upload M3 target-host evidence
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: v114-keddeh-m3-target-host-${{ github.sha }}
-          if-no-files-found: error
-          retention-days: 30
-          path: |
-            v98_protocol_compliance_config/evidence/m3_host_readiness_receipt.json
-            v98_protocol_compliance_config/runtime_volume/m3_host/
