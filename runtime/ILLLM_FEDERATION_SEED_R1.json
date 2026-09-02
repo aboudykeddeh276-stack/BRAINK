@@ -1,0 +1,34 @@
+{
+  "record_id": "ILLLM_FEDERATION_SEED_R1",
+  "authority": "A.KEDDEH / KEDDEH_SYSTEMS / BRAINK / CASEPATH",
+  "purpose": "Preserve known IL-LLM plurality as a federated runtime family instead of collapsing variants into one implementation.",
+  "canonical_role": "NATURAL_RECURRENT_MATHEMATICS_AND_SEMANTIC_CONTROL_FABRIC",
+  "family_classes": [
+    "PLANNING",
+    "SECTOR",
+    "LEXICON",
+    "SEMANTIC_TRIGGER",
+    "WORKBOOK",
+    "PROOF",
+    "RUNTIME",
+    "RESEARCH",
+    "EDGE",
+    "CAPABILITY",
+    "COMPATIBILITY",
+    "OPTIMISATION"
+  ],
+  "known_identities": [
+    {"identity": "il-llm://braink/planning/plan/ev56", "class": "PLANNING", "carrier": "vfs://kex/plans/current/IL_LLM_PLANNING_SPACE_v56.json"},
+    {"identity": "il-llm://braink/planning/plan/ev57", "class": "PLANNING", "carrier": "vfs://kex/plans/current/RECURRENT_IL_LLM_STATE_TOPOLOGY_v57.json"},
+    {"identity": "il-llm://braink/infrastructure/keddeh-edge", "class": "EDGE", "carrier": "il-llm://edge/keddeh"},
+    {"identity": "il-llm://braink/capability/kex-fund-virtual-service-mesh-002", "class": "CAPABILITY", "carrier": "kex-capability://KEX-FUND-VIRTUAL-SERVICE-MESH-002"},
+    {"identity": "il-llm://braink/research/sector/s28", "class": "RESEARCH", "carrier": "continuation://braink/research/S28"}
+  ],
+  "sector_template": {
+    "prefix": "il-llm://braink/sector/s",
+    "first": 1,
+    "last": 25,
+    "class": "SECTOR"
+  },
+  "claim_boundary": "This seed records identities observed in the available corpus. It does not claim every historical IL-LLM variant is present in this Git repository or currently executing."
+}

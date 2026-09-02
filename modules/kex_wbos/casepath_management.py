@@ -2,12 +2,17 @@
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 from typing import Any, Callable
 
+from hardening import append_jsonl_fsync, atomic_write_bytes, contained_path
+
+SAFE_ID = re.compile(r"^[A-Za-z0-9._-]{1,128}$")
+
 
 def _load_ledger(base: Path) -> dict[str, Any]:
-    path = base / "casepath" / "CASEPATH_DYNAMIC_MANAGEMENT_PROCESS_LEDGER_R1.json"
+    path = contained_path(base, base / "casepath" / "CASEPATH_DYNAMIC_MANAGEMENT_PROCESS_LEDGER_R1.json")
     if not path.exists():
         raise FileNotFoundError(f"Casepath management ledger missing: {path}")
     return json.loads(path.read_text(encoding="utf-8"))
@@ -39,10 +44,12 @@ def managed_dispatch(
         return receipt(action_id, "FAIL", False, target, details={"error": "unknown_casepath_process", "processId": process_id})
 
     authority = str(request.get("authority") or process.get("authority") or "")
-    packet_id = request.get("packetId")
+    packet_id = str(request.get("packetId") or "")
     queue = request.get("actionQueue", [])
     if not authority or not packet_id or not target or not isinstance(queue, list):
         return receipt(action_id, "FAIL", False, target, details={"error": "authority_packetId_activeTarget_actionQueue_required", "processId": process_id})
+    if not SAFE_ID.fullmatch(packet_id):
+        return receipt(action_id, "FAIL", False, target, details={"error": "invalid_packet_id", "packetId": packet_id})
 
     resolved_actions: list[dict[str, Any]] = []
     for index, item in enumerate(queue, start=1):
@@ -89,13 +96,13 @@ def managed_dispatch(
     }
 
     dispatch_root.mkdir(parents=True, exist_ok=True)
-    path = dispatch_root / f"{packet_id}.json"
+    path = contained_path(dispatch_root, dispatch_root / f"{packet_id}.json")
     before = sha(path.read_bytes()) if path.exists() else None
     raw = json.dumps(packet, indent=2, sort_keys=True).encode("utf-8")
-    path.write_bytes(raw)
-    after = sha(raw)
+    atomic_write_bytes(path, raw)
+    after = sha(path.read_bytes())
 
-    proof_path = dispatch_root / "CASEPATH_MANAGEMENT_PROOF.jsonl"
+    proof_path = contained_path(dispatch_root, dispatch_root / "CASEPATH_MANAGEMENT_PROOF.jsonl")
     proof_before = sha(proof_path.read_bytes()) if proof_path.exists() else None
     proof_event = {
         "event": "CASEPATH_MANAGED_DISPATCH",
@@ -107,8 +114,7 @@ def managed_dispatch(
         "dispatchHash": after,
         "queueLength": len(resolved_actions),
     }
-    with proof_path.open("a", encoding="utf-8") as handle:
-        handle.write(json.dumps(proof_event, sort_keys=True) + "\n")
+    proof_row, persisted_proof_event = append_jsonl_fsync(proof_path, proof_event)
     proof_after = sha(proof_path.read_bytes())
 
     return receipt(
@@ -127,6 +133,8 @@ def managed_dispatch(
             "proofPath": proof_path.relative_to(base).as_posix(),
             "proofBeforeHash": proof_before,
             "proofAfterHash": proof_after,
+            "proofRow": proof_row,
+            "proofEvent": persisted_proof_event,
             "claimBoundary": "Managed dispatch persisted and proved; downstream service actions remain separately executable and separately provable.",
         },
     )

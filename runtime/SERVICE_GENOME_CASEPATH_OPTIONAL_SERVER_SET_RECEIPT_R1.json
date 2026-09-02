@@ -1,0 +1,47 @@
+{
+  "schema": "braink.service-genome-execution-receipt/v1",
+  "undertaking_id": "undertaking://casepath/sa",
+  "genome_id": "genome://casepath/service/r1",
+  "control_plane": "service-genome/server-room-above-sector-federation",
+  "evidence_delta": "CasePath optional payment entitlement was being materialized as a Payments server set even when not activated by the undertaking profile.",
+  "mutations": [
+    {
+      "path": "enterprise/service_genome.py",
+      "commit": "102925c24a49b993e93277e1e92c979190e277dc",
+      "effect": "Required functions remain active; optional functions materialize only when explicitly enabled. Dependency edges are derived only across active functions."
+    },
+    {
+      "path": "enterprise/undertaking_deployer.py",
+      "commit": "1fd2ea793e81fe880981e0f2e7b40d8a06c2ea91",
+      "effect": "Undertaking profiles can activate optional functions through enabled_optional_functions without rewriting genome identity."
+    },
+    {
+      "path": "scripts/kex-ci/test_service_genome_server_room.py",
+      "commit": "cb76afa81cac00b1738d28448de571fb88ce5540",
+      "effect": "Validation now loads enterprise/genomes/CASEPATH_SERVICE_GENOME_R1.json directly; baseline excludes Payments, scaling preserves genome identity, and explicit payment activation adds the Payments server set while retaining the same genome root."
+    }
+  ],
+  "lineage": {
+    "pre_mutation_head": "bd765b8f7e5ed5d73e0e09cca093a702b71b5d3a",
+    "source_mutation_head": "cb76afa81cac00b1738d28448de571fb88ce5540"
+  },
+  "claim_boundary": {
+    "source_state": "IMPLEMENTED_SOURCE",
+    "github_execution": "PENDING_OR_EXECUTOR_BOUNDARY",
+    "local_execution": "NOT_OBSERVED",
+    "reason": "The immediately preceding GitHub hardening run exposed zero executed steps. A direct local readback attempt could not resolve raw.githubusercontent.com, so no local test-pass claim is made.",
+    "A_executed_ne_A_claimed": true,
+    "S_observed_ne_S_claimed": true
+  },
+  "preserved_invariants": [
+    "sector repositories remain capability domains rather than deployment topology",
+    "logical ServiceGenome identity is stable across replication and profile reconfiguration",
+    "HR authority remains external to this mutation and is not reclassified",
+    "optional payment capability is not promoted into a resident server set without explicit undertaking activation"
+  ],
+  "next_holes": [
+    "bind resident CasePath handlers/adapters to the actual room functions instead of demonstration lambdas",
+    "emit successful process receipts from the composed CasePath room when an execution substrate is observable",
+    "reconcile resulting function holes through BRAINK/IL-LLM rather than synthesizing capabilities already resident"
+  ]
+}

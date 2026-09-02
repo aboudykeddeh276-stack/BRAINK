@@ -1,0 +1,44 @@
+{
+  "claim_boundary": [
+    "not_hardware_mmu",
+    "not_kernel_virtual_memory",
+    "not_remote_memory_durability",
+    "not_distributed_aperture_consensus",
+    "not_physical_multi_host_fencing",
+    "not_power_loss_durability",
+    "not_public_projection_verified"
+  ],
+  "execution_event_hash": "8d6dfdb20ab432daace330449ca31da5bd65241747a71384df704f5364f2653b",
+  "execution_id": "EXEC-BRAINK-VAF-VFS-HEAD-R1",
+  "finished_ns": 1788307103964277903,
+  "mechanical_result": {
+    "public_readback_required": false,
+    "resource_side_fence_remains_in_vfs_promote": true,
+    "ring1_hole_semantics_preserved": true,
+    "stale_fence_rejection_receipt_path_defined": true,
+    "vfs_generation_head_aperture_defined": true
+  },
+  "obligation_id": "OBL-ADDRESS-FABRIC-VFS-HEAD",
+  "post_selection": null,
+  "post_selection_hash": "7654b1b07be090431c9607aa8e1f8c69d87703d2cfe8c6f1148a0e5045f12f3c",
+  "result_digest": "3b2b266ea018bad9afd1cbd0f110f7ec014709b16940d5465636712618d9ea13",
+  "scheduler_post_database_hash": "2b36e8521aadd3f52a65d9388780d5e71888c39b10dbea04b3484a9cf60a4f7f",
+  "scheduler_pre_database_hash": "7317d12c1ff6a5b2152b0be22102aac4d769cc84094ec981f07ab7c77e26cbc3",
+  "schema": "kex.illlm.execution-receipt/v1",
+  "source_mutations": [
+    {"commit":"3476a413215e94567e591481de4d796fea9d27bb","effect":"integrated BRAINK VAF R1 source into hardening branch","path":"modules/kex_wbos/virtual_address_fabric.py"},
+    {"commit":"bd0792735837e3663b34b891aede34a2045bd731","effect":"bound Ring-1 logical address to VFSGenerationStore backing aperture","path":"modules/kex_wbos/vfs_address_bridge.py"},
+    {"commit":"4451447e5d8fdc73abf16b4211182f476d952c93","effect":"preserved fenced VFS promotion rejection as typed execution receipt","path":"modules/kex_wbos/vfs_address_bridge.py"},
+    {"commit":"587cf04ea3b4e8f9dd13a3955a44ea3e85d488b3","effect":"added hostile HOLE→aperture→promote→rehydrate→stale-owner rejection test","path":"scripts/kex-ci/test_vfs_address_bridge.py"},
+    {"commit":"d2c67dd56ad2ab138cd1e7d096b22950fc0b9ef9","effect":"gated integration test in hardening workflow","path":".github/workflows/kex-runtime-hardening.yml"}
+  ],
+  "started_ns": 1788307103963996161,
+  "status": "SOURCE_MUTATED_VALIDATION_PENDING",
+  "validation": {
+    "classification": "IMPLEMENTED_SOURCE_EXECUTION_UNPROVEN",
+    "executed_test_steps": 0,
+    "github_workflow_runs_at_readback": 0,
+    "local_reference_suite": "BRAINK_VIRTUAL_ADDRESS_FABRIC_R1 7/7 PASS (input evidence)",
+    "new_integration_test": "IMPLEMENTED_SOURCE"
+  }
+}

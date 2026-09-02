@@ -17,6 +17,7 @@ from action_runtime import (
     readback_runtime,
     write_proof,
 )
+from hardening import constant_time_bearer_matches, require_secure_bind
 
 PORT = 8790
 
@@ -31,17 +32,20 @@ ACTION_TYPE_BY_PATH = {
 
 
 class ActionHandler(data_server.Handler):
-    server_version = "KEX-Unified-Action/5.0"
+    server_version = "KEX-Unified-Action/5.3"
 
     def _authorized(self) -> bool:
         token = os.getenv("KEX_BEARER_TOKEN")
         if not token:
             return True
-        return self.headers.get("Authorization", "") == f"Bearer {token}"
+        return constant_time_bearer_matches(self.headers.get("Authorization", ""), token)
 
     def _read_json(self) -> dict:
-        length = int(self.headers.get("Content-Length", "0"))
-        if length <= 0:
+        try:
+            length = int(self.headers.get("Content-Length", "0"))
+        except ValueError:
+            return {}
+        if length <= 0 or length > 16 * 1024 * 1024:
             return {}
         try:
             payload = json.loads(self.rfile.read(length).decode("utf-8"))
@@ -72,13 +76,14 @@ class ActionHandler(data_server.Handler):
         path = parsed.path
         parts = [p for p in path.split("/") if p]
 
-        # Preserve multipart workbook endpoints from the base WBOS server.
         if path in {"/activate-workbook", "/workbooks/apply"}:
             return super().do_POST()
 
         payload = self._read_json()
 
         if path == "/actions/execute":
+            # execute_action is the single owner of command idempotency. Keeping a
+            # second registry here creates split-brain retry state after crashes.
             return self._json(execute_action(payload))
 
         if len(parts) == 5 and parts[0] == "workbooks" and parts[2] == "tables" and parts[4] == "append":
@@ -102,7 +107,11 @@ class ActionHandler(data_server.Handler):
         if path == "/deployment/public/readback":
             results = []
             for target in payload.get("targets", []):
-                result = readback_runtime({"target": target.get("url", ""), "expectedText": target.get("expectedText")})
+                result = readback_runtime({
+                    "target": target.get("url", ""),
+                    "expectedText": target.get("expectedText"),
+                    "sendRuntimeAuth": False,
+                })
                 result["expectedStatus"] = target.get("expectedStatus", 200)
                 result["requireTls"] = target.get("requireTls", True)
                 results.append(result)
@@ -115,13 +124,15 @@ class ActionHandler(data_server.Handler):
                 "actionType": "BITCOIN_IBD_GUARD",
                 "target": payload.get("rpcRoute", "bitcoin-rpc"),
                 "controlRoute": payload.get("rpcRoute"),
+                "capability": payload.get("capability"),
+                "idempotencyKey": payload.get("idempotencyKey"),
                 "payload": payload,
             }
             receipt = execute_action(request)
             status = receipt["status"]
             return self._json({
                 "status": status,
-                "initialBlockDownload": True if status != "VERIFIED" else False,
+                "initialBlockDownload": status != "VERIFIED",
                 "peers": 0,
                 "blockHeight": 0,
                 "canMine": False,
@@ -139,6 +150,8 @@ class ActionHandler(data_server.Handler):
                 "actionType": ACTION_TYPE_BY_PATH[path],
                 "target": payload.get("targetDomain") or payload.get("publicIp") or payload.get("targetPath") or payload.get("rpcRoute") or path,
                 "controlRoute": payload.get("providerRoute") or payload.get("acmeRoute") or payload.get("routerRoute") or payload.get("deploymentRoute") or payload.get("rpcRoute"),
+                "capability": payload.get("capability"),
+                "idempotencyKey": payload.get("idempotencyKey"),
                 "payload": payload,
             }
             return self._json(execute_action(action_request))
@@ -147,6 +160,8 @@ class ActionHandler(data_server.Handler):
 
 
 def serve(host: str = "127.0.0.1", port: int = PORT) -> None:
+    token = os.getenv("KEX_BEARER_TOKEN")
+    require_secure_bind(host, token)
     data_server.append_proof("ACTION_RUNTIME_BOOT", "KEX://ROOT/ACTION_RUNTIME", f"{host}:{port}")
     ThreadingHTTPServer((host, port), ActionHandler).serve_forever()
 

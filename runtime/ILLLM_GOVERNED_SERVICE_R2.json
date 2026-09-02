@@ -1,0 +1,118 @@
+{
+  "schema": "kex.illlm.governed-service.registry.v2",
+  "status": "EXECUTED_LOCAL_PRIVATE",
+  "control_model": "database-determined execution",
+  "service": {
+    "id": "service://local/illlm-governed-control",
+    "surfaces": [
+      "/health",
+      "/agenda",
+      "/next",
+      "/governance",
+      "/lifecycle",
+      "/policy/evaluate",
+      "/console"
+    ]
+  },
+  "modules": [
+    "agent_identity.py",
+    "runtime_policy.py",
+    "lifecycle_eval.py",
+    "illlm_control_plane.py"
+  ],
+  "executed_receipts": {
+    "agent_identity": "AGENT_IDENTITY_SIGNED_RECEIPT_EXECUTION_R1.json",
+    "runtime_policy": "RUNTIME_POLICY_EXECUTION_RECEIPT_R1.json",
+    "lifecycle": "LIFECYCLE_EVAL_EXECUTION_RECEIPT_R1.json",
+    "deployment": "GOVERNED_SERVICE_V2_DEPLOYMENT_READBACK_R1.json",
+    "signed_deployment": "GOVERNED_SERVICE_SIGNED_DEPLOYMENT_RECEIPT_R1.json"
+  },
+  "observed_results": {
+    "agent_signature_verified": "200/200",
+    "tamper_rejected": "200/200",
+    "unbound_signing_denied": "200/200",
+    "policy_adversarial_cycles": 500,
+    "receipt_coverage": 1.0,
+    "lifecycle_gates": "HEALTHY",
+    "signed_deployment_receipt": "VERIFIED",
+    "chromium_set_content_projection": "PASS",
+    "chromium_direct_localhost_route": "BLOCKED_BY_ADMINISTRATOR_POLICY",
+    "native_fence_r1": {
+      "component": "KOS-MF-15",
+      "classification": "FIXED_MEMBERSHIP_CRASH_FAULT_FENCE_MODEL_VALIDATED",
+      "hostile_suite": "6/6 PASS",
+      "source_release_root": "2cd6cd4f2068d2e70e91bb16b4248ef84ceca30f0cfd2a79c2af417223b45d7e",
+      "scheduler_receipt": "runtime/KOS_MF_15_EVIDENCE_INGEST_RECOMPUTE_R1.json"
+    },
+    "native_fence_r2": {
+      "source_commit": "9255c7bc5d2ee1df9f909cfaf139549ac8a9000b",
+      "test_commit": "0472c71bdcd816ef696df862cab92c9e3669854d",
+      "classification": "IMPLEMENTED_SOURCE_EXECUTION_UNPROVEN",
+      "features": [
+        "Ed25519 owner signatures",
+        "signed quorum votes",
+        "membership epoch/root binding",
+        "certificate-root verification",
+        "persistent certificate history",
+        "resource-side fence validation",
+        "persistent replay high-water"
+      ],
+      "github_hardening_run": 33571725008,
+      "github_hardening_steps_executed": 0,
+      "scheduler_receipt": "runtime/KOS_MF_15_R2_SOURCE_EVIDENCE_RECOMPUTE_R1.json"
+    },
+    "virtual_address_fabric_r1": {
+      "classification": "IMPLEMENTED_SOURCE_EXECUTION_UNPROVEN",
+      "reference_evidence": "BRAINK_VIRTUAL_ADDRESS_FABRIC_R1 7/7 PASS",
+      "branch_source_commit": "3476a413215e94567e591481de4d796fea9d27bb",
+      "vfs_bridge_commit": "4451447e5d8fdc73abf16b4211182f476d952c93",
+      "integration_test_commit": "587cf04ea3b4e8f9dd13a3955a44ea3e85d488b3",
+      "ci_gate_commit": "d2c67dd56ad2ab138cd1e7d096b22950fc0b9ef9",
+      "receipt": "runtime/BRAINK_VAF_VFS_HEAD_INTEGRATION_R1.json",
+      "mechanics": [
+        "typed HOLE before backing exists",
+        "aperture binding to VFS generation HEAD",
+        "fenced VFS promotion",
+        "rehydration from promoted generation",
+        "stale-owner rejection receipt"
+      ],
+      "validation": "NEW_INTEGRATION_TEST_NOT_YET_EXECUTED"
+    }
+  },
+  "scheduler_state": {
+    "latest_evidence_delta": "BRAINK-VAF-R1-VFS-HEAD-INTEGRATION",
+    "database_hash": "2b36e8521aadd3f52a65d9388780d5e71888c39b10dbea04b3484a9cf60a4f7f",
+    "selection_hash": "7654b1b07be090431c9607aa8e1f8c69d87703d2cfe8c6f1148a0e5045f12f3c",
+    "selected": null,
+    "decision": "SOURCE_MUTATION_EXECUTED_VALIDATION_PENDING_NO_OTHER_ELIGIBLE_OBLIGATION"
+  },
+  "claim_boundary": {
+    "public_saas": "NOT_CLAIMED",
+    "external_key_trust_anchor": "NOT_YET_PROVEN",
+    "multi_host_linearizable_authority": "NOT_YET_PROVEN",
+    "physical_multi_host_fencing": "NOT_YET_PROVEN",
+    "wan_partition_safety": "NOT_YET_PROVEN",
+    "leader_view_change_liveness": "NOT_YET_PROVEN",
+    "dynamic_membership": "NOT_YET_PROVEN",
+    "byzantine_safety": "NOT_YET_PROVEN",
+    "hardware_rooted_identity": "NOT_YET_PROVEN",
+    "hardware_mmu": "NOT_CLAIMED",
+    "kernel_virtual_memory": "NOT_CLAIMED",
+    "remote_memory_durability": "NOT_YET_PROVEN",
+    "distributed_aperture_consensus": "NOT_YET_PROVEN",
+    "power_loss_durability": "NOT_YET_PROVEN",
+    "customer_roi": "NOT_YET_PROVEN"
+  },
+  "library": {
+    "folder": "/IL_LLM_DB_DRIVEN_EXECUTION/",
+    "report": "IL_LLM_GOVERNED_EXECUTION_SERVICE_STREAM_R2.md",
+    "release": "IL_LLM_GOVERNED_EXECUTION_SERVICE_STREAM_R2.zip",
+    "native_fence_evidence": "KOS_MF_15_NATIVE_FENCE_R1",
+    "virtual_address_fabric_evidence": "BRAINK_VIRTUAL_ADDRESS_FABRIC_R1"
+  },
+  "sha256": {
+    "release": "57495f55a78487a3443cfa18b418de226066c32c225d6da3355b2e6b88f990b4",
+    "report": "31fe87b6c1aaae1d4876088fdd8914f6ef8a6bb02af313d4889de2a0e7a9d1d0",
+    "manifest": "1a73e68cfe885bed90b9cc5a620248eca03d73c6459057a4abb0f873e11baf5e"
+  }
+}

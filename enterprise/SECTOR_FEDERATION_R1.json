@@ -1,0 +1,24 @@
+{
+  "schema": "braink.sector-federation/v1",
+  "federation_root": "app://braink/federation",
+  "hr_authority": "repo://aboudykeddeh276-stack/GENERAL-GOVERNANCE-/braink_hr",
+  "sectors": {
+    "braink_core": "repo://aboudykeddeh276-stack/BRAINK",
+    "runtime_servers": "repo://aboudykeddeh276-stack/KERA_SERVER",
+    "storage_memory": "repo://aboudykeddeh276-stack/virtualized-storage",
+    "research_learning_evolution": "repo://aboudykeddeh276-stack/KSYSTEMS_LEARNING-",
+    "code_synthesis": "repo://aboudykeddeh276-stack/K-SYSTEMS-CODE-SPACE-",
+    "mesh_nodes": "repo://aboudykeddeh276-stack/KEDDEH_SOFTWARE_NODES",
+    "mining": "repo://aboudykeddeh276-stack/MINING",
+    "console_ui": "repo://aboudykeddeh276-stack/BRAINK-CONSOLE-PLUS"
+  },
+  "shared_protocol": {
+    "task": "braink.sector.task/v1",
+    "receipt": "braink.sector.receipt/v1",
+    "capability": "capability://<sector>/<name>",
+    "agent": "agent://<sector>/<id>",
+    "work_module": "workmodule://<sector>/<id>",
+    "observer": "observer://<sector>/<source>"
+  },
+  "dispatch_chain": ["HR assignment", "BRAINK route", "sector capability resolution", "work-module execution", "sector receipt", "BRAINK reconciliation", "IL-LLM continuation"]
+}

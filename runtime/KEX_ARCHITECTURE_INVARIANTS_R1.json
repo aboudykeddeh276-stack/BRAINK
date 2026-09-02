@@ -1,0 +1,100 @@
+{
+  "record_id": "KEX_ARCHITECTURE_INVARIANTS_R2",
+  "authority": "A.KEDDEH / KEDDEH_SYSTEMS / BRAINK / CASEPATH",
+  "purpose": "Prevent local implementations or agent actions from violating global KEX/BRAINK runtime architecture.",
+  "invariants": [
+    {
+      "id": "INV-HOST-001",
+      "name": "Resident host ownership",
+      "rule": "A production runtime service must be owned by a resident server/daemon/runtime substrate. Source-control automation may validate or distribute source but may not be the liveness dependency.",
+      "current_binding": "K_Cloud_Substrate_Master_Daemon.ipynb -> runtime://kex/resident-controller -> service://wbos/action-server",
+      "failure_class": "HOST_OWNERSHIP_BYPASS"
+    },
+    {
+      "id": "INV-SVC-001",
+      "name": "Service authority persistence",
+      "rule": "HTTP, DNS/domain, registrar, mail/messaging, mesh, server and storage/memory subsystems retain resident authority objects and VFS-backed state even when an external provider actuator is unavailable.",
+      "failure_class": "SERVICE_EXISTENCE_COLLAPSED_TO_EXTERNAL_ADAPTER"
+    },
+    {
+      "id": "INV-SVC-002",
+      "name": "Three-layer service resolution",
+      "rule": "Every service resolves resident authority object -> VFS-backed state contract -> resident process/service -> optional external actuator. Missing the final actuator blocks only the external effect/promotion it owns.",
+      "failure_class": "UNRELATED_EXTERNAL_DEPENDENCY_FALSE_BLOCK"
+    },
+    {
+      "id": "INV-LIFE-001",
+      "name": "Current-generation lifecycle identity",
+      "rule": "A service may be promoted RUNNING/LIVE only when the observed child PID/generation belongs to the current supervisor/controller and current launch attempt.",
+      "failure_class": "STALE_PROCESS_FALSE_PROMOTION"
+    },
+    {
+      "id": "INV-PROOF-001",
+      "name": "Evidence non-substitution",
+      "rule": "Test output, source commit, workflow status, static artifact, or stale sidecar may not substitute for current execution/readback evidence.",
+      "failure_class": "EVIDENCE_SUBSTITUTION"
+    },
+    {
+      "id": "INV-AUTH-001",
+      "name": "Least authority",
+      "rule": "Authentication proves caller identity; scoped capability proves action/target authority. Credentials are never forwarded to unrelated readback origins.",
+      "failure_class": "AMBIENT_AUTHORITY_LEAK"
+    },
+    {
+      "id": "INV-IDEM-001",
+      "name": "Single idempotency owner",
+      "rule": "One logical command has one durable idempotency coordinator. Facades may delegate but may not independently reserve the same command in a second registry.",
+      "failure_class": "DUPLICATE_IDEMPOTENCY_COORDINATOR"
+    },
+    {
+      "id": "INV-WB-001",
+      "name": "Workbook semantic boundedness",
+      "rule": "Semantic indexing must operate on bounded resident cell objects/ranges and must reject or limit pathological worksheet dimensions; mutation must refresh or invalidate semantic sidecars.",
+      "failure_class": "WORKBOOK_SEMANTIC_STATE_DIVERGENCE"
+    },
+    {
+      "id": "INV-FS-001",
+      "name": "Substrate containment",
+      "rule": "Every discovered or migrated filesystem object is resolved and containment-checked individually; escaped symlinks are rejected/skipped without poisoning unrelated discovery.",
+      "failure_class": "SUBSTRATE_BOUNDARY_ESCAPE"
+    },
+    {
+      "id": "INV-VFS-001",
+      "name": "Virtual substrate continuity",
+      "rule": "Scripted VFS/memory state is a valid resident logical substrate and continuation carrier. Physical or provider-backed storage may extend it but is not required for the existence of the logical service object.",
+      "failure_class": "VIRTUAL_SUBSTRATE_DISCARDED"
+    },
+    {
+      "id": "INV-LEDGER-001",
+      "name": "Proof lineage preservation",
+      "rule": "Resident ledgers are never deleted or repurposed by tests. Test ledgers are isolated. Delivered participant receipts and retained checkpoints are append-preserving and may not silently overwrite contradictory evidence.",
+      "failure_class": "PROOF_HISTORY_DESTRUCTION"
+    },
+    {
+      "id": "INV-TL2-001",
+      "name": "TL2 scope promotion",
+      "rule": "TL2_LIVE requires resident current-generation service liveness and inside-tunnel readback. It does not require or imply PUBLIC_LIVE.",
+      "failure_class": "TL2_SCOPE_FALSE_PROMOTION"
+    },
+    {
+      "id": "INV-DNS-001",
+      "name": "DNS/domain scope separation",
+      "rule": "Domain/DNS authority can exist as resident authoritative state independently of public-provider mutation. Provider receipts gate PUBLIC_DNS_VERIFIED, not private runtime liveness.",
+      "failure_class": "DNS_PUBLICATION_CONFUSED_WITH_RUNTIME_EXISTENCE"
+    },
+    {
+      "id": "INV-MAIL-001",
+      "name": "Mail service state versus delivery",
+      "rule": "Mail/message intent, queue, identity and delivery ledger remain resident service state. SMTP/API/provider receipts are required only to claim external delivery.",
+      "failure_class": "MAIL_TRANSPORT_CONFUSED_WITH_MAIL_SERVICE"
+    },
+    {
+      "id": "INV-RECOVERY-001",
+      "name": "Self-sustaining recovery",
+      "rule": "Runtime controller owns health cadence, supervisor recovery, local hostile oracles, proof emission and continuation state. External CI failure cannot terminate or suspend the resident runtime.",
+      "failure_class": "EXTERNAL_AUTOMATION_LIVENESS_DEPENDENCY"
+    }
+  ],
+  "agent_execution_rule": "Every new function or mutation must identify the applicable invariants before implementation and must emit a defect rather than silently bypassing an invariant.",
+  "promotion_rule": "No capability claim may exceed the strongest invariant-backed receipt currently observed."
+}

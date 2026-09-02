@@ -1,0 +1,31 @@
+{
+  "schema": "braink.service-genome/v1",
+  "genome_id": "genome://casepath/service/r1",
+  "service_class": "legal_preparation_platform",
+  "functions": [
+    {"function_id":"hr.casepath.agent_assignment","sector":"hr_governance","capability":"hr.assign","server_class":"hr","required":true},
+    {"function_id":"agent.casepath.intake","sector":"research_learning_evolution","capability":"agent.casepath.intake","server_class":"agentic_ai","required":true},
+    {"function_id":"agent.casepath.document_prepare","sector":"research_learning_evolution","capability":"agent.casepath.document_prepare","server_class":"agentic_ai","required":true},
+    {"function_id":"mail.casepath.transactional","sector":"runtime_servers","capability":"mail.transactional","server_class":"mailing","required":true},
+    {"function_id":"runtime.casepath.service","sector":"runtime_servers","capability":"runtime.service.launch","server_class":"runtime","required":true},
+    {"function_id":"vfs.casepath.matter","sector":"storage_memory","capability":"vfs.commit","server_class":"storage","required":true},
+    {"function_id":"security.casepath.audit","sector":"mesh_nodes","capability":"audit.receipt","server_class":"security","required":true},
+    {"function_id":"web.casepath.public","sector":"console_ui","capability":"web.casepath.public","server_class":"web","required":true},
+    {"function_id":"payment.casepath.entitlement","sector":"runtime_servers","capability":"payment.entitlement","server_class":"payments","required":false}
+  ],
+  "pairings": [
+    {"source_function":"hr.casepath.agent_assignment","target_function":"agent.casepath.intake","relation":"assigns_authority","required":true},
+    {"source_function":"agent.casepath.intake","target_function":"vfs.casepath.matter","relation":"writes_matter_state","required":true},
+    {"source_function":"agent.casepath.intake","target_function":"agent.casepath.document_prepare","relation":"produces_normalized_input","required":true},
+    {"source_function":"agent.casepath.document_prepare","target_function":"vfs.casepath.matter","relation":"writes_artifact","required":true},
+    {"source_function":"runtime.casepath.service","target_function":"web.casepath.public","relation":"serves_projection","required":true},
+    {"source_function":"runtime.casepath.service","target_function":"mail.casepath.transactional","relation":"emits_notifications","required":true},
+    {"source_function":"vfs.casepath.matter","target_function":"security.casepath.audit","relation":"emits_proof_receipts","required":true},
+    {"source_function":"payment.casepath.entitlement","target_function":"runtime.casepath.service","relation":"grants_service_entitlement","required":false}
+  ],
+  "policies": [
+    "GLOBAL_PROCESS_NATIVE_EXECUTION_AMENDMENT_R2",
+    "SELF_EVOLUTION_RELEASE_POLICY_R1",
+    "HR_FEDERATION_R1"
+  ]
+}
