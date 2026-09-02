@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 """Canonical-state gate for the resident KEX/WBOS action runtime.
 
-This is the first production integration of the KEX ONE-state invariant.
 Requests are canonicalized before the existing executor sees them; executor
-results are canonicalized before they leave the WBOS wrapper.  The underlying
+results are canonicalized before they leave the WBOS wrapper. The underlying
 executor remains authoritative for mutation semantics and external-action
 claim boundaries.
 """
@@ -11,7 +10,12 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+import sys
 from typing import Any
+
+BASE = Path(__file__).resolve().parents[2]
+if str(BASE) not in sys.path:
+    sys.path.insert(0, str(BASE))
 
 try:  # package import
     from .action_runtime import execute_action
@@ -20,7 +24,6 @@ except ImportError:  # direct module execution used by existing WBOS tooling
 
 from modules.kex_core.canonical_state import CanonicalBoundary, digest, mapping_adapter
 
-BASE = Path(__file__).resolve().parents[2]
 CANONICAL_ACTION_LEDGER = BASE / "reports" / "kex-wbos" / "canonical-action-ledger.jsonl"
 
 
@@ -54,8 +57,6 @@ def execute_canonical_action(request: dict[str, Any]) -> dict[str, Any]:
         fan_out=1,
     )
 
-    # The executor receives only the canonical payload, never the caller's
-    # mutable object. This is the operational wrapper-boundary invariant.
     canonical_request = dict(request_state.payload)
     raw_result = execute_action(canonical_request)
 
@@ -79,6 +80,7 @@ def execute_canonical_action(request: dict[str, Any]) -> dict[str, Any]:
     transition = {
         "schema": "kex.wbos-canonical-action-receipt.v1",
         "evidenceLevel": "SOFTWARE_OBSERVED",
+        "measurementClass": "STRUCTURAL_PROXY",
         "requestIdentity": request_state.identity,
         "requestCanonicalDigest": request_state.state_digest,
         "resultIdentity": result_state.identity,
@@ -91,18 +93,17 @@ def execute_canonical_action(request: dict[str, Any]) -> dict[str, Any]:
         "crossings": [item.as_dict() for item in boundary.evidence],
         "claimBoundary": (
             "Observed proof covers software canonicalization around the resident WBOS "
-            "executor and round-trip semantic preservation at this wrapper only."
+            "executor and round-trip semantic preservation at this wrapper only. "
+            "Propagation fields are structural software proxies, not electrical metrics."
         ),
     }
     ledger_row = _append_transition_receipt(transition)
 
-    # Preserve the resident action receipt as the outward API while attaching
-    # canonical proof metadata. Existing consumers therefore do not lose their
-    # action-runtime contract.
     enriched = dict(outward_result)
     enriched["canonicalState"] = {
         "schema": transition["schema"],
         "evidenceLevel": transition["evidenceLevel"],
+        "measurementClass": transition["measurementClass"],
         "requestDigest": request_state.state_digest,
         "resultDigest": result_state.state_digest,
         "identityPreserved": all(
