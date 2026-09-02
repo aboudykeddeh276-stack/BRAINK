@@ -1,0 +1,7 @@
+{
+  "schema": "braink.continuation.r18/v1",
+  "state": "R18_BINDINGS_QUALIFIED",
+  "completed": ["github_write_and_readback","gmail_control_plane_binding","google_drive_write_binding","google_contacts_identity_read_binding","google_calendar_read_binding","local_process_supervisor","local_http_ingress","local_metrics_exposition","payment_provider_neutral_contract"],
+  "next_obligations": ["bind_authenticated_payment_provider","side_effect_test_mail_send_path","side_effect_test_calendar_write_path","bind_external_public_http_ingress","bind_production_metrics_collector","bind_each_business_server_family_to_live_provider_or_local substrate"],
+  "epistemic_rule": "No externally mutating capability is promoted beyond observed evidence."
+}
