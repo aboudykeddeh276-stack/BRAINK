@@ -1,6 +1,12 @@
+import importlib.util
 from pathlib import Path
 import pytest
-from system_evolution import *
+
+MODULE=Path(__file__).resolve().parents[1]/'CONTROL_PLANE_R1.py'
+spec=importlib.util.spec_from_file_location('braink_control_plane_r1',MODULE)
+cp=importlib.util.module_from_spec(spec); spec.loader.exec_module(cp)
+DeterministicVFS=cp.DeterministicVFS; ImmutableLedger=cp.ImmutableLedger; ModuleContract=cp.ModuleContract; Orchestrator=cp.Orchestrator
+CognitiveRefraction=cp.CognitiveRefraction; PromotionPipeline=cp.PromotionPipeline; GateResult=cp.GateResult; capability_score=cp.capability_score
 
 
 def test_vfs_checkpoint_roundtrip(tmp_path):
