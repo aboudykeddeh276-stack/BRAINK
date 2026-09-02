@@ -1,0 +1,9 @@
+{
+  "schema":"braink.r23.deployment-state/v1",
+  "status":"EXECUTED_PARTIAL_EXTERNAL_BOUNDARY",
+  "source_commit":"67d7e440d39bb9ac782d1716987fc89581690e6b",
+  "test_commit":"b8dc79cc83043b4b08cfc806ffbca40f309e185b",
+  "service_commit":"e1dd53c45504b664ba4eb62cc171d72dab54ad56",
+  "execution":{"status":"PASS","hr_lease_rehydration":"PASS","customer_file_lifecycle":"PASS","research_independent_promotion":"PASS","internal_publication":"PASS","public_activation":"DEFERRED_EXTERNAL_ACTUATOR","receipt_count":15,"state_root":"bd418780a056d99f9846fbbbe3024d1eae3b13f9e16f0f932e3e9957054f0e0d","receipt_root":"37c4d7b9f33f54d595465adf6eaaba9bdc3ea1a0721bd99023b977b939ae9a75"},
+  "remaining_boundary":{"classification":"EXTERNAL_ACTUATOR_ABSENT","missing_mechanism":"registrar/DNS/TLS/owner-host actuator handle","effect":"public activation intent is persisted but no external DNS/TLS mutation is claimed"}
+}
