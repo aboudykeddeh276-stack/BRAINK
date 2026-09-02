@@ -3,7 +3,6 @@ from __future__ import annotations
 from dataclasses import dataclass, asdict
 from pathlib import Path
 from typing import Any, Mapping
-import hashlib
 import json
 
 from enterprise.self_addressing_runtime import SelfAddressingRuntime
@@ -26,10 +25,10 @@ class ComputerIdentity:
 class RecursiveComputer:
     """Constructor-bearing KEX computer composed from existing R25 mechanics.
 
-    The object deliberately reuses SelfAddressingRuntime for logical/backing
-    resolution, checkpointing and continuation semantics, and the R25 ledger
-    for proof-bound state transitions. Every descendant receives the same
-    constructor identity so the child can instantiate its own successor.
+    The object reuses SelfAddressingRuntime for logical/backing resolution,
+    persistence and checkpoints, and the R25 append-only ledger for proof-bound
+    transitions. Descendants inherit state, memory, lineage and constructor
+    authority, so a child can instantiate its own successor.
     """
 
     CONSTRUCTOR_ID = "constructor://kex/recursive-computer/r26"
@@ -63,13 +62,17 @@ class RecursiveComputer:
         self._persist("BOOTSTRAP")
 
     def _snapshot(self) -> dict[str, Any]:
-        return {
-            "identity": asdict(self.identity),
-            "state": _copy(self.state),
-            "memory": _copy(self.memory),
-            "children": sorted(self.children),
-            "constructor": self.CONSTRUCTOR_ID,
-        }
+        # Canonicalize before persistence so in-memory tuples and their JSON
+        # representation cannot create a false readback mismatch.
+        return _copy(
+            {
+                "identity": asdict(self.identity),
+                "state": self.state,
+                "memory": self.memory,
+                "children": sorted(self.children),
+                "constructor": self.CONSTRUCTOR_ID,
+            }
+        )
 
     def _persist(self, operation: str) -> dict[str, Any]:
         snap = self._snapshot()
@@ -148,7 +151,6 @@ class RecursiveComputer:
         if result.get("status") != "READ":
             raise RuntimeError(f"READBACK_FAILED:{result}")
         return result["value"]
-
 
 
 def execute_recursive_proof(root_dir: str | Path) -> dict[str, Any]:
