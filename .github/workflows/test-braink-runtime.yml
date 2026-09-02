@@ -25,12 +25,11 @@ permissions:
 
 jobs:
   contracts:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
+      - name: Compile BRAINK runtime
+        run: python3 -m py_compile runtime/braink_core.py runtime/braink_system.py runtime/authority_ports.py
       - name: Run BRAINK runtime contract tests
-        run: python -m unittest discover -s tests -p 'test_braink_*.py' -v
+        run: python3 -m unittest discover -s tests -p 'test_braink_*.py' -v
