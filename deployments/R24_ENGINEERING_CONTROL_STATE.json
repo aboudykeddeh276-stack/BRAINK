@@ -1,0 +1,43 @@
+{
+  "schema": "braink.r24.engineering-control-state/v1",
+  "status": "DEPLOYED_AND_LOCALLY_EXECUTED",
+  "source": {
+    "engineering_control_plane": "enterprise/engineering_control_plane_r24.py",
+    "standards_profile": "governance/ENGINEERING_STANDARD_PROFILE_R24.json",
+    "invariant": "scripts/kex-ci/test_engineering_control_plane_r24.py",
+    "ci_workflow": ".github/workflows/keddeh-enterprise-control.yml"
+  },
+  "verified_mechanics": [
+    "append-only hash-chained engineering ledger",
+    "ledger reload and chain verification",
+    "architecture decision roots",
+    "immutable release manifest roots",
+    "source-state reconciliation with overclaim detection",
+    "undocumented resident capability detection",
+    "ISO/IEC 25010 quality-characteristic promotion gate",
+    "NIST SSDF practice-group promotion gate",
+    "rollback-readiness gate",
+    "independent-verifier gate",
+    "market-readiness classification"
+  ],
+  "local_execution": {
+    "status": "PASS",
+    "exit_code": 0,
+    "marker": "R24_ENGINEERING_CONTROL_PLANE_PASS",
+    "environment_note": "artifact_tool spreadsheet warm-up emitted an unrelated timeout warning during interpreter startup; the R24 invariant itself completed successfully"
+  },
+  "promotion_policy": {
+    "no_completion_claim_without_readback": true,
+    "no_release_without_rollback": true,
+    "no_promotion_without_independent_verification": true,
+    "no_duplicate_capability_without_discovery_audit": true,
+    "observer_readback_is_reconciliation_not_internal_existence_gate": true
+  },
+  "standards_methodology": [
+    "ISO/IEC/IEEE 42010:2022",
+    "ISO/IEC/IEEE 12207:2026",
+    "ISO/IEC 25010:2023",
+    "NIST SP 800-218 SSDF 1.1"
+  ],
+  "certification_claim": "NONE"
+}
