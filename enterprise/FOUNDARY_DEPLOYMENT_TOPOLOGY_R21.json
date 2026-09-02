@@ -1,5 +1,5 @@
 {
-  "schema": "braink.foundary-deployment-topology.r21/v1",
+  "schema": "braink.foundary-deployment-topology.r21/v2",
   "registry": "enterprise/FOUNDRY_REGISTRY_R21.json",
   "runtime": "enterprise/foundry_runtime.py",
   "invariant": "scripts/kex-ci/test_foundry_runtime_r21.py",
@@ -13,11 +13,22 @@
     "KEDDEH_SOFTWARE_NODES": ["FRONTAGES_SERVICES_GROWING_MESH_WEBSITES_DOMAIN_MASTERY_FOUNDARY", "SERVER_FOUNDARY", "PROCESS_MASTERY_FOUNDARY"],
     "MINING": ["SERVER_FOUNDARY", "PROCESS_MASTERY_FOUNDARY", "REAL_ACTUAL_USEABLE_SOFTWARE_FOUNDARY", "FILE_SYSTEM_FOUNDARY", "AGENTICS_FOUNDARY"]
   },
+  "resident_foundary_process_bindings": {
+    "PUBLISHING_MASTERY_FOUNDARY": {
+      "receipt": "deployments/R21_PUBLISHING_ACTUATOR_BINDING_R1.json",
+      "mechanic": "mechanic://keddeh/admin/production-actuator",
+      "canonical_service": "app://casepath",
+      "classification": "RESIDENT_ACTUATOR_REUSE_BOUND_ORIGIN_AUTHORITY_PENDING",
+      "bound_mechanics": ["release actuator", "release marker", "readback receipt"],
+      "not_promoted": ["publication queue", "approval authority", "production origin write authority", "universal domain publication"]
+    }
+  },
   "unresolved_foundary_edges": [
     {
       "edge": "PUBLISHING_MASTERY_FOUNDARY -> production publishing actuator estate",
-      "reason": "publishing processes are represented and partially bound, but no single production publishing repository/runtime has yet been independently verified as the canonical release authority",
-      "required_mechanics": ["publication queue", "approval authority", "release actuator", "release marker", "rollback", "readback receipt"]
+      "reason": "the CasePath production actuator, release-marker sequence and readback observer operation are now bound as resident reusable mechanics; canonical production origin/write authority and full publication queue/approval mechanics remain unresolved",
+      "required_mechanics": ["publication queue", "approval authority", "production origin write authority", "rollback qualification"],
+      "resident_reuse": ["mechanic://keddeh/admin/production-actuator", "release marker", "outside-in readback"]
     },
     {
       "edge": "FRONTAGES_SERVICES_GROWING_MESH_WEBSITES_DOMAIN_MASTERY_FOUNDARY -> authoritative production domain plane",
@@ -26,8 +37,9 @@
     },
     {
       "edge": "LANDING_PAGE_FOUNDARY -> production landing-page publication factory",
-      "reason": "HCI/frontage repositories exist but a reusable landing-page compiler-to-publication pipeline is not yet verified end-to-end",
-      "required_mechanics": ["template compiler", "content binding", "form/CRM binding", "analytics", "publish actuator", "rollback"]
+      "reason": "HCI/frontage repositories exist and the publication actuator stage can now reuse the bound CasePath actuator contract, but a reusable template/compiler + content/form/analytics pipeline is not yet verified end-to-end",
+      "required_mechanics": ["template compiler", "content binding", "form/CRM binding", "analytics", "rollback"],
+      "resident_reuse": ["PUBLISHING_MASTERY_FOUNDARY release actuator", "release marker", "readback receipt"]
     },
     {
       "edge": "CUSTOMER_FILE_BASE_SOFTWARE_FOUNDARY -> production customer data service",
