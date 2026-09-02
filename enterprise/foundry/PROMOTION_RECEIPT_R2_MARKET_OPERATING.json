@@ -1,0 +1,30 @@
+{
+  "schema": "braink.foundry.market-operating.promotion.r2/v1",
+  "promoted_at_utc": "2026-09-02T03:55:33.256699+00:00",
+  "canonical_repository": "aboudykeddeh276-stack/BRAINK",
+  "release_sha256": "5d7c8019fe303217c85dcbcbc61dbe2c4834ecdd67c9dec924b8808b3b2e0bc4",
+  "deployment_receipt_sha256": "ca58e4e734688c36ded544a87fb657680fb2a163680b6087ba6edbe4b0973ae1",
+  "states": {
+    "repository": "DEPLOYED",
+    "runtime_code": "DEPLOYED",
+    "generated_local_estate": "EXECUTED",
+    "library": "DEPLOYED",
+    "google_drive": "DEPLOYED",
+    "public_dns_tls": "UNBOUND_EXTERNAL_ACTUATOR",
+    "public_web_host": "UNBOUND_EXTERNAL_ACTUATOR",
+    "payment_settlement": "UNBOUND_EXTERNAL_ACTUATOR"
+  },
+  "foundries": 19,
+  "preserved_sectors": 12,
+  "preserved_sector_functions": 120,
+  "validated_runtime_actions": [
+    "register_domain",
+    "create_account",
+    "record_usage",
+    "open_ticket",
+    "register_principal",
+    "record_metric",
+    "register_artifact"
+  ],
+  "operating_runtime_test_audit_root": "6361135dd8e7b9321db60c6b7a9c7318c8dc328577fdca4c1f212b5cab3af1cc"
+}
