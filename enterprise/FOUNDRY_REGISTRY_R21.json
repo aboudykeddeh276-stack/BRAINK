@@ -1,0 +1,156 @@
+{
+  "schema": "braink.foundary-registry.r21/v1",
+  "term_policy": "FOUNDARY identifiers preserve the programme's named classes; no foundary may be reduced to one capability, one server, or one repository.",
+  "foundaries": {
+    "FRONTAGES_SERVICES_GROWING_MESH_WEBSITES_DOMAIN_MASTERY_FOUNDARY": {
+      "class": "PUBLIC_SERVICE_AND_DOMAIN_FABRIC",
+      "process_domains": ["frontages", "public services", "growing mesh", "websites", "domain mastery", "DNS", "TLS", "ingress", "routing", "service discovery", "public projection", "observer readback", "certificate lifecycle", "domain ownership lineage", "failover", "rollback"],
+      "server_sets": ["WEB_SERVER_SET", "API_SERVER_SET", "OBSERVER_SERVER_SET", "MESH_SERVER_SET", "SECURITY_SERVER_SET"],
+      "agent_teams": ["domain operations", "site fabric", "mesh operations", "publication verification", "incident repair"],
+      "data_classes": ["domain registry", "zone state", "certificate state", "route graph", "site graph", "frontage assets", "release receipts", "observer events"],
+      "repositories": ["BRAINK", "KEDDEH_SOFTWARE_NODES", "BRAINK-CONSOLE-PLUS"],
+      "virtual_roots": ["KEX://DOMAIN/", "KEX://FRONTAGE/", "KEX://MESH/", "vfs://web/"],
+      "state": "PARTIALLY_BOUND"
+    },
+    "PROCESS_MASTERY_FOUNDARY": {
+      "class": "PROCESS_EXECUTION_AND_RECONCILIATION",
+      "process_domains": ["process definition", "state machines", "dependency resolution", "ORC selection", "invocation", "state effects", "receipts", "checkpoint", "restart", "repair", "reconciliation", "continuation", "rollback", "qualification"],
+      "server_sets": ["RUNTIME_SERVER_SET", "AGENTIC_AI_SERVER_SET", "PROOF_SERVER_SET"],
+      "agent_teams": ["runtime operations", "process engineering", "verification", "repair and continuation"],
+      "data_classes": ["process graph", "obligation graph", "transition ledger", "receipts", "carrier frames", "failure ledger"],
+      "repositories": ["BRAINK", "KERA_SERVER"],
+      "virtual_roots": ["KEX://PROCESS/", "runtime://", "vfs://process/"],
+      "state": "BOUND"
+    },
+    "RESEARCH_MASTERY_FOUNDARY": {
+      "class": "RESEARCH_LEARNING_EVOLUTION",
+      "process_domains": ["source discovery", "provenance", "evidence extraction", "classification", "case study", "reproducibility", "comparison", "market research", "technical feasibility", "learning", "knowledge graph", "IL-LLM traversal", "evolution obligations"],
+      "server_sets": ["RESEARCH_SERVER_SET", "AGENTIC_AI_SERVER_SET", "STORAGE_SERVER_SET", "PROOF_SERVER_SET"],
+      "agent_teams": ["research", "source verification", "technical analysis", "market analysis", "evolution"],
+      "data_classes": ["sources", "claims", "evidence", "research graphs", "knowledge relations", "case studies", "promotion receipts"],
+      "repositories": ["KSYSTEMS_LEARNING-", "BRAINK"],
+      "virtual_roots": ["KEX://RESEARCH/", "illlm://", "vfs://research/"],
+      "state": "BOUND"
+    },
+    "PUBLISHING_MASTERY_FOUNDARY": {
+      "class": "CONTENT_PUBLICATION_RELEASE",
+      "process_domains": ["content manufacture", "document generation", "review", "approval", "release packaging", "publishing", "versioning", "frontage projection", "distribution", "mailing", "release marker", "rollback", "readback"],
+      "server_sets": ["DOCUMENT_SERVER_SET", "MAILING_SERVER_SET", "WEB_SERVER_SET", "PROOF_SERVER_SET"],
+      "agent_teams": ["content operations", "publishing", "review", "release management", "communications"],
+      "data_classes": ["documents", "media", "release packages", "versions", "approval records", "publication receipts"],
+      "repositories": ["BRAINK", "BRAINK-CONSOLE-PLUS"],
+      "virtual_roots": ["KEX://PUBLISH/", "vfs://publication/"],
+      "state": "PARTIALLY_BOUND"
+    },
+    "AGENTICS_FOUNDARY": {
+      "class": "AGENTIC_EXECUTION_AND_SELF_EVOLUTION",
+      "process_domains": ["agent identity", "capability assignment", "work modules", "group execution", "tool routing", "research", "synthesis", "verification", "promotion", "observer integration", "continuation", "repair", "self-coding", "runtime management"],
+      "server_sets": ["AGENTIC_AI_SERVER_SET", "HR_SERVER_SET", "RUNTIME_SERVER_SET", "PROOF_SERVER_SET"],
+      "agent_teams": ["BRAINK operators", "research agents", "runtime agents", "engineering agents", "verification agents", "evolution agents"],
+      "data_classes": ["agent records", "capability graph", "work modules", "function registry", "receipts", "observer state", "continuation queue"],
+      "repositories": ["BRAINK", "K-SYSTEMS-CODE-SPACE-", "KSYSTEMS_LEARNING-"],
+      "virtual_roots": ["agent://", "capability://", "task://", "aperture://agent/"],
+      "state": "BOUND"
+    },
+    "HR_AND_ALL_TEAM_SERVICES_FOUNDARY": {
+      "class": "ORGANISATIONAL_AUTHORITY_AND_TEAM_RUNTIME",
+      "process_domains": ["identity", "roles", "teams", "assignment", "capabilities", "authority scope", "segregation of duties", "supervision", "lease", "replacement", "rehydration", "revocation", "work allocation", "performance evidence", "promotion authority"],
+      "server_sets": ["HR_SERVER_SET", "IDENTITY_SERVER_SET", "PROOF_SERVER_SET"],
+      "agent_teams": ["HR operations", "team administration", "authority governance", "verification", "promotion"],
+      "data_classes": ["assignments", "team graph", "authority graph", "role matrix", "revocations", "supervision state", "work allocation ledger"],
+      "repositories": ["GENERAL-GOVERNANCE-", "BRAINK"],
+      "virtual_roots": ["hr://", "team://", "authority://", "agent://"],
+      "state": "PARTIALLY_BOUND"
+    },
+    "BUSINESS_AND_ENTERPRISE_STRUCTURE_FOUNDARY": {
+      "class": "ENTERPRISE_OPERATING_MODEL",
+      "process_domains": ["undertakings", "business units", "service models", "product models", "commercial models", "governance", "risk", "finance", "sales", "customer service", "operations", "R&D", "compliance", "market readiness", "service genomes", "server room derivation"],
+      "server_sets": ["HR_SERVER_SET", "AGENTIC_AI_SERVER_SET", "RUNTIME_SERVER_SET", "CRM_SERVER_SET", "BILLING_SERVER_SET", "ANALYTICS_SERVER_SET"],
+      "agent_teams": ["enterprise architecture", "operations", "finance", "sales", "customer service", "R&D", "market analysis"],
+      "data_classes": ["undertaking registry", "service genome", "business model", "cost model", "market evidence", "risk register", "operating metrics"],
+      "repositories": ["BRAINK", "GENERAL-GOVERNANCE-"],
+      "virtual_roots": ["undertaking://", "genome://", "enterprise://"],
+      "state": "BOUND"
+    },
+    "SERVER_FOUNDARY": {
+      "class": "SERVER_SERVER_SET_AND_ROOM_MANUFACTURE",
+      "process_domains": ["server classes", "server sets", "AI server rooms", "configuration", "replication", "health", "restart", "storage", "networking", "service binding", "deployment", "scaling", "failover", "observability", "retirement"],
+      "server_sets": ["ALL_SERVER_SET_CLASSES"],
+      "agent_teams": ["server engineering", "runtime operations", "network operations", "SRE", "capacity planning"],
+      "data_classes": ["server manifests", "room topology", "config roots", "health state", "deployment receipts", "capacity state"],
+      "repositories": ["KERA_SERVER", "BRAINK"],
+      "virtual_roots": ["server://", "room://", "runtime://server/"],
+      "state": "BOUND"
+    },
+    "REAL_ACTUAL_USEABLE_SOFTWARE_FOUNDARY": {
+      "class": "PRODUCT_SOFTWARE_MANUFACTURE",
+      "process_domains": ["requirements", "architecture", "implementation", "API", "CLI", "GUI", "testing", "packaging", "installation", "configuration", "persistence", "security", "upgrade", "rollback", "documentation", "release qualification", "customer operation"],
+      "server_sets": ["CODE_SYNTHESIS_SERVER_SET", "RUNTIME_SERVER_SET", "PROOF_SERVER_SET", "WEB_SERVER_SET"],
+      "agent_teams": ["software engineering", "QA", "release engineering", "security", "product operations"],
+      "data_classes": ["source", "builds", "tests", "artifacts", "SBOM", "release manifests", "install receipts", "runtime telemetry"],
+      "repositories": ["K-SYSTEMS-CODE-SPACE-", "BRAINK"],
+      "virtual_roots": ["software://", "build://", "release://"],
+      "state": "BOUND"
+    },
+    "HCI_FOUNDARY": {
+      "class": "HUMAN_COMPUTER_INTERACTION",
+      "process_domains": ["operator consoles", "customer interfaces", "accessibility", "interaction state", "navigation", "forms", "feedback", "command surfaces", "observer projections", "responsive layouts", "error recovery", "user assistance", "admin interfaces"],
+      "server_sets": ["CONSOLE_UI_SERVER_SET", "WEB_SERVER_SET", "API_SERVER_SET", "OBSERVER_SERVER_SET"],
+      "agent_teams": ["HCI design", "frontend engineering", "accessibility", "customer experience", "admin operations"],
+      "data_classes": ["UI state", "interaction graph", "control registry", "accessibility evidence", "usage telemetry", "frontend assets"],
+      "repositories": ["BRAINK-CONSOLE-PLUS", "BRAINK"],
+      "virtual_roots": ["hci://", "ui://", "frontage://"],
+      "state": "BOUND"
+    },
+    "LANDING_PAGE_FOUNDARY": {
+      "class": "LANDING_PAGE_AND_CONVERSION_SURFACE",
+      "process_domains": ["service proposition", "page composition", "brand", "content", "lead capture", "intake", "conversion", "payments", "analytics", "SEO", "accessibility", "publication", "experimentation", "rollback"],
+      "server_sets": ["WEB_SERVER_SET", "CRM_SERVER_SET", "PAYMENTS_SERVER_SET", "ANALYTICS_SERVER_SET"],
+      "agent_teams": ["landing page engineering", "content", "conversion", "brand", "analytics", "publishing"],
+      "data_classes": ["page templates", "components", "copy", "assets", "forms", "conversion events", "release variants"],
+      "repositories": ["BRAINK", "BRAINK-CONSOLE-PLUS"],
+      "virtual_roots": ["landing://", "frontage://landing/", "vfs://landing/"],
+      "state": "PARTIALLY_BOUND"
+    },
+    "SVG_FOUNDARY": {
+      "class": "SVG_VISUAL_RUNTIME_AND_CARRIER",
+      "process_domains": ["SVG generation", "graph rendering", "interactive diagrams", "runtime metadata", "address graph projection", "observer overlays", "architecture diagrams", "asset packaging", "versioning", "HCI embedding", "carrier rewrite"],
+      "server_sets": ["HCI_SERVER_SET", "DOCUMENT_SERVER_SET", "WEB_SERVER_SET"],
+      "agent_teams": ["visual systems", "HCI", "architecture projection", "publishing"],
+      "data_classes": ["SVG DOM", "metadata", "graph nodes", "edges", "styles", "interaction definitions", "carrier roots"],
+      "repositories": ["BRAINK", "BRAINK-CONSOLE-PLUS"],
+      "virtual_roots": ["svg://", "vfs://svg/"],
+      "state": "PARTIALLY_BOUND"
+    },
+    "WORKSPACE_FOUNDARY": {
+      "class": "PERSISTENT_WORKSPACE_AND_PROJECT_RUNTIME",
+      "process_domains": ["workspace creation", "project state", "sessions", "tasks", "artifacts", "agent teams", "files", "memory", "checkpoints", "continuation", "sharing", "permissions", "project dashboards"],
+      "server_sets": ["AGENTIC_AI_SERVER_SET", "STORAGE_SERVER_SET", "HCI_SERVER_SET", "HR_SERVER_SET"],
+      "agent_teams": ["workspace operations", "project agents", "file operations", "runtime continuation"],
+      "data_classes": ["workspace graph", "project graph", "task state", "artifact index", "session state", "permissions", "continuation roots"],
+      "repositories": ["BRAINK", "virtualized-storage", "BRAINK-CONSOLE-PLUS"],
+      "virtual_roots": ["workspace://", "project://", "vfs://workspace/"],
+      "state": "PARTIALLY_BOUND"
+    },
+    "FILE_SYSTEM_FOUNDARY": {
+      "class": "VFS_FILE_ARTIFACT_AND_STORAGE_RUNTIME",
+      "process_domains": ["file identity", "directories", "VFS", "K-DRIVE semantics", "read", "write", "atomic commit", "hashing", "versioning", "lineage", "indexing", "search", "snapshots", "backup", "recovery", "mounts", "backing migration", "permissions"],
+      "server_sets": ["STORAGE_SERVER_SET", "SEARCH_SERVER_SET", "PROOF_SERVER_SET"],
+      "agent_teams": ["storage engineering", "file operations", "backup and recovery", "indexing", "proof"],
+      "data_classes": ["file objects", "directory graph", "manifests", "content roots", "lineage", "indexes", "snapshots", "backing bindings"],
+      "repositories": ["virtualized-storage", "BRAINK"],
+      "virtual_roots": ["vfs://", "kdrive://", "file://"],
+      "state": "BOUND"
+    },
+    "CUSTOMER_FILE_BASE_SOFTWARE_FOUNDARY": {
+      "class": "CUSTOMER_RECORD_FILE_BASE_AND_SERVICE_SOFTWARE",
+      "process_domains": ["customer identity", "customer files", "matter/service records", "intake", "documents", "communications", "consent", "privacy", "entitlements", "billing", "service history", "exports", "retention", "audit", "customer portal", "support"],
+      "server_sets": ["CRM_SERVER_SET", "STORAGE_SERVER_SET", "DOCUMENT_SERVER_SET", "MAILING_SERVER_SET", "SECURITY_SERVER_SET", "WEB_SERVER_SET"],
+      "agent_teams": ["customer service", "file operations", "document operations", "privacy", "billing", "support"],
+      "data_classes": ["customer record", "file base", "matter/service state", "documents", "communications", "consent", "billing", "audit events", "exports"],
+      "repositories": ["BRAINK", "virtualized-storage", "BRAINK-CONSOLE-PLUS"],
+      "virtual_roots": ["customer://", "customer-file://", "vfs://customer/"],
+      "state": "PARTIALLY_BOUND"
+    }
+  }
+}
