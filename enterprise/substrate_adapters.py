@@ -2,7 +2,7 @@ from __future__ import annotations
 from dataclasses import dataclass, asdict
 from pathlib import Path
 from typing import Any, Dict, Protocol
-import hashlib, json, sqlite3, os
+import fcntl, hashlib, json, sqlite3, os
 
 def _bytes(v): return json.dumps(v,sort_keys=True,separators=(",",":"),ensure_ascii=False).encode()
 def digest(v): return hashlib.sha256(v if isinstance(v,bytes) else _bytes(v)).hexdigest()
@@ -25,32 +25,43 @@ class AdapterDescriptor:
 class FileJsonAdapter:
     adapter_id="adapter://file/json"
     schemes=("file://",)
-    capabilities=("READ","WRITE","PROBE","ATOMIC","DURABLE")
+    capabilities=("READ","WRITE","PROBE","ATOMIC","DURABLE","SERIALIZED_WRITE")
     def probe(self,backing):
         p=Path(backing.removeprefix("file://"))
         return {"status":"READY","exists":p.exists(),"parent_exists":p.parent.exists()}
     def apply(self,backing,logical,operation,payload=None):
         p=Path(backing.removeprefix("file://")); p.parent.mkdir(parents=True,exist_ok=True)
+        lock_path=p.with_name(p.name+".lock"); lock_path.touch(exist_ok=True)
         if operation=="WRITE":
             raw=_bytes(payload); tmp=p.with_suffix(p.suffix+".tmp")
-            try:
-                with tmp.open("wb") as fh:
-                    fh.write(raw)
-                    fh.flush()
-                    os.fsync(fh.fileno())
-                os.replace(tmp,p)
-                parent_fd=os.open(p.parent,os.O_RDONLY)
+            with lock_path.open("r+") as lock_fh:
+                fcntl.flock(lock_fh.fileno(),fcntl.LOCK_EX)
                 try:
-                    os.fsync(parent_fd)
+                    try:
+                        with tmp.open("wb") as fh:
+                            fh.write(raw)
+                            fh.flush()
+                            os.fsync(fh.fileno())
+                        os.replace(tmp,p)
+                        parent_fd=os.open(p.parent,os.O_RDONLY)
+                        try:
+                            os.fsync(parent_fd)
+                        finally:
+                            os.close(parent_fd)
+                    finally:
+                        if tmp.exists():
+                            tmp.unlink()
                 finally:
-                    os.close(parent_fd)
-            finally:
-                if tmp.exists():
-                    tmp.unlink()
-            return {"status":"COMMITTED","value_hash":hashlib.sha256(raw).hexdigest(),"path":str(p),"durability":"FILE_AND_DIRECTORY_FSYNC"}
+                    fcntl.flock(lock_fh.fileno(),fcntl.LOCK_UN)
+            return {"status":"COMMITTED","value_hash":hashlib.sha256(raw).hexdigest(),"path":str(p),"durability":"FILE_AND_DIRECTORY_FSYNC","serialization":"FLOCK_EX"}
         if operation=="READ":
-            if not p.exists(): return {"status":"HOLE","path":str(p)}
-            v=json.loads(p.read_text()); return {"status":"READ","value":v,"value_hash":digest(v)}
+            with lock_path.open("r+") as lock_fh:
+                fcntl.flock(lock_fh.fileno(),fcntl.LOCK_SH)
+                try:
+                    if not p.exists(): return {"status":"HOLE","path":str(p)}
+                    v=json.loads(p.read_text()); return {"status":"READ","value":v,"value_hash":digest(v)}
+                finally:
+                    fcntl.flock(lock_fh.fileno(),fcntl.LOCK_UN)
         return {"status":"UNSUPPORTED_OPERATION","operation":operation}
 
 class SQLiteJsonAdapter:
