@@ -64,3 +64,24 @@ def test_committed_inspection_does_not_amplify_runtime_observers(tmp_path: Path)
     after_checkpoint = json.loads((tmp_path / 'A' / 'runtime-checkpoint.json').read_text())
     assert after_observers == before_observers
     assert after_checkpoint == before_checkpoint
+
+
+def test_continuation_queue_coalesces_wakes_and_retires():
+    from enterprise.continuation_runtime import ContinuationRuntime
+    runtime = ContinuationRuntime()
+    first = runtime.enqueue('KEX://REPAIR/A', 'process://repair', {'version': 1}, priority=1)
+    second = runtime.enqueue('KEX://REPAIR/A', 'process://repair', {'version': 2}, priority=5)
+    assert first.continuation_id == second.continuation_id
+    assert len(runtime.queue) == 1
+    assert second.payload == {'version': 2}
+    assert second.priority == 5
+    blocked = runtime.tick()
+    assert blocked['status'] == 'BLOCKED'
+    assert len(runtime.queue) == 1
+    runtime.register_process('process://repair', lambda payload: {'status': 'COMMITTED', 'payload': payload})
+    assert next(iter(runtime.queue.values())).state == 'READY'
+    completed = runtime.tick()
+    assert completed['status'] == 'COMPLETED'
+    assert completed['retired'] is True
+    assert runtime.queue == {}
+    assert len(runtime.history) == 2
