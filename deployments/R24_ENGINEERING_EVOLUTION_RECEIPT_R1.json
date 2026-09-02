@@ -1,0 +1,31 @@
+{
+  "schema": "braink.r24.engineering-evolution-receipt/v1",
+  "release": "R24",
+  "subject": "engineering-ledger-torn-tail-recovery",
+  "classification": "IMPLEMENTED_SOURCE_CI_WIRED_EXECUTION_PENDING",
+  "authority": "KEDDEH_SYSTEMS/BRAINK",
+  "artifacts": {
+    "enterprise/engineering_ledger_recovery_r24.py": "02934abd3d5d089b63c02f750acc71b801a45343",
+    "scripts/kex-ci/test_engineering_ledger_recovery_r24.py": "c44156761daf8c3ac7d7839ca5b4969e1194d008",
+    ".github/workflows/keddeh-enterprise-control.yml": "ae6ec18ce89f2b32086d5685df6b788c239beb21"
+  },
+  "mechanics": [
+    "verified-prefix-only recovery",
+    "non-newline torn-tail classification",
+    "content-addressed quarantine",
+    "concurrent-mutation refusal",
+    "directory fsync after canonical replacement",
+    "complete-line corruption refusal",
+    "post-recovery ledger continuation receipt",
+    "optional specialist KEX self-hosted CI path"
+  ],
+  "claim_boundaries": {
+    "local_source_mutation": true,
+    "github_persisted": true,
+    "ci_execution_observed": false,
+    "physical_power_loss_proven": false,
+    "distributed_consensus_proven": false
+  },
+  "main_head_after_writes": "ae6ec18ce89f2b32086d5685df6b788c239beb21",
+  "receipt_root": "808cdc83126f797be66c12df57cc0c8d28d9ddfb2f60e896e465a19342720352"
+}
