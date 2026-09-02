@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # R16 independent-observer trigger: semantics unchanged; this mutation exists to execute the installed workflow on a subsequent push.
 # R16 execution trigger 2: branch-state refresh after workflow installation.
+# R16 execution trigger 3: force Actions path match after workflow installation readback.
 set -u
 DOMAIN="${1:-keddeh.com}"
 OUT="${2:-/mnt/data/BRAINK_R15_EXTERNAL_PATH_RECEIPT.json}"
