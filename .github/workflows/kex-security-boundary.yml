@@ -2,8 +2,6 @@ name: KEX Security Boundary
 
 on:
   workflow_dispatch:
-    inputs:
-      use_self_hosted: {description: "Also execute on the specialist self-hosted KEX runner", required: false, default: false, type: boolean}
   repository_dispatch: {types: [kex-runtime-full-validation]}
   push:
     branches: [main]
@@ -13,22 +11,7 @@ permissions:
   contents: read
 
 jobs:
-  control-plane:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with: {python-version: "3.12"}
-      - run: python scripts/kex-ci/security_boundary_audit.py
-      - if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: kex-security-${{ github.run_id }}-control
-          path: reports/kex-ci/security.json
-          if-no-files-found: error
-
-  specialist:
-    if: ${{ github.event_name == 'workflow_dispatch' && inputs.use_self_hosted }}
+  runtime-validation:
     runs-on: [self-hosted, kex, security, boundary, audit]
     steps:
       - uses: actions/checkout@v4
@@ -36,6 +19,6 @@ jobs:
       - if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: kex-security-${{ github.run_id }}-specialist
+          name: kex-security-${{ github.run_id }}-runtime
           path: reports/kex-ci/security.json
           if-no-files-found: error
