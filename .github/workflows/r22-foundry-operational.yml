@@ -1,0 +1,25 @@
+name: R22 Operational Foundry Qualification
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'enterprise/foundries/**'
+      - 'deployment/KEDDEH_SYSTEMS_R22_OPERATIONAL_FOUNDRIES.json'
+      - 'scripts/kex-ci/test_foundry_operational_r22.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m py_compile enterprise/foundries/foundry_runtime_r22.py
+      - run: python scripts/kex-ci/test_foundry_operational_r22.py
