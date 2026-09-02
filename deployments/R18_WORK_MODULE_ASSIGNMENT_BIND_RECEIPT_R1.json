@@ -1,0 +1,58 @@
+{
+  "schema": "braink.r18-work-module-bind-receipt/v1",
+  "undertaking": "LEGAL_SERVICE",
+  "selected_work_module": "WM://GENERAL_GOVERNANCE/assignment",
+  "classification": "REUSE",
+  "owner_sector": "GENERAL_GOVERNANCE",
+  "implementation_ref": "aboudykeddeh276-stack/GENERAL-GOVERNANCE-/braink_hr/hr_runtime.py::HRRuntime.assign",
+  "authority_evidence_ref": "aboudykeddeh276-stack/GENERAL-GOVERNANCE-/braink_hr/HR_FEDERATION_R1.json",
+  "binding_registry": "enterprise/R18_CAPABILITY_BINDINGS.json",
+  "binding_commit": "5b13097584745bab321a7f2c61b2f1c151e5ee7d",
+  "recompile_invariant_commit": "67a5b0b6eb9da36f377ebd6d378c411ce349472b",
+  "recomputed_state": {
+    "server_sets": 18,
+    "requirements": 72,
+    "resident_capabilities": 9,
+    "unresolved_capability_holes": 63,
+    "prior_source_resident_capabilities": 8,
+    "prior_source_unresolved_capability_holes": 64,
+    "transition_delta": {
+      "resident_capabilities": 1,
+      "unresolved_capability_holes": -1
+    }
+  },
+  "validation": {
+    "state": "EXECUTOR_BOUNDARY_NO_STEPS_EXECUTED",
+    "r18_workflow_run": 33580347544,
+    "r18_job": 100093121463,
+    "r18_conclusion": "failure",
+    "r18_steps_executed": 0,
+    "enterprise_workflow_run": 33580347681,
+    "enterprise_job": 100093121963,
+    "enterprise_conclusion": "failure",
+    "enterprise_steps_executed": 0,
+    "runner_id": 0,
+    "claim": "No workflow execution evidence exists for the new invariant; the failure labels do not establish code or capability failure."
+  },
+  "claim_boundary": {
+    "established": [
+      "HR assignment callable is resident in the HR authority repository",
+      "R18 capability graph now has a persistent binding for assignment",
+      "assignment is classified REUSE rather than synthesis",
+      "the recompile invariant is source-defined for 9 resident and 63 unresolved capabilities"
+    ],
+    "not_established": [
+      "workflow-verified execution of the new recompile invariant",
+      "identity capability execution",
+      "HR supervision execution",
+      "HR lease execution",
+      "HR replacement execution",
+      "HR rehydration execution",
+      "public observer proof as an execution gate"
+    ]
+  },
+  "release_lineage": {
+    "persistent_release_root": "f48b99cc271f8440fe9656553ec8a6326e903d7a93d065999d5adf8ab63c025f",
+    "package_sha256": "1717ca6316cea792bc5b679ee878b954d43d93eeb63c923da63b4d39e1031f1e"
+  }
+}
