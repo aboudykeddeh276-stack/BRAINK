@@ -25,7 +25,7 @@ class AdapterDescriptor:
 class FileJsonAdapter:
     adapter_id="adapter://file/json"
     schemes=("file://",)
-    capabilities=("READ","WRITE","PROBE")
+    capabilities=("READ","WRITE","PROBE","ATOMIC","DURABLE")
     def probe(self,backing):
         p=Path(backing.removeprefix("file://"))
         return {"status":"READY","exists":p.exists(),"parent_exists":p.parent.exists()}
@@ -33,8 +33,21 @@ class FileJsonAdapter:
         p=Path(backing.removeprefix("file://")); p.parent.mkdir(parents=True,exist_ok=True)
         if operation=="WRITE":
             raw=_bytes(payload); tmp=p.with_suffix(p.suffix+".tmp")
-            tmp.write_bytes(raw); os.replace(tmp,p)
-            return {"status":"COMMITTED","value_hash":hashlib.sha256(raw).hexdigest(),"path":str(p)}
+            try:
+                with tmp.open("wb") as fh:
+                    fh.write(raw)
+                    fh.flush()
+                    os.fsync(fh.fileno())
+                os.replace(tmp,p)
+                parent_fd=os.open(p.parent,os.O_RDONLY)
+                try:
+                    os.fsync(parent_fd)
+                finally:
+                    os.close(parent_fd)
+            finally:
+                if tmp.exists():
+                    tmp.unlink()
+            return {"status":"COMMITTED","value_hash":hashlib.sha256(raw).hexdigest(),"path":str(p),"durability":"FILE_AND_DIRECTORY_FSYNC"}
         if operation=="READ":
             if not p.exists(): return {"status":"HOLE","path":str(p)}
             v=json.loads(p.read_text()); return {"status":"READ","value":v,"value_hash":digest(v)}
