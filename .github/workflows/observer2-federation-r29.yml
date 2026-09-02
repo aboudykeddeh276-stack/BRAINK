@@ -1,0 +1,79 @@
+name: Observer2 Federation R29
+
+on:
+  push:
+    branches:
+      - run/r29-observer2-federation-20260903
+    paths:
+      - 'runtime/observer2_federation_r29.py'
+      - 'runtime/braink_observer2_bootstrap_r29.py'
+      - 'runtime/braink_recursive_operator_r29.py'
+      - 'runtime/observer2_federation_receipt_r29.py'
+      - 'tests/test_observer2_federation_r29.py'
+      - 'tests/test_braink_observer2_bootstrap_r29.py'
+      - 'reports/observer2_federation_r29.html'
+      - '.github/workflows/observer2-federation-r29.yml'
+  pull_request:
+    paths:
+      - 'runtime/observer2_federation_r29.py'
+      - 'runtime/braink_observer2_bootstrap_r29.py'
+      - 'runtime/braink_recursive_operator_r29.py'
+      - 'runtime/observer2_federation_receipt_r29.py'
+      - 'tests/test_observer2_federation_r29.py'
+      - 'tests/test_braink_observer2_bootstrap_r29.py'
+      - 'reports/observer2_federation_r29.html'
+      - '.github/workflows/observer2-federation-r29.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  observer2-federation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Checkout BRAINK
+        uses: actions/checkout@v4
+
+      - name: Unit and boundary tests
+        shell: bash
+        run: |
+          python -m unittest discover -s tests -p 'test_*observer2*r29.py' -v
+
+      - name: Generate repository/process federation receipt
+        shell: bash
+        run: |
+          mkdir -p reports/r29
+          python runtime/observer2_federation_receipt_r29.py \
+            --repository . \
+            --out reports/r29/OBSERVER2_FEDERATION_RECEIPT.json
+
+      - name: Assert receipt contract
+        shell: python
+        run: |
+          import json
+          from pathlib import Path
+          p=Path('reports/r29/OBSERVER2_FEDERATION_RECEIPT.json')
+          r=json.loads(p.read_text())
+          assert r['schema']=='kex.observer2.federation-execution-receipt.r29', r
+          assert r['classification']=='OBSERVED', r
+          assert r['authority']=='EVIDENCE_ONLY_NO_ACTUATION', r
+          assert r['cycle']['continuation']['next_route']=='FOLLOW_SUCCESSOR_STATE', r
+          receipts=r['cycle']['frame']['receipts']
+          assert {x['substrate'] for x in receipts}=={'git','process'}, receipts
+          print(json.dumps({
+            'classification':r['classification'],
+            'environment_root_sha256':r['cycle']['frame']['environment_root_sha256'],
+            'receipt_count':len(receipts),
+          },indent=2))
+
+      - name: Upload Observer2 proof and inspector
+        uses: actions/upload-artifact@v4
+        with:
+          name: OBSERVER2_FEDERATION_R29
+          path: |
+            reports/r29/OBSERVER2_FEDERATION_RECEIPT.json
+            reports/observer2_federation_r29.html
+          if-no-files-found: error
+          retention-days: 14
