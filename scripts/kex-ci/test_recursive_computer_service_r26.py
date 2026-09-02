@@ -60,7 +60,11 @@ def main():
             c2=call(base,'GET','/state?lineage=A/B/C')
             assert sorted(c2['children'])==kids and c2['ledger_verified']
             assert all(r['constructor_id']=='constructor://kex/recursive-computer/r26' for r in results)
-            print(json.dumps({'status':'VERIFIED','restart_memory':b2['memory'],'lineage':c['lineage'],'concurrent_children':c2['children'],'ledger_verified':c2['ledger_verified']},sort_keys=True))
+            topology=call(base,'GET','/topology')
+            assert topology['node_count']==11 and topology['max_generation']==3
+            checkpoint=call(base,'POST','/checkpoint',{'lineage':'A/B/C'})
+            assert checkpoint['status']=='CHECKPOINTED'
+            print(json.dumps({'status':'VERIFIED','restart_memory':b2['memory'],'lineage':c['lineage'],'concurrent_children':c2['children'],'ledger_verified':c2['ledger_verified'],'node_count':topology['node_count'],'max_generation':topology['max_generation']},sort_keys=True))
         finally: stop(p)
 
 if __name__=='__main__': main()
