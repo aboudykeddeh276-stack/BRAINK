@@ -28,13 +28,6 @@ class ComputerIdentity:
 
 
 class RecursiveComputer:
-    """Constructor-bearing KEX computer composed from existing R25 mechanics.
-
-    State and proof events are persisted through SelfAddressingRuntime-backed
-    JSON objects. A persisted computer can warm-boot, retain constructor
-    identity and instantiate a further descendant after process discontinuity.
-    """
-
     CONSTRUCTOR_ID = "constructor://kex/recursive-computer/r26"
 
     def __init__(
@@ -76,15 +69,13 @@ class RecursiveComputer:
         return f"file://{self.state_root / 'ledger.json'}"
 
     def _snapshot(self) -> dict[str, Any]:
-        return _copy(
-            {
-                "identity": asdict(self.identity),
-                "state": self.state,
-                "memory": self.memory,
-                "children": sorted(self.children),
-                "constructor": self.CONSTRUCTOR_ID,
-            }
-        )
+        return _copy({
+            "identity": asdict(self.identity),
+            "state": self.state,
+            "memory": self.memory,
+            "children": sorted(self.children),
+            "constructor": self.CONSTRUCTOR_ID,
+        })
 
     def _persist_ledger(self) -> dict[str, Any]:
         events = [asdict(event) for event in self.ledger.events]
@@ -136,7 +127,7 @@ class RecursiveComputer:
         return readback
 
     @classmethod
-    def restore(cls, state_root: str | Path) -> "RecursiveComputer":
+    def restore(cls, state_root: str | Path, *, recursive: bool = False) -> "RecursiveComputer":
         state_root = Path(state_root)
         state_path = state_root / "computer.json"
         ledger_path = state_root / "ledger.json"
@@ -168,18 +159,42 @@ class RecursiveComputer:
         )
         if state_readback.get("status") != "READ" or state_readback.get("value") != snap:
             raise RuntimeError("RESTORE_STATE_READBACK_MISMATCH")
+
+        if recursive:
+            for child_id in snap.get("children", []):
+                child_root = state_root / "descendants" / child_id
+                child = cls.restore(child_root, recursive=True)
+                if child.identity.parent_id != computer.identity.computer_id:
+                    raise RuntimeError("DESCENDANT_PARENT_ID_MISMATCH")
+                if child.identity.generation != computer.identity.generation + 1:
+                    raise RuntimeError("DESCENDANT_GENERATION_MISMATCH")
+                if child.identity.lineage[:-1] != computer.identity.lineage:
+                    raise RuntimeError("DESCENDANT_LINEAGE_MISMATCH")
+                computer.children[child_id] = child
+            if sorted(computer.children) != sorted(snap.get("children", [])):
+                raise RuntimeError("DESCENDANT_TOPOLOGY_READBACK_MISMATCH")
+
         computer.ledger.append(
-            operation="WARM_BOOT_RESTORE",
+            operation="WARM_BOOT_TREE_RESTORE" if recursive else "WARM_BOOT_RESTORE",
             actor=computer.identity.computer_id,
             owner="A.KEDDEH / KEDDEH_SYSTEMS",
             input_state=snap,
             output_state=state_readback["value"],
-            proof={"readback_equal": True, "restored": True},
+            proof={
+                "readback_equal": True,
+                "restored": True,
+                "recursive": recursive,
+                "descendants": sorted(computer.children),
+            },
             rollback={"checkpoint": computer.runtime.checkpoint()},
             lineage=computer.identity.lineage,
         )
         computer._persist_ledger()
         return computer
+
+    @classmethod
+    def restore_tree(cls, state_root: str | Path) -> "RecursiveComputer":
+        return cls.restore(state_root, recursive=True)
 
     def write_state(self, key: str, value: Any) -> dict[str, Any]:
         before = self._snapshot()
@@ -221,7 +236,6 @@ class RecursiveComputer:
 
 
 def execute_recursive_proof(root_dir: str | Path) -> dict[str, Any]:
-    """Execute A -> B -> C, warm-boot C, then let restored C create D."""
     root_dir = Path(root_dir)
     root = RecursiveComputer(computer_id="A", state_root=root_dir / "A")
     root.write_memory("seed", 297)
@@ -234,67 +248,56 @@ def execute_recursive_proof(root_dir: str | Path) -> dict[str, Any]:
     grandchild = child.instantiate("C")
     grandchild.write_state("phase", "GRANDCHILD_READY")
 
-    rb_a = root.readback()
-    rb_b = child.readback()
-    rb_c = grandchild.readback()
-
-    restored_c = RecursiveComputer.restore(root_dir / "A" / "descendants" / "B" / "descendants" / "C")
+    restored_c = RecursiveComputer.restore(
+        root_dir / "A" / "descendants" / "B" / "descendants" / "C"
+    )
     descendant = restored_c.instantiate("D")
     descendant.write_state("phase", "POST_RESTORE_DESCENDANT_READY")
-    rb_d = descendant.readback()
+
+    restored_a = RecursiveComputer.restore_tree(root_dir / "A")
+    restored_b = restored_a.children["B"]
+    restored_c2 = restored_b.children["C"]
+    restored_d = restored_c2.children["D"]
+    descendant_e = restored_d.instantiate("E")
+    descendant_e.write_state("phase", "POST_TREE_RESTORE_DESCENDANT_READY")
+
+    nodes = {
+        "A": restored_a,
+        "B": restored_b,
+        "C": restored_c2,
+        "D": restored_d,
+        "E": descendant_e,
+    }
+    readbacks = {name: node.readback() for name, node in nodes.items()}
 
     proof = {
         "status": "VERIFIED",
-        "lineage": {
-            "A": list(root.identity.lineage),
-            "B": list(child.identity.lineage),
-            "C": list(grandchild.identity.lineage),
-            "D": list(descendant.identity.lineage),
-        },
-        "memory": {
-            "A": rb_a["memory"],
-            "B": rb_b["memory"],
-            "C": rb_c["memory"],
-            "D": rb_d["memory"],
-        },
-        "constructor_ids": {
-            "A": root.identity.constructor_id,
-            "B": child.identity.constructor_id,
-            "C": grandchild.identity.constructor_id,
-            "restored_C": restored_c.identity.constructor_id,
-            "D": descendant.identity.constructor_id,
-        },
-        "state_roots": {
-            "A": sha256_json(rb_a),
-            "B": sha256_json(rb_b),
-            "C": sha256_json(rb_c),
-            "D": sha256_json(rb_d),
-        },
-        "ledger_verified": {
-            "A": root.ledger.verify(),
-            "B": child.ledger.verify(),
-            "C": grandchild.ledger.verify(),
-            "restored_C": restored_c.ledger.verify(),
-            "D": descendant.ledger.verify(),
+        "lineage": {name: list(node.identity.lineage) for name, node in nodes.items()},
+        "memory": {name: readbacks[name]["memory"] for name in nodes},
+        "constructor_ids": {name: node.identity.constructor_id for name, node in nodes.items()},
+        "state_roots": {name: sha256_json(readbacks[name]) for name in nodes},
+        "ledger_verified": {name: node.ledger.verify() for name, node in nodes.items()},
+        "tree": {
+            "A": sorted(restored_a.children),
+            "B": sorted(restored_b.children),
+            "C": sorted(restored_c2.children),
+            "D": sorted(restored_d.children),
+            "E": sorted(descendant_e.children),
         },
         "warm_boot": {
-            "restored_computer": restored_c.identity.computer_id,
-            "restored_lineage": list(restored_c.identity.lineage),
-            "restored_memory": restored_c.memory,
-            "post_restore_descendant": descendant.identity.computer_id,
+            "root_restored": restored_a.identity.computer_id,
+            "rehydrated_path": ["A", "B", "C", "D"],
+            "post_tree_restore_descendant": descendant_e.identity.computer_id,
         },
     }
-    if rb_b["memory"].get("seed") != 297:
-        raise RuntimeError("B_DID_NOT_INHERIT_ROOT_MEMORY")
-    if rb_c["memory"].get("seed") != 297 or rb_c["memory"].get("child") != 88:
-        raise RuntimeError("C_DID_NOT_INHERIT_TRANSITIVE_MEMORY")
-    if restored_c.memory != rb_c["memory"]:
-        raise RuntimeError("WARM_BOOT_MEMORY_MISMATCH")
-    if rb_d["memory"].get("seed") != 297 or rb_d["memory"].get("child") != 88:
-        raise RuntimeError("D_DID_NOT_INHERIT_RESTORED_MEMORY")
-    if list(descendant.identity.lineage) != ["A", "B", "C", "D"]:
-        raise RuntimeError("POST_RESTORE_LINEAGE_FAILED")
-    if len({*proof["constructor_ids"].values()}) != 1:
+
+    if proof["lineage"]["E"] != ["A", "B", "C", "D", "E"]:
+        raise RuntimeError("POST_TREE_RESTORE_LINEAGE_FAILED")
+    if proof["memory"]["E"] != {"child": 88, "seed": 297}:
+        raise RuntimeError("E_DID_NOT_INHERIT_REHYDRATED_MEMORY")
+    if proof["tree"] != {"A": ["B"], "B": ["C"], "C": ["D"], "D": ["E"], "E": []}:
+        raise RuntimeError("TREE_REHYDRATION_FAILED")
+    if len(set(proof["constructor_ids"].values())) != 1:
         raise RuntimeError("CONSTRUCTOR_CONTINUITY_FAILED")
     if not all(proof["ledger_verified"].values()):
         raise RuntimeError("LEDGER_VERIFICATION_FAILED")
