@@ -1,0 +1,36 @@
+name: BRAINK Runtime Contracts
+
+on:
+  push:
+    branches:
+      - build/service-supervisor-s1-host-survey
+    paths:
+      - 'runtime/braink_core.py'
+      - 'runtime/braink_system.py'
+      - 'runtime/authority_ports.py'
+      - 'tests/test_braink_core.py'
+      - 'tests/test_braink_system.py'
+      - '.github/workflows/test-braink-runtime.yml'
+  pull_request:
+    paths:
+      - 'runtime/braink_core.py'
+      - 'runtime/braink_system.py'
+      - 'runtime/authority_ports.py'
+      - 'tests/test_braink_core.py'
+      - 'tests/test_braink_system.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  contracts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run BRAINK runtime contract tests
+        run: python -m unittest discover -s tests -p 'test_braink_*.py' -v
