@@ -11,12 +11,14 @@
     "process": {"implementation_ref":"enterprise/autonomous_evolution_runtime.py","evidence_ref":"scripts/kex-ci/test_capability_deployment_runtime.py","state":"VERIFIED"},
     "telemetry": {"implementation_ref":"enterprise/audit_observability.py","evidence_ref":"scripts/kex-ci/test_capability_deployment_runtime.py","state":"VERIFIED"},
     "assignment": {"implementation_ref":"aboudykeddeh276-stack/GENERAL-GOVERNANCE-/braink_hr/hr_runtime.py::HRRuntime.assign","evidence_ref":"aboudykeddeh276-stack/GENERAL-GOVERNANCE-/braink_hr/HR_FEDERATION_R1.json","state":"BOUND"},
-    "scope": {"implementation_ref":"Library/keddeh_enterprise_runtime.py::runtime://keddeh/identity/check_scope","evidence_ref":"Library/KEDDEH_UNIFIED_EXECUTION_ROOT_R2.js::ENTERPRISE_IDENTITY_SCOPE_EXECUTED","state":"BOUND"}
+    "scope": {"implementation_ref":"Library/keddeh_enterprise_runtime.py::runtime://keddeh/identity/check_scope","evidence_ref":"Library/KEDDEH_UNIFIED_EXECUTION_ROOT_R2.js::ENTERPRISE_IDENTITY_SCOPE_EXECUTED","state":"BOUND"},
+    "identity": {"implementation_ref":"aboudykeddeh276-stack/GENERAL-GOVERNANCE-/braink_hr/hr_runtime.py::HRAssignment.agent_id","evidence_ref":"aboudykeddeh276-stack/GENERAL-GOVERNANCE-/braink_hr/test_hr_genome_capabilities_r18.py","state":"VERIFIED"},
+    "role": {"implementation_ref":"aboudykeddeh276-stack/GENERAL-GOVERNANCE-/braink_hr/hr_runtime.py::HRAssignment.roles","evidence_ref":"aboudykeddeh276-stack/GENERAL-GOVERNANCE-/braink_hr/test_hr_genome_capabilities_r18.py","state":"VERIFIED"}
   },
   "selection_receipt": {
-    "work_module": "WM://GENERAL_GOVERNANCE/scope",
-    "classification": "REUSE",
-    "reason": "resident local identity/scope runtime already implements create_principal, grant_scope and check_scope, with an executed R2 scope-check receipt; no synthesis or parallel identity inventory required",
-    "claim_boundary": "binding establishes local principal/scope authorization reuse for R18; it does not establish external SSO/OIDC issuer validation, hardware-rooted identity, tenant isolation, or broader identity-provider execution"
+    "work_module": "WM://GENERAL_GOVERNANCE/identity-role",
+    "classification": "REUSE_AND_QUALIFY",
+    "reason": "resident HR assignment state already carries stable agent identity and declared roles; deterministic R18 qualification passed and no synthesis was required. Existing scope binding is preserved.",
+    "claim_boundary": "identity is agent identity within HR assignment state and role is declared HR role membership. Tenant, supervision, lease, replacement and rehydration remain separate capabilities."
   }
 }
