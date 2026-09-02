@@ -1,0 +1,43 @@
+{
+  "schema": "braink.r18.work-module-bind-receipt/v1",
+  "undertaking": "LEGAL_SERVICE",
+  "work_module": "WM://GENERAL_GOVERNANCE/scope",
+  "classification": "REUSE",
+  "capability": "scope",
+  "owner_sector": "GENERAL_GOVERNANCE",
+  "canonical_binding_register": "enterprise/R18_CAPABILITY_BINDINGS.json",
+  "implementation_ref": "Library/keddeh_enterprise_runtime.py::runtime://keddeh/identity/check_scope",
+  "implementation_evidence": {
+    "resident_runtime": "runtime://keddeh/identity",
+    "operations": ["create_principal", "grant_scope", "check_scope"],
+    "library_source": "keddeh_enterprise_runtime.py",
+    "executed_evidence_ref": "KEDDEH_UNIFIED_EXECUTION_ROOT_R2.js::ENTERPRISE_IDENTITY_SCOPE_EXECUTED",
+    "hr_authority_ref": "aboudykeddeh276-stack/GENERAL-GOVERNANCE-/braink_hr/HR_FEDERATION_R1.json"
+  },
+  "transition": {
+    "binding_commit": "55384e756d10e6528fb16e44d4fc4a567044ac62",
+    "invariant_commit": "390742ca5ae9ee51fb847f7af653292d6ecf92bb",
+    "prior_resident": 9,
+    "prior_holes": 63,
+    "resident": 10,
+    "holes": 62,
+    "resident_delta": 1,
+    "hole_delta": -1
+  },
+  "local_invariant": {
+    "status": "PASS",
+    "deployment_root": "9d11b04fa0151f5c60fe9d8d2628de7df4a2e2d679d4c88a89495b5512665dcb",
+    "server_sets": 18,
+    "requirements": 72,
+    "resident": 10,
+    "holes": 62
+  },
+  "claim_boundary": [
+    "scope binding proves reuse of the resident local principal/scope check path only",
+    "external SSO/OIDC issuer validation is not established",
+    "hardware-rooted identity is not established",
+    "tenant isolation is not established by this transition",
+    "A_executed != A_claimed",
+    "S_observed != S_claimed"
+  ]
+}
