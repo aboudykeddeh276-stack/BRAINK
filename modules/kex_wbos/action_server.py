@@ -10,13 +10,14 @@ import server as data_server
 from action_extensions import append_workbook_rows, commit_braink_migration
 from action_runtime import (
     dispatch_casepath,
-    execute_action,
     ingest_source,
     launch_runtime,
     read_workbook_table,
     readback_runtime,
     write_proof,
 )
+from canonical_action_runtime import execute_canonical_action
+from canonical_http import canonicalize_http_json
 
 PORT = 8790
 
@@ -31,7 +32,7 @@ ACTION_TYPE_BY_PATH = {
 
 
 class ActionHandler(data_server.Handler):
-    server_version = "KEX-Unified-Action/5.0"
+    server_version = "KEX-Unified-Action/6.0"
 
     def _authorized(self) -> bool:
         token = os.getenv("KEX_BEARER_TOKEN")
@@ -39,15 +40,40 @@ class ActionHandler(data_server.Handler):
             return True
         return self.headers.get("Authorization", "") == f"Bearer {token}"
 
+    def _json(self, payload: object, status: int = 200) -> None:
+        """Canonicalize every JSON response before it exits the HTTP wrapper."""
+        route = urlparse(self.path).path if getattr(self, "path", None) else "/"
+        normalized, _receipt = canonicalize_http_json(
+            payload,
+            direction="EGRESS",
+            route=route,
+        )
+        return super()._json(normalized, status)
+
     def _read_json(self) -> dict:
+        """Canonicalize every JSON request before dispatching inside WBOS."""
         length = int(self.headers.get("Content-Length", "0"))
         if length <= 0:
-            return {}
-        try:
-            payload = json.loads(self.rfile.read(length).decode("utf-8"))
-            return payload if isinstance(payload, dict) else {}
-        except Exception:
-            return {}
+            raw: dict = {}
+        else:
+            try:
+                payload = json.loads(self.rfile.read(length).decode("utf-8"))
+                raw = payload if isinstance(payload, dict) else {}
+            except Exception:
+                raw = {}
+        route = urlparse(self.path).path if getattr(self, "path", None) else "/"
+        authority = str(raw.get("authority", ""))
+        identity = str(raw.get("requestId", "")) or None
+        normalized, _receipt = canonicalize_http_json(
+            raw,
+            direction="INGRESS",
+            route=route,
+            authority=authority,
+            identity=identity,
+        )
+        if not isinstance(normalized, dict):
+            raise TypeError("WBOS JSON ingress must resolve to a mapping")
+        return normalized
 
     def _require_auth(self) -> bool:
         if self._authorized():
@@ -72,14 +98,15 @@ class ActionHandler(data_server.Handler):
         path = parsed.path
         parts = [p for p in path.split("/") if p]
 
-        # Preserve multipart workbook endpoints from the base WBOS server.
+        # Multipart payloads remain carrier-specific. JSON receipts emitted by
+        # the inherited handler still cross this class's canonical _json gate.
         if path in {"/activate-workbook", "/workbooks/apply"}:
             return super().do_POST()
 
         payload = self._read_json()
 
         if path == "/actions/execute":
-            return self._json(execute_action(payload))
+            return self._json(execute_canonical_action(payload))
 
         if len(parts) == 5 and parts[0] == "workbooks" and parts[2] == "tables" and parts[4] == "append":
             return self._json(append_workbook_rows(parts[1], parts[3], payload))
@@ -117,7 +144,7 @@ class ActionHandler(data_server.Handler):
                 "controlRoute": payload.get("rpcRoute"),
                 "payload": payload,
             }
-            receipt = execute_action(request)
+            receipt = execute_canonical_action(request)
             status = receipt["status"]
             return self._json({
                 "status": status,
@@ -141,7 +168,7 @@ class ActionHandler(data_server.Handler):
                 "controlRoute": payload.get("providerRoute") or payload.get("acmeRoute") or payload.get("routerRoute") or payload.get("deploymentRoute") or payload.get("rpcRoute"),
                 "payload": payload,
             }
-            return self._json(execute_action(action_request))
+            return self._json(execute_canonical_action(action_request))
 
         return self._json({"error": "not_found", "path": path}, 404)
 
