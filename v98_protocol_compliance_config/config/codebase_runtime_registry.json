@@ -1,7 +1,7 @@
 {
   "registry_id": "registry://keddeh/codebase-runtimes/v1",
-  "version": "1.1.0",
-  "execution_rule": "Each runtime is executed, its exit state and expected artifacts are independently read back, and failure is bounded to its declared capability unless a proven global invariant violation exists.",
+  "version": "1.2.0",
+  "execution_rule": "Each runtime is executed, its exit state and expected artifacts are independently read back, executable descendant handoffs are followed within bounded continuation limits, and failure is bounded to its declared capability unless a proven global invariant violation exists.",
   "runtimes": [
     {
       "runtime_id": "runtime://keddeh/semantic-knowledge-graph",
@@ -92,8 +92,25 @@
         "recursive-machine-construction",
         "lineage-proof",
         "vfs-projection",
-        "constructor-inheritance-by-reference"
-      ]
+        "constructor-inheritance-by-reference",
+        "warm-rehydration",
+        "executable-continuation-handoff"
+      ],
+      "continuation": {
+        "handoff_path": "runtime_volume/outbox/encoded_medium_reconciliation/authoritative.handoff.json",
+        "command": ["python3", "src/keddeh_encoded_medium_storage_runtime_v1.py", "--root", ".", "--continue-once"],
+        "max_steps": 3,
+        "timeout_seconds": 120,
+        "expected_artifacts": [
+          "evidence/encoded_medium_continuation_receipt.json",
+          "runtime_volume/encoded_medium/current.json",
+          "runtime_volume/outbox/encoded_medium_reconciliation/authoritative.handoff.json"
+        ],
+        "state_field": "state",
+        "executable_state": "VERIFIED",
+        "operation_field": "next_operation",
+        "executable_operation": "instantiate_child_auto"
+      }
     }
   ],
   "global_stop": false
