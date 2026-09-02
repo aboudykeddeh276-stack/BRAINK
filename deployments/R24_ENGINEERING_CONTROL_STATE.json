@@ -24,7 +24,9 @@
     "R23 executed customer lifecycle mutation through /closure/operate",
     "R23 process stop/restart with state-root and generation rehydration equality",
     "R23 customer-file owner/scope/privacy-consent access membrane",
-    "hashed opaque session persistence with expiry/revocation denial and durable access audit"
+    "hashed opaque session persistence with expiry/revocation denial and durable access audit",
+    "R23 owner-host HTTP binding for session bind/revoke and privacy-enforced customer-file read",
+    "HTTP wrong-session and cross-customer denial with restart-safe revoked-session enforcement"
   ],
   "local_execution": {
     "status": "PASS",
@@ -59,7 +61,30 @@
       "session_revocation_denial": "PASS",
       "plaintext_session_persistence": "REJECTED",
       "rehydration": "PASS",
-      "public_customer_portal_http_surface": "UNBOUND",
+      "public_customer_portal_http_surface": "LOOPBACK_HTTP_BOUND_PUBLIC_UNPROVEN",
+      "independent_verify": "PENDING",
+      "promotion": "REJECTED_PENDING_REMAINING_R24_GATES"
+    },
+    "r23_customer_portal_http_binding": {
+      "status": "IMPLEMENTED_AND_LOCAL_HTTP_INVARIANT_PASS_NOT_PROMOTED",
+      "service": "deployment/r23_foundry_closure_service.py",
+      "invariant": "scripts/kex-ci/test_r24_customer_portal_http_binding.py",
+      "receipt": "deployments/R24_CUSTOMER_PORTAL_HTTP_BINDING_RECEIPT_R1.json",
+      "receipt_root": "f0283ec0774f4a8f0e68565e249746efd8a723f4b732076a167f51ca5aeab992",
+      "marker": "R24_CUSTOMER_PORTAL_HTTP_BINDING_PASS",
+      "session_bind_http": "PASS",
+      "authorized_customer_file_read": "PASS",
+      "wrong_session_denial": "PASS",
+      "cross_customer_denial": "PASS",
+      "session_revoke_http": "PASS",
+      "restart_rehydration": "PASS",
+      "post_restart_revocation_denial": "PASS",
+      "plaintext_session_token_persistence": "REJECTED",
+      "github_clone_executor": "BLOCKED_DNS_RESOLUTION",
+      "alternate_clean_tree_execution": "PASS",
+      "public_ingress": "UNPROVEN",
+      "external_idp_roundtrip": "UNPROVEN",
+      "tls_public_origin": "UNPROVEN",
       "independent_verify": "PENDING",
       "promotion": "REJECTED_PENDING_REMAINING_R24_GATES"
     }
