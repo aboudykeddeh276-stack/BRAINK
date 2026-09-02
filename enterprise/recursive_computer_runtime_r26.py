@@ -182,6 +182,17 @@ class RecursiveComputer:
                         self.children.pop(child_id,None); self._committed_child_ids.discard(child_id); self._quarantine_uncommitted_child(c,exc); raise
                     return c
                 finally: fcntl.flock(lock_fh.fileno(),fcntl.LOCK_UN)
+    def inspect_committed(self):
+        adapter=self.runtime.registry.adapters['adapter://file/json']
+        state_result=adapter.apply(self.state_backing,f'computer://{self.identity.computer_id}/state','READ')
+        if state_result.get('status')!='READ': raise RuntimeError(f'INSPECT_STATE_FAILED:{state_result}')
+        ledger_result=adapter.apply(self.ledger_backing,f'computer://{self.identity.computer_id}/ledger','READ')
+        ledger=AppendOnlyLedger()
+        if ledger_result.get('status')=='READ':
+            ledger._events=[TransactionReceipt(**e) for e in ledger_result['value']]
+            if not ledger.verify(): raise RuntimeError('INSPECT_LEDGER_INVALID')
+        elif ledger_result.get('status')!='HOLE': raise RuntimeError(f'INSPECT_LEDGER_FAILED:{ledger_result}')
+        return {'value':state_result['value'],'value_hash':state_result['value_hash'],'ledger_verified':ledger.verify(),'ledger_events':len(ledger.events)}
     def readback(self):
         r=self.runtime.route(f'computer://{self.identity.computer_id}/state',self.state_backing,'READ')
         if r.get('status')!='READ': raise RuntimeError(f'READBACK_FAILED:{r}')
