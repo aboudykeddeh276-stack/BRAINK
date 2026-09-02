@@ -1,0 +1,26 @@
+{
+  "schema": "braink.r24.current-main-invariant-replay/v1",
+  "release": "R24",
+  "subject": "engineering_control_plane_current_main",
+  "classification": "STATE_DRIFT_RECONCILIATION_EVIDENCE",
+  "source": {
+    "engineering_control_plane": "enterprise/engineering_control_plane_r24.py",
+    "engineering_control_plane_git_blob": "607adaef03cdec7a8c04f8fac0c7609a02ba7c51",
+    "invariant": "scripts/kex-ci/test_engineering_control_plane_r24.py",
+    "invariant_git_blob": "6419f3036e2410e9ab3b73cf31aca017816bce53"
+  },
+  "execution": {
+    "status": "PASS",
+    "exit_code": 0,
+    "marker": "R24_ENGINEERING_CONTROL_PLANE_HARDENING_PASS",
+    "mode": "exact-current-main source replay in isolated local Python substrate",
+    "warning": "artifact_tool spreadsheet warm-up emitted an unrelated startup error after/beside invariant output; invariant process returned 0"
+  },
+  "reconciliation": {
+    "persistent_state_prior_marker": "R24_ENGINEERING_CONTROL_PLANE_PASS",
+    "observed_current_marker": "R24_ENGINEERING_CONTROL_PLANE_HARDENING_PASS",
+    "classification": "STATE_DRIFT",
+    "promotion": "NOT_APPLICABLE_NO_RUNTIME_PROMOTION"
+  },
+  "receipt_root": "52bc046c2cdbf4626bddbb2022b85c4bfeda455fcbee17c78ab688975f9ac66d"
+}
