@@ -1,0 +1,33 @@
+{
+  "schema": "keddeh.systems.akd-authorship-policy/v1",
+  "author_id": "AKD",
+  "authorship_root": "enterprise/governance/AKD_AUTHORSHIP_ROOT.json",
+  "guard": "enterprise/governance/authorship_guard.py",
+  "qualification": "scripts/kex-ci/test_authorship_guard.py",
+  "mandatory_for": [
+    "service",
+    "deployment",
+    "foundry",
+    "server_family",
+    "server_set",
+    "runtime",
+    "frontage",
+    "website",
+    "domain_binding",
+    "workspace",
+    "customer_file_base",
+    "publication",
+    "research_packet",
+    "agent",
+    "work_module"
+  ],
+  "classification": {
+    "valid_direct": "AKD_AUTHORED",
+    "valid_inherited": "AKD_AUTHORED_INHERITED",
+    "invalid": "ORPHANED_AKD_SERVICE"
+  },
+  "deployment_gate": "An AKD service must not be promoted to canonical production state if authorship classification is ORPHANED_AKD_SERVICE.",
+  "replication_rule": "Replicas inherit authorship but must preserve the canonical authorship_root and predecessor lineage.",
+  "rebrand_rule": "Rebranding does not sever authorship lineage.",
+  "external_provider_rule": "External infrastructure may host an AKD-authored service without becoming the author; provider identity is recorded separately from author_id."
+}
