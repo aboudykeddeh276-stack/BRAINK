@@ -3,11 +3,6 @@ name: KEX Cascade Validation
 on:
   workflow_dispatch:
     inputs:
-      use_self_hosted:
-        description: "Also execute on the specialist self-hosted KEX runner"
-        required: false
-        default: false
-        type: boolean
       strict_unresolved:
         description: "Fail when required runtime implementation surfaces are absent"
         required: false
@@ -29,28 +24,8 @@ permissions:
   contents: read
 
 jobs:
-  control-plane:
-    name: cascade-control-plane
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-      - name: Validate repository surface
-        run: python scripts/kex-ci/validate_control_plane.py --mode cascade
-      - name: Upload receipt
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: kex-cascade-${{ github.run_id }}-control
-          path: reports/kex-ci/cascade.json
-          if-no-files-found: error
-
-  specialist:
-    name: cascade-specialist
-    if: ${{ github.event_name == 'workflow_dispatch' && inputs.use_self_hosted }}
+  runtime-validation:
+    name: cascade-runtime
     runs-on:
       - self-hosted
       - kex
@@ -60,15 +35,15 @@ jobs:
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
-      - name: Execute specialist validation
+      - name: Execute runtime validation
         run: |
           STRICT=""
           if [ "${{ inputs.strict_unresolved }}" = "true" ]; then STRICT="--strict-unresolved"; fi
           python3 scripts/kex-ci/validate_control_plane.py --mode cascade $STRICT
-      - name: Upload specialist receipt
+      - name: Upload receipt
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: kex-cascade-${{ github.run_id }}-specialist
+          name: kex-cascade-${{ github.run_id }}-runtime
           path: reports/kex-ci/cascade.json
           if-no-files-found: error
