@@ -4,6 +4,7 @@ from dataclasses import dataclass, asdict
 from pathlib import Path
 from typing import Any, Mapping
 import json
+import threading
 
 from enterprise.self_addressing_runtime import SelfAddressingRuntime
 from runtime.R25.system_evolution_runtime import (
@@ -57,6 +58,7 @@ class RecursiveComputer:
         self.state: dict[str, Any] = _copy(dict(state or {}))
         self.memory: dict[str, Any] = _copy(dict(memory or {}))
         self.children: dict[str, RecursiveComputer] = {}
+        self._lock = threading.RLock()
         if bootstrap:
             self._persist("BOOTSTRAP")
 
@@ -97,34 +99,35 @@ class RecursiveComputer:
         return readback
 
     def _persist(self, operation: str) -> dict[str, Any]:
-        snap = self._snapshot()
-        result = self.runtime.route(
-            f"computer://{self.identity.computer_id}/state",
-            self.state_backing,
-            "WRITE",
-            snap,
-        )
-        if result.get("status") != "COMMITTED":
-            raise RuntimeError(f"PERSIST_FAILED:{result}")
-        readback = self.runtime.route(
-            f"computer://{self.identity.computer_id}/state",
-            self.state_backing,
-            "READ",
-        )
-        if readback.get("status") != "READ" or readback.get("value") != snap:
-            raise RuntimeError("READBACK_MISMATCH")
-        self.ledger.append(
-            operation=operation,
-            actor=self.identity.computer_id,
-            owner="A.KEDDEH / KEDDEH_SYSTEMS",
-            input_state=snap,
-            output_state=readback["value"],
-            proof={"readback_equal": True, "value_hash": readback["value_hash"]},
-            rollback={"checkpoint": self.runtime.checkpoint()},
-            lineage=self.identity.lineage,
-        )
-        self._persist_ledger()
-        return readback
+        with self._lock:
+            snap = self._snapshot()
+            result = self.runtime.route(
+                f"computer://{self.identity.computer_id}/state",
+                self.state_backing,
+                "WRITE",
+                snap,
+            )
+            if result.get("status") != "COMMITTED":
+                raise RuntimeError(f"PERSIST_FAILED:{result}")
+            readback = self.runtime.route(
+                f"computer://{self.identity.computer_id}/state",
+                self.state_backing,
+                "READ",
+            )
+            if readback.get("status") != "READ" or readback.get("value") != snap:
+                raise RuntimeError("READBACK_MISMATCH")
+            self.ledger.append(
+                operation=operation,
+                actor=self.identity.computer_id,
+                owner="A.KEDDEH / KEDDEH_SYSTEMS",
+                input_state=snap,
+                output_state=readback["value"],
+                proof={"readback_equal": True, "value_hash": readback["value_hash"]},
+                rollback={"checkpoint": self.runtime.checkpoint()},
+                lineage=self.identity.lineage,
+            )
+            self._persist_ledger()
+            return readback
 
     @classmethod
     def restore(cls, state_root: str | Path, *, recursive: bool = False) -> "RecursiveComputer":
@@ -197,42 +200,46 @@ class RecursiveComputer:
         return cls.restore(state_root, recursive=True)
 
     def write_state(self, key: str, value: Any) -> dict[str, Any]:
-        before = self._snapshot()
-        self.state[key] = _copy(value)
-        readback = self._persist("STATE_WRITE")
-        return {"before_root": sha256_json(before), "after_root": sha256_json(readback["value"])}
+        with self._lock:
+            before = self._snapshot()
+            self.state[key] = _copy(value)
+            readback = self._persist("STATE_WRITE")
+            return {"before_root": sha256_json(before), "after_root": sha256_json(readback["value"])}
 
     def write_memory(self, key: str, value: Any) -> dict[str, Any]:
-        before = self._snapshot()
-        self.memory[key] = _copy(value)
-        readback = self._persist("MEMORY_WRITE")
-        return {"before_root": sha256_json(before), "after_root": sha256_json(readback["value"])}
+        with self._lock:
+            before = self._snapshot()
+            self.memory[key] = _copy(value)
+            readback = self._persist("MEMORY_WRITE")
+            return {"before_root": sha256_json(before), "after_root": sha256_json(readback["value"])}
 
     def instantiate(self, child_id: str) -> "RecursiveComputer":
-        if child_id in self.children:
-            raise ValueError("CHILD_ALREADY_EXISTS")
-        child = RecursiveComputer(
-            computer_id=child_id,
-            state_root=self.state_root / "descendants" / child_id,
-            parent_id=self.identity.computer_id,
-            generation=self.identity.generation + 1,
-            lineage=self.identity.lineage + (child_id,),
-            state=self.state,
-            memory=self.memory,
-        )
-        self.children[child_id] = child
-        self._persist("SUCCESSOR_CREATED")
-        return child
+        with self._lock:
+            if child_id in self.children:
+                raise ValueError("CHILD_ALREADY_EXISTS")
+            child = RecursiveComputer(
+                computer_id=child_id,
+                state_root=self.state_root / "descendants" / child_id,
+                parent_id=self.identity.computer_id,
+                generation=self.identity.generation + 1,
+                lineage=self.identity.lineage + (child_id,),
+                state=self.state,
+                memory=self.memory,
+            )
+            self.children[child_id] = child
+            self._persist("SUCCESSOR_CREATED")
+            return child
 
     def readback(self) -> dict[str, Any]:
-        result = self.runtime.route(
-            f"computer://{self.identity.computer_id}/state",
-            self.state_backing,
-            "READ",
-        )
-        if result.get("status") != "READ":
-            raise RuntimeError(f"READBACK_FAILED:{result}")
-        return result["value"]
+        with self._lock:
+            result = self.runtime.route(
+                f"computer://{self.identity.computer_id}/state",
+                self.state_backing,
+                "READ",
+            )
+            if result.get("status") != "READ":
+                raise RuntimeError(f"READBACK_FAILED:{result}")
+            return result["value"]
 
 
 def execute_recursive_proof(root_dir: str | Path) -> dict[str, Any]:
