@@ -8,7 +8,6 @@ import json
 import os
 import tempfile
 import time
-import uuid
 
 
 def canonical(value: Any) -> bytes:
@@ -175,12 +174,130 @@ class FileSystemFoundary:
 class CustomerFileBaseSoftwareFoundary:
     NAME = "CUSTOMER_FILE_BASE_SOFTWARE_FOUNDARY"
     def __init__(self, store): self.store = store
+
+    def _require_customer(self, customer_id: str) -> Mapping[str, Any]:
+        customer = self.store.state["customers"].get(customer_id)
+        if customer is None:
+            raise KeyError("CUSTOMER_FILE_NOT_FOUND")
+        return customer
+
     def create_customer_file(self, customer_id: str, undertaking_id: str, consent: Mapping[str, Any], service_state: Mapping[str, Any]):
+        if undertaking_id not in self.store.state["undertakings"]:
+            raise KeyError("UNDERTAKING_NOT_FOUND")
+        if customer_id in self.store.state["customers"]:
+            raise ValueError("CUSTOMER_FILE_ALREADY_EXISTS")
         def mutate(s):
-            obj = {"customer_id": customer_id, "undertaking_id": undertaking_id, "consent": dict(consent), "service_state": dict(service_state), "documents": [], "communications": [], "billing": [], "audit": [], "state": "ACTIVE"}
+            obj = {
+                "customer_id": customer_id,
+                "undertaking_id": undertaking_id,
+                "consent": dict(consent),
+                "service_state": dict(service_state),
+                "documents": [],
+                "communications": [],
+                "billing": [],
+                "exports": [],
+                "audit": [],
+                "state": "ACTIVE",
+                "revision": 1,
+            }
+            obj["customer_root"] = content_root({k: v for k, v in obj.items() if k != "customer_root"})
             s["customers"][customer_id] = obj
-            return {"customer_id": customer_id, "state": "ACTIVE"}
+            return {"customer_id": customer_id, "state": "ACTIVE", "revision": 1, "customer_root": obj["customer_root"]}
         return self.store.commit(self.NAME, "CREATE_CUSTOMER_FILE", customer_id, mutate)
+
+    def update_service_state(self, customer_id: str, patch: Mapping[str, Any], authority: str):
+        self._require_customer(customer_id)
+        def mutate(s):
+            obj = s["customers"][customer_id]
+            if obj["state"] != "ACTIVE": raise ValueError("CUSTOMER_FILE_NOT_ACTIVE")
+            obj["service_state"].update(dict(patch))
+            obj["revision"] += 1
+            obj["audit"].append({"event": "SERVICE_STATE_UPDATED", "authority": authority, "patch_root": content_root(patch), "revision": obj["revision"]})
+            obj["customer_root"] = content_root({k: v for k, v in obj.items() if k != "customer_root"})
+            return {"customer_id": customer_id, "revision": obj["revision"], "customer_root": obj["customer_root"], "service_state_root": content_root(obj["service_state"])}
+        return self.store.commit(self.NAME, "UPDATE_CUSTOMER_SERVICE_STATE", customer_id, mutate)
+
+    def attach_document(self, customer_id: str, address: str, purpose: str, authority: str):
+        self._require_customer(customer_id)
+        file_obj = self.store.state["files"].get(address)
+        if file_obj is None: raise KeyError("FILE_OBJECT_NOT_FOUND")
+        def mutate(s):
+            obj = s["customers"][customer_id]
+            if obj["state"] != "ACTIVE": raise ValueError("CUSTOMER_FILE_NOT_ACTIVE")
+            ref = {"address": address, "object_root": file_obj["object_root"], "generation": file_obj["generation"], "purpose": purpose, "authority": authority}
+            if any(x["address"] == address and x["object_root"] == file_obj["object_root"] for x in obj["documents"]):
+                raise ValueError("DOCUMENT_REVISION_ALREADY_ATTACHED")
+            obj["documents"].append(ref)
+            obj["revision"] += 1
+            obj["audit"].append({"event": "DOCUMENT_ATTACHED", "address": address, "object_root": file_obj["object_root"], "authority": authority, "revision": obj["revision"]})
+            obj["customer_root"] = content_root({k: v for k, v in obj.items() if k != "customer_root"})
+            return {"customer_id": customer_id, "address": address, "object_root": file_obj["object_root"], "revision": obj["revision"], "customer_root": obj["customer_root"]}
+        return self.store.commit(self.NAME, "ATTACH_CUSTOMER_DOCUMENT", customer_id, mutate)
+
+    def record_communication(self, customer_id: str, channel: str, direction: str, summary: str, authority: str):
+        self._require_customer(customer_id)
+        if direction not in {"INBOUND", "OUTBOUND", "INTERNAL"}: raise ValueError("INVALID_COMMUNICATION_DIRECTION")
+        def mutate(s):
+            obj = s["customers"][customer_id]
+            event = {"channel": channel, "direction": direction, "summary": summary, "authority": authority}
+            event["communication_root"] = content_root(event)
+            obj["communications"].append(event)
+            obj["revision"] += 1
+            obj["audit"].append({"event": "COMMUNICATION_RECORDED", "communication_root": event["communication_root"], "authority": authority, "revision": obj["revision"]})
+            obj["customer_root"] = content_root({k: v for k, v in obj.items() if k != "customer_root"})
+            return {"customer_id": customer_id, "communication_root": event["communication_root"], "revision": obj["revision"], "customer_root": obj["customer_root"]}
+        return self.store.commit(self.NAME, "RECORD_CUSTOMER_COMMUNICATION", customer_id, mutate)
+
+    def record_billing_event(self, customer_id: str, event_type: str, amount_minor: int, currency: str, external_ref: Optional[str], authority: str):
+        self._require_customer(customer_id)
+        if amount_minor < 0: raise ValueError("NEGATIVE_BILLING_AMOUNT")
+        def mutate(s):
+            obj = s["customers"][customer_id]
+            event = {"event_type": event_type, "amount_minor": int(amount_minor), "currency": currency, "external_ref": external_ref, "authority": authority}
+            event["billing_root"] = content_root(event)
+            obj["billing"].append(event)
+            obj["revision"] += 1
+            obj["audit"].append({"event": "BILLING_EVENT_RECORDED", "billing_root": event["billing_root"], "authority": authority, "revision": obj["revision"]})
+            obj["customer_root"] = content_root({k: v for k, v in obj.items() if k != "customer_root"})
+            return {"customer_id": customer_id, "billing_root": event["billing_root"], "revision": obj["revision"], "customer_root": obj["customer_root"]}
+        return self.store.commit(self.NAME, "RECORD_CUSTOMER_BILLING_EVENT", customer_id, mutate)
+
+    def export_manifest(self, customer_id: str, export_id: str, authority: str):
+        self._require_customer(customer_id)
+        def mutate(s):
+            obj = s["customers"][customer_id]
+            snapshot = {
+                "customer_id": customer_id,
+                "undertaking_id": obj["undertaking_id"],
+                "revision": obj["revision"],
+                "state": obj["state"],
+                "service_state": obj["service_state"],
+                "documents": obj["documents"],
+                "communications": obj["communications"],
+                "billing": obj["billing"],
+                "consent": obj["consent"],
+            }
+            export = {"export_id": export_id, "authority": authority, "snapshot_root": content_root(snapshot), "source_customer_root": obj["customer_root"], "source_revision": obj["revision"]}
+            export["export_root"] = content_root(export)
+            obj["exports"].append(export)
+            obj["revision"] += 1
+            obj["audit"].append({"event": "EXPORT_MANIFEST_CREATED", "export_root": export["export_root"], "authority": authority, "revision": obj["revision"]})
+            obj["customer_root"] = content_root({k: v for k, v in obj.items() if k != "customer_root"})
+            return {"customer_id": customer_id, "export_id": export_id, "export_root": export["export_root"], "source_revision": export["source_revision"], "revision": obj["revision"], "customer_root": obj["customer_root"]}
+        return self.store.commit(self.NAME, "EXPORT_CUSTOMER_FILE_MANIFEST", customer_id, mutate)
+
+    def close_customer_file(self, customer_id: str, disposition: str, retention: Mapping[str, Any], authority: str):
+        self._require_customer(customer_id)
+        def mutate(s):
+            obj = s["customers"][customer_id]
+            if obj["state"] == "CLOSED": raise ValueError("CUSTOMER_FILE_ALREADY_CLOSED")
+            obj["state"] = "CLOSED"
+            obj["closure"] = {"disposition": disposition, "retention": dict(retention), "authority": authority}
+            obj["revision"] += 1
+            obj["audit"].append({"event": "CUSTOMER_FILE_CLOSED", "disposition": disposition, "retention_root": content_root(retention), "authority": authority, "revision": obj["revision"]})
+            obj["customer_root"] = content_root({k: v for k, v in obj.items() if k != "customer_root"})
+            return {"customer_id": customer_id, "state": "CLOSED", "revision": obj["revision"], "customer_root": obj["customer_root"], "retention_root": content_root(retention)}
+        return self.store.commit(self.NAME, "CLOSE_CUSTOMER_FILE", customer_id, mutate)
 
 
 class FrontagesServicesGrowingMeshWebsitesDomainMasteryFoundary:
