@@ -1,0 +1,50 @@
+name: R18 Runtime Bindings Release
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'enterprise/adapters/**'
+      - 'enterprise/runtime/**'
+      - 'scripts/kex-ci/test_runtime_bindings_r18.py'
+      - 'deployment/KEDDEH_SYSTEMS_R18_PRODUCTION.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: r18-runtime-bindings-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile R18 modules
+        run: |
+          python -m py_compile \
+            enterprise/adapters/payment_rail.py \
+            enterprise/adapters/connector_bindings.py \
+            enterprise/runtime/process_supervisor.py \
+            enterprise/runtime/http_ingress.py
+      - name: Execute R18 qualification
+        run: python scripts/kex-ci/test_runtime_bindings_r18.py
+      - name: Validate deployment descriptor
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('deployment/KEDDEH_SYSTEMS_R18_PRODUCTION.json')
+          d=json.loads(p.read_text())
+          assert d['schema']=='keddeh.systems.r18.deployment/v1'
+          assert d['release']=='R18'
+          assert d['promotion_policy']['external_public_ingress']=='REQUIRES_OBSERVED_BINDING'
+          assert d['promotion_policy']['payments']=='REQUIRES_AUTHENTICATED_PROVIDER'
+          print('deployment descriptor PASS')
+          PY
