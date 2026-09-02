@@ -1,0 +1,184 @@
+version: 1
+estate: KEDDEH_SYSTEMS
+principle: one logical sector -> one canonical repository authority
+repository_creation_boundary: github_connector_has_no_create_repository_actuator
+
+sectors:
+  braink:
+    canonical_repo: aboudykeddeh276-stack/BRAINK
+    status: ACTIVE
+    owns:
+      - Observer2 federation mechanics
+      - orchestration
+      - state/proof lineage
+      - resident-capability resolution
+    must_not_own:
+      - authoritative DNS server implementation
+      - registrar/registry mutation
+      - product-specific CasePath or ClaimPath business semantics
+
+  servers:
+    canonical_repo: aboudykeddeh276-stack/SERVERS-KEDDEHSYSTEMS
+    status: ACTIVE
+    owns:
+      - server runtimes
+      - domain authority server execution
+      - host binding
+      - ingress and listener qualification
+    evidence:
+      - runtime/domain_authority/kex_registrar_service.py
+      - runtime/domain_authority/kex_dns.py
+      - runtime/domain_authority/KEX_DA_SERVER_QUALIFICATION_R1.json
+      - runtime/domain_authority/KEX_DA_HOST_BIND_R1.json
+
+  kex:
+    canonical_repo: aboudykeddeh276-stack/KEX
+    status: REPOSITORY_REQUIRED
+    owns:
+      - coordinate addressing
+      - signal propagation semantics
+      - kernel mechanics
+      - execution plane contracts
+
+  domain_authority:
+    canonical_repo: aboudykeddeh276-stack/DOMAIN-AUTHORITY
+    status: REPOSITORY_REQUIRED
+    owns:
+      - registrar authority contracts
+      - DNS zone authority
+      - delegation tooling
+      - DNSSEC parent-state evidence
+    executes_via:
+      - aboudykeddeh276-stack/SERVERS-KEDDEHSYSTEMS
+
+  network_fabric:
+    canonical_repo: aboudykeddeh276-stack/NETWORK-FABRIC
+    status: REPOSITORY_REQUIRED
+    owns:
+      - routers
+      - bridges
+      - mesh
+      - VPN/TL transports
+      - NAT
+      - anycast
+      - load balancing
+
+  cloud_infrastructure:
+    canonical_repo: aboudykeddeh276-stack/CLOUD-INFRASTRUCTURE
+    status: REPOSITORY_REQUIRED
+    owns:
+      - public compute hosts
+      - public IP allocation state
+      - edge/cloud substrates
+
+  k_drive:
+    canonical_repo: aboudykeddeh276-stack/K-DRIVE
+    status: REPOSITORY_REQUIRED
+    owns:
+      - storage abstraction
+      - volumes
+      - persistence
+      - VFS substrate mechanics
+
+  il_llm:
+    canonical_repo: aboudykeddeh276-stack/IL-LLM
+    status: REPOSITORY_REQUIRED
+    owns:
+      - language runtime
+      - dictionaries and ontology
+      - workbook language mechanics
+
+  workbook_os:
+    canonical_repo: aboudykeddeh276-stack/WORKBOOK-OS
+    status: REPOSITORY_REQUIRED
+    owns:
+      - workbook-native execution
+      - scheduler
+      - workbook ledgers
+      - sheet/runtime bindings
+
+  casepath:
+    canonical_repo: aboudykeddeh276-stack/CASEPATH
+    status: REPOSITORY_REQUIRED
+    owns:
+      - CasePath product runtime
+      - CasePath service pipeline
+      - CasePath business semantics
+
+  claimpath:
+    canonical_repo: aboudykeddeh276-stack/CLAIMPATH
+    status: REPOSITORY_REQUIRED
+    owns:
+      - ClaimPath product runtime
+      - ClaimPath service pipeline
+      - ClaimPath business semantics
+
+  web_fabric:
+    canonical_repo: aboudykeddeh276-stack/WEB-FABRIC
+    status: REPOSITORY_REQUIRED
+    owns:
+      - public sites
+      - frontages
+      - deployment surfaces
+      - domain-to-site projection
+
+  edge_iot:
+    canonical_repo: aboudykeddeh276-stack/EDGE-IOT
+    status: REPOSITORY_REQUIRED
+    owns:
+      - IoT edge nodes
+      - telemetry
+      - constrained runtimes
+      - Observer2 edge probes
+
+  security_authority:
+    canonical_repo: aboudykeddeh276-stack/SECURITY-AUTHORITY
+    status: REPOSITORY_REQUIRED
+    owns:
+      - identity
+      - cryptographic policy
+      - certificates
+      - trust anchors
+      - audit rules
+
+  agents_orchestration:
+    canonical_repo: aboudykeddeh276-stack/AGENTS-ORCHESTRATION
+    status: REPOSITORY_REQUIRED
+    owns:
+      - operator agents
+      - superagents
+      - workforce/process orchestration
+
+  evidence_ledger:
+    canonical_repo: aboudykeddeh276-stack/EVIDENCE-LEDGER
+    status: REPOSITORY_REQUIRED
+    owns:
+      - qualification receipts
+      - benchmark evidence
+      - conformance reports
+
+repository_contract:
+  required_files:
+    - README.md
+    - ARCHITECTURE.md
+    - AUTHORITY.md
+    - DEPENDENCIES.md
+  required_directories:
+    - runtime
+    - tests
+    - deploy
+    - evidence
+    - receipts
+    - docs
+  mandatory_questions:
+    - WHAT_DOES_THIS_SECTOR_OWN
+    - WHAT_DOES_IT_EXECUTE
+    - WHAT_DOES_IT_DEPEND_ON
+    - WHAT_MAY_IT_MUTATE
+    - WHAT_PROVES_IT_WORKED
+
+cross_sector_rule:
+  relation_not_substitution: true
+  candidate_state_not_authoritative_state: true
+  actuator_receipt_not_environmental_readback: true
+  no_silent_cross_sector_ownership: true
