@@ -3,11 +3,6 @@ name: KEX Proof Ledger
 on:
   workflow_dispatch:
     inputs:
-      use_self_hosted:
-        description: "Also execute on the specialist self-hosted KEX runner"
-        required: false
-        default: false
-        type: boolean
       strict_unresolved:
         description: "Fail when required runtime implementation surfaces are absent"
         required: false
@@ -20,18 +15,7 @@ on:
     paths: [".kex/**", "scripts/kex-ci/**", ".github/workflows/kex-*.yml", "kex/**", "modules/**", "deploy/**"]
 permissions: {contents: read}
 jobs:
-  control-plane:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with: {python-version: "3.12"}
-      - run: python scripts/kex-ci/validate_control_plane.py --mode proof
-      - if: always()
-        uses: actions/upload-artifact@v4
-        with: {name: "kex-proof-${{ github.run_id }}-control", path: "reports/kex-ci/proof.json"}
-  specialist:
-    if: ${{ github.event_name == 'workflow_dispatch' && inputs.use_self_hosted }}
+  runtime-validation:
     runs-on: [self-hosted, kex, proof, ledger, rehydrate]
     steps:
       - uses: actions/checkout@v4
@@ -40,4 +24,4 @@ jobs:
           python3 scripts/kex-ci/validate_control_plane.py --mode proof $STRICT
       - if: always()
         uses: actions/upload-artifact@v4
-        with: {name: "kex-proof-${{ github.run_id }}-specialist", path: "reports/kex-ci/proof.json"}
+        with: {name: "kex-proof-${{ github.run_id }}-runtime", path: "reports/kex-ci/proof.json"}
