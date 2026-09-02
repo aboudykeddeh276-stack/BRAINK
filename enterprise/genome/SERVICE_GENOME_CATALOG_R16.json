@@ -1,0 +1,30 @@
+{
+  "schema": "braink.service-genome.r16/v1",
+  "genes": {
+    "G_IDENTITY": {"class": "FOUNDATION", "provides": ["identity", "tenant", "role", "scope"], "server_family": "identity"},
+    "G_HR": {"class": "CONTROL", "provides": ["assignment", "supervision", "lease", "replacement", "rehydration"], "server_family": "hr"},
+    "G_AGENTIC": {"class": "EXECUTION", "provides": ["agent_dispatch", "work_module", "tool_routing", "continuation"], "server_family": "agentic_ai"},
+    "G_MAIL": {"class": "COMMUNICATION", "provides": ["email_send", "email_receive", "template", "notification"], "server_family": "mail"},
+    "G_CALENDAR": {"class": "COMMUNICATION", "provides": ["schedule", "availability", "reminder"], "server_family": "calendar"},
+    "G_DOCS": {"class": "CONTENT", "provides": ["document_read", "document_write", "revision", "package"], "server_family": "documents"},
+    "G_VFS": {"class": "STATE", "provides": ["artifact", "revision", "lineage", "hash", "checkpoint"], "server_family": "vfs"},
+    "G_ILLLM": {"class": "KNOWLEDGE", "provides": ["word", "definition", "subject", "topic", "matter", "research", "traversal"], "server_family": "research"},
+    "G_PROOF": {"class": "GOVERNANCE", "provides": ["receipt", "evidence", "audit", "reconciliation"], "server_family": "proof"},
+    "G_PAYMENTS": {"class": "COMMERCE", "provides": ["payment", "entitlement", "refund", "settlement"], "server_family": "payments"},
+    "G_BILLING": {"class": "COMMERCE", "provides": ["metering", "usage", "invoice", "cost_attribution"], "server_family": "billing"},
+    "G_SEARCH": {"class": "KNOWLEDGE", "provides": ["index", "search", "retrieval"], "server_family": "search"},
+    "G_CASE": {"class": "WORKFLOW", "provides": ["case", "matter", "chronology", "evidence_bundle"], "server_family": "case"},
+    "G_CRM": {"class": "CUSTOMER", "provides": ["customer", "contact", "pipeline", "service_case"], "server_family": "crm"},
+    "G_RUNTIME": {"class": "EXECUTION", "provides": ["process", "health", "restart", "qualification"], "server_family": "runtime"},
+    "G_OBSERVER": {"class": "GOVERNANCE", "provides": ["telemetry", "readback", "conflict", "signal"], "server_family": "observer"},
+    "G_API": {"class": "EDGE", "provides": ["http", "service_endpoint", "auth_boundary"], "server_family": "api"},
+    "G_ANALYTICS": {"class": "INSIGHT", "provides": ["metric", "outcome", "roi", "trend"], "server_family": "analytics"}
+  },
+  "undertaking_templates": {
+    "LEGAL_SERVICE": ["G_IDENTITY", "G_HR", "G_AGENTIC", "G_MAIL", "G_CALENDAR", "G_DOCS", "G_VFS", "G_ILLLM", "G_PROOF", "G_PAYMENTS", "G_BILLING", "G_SEARCH", "G_CASE", "G_CRM", "G_RUNTIME", "G_OBSERVER", "G_API", "G_ANALYTICS"],
+    "AI_OPERATIONS": ["G_IDENTITY", "G_HR", "G_AGENTIC", "G_VFS", "G_ILLLM", "G_PROOF", "G_BILLING", "G_RUNTIME", "G_OBSERVER", "G_API", "G_ANALYTICS"],
+    "CUSTOMER_SERVICE": ["G_IDENTITY", "G_HR", "G_AGENTIC", "G_MAIL", "G_CALENDAR", "G_DOCS", "G_VFS", "G_PROOF", "G_CRM", "G_RUNTIME", "G_OBSERVER", "G_API", "G_ANALYTICS"],
+    "DATA_GOVERNANCE": ["G_IDENTITY", "G_HR", "G_AGENTIC", "G_VFS", "G_ILLLM", "G_PROOF", "G_SEARCH", "G_RUNTIME", "G_OBSERVER", "G_API", "G_ANALYTICS"],
+    "COMMERCE": ["G_IDENTITY", "G_HR", "G_AGENTIC", "G_MAIL", "G_DOCS", "G_VFS", "G_PROOF", "G_PAYMENTS", "G_BILLING", "G_CRM", "G_RUNTIME", "G_OBSERVER", "G_API", "G_ANALYTICS"]
+  }
+}
