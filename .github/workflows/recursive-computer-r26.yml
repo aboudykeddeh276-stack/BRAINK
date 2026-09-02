@@ -1,4 +1,4 @@
-name: BRAINK Recursive Computer R26
+name: BRAINK Recursive Computer R26 / Full EPIC R27
 
 on:
   push:
@@ -9,8 +9,18 @@ on:
       - 'enterprise/substrate_adapters.py'
       - 'enterprise/auto_binder.py'
       - 'runtime/R25/system_evolution_runtime.py'
+      - 'runtime/public_gateway.py'
+      - 'runtime/google_oauth_rail.py'
+      - 'runtime/stripe_payment_rail.py'
+      - 'runtime/agents/**'
+      - 'sites/braink.com.au/**'
+      - 'sites/braink-intelligence.com.au/**'
+      - 'sites/braink-learning.com.au/**'
       - 'deployment/recursive_computer_service_r26.py'
       - 'deployment/run_recursive_computer_r26.sh'
+      - 'deployment/kex_keddeh_edge_node_v49_proxy.cjs'
+      - 'deployment/full_epic_deploy_r27.py'
+      - 'deployment/p17/**'
       - 'scripts/kex-ci/test_recursive_computer_service_r26.py'
       - 'tests/R26/**'
       - '.github/workflows/recursive-computer-r26.yml'
@@ -22,8 +32,18 @@ on:
       - 'enterprise/substrate_adapters.py'
       - 'enterprise/auto_binder.py'
       - 'runtime/R25/system_evolution_runtime.py'
+      - 'runtime/public_gateway.py'
+      - 'runtime/google_oauth_rail.py'
+      - 'runtime/stripe_payment_rail.py'
+      - 'runtime/agents/**'
+      - 'sites/braink.com.au/**'
+      - 'sites/braink-intelligence.com.au/**'
+      - 'sites/braink-learning.com.au/**'
       - 'deployment/recursive_computer_service_r26.py'
       - 'deployment/run_recursive_computer_r26.sh'
+      - 'deployment/kex_keddeh_edge_node_v49_proxy.cjs'
+      - 'deployment/full_epic_deploy_r27.py'
+      - 'deployment/p17/**'
       - 'scripts/kex-ci/test_recursive_computer_service_r26.py'
       - 'tests/R26/**'
       - '.github/workflows/recursive-computer-r26.yml'
@@ -42,11 +62,15 @@ jobs:
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
-      - name: Verify Python carrier
-        run: python3 --version
+      - name: Verify carriers
+        run: |
+          python3 --version
+          node --version
       - name: Execute recursive constructor proof
         run: python3 -m pytest -q tests/R26
-      - name: Execute deployed service qualification
+      - name: Execute deployed recursive service qualification
         run: python3 scripts/kex-ci/test_recursive_computer_service_r26.py
+      - name: Execute full EPIC deployment and readback
+        run: python3 deployment/full_epic_deploy_r27.py --state-root "$RUNNER_TEMP/braink-full-epic-r27"
       - name: Compile runtime and deployment lineage
-        run: python3 -m compileall -q enterprise/recursive_computer_runtime_r26.py enterprise/self_addressing_runtime.py enterprise/continuation_runtime.py enterprise/substrate_adapters.py enterprise/auto_binder.py runtime/R25/system_evolution_runtime.py deployment/recursive_computer_service_r26.py scripts/kex-ci/test_recursive_computer_service_r26.py
+        run: python3 -m compileall -q enterprise/recursive_computer_runtime_r26.py enterprise/self_addressing_runtime.py enterprise/continuation_runtime.py enterprise/substrate_adapters.py enterprise/auto_binder.py runtime/R25/system_evolution_runtime.py deployment/recursive_computer_service_r26.py deployment/full_epic_deploy_r27.py deployment/p17/KEX_P17_MULTI_EMULATOR_FANOUT_IGNITION.py scripts/kex-ci/test_recursive_computer_service_r26.py
