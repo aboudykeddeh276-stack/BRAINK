@@ -33,6 +33,9 @@ class Runtime:
         return receipt_dict(self.access.revoke(p["session_token"],p.get("reason","revoked"),p.get("now_ns")))
     def portal_read(self,p):
         return self.access.read_customer_file(p["session_token"],p["file_id"],now_ns=p.get("now_ns"))
+    def state_summary(self):
+        s=self.store.state
+        return {"status":"PASS","runtime":"BRAINK_R23","generation":s.get("generation",0),"state_root":s.get("state_root"),"customer_file_count":len(s.get("customer_files",{})),"session_count":len(s.get("customer_sessions",{})),"receipt_count":len(s.get("receipts",[])),"detail":"REDACTED_INTERNAL_STATE"}
 class Handler(BaseHTTPRequestHandler):
     runtime=None
     def reply(self,c,o):
@@ -41,8 +44,8 @@ class Handler(BaseHTTPRequestHandler):
         n=int(self.headers.get("Content-Length","0") or 0);return json.loads(self.rfile.read(n) or b"{}")
     def do_GET(self):
         path=urlparse(self.path).path
-        if path=="/closure/health":return self.reply(200,{"status":"PASS","runtime":"BRAINK_R23","generation":self.runtime.store.state["generation"],"customer_access":"BOUND"})
-        if path=="/closure/state":return self.reply(200,self.runtime.store.state)
+        if path=="/closure/health":return self.reply(200,{"status":"PASS","runtime":"BRAINK_R23","generation":self.runtime.store.state["generation"],"state_root":self.runtime.store.state.get("state_root"),"customer_access":"BOUND"})
+        if path=="/closure/state":return self.reply(200,self.runtime.state_summary())
         return self.reply(404,{"status":"NOT_FOUND"})
     def do_POST(self):
         path=urlparse(self.path).path
