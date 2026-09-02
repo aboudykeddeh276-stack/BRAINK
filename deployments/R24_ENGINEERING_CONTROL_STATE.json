@@ -45,6 +45,22 @@
       "alternate_execution": "PASS"
     }
   },
+  "observed_external_transitions": {
+    "gmail_mail_control_plane": {
+      "status": "EXECUTED_MUTATION_READBACK_ROLLBACK_VERIFIED_NOT_PROMOTED",
+      "provider": "Gmail",
+      "declared_resource": "Label_31",
+      "declared_identity": "KEDDEH SYSTEMS/Runtime Mail",
+      "operation": "LABEL_APPLY_READBACK_REMOVE_READBACK",
+      "mutation_readback": "PASS",
+      "rollback_readback": "PASS",
+      "receipt": "deployments/R24_MAIL_CONTROL_PLANE_EXTERNAL_READBACK_R1.json",
+      "receipt_root": "f95643216009620c176314c4091133f632636096aea3cd53b43a5aa06c89124c",
+      "promotion": "REJECTED_PENDING_UNIT_SECURITY_QUALITY_RELEASE_AND_INDEPENDENT_GATES",
+      "smtp_transport_delivery": "UNPROVEN",
+      "self_hosted_mail_server": "UNPROVEN"
+    }
+  },
   "promotion_policy": {
     "no_completion_claim_without_readback": true,
     "no_release_without_rollback": true,
