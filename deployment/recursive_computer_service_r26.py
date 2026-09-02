@@ -59,19 +59,20 @@ class RuntimeHost:
 
     def snapshot(self, node=None, status="RUNNING"):
         node = node or self.computer
-        rb = node.readback()
+        inspected = node.inspect_committed()
+        rb = inspected["value"]
         return {
             "status": status,
             "computer_id": node.identity.computer_id,
             "generation": node.identity.generation,
             "lineage": list(node.identity.lineage),
             "constructor_id": node.identity.constructor_id,
-            "state_root": sha256_json(rb),
+            "state_root": inspected["value_hash"],
             "state": rb["state"],
             "memory": rb["memory"],
             "children": rb["children"],
-            "ledger_verified": node.ledger.verify(),
-            "ledger_events": len(node.ledger.events),
+            "ledger_verified": inspected["ledger_verified"],
+            "ledger_events": inspected["ledger_events"],
         }
 
     def topology(self):
@@ -79,15 +80,16 @@ class RuntimeHost:
             nodes = []
 
             def walk(node):
-                rb = node.readback()
+                inspected = node.inspect_committed()
+                rb = inspected["value"]
                 nodes.append(
                     {
                         "computer_id": node.identity.computer_id,
                         "generation": node.identity.generation,
                         "lineage": list(node.identity.lineage),
                         "children": list(rb["children"]),
-                        "state_root": sha256_json(rb),
-                        "ledger_verified": node.ledger.verify(),
+                        "state_root": inspected["value_hash"],
+                        "ledger_verified": inspected["ledger_verified"],
                     }
                 )
                 for child_id in rb["children"]:
