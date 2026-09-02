@@ -1,0 +1,23 @@
+{
+  "schema": "keddeh.systems.r24.deployment/v1",
+  "release": "R24",
+  "authority": "KEDDEH_SYSTEMS/BRAINK",
+  "service": "Market Service Fabric",
+  "implemented_foundries": [
+    "customer_file_base_foundry",
+    "workspace_foundry",
+    "file_system_foundry",
+    "website_foundry",
+    "landing_page_foundry",
+    "publishing_mastery",
+    "hr_team_services",
+    "agentics_foundry",
+    "server_foundry"
+  ],
+  "runtime": "enterprise/market/service_fabric_r24.py",
+  "api": "enterprise/market/http_api_r24.py",
+  "qualification": "scripts/kex-ci/test_market_service_fabric_r24.py",
+  "state": "LOCALLY_EXECUTED_REPO_DEPLOYED",
+  "external_public_ingress": "UNBOUND",
+  "provider_boundary": "INHERIT_R18_BINDING_REGISTER"
+}
