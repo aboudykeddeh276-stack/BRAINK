@@ -22,7 +22,9 @@
     "R23 single-host process activation via resident ManagedProcess",
     "R23 /closure/health and /closure/state service readback",
     "R23 executed customer lifecycle mutation through /closure/operate",
-    "R23 process stop/restart with state-root and generation rehydration equality"
+    "R23 process stop/restart with state-root and generation rehydration equality",
+    "R23 customer-file owner/scope/privacy-consent access membrane",
+    "hashed opaque session persistence with expiry/revocation denial and durable access audit"
   ],
   "local_execution": {
     "status": "PASS",
@@ -43,6 +45,23 @@
       "physical_multi_host": "UNPROVEN",
       "github_hosted_executor": "EXECUTOR_BOUNDARY_ZERO_STEPS",
       "alternate_execution": "PASS"
+    },
+    "r23_customer_access_control": {
+      "status": "IMPLEMENTED_AND_LOCAL_INVARIANT_PASS_NOT_PROMOTED",
+      "binding": "enterprise/customer_access_control_r24.py",
+      "receipt": "deployments/R24_CUSTOMER_ACCESS_CONTROL_RECEIPT_R1.json",
+      "marker": "R24_CUSTOMER_ACCESS_CONTROL_PASS",
+      "observed_state_root": "85d2a4a525a9dfbdec02c1c81988c887249f0e5bc537e40c31b89202e21e694a",
+      "owner_access": "PASS",
+      "ownership_denial": "PASS",
+      "privacy_consent_denial": "PASS",
+      "session_expiry_denial": "PASS",
+      "session_revocation_denial": "PASS",
+      "plaintext_session_persistence": "REJECTED",
+      "rehydration": "PASS",
+      "public_customer_portal_http_surface": "UNBOUND",
+      "independent_verify": "PENDING",
+      "promotion": "REJECTED_PENDING_REMAINING_R24_GATES"
     }
   },
   "observed_external_transitions": {
