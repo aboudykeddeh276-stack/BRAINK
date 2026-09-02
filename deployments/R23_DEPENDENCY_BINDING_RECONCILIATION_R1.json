@@ -1,0 +1,65 @@
+{
+  "schema": "braink.r23.dependency-binding-reconciliation/v1",
+  "authority": "KEDDEH_SYSTEMS/BRAINK",
+  "governing_runtime": "enterprise/foundry_closure_r23.py",
+  "dependency_bridge": "enterprise/r23_dependency_bindings.py",
+  "invariant": "scripts/kex-ci/test_r23_dependency_bindings.py",
+  "source_commits": {
+    "dependency_bridge": "d4f9f13f4cd86b97d8cbda0d4ea657cd72a782e8",
+    "invariant": "d6a7937cc075b6be4593715305bb235b3530ce96"
+  },
+  "reused_mechanics": [
+    "R23 DurableStore and TransitionReceipt",
+    "R23 ResearchPromotionGate",
+    "R25 LiveMarketServiceFabric external resource resolution",
+    "R25 service instance materialization",
+    "AKD authorship_guard canonical lineage stamping"
+  ],
+  "material_transitions": {
+    "mail_control_plane": {
+      "classification": "BIND_ADAPT",
+      "resident_service": "customer_services_mail",
+      "provider": "Gmail",
+      "promotion_boundary": "GMAIL_CONTROL_PLANE_BOUND_NOT_SMTP_DELIVERY_PROVEN"
+    },
+    "public_http_origin": {
+      "classification": "TYPED_HOLE_UNTIL_RESIDENT_ACTUATOR",
+      "required_for": "domain.public_activation",
+      "promotion_boundary": "NO_PUBLIC_DNS_TLS_OR_OWNER_HOST_CLAIM_WITHOUT_ACTUATOR_EXECUTION_AND_READBACK"
+    },
+    "research_provenance": {
+      "classification": "IMPLEMENTED_SOURCE_INVARIANT_PENDING_EXECUTION",
+      "mechanics": [
+        "source identity",
+        "content root",
+        "observed-source flag",
+        "replay reproducibility",
+        "independent verifier",
+        "provenance evidence root"
+      ]
+    },
+    "authorship": {
+      "classification": "REUSE",
+      "canonical_guard": "enterprise/governance/authorship_guard.py",
+      "orphan_class": "ORPHANED_AKD_SERVICE"
+    }
+  },
+  "github_execution_learning": {
+    "hosted_runner_zero_step_failures": "EXECUTOR_BOUNDARY_NOT_SOURCE_TEST_FAILURE",
+    "resident_recovery": [
+      "KEX GitHub runner control plane",
+      "TL2 self-hosted runner bootstrap",
+      "specialist self-hosted KEX runner routing",
+      "proof artifact emission"
+    ],
+    "current_local_replay": "NOT_EXECUTED_DNS_RAW_GITHUB_RESOLUTION_FAILURE"
+  },
+  "claim_law": [
+    "A_executed != A_claimed",
+    "S_observed != S_claimed",
+    "EXISTING_MECHANIC_PRECEDES_REIMPLEMENTATION",
+    "PUBLIC_OBSERVATION_IS_RECONCILIATION_NOT_PROCESS_EXISTENCE_GATE"
+  ],
+  "next_eligible_execution": "run scripts/kex-ci/test_r23_dependency_bindings.py through an allocated KEX/self-hosted execution path; then bind a concrete public_http_origin actuator only if observed",
+  "status": "SOURCE_DEPENDENCIES_BUILT_AND_PERSISTED_EXECUTION_RECEIPT_PENDING"
+}
