@@ -10,6 +10,12 @@ class MarketOperatingFoundry:
   self.identity=identity or ('computer://foundry/'+sha({'root':str(self.root),'master_root':self.master_root})[:20])
   self.parent_identity=parent_identity
   self.continuation=continuation
+ @classmethod
+ def rehydrate(cls,manifest_path,master_path=None):
+  manifest_path=Path(manifest_path).resolve(); m=json.loads(manifest_path.read_text())
+  resolved_master=Path(master_path).resolve() if master_path else Path(m['master_locator']).resolve()
+  runtime_root=manifest_path.parent.parent
+  return cls(resolved_master,runtime_root,identity=m['runtime_identity'],parent_identity=m.get('parent_identity'),continuation=m.get('continuation','READY'))
  def functions(self):
   return [{"sector":s,"function":fn,"adapters":cfg["adapters"],"controls":cfg["controls"],"billable_units":cfg["billable_units"]}
           for s,cfg in self.master["sector_products"]["products"].items() for fn in cfg["functions"]]
@@ -20,6 +26,8 @@ class MarketOperatingFoundry:
       for q in sorted(p.rglob("*")) if q.is_file() and q.name!="FOUNDRY_MANIFEST.json"]
   m={"schema":"braink.operating-foundry.output.v2","foundry":name,"master_root":self.master_root,
      "runtime_identity":self.identity,"parent_identity":self.parent_identity,"continuation":self.continuation,
+     "constructor_ref":"enterprise/foundry/market_operating_foundries.py:MarketOperatingFoundry",
+     "master_locator":str(self.master_path),
      "sector_count":len(self.master["sector_products"]["products"]),"function_count":len(self.functions()),"files":fs,"created_ns":time.time_ns()}
   m["manifest_root"]=sha({k:m[k] for k in m if k!="manifest_root"})
   (p/"FOUNDRY_MANIFEST.json").write_text(json.dumps(m,indent=2)); return m
