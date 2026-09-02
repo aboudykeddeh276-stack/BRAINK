@@ -1,0 +1,16 @@
+{
+  "schema": "braink.external-authority-service.r18.receipt",
+  "health_status": "PASS",
+  "service_id": "BRAINK::SERVICE::EXTERNAL_AUTHORITY::R18",
+  "lexical_id": "LEX://BRAINK/SERVICE/EXTERNAL_AUTHORITY",
+  "listener": "0.0.0.0:17942",
+  "public_edge_listener_reserved": "0.0.0.0:17941",
+  "observation_schema": "braink.external-authority-service.r18.observation",
+  "observation_status": "BOUNDARY_CLASSIFIED_NO_PUBLIC_READBACK",
+  "state_matches_last_observation": true,
+  "mutation_block_http_status": 403,
+  "mutation_block_reason": "EXTERNAL_MUTATION_AUTHORITY_NOT_INSTALLED",
+  "ledger_exists": true,
+  "state_exists": true,
+  "status": "PASS"
+}
