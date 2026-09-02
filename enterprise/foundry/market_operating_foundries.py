@@ -10,12 +10,21 @@ class MarketOperatingFoundry:
   self.identity=identity or ('computer://foundry/'+sha({'root':str(self.root),'master_root':self.master_root})[:20])
   self.parent_identity=parent_identity
   self.continuation=continuation
+ @staticmethod
+ def verify_manifest(manifest):
+  supplied=manifest.get('manifest_root')
+  if not supplied: raise ValueError('manifest_root missing')
+  expected=sha({k:manifest[k] for k in manifest if k!='manifest_root'})
+  if supplied!=expected: raise ValueError('manifest_root mismatch')
+  return expected
  @classmethod
  def rehydrate(cls,manifest_path,master_path=None):
-  manifest_path=Path(manifest_path).resolve(); m=json.loads(manifest_path.read_text())
+  manifest_path=Path(manifest_path).resolve(); m=json.loads(manifest_path.read_text()); cls.verify_manifest(m)
   resolved_master=Path(master_path).resolve() if master_path else Path(m['master_locator']).resolve()
   runtime_root=manifest_path.parent.parent
-  return cls(resolved_master,runtime_root,identity=m['runtime_identity'],parent_identity=m.get('parent_identity'),continuation=m.get('continuation','READY'))
+  obj=cls(resolved_master,runtime_root,identity=m['runtime_identity'],parent_identity=m.get('parent_identity'),continuation=m.get('continuation','READY'))
+  if obj.master_root!=m['master_root']: raise ValueError('master_root mismatch')
+  return obj
  def functions(self):
   return [{"sector":s,"function":fn,"adapters":cfg["adapters"],"controls":cfg["controls"],"billable_units":cfg["billable_units"]}
           for s,cfg in self.master["sector_products"]["products"].items() for fn in cfg["functions"]]
