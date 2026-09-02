@@ -1,0 +1,87 @@
+{
+  "schema": "kex.observer2.federation-engineering-receipt.r29",
+  "branch": "run/r29-observer2-federation-20260903",
+  "objective": "One situated Observer2 identity observes multiple substrate-specific environments without assuming one filesystem/root substrate; observed state remains evidence-only and actuation stays outside the observer.",
+  "architecture": {
+    "observer_runtime": "runtime/observer2_federation_r29.py",
+    "resident_bootstrap": "runtime/braink_observer2_bootstrap_r29.py",
+    "resident_state_adapter": "runtime/observer2_resident_state_r29.py",
+    "evidence_operator": "runtime/braink_recursive_operator_r29.py",
+    "receipt_cli": "runtime/observer2_federation_receipt_r29.py",
+    "html_inspector": "reports/observer2_federation_r29.html",
+    "resident_mechanics_reused": [
+      "SelfAddressingRuntime.snapshot state boundary",
+      "BRAINK recursive-computer identity/lineage state export boundary",
+      "KEX coordinate-plane state export boundary",
+      "R12/R13/R17 BRAINK machine-image and public-edge contracts"
+    ]
+  },
+  "invariants": [
+    "repository is one observed environment, not the universal state owner",
+    "probe failure is UNAVAILABLE evidence and is not converted to absence",
+    "observer probes cannot expose write/mutate/delete/commit/actuate surfaces",
+    "SelfAddressingRuntime route/checkpoint are never invoked by the observer adapter",
+    "RecursiveComputer commit is never invoked by the observer adapter",
+    "KEX coordinate dispatch is never invoked by the observer adapter",
+    "pre/post relation compares environment status and payload roots rather than sampling-time noise",
+    "observer identity must remain stable across pre/post comparison",
+    "continuation is FOLLOW_SUCCESSOR_STATE only when the declared target is satisfied; otherwise RECONCILE"
+  ],
+  "execution": {
+    "local_reconstructed_branch_suite": {
+      "status": "PASS",
+      "passed": 15,
+      "total": 15,
+      "scope": [
+        "federation and legacy single-root compatibility",
+        "read-only boundary negative controls",
+        "resident BRAINK machine-image integration",
+        "execution receipt classification",
+        "resident SelfAddressing/RecursiveComputer/KEX snapshot adapters",
+        "federated pre/post reconciliation and continuation"
+      ]
+    },
+    "github_storage_readback": {
+      "observer2_federation_r29.py_blob": "4a67688913c69ff1002e3adc6d0d818daaf76712",
+      "braink_recursive_operator_r29.py_blob": "f24e4a1e28cd86434376dba2e3d94bcdcf0dffcd",
+      "braink_observer2_bootstrap_r29.py_blob": "fff683057c44a67be45d52f87e2a13605be84f48",
+      "observer2_resident_state_r29.py_blob": "9910ac2fde109fdd09169fa1b3b825e5c4e84c52",
+      "test_observer2_resident_state_r29.py_blob": "4675dc9f2f9320a842f185ecfa666c909561af5f",
+      "note": "Files were re-fetched after write. Exact byte-equivalence between local candidate and the final two blob IDs remains a separate custody question; runtime qualification is not inferred from hashes."
+    },
+    "github_actions": {
+      "state": "AWAITING_RUNNER_EXECUTION",
+      "attempts": [
+        {
+          "run_id": 33672479211,
+          "head_sha": "521d66d33e1bd6f49e443de0748c3fc550a6b409",
+          "job_id": 100389179762,
+          "result": "FAILED_BEFORE_RUNNER_ALLOCATION",
+          "steps": null,
+          "runner_id": 0
+        },
+        {
+          "run_id": 33672605931,
+          "head_sha": "d171e03d7181fd5e93d9a6103c1d8b63b7fa3e22",
+          "job_id": 100389604648,
+          "result": "FAILED_BEFORE_RUNNER_ALLOCATION",
+          "steps": null,
+          "logs": null
+        }
+      ],
+      "classification_rule": "A workflow job that never receives a runner and executes no steps is an environment/CI availability receipt, not a failing software-test receipt."
+    }
+  },
+  "resident_evidence_basis": {
+    "self_addressing_runtime": "discover capability -> bind -> invoke adapter -> observe -> enqueue repair/continuation -> checkpoint -> restore -> continue",
+    "torus_coordinate_adapter": "coordinate addressing and dispatch adapter over existing BRAINK/KEX runtime; zero input rejected; canonical wrap ((n-1) mod dimension)+1; existing persistence/continuation/CAS/proof mechanics preserved",
+    "observer2_control_loop": "situated pre-sample -> discrepancy -> thinking -> mirror copy -> learning admission -> execute -> post-reobserve -> continuation"
+  },
+  "qualification": {
+    "federation_mechanic": "QUALIFIED_WITHIN_LOCAL_AND_BRANCH_READBACK_SCOPE",
+    "resident_snapshot_boundary": "QUALIFIED_WITHIN_LOCAL_AND_BRANCH_READBACK_SCOPE",
+    "github_actions_execution": "AWAITING_RUNNER_EXECUTION",
+    "external_public_environment": "AWAITING_ENVIRONMENT_BOUND_TESTING"
+  },
+  "next_route": "Bind exact resident SelfAddressingRuntime/RecursiveComputer/KEX coordinate-plane objects in the resident execution environment, execute federated pre/post observation around an admitted actuator action, and preserve the resulting environment-root comparison as the successor-state evidence."
+}
