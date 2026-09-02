@@ -30,7 +30,7 @@ concurrency:
 
 jobs:
   unified-runtime:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, macOS, ARM64, KEDDEH-M3]
     timeout-minutes: 20
     defaults:
       run:
@@ -38,9 +38,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
+      - name: Read back KEDDEH target host
+        run: |
+          uname -a
+          uname -m
+          sw_vers
+          python3 --version
 
       - name: Compile unified runtime and tests
         run: |
