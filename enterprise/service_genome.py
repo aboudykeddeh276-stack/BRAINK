@@ -95,24 +95,34 @@ class GenomeComposer:
         genomes: Iterable[ServiceGenome],
         replication_overrides: Optional[Mapping[str, int]] = None,
         environment: Optional[Mapping[str, Any]] = None,
+        enabled_optional_functions: Optional[Iterable[str]] = None,
     ) -> AIServerRoom:
         genomes = tuple(genomes)
         replication_overrides = dict(replication_overrides or {})
         environment = dict(environment or {})
+        enabled_optional = set(enabled_optional_functions or ())
 
         for genome in genomes:
             verdict = genome.validate()
             if not verdict["valid"]:
                 raise RuntimeError(f"INVALID_GENOME:{genome.genome_id}:{verdict['missing_function_refs']}")
 
+        active_function_ids: set[str] = set()
         by_server: dict[str, list[str]] = {}
-        dependency_edges: list[Mapping[str, str]] = []
         for genome in genomes:
             for function in genome.functions:
+                if not function.required and function.function_id not in enabled_optional:
+                    continue
                 if function.server_class not in self.server_classes:
                     raise KeyError(f"UNKNOWN_SERVER_CLASS:{function.server_class}")
+                active_function_ids.add(function.function_id)
                 by_server.setdefault(function.server_class, []).append(function.function_id)
+
+        dependency_edges: list[Mapping[str, str]] = []
+        for genome in genomes:
             for pairing in genome.pairings:
+                if pairing.source_function not in active_function_ids or pairing.target_function not in active_function_ids:
+                    continue
                 dependency_edges.append({
                     "genome_id": genome.genome_id,
                     "source": pairing.source_function,
