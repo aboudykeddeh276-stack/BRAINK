@@ -1,0 +1,36 @@
+name: R24 Market Service Fabric Qualification
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'enterprise/market/**'
+      - 'scripts/kex-ci/test_market_service_fabric_r24.py'
+      - 'deployment/KEDDEH_SYSTEMS_R24_MARKET_SERVICE_FABRIC.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile R24 runtime
+        run: python -m py_compile enterprise/market/service_fabric_r24.py enterprise/market/http_api_r24.py
+      - name: Execute R24 qualification
+        run: python scripts/kex-ci/test_market_service_fabric_r24.py
+      - name: Validate deployment boundary
+        run: |
+          python - <<'PY'
+          import json
+          d=json.load(open('deployment/KEDDEH_SYSTEMS_R24_MARKET_SERVICE_FABRIC.json'))
+          assert d['release']=='R24'
+          assert d['external_public_ingress']=='UNBOUND'
+          print('R24 deployment descriptor PASS')
+          PY
