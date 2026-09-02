@@ -1,34 +1,42 @@
 {
-  "schema": "braink.r21.foundary-publication-binding/v1",
+  "schema": "braink.r21.foundary-publication-binding/v2",
   "foundary_id": "PUBLISHING_MASTERY_FOUNDARY",
-  "classification": "RESIDENT_ACTUATOR_REUSE_BOUND_ORIGIN_AUTHORITY_PENDING",
+  "classification": "RESIDENT_STAGE_APPROVAL_AND_ACTUATOR_REUSE_BOUND_ORIGIN_AUTHORITY_PENDING",
   "canonical_service": "app://casepath",
   "mechanic": "mechanic://keddeh/admin/production-actuator",
   "actuator_seed": "KEX-SEED-CASEPATH-PROD-ACTUATOR-20260826T233107Z-5804B67605",
+  "resident_implementation": {
+    "publication_stage": "enterprise/foundry_operations_r22.py::PublishingMasteryFoundary.stage_release",
+    "landing_page_manufacture": "enterprise/foundry_operations_r22.py::LandingPageFoundary.manufacture",
+    "durable_state_carrier": "enterprise/foundry_operations_r22.py::PersistentFoundaryStore",
+    "production_actuator": "mechanic://keddeh/admin/production-actuator"
+  },
   "evidence": {
     "library_binding": "/BRAINK_DEPLOYMENTS/R21_FOUNDRY_DEPLOYMENT/CASEPATH_PRODUCTION_ACTUATOR_BINDING.json",
     "release_page_graph": ["/", "/business.html", "/privacy.html", "/terms.html", "/your-data.html", "/contact.html"],
-    "resident_execution_chain": ["ORIGIN_DISCOVERY", "ORIGIN_SHAPE_VALIDATION", "ACTUATOR_RESOLUTION", "UPDATE", "RELEASE_MARKER", "CACHE_PURGE_IF_BOUND", "OUTSIDE_IN_READBACK"],
+    "resident_execution_chain": ["STAGE_RELEASE", "ORIGIN_DISCOVERY", "ORIGIN_SHAPE_VALIDATION", "ACTUATOR_RESOLUTION", "UPDATE", "RELEASE_MARKER", "CACHE_PURGE_IF_BOUND", "OUTSIDE_IN_READBACK"],
+    "r22_source_mechanics": ["artifact existence check", "frontage existence check", "approval record binding", "STAGED_INTERNAL release state", "release_root", "atomic local state carrier"],
     "controlled_actuation_evidence": "R13 production actuator adapter refuses AMEND/RELEASE without origin binding and preserves READBACK as observer operation"
   },
   "foundary_mechanics_reconciled": {
+    "publication_queue_or_stage": "RESIDENT_SOURCE_BOUND",
+    "approval_records": "RESIDENT_SOURCE_BOUND",
     "release_actuator": "RESIDENT_REUSE_BOUND",
     "release_marker": "RESIDENT_REUSE_BOUND",
     "readback_receipt": "RESIDENT_REUSE_BOUND",
     "rollback": "PARTIAL_EXISTING_RELEASE_CONTRACT",
-    "publication_queue": "UNRESOLVED",
-    "approval_authority": "PARTIAL_POLICY_EVIDENCE",
     "production_origin_write_authority": "UNRESOLVED_EXTERNAL_BINDING"
   },
   "cross_foundary_unlock": [
-    "LANDING_PAGE_FOUNDARY may reuse the publication actuator stage once its compiler/content bindings are qualified",
-    "FRONTAGES_SERVICES_GROWING_MESH_WEBSITES_DOMAIN_MASTERY_FOUNDARY may reuse the same release-marker/readback sequence after owner-host/domain authority binding"
+    "LANDING_PAGE_FOUNDARY can now manufacture a content-rooted page object and hand it to the resident publication staging path before actuator publication",
+    "FRONTAGES_SERVICES_GROWING_MESH_WEBSITES_DOMAIN_MASTERY_FOUNDARY can reuse the same staged-release + release-marker/readback sequence after owner-host/domain authority binding"
   ],
   "claim_boundary": [
+    "R22 publication staging is current source evidence; this receipt does not promote it to executed test proof.",
     "This binding does not claim a current production mutation.",
     "This binding does not establish owner-host write authority, registrar/DNS authority, TLS lifecycle control, or universal domain publication.",
     "Public readback remains an observer/reconciliation edge rather than an execution prerequisite.",
     "The foundary remains the full compound process/server/team/data/repository/virtual-root class defined by FOUNDRY_REGISTRY_R21.json."
   ],
-  "next_executable_condition": "Bind a legitimate production origin/write target to the resident actuator or qualify another resident publication queue/approval mechanic; do not synthesize another actuator."
+  "next_executable_condition": "Execute a deterministic R22 stage-release persistence invariant locally or through a functioning runner; then bind a legitimate production origin/write target to the already-resident actuator. Do not synthesize another publisher."
 }
