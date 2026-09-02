@@ -1,0 +1,49 @@
+{
+  "schema": "keddeh.evolution-path-register.r10/v1",
+  "governing_law": "UPDATE preserves identity; AMENDMENT preserves identity and prior authority while changing a bounded graph region; EVOLUTION creates an explicit successor carrier/topology.",
+  "runtime_chain": [
+    "ToT coordinate/failover state",
+    "ORC legal transition selection",
+    "VFS address/graph/lineage state",
+    "BRAINK evidence/conflict state",
+    "IL-LLM current-state traversal and reclassification",
+    "actuator or adapter dispatch",
+    "native state transition/signal",
+    "observer-edge integration",
+    "carrier rewrite",
+    "successor continuation"
+  ],
+  "paths": {
+    "casepath_trust_centre": {
+      "class": "AMENDMENT",
+      "canonical_identity": "app://casepath",
+      "address": "KEX://DOMAIN/CASEPATH.COM.AU/YOUR-DATA/TRUST-CENTRE",
+      "target": "/your-data.html",
+      "patch_id": "CP-TC-20260727-C01",
+      "identity_rule": "preserve CasePath service identity and prior graph-node authority",
+      "observer_rule": "public readback is consumed after/during actuation and does not create execution permission"
+    },
+    "casepath_addressability": {
+      "class": "EVOLUTION",
+      "predecessor_class": "app://casepath",
+      "successor_class": "app://casepath/addressable-runtime",
+      "carrier_schema": "keddeh.runtime-carrier.v2",
+      "new_addresses": [
+        "KEX://DOMAIN/CASEPATH.COM.AU/RING1",
+        "KEX://DOMAIN/CASEPATH.COM.AU/RING2"
+      ],
+      "lineage_rule": "predecessor remains immutable authority; successor owns future topology"
+    },
+    "ring2_future_memory": {
+      "class": "AMENDMENT_OR_EVOLUTION_AFTER_BINDING",
+      "address": "KEX://MEMORY/RING2/FUTURE",
+      "current_state": "HOLE_ALLOWED",
+      "rule": "absence is addressable state; binding later must not rewrite the fact that backing was previously unresolved"
+    },
+    "observer_memory": {
+      "class": "UPDATE",
+      "address": "KEX://BRAINK/OBSERVER-MEMORY",
+      "rule": "observer state alters reconciliation, routing, repair and continuation without becoming an ontological execution gate"
+    }
+  }
+}
