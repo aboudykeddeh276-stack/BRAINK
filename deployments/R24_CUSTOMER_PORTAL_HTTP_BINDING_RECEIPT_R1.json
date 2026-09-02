@@ -1,0 +1,48 @@
+{
+  "schema": "braink.r24.customer-portal-http-binding-receipt/v1",
+  "release": "R24",
+  "subject": "r23_customer_portal_http_binding",
+  "status": "IMPLEMENTED_AND_LOCAL_HTTP_INVARIANT_PASS_NOT_PROMOTED",
+  "authority": "KEDDEH_SYSTEMS/BRAINK",
+  "source": {
+    "service": "deployment/r23_foundry_closure_service.py",
+    "access_membrane": "enterprise/customer_access_control_r24.py",
+    "invariant": "scripts/kex-ci/test_r24_customer_portal_http_binding.py",
+    "ci": ".github/workflows/keddeh-enterprise-control.yml"
+  },
+  "commits": {
+    "service_binding": "99d6f94f539ce876000c69c22176fe3213675dec",
+    "invariant": "229ef316e92853419e7ef7f1e0fe2e02ad12980e",
+    "ci_binding": "12879174b1eaac00b81153b7335f69143a6ea8fb"
+  },
+  "observed_execution": {
+    "marker": "R24_CUSTOMER_PORTAL_HTTP_BINDING_PASS",
+    "static_compile": "PASS",
+    "owner_host_http_process": "PASS",
+    "session_bind_http": "PASS",
+    "authorized_customer_file_read": "PASS",
+    "wrong_session_denial": "PASS",
+    "cross_customer_denial": "PASS",
+    "session_revoke_http": "PASS",
+    "restart_rehydration": "PASS",
+    "post_restart_revocation_denial": "PASS",
+    "plaintext_session_token_persistence": "REJECTED"
+  },
+  "executor_reconciliation": {
+    "github_clone": "BLOCKED_DNS_RESOLUTION",
+    "classification": "EXECUTOR_BOUNDARY_NOT_SOURCE_TEST_FAILURE",
+    "alternate_clean_tree_execution": "PASS"
+  },
+  "claim_boundaries": {
+    "loopback_http_customer_portal_binding": "PROVEN",
+    "access_membrane_enforcement_over_http": "PROVEN",
+    "restart_rehydration": "PROVEN",
+    "public_ingress": "UNPROVEN",
+    "external_idp_roundtrip": "UNPROVEN",
+    "tls_public_origin": "UNPROVEN",
+    "independent_verification": "PENDING",
+    "formal_security_quality_release_gates": "PENDING"
+  },
+  "promotion": "REJECTED_PENDING_REMAINING_R24_GATES",
+  "receipt_root": "f0283ec0774f4a8f0e68565e249746efd8a723f4b732076a167f51ca5aeab992"
+}
