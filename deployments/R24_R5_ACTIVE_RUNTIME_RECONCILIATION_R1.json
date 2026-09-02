@@ -1,0 +1,46 @@
+{
+  "schema": "braink.r24.owner-host-runtime-activation-reconciliation/v1",
+  "classification": "RESIDENT_CAPABILITY_EXECUTED_AND_READBACK_RECONCILED_NOT_PROMOTED",
+  "governing_baseline": "R24_ENGINEERING_CONTROL",
+  "subject": "R5 durable execution active local runtime",
+  "source": {
+    "runtime": "enterprise/orchestration/durable_execution_r5.py",
+    "deployment_descriptor": "deploy/KEDDEH_BRAINK_R5_ACTIVE_RUNTIME.json",
+    "execution_receipt": "receipts/KEDDEH_BRAINK_R5_ACTIVE_DEPLOYMENT_RECEIPT.json",
+    "activation_commit": "835d075961860d6f51c561f482b665b23536455a",
+    "receipt_commit": "1b1764bc174efbe456c444086e7c7a6735597fad",
+    "source_receipt_root": "0e7063d050b2162a01f14d2310c61d966765a9a79d527eb8a8850be5227fa12b"
+  },
+  "observed": {
+    "deployment_state": "ACTIVE_LOCAL_RUNTIME",
+    "work_id": "WORK-R5-ACTIVE-20260903-001",
+    "transaction_state": "COMMITTED",
+    "domain": "r5-active.keddeh",
+    "control_state": "BOUND_AUTHORITATIVE",
+    "zone_state": "ACTIVE",
+    "a_record": "127.0.0.1",
+    "checkpoint_root": "cf1332e0e3ba143b104f6c1e425b600c13e78f31745238a7587610c1c00b74e9",
+    "signed_envelope_consumed": "PASS",
+    "atomic_domain_authority_commit": "PASS",
+    "fresh_process_checkpoint_verify": "PASS",
+    "successor_epoch": "2",
+    "stale_epoch_fencing": "PASS",
+    "replay_rejection": "PASS"
+  },
+  "r24_boundary": {
+    "owner_host_runtime_activation": "PROVEN_LOCAL",
+    "successor_process_recovery": "PROVEN_LOCAL",
+    "physical_multi_host": "UNPROVEN",
+    "public_dns_delegation": "UNPROVEN",
+    "public_network_exposure": "UNPROVEN",
+    "independent_verification": "PENDING",
+    "quality_gate": "PENDING_FULL_R24_PROFILE",
+    "security_gate": "PENDING_FULL_R24_PROFILE",
+    "release_manifest": "PENDING",
+    "market_readiness": "PENDING",
+    "promotion": "REJECTED"
+  },
+  "architecture_decision": "REUSE_RESIDENT_DURABLE_EXECUTION_R5_DO_NOT_DUPLICATE",
+  "next_dependency": "BIND_THE_SAME_RUNTIME_TO_DISTINCT_AUTHORISED_PHYSICAL_HOSTS_AND_READ_BACK_UNIQUE_HOST_IDENTITIES_NON_LOOPBACK_ENDPOINTS_AND_CROSS_HOST_STATE",
+  "receipt_root": "2784486fb3abb37b9e696622056427a76e8b56e47e4443dcbb13dce1c1f776a4"
+}
