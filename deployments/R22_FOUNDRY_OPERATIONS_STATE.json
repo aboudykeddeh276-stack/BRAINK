@@ -1,0 +1,43 @@
+{
+  "schema": "braink.foundary-operations-deployment.r22/v1",
+  "status": "EXECUTED_AND_PACKAGED_FOR_OWNER_HOST",
+  "runtime": {
+    "operations_module": "enterprise/foundry_operations_r22.py",
+    "integration_test": "scripts/kex-ci/test_foundry_operations_r22.py",
+    "http_service": "deployment/braink_runtime_service.py",
+    "container": "deployment/Dockerfile",
+    "operations_endpoint": "POST /operate",
+    "state_endpoint": "GET /operations-state",
+    "process_endpoint": "GET /process-summary"
+  },
+  "execution": {
+    "status": "PASS",
+    "foundary_operations_executed": 14,
+    "server_instances_materialized": 11,
+    "persistent_restart_rehydration": true,
+    "state_root": "58040541e44bea001ba593a3303d9d74118e747e00118b32a65efdb708eb4366",
+    "receipt_root": "c46551fbee25eb3b29be3b66112a712f01a4f40ab872b621a78296d7fe9eef66"
+  },
+  "operational_objects": [
+    "undertaking",
+    "HR/team",
+    "AI server room",
+    "workspace",
+    "VFS file object",
+    "customer file base record",
+    "frontage/domain route",
+    "HCI surface",
+    "landing page",
+    "SVG runtime carrier",
+    "research case study",
+    "agentic work dispatch",
+    "usable software product",
+    "staged publication release"
+  ],
+  "boundaries": [
+    "publication is staged internally, not claimed as publicly deployed",
+    "authoritative registrar/DNS/TLS/public owner-host actuation remains separate",
+    "persistent external owner-host daemon activation is not executed from this connector",
+    "physical multi-host server/mesh/storage execution is not implied by local materialization"
+  ]
+}
