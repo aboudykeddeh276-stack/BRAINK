@@ -49,3 +49,18 @@ def test_tree_restore_records_only_one_restore_event(tmp_path: Path):
     assert after['A'] == before['A'] + 1
     assert after['B'] == before['B']
     assert after['C'] == before['C']
+
+
+def test_committed_inspection_does_not_amplify_runtime_observers(tmp_path: Path):
+    root = RecursiveComputer(computer_id='A', state_root=tmp_path / 'A')
+    root.write_memory('seed', 297)
+    before_observers = len(root.runtime.observers)
+    before_checkpoint = json.loads((tmp_path / 'A' / 'runtime-checkpoint.json').read_text())
+    for _ in range(100):
+        inspected = root.inspect_committed()
+        assert inspected['value']['memory']['seed'] == 297
+        assert inspected['ledger_verified']
+    after_observers = len(root.runtime.observers)
+    after_checkpoint = json.loads((tmp_path / 'A' / 'runtime-checkpoint.json').read_text())
+    assert after_observers == before_observers
+    assert after_checkpoint == before_checkpoint
