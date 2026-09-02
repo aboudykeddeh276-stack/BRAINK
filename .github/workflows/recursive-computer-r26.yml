@@ -9,6 +9,9 @@ on:
       - 'enterprise/substrate_adapters.py'
       - 'enterprise/auto_binder.py'
       - 'runtime/R25/system_evolution_runtime.py'
+      - 'deployment/recursive_computer_service_r26.py'
+      - 'deployment/run_recursive_computer_r26.sh'
+      - 'scripts/kex-ci/test_recursive_computer_service_r26.py'
       - 'tests/R26/**'
       - '.github/workflows/recursive-computer-r26.yml'
   pull_request:
@@ -19,6 +22,9 @@ on:
       - 'enterprise/substrate_adapters.py'
       - 'enterprise/auto_binder.py'
       - 'runtime/R25/system_evolution_runtime.py'
+      - 'deployment/recursive_computer_service_r26.py'
+      - 'deployment/run_recursive_computer_r26.sh'
+      - 'scripts/kex-ci/test_recursive_computer_service_r26.py'
       - 'tests/R26/**'
       - '.github/workflows/recursive-computer-r26.yml'
 
@@ -39,6 +45,8 @@ jobs:
       - name: Verify Python carrier
         run: python3 --version
       - name: Execute recursive constructor proof
-        run: python3 -m pytest -q tests/R26/test_recursive_computer_runtime_r26.py
-      - name: Compile runtime lineage
-        run: python3 -m compileall -q enterprise/recursive_computer_runtime_r26.py enterprise/self_addressing_runtime.py enterprise/continuation_runtime.py enterprise/substrate_adapters.py enterprise/auto_binder.py runtime/R25/system_evolution_runtime.py
+        run: python3 -m pytest -q tests/R26
+      - name: Execute deployed service qualification
+        run: python3 scripts/kex-ci/test_recursive_computer_service_r26.py
+      - name: Compile runtime and deployment lineage
+        run: python3 -m compileall -q enterprise/recursive_computer_runtime_r26.py enterprise/self_addressing_runtime.py enterprise/continuation_runtime.py enterprise/substrate_adapters.py enterprise/auto_binder.py runtime/R25/system_evolution_runtime.py deployment/recursive_computer_service_r26.py scripts/kex-ci/test_recursive_computer_service_r26.py
