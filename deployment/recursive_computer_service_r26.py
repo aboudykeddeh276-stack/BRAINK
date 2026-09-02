@@ -32,6 +32,8 @@ class RuntimeHost:
   parent=self.resolve(parent_lineage); child=parent.instantiate(child_id); return self.snapshot(child,'SUCCESSOR_CREATED')
  def write_memory(self,lineage,k,v): node=self.resolve(lineage); node.write_memory(k,v); return self.snapshot(node)
  def write_state(self,lineage,k,v): node=self.resolve(lineage); node.write_state(k,v); return self.snapshot(node)
+ def reconcile(self,lineage):
+  node=self.resolve(lineage); result=node.reconcile_once(); return {'status':'RECONCILED' if result.get('status')=='COMPLETED' else result.get('status'),'lineage':list(node.identity.lineage),'continuation':result,'snapshot':self.snapshot(node)}
 class Handler(BaseHTTPRequestHandler):
  host_runtime=None
  def reply(self,code,obj):
@@ -54,6 +56,7 @@ class Handler(BaseHTTPRequestHandler):
    if p=='/memory': return self.reply(200,self.host_runtime.write_memory(lineage,b['key'],b.get('value')))
    if p=='/state': return self.reply(200,self.host_runtime.write_state(lineage,b['key'],b.get('value')))
    if p=='/restore': return self.reply(200,self.host_runtime.restore())
+   if p=='/reconcile': return self.reply(200,self.host_runtime.reconcile(lineage))
    return self.reply(404,{'status':'NOT_FOUND'})
   except (KeyError,ValueError) as e: return self.reply(400,{'status':'REJECTED','reason':str(e)})
   except Exception as e: return self.reply(409 if 'STALE_STATE_CONFLICT' in str(e) else 500,{'status':'ERROR','error':type(e).__name__+':'+str(e)})
