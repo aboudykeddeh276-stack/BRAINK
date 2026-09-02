@@ -1,0 +1,13 @@
+{
+  "schema": "braink.market-capability-validation.r18/v1",
+  "modules": [
+    {"module":"mail","value":"transactional/customer communications and workflow notifications","feasibility":"HIGH","state":"BOUND_CONTROL_PLANE"},
+    {"module":"identity","value":"recipient/actor resolution and bounded authorization context","feasibility":"HIGH","state":"BOUND_READ_ONLY"},
+    {"module":"drive","value":"persistent business artifact and deployment-document storage","feasibility":"HIGH","state":"BOUND_AND_TESTED"},
+    {"module":"calendar","value":"scheduling, deadlines, availability and service coordination","feasibility":"HIGH","state":"BOUND_READ_ONLY"},
+    {"module":"process_runtime","value":"restartable local services with deterministic lifecycle control","feasibility":"HIGH","state":"BOUND_AND_TESTED"},
+    {"module":"http_ingress","value":"callable service endpoints for server-room capabilities","feasibility":"HIGH_LOCAL","state":"BOUND_AND_TESTED_LOCAL"},
+    {"module":"metrics","value":"operational health, usage and eventual billing/SLA telemetry","feasibility":"HIGH_LOCAL","state":"BOUND_AND_TESTED_LOCAL"},
+    {"module":"payments","value":"checkout, entitlement, settlement and refunds","feasibility":"ADAPTER_READY_PROVIDER_REQUIRED","state":"ADAPTER_IMPLEMENTED_UNBOUND"}
+  ]
+}
