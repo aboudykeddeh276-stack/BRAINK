@@ -48,6 +48,8 @@ class EncodedMedium:
         return addr
 
     def write_object(self,row:int,col:int,object_id:str,object_type:str,lineage:str,payload:bytes)->LogicalObject:
+        if object_id in self.objects:
+            raise ValueError(f"object identity already resident: {object_id}")
         address=self.geometry_address(row,col,lineage)
         obj=LogicalObject(object_id,object_type,address,lineage,hashlib.sha256(payload).hexdigest())
         self.objects[object_id]=obj
@@ -101,10 +103,13 @@ class MachineIdentity:
     lineage:str
 
 class BRAINKMachine:
-    """Machine boots from a BRAINK root already encoded inside the medium."""
-    def __init__(self, identity:MachineIdentity, medium:EncodedMedium, controller:KEXStorageController, vfs:VFSProjection):
+    """Machine boots from a BRAINK root encoded inside the medium and may construct descendants by reference to the same resident controller/medium."""
+    def __init__(self, identity:MachineIdentity, medium:EncodedMedium, controller:KEXStorageController, vfs:VFSProjection, parent_machine_id:str|None=None):
         self.identity=identity; self.medium=medium; self.controller=controller; self.vfs=vfs
+        self.parent_machine_id=parent_machine_id
         self.boot_receipt=None
+        self.children:dict[str,BRAINKMachine]={}
+        self.child_receipts:list[dict[str,Any]]=[]
 
     def boot(self, braink_root_object_id:str)->dict[str,Any]:
         root=self.controller.decode(braink_root_object_id)
@@ -118,6 +123,7 @@ class BRAINKMachine:
         receipt={
             "machine_id":self.identity.machine_id,
             "braink_id":self.identity.braink_id,
+            "parent_machine_id":self.parent_machine_id,
             "root_object":braink_root_object_id,
             "root_address":root["metadata"]["address"],
             "medium_genesis":self.medium.genesis,
@@ -125,6 +131,48 @@ class BRAINKMachine:
             "root_verified":True
         }
         receipt["proof"]=h(receipt); self.boot_receipt=receipt; return receipt
+
+    def instantiate_child(self,row:int,col:int,identity:MachineIdentity,root_object_id:str,payload:bytes|None=None)->tuple["BRAINKMachine",dict[str,Any]]:
+        """Construct a descendant without cloning the backing medium/controller.
+
+        The child receives a distinct identity, lineage, VFS projection and BRAINK_ROOT,
+        while inheriting the resident EncodedMedium and KEXStorageController by reference.
+        The returned child is itself constructor-bearing and can recursively instantiate
+        another descendant.
+        """
+        if self.boot_receipt is None:
+            raise RuntimeError("parent machine must be booted before child construction")
+        if identity.machine_id in self.children:
+            raise ValueError(f"child identity already instantiated: {identity.machine_id}")
+        if payload is None:
+            payload=canonical({
+                "identity":identity.braink_id,
+                "mode":"resident-descendant",
+                "constructor":"BRAINKMachine.instantiate_child",
+                "parent_machine_id":self.identity.machine_id,
+                "medium_genesis":self.medium.genesis,
+            }).encode("utf-8")
+        obj=self.controller.allocate(row,col,root_object_id,"BRAINK_ROOT",identity.lineage,payload)
+        child_vfs=VFSProjection(self.controller)
+        child=BRAINKMachine(identity,self.medium,self.controller,child_vfs,parent_machine_id=self.identity.machine_id)
+        boot=child.boot(root_object_id)
+        receipt={
+            "constructor_machine_id":self.identity.machine_id,
+            "constructor_boot_proof":self.boot_receipt["proof"],
+            "child_machine_id":identity.machine_id,
+            "child_braink_id":identity.braink_id,
+            "child_lineage":identity.lineage,
+            "child_root_object":root_object_id,
+            "child_root_address":obj.address,
+            "child_boot_proof":boot["proof"],
+            "medium_genesis":self.medium.genesis,
+            "medium_inherited_by_reference":child.medium is self.medium and child.controller is self.controller,
+            "child_constructor_bearing":hasattr(child,"instantiate_child"),
+        }
+        receipt["proof"]=h(receipt)
+        self.children[identity.machine_id]=child
+        self.child_receipts.append(receipt)
+        return child,receipt
 
 def reconcile_legacy_claim(label:str)->dict[str,str]:
     mapping={
@@ -176,11 +224,26 @@ def activate(root:Path)->dict[str,Any]:
     boot=machine.boot('BRAINK-GENESIS')
     vfs.mount('/domains/keddeh.systems','DOMAIN-keddeh.systems')
     domain=vfs.read('/domains/keddeh.systems')
+
+    child_b,receipt_ab=machine.instantiate_child(3,2,MachineIdentity('MACHINE-KEX-B','BRAINK-B','LINEAGE-KEX-B'),'BRAINK-B-ROOT')
+    child_c,receipt_bc=child_b.instantiate_child(4,2,MachineIdentity('MACHINE-KEX-C','BRAINK-C','LINEAGE-KEX-C'),'BRAINK-C-ROOT')
+    recursion={
+        "path":[machine.identity.machine_id,child_b.identity.machine_id,child_c.identity.machine_id],
+        "A_to_B":receipt_ab,
+        "B_to_C":receipt_bc,
+        "same_medium":machine.medium is child_b.medium is child_c.medium,
+        "same_controller":machine.controller is child_b.controller is child_c.controller,
+        "independent_vfs":len({id(machine.vfs),id(child_b.vfs),id(child_c.vfs)})==3,
+        "C_root_verified":child_c.boot_receipt["root_verified"],
+    }
+    recursion["proof"]=h(recursion)
+
     snapshot=medium.snapshot()
     receipt={
         'status':'VERIFIED',
         'architecture':authoritative_architecture(),
         'boot':boot,
+        'recursive_instantiation':recursion,
         'domain_readback':domain,
         'medium_snapshot_proof':snapshot['proof'],
         'legacy_reconciliation':[reconcile_legacy_claim(x) for x in ['L#','volume_registry','sheet_rows','VFS','100TB_rows','IP_endpoint']]
@@ -189,7 +252,7 @@ def activate(root:Path)->dict[str,Any]:
     write_json(root/'runtime_volume/encoded_medium/current.json',snapshot)
     write_json(root/'evidence/encoded_medium_reconciliation_receipt.json',receipt)
     write_json(root/'runtime_volume/outbox/encoded_medium_reconciliation/authoritative.handoff.json',{
-        'kind':'ENCODED_MEDIUM_AUTHORITATIVE_HANDOFF','receipt_proof':receipt['proof'],'state':'VERIFIED'
+        'kind':'ENCODED_MEDIUM_AUTHORITATIVE_HANDOFF','receipt_proof':receipt['proof'],'recursive_proof':recursion['proof'],'state':'VERIFIED'
     })
     return receipt
 
