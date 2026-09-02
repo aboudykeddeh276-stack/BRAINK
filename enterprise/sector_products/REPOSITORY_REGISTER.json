@@ -1,0 +1,20 @@
+{
+  "schema": "braink.sector-repository-register.v1",
+  "repositories": [
+    {"repository":"braink-ai-cloud-ops","functions":10},
+    {"repository":"braink-cybersecurity","functions":10},
+    {"repository":"braink-enterprise-automation","functions":10},
+    {"repository":"braink-fintech-ops","functions":10},
+    {"repository":"braink-healthcare-ops","functions":10},
+    {"repository":"braink-legal-regtech","functions":10},
+    {"repository":"braink-data-governance","functions":10},
+    {"repository":"braink-supply-chain","functions":10},
+    {"repository":"braink-manufacturing","functions":10},
+    {"repository":"braink-energy-utilities","functions":10},
+    {"repository":"braink-commerce-customer-ops","functions":10},
+    {"repository":"braink-public-administration","functions":10}
+  ],
+  "unifier": "enterprise/sector_products/hr_braink_contract.py",
+  "replication_rule": "Every accepted sector function is one immutable work module replicated across research, runtime, verification, evolution and proof groups under recursive supervision.",
+  "repository_creation_state": "REPO_READY_PACKAGES_BUILT; CONNECTOR_HAS_NO_CREATE_REPOSITORY_ACTION"
+}
