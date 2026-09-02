@@ -90,5 +90,23 @@ class BrainkObserver2BootstrapR29Tests(unittest.TestCase):
             self.assertTrue(frame.receipts[0].error)
 
 
+class Observer2ReceiptCliR29Tests(unittest.TestCase):
+    def test_receipt_builder_preserves_evidence_only_authority(self):
+        from observer2_federation_receipt_r29 import build_receipt
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td) / "repo"
+            repo.mkdir()
+            subprocess.run(["git", "init", "-q", str(repo)], check=True)
+            subprocess.run(["git", "-C", str(repo), "config", "user.email", "observer2@example.invalid"], check=True)
+            subprocess.run(["git", "-C", str(repo), "config", "user.name", "Observer2 Test"], check=True)
+            (repo / "seed.txt").write_text("seed")
+            subprocess.run(["git", "-C", str(repo), "add", "seed.txt"], check=True)
+            subprocess.run(["git", "-C", str(repo), "commit", "-q", "-m", "seed"], check=True)
+            receipt = build_receipt(repository=str(repo), include_process=True)
+            self.assertEqual("OBSERVED", receipt["classification"])
+            self.assertEqual("EVIDENCE_ONLY_NO_ACTUATION", receipt["authority"])
+            self.assertEqual("FOLLOW_SUCCESSOR_STATE", receipt["cycle"]["continuation"]["next_route"])
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
