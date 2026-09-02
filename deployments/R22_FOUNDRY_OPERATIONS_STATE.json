@@ -1,6 +1,6 @@
 {
-  "schema": "braink.foundary-operations-deployment.r22/v1",
-  "status": "EXECUTED_AND_PACKAGED_FOR_OWNER_HOST",
+  "schema": "braink.foundary-operations-deployment.r22/v2",
+  "status": "EXECUTED_BASELINE_WITH_CUSTOMER_FILE_LIFECYCLE_SOURCE_ADVANCE_PENDING_REPLAY",
   "runtime": {
     "operations_module": "enterprise/foundry_operations_r22.py",
     "integration_test": "scripts/kex-ci/test_foundry_operations_r22.py",
@@ -10,7 +10,7 @@
     "state_endpoint": "GET /operations-state",
     "process_endpoint": "GET /process-summary"
   },
-  "execution": {
+  "last_executed_baseline": {
     "status": "PASS",
     "foundary_operations_executed": 14,
     "server_instances_materialized": 11,
@@ -18,13 +18,29 @@
     "state_root": "58040541e44bea001ba593a3303d9d74118e747e00118b32a65efdb708eb4366",
     "receipt_root": "c46551fbee25eb3b29be3b66112a712f01a4f40ab872b621a78296d7fe9eef66"
   },
+  "customer_file_lifecycle_transition": {
+    "foundary": "CUSTOMER_FILE_BASE_SOFTWARE_FOUNDARY",
+    "classification": "IMPLEMENTED_SOURCE_HTTP_BOUND_CANONICAL_INVARIANT_UPDATED_EXECUTION_PENDING",
+    "reconciliation_receipt": "deployments/R22_CUSTOMER_FILE_LIFECYCLE_RECONCILIATION_R1.json",
+    "operations": [
+      "customer_file.update_service_state",
+      "customer_file.attach_document",
+      "customer_file.record_communication",
+      "customer_file.record_billing",
+      "customer_file.export",
+      "customer_file.close"
+    ],
+    "expected_canonical_receipt_count_after_replay": 20,
+    "execution_pending_reason": "current execution host could not resolve github.com for exact-main clone",
+    "not_promoted_to_executed": true
+  },
   "operational_objects": [
     "undertaking",
     "HR/team",
     "AI server room",
     "workspace",
     "VFS file object",
-    "customer file base record",
+    "customer file base record and bounded lifecycle source",
     "frontage/domain route",
     "HCI surface",
     "landing page",
@@ -35,6 +51,9 @@
     "staged publication release"
   ],
   "boundaries": [
+    "customer-file lifecycle source is not execution-verified in the current run",
+    "customer export is a content-rooted manifest, not proof of external delivery",
+    "closure retention metadata is not proof of physical deletion or retention enforcement",
     "publication is staged internally, not claimed as publicly deployed",
     "authoritative registrar/DNS/TLS/public owner-host actuation remains separate",
     "persistent external owner-host daemon activation is not executed from this connector",
