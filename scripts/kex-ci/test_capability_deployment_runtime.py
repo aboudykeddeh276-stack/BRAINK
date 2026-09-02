@@ -31,4 +31,4 @@ assert hash_cap['decision']=='REUSE' and hash_cap['state']=='BOUND'
 assert hash_cap['implementation_ref']=='enterprise/substrate_adapters.py::digest'
 assert packet['resident_count']==21 and packet['gap_count']==51
 assert packet['deployment_root']
-print(json.dumps({'status':'PASS','deployment_root':packet['deployment_root'],'server_sets':len(packet['server_sets']),'requirements':len(packet['requirements']),'resident':len(resident),'holes':len(holes),'selected_work_module':'WM://DATA_INFORMATION_GOVERNANCE/hash','reconciled_resident':['identity','role','scope','work_module','tool_routing','checkpoint','audit','evidence','readback','conflict','signal','hash']},sort_keys=True))
+print(json.dumps({'status':'PASS','deployment_root':packet['deployment_root'],'server_sets':len(packet['server_sets']),'requirements':len(packet['requirements']),'resident':len(resident),'holes':len(holes)},indent=2))
