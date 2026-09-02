@@ -6,6 +6,7 @@
     "observer_runtime": "runtime/observer2_federation_r29.py",
     "resident_bootstrap": "runtime/braink_observer2_bootstrap_r29.py",
     "resident_state_adapter": "runtime/observer2_resident_state_r29.py",
+    "federated_control_loop": "runtime/observer2_federated_control_loop_r29.py",
     "evidence_operator": "runtime/braink_recursive_operator_r29.py",
     "receipt_cli": "runtime/observer2_federation_receipt_r29.py",
     "html_inspector": "reports/observer2_federation_r29.html",
@@ -13,7 +14,8 @@
       "SelfAddressingRuntime.snapshot state boundary",
       "BRAINK recursive-computer identity/lineage state export boundary",
       "KEX coordinate-plane state export boundary",
-      "R12/R13/R17 BRAINK machine-image and public-edge contracts"
+      "R12/R13/R17 BRAINK machine-image and public-edge contracts",
+      "R29 situated pre-sample -> mirror -> learning admission -> external execute -> post-reobserve -> continuation ordering"
     ]
   },
   "invariants": [
@@ -23,6 +25,8 @@
     "SelfAddressingRuntime route/checkpoint are never invoked by the observer adapter",
     "RecursiveComputer commit is never invoked by the observer adapter",
     "KEX coordinate dispatch is never invoked by the observer adapter",
+    "a rejected mirror candidate never reaches the external actuator",
+    "actuator failure is retained as evidence and does not prevent post-observation",
     "pre/post relation compares environment status and payload roots rather than sampling-time noise",
     "observer identity must remain stable across pre/post comparison",
     "continuation is FOLLOW_SUCCESSOR_STATE only when the declared target is satisfied; otherwise RECONCILE"
@@ -30,15 +34,17 @@
   "execution": {
     "local_reconstructed_branch_suite": {
       "status": "PASS",
-      "passed": 15,
-      "total": 15,
+      "passed": 19,
+      "total": 19,
       "scope": [
         "federation and legacy single-root compatibility",
         "read-only boundary negative controls",
         "resident BRAINK machine-image integration",
         "execution receipt classification",
         "resident SelfAddressing/RecursiveComputer/KEX snapshot adapters",
-        "federated pre/post reconciliation and continuation"
+        "federated pre/post reconciliation and continuation",
+        "mirror admission and external-actuator authority separation",
+        "post-observation after denied, successful, and failed actuation"
       ]
     },
     "github_storage_readback": {
@@ -47,7 +53,10 @@
       "braink_observer2_bootstrap_r29.py_blob": "fff683057c44a67be45d52f87e2a13605be84f48",
       "observer2_resident_state_r29.py_blob": "9910ac2fde109fdd09169fa1b3b825e5c4e84c52",
       "test_observer2_resident_state_r29.py_blob": "4675dc9f2f9320a842f185ecfa666c909561af5f",
-      "note": "Files were re-fetched after write. Exact byte-equivalence between local candidate and the final two blob IDs remains a separate custody question; runtime qualification is not inferred from hashes."
+      "observer2_federated_control_loop_r29.py_blob": "d20cf29bd0fbac0837337cd5c30a4a601f80e997",
+      "test_observer2_federated_control_loop_r29.py_blob": "d265ce68be2ca3b4900e837261fbd935871005b9",
+      "observer2_federation_r29.html_blob": "f0b4a117ad384c9a699312fdb40e9d33eb81362d",
+      "note": "Files were re-fetched after write. Runtime/property qualification is not inferred from hashes; hashes are custody identities only."
     },
     "github_actions": {
       "state": "AWAITING_RUNNER_EXECUTION",
@@ -67,21 +76,32 @@
           "result": "FAILED_BEFORE_RUNNER_ALLOCATION",
           "steps": null,
           "logs": null
+        },
+        {
+          "run_id": 33673527528,
+          "head_sha": "145205181ceb44df626460ebf39bce5e7b42765b",
+          "job_id": 100392607226,
+          "result": "FAILED_BEFORE_RUNNER_ALLOCATION",
+          "steps": null,
+          "logs": null
         }
       ],
-      "classification_rule": "A workflow job that never receives a runner and executes no steps is an environment/CI availability receipt, not a failing software-test receipt."
+      "classification_rule": "A workflow job that receives no executable steps/logs is an environment/CI availability receipt, not a failing software-test receipt."
     }
   },
   "resident_evidence_basis": {
     "self_addressing_runtime": "discover capability -> bind -> invoke adapter -> observe -> enqueue repair/continuation -> checkpoint -> restore -> continue",
     "torus_coordinate_adapter": "coordinate addressing and dispatch adapter over existing BRAINK/KEX runtime; zero input rejected; canonical wrap ((n-1) mod dimension)+1; existing persistence/continuation/CAS/proof mechanics preserved",
-    "observer2_control_loop": "situated pre-sample -> discrepancy -> thinking -> mirror copy -> learning admission -> execute -> post-reobserve -> continuation"
+    "observer2_control_loop": "situated pre-sample -> discrepancy -> thinking -> mirror copy -> learning admission -> execute -> post-reobserve -> continuation",
+    "observer2_post_frame": "R29 post-observation recorded observer2_runtime.py, recursive_operator_environment.py and evolved self_addressing_runtime.py as present with zero post discrepancies"
   },
   "qualification": {
     "federation_mechanic": "QUALIFIED_WITHIN_LOCAL_AND_BRANCH_READBACK_SCOPE",
     "resident_snapshot_boundary": "QUALIFIED_WITHIN_LOCAL_AND_BRANCH_READBACK_SCOPE",
+    "federated_control_loop": "QUALIFIED_WITHIN_LOCAL_AND_BRANCH_READBACK_SCOPE",
     "github_actions_execution": "AWAITING_RUNNER_EXECUTION",
+    "exact_r29_resident_object_binding": "AWAITING_RESIDENT_ENVIRONMENT_EXECUTION",
     "external_public_environment": "AWAITING_ENVIRONMENT_BOUND_TESTING"
   },
-  "next_route": "Bind exact resident SelfAddressingRuntime/RecursiveComputer/KEX coordinate-plane objects in the resident execution environment, execute federated pre/post observation around an admitted actuator action, and preserve the resulting environment-root comparison as the successor-state evidence."
+  "next_route": "In the resident execution environment, bind the exact evolved SelfAddressingRuntime, RecursiveComputer and KEX coordinate-plane objects to the read-only probes; execute one admitted control-loop action through the pre-existing actuator lane; reobserve all bound environments; compare environment roots; continue only from the resulting successor-state receipt."
 }
