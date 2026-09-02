@@ -5,6 +5,7 @@ from pathlib import Path
 BASE=Path(__file__).resolve().parents[1]
 REPORT=BASE/'reports/kex-wbos/tl2-deployment.json'
 PROOF=BASE/'reports/kex-wbos/tl2-proof-ledger.jsonl'
+CANONICAL_HTTP=BASE/'reports/kex-wbos/canonical-http-ledger.jsonl'
 SOURCE_ID='source://github/BRAINK/modules/kex_wbos/action_server.py'
 SERVICE_ID='service://wbos/action-server'
 RUNTIME_ID='runtime://kex/wbos'
@@ -33,6 +34,27 @@ def _wait(url,timeout=20):
                 b=r.read(); return {'url':url,'status':r.status,'bytes':len(b),'sha256':_sha(b),'ok':r.status<400}
         except Exception as e: last=type(e).__name__; time.sleep(.25)
     return {'url':url,'status':None,'bytes':0,'sha256':None,'ok':False,'error':last}
+def _canonical_readback():
+    if not CANONICAL_HTTP.exists():
+        return {'ok':False,'state':'MISSING','receipts':0,'reason':'canonical HTTP ledger not produced by runtime'}
+    rows=[]
+    for line in CANONICAL_HTTP.read_text(encoding='utf-8').splitlines():
+        try:
+            row=json.loads(line)
+            if row.get('schema')=='kex.wbos-canonical-http.v1': rows.append(row)
+        except Exception: pass
+    egress=[r for r in rows if r.get('direction')=='EGRESS']
+    preserved=bool(egress) and all(r.get('identityPreserved') is True for r in egress)
+    classified=bool(egress) and all(r.get('measurementClass')=='STRUCTURAL_PROXY' for r in egress)
+    return {
+        'ok':len(egress)>=4 and preserved and classified,
+        'state':'VERIFIED' if len(egress)>=4 and preserved and classified else 'FAIL',
+        'receipts':len(rows),
+        'egressReceipts':len(egress),
+        'identityPreserved':preserved,
+        'measurementClass':'STRUCTURAL_PROXY' if classified else 'INVALID_OR_MISSING',
+        'ledger':str(CANONICAL_HTTP.relative_to(BASE)),
+    }
 def _spawn(host,port):
     code=f"import sys; sys.path.insert(0,{str(BASE/'modules/kex_wbos')!r}); import action_server; action_server.serve({host!r},{port})"
     env=os.environ.copy(); env['RUNNER_TRACKING_ID']=''
@@ -46,12 +68,14 @@ def deploy(daemon):
     except OSError as e:
         r={'status':'BLOCKED_TL2_BIND','promotion':None,'identity':TL2_ID,'address':host,'error':str(e)}; REPORT.write_text(json.dumps(r,indent=2)+'\n'); _proof('TL2_BIND_BLOCKED',r); print(json.dumps(r,indent=2)); return 3
     finally: s.close()
+    if CANONICAL_HTTP.exists(): CANONICAL_HTTP.unlink()
     _proof('TL2_SOURCE_BOUND',{'source_object':SOURCE_ID,'service':SERVICE_ID,'runtime':RUNTIME_ID,'transport':TL2_ID})
     _proof('TL2_TUNNEL_BOUND',{'identity':TL2_ID,'address':host,'source':src})
     p=_spawn(host,8790)
     checks=[_wait(f'http://{host}:8790/api/health'),_wait(f'http://{host}:8790/api/services'),_wait(f'http://{host}:8790/api/routes'),_wait(f'http://{host}:8790/api/proof-ledger')]
-    ok=all(c['ok'] for c in checks)
-    r={'status':'VERIFIED' if ok else 'FAIL','promotion':'TL2_LIVE' if ok else None,'identity':TL2_ID,'address':host,'identity_source':src,'source_object':SOURCE_ID,'service':SERVICE_ID,'runtime':RUNTIME_ID,'process':{'pid':p.pid,'port':8790},'readback':checks,'proof_ledger':str(PROOF.relative_to(BASE)),'excluded_from_deploy':['PUBLIC_LIVE','LIBRARY_PERSISTED','BITCOIN_LIVE','BRAINK_MIGRATED']}
+    canonical=_canonical_readback()
+    ok=all(c['ok'] for c in checks) and canonical['ok']
+    r={'status':'VERIFIED' if ok else 'FAIL','promotion':'TL2_LIVE' if ok else None,'identity':TL2_ID,'address':host,'identity_source':src,'source_object':SOURCE_ID,'service':SERVICE_ID,'runtime':RUNTIME_ID,'process':{'pid':p.pid,'port':8790},'readback':checks,'canonicalState':canonical,'proof_ledger':str(PROOF.relative_to(BASE)),'excluded_from_deploy':['PUBLIC_LIVE','LIBRARY_PERSISTED','BITCOIN_LIVE','BRAINK_MIGRATED'],'claimBoundary':'TL2_LIVE requires observed HTTP readback plus canonical JSON egress receipts. It does not claim public deployment or physical propagation performance.'}
     REPORT.write_text(json.dumps(r,indent=2)+'\n'); _proof('TL2_DEPLOYMENT_READBACK',r); print(json.dumps(r,indent=2))
     if not ok or not daemon: p.terminate()
     return 0 if ok else 4
