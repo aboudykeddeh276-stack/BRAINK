@@ -1,0 +1,61 @@
+{
+  "schema": "braink.iso-ready-control-matrix/v1",
+  "classification": "READINESS_PROGRAM_NOT_CERTIFICATION",
+  "standards": [
+    {
+      "standard": "ISO/IEC/IEEE 12207:2026",
+      "scope": "software life cycle processes",
+      "braink_controls": ["LC-REQ", "LC-CFG", "release qualification", "requirements-to-test traceability", "change/rollback records"]
+    },
+    {
+      "standard": "ISO/IEC 25010:2023",
+      "scope": "software/ICT product quality model",
+      "braink_controls": ["Q-PROD", "quality requirements", "objective quality gates", "acceptance evidence"]
+    },
+    {
+      "standard": "ISO/IEC 27001:2022",
+      "scope": "information security management system requirements",
+      "braink_controls": ["IS-RISK", "risk treatment", "segregation of duties", "change control", "evidence retention", "rollback/recovery"]
+    },
+    {
+      "standard": "ISO/IEC 42001:2023",
+      "scope": "AI management system",
+      "braink_controls": ["AI-AIMS", "AI inventory", "roles and accountability", "AI risk controls", "continual review", "generated-function governance"]
+    },
+    {
+      "standard": "ISO/IEC 23894:2023",
+      "scope": "AI risk management guidance",
+      "braink_controls": ["AI-RISK", "risk register", "risk-linked requirements", "mitigation", "monitoring"]
+    },
+    {
+      "standard": "ISO/IEC 42005:2025",
+      "scope": "AI system impact assessment",
+      "braink_controls": ["AI-IMPACT", "stakeholder/impact records", "material-change reassessment", "impact review"]
+    }
+  ],
+  "self_coding_release_law": {
+    "required_sequence": [
+      "capability gap detected",
+      "requirement identified",
+      "risk/impact links identified",
+      "bounded function candidate synthesized",
+      "syntax/static/security checks executed",
+      "deterministic contract and acceptance tests executed",
+      "independent verifier approves",
+      "release qualifier evaluates required gates",
+      "independent promoter records rollback and change record",
+      "registry/aperture binding mutates",
+      "execution receipts retained",
+      "observer/reconciliation state consumed",
+      "continual-improvement queue re-ranked"
+    ],
+    "forbidden": [
+      "generator self-verification",
+      "generator self-promotion",
+      "verifier self-promotion",
+      "promotion without rollback reference",
+      "promotion without requirements/test/risk/SBOM evidence",
+      "claiming ISO certification from internal readiness evidence"
+    ]
+  }
+}
