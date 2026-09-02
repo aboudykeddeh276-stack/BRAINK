@@ -1,33 +1,37 @@
 {
-  "schema": "braink.deployment-state.r18/v6",
-  "status": "RESIDENT_CAPABILITY_BINDING_ADVANCED__20_RESIDENT__52_HOLES__LOCAL_INVARIANTS_PASS__CI_EXECUTOR_BOUNDARY",
+  "schema": "braink.deployment-state.r18/v7",
+  "status": "RESIDENT_CAPABILITY_BINDING_ADVANCED__21_RESIDENT__51_HOLES__HASH_BOUND__CI_EXECUTOR_BOUNDARY",
   "runtime": "enterprise/capability_deployment_runtime.py",
   "binding_registry": "enterprise/R18_CAPABILITY_BINDINGS.json",
   "undertaking": "LEGAL_SERVICE",
   "current_graph": {
     "server_sets": 18,
     "requirements": 72,
-    "resident_capabilities": 20,
-    "unresolved_capability_holes": 52,
+    "resident_capabilities": 21,
+    "unresolved_capability_holes": 51,
     "latest_classification": "REUSE_AND_QUALIFY",
-    "newly_closed": ["work_module","tool_routing","checkpoint","audit","evidence","readback","conflict","signal"],
-    "previously_closed_this_pass": ["identity","role"]
+    "newly_closed": ["hash"]
   },
   "transition": {
-    "hr_capability_invariant_commit": "99ef05d3729711a42ff3c93e6aeee955617cb7fe",
-    "shared_capability_invariant_commit": "23a96355103da939e662beab0ed214b55488121b",
-    "binding_register_commit": "ba2499d5e7e332b6d166d63376c2a00370d55d30",
-    "reconciliation_receipt": "deployments/R18_CAPABILITY_RECONCILIATION_V2.json",
-    "reconciliation_receipt_commit": "ddc2974cd811778fb1d55c71d58f2f584ac4d210",
-    "prior_resident": 12,
-    "prior_holes": 60,
-    "resident_delta": 8,
-    "hole_delta": -8
+    "selected_work_module": "WM://DATA_INFORMATION_GOVERNANCE/hash",
+    "classification": "REUSE_AND_QUALIFY",
+    "implementation_ref": "enterprise/substrate_adapters.py::digest",
+    "invariant_commit": "a308f84715756fdec90e13609e0735154e287efa",
+    "binding_register_commit": "e4f86109e3cc1d1167dce21fa115089fc339e0a8",
+    "deployment_invariant_commit": "083939e0bdd85c453cc8b785de5dec78b49987fb",
+    "reconciliation_receipt": "deployments/R18_CAPABILITY_RECONCILIATION_V3.json",
+    "reconciliation_receipt_commit": "d6b97230ecff05569e83f7c676cc3f5a7abf9f87",
+    "prior_resident": 20,
+    "prior_holes": 52,
+    "resident_delta": 1,
+    "hole_delta": -1
   },
   "local_invariants": {
-    "hr_genome_capabilities": "PASS",
-    "shared_capabilities": "PASS",
-    "reconciliation_root": "4ecebf5d291340c92c99ccd7b9c92625f9deccd685e4a093c7e00372b31bc417"
+    "hash_focused_replay": "PASS",
+    "hash_value": "9c8b644ab55e4146c0c2e4a7104fe13d5900dc2fe9d77b847a44a3b822a44c47",
+    "compile_mode": "EXACT_V3_SEMANTIC_REPLAY",
+    "compile_root": "b354aec957e0c7bf2b4f7ee4c01a5077e8b9d1d4067a95d51dc0b6b813ba44d7",
+    "reconciliation_root": "77005cf7d7e1e2118d6acbf4b9738ba64ad4195cf725d27a54e01f38812e4dea"
   },
   "github_ci": {
     "status": "FAILURE_PRE_STEP",
@@ -39,14 +43,16 @@
     "library": "/BRAINK_DEPLOYMENTS/R18_CAPABILITY_DEPLOYMENT/",
     "google_drive": "/Google Drive/KEDDEH_SYSTEMS_DEPLOYMENTS/"
   },
-  "next_ranked_shared_holes": ["tenant","supervision","lease","replacement","rehydration","hash","health","restart","qualification","http","service_endpoint","auth_boundary"],
+  "next_ranked_shared_holes": ["tenant","supervision","lease","replacement","rehydration","health","restart","qualification","http","service_endpoint","auth_boundary"],
   "claim_boundary": [
-    "no new function was synthesized for the newly closed capabilities",
+    "hash is software SHA-256 content hashing only",
+    "hash is BOUND and locally replay-qualified, not promoted to hardware-rooted integrity or remote durability",
     "tenant, supervision, lease, replacement and rehydration remain unresolved",
+    "runtime/API source surfaces are not promoted without current direct execution evidence",
     "remote or multi-host execution is not implied",
     "public observer state is not an execution prerequisite",
     "A_executed != A_claimed",
     "S_observed != S_claimed"
   ],
-  "next_runtime_transition": "re-rank remaining 52 typed holes against resident implementations and compatible adapters before synthesis"
+  "next_runtime_transition": "qualify existing runtime health/API surfaces before creating new mechanics; if current direct execution cannot be established, stop at the evidence boundary"
 }
