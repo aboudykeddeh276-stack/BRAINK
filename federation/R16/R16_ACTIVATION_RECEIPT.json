@@ -1,0 +1,18 @@
+{
+  "schema":"keddeh.sector-activation.r16.remote-receipt/v1",
+  "state":"REMOTE_BINDINGS_DEPLOYED_LOCAL_EXECUTION_PASS",
+  "sector_count":12,
+  "local_activation_test":"PASS",
+  "local_dispatches":12,
+  "invariants":["HR routing","shared server-set routing","registered-function boundary","rooted work receipts"],
+  "github_commits":{
+    "active_bindings":"cfdb8432f6ca5fe48cbff93ef2a5279fe8cccc11",
+    "activation_runtime":"faec069e48b8dda0fcda59357d30dfb9b1f41a36",
+    "activation_test":"8be7b65dc17ae351bbd9f674b07ba94056d8e4d7",
+    "workflow":"84b5aff689206a3a0de119740ef59df96090e853",
+    "server_bindings":"3fae4f82235e1208a79f6128f15eccd6ba0f4cbc",
+    "active_nodes":"77b65eb1f04964d3bd1e7657b31e9d3bd183fe11"
+  },
+  "remote_ci":"WORKFLOW_INSTALLED; RUNNER_EXECUTION_NOT_CLAIMED_IN_THIS_RECEIPT",
+  "external_adapter_boundary":"provider-specific service adapters execute only when their owning repository has a bound handler/credential/endpoint"
+}
