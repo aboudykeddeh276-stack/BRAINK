@@ -1,0 +1,15 @@
+{
+  "schema": "braink.runtime-bindings.r18/v1",
+  "created_utc": "2026-09-02T02:22:42.663333+00:00",
+  "bindings": {
+    "github": {"state":"BOUND_AND_TESTED","mechanism":"GitHub connector contents API","proof":"create_file + fetch_file readback on canonical BRAINK"},
+    "mail": {"state":"BOUND_CONTROL_PLANE","mechanism":"authenticated Gmail connector","proof":"created KEDDEH SYSTEMS/Runtime Mail label","send_state":"AVAILABLE_NOT_SIDE_EFFECT_TESTED"},
+    "identity": {"state":"BOUND_READ_ONLY","mechanism":"Google Contacts connector","proof":"contact search returned resolvable identity records"},
+    "calendar": {"state":"BOUND_READ_ONLY","mechanism":"Google Calendar connector","proof":"calendar metadata readback succeeded","write_state":"ACTION_AVAILABLE_NOT_SIDE_EFFECT_TESTED"},
+    "drive": {"state":"BOUND_AND_TESTED","mechanism":"Google Drive connector","proof":"KEDDEH_SYSTEMS_RUNTIME_BINDINGS folder created","drive_folder_id":"1j9vxni-ZyWG156XN8VZrCVy6Pr6WzDI2"},
+    "payments": {"state":"ADAPTER_IMPLEMENTED_UNBOUND","mechanism":"provider-neutral payment rail contract","proof":"local contract + negative qualification tests","reason":"no authenticated payment-provider connector exposed in this runtime"},
+    "process_runtime": {"state":"BOUND_AND_TESTED","mechanism":"local subprocess supervisor","proof":"child start/health/terminate test"},
+    "http_ingress": {"state":"BOUND_AND_TESTED_LOCAL","mechanism":"ThreadingHTTPServer","proof":"127.0.0.1 health and metrics readback","external_binding":"UNBOUND"},
+    "metrics": {"state":"BOUND_AND_TESTED_LOCAL","mechanism":"Prometheus-compatible text exposition","proof":"metrics endpoint readback"}
+  }
+}
