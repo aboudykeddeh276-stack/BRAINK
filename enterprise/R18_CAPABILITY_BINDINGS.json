@@ -10,12 +10,13 @@
     "reconciliation": {"implementation_ref":"enterprise/observer_policy.py","evidence_ref":"scripts/kex-ci/test_capability_deployment_runtime.py","state":"VERIFIED"},
     "process": {"implementation_ref":"enterprise/autonomous_evolution_runtime.py","evidence_ref":"scripts/kex-ci/test_capability_deployment_runtime.py","state":"VERIFIED"},
     "telemetry": {"implementation_ref":"enterprise/audit_observability.py","evidence_ref":"scripts/kex-ci/test_capability_deployment_runtime.py","state":"VERIFIED"},
-    "assignment": {"implementation_ref":"aboudykeddeh276-stack/GENERAL-GOVERNANCE-/braink_hr/hr_runtime.py::HRRuntime.assign","evidence_ref":"aboudykeddeh276-stack/GENERAL-GOVERNANCE-/braink_hr/HR_FEDERATION_R1.json","state":"BOUND"}
+    "assignment": {"implementation_ref":"aboudykeddeh276-stack/GENERAL-GOVERNANCE-/braink_hr/hr_runtime.py::HRRuntime.assign","evidence_ref":"aboudykeddeh276-stack/GENERAL-GOVERNANCE-/braink_hr/HR_FEDERATION_R1.json","state":"BOUND"},
+    "scope": {"implementation_ref":"Library/keddeh_enterprise_runtime.py::runtime://keddeh/identity/check_scope","evidence_ref":"Library/KEDDEH_UNIFIED_EXECUTION_ROOT_R2.js::ENTERPRISE_IDENTITY_SCOPE_EXECUTED","state":"BOUND"}
   },
   "selection_receipt": {
-    "work_module": "WM://GENERAL_GOVERNANCE/assignment",
+    "work_module": "WM://GENERAL_GOVERNANCE/scope",
     "classification": "REUSE",
-    "reason": "resident callable HR assignment capability with explicit authority, capability-gap and reuse law; no synthesis required",
-    "claim_boundary": "binding establishes resident implementation provenance and R18 reuse classification; it does not establish identity, supervision, lease, replacement or rehydration execution"
+    "reason": "resident local identity/scope runtime already implements create_principal, grant_scope and check_scope, with an executed R2 scope-check receipt; no synthesis or parallel identity inventory required",
+    "claim_boundary": "binding establishes local principal/scope authorization reuse for R18; it does not establish external SSO/OIDC issuer validation, hardware-rooted identity, tenant isolation, or broader identity-provider execution"
   }
 }
