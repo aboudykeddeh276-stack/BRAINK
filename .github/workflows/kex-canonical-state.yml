@@ -1,0 +1,36 @@
+name: KEX Canonical State
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'modules/kex_core/**'
+      - 'scripts/kex-ci/test_canonical_state.py'
+      - '.github/workflows/kex-canonical-state.yml'
+  pull_request:
+    paths:
+      - 'modules/kex_core/**'
+      - 'scripts/kex-ci/test_canonical_state.py'
+      - '.github/workflows/kex-canonical-state.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  canonical-state-proof:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Execute canonical wrapper traversal proof
+        run: python scripts/kex-ci/test_canonical_state.py
+      - name: Read back receipt
+        run: cat reports/kex-core/canonical-state-test.json
+      - name: Upload proof receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: kex-canonical-state-proof
+          path: reports/kex-core/canonical-state-test.json
