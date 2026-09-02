@@ -1,0 +1,29 @@
+{
+  "schema": "braink.external-observer.r16.receipt",
+  "domain": "keddeh.com",
+  "lanes": {
+    "container_runtime": {
+      "status": "BOUNDARY_CLASSIFIED",
+      "observation": "DNS_EGRESS_BLOCKED",
+      "evidence": ["dns.google unresolved", "rdap.verisign.com unresolved", "keddeh.com unresolved"],
+      "domain_state_promotion": "NONE"
+    },
+    "github_actions": {
+      "status": "FAILED_BEFORE_RUNNER_ALLOCATION",
+      "run_id": 33680233057,
+      "job_id": 100414741811,
+      "runner_id": 0,
+      "steps": [],
+      "head_sha": "104fff32d5a02f66e9016b0b79f4ef58a23ba647",
+      "domain_state_promotion": "NONE"
+    },
+    "web_egress": {
+      "status": "EGRESS_PRESENT",
+      "observation": "Verisign RDAP documentation and general public web reachable; exact keddeh.com RDAP/HTTPS record not surfaced by available indexed search lane",
+      "domain_state_promotion": "NONE"
+    }
+  },
+  "promotion_rule": "PUBLIC_DOMAIN_STATE_REQUIRES_DIRECT_OR_AUTHORITATIVE_READBACK_FOR_KEDDEH.COM",
+  "domain_public_state": "UNKNOWN_FROM_AVAILABLE_EXECUTION_LANES",
+  "status": "PASS_BOUNDARIES_SEPARATED_NO_FALSE_PROMOTION"
+}
