@@ -1,0 +1,17 @@
+{
+  "schema": "keddah.durable-execution.hard-crash-splitbrain.r5b/v1",
+  "hard_process_crash": {
+    "returncode": 137,
+    "observation": {"control": null, "zone": null, "records": []},
+    "journal_row": null,
+    "rollback_verified": true
+  },
+  "split_brain_lease_race": {
+    "contenders": 20,
+    "winner_count": 1,
+    "current_lease": [2, "agent-0"],
+    "fenced": true
+  },
+  "all_passed": true,
+  "scope_note": "Hard local process-death and local shared-ledger leadership race. Not a physical multi-host or WAN partition proof."
+}
