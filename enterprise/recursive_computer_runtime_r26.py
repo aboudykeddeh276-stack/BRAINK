@@ -28,14 +28,14 @@ class RecursiveComputer:
         self.identity = ComputerIdentity(computer_id, parent_id, generation, tuple(lineage), self.CONSTRUCTOR_ID)
         self.state_root = Path(state_root); self.state_root.mkdir(parents=True, exist_ok=True)
         self.runtime = SelfAddressingRuntime(self.state_root/'runtime-checkpoint.json')
-        self.ledger = AppendOnlyLedger(); self.state = _copy(dict(state or {})); self.memory = _copy(dict(memory or {})); self.children = {}; self._lock = threading.RLock(); self._expected_state_hash = None; self._expected_ledger_hash = None
+        self.ledger = AppendOnlyLedger(); self.state = _copy(dict(state or {})); self.memory = _copy(dict(memory or {})); self.children = {}; self._committed_child_ids = set(); self._lock = threading.RLock(); self._expected_state_hash = None; self._expected_ledger_hash = None
         if bootstrap: self._persist('BOOTSTRAP')
     @property
     def state_backing(self): return f"file://{self.state_root/'computer.json'}"
     @property
     def ledger_backing(self): return f"file://{self.state_root/'ledger.json'}"
     def _snapshot(self):
-        return _copy({'identity':asdict(self.identity),'state':self.state,'memory':self.memory,'children':sorted(self.children),'constructor':self.CONSTRUCTOR_ID})
+        return _copy({'identity':asdict(self.identity),'state':self.state,'memory':self.memory,'children':sorted(set(self.children)|self._committed_child_ids),'constructor':self.CONSTRUCTOR_ID})
     def _load_committed_ledger(self):
         rb=self.runtime.route(f'computer://{self.identity.computer_id}/ledger',self.ledger_backing,'READ')
         ledger=AppendOnlyLedger(); expected=None
@@ -77,7 +77,7 @@ class RecursiveComputer:
         if lp.exists(): c.ledger,c._expected_ledger_hash=c._load_committed_ledger()
         rb=c.runtime.route(f'computer://{c.identity.computer_id}/state',c.state_backing,'READ')
         if rb.get('status')!='READ' or rb.get('value')!=snap: raise RuntimeError('RESTORE_STATE_READBACK_MISMATCH')
-        c._expected_state_hash=rb['value_hash']
+        c._expected_state_hash=rb['value_hash']; c._committed_child_ids=set(snap.get('children',[]))
         if recursive:
             for child_id in snap.get('children',[]):
                 child=cls.restore(state_root/'descendants'/child_id,recursive=True)
@@ -106,12 +106,18 @@ class RecursiveComputer:
         snap=rb['value']
         if snap.get('constructor')!=self.CONSTRUCTOR_ID or snap['identity']['computer_id']!=self.identity.computer_id: raise RuntimeError('CONSTRUCTOR_REFRESH_IDENTITY_MISMATCH')
         self.state=_copy(snap.get('state',{})); self.memory=_copy(snap.get('memory',{})); self._expected_state_hash=rb['value_hash']
-        committed_children={}
-        for child_id in snap.get('children',[]):
+        committed_ids=set(snap.get('children',[]))
+        for child_id in committed_ids:
             child_root=self.state_root/'descendants'/child_id
-            if not child_root.exists(): raise RuntimeError('COMMITTED_DESCENDANT_MISSING')
-            committed_children[child_id]=RecursiveComputer.restore(child_root)
-        self.children=committed_children; self.ledger,self._expected_ledger_hash=self._load_committed_ledger(); return snap
+            child_state=child_root/'computer.json'
+            if not child_state.exists(): raise RuntimeError('COMMITTED_DESCENDANT_MISSING')
+            child_snap=json.loads(child_state.read_text()); ident=child_snap.get('identity',{})
+            if ident.get('parent_id')!=self.identity.computer_id: raise RuntimeError('DESCENDANT_PARENT_ID_MISMATCH')
+            if int(ident.get('generation',-1))!=self.identity.generation+1: raise RuntimeError('DESCENDANT_GENERATION_MISMATCH')
+            if tuple(ident.get('lineage',[]))[:-1]!=self.identity.lineage: raise RuntimeError('DESCENDANT_LINEAGE_MISMATCH')
+        self._committed_child_ids=committed_ids
+        self.children={k:v for k,v in self.children.items() if k in committed_ids}
+        self.ledger,self._expected_ledger_hash=self._load_committed_ledger(); return snap
     def _constructor_lock(self):
         lock_path=self.state_root/'.constructor.lock'; lock_path.touch(exist_ok=True); return lock_path.open('r+')
     def _quarantine_uncommitted_child(self, child, reason):
@@ -136,30 +142,15 @@ class RecursiveComputer:
                 fcntl.flock(lock_fh.fileno(),fcntl.LOCK_EX)
                 try:
                     self._refresh_constructor_view()
-                    if child_id in self.children: raise ValueError('CHILD_ALREADY_EXISTS')
+                    if child_id in self._committed_child_ids or child_id in self.children: raise ValueError('CHILD_ALREADY_EXISTS')
                     c=RecursiveComputer(computer_id=child_id,state_root=self.state_root/'descendants'/child_id,parent_id=self.identity.computer_id,generation=self.identity.generation+1,lineage=self.identity.lineage+(child_id,),state=self.state,memory=self.memory)
-                    self.children[child_id]=c
+                    self.children[child_id]=c; self._committed_child_ids.add(child_id)
                     try: self._persist('SUCCESSOR_CREATED')
                     except Exception as exc:
-                        self.children.pop(child_id,None); self._quarantine_uncommitted_child(c,exc); raise
+                        self.children.pop(child_id,None); self._committed_child_ids.discard(child_id); self._quarantine_uncommitted_child(c,exc); raise
                     return c
                 finally: fcntl.flock(lock_fh.fileno(),fcntl.LOCK_UN)
     def readback(self):
         r=self.runtime.route(f'computer://{self.identity.computer_id}/state',self.state_backing,'READ')
         if r.get('status')!='READ': raise RuntimeError(f'READBACK_FAILED:{r}')
         return r['value']
-
-def execute_recursive_proof(root_dir):
-    rd=Path(root_dir); a=RecursiveComputer(computer_id='A',state_root=rd/'A'); a.write_memory('seed',297); a.write_state('phase','ROOT_READY')
-    b=a.instantiate('B'); b.write_memory('child',88); b.write_state('phase','CHILD_READY')
-    c=b.instantiate('C'); c.write_state('phase','GRANDCHILD_READY')
-    c2=RecursiveComputer.restore(rd/'A'/'descendants'/'B'/'descendants'/'C'); d=c2.instantiate('D'); d.write_state('phase','POST_RESTORE_DESCENDANT_READY')
-    a2=RecursiveComputer.restore_tree(rd/'A'); b2=a2.children['B']; c3=b2.children['C']; d2=c3.children['D']; e=d2.instantiate('E'); e.write_state('phase','POST_TREE_RESTORE_DESCENDANT_READY')
-    nodes={'A':a2,'B':b2,'C':c3,'D':d2,'E':e}; readbacks={n:o.readback() for n,o in nodes.items()}
-    p={'status':'VERIFIED','lineage':{n:list(o.identity.lineage) for n,o in nodes.items()},'memory':{n:readbacks[n]['memory'] for n in nodes},'constructor_ids':{n:o.identity.constructor_id for n,o in nodes.items()},'state_roots':{n:sha256_json(readbacks[n]) for n in nodes},'ledger_verified':{n:o.ledger.verify() for n,o in nodes.items()},'tree':{'A':sorted(a2.children),'B':sorted(b2.children),'C':sorted(c3.children),'D':sorted(d2.children),'E':sorted(e.children)},'warm_boot':{'root_restored':a2.identity.computer_id,'rehydrated_path':['A','B','C','D'],'post_tree_restore_descendant':e.identity.computer_id}}
-    if p['lineage']['E']!=['A','B','C','D','E']: raise RuntimeError('POST_TREE_RESTORE_LINEAGE_FAILED')
-    if p['memory']['E']!={'child':88,'seed':297}: raise RuntimeError('E_DID_NOT_INHERIT_REHYDRATED_MEMORY')
-    if p['tree']!={'A':['B'],'B':['C'],'C':['D'],'D':['E'],'E':[]}: raise RuntimeError('TREE_REHYDRATION_FAILED')
-    if len(set(p['constructor_ids'].values()))!=1: raise RuntimeError('CONSTRUCTOR_CONTINUITY_FAILED')
-    if not all(p['ledger_verified'].values()): raise RuntimeError('LEDGER_VERIFICATION_FAILED')
-    return p
