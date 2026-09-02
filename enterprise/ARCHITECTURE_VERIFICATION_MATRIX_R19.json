@@ -1,0 +1,211 @@
+{
+  "schema": "braink.architecture-verification-matrix.r19/v1",
+  "methodology": {
+    "architecture_description": "ISO/IEC/IEEE 42010:2022",
+    "software_lifecycle": "ISO/IEC/IEEE 12207:2026",
+    "product_quality": "ISO/IEC 25010:2023",
+    "authorization_reference": "NIST SP 800-207",
+    "certification_claim": "NONE",
+    "rule": "A claim may be VERIFIED or EXECUTED only when a resident mechanism and executable evidence reference are both present. Otherwise the record must identify the exact missing mechanism."
+  },
+  "claims": [
+    {
+      "subsystem": "BRAINK_CORE",
+      "claim_id": "R19-BRAINK-CAPABILITY-CLOSURE",
+      "claim": "BRAINK can compile a service undertaking into named capability requirements and distinguish reusable resident bindings from unresolved requirements.",
+      "state": "VERIFIED",
+      "mechanism_ref": "enterprise/capability_deployment_runtime.py",
+      "evidence_ref": "scripts/kex-ci/test_capability_deployment_runtime.py",
+      "cs_basis": ["graph-based dependency resolution", "capability registry", "deterministic classification", "content-addressed receipts"],
+      "failure_reason": null,
+      "missing_mechanism": null
+    },
+    {
+      "subsystem": "BRAINK_CORE",
+      "claim_id": "R19-BRAINK-CI-EXECUTION",
+      "claim": "GitHub-hosted CI currently provides executed qualification evidence for the R18/R19 runtime.",
+      "state": "FAILED",
+      "mechanism_ref": ".github/workflows/keddeh-enterprise-control.yml",
+      "evidence_ref": null,
+      "cs_basis": ["continuous integration", "independent execution environment"],
+      "failure_reason": "Observed GitHub Actions jobs failed before any workflow step executed with no allocated runner, so source tests were not executed by the hosted CI environment.",
+      "missing_mechanism": "A functioning CI runner allocation/executor path that actually executes the declared workflow steps."
+    },
+    {
+      "subsystem": "HR_GOVERNANCE",
+      "claim_id": "R19-HR-AUTHORITY",
+      "claim": "HR assignment records bind agent identity, roles, sector, capabilities and target authority scope, and authorize rejects mismatched sector/capability/scope.",
+      "state": "VERIFIED",
+      "mechanism_ref": "aboudykeddeh276-stack/GENERAL-GOVERNANCE-/braink_hr/hr_runtime.py",
+      "evidence_ref": "aboudykeddeh276-stack/GENERAL-GOVERNANCE-/braink_hr/test_hr_genome_capabilities_r18.py",
+      "cs_basis": ["capability-based access control", "least-authority scope checks", "explicit identity-to-role binding"],
+      "failure_reason": null,
+      "missing_mechanism": null
+    },
+    {
+      "subsystem": "HR_GOVERNANCE",
+      "claim_id": "R19-HR-SUPERVISION-LIFECYCLE",
+      "claim": "HR has qualified runtime semantics for supervision, lease, replacement and rehydration across process interruption.",
+      "state": "UNVERIFIED",
+      "mechanism_ref": null,
+      "evidence_ref": null,
+      "cs_basis": ["lease semantics", "failure detection", "supervisor trees", "process rehydration"],
+      "failure_reason": "The current HR runtime verifies assignment, revocation and authorization but no inspected HR mechanism proves supervision leases, replacement or rehydration semantics.",
+      "missing_mechanism": "Durable supervisor/child lease state, expiry/fencing rule, replacement transition and rehydration receipt with deterministic tests."
+    },
+    {
+      "subsystem": "RUNTIME_SERVERS",
+      "claim_id": "R19-RUNTIME-SECTOR-ABI",
+      "claim": "Runtime/server work accepts the common BRAINK SectorTask envelope and emits content-rooted SectorReceipt state with explicit capability-hole behavior.",
+      "state": "VERIFIED",
+      "mechanism_ref": "aboudykeddeh276-stack/KERA_SERVER/braink_sector/sector_runtime.py",
+      "evidence_ref": "aboudykeddeh276-stack/KERA_SERVER/braink_sector/DEPLOYMENT_BINDING_R18.json",
+      "cs_basis": ["message-passing interface", "failure isolation", "typed missing-capability state", "content-addressed receipts"],
+      "failure_reason": null,
+      "missing_mechanism": null
+    },
+    {
+      "subsystem": "RUNTIME_SERVERS",
+      "claim_id": "R19-RUNTIME-HEALTH-RESTART",
+      "claim": "The runtime sector has independently verified health, restart and release-qualification execution semantics for hosted workloads.",
+      "state": "UNVERIFIED",
+      "mechanism_ref": null,
+      "evidence_ref": null,
+      "cs_basis": ["process supervision", "liveness detection", "restart policy", "release qualification"],
+      "failure_reason": "The R18 sector binding proves federation membership and ABI compatibility, not actual process health/restart behavior.",
+      "missing_mechanism": "Executable health probe, restart state machine, crash/restart tests and release qualification receipt in the runtime-server repository."
+    },
+    {
+      "subsystem": "STORAGE_MEMORY",
+      "claim_id": "R19-VFS-STATE-LINEAGE",
+      "claim": "BRAINK has verified artifact addressability, backing lineage, checkpoint and software content-hash capabilities usable by storage genomes.",
+      "state": "VERIFIED",
+      "mechanism_ref": "enterprise/addressability_fabric.py; enterprise/backing_migration.py; enterprise/self_addressing_runtime.py; enterprise/substrate_adapters.py",
+      "evidence_ref": "enterprise/R18_CAPABILITY_BINDINGS.json",
+      "cs_basis": ["content addressing", "indirection", "version lineage", "atomic checkpointing", "hash-based integrity"],
+      "failure_reason": null,
+      "missing_mechanism": null
+    },
+    {
+      "subsystem": "STORAGE_MEMORY",
+      "claim_id": "R19-VFS-DISTRIBUTED-DURABILITY",
+      "claim": "Storage backing is proven durable across physical multi-host failure and network partitions.",
+      "state": "UNVERIFIED",
+      "mechanism_ref": null,
+      "evidence_ref": null,
+      "cs_basis": ["distributed storage", "replication", "failure domains", "consistency"],
+      "failure_reason": "Current evidence supports local/reference backing and lineage semantics, not physical multi-host durability or partition behavior.",
+      "missing_mechanism": "Distinct-host replicated backing, fault-injection/partition tests, consistency model and durable recovery receipts."
+    },
+    {
+      "subsystem": "RESEARCH_LEARNING_EVOLUTION",
+      "claim_id": "R19-RESEARCH-SECTOR-BINDING",
+      "claim": "Research/learning/evolution is bound into the common sector federation and can receive shared BRAINK work-module envelopes.",
+      "state": "VERIFIED",
+      "mechanism_ref": "aboudykeddeh276-stack/KSYSTEMS_LEARNING-/braink_sector/sector_runtime.py",
+      "evidence_ref": "aboudykeddeh276-stack/KSYSTEMS_LEARNING-/braink_sector/DEPLOYMENT_BINDING_R18.json",
+      "cs_basis": ["modular decomposition", "shared task protocol", "capability-based dispatch"],
+      "failure_reason": null,
+      "missing_mechanism": null
+    },
+    {
+      "subsystem": "RESEARCH_LEARNING_EVOLUTION",
+      "claim_id": "R19-RESEARCH-QUALITY",
+      "claim": "Research outputs are automatically scored for evidence quality, reproducibility and market-feasibility accuracy before promotion.",
+      "state": "UNVERIFIED",
+      "mechanism_ref": null,
+      "evidence_ref": null,
+      "cs_basis": ["evidence scoring", "reproducibility", "quality gates", "independent verification"],
+      "failure_reason": "The inspected federation contract routes work but does not prove a research-quality or reproducibility gate.",
+      "missing_mechanism": "Research evidence schema, source/provenance score, reproducibility test and independent promotion gate."
+    },
+    {
+      "subsystem": "CODE_SYNTHESIS",
+      "claim_id": "R19-SYNTHESIS-BOUNDED",
+      "claim": "BRAINK has a bounded self-coding workgroup path that requires an explicit work-module contract and tests before a generated capability is registered.",
+      "state": "EXECUTED",
+      "mechanism_ref": "BRAINK_SELF_CODING_WORKGROUP_R1/src/agentic_addressability.py and self-coding runtime lineage",
+      "evidence_ref": "BRAINK_SELF_CODING_WORKGROUP_R1 test receipt",
+      "cs_basis": ["design by contract", "closed operation templates", "syntax validation", "test-gated dynamic registration"],
+      "failure_reason": null,
+      "missing_mechanism": null
+    },
+    {
+      "subsystem": "CODE_SYNTHESIS",
+      "claim_id": "R19-SYNTHESIS-PRODUCTION-PROMOTION",
+      "claim": "Generated functions are independently promoted into production sector runtimes with enforced separation of synthesizer, verifier and promoter.",
+      "state": "UNVERIFIED",
+      "mechanism_ref": null,
+      "evidence_ref": null,
+      "cs_basis": ["segregation of duties", "release management", "supply-chain provenance", "rollback"],
+      "failure_reason": "Bounded synthesis was validated locally, but this R19 audit does not have an executed production promotion transaction spanning independent verifier/promoter identities.",
+      "missing_mechanism": "End-to-end promotion transaction with independent identities, immutable provenance, rollback reference and production readback receipt."
+    },
+    {
+      "subsystem": "MESH_NODES",
+      "claim_id": "R19-MESH-FEDERATION",
+      "claim": "The mesh/software-nodes repository is explicitly bound to BRAINK R18 for mesh, routing, membership, fencing and transport capability classes.",
+      "state": "BOUND",
+      "mechanism_ref": "aboudykeddeh276-stack/KEDDEH_SOFTWARE_NODES/braink_sector/DEPLOYMENT_BINDING_R18.json",
+      "evidence_ref": "aboudykeddeh276-stack/KEDDEH_SOFTWARE_NODES/braink_sector/DEPLOYMENT_BINDING_R18.json",
+      "cs_basis": ["federated service registration", "capability namespace", "control-plane binding"],
+      "failure_reason": null,
+      "missing_mechanism": null
+    },
+    {
+      "subsystem": "MESH_NODES",
+      "claim_id": "R19-MESH-PHYSICAL-MULTIHOST",
+      "claim": "The current mesh/fencing stack is proven safe and live across physically distinct hosts and WAN partitions.",
+      "state": "UNVERIFIED",
+      "mechanism_ref": null,
+      "evidence_ref": null,
+      "cs_basis": ["distributed systems", "quorum intersection", "failure detectors", "partition tolerance"],
+      "failure_reason": "Existing KEX fencing evidence is local/separate-process or fixed-membership reference evidence; physical distinct-host/WAN execution was not established by this audit.",
+      "missing_mechanism": "Distinct-host deployment, partition/failover tests, network timing assumptions and readback receipts from each host."
+    },
+    {
+      "subsystem": "MINING",
+      "claim_id": "R19-MINING-FEDERATION",
+      "claim": "The mining repository is bound to BRAINK R18 with Bitcoin Core, job-dispatch, block-template, SHA256d, submission and receipt capability classes.",
+      "state": "BOUND",
+      "mechanism_ref": "aboudykeddeh276-stack/MINING/braink_sector/DEPLOYMENT_BINDING_R18.json",
+      "evidence_ref": "aboudykeddeh276-stack/MINING/braink_sector/DEPLOYMENT_BINDING_R18.json",
+      "cs_basis": ["capability namespace", "service federation", "shared task/receipt ABI"],
+      "failure_reason": null,
+      "missing_mechanism": null
+    },
+    {
+      "subsystem": "MINING",
+      "claim_id": "R19-MINING-MAINNET-CLOSURE",
+      "claim": "The mining service currently proves live mainnet node synchronization through full block construction and submitblock receipt.",
+      "state": "UNVERIFIED",
+      "mechanism_ref": null,
+      "evidence_ref": null,
+      "cs_basis": ["Bitcoin node RPC", "block-template lifecycle", "coinbase/Merkle construction", "proof-of-work submission"],
+      "failure_reason": "The federation binding names required capability classes but is not itself execution evidence for a synchronized node, complete block assembly or accepted submitblock transaction.",
+      "missing_mechanism": "Live bitcoind sync evidence, getblocktemplate receipt, complete block assembly test and submitblock receipt."
+    },
+    {
+      "subsystem": "CONSOLE_UI",
+      "claim_id": "R19-CONSOLE-FEDERATION",
+      "claim": "The console/UI repository is bound to BRAINK R18 for operator-console, runtime-projection, observer-projection and admin-UI capability classes.",
+      "state": "BOUND",
+      "mechanism_ref": "aboudykeddeh276-stack/BRAINK-CONSOLE-PLUS/braink_sector/DEPLOYMENT_BINDING_R18.json",
+      "evidence_ref": "aboudykeddeh276-stack/BRAINK-CONSOLE-PLUS/braink_sector/DEPLOYMENT_BINDING_R18.json",
+      "cs_basis": ["presentation/control-plane separation", "federated capability binding"],
+      "failure_reason": null,
+      "missing_mechanism": null
+    },
+    {
+      "subsystem": "CONSOLE_UI",
+      "claim_id": "R19-CONSOLE-ACTUATION",
+      "claim": "Every operator UI control is traced to an authorized backend action, state mutation and rollback/readback receipt.",
+      "state": "UNVERIFIED",
+      "mechanism_ref": null,
+      "evidence_ref": null,
+      "cs_basis": ["command-query separation", "authorization", "traceability", "rollback"],
+      "failure_reason": "The R18 binding proves federation membership but this audit has not established end-to-end action tracing for every UI control.",
+      "missing_mechanism": "Control-to-command registry, HR authorization binding, backend receipt and rollback/readback invariant for each actionable control."
+    }
+  ]
+}
