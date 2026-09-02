@@ -1,0 +1,34 @@
+{
+  "schema": "braink.r21.foundary-publication-binding/v1",
+  "foundary_id": "PUBLISHING_MASTERY_FOUNDARY",
+  "classification": "RESIDENT_ACTUATOR_REUSE_BOUND_ORIGIN_AUTHORITY_PENDING",
+  "canonical_service": "app://casepath",
+  "mechanic": "mechanic://keddeh/admin/production-actuator",
+  "actuator_seed": "KEX-SEED-CASEPATH-PROD-ACTUATOR-20260826T233107Z-5804B67605",
+  "evidence": {
+    "library_binding": "/BRAINK_DEPLOYMENTS/R21_FOUNDRY_DEPLOYMENT/CASEPATH_PRODUCTION_ACTUATOR_BINDING.json",
+    "release_page_graph": ["/", "/business.html", "/privacy.html", "/terms.html", "/your-data.html", "/contact.html"],
+    "resident_execution_chain": ["ORIGIN_DISCOVERY", "ORIGIN_SHAPE_VALIDATION", "ACTUATOR_RESOLUTION", "UPDATE", "RELEASE_MARKER", "CACHE_PURGE_IF_BOUND", "OUTSIDE_IN_READBACK"],
+    "controlled_actuation_evidence": "R13 production actuator adapter refuses AMEND/RELEASE without origin binding and preserves READBACK as observer operation"
+  },
+  "foundary_mechanics_reconciled": {
+    "release_actuator": "RESIDENT_REUSE_BOUND",
+    "release_marker": "RESIDENT_REUSE_BOUND",
+    "readback_receipt": "RESIDENT_REUSE_BOUND",
+    "rollback": "PARTIAL_EXISTING_RELEASE_CONTRACT",
+    "publication_queue": "UNRESOLVED",
+    "approval_authority": "PARTIAL_POLICY_EVIDENCE",
+    "production_origin_write_authority": "UNRESOLVED_EXTERNAL_BINDING"
+  },
+  "cross_foundary_unlock": [
+    "LANDING_PAGE_FOUNDARY may reuse the publication actuator stage once its compiler/content bindings are qualified",
+    "FRONTAGES_SERVICES_GROWING_MESH_WEBSITES_DOMAIN_MASTERY_FOUNDARY may reuse the same release-marker/readback sequence after owner-host/domain authority binding"
+  ],
+  "claim_boundary": [
+    "This binding does not claim a current production mutation.",
+    "This binding does not establish owner-host write authority, registrar/DNS authority, TLS lifecycle control, or universal domain publication.",
+    "Public readback remains an observer/reconciliation edge rather than an execution prerequisite.",
+    "The foundary remains the full compound process/server/team/data/repository/virtual-root class defined by FOUNDRY_REGISTRY_R21.json."
+  ],
+  "next_executable_condition": "Bind a legitimate production origin/write target to the resident actuator or qualify another resident publication queue/approval mechanic; do not synthesize another actuator."
+}
