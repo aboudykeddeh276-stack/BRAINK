@@ -1,0 +1,22 @@
+{
+  "agent_control": {
+    "functions": ["register_agent", "authorize_action", "fence_agent"],
+    "billable_units": ["managed_agent", "authorization_decision", "fencing_event"]
+  },
+  "runtime_supervisor": {
+    "functions": ["create_run", "checkpoint", "rehydrate"],
+    "billable_units": ["managed_run", "checkpoint", "rehydration"]
+  },
+  "handoff_guard": {
+    "functions": ["validate_handoff"],
+    "billable_units": ["validated_handoff"]
+  },
+  "proof_service": {
+    "functions": ["export_audit_pack"],
+    "billable_units": ["audit_package"]
+  },
+  "ai_finops": {
+    "functions": ["measure_run"],
+    "billable_units": ["measured_run", "cost_outcome_report"]
+  }
+}
