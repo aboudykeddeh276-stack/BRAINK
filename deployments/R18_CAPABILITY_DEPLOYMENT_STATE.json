@@ -38,7 +38,7 @@
     "status": "PASS",
     "prior_reconciled_root": "47b1b800720a8322f959245e6f88cbb54384e4af03d7ad7c3e248ed1fe07a2a7",
     "release_root": "f48b99cc271f8440fe9656553ec8a6326e903d7a93d065999d5adf8ab63c025f",
-    "zip_sha256": "1717ca6316cea792bc5b679ee878b954d43d93eeb63c4b2d7b8202c40"
+    "zip_sha256": "1717ca6316cea792bc5b679ee878b954d43d93eeb63c923da63b4d39e1031f1e"
   },
   "github_ci": {
     "r18_run_id": 33580347544,
