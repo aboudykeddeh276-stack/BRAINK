@@ -1,0 +1,24 @@
+{
+  "schema": "keddah.braink.r5.active-runtime/v1",
+  "state": "ACTIVE_LOCAL_RUNTIME",
+  "runtime": "enterprise/orchestration/durable_execution_r5.py",
+  "work_id": "WORK-R5-ACTIVE-20260903-001",
+  "domain": "r5-active.keddeh",
+  "authority": {
+    "organisation_identity": "organisation://the-layna-company",
+    "operating_identity": "business-name://keddeh-systems"
+  },
+  "active_capabilities": [
+    "HMAC_SIGNED_WORK_ENVELOPE",
+    "REPLAY_REJECTION",
+    "EPOCH_LEASE_FENCING",
+    "ATOMIC_DOMAIN_AUTHORITY_COMMIT",
+    "SIGNED_CHECKPOINT",
+    "FRESH_PROCESS_SUCCESSOR_RECOVERY"
+  ],
+  "boundary": {
+    "physical_multi_host": "NOT_TESTED_THIS_RUN",
+    "public_dns_delegation": "NOT_APPLIED",
+    "public_network_exposure": "NOT_APPLIED"
+  }
+}
