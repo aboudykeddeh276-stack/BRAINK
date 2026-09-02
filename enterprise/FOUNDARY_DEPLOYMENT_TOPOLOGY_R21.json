@@ -1,0 +1,49 @@
+{
+  "schema": "braink.foundary-deployment-topology.r21/v1",
+  "registry": "enterprise/FOUNDRY_REGISTRY_R21.json",
+  "runtime": "enterprise/foundry_runtime.py",
+  "invariant": "scripts/kex-ci/test_foundry_runtime_r21.py",
+  "bindings": {
+    "GENERAL-GOVERNANCE-": ["HR_AND_ALL_TEAM_SERVICES_FOUNDARY", "BUSINESS_AND_ENTERPRISE_STRUCTURE_FOUNDARY", "AGENTICS_FOUNDARY"],
+    "KERA_SERVER": ["SERVER_FOUNDARY", "PROCESS_MASTERY_FOUNDARY", "REAL_ACTUAL_USEABLE_SOFTWARE_FOUNDARY", "FRONTAGES_SERVICES_GROWING_MESH_WEBSITES_DOMAIN_MASTERY_FOUNDARY"],
+    "virtualized-storage": ["FILE_SYSTEM_FOUNDARY", "WORKSPACE_FOUNDARY", "CUSTOMER_FILE_BASE_SOFTWARE_FOUNDARY", "BUSINESS_AND_ENTERPRISE_STRUCTURE_FOUNDARY"],
+    "BRAINK-CONSOLE-PLUS": ["HCI_FOUNDARY", "LANDING_PAGE_FOUNDARY", "SVG_FOUNDARY", "WORKSPACE_FOUNDARY", "FRONTAGES_SERVICES_GROWING_MESH_WEBSITES_DOMAIN_MASTERY_FOUNDARY", "CUSTOMER_FILE_BASE_SOFTWARE_FOUNDARY"],
+    "KSYSTEMS_LEARNING-": ["RESEARCH_MASTERY_FOUNDARY", "AGENTICS_FOUNDARY", "BUSINESS_AND_ENTERPRISE_STRUCTURE_FOUNDARY"],
+    "K-SYSTEMS-CODE-SPACE-": ["REAL_ACTUAL_USEABLE_SOFTWARE_FOUNDARY", "AGENTICS_FOUNDARY", "PROCESS_MASTERY_FOUNDARY", "SVG_FOUNDARY"],
+    "KEDDEH_SOFTWARE_NODES": ["FRONTAGES_SERVICES_GROWING_MESH_WEBSITES_DOMAIN_MASTERY_FOUNDARY", "SERVER_FOUNDARY", "PROCESS_MASTERY_FOUNDARY"],
+    "MINING": ["SERVER_FOUNDARY", "PROCESS_MASTERY_FOUNDARY", "REAL_ACTUAL_USEABLE_SOFTWARE_FOUNDARY", "FILE_SYSTEM_FOUNDARY", "AGENTICS_FOUNDARY"]
+  },
+  "unresolved_foundary_edges": [
+    {
+      "edge": "PUBLISHING_MASTERY_FOUNDARY -> production publishing actuator estate",
+      "reason": "publishing processes are represented and partially bound, but no single production publishing repository/runtime has yet been independently verified as the canonical release authority",
+      "required_mechanics": ["publication queue", "approval authority", "release actuator", "release marker", "rollback", "readback receipt"]
+    },
+    {
+      "edge": "FRONTAGES_SERVICES_GROWING_MESH_WEBSITES_DOMAIN_MASTERY_FOUNDARY -> authoritative production domain plane",
+      "reason": "domain/frontage/mesh code and bindings exist, but a universal owner-host/domain-authority executor across all target domains is not verified from this connector",
+      "required_mechanics": ["registrar/DNS authority binding", "TLS lifecycle", "ingress activation", "owner-host deployment receipt", "route rollback"]
+    },
+    {
+      "edge": "LANDING_PAGE_FOUNDARY -> production landing-page publication factory",
+      "reason": "HCI/frontage repositories exist but a reusable landing-page compiler-to-publication pipeline is not yet verified end-to-end",
+      "required_mechanics": ["template compiler", "content binding", "form/CRM binding", "analytics", "publish actuator", "rollback"]
+    },
+    {
+      "edge": "CUSTOMER_FILE_BASE_SOFTWARE_FOUNDARY -> production customer data service",
+      "reason": "storage/HCI/service primitives exist but the complete customer-record lifecycle, privacy/retention policy, portal and service API have not been executed as one product runtime",
+      "required_mechanics": ["customer schema", "file lifecycle", "consent/privacy", "retention", "portal/API", "audit/export"]
+    },
+    {
+      "edge": "HR_AND_ALL_TEAM_SERVICES_FOUNDARY -> durable workforce supervision runtime",
+      "reason": "assignment/authorization/revocation are resident; durable supervision, lease, replacement and rehydration remain open",
+      "required_mechanics": ["supervisor lease", "expiry/fencing", "replacement transition", "rehydration receipt"]
+    },
+    {
+      "edge": "SERVER_FOUNDARY -> persistent owner-host server-room deployment",
+      "reason": "R20 runnable runtime/systemd/container assets exist, but persistent external owner-host activation has not been executed through an available host executor",
+      "required_mechanics": ["owner-host executor handle", "service-manager activation", "health/readback receipt"]
+    }
+  ],
+  "deployment_rule": "Foundaries remain compound data/process/service/agent/server structures. Genomes, server rooms and undertakings consume foundary work packets; they do not replace or reduce foundary internal scope."
+}
