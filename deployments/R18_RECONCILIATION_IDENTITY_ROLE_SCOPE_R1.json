@@ -1,0 +1,43 @@
+{
+  "schema": "braink.r18.reconciliation-receipt/v1",
+  "undertaking": "LEGAL_SERVICE",
+  "canonical_binding_register": "enterprise/R18_CAPABILITY_BINDINGS.json",
+  "reconciled_capabilities": ["identity", "role", "scope"],
+  "scope_transition": {
+    "work_module": "WM://GENERAL_GOVERNANCE/scope",
+    "classification": "REUSE",
+    "implementation_ref": "Library/keddeh_enterprise_runtime.py::runtime://keddeh/identity/check_scope",
+    "evidence_ref": "Library/KEDDEH_UNIFIED_EXECUTION_ROOT_R2.js::ENTERPRISE_IDENTITY_SCOPE_EXECUTED",
+    "binding_commit": "55384e756d10e6528fb16e44d4fc4a567044ac62"
+  },
+  "concurrent_current_bindings": {
+    "identity": {
+      "implementation_ref": "aboudykeddeh276-stack/GENERAL-GOVERNANCE-/braink_hr/hr_runtime.py::HRAssignment.agent_id",
+      "evidence_ref": "aboudykeddeh276-stack/GENERAL-GOVERNANCE-/braink_hr/test_hr_genome_capabilities_r18.py",
+      "state": "VERIFIED"
+    },
+    "role": {
+      "implementation_ref": "aboudykeddeh276-stack/GENERAL-GOVERNANCE-/braink_hr/hr_runtime.py::HRAssignment.roles",
+      "evidence_ref": "aboudykeddeh276-stack/GENERAL-GOVERNANCE-/braink_hr/test_hr_genome_capabilities_r18.py",
+      "state": "VERIFIED"
+    }
+  },
+  "local_invariant": {
+    "status": "PASS",
+    "deployment_root": "e80ae52e2bd026a3cdbf366f659f65c57c3288750946c658c32ab07c90dd7db5",
+    "server_sets": 18,
+    "requirements": 72,
+    "resident": 12,
+    "holes": 60,
+    "invariant_commit": "179b5363767fb5fc62c663fc56c7e55e50aaa16c"
+  },
+  "claim_boundary": [
+    "identity is HR assignment agent identity, not external identity-provider proof",
+    "role is declared HR assignment role membership",
+    "scope is local principal/scope authorization reuse",
+    "tenant, supervision, lease, replacement and rehydration remain separate unresolved capabilities",
+    "external SSO/OIDC, hardware-rooted identity and tenant isolation are not promoted",
+    "A_executed != A_claimed",
+    "S_observed != S_claimed"
+  ]
+}
