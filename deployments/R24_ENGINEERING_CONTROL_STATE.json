@@ -26,7 +26,8 @@
     "R23 customer-file owner/scope/privacy-consent access membrane",
     "hashed opaque session persistence with expiry/revocation denial and durable access audit",
     "R23 owner-host HTTP binding for session bind/revoke and privacy-enforced customer-file read",
-    "HTTP wrong-session and cross-customer denial with restart-safe revoked-session enforcement"
+    "HTTP wrong-session and cross-customer denial with restart-safe revoked-session enforcement",
+    "R5 active local owner-host durable execution with committed domain-authority transaction and successor-process readback"
   ],
   "local_execution": {
     "status": "PASS",
@@ -130,6 +131,33 @@
       "release_manifest": "PENDING",
       "market_readiness": "PENDING",
       "decision": "REUSE_RESIDENT_DURABLE_EXECUTION_R5_DO_NOT_REIMPLEMENT",
+      "promotion": "REJECTED_PENDING_REMAINING_R24_GATES"
+    },
+    "r5_active_owner_host_runtime": {
+      "status": "RESIDENT_CAPABILITY_EXECUTED_AND_READBACK_RECONCILED_NOT_PROMOTED",
+      "binding": "enterprise/orchestration/durable_execution_r5.py",
+      "deployment_descriptor": "deploy/KEDDEH_BRAINK_R5_ACTIVE_RUNTIME.json",
+      "source_execution_receipt": "receipts/KEDDEH_BRAINK_R5_ACTIVE_DEPLOYMENT_RECEIPT.json",
+      "r24_receipt": "deployments/R24_R5_ACTIVE_RUNTIME_RECONCILIATION_R1.json",
+      "r24_receipt_root": "2784486fb3abb37b9e696622056427a76e8b56e47e4443dcbb13dce1c1f776a4",
+      "source_receipt_root": "0e7063d050b2162a01f14d2310c61d966765a9a79d527eb8a8850be5227fa12b",
+      "scope": "SINGLE_HOST_LOOPBACK",
+      "transaction": "COMMITTED",
+      "domain_control": "BOUND_AUTHORITATIVE_LOCAL",
+      "zone": "ACTIVE_LOCAL",
+      "checkpoint_fresh_process_verify": "PASS",
+      "successor_epoch": 2,
+      "stale_epoch_fencing": "PASS",
+      "replay_rejection": "PASS",
+      "physical_multi_host": "UNPROVEN",
+      "public_dns_delegation": "UNPROVEN",
+      "public_network_exposure": "UNPROVEN",
+      "independent_verify": "PENDING",
+      "quality_gate": "PENDING_FULL_R24_PROFILE",
+      "security_gate": "PENDING_FULL_R24_PROFILE",
+      "release_manifest": "PENDING",
+      "market_readiness": "PENDING",
+      "decision": "REUSE_RESIDENT_DURABLE_EXECUTION_R5_DO_NOT_DUPLICATE",
       "promotion": "REJECTED_PENDING_REMAINING_R24_GATES"
     }
   },
