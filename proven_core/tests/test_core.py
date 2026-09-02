@@ -45,5 +45,29 @@ class ProvenCoreTests(unittest.TestCase):
         self.assertEqual(receipt.state.value, "PUBLIC_READBACK")
 
 
+class OrchestrationTests(unittest.TestCase):
+    def test_explicit_capability_routes_local_projection(self):
+        from kex_proven_core import AdapterResult, Capability, DurableRuntimeRegistry, Route, Supervisor
+        registry, ledger, _ = build_minframe()
+        runtime = DurableRuntimeRegistry(registry)
+        runtime.capability(Capability("capability://local-projection/read", "projection://braink/local", "READ", "braink://local/orchestrator"))
+        runtime.route(Route("route://root/local-projection", "volume://keddeh/braink/root", "projection://braink/local", "PROJECTION", "capability://local-projection/read"))
+        runtime.adapter("adapter://projection/local", lambda payload: AdapterResult("adapter://projection/local", True, {"echo": payload}))
+        result = Supervisor(runtime, ledger).reconcile(route_id="route://root/local-projection", actor="braink://local/orchestrator", operation="READ", adapter_id="adapter://projection/local", payload={"query": "state"})
+        self.assertTrue(result.executed)
+        self.assertEqual(ledger.receipts[-1].state.value, "EXECUTED_LOCAL")
+        self.assertTrue(ledger.verify())
+
+    def test_route_does_not_amplify_authority(self):
+        from kex_proven_core import AdapterResult, Capability, DurableRuntimeRegistry, Route, Supervisor
+        registry, ledger, _ = build_minframe()
+        runtime = DurableRuntimeRegistry(registry)
+        runtime.capability(Capability("capability://local-projection/read", "projection://braink/local", "READ", "braink://local/orchestrator"))
+        runtime.route(Route("route://root/local-projection", "volume://keddeh/braink/root", "projection://braink/local", "PROJECTION", "capability://local-projection/read"))
+        runtime.adapter("adapter://projection/local", lambda payload: AdapterResult("adapter://projection/local", True, payload))
+        with self.assertRaises(PermissionError):
+            Supervisor(runtime, ledger).reconcile(route_id="route://root/local-projection", actor="worker://untrusted", operation="READ", adapter_id="adapter://projection/local", payload={})
+
+
 if __name__ == "__main__":
     unittest.main()
