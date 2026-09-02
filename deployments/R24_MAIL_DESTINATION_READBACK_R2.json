@@ -1,0 +1,43 @@
+{
+  "schema": "braink.r24.mail-destination-readback/v1",
+  "release": "R24",
+  "subject": "gmail_submission_to_keddeh_domain_destination",
+  "status": "EXECUTED_SUBMISSION_AND_INBOX_READBACK_NOT_SMTP_PROVEN_NOT_PROMOTED",
+  "authority": "KEDDEH_SYSTEMS/BRAINK",
+  "probe": {
+    "probe_id": "R24-MAIL-20260903-0153",
+    "from_class": "AUTHENTICATED_GMAIL_ACCOUNT",
+    "destination": "aboudy@keddeh.com",
+    "submission": "PASS",
+    "inbox_readback": "PASS",
+    "message_labels": [
+      "SENT",
+      "INBOX"
+    ],
+    "raw_mime_readback": "PASS"
+  },
+  "observed_transport_evidence": {
+    "received_chain": [
+      "gmailapi.google.com HTTPREST",
+      "gmailapi.google.com HTTPREST"
+    ],
+    "independent_mx_hop_observed": false,
+    "independent_smtp_hop_observed": false
+  },
+  "reconciliation": {
+    "previous_claim": "smtp_transport_delivery=UNPROVEN",
+    "observed_change": "authenticated Gmail submission to keddeh.com destination plus inbox/readback is proven",
+    "classification": "STATE_DRIFT_RESOLVED_WITH_BOUNDED_EVIDENCE",
+    "smtp_transport_delivery": "UNPROVEN",
+    "keddeh_domain_destination_mapping": "OBSERVED_WITHIN_GMAIL_MAILBOX",
+    "self_hosted_mail_server": "UNPROVEN"
+  },
+  "promotion": {
+    "status": "REJECTED",
+    "reason": [
+      "no independent SMTP/MX hop in raw MIME",
+      "remaining R24 security/quality/release/independent-verifier gates not satisfied for mail transport"
+    ]
+  },
+  "receipt_root": "d5c5cc84ce0ebd51fbded23fcc8a14d02c5b8d71ef81f6eae487ddddd8630d04"
+}
