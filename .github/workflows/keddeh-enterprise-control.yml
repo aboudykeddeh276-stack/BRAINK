@@ -68,7 +68,7 @@ jobs:
         run: python scripts/kex-ci/test_runtime_fabric_real_routes_r27.py
 
   specialist:
-    if: ${{ github.event_name == 'workflow_dispatch' && inputs.use_self_hosted }}
+    if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.use_self_hosted) }}
     runs-on: [self-hosted, kex, cascade, hyperk0, warmboot]
     timeout-minutes: 30
     steps:
