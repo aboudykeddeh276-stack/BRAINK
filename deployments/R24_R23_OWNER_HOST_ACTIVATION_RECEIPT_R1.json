@@ -1,0 +1,59 @@
+{
+  "schema": "braink.r24.r23-owner-host-activation-receipt/v1",
+  "governing_baseline": "R24_ENGINEERING_CONTROL",
+  "subject": "R23_OWNER_HOST_RUNTIME_ACTIVATION",
+  "status": "EXECUTED_AND_READBACK_VERIFIED",
+  "execution": {
+    "static_validate": "PASS",
+    "integration_test": "PASS",
+    "fault_boundary": "PROCESS_STOP_RESTART_REHYDRATE",
+    "marker": "R23_OWNER_HOST_RUNTIME_PASS",
+    "executor": "local exact-current-main replay after GitHub-hosted executor allocated zero steps"
+  },
+  "mechanics_reused": [
+    "deployment/r23_foundry_closure_service.py",
+    "enterprise/runtime/process_supervisor.py",
+    "enterprise/foundry_closure_r23.py"
+  ],
+  "new_binding": "deployment/r23_owner_host_runtime.py",
+  "invariant": "scripts/kex-ci/test_r23_owner_host_runtime.py",
+  "observed_sequence": [
+    "PROCESS_START",
+    "GET_/closure/health_PASS",
+    "GET_/closure/state",
+    "POST_customer.lifecycle.create_EXECUTED",
+    "POST_customer.lifecycle.transition_EXECUTED",
+    "STATE_READBACK_ACTIVE",
+    "PROCESS_STOP",
+    "PROCESS_RESTART",
+    "STATE_ROOT_REHYDRATED_EQUAL",
+    "GENERATION_REHYDRATED_EQUAL",
+    "PROCESS_STOP_CLEAN"
+  ],
+  "security_boundary": {
+    "default_bind": "127.0.0.1",
+    "non_loopback_bind": "REJECTED",
+    "public_ingress_claim": false,
+    "dns_tls_claim": false
+  },
+  "claim_boundary": {
+    "single_host_process_activation": true,
+    "http_service_readback": true,
+    "durable_restart_rehydration": true,
+    "public_owner_host_ingress": false,
+    "authoritative_dns_tls": false,
+    "physical_multi_host": false
+  },
+  "github_executor_observation": {
+    "workflow_run_id": 33593824128,
+    "job_id": 100133091163,
+    "job_steps": 0,
+    "classification": "EXECUTOR_BOUNDARY_NOT_SOURCE_TEST_FAILURE"
+  },
+  "source_commits": {
+    "binding": "6c0ab2b96d6f1ae2f7f685ddfdc0701c3d525ed0",
+    "invariant": "bf638395ec954196c19668a2059cd67dff135720",
+    "ci_binding": "c54ca69b87fcfe96a40649cd0450c26b17c20bf4"
+  },
+  "promotion": "LOCAL_OWNER_HOST_RUNTIME_MECHANIC_VERIFIED_NOT_PUBLIC_DEPLOYMENT"
+}
