@@ -1,0 +1,13 @@
+{
+  "schema": "braink.r20.runtime-execution-receipt/v1",
+  "status": "PASS",
+  "real_http_socket_executed": true,
+  "health_endpoint_passed": true,
+  "compile_endpoint_passed": true,
+  "persistent_state_restart_passed": true,
+  "deployment_root": "16f9c3b9bd9c483c1ec3faa5541f28a7c335fe89cecf37a4b2c4c0b167b7d9d9",
+  "generation_before_restart": 1,
+  "generation_after_restart": 1,
+  "boundary": "verified inside current execution environment; persistent external owner-host daemon not yet executed from this connector",
+  "receipt_root": "197c2685b8ed38af4f294bff75e601011a98e31d11341c269b2bc0478231ed89"
+}
