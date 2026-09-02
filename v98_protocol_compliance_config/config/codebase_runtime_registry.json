@@ -1,6 +1,6 @@
 {
   "registry_id": "registry://keddeh/codebase-runtimes/v1",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "execution_rule": "Each runtime is executed, its exit state and expected artifacts are independently read back, and failure is bounded to its declared capability unless a proven global invariant violation exists.",
   "runtimes": [
     {
@@ -73,6 +73,27 @@
       "timeout_seconds": 120,
       "expected_artifacts": ["../skills/keddeh-engineering-orchestrator/enterprise/runtime/enterprise-portfolio.sqlite3"],
       "supplied_capabilities": ["portfolio-registry", "namespace-resolution", "bilateral-contracts"]
+    },
+    {
+      "runtime_id": "runtime://keddeh/encoded-medium-machine",
+      "domain": "storage-compute-control-plane",
+      "command": ["python3", "src/keddeh_encoded_medium_storage_runtime_v1.py", "--root", ".", "--activate"],
+      "depends_on": [],
+      "criticality": "CORE_MANDATORY",
+      "timeout_seconds": 120,
+      "expected_artifacts": [
+        "evidence/encoded_medium_reconciliation_receipt.json",
+        "runtime_volume/encoded_medium/current.json",
+        "runtime_volume/outbox/encoded_medium_reconciliation/authoritative.handoff.json"
+      ],
+      "supplied_capabilities": [
+        "encoded-medium-storage",
+        "braink-root-boot",
+        "recursive-machine-construction",
+        "lineage-proof",
+        "vfs-projection",
+        "constructor-inheritance-by-reference"
+      ]
     }
   ],
   "global_stop": false
