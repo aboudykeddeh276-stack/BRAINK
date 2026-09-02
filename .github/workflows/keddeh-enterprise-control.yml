@@ -64,6 +64,8 @@ jobs:
         run: python scripts/kex-ci/test_r23_owner_host_runtime.py
       - name: Execute R24 customer portal HTTP binding invariant
         run: python scripts/kex-ci/test_r24_customer_portal_http_binding.py
+      - name: Execute R27 real runtime route and recovery invariant
+        run: python scripts/kex-ci/test_runtime_fabric_real_routes_r27.py
 
   specialist:
     if: ${{ github.event_name == 'workflow_dispatch' && inputs.use_self_hosted }}
@@ -81,3 +83,5 @@ jobs:
         run: python3 scripts/kex-ci/test_r23_owner_host_runtime.py
       - name: Execute R24 customer portal HTTP binding invariant
         run: python3 scripts/kex-ci/test_r24_customer_portal_http_binding.py
+      - name: Execute R27 real runtime route and recovery invariant
+        run: python3 scripts/kex-ci/test_runtime_fabric_real_routes_r27.py
