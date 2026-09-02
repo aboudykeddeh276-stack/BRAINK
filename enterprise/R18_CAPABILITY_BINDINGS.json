@@ -1,0 +1,21 @@
+{
+  "schema": "braink.capability-bindings.r18/v1",
+  "undertaking": "LEGAL_SERVICE",
+  "bindings": {
+    "agent_dispatch": {"implementation_ref":"enterprise/braink_sector_federation.py","evidence_ref":"scripts/kex-ci/test_capability_deployment_runtime.py","state":"VERIFIED"},
+    "continuation": {"implementation_ref":"enterprise/continuation_runtime.py","evidence_ref":"scripts/kex-ci/test_capability_deployment_runtime.py","state":"VERIFIED"},
+    "artifact": {"implementation_ref":"enterprise/addressability_fabric.py","evidence_ref":"scripts/kex-ci/test_capability_deployment_runtime.py","state":"VERIFIED"},
+    "lineage": {"implementation_ref":"enterprise/backing_migration.py","evidence_ref":"scripts/kex-ci/test_capability_deployment_runtime.py","state":"VERIFIED"},
+    "receipt": {"implementation_ref":"enterprise/audit_observability.py","evidence_ref":"scripts/kex-ci/test_capability_deployment_runtime.py","state":"VERIFIED"},
+    "reconciliation": {"implementation_ref":"enterprise/observer_policy.py","evidence_ref":"scripts/kex-ci/test_capability_deployment_runtime.py","state":"VERIFIED"},
+    "process": {"implementation_ref":"enterprise/autonomous_evolution_runtime.py","evidence_ref":"scripts/kex-ci/test_capability_deployment_runtime.py","state":"VERIFIED"},
+    "telemetry": {"implementation_ref":"enterprise/audit_observability.py","evidence_ref":"scripts/kex-ci/test_capability_deployment_runtime.py","state":"VERIFIED"},
+    "assignment": {"implementation_ref":"aboudykeddeh276-stack/GENERAL-GOVERNANCE-/braink_hr/hr_runtime.py::HRRuntime.assign","evidence_ref":"aboudykeddeh276-stack/GENERAL-GOVERNANCE-/braink_hr/HR_FEDERATION_R1.json","state":"BOUND"}
+  },
+  "selection_receipt": {
+    "work_module": "WM://GENERAL_GOVERNANCE/assignment",
+    "classification": "REUSE",
+    "reason": "resident callable HR assignment capability with explicit authority, capability-gap and reuse law; no synthesis required",
+    "claim_boundary": "binding establishes resident implementation provenance and R18 reuse classification; it does not establish identity, supervision, lease, replacement or rehydration execution"
+  }
+}
