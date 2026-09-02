@@ -1,0 +1,16 @@
+{
+  "schema":"keddeh.github-deployment.r15/v1",
+  "canonical_federation_repo":"aboudykeddeh276-stack/BRAINK",
+  "repositories":{
+    "BRAINK":"canonical sector federation + HR/BRAINK routing",
+    "VIRTUALISED_MEMORY":"Ring1/Ring2 addressability and backing migration",
+    "KEDDEH_SOFTWARE_NODES":"sector software-node projection",
+    "K-SYSTEMS-CODE-SPACE-":"cross-repository coordinate fabric",
+    "KEDDEH-CLOUD-SERVERS-ID-1":"cloud server-room capability map",
+    "SERVERS-KEDDEHSYSTEMS":"ToT/ORC dispatch and production actuator runtime",
+    "GENERAL-GOVERNANCE-":"identity, policy, audit, metering, release controls",
+    "KSYSTEMS_LEARNING-":"IL-LLM sector semantic ingestion",
+    "Braink-Beta":"consumer pointer to canonical federation"
+  },
+  "replication_rule":"code is stored in its owning repository; other repositories reference it by coordinate instead of copying it"
+}
