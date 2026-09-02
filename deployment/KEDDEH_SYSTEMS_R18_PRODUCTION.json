@@ -1,0 +1,45 @@
+{
+  "schema": "keddeh.systems.r18.deployment/v1",
+  "release": "R18",
+  "authority": "KEDDEH_SYSTEMS/BRAINK",
+  "canonical_repository": "aboudykeddeh276-stack/BRAINK",
+  "deployment_class": "INTERNAL_RUNTIME_RELEASE_WITH_EXTERNAL_BOUNDARIES",
+  "runtime": {
+    "process_supervisor": "enterprise/runtime/process_supervisor.py",
+    "http_ingress": "enterprise/runtime/http_ingress.py",
+    "binding_register": "enterprise/adapters/BINDING_REGISTER_R18.json",
+    "payment_contract": "enterprise/adapters/payment_rail.py",
+    "connector_bindings": "enterprise/adapters/connector_bindings.py",
+    "qualification": "scripts/kex-ci/test_runtime_bindings_r18.py"
+  },
+  "bound_capabilities": {
+    "github": "BOUND_AND_TESTED",
+    "mail": "BOUND_CONTROL_PLANE",
+    "identity": "BOUND_READ_ONLY",
+    "drive": "BOUND_AND_TESTED",
+    "calendar": "BOUND_READ_ONLY",
+    "process_runtime": "BOUND_AND_TESTED",
+    "http_ingress": "BOUND_AND_TESTED_LOCAL",
+    "metrics": "BOUND_AND_TESTED_LOCAL"
+  },
+  "unbound_capabilities": {
+    "payments": "ADAPTER_IMPLEMENTED_UNBOUND",
+    "external_public_ingress": "UNBOUND",
+    "production_metrics_collector": "UNBOUND"
+  },
+  "promotion_policy": {
+    "external_public_ingress": "REQUIRES_OBSERVED_BINDING",
+    "payments": "REQUIRES_AUTHENTICATED_PROVIDER",
+    "mail_send": "REQUIRES_SIDE_EFFECT_READBACK_BEFORE_PROMOTION",
+    "calendar_write": "REQUIRES_SIDE_EFFECT_READBACK_BEFORE_PROMOTION"
+  },
+  "rollback": {
+    "rule": "restore predecessor binding register and runtime files; terminate R18 managed process group; preserve receipts and continuation",
+    "state_preservation": ["receipts", "continuation", "evidence", "binding_history"]
+  },
+  "replication_targets": [
+    "aboudykeddeh276-stack/BRAINK_DESKTOP_ORGANISED",
+    "aboudykeddeh276-stack/Braink-Beta",
+    "aboudykeddeh276-stack/BRAINK-CONSOLE-PLUS"
+  ]
+}
