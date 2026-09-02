@@ -1,9 +1,15 @@
 {
-  "schema":"braink.r23.deployment-state/v1",
+  "schema":"braink.r23.deployment-state/v2",
   "status":"EXECUTED_PARTIAL_EXTERNAL_BOUNDARY",
-  "source_commit":"67d7e440d39bb9ac782d1716987fc89581690e6b",
-  "test_commit":"b8dc79cc83043b4b08cfc806ffbca40f309e185b",
-  "service_commit":"e1dd53c45504b664ba4eb62cc171d72dab54ad56",
-  "execution":{"status":"PASS","hr_lease_rehydration":"PASS","customer_file_lifecycle":"PASS","research_independent_promotion":"PASS","internal_publication":"PASS","public_activation":"DEFERRED_EXTERNAL_ACTUATOR","receipt_count":15,"state_root":"bd418780a056d99f9846fbbbe3024d1eae3b13f9e16f0f932e3e9957054f0e0d","receipt_root":"37c4d7b9f33f54d595465adf6eaaba9bdc3ea1a0721bd99023b977b939ae9a75"},
-  "remaining_boundary":{"classification":"EXTERNAL_ACTUATOR_ABSENT","missing_mechanism":"registrar/DNS/TLS/owner-host actuator handle","effect":"public activation intent is persisted but no external DNS/TLS mutation is claimed"}
+  "source_commit":"393bbad54c280b9375d0609fe06c95fd53a28fa9",
+  "test_commit":"432bc346fdc9848bd1ed6b1c203980da3b4d01bf",
+  "service_commit":"16dd6659582e238a726baf626ca129a9a7840002",
+  "reconciliation_receipt_commit":"69ec63306a2b643c8c4d7d8c1ee219f0d3635926",
+  "execution":{"status":"PASS","hr_lease_rehydration":"PASS","customer_file_lifecycle":"PASS","research_independent_promotion":"PASS","internal_publication":"PASS","frontage_internal_release_binding":"PASS","frontage_activation_state":"READY_FOR_EXTERNAL_ACTUATOR","public_activation":"DEFERRED_EXTERNAL_ACTUATOR","receipt_count":16,"state_root":"e1426325334ff874db57a08e3789f0c16b6e467cbab5d354ea2b8b7e0247e6a7","frontage_receipt_root":"a18c0b1deb3a00b1690e1c21b7ca8d328e1fd39c98088b4c2046af3b269fceef","public_activation_receipt_root":"ff7438364621b5409797fcce42fc5f8ee2ebf10eb8c7f68a210456a22e55b8f6"},
+  "remaining_boundaries":[
+    {"classification":"EXTERNAL_ACTUATOR_ABSENT","missing_mechanism":"registrar/DNS/TLS/owner-host actuator handle","effect":"frontage release is internally bound and ready, but no external DNS/TLS mutation is claimed"},
+    {"classification":"LIVE_MAIL_EXTERNAL_SUBSTRATE_PENDING","missing_mechanism":"executed SMTP/MX/TLS owner-host path and readback"},
+    {"classification":"OWNER_HOST_DAEMON_ACTIVATION_PENDING","missing_mechanism":"executed persistent owner-host daemon/container activation receipt"},
+    {"classification":"PHYSICAL_MULTI_HOST_PROOF_PENDING","missing_mechanism":"executed multi-host mesh/storage/server evidence"}
+  ]
 }
