@@ -1,0 +1,41 @@
+{
+  "schema": "keddeh.sector-federation.r15/v1",
+  "sector_count": 12,
+  "shared_kernel": {
+    "schema": "keddeh.sector-kernel/v1",
+    "shared_functions": [
+      "identity/access",
+      "policy enforcement",
+      "approval control",
+      "audit",
+      "observability",
+      "usage metering",
+      "deployment qualification",
+      "continuation/checkpoint",
+      "evidence lineage",
+      "incident/reconciliation"
+    ],
+    "shared_runtime": "runtime://braink/sector-federation",
+    "hr_runtime": "runtime://keddeh/hr-fabric",
+    "inheritance_rule": "shared kernel referenced by version/root; sector functions are additive and do not fork shared governance"
+  },
+  "sectors": [
+    {"slug":"ai-cloud-infra","sector_id":"AI_CLOUD_INFRA","repository_name":"KEDDEH-SECTOR-AI_CLOUD_INFRA","path":"sectors/ai-cloud-infra"},
+    {"slug":"cybersecurity","sector_id":"CYBERSECURITY","repository_name":"KEDDEH-SECTOR-CYBERSECURITY","path":"sectors/cybersecurity"},
+    {"slug":"enterprise-automation","sector_id":"ENTERPRISE_AUTOMATION","repository_name":"KEDDEH-SECTOR-ENTERPRISE_AUTOMATION","path":"sectors/enterprise-automation"},
+    {"slug":"fintech-payments","sector_id":"FINTECH_PAYMENTS","repository_name":"KEDDEH-SECTOR-FINTECH_PAYMENTS","path":"sectors/fintech-payments"},
+    {"slug":"healthcare","sector_id":"HEALTHCARE","repository_name":"KEDDEH-SECTOR-HEALTHCARE","path":"sectors/healthcare"},
+    {"slug":"legal-regtech","sector_id":"LEGAL_REGTECH","repository_name":"KEDDEH-SECTOR-LEGAL_REGTECH","path":"sectors/legal-regtech"},
+    {"slug":"data-information-governance","sector_id":"DATA_INFORMATION_GOVERNANCE","repository_name":"KEDDEH-SECTOR-DATA_INFORMATION_GOVERNANCE","path":"sectors/data-information-governance"},
+    {"slug":"supply-chain-logistics","sector_id":"SUPPLY_CHAIN_LOGISTICS","repository_name":"KEDDEH-SECTOR-SUPPLY_CHAIN_LOGISTICS","path":"sectors/supply-chain-logistics"},
+    {"slug":"manufacturing-industrial","sector_id":"MANUFACTURING_INDUSTRIAL","repository_name":"KEDDEH-SECTOR-MANUFACTURING_INDUSTRIAL","path":"sectors/manufacturing-industrial"},
+    {"slug":"energy-utilities","sector_id":"ENERGY_UTILITIES","repository_name":"KEDDEH-SECTOR-ENERGY_UTILITIES","path":"sectors/energy-utilities"},
+    {"slug":"commerce-customer-operations","sector_id":"COMMERCE_CUSTOMER_OPERATIONS","repository_name":"KEDDEH-SECTOR-COMMERCE_CUSTOMER_OPERATIONS","path":"sectors/commerce-customer-operations"},
+    {"slug":"government-public-admin","sector_id":"GOVERNMENT_PUBLIC_ADMIN","repository_name":"KEDDEH-SECTOR-GOVERNMENT_PUBLIC_ADMIN","path":"sectors/government-public-admin"}
+  ],
+  "unification": {
+    "HR": "workforce/roles/assignment/approval/accountability",
+    "BRAINK": "state/routing/evidence/observer/reconciliation/continuation"
+  },
+  "repository_creation_state": "DEPLOYED_TO_CANONICAL_FEDERATION_REPOSITORY"
+}
