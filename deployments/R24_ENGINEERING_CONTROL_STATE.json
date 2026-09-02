@@ -18,13 +18,32 @@
     "NIST SSDF practice-group promotion gate",
     "rollback-readiness gate",
     "independent-verifier gate",
-    "market-readiness classification"
+    "market-readiness classification",
+    "R23 single-host process activation via resident ManagedProcess",
+    "R23 /closure/health and /closure/state service readback",
+    "R23 executed customer lifecycle mutation through /closure/operate",
+    "R23 process stop/restart with state-root and generation rehydration equality"
   ],
   "local_execution": {
     "status": "PASS",
     "exit_code": 0,
     "marker": "R24_ENGINEERING_CONTROL_PLANE_PASS",
     "environment_note": "artifact_tool spreadsheet warm-up emitted an unrelated timeout warning during interpreter startup; the R24 invariant itself completed successfully"
+  },
+  "applied_runtime_transitions": {
+    "r23_owner_host_runtime_activation": {
+      "status": "EXECUTED_AND_READBACK_VERIFIED",
+      "binding": "deployment/r23_owner_host_runtime.py",
+      "invariant": "scripts/kex-ci/test_r23_owner_host_runtime.py",
+      "receipt": "deployments/R24_R23_OWNER_HOST_ACTIVATION_RECEIPT_R1.json",
+      "marker": "R23_OWNER_HOST_RUNTIME_PASS",
+      "scope": "SINGLE_HOST_LOOPBACK",
+      "public_ingress": "UNPROVEN",
+      "authoritative_dns_tls": "UNPROVEN",
+      "physical_multi_host": "UNPROVEN",
+      "github_hosted_executor": "EXECUTOR_BOUNDARY_ZERO_STEPS",
+      "alternate_execution": "PASS"
+    }
   },
   "promotion_policy": {
     "no_completion_claim_without_readback": true,
