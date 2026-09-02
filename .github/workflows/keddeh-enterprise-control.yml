@@ -7,6 +7,7 @@ on:
       - 'scripts/kex-ci/test_enterprise_control.py'
       - 'scripts/kex-ci/test_addressability_fabric.py'
       - 'scripts/kex-ci/test_evolution_paths.py'
+      - 'scripts/kex-ci/test_self_evolution_runtime.py'
       - '.github/workflows/keddeh-enterprise-control.yml'
   push:
     branches: [main]
@@ -15,6 +16,7 @@ on:
       - 'scripts/kex-ci/test_enterprise_control.py'
       - 'scripts/kex-ci/test_addressability_fabric.py'
       - 'scripts/kex-ci/test_evolution_paths.py'
+      - 'scripts/kex-ci/test_self_evolution_runtime.py'
       - '.github/workflows/keddeh-enterprise-control.yml'
   workflow_dispatch:
 
@@ -31,10 +33,12 @@ jobs:
         with:
           python-version: '3.13'
       - name: Compile enterprise control modules
-        run: python -m compileall -q enterprise scripts/kex-ci/test_enterprise_control.py scripts/kex-ci/test_addressability_fabric.py scripts/kex-ci/test_evolution_paths.py
+        run: python -m compileall -q enterprise scripts/kex-ci/test_enterprise_control.py scripts/kex-ci/test_addressability_fabric.py scripts/kex-ci/test_evolution_paths.py scripts/kex-ci/test_self_evolution_runtime.py
       - name: Execute enterprise invariants
         run: python scripts/kex-ci/test_enterprise_control.py
       - name: Execute addressability fabric invariants
         run: python scripts/kex-ci/test_addressability_fabric.py
       - name: Execute update-amend-evolve invariants
         run: python scripts/kex-ci/test_evolution_paths.py
+      - name: Execute self-evolution runtime invariants
+        run: python scripts/kex-ci/test_self_evolution_runtime.py
