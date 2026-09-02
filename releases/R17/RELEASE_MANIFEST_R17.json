@@ -1,0 +1,21 @@
+{
+  "schema":"keddeh.release-manifest.r17/v1",
+  "release_id":"KEDDEH-MARKET-PROCESS-R17",
+  "runtime":"runtime://braink/market-process/r17",
+  "evidence":"KEX://BRAINK/MARKET-PROCESS/R17/EVIDENCE",
+  "state":"RELEASE_CANDIDATE",
+  "process_count":11,
+  "sector_process_bindings":94,
+  "components":{
+    "process_runtime":"runtime/R17/market_process_runtime.py",
+    "process_contracts":"runtime/R17/MARKET_PROCESS_CONTRACTS_R17.json",
+    "sector_bindings":"runtime/R17/SECTOR_PROCESS_BINDINGS_R17.json",
+    "artifact_lifecycle":"runtime/R17/artifact_lifecycle.py",
+    "reconciliation_checkpoint":"runtime/R17/reconciliation_checkpoint.py"
+  },
+  "required_release_evidence":["local_test_receipt","artifact_digest","rollback_ref","environment_binding","remote_readback"],
+  "promotion_rule":"RELEASED only after required release evidence is present and reconciled",
+  "rollback":"revert to previous promoted runtime pointer and preserve R17 receipts",
+  "owner":"KEDDEH_SYSTEMS/BRAINK",
+  "created_utc":"2026-09-02T02:37:00Z"
+}
