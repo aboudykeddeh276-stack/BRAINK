@@ -1,0 +1,56 @@
+{
+  "schema": "braink.r24.mail-control-plane-external-readback/v1",
+  "release": "R24",
+  "subject": "gmail_control_plane_label_mutation",
+  "status": "EXECUTED_MUTATION_READBACK_ROLLBACK_VERIFIED_NOT_PROMOTED",
+  "authority": "KEDDEH_SYSTEMS/BRAINK",
+  "existing_mechanics": [
+    "enterprise/adapters/connector_bindings.py",
+    "enterprise/market/live_service_fabric_r25.py",
+    "enterprise/market/LIVE_INFRASTRUCTURE_R25.json",
+    "enterprise/r23_dependency_bindings.py"
+  ],
+  "declared_binding": {
+    "provider": "Gmail",
+    "resource_id": "Label_31",
+    "logical_identity": "KEDDEH SYSTEMS/Runtime Mail",
+    "state": "BOUND_CONTROL_PLANE"
+  },
+  "observed_execution": {
+    "operation": "LABEL_APPLY_READBACK_REMOVE_READBACK",
+    "target_class": "GitHub CI notification",
+    "add_result": "PASS",
+    "mutation_readback": "PASS",
+    "rollback_result": "PASS",
+    "rollback_readback": "PASS",
+    "post_rollback_label_state": ["UNREAD", "INBOX"]
+  },
+  "r24_sequence": {
+    "DISCOVER": "PASS_EXISTING_MECHANIC_REUSED",
+    "RECONCILE_SOURCE_STATE": "PASS_DECLARED_RESOURCE_MATCHES_OBSERVED_GMAIL_LABEL",
+    "ARCHITECTURE_DECISION": "REUSE_GMAIL_CONNECTOR_CONTROL_PLANE_NO_NEW_MAIL_FABRIC",
+    "IMPLEMENT": "PASS_OPERATIONAL_INVOCATION_NO_SOURCE_MUTATION",
+    "STATIC_VALIDATE": "NOT_APPLICABLE_NO_SOURCE_MUTATION",
+    "UNIT_TEST": "PENDING_FORMALIZED_RUNTIME_TEST",
+    "INTEGRATION_TEST": "PASS_LIVE_CONNECTOR_MUTATION_AND_READBACK",
+    "FAULT_INJECTION": "PASS_ROLLBACK_PATH_EXERCISED",
+    "SECURITY_GATE": "PENDING_FORMAL_R24_GATE",
+    "QUALITY_GATE": "PENDING_FORMAL_R24_GATE",
+    "BUILD_RELEASE_MANIFEST": "PENDING_FORMAL_R24_RELEASE",
+    "INDEPENDENT_VERIFY": "PARTIAL_EXTERNAL_GMAIL_READBACK_ONLY",
+    "PROMOTE_OR_REJECT": "REJECT_PROMOTION_PENDING_REQUIRED_GATES",
+    "DEPLOY": "NOT_APPLICABLE_EXISTING_CONNECTED_CONTROL_PLANE",
+    "READBACK_RECONCILE": "PASS_ORIGINAL_MAILBOX_LABEL_STATE_RESTORED",
+    "MARKET_READINESS_EVALUATE": "PENDING",
+    "CONTINUE": "FORMALIZE_MAIL_RUNTIME_TEST_AND_DELIVERY_BOUNDARY"
+  },
+  "claim_boundaries": {
+    "gmail_control_plane_mutation": "PROVEN",
+    "gmail_control_plane_rollback": "PROVEN",
+    "smtp_transport_delivery": "UNPROVEN",
+    "mx_dns_dkim_spf_dmarc": "UNPROVEN",
+    "self_hosted_mail_server": "UNPROVEN",
+    "customer_facing_mail_flow": "UNPROVEN"
+  },
+  "receipt_root": "f95643216009620c176314c4091133f632636096aea3cd53b43a5aa06c89124c"
+}
