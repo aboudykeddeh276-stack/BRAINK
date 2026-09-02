@@ -1,0 +1,21 @@
+name: R16 Sector Activation Validation
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'federation/R16/**'
+      - 'scripts/kex-ci/test_sector_activation_r16.py'
+      - '.github/workflows/sector-activation-r16.yml'
+  workflow_dispatch:
+jobs:
+  activate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Compile activation runtime
+        run: python -m compileall -q federation/R16
+      - name: Execute 12-sector activation invariant
+        run: python scripts/kex-ci/test_sector_activation_r16.py
