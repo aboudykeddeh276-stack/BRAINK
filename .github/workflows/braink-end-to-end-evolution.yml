@@ -1,0 +1,27 @@
+name: BRAINK End-to-End Evolution
+on:
+  push:
+    branches: [main]
+    paths:
+      - "enterprise/evolution/**"
+      - "enterprise/market_services/**"
+      - "enterprise/sector_products/**"
+      - "scripts/kex-ci/test_end_to_end_evolution_r3.py"
+      - "market/**"
+      - ".github/workflows/braink-end-to-end-evolution.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validate-evolution:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m compileall -q enterprise/evolution enterprise/market_services
+      - run: python scripts/kex-ci/test_end_to_end_evolution_r3.py
+      - run: if [ -f scripts/kex-ci/test_market_services.py ]; then python scripts/kex-ci/test_market_services.py; fi
+      - run: if [ -f scripts/kex-ci/test_sector_binding_r2.py ]; then python scripts/kex-ci/test_sector_binding_r2.py; fi
