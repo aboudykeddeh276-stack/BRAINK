@@ -1,0 +1,17 @@
+{
+  "schema": "braink.gene-requirements.r17/v1",
+  "requirements": {
+    "G_HR": {"controls": ["supervision_scope", "lease_epoch", "stale_worker_fencing"], "adapters": ["identity", "vfs"]},
+    "G_AGENTIC": {"controls": ["tool_scope", "handoff_integrity", "continuation_policy"], "adapters": ["runtime", "illlm", "vfs"]},
+    "G_MAIL": {"controls": ["sender_identity", "delivery_audit", "privacy_scope"], "adapters": ["smtp_or_mail_api", "template_store"]},
+    "G_PAYMENTS": {"controls": ["dual_control", "transaction_limit", "reconciliation"], "adapters": ["payment_rail", "ledger", "identity"]},
+    "G_VFS": {"controls": ["lineage", "hash_integrity", "retention"], "adapters": ["filesystem_or_object_store"]},
+    "G_ILLLM": {"controls": ["source_provenance", "traversal_bound", "evidence_scope"], "adapters": ["database", "search"]},
+    "G_PROOF": {"controls": ["tamper_evidence", "receipt_lineage"], "adapters": ["vfs", "observer"]},
+    "G_RUNTIME": {"controls": ["health_check", "restart_policy", "qualification"], "adapters": ["process_host", "metrics"]},
+    "G_OBSERVER": {"controls": ["signal_classification", "conflict_detection"], "adapters": ["telemetry", "readback"]},
+    "G_API": {"controls": ["authentication", "rate_limit", "tenant_scope"], "adapters": ["http_server", "identity"]},
+    "G_BILLING": {"controls": ["usage_integrity", "cost_attribution"], "adapters": ["metering", "payments"]},
+    "G_CASE": {"controls": ["matter_identity", "evidence_lineage"], "adapters": ["documents", "calendar", "research"]}
+  }
+}
