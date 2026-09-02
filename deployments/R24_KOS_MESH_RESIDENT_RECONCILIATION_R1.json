@@ -1,0 +1,35 @@
+{
+  "schema": "braink.r24.kos-mesh-resident-reconciliation/v1",
+  "subject": "R22_KOS_MESH_PHYSICAL_MULTI_HOST",
+  "classification": "UNDOCUMENTED_RESIDENT_CAPABILITY_RECONCILED_PHYSICAL_MULTI_HOST_UNPROVEN",
+  "resident_package": {
+    "name": "KEDDEH K-OS/BOS Mesh Substrate v2.0",
+    "file_count": 108,
+    "critical_artifacts": {
+      "src/kos_mesh/node.py": "5bf1aa1f8fd1f543cd84cc2b76470a5978e55868b3c10a103f3ccb1f6b477016",
+      "src/kos_mesh/consensus.py": "c92af56642f793392eb9f02b38394a17651b1d699be399faa7c64ff77870998c",
+      "src/kos_mesh/hal.py": "d4952170f0592869b21f2d62e02751a647cb22b88e54ba0ae016b860b7fda7c7",
+      "src/kos_mesh/receipts.py": "f78caa4441ca3ce3f27894cbfb8d7dbc73e5632d8e9e30e197c517fb8eb6aaea",
+      "dist/keddeh_kos_mesh-2.0.0-py3-none-any.whl": "4b25c0e670332038f46e09dcbc5f7090350131dcc0782f902155fb3c384876cc",
+      "dist/kex_mesh_runtime.pyz": "7f48db1cfc94c3eaf11140d472a3e6e160ef4fa55ae5c9c275c1995ed8d980e2"
+    }
+  },
+  "observed_historical_evidence": {
+    "static_compilation": "PASS",
+    "three_local_nodes_real_sockets": "PASS",
+    "three_os_processes": "PASS",
+    "one_node_outage_2_of_3_continuation": "PASS",
+    "restart_anti_entropy_catchup": "PASS",
+    "dns_udp_tcp": "PASS",
+    "test_suite": "33/33 PASS"
+  },
+  "preserved_boundary": {
+    "distinct_physical_hosts": "UNEXECUTED",
+    "private_static_ips": "CONFIGURED_NOT_EXECUTED",
+    "physical_root": "UNTESTED",
+    "public_authoritative_dns": "UNAPPLIED",
+    "hardware_signer": "UNINSTANTIATED"
+  },
+  "r24_decision": "DO_NOT_REIMPLEMENT_MESH; RECOVER_AND_DEPLOY_EXISTING_KOS_PACKAGE_TO_DISTINCT_AUTHORISED_HOSTS; REQUIRE_DISTINCT_HOST_READBACK_BEFORE_PROMOTION",
+  "receipt_root": "c6554cf079d0111089fb692c6b97f8478511aa3cd40981d22aea295f1d7dbcc0"
+}
