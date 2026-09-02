@@ -4,6 +4,7 @@
   "authority": "KEDDEH_SYSTEMS/BRAINK",
   "canonical_repository": "aboudykeddeh276-stack/BRAINK",
   "lineage_parent": "R21",
+  "ci_generation": 1,
   "state_root": "072a10a26e4158ebc60d1c179941b8b3013d9d04e8d8f65ab3ab8dba4f96d17e",
   "release_sha256": "d464b55502e349b22c4181e4052da47cfa022eb71bc25f2f532dc81856dd7ec1",
   "counts": {
