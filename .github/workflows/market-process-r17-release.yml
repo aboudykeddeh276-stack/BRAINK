@@ -1,0 +1,84 @@
+name: KEDDEH Market Process R17 Release
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'runtime/R17/**'
+      - 'releases/R17/**'
+      - '.github/workflows/market-process-r17-release.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Compile R17 runtime
+        run: python -m compileall -q runtime/R17
+      - name: Validate release manifest
+        run: |
+          python - <<'PY'
+          import json, pathlib
+          p=pathlib.Path('releases/R17/RELEASE_MANIFEST_R17.json')
+          d=json.loads(p.read_text())
+          assert d['release_id']=='KEDDEH-MARKET-PROCESS-R17'
+          assert d['process_count']==11
+          assert d['sector_process_bindings']==94
+          for rel in d['components'].values():
+              assert pathlib.Path(rel).exists(), rel
+          print('release-manifest: PASS')
+          PY
+      - name: Execute process runtime contract tests
+        run: |
+          python - <<'PY'
+          import json, sys
+          from pathlib import Path
+          sys.path.insert(0,'.')
+          from runtime.R17.market_process_runtime import ProcessRuntime
+          c=json.loads(Path('runtime/R17/MARKET_PROCESS_CONTRACTS_R17.json').read_text())
+          rt=ProcessRuntime(c)
+          for p in c['processes'].values():
+              for s in p['stages']:
+                  rt.register(s,lambda packet:{'status':'OK','state':{packet['stage']:'DONE'},'overhead':{'cpu_ms':1,'memory_bytes':64}})
+          for pid,p in c['processes'].items():
+              st=rt.start(pid,{'ci':True}); out=rt.run(st['process_run_id'])
+              assert out['status']=='COMPLETED', (pid,out)
+          print('process-contracts: PASS')
+          PY
+      - name: Validate lifecycle and checkpoint modules
+        run: |
+          python - <<'PY'
+          import sys,tempfile
+          from pathlib import Path
+          sys.path.insert(0,'.')
+          from runtime.R17.artifact_lifecycle import ArtifactLifecycleLedger
+          from runtime.R17.reconciliation_checkpoint import ReconciliationEngine,CheckpointStore
+          l=ArtifactLifecycleLedger(); a=l.record('ci','/tmp/ci','DISCOVERED',{'v':1},'discover'); b=l.record('ci','/tmp/ci','VALIDATED',{'v':2},'validate'); assert b['parent_root']==a['content_root']
+          assert ReconciliationEngine().compare({'x':1},{'x':1})['status']=='MATCH'
+          with tempfile.TemporaryDirectory() as td:
+              cp=CheckpointStore(Path(td)/'state.json'); assert cp.write({'tick':1})['status']=='CHECKPOINTED'; assert cp.read()['status']=='RESTORED'
+          print('lifecycle-checkpoint: PASS')
+          PY
+      - name: Emit validation evidence
+        run: |
+          mkdir -p runtime/R17/ci-evidence
+          python - <<'PY'
+          import hashlib,json,pathlib,time
+          files=['runtime/R17/MARKET_PROCESS_CONTRACTS_R17.json','runtime/R17/SECTOR_PROCESS_BINDINGS_R17.json','releases/R17/RELEASE_MANIFEST_R17.json']
+          ev={'release_id':'KEDDEH-MARKET-PROCESS-R17','status':'VALIDATED','created_ns':time.time_ns(),'artifacts':{}}
+          for f in files:
+              b=pathlib.Path(f).read_bytes(); ev['artifacts'][f]=hashlib.sha256(b).hexdigest()
+          pathlib.Path('runtime/R17/ci-evidence/VALIDATION.json').write_text(json.dumps(ev,indent=2))
+          PY
+      - name: Upload evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: keddeh-market-process-r17-evidence
+          path: runtime/R17/ci-evidence/VALIDATION.json
