@@ -1,0 +1,36 @@
+name: BRAINK ISO-Ready Controls
+
+on:
+  push:
+    paths:
+      - 'enterprise/**'
+      - 'scripts/kex-ci/**'
+      - '.github/workflows/braink-iso-ready.yml'
+  pull_request:
+    paths:
+      - 'enterprise/**'
+      - 'scripts/kex-ci/**'
+
+permissions:
+  contents: read
+
+jobs:
+  verify-governance:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile enterprise modules
+        run: python -m compileall -q enterprise
+      - name: Existing addressability invariants
+        run: python scripts/kex-ci/test_addressability_fabric.py
+      - name: Agentic addressability invariants
+        run: python scripts/kex-ci/test_agentic_addressability.py
+      - name: Self-coding workgroup invariants
+        run: python scripts/kex-ci/test_self_coding_workgroup.py
+      - name: ISO-ready governance invariants
+        run: python scripts/kex-ci/test_iso_ready_controls.py
+      - name: Supply-chain evidence invariants
+        run: python scripts/kex-ci/test_supply_chain_and_release.py
