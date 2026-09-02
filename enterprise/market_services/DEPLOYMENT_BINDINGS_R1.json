@@ -1,0 +1,38 @@
+{
+  "schema": "braink.market-services.deployment-bindings.v1",
+  "canonical_code_repository": "aboudykeddeh276-stack/BRAINK",
+  "canonical_paths": {
+    "broker": "enterprise/market_services/service_broker.py",
+    "runtime_entry": "enterprise/market_services/runtime_entry.py",
+    "contracts": "enterprise/market_services/SERVICE_CONTRACTS_R1.json",
+    "ci": "scripts/kex-ci/test_market_services.py"
+  },
+  "bindings": [
+    {
+      "repository": "aboudykeddeh276-stack/VIRTUALISED_MEMORY",
+      "role": "persistent_state_and_checkpoint_substrate",
+      "mount": "VFS://BRAINK/MARKET-SERVICES/STATE"
+    },
+    {
+      "repository": "aboudykeddeh276-stack/KEDDEH_SOFTWARE_NODES",
+      "role": "agent_and_service_node_registry",
+      "mount": "KEX://NODES/MARKET-SERVICES"
+    },
+    {
+      "repository": "aboudykeddeh276-stack/K-SYSTEMS-CODE-SPACE-",
+      "role": "candidate_and_generated_function_workspace",
+      "mount": "KEX://CODE/MARKET-SERVICES"
+    },
+    {
+      "repository": "aboudykeddeh276-stack/kcloud-substrate",
+      "role": "runtime_and_cloud_substrate_binding",
+      "mount": "KEX://RUNTIME/CLOUD/MARKET-SERVICES"
+    },
+    {
+      "repository": "aboudykeddeh276-stack/BRAINK-CONSOLE-PLUS",
+      "role": "operator_and_observer_surface",
+      "mount": "KEX://UI/MARKET-SERVICES"
+    }
+  ],
+  "replication_rule": "Do not copy broker implementation into substrate repositories. Substrate repositories publish role/binding manifests and point to the canonical BRAINK code authority."
+}
