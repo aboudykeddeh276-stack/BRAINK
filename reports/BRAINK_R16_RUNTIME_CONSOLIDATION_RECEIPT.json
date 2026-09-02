@@ -1,0 +1,26 @@
+{
+  "schema": "braink.runtime-consolidation.r16.receipt",
+  "status": "PASS_LOCAL_CONTRACTS",
+  "tests": 7,
+  "architecture": {
+    "medium": "encoded machine medium via StorageController",
+    "vfs": "RESOLVER_ONLY",
+    "identity": "machine+BRAINK+lineage first-class",
+    "replication": "canonical payload preserved; destination lineage preserved",
+    "reconciliation": "revision-monotonic; local lineage preserved",
+    "authority": "observation and mutation are distinct capabilities",
+    "failover": "resolver membership/health, not disk renaming"
+  },
+  "demoted": [
+    "R8-R15 as evidence/migration fixtures, not production architecture"
+  ],
+  "local_test_state": "7/7 PASS",
+  "ci_state": "PENDING_READBACK",
+  "files": {
+    "runtime/braink_core.py": "56a0c8a4587be22d009ef0a9032e456c4c5290a2fb79c6cb39893ab773b244ad",
+    "runtime/authority_ports.py": "fb01847c43169bdabcccdcce4dc83a49bec2d106fc6398e9915d968d104935a0",
+    "runtime/braink_system.py": "60a8a1eec1231bfe35d19cae0e29e3d31fc6896576d0e029193504361f7ec114",
+    "tests/test_braink_core.py": "214e1e5722e9745b6e267c4837ede97b31cd2af4ecf8dfc4a0f5242b6c6ce67e",
+    "tests/test_braink_system.py": "454f567d686d77eb40fdb5a6c3bf21d81221ecefb4f5f58b948b16053a97b09d"
+  }
+}
