@@ -1,0 +1,71 @@
+name: BRAINK R23 Live Recursion
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/braink-r23-live-recursion.yml'
+      - 'enterprise/foundries/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  execute-existing-runtime:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Materialize existing R22 operational volume
+        run: |
+          rm -rf /tmp/keddeh-r23-live
+          mkdir -p /tmp/keddeh-r23-live
+          python enterprise/foundries/materialize_foundry_corpus_r22.py
+          cp enterprise/foundries/FOUNDRY_*_R22.json /tmp/keddeh-r23-live/
+      - name: Invoke existing R23 executor and inspect descendants
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json, sqlite3
+          from enterprise.foundries.foundry_executor_r23 import FoundryExecutor
+
+          root=Path('/tmp/keddeh-r23-live')
+          db=root/'foundry_r23.sqlite3'
+          ex=FoundryExecutor(db)
+          hydrated=ex.hydrate(root/'FOUNDRY_WORK_QUEUE_R22.json')
+          holes=ex.seed_capability_holes(root/'FOUNDRY_OPERATIONAL_CORPUS_R22.json')
+          snapshot=ex.snapshot()
+
+          cx=sqlite3.connect(db); cx.row_factory=sqlite3.Row
+          first=cx.execute('''SELECT h.hole_id,h.class,h.requirement,w.work_module_id,w.foundry,w.process,w.stage,w.state,w.vfs_address,w.instruction
+                              FROM holes h JOIN work w ON w.work_module_id=h.work_module_id
+                              WHERE h.state='OPEN' ORDER BY h.created_ns,h.hole_id LIMIT 1''').fetchone()
+          assignments=[]
+          if first:
+              assignments=[dict(r) for r in cx.execute('SELECT agent_group,supervisor,authority_scope,state FROM assignments WHERE work_module_id=? ORDER BY agent_group',(first['work_module_id'],))]
+          cx.close()
+
+          result={
+            'hydrated':hydrated,
+            'seeded_holes':holes,
+            'snapshot':snapshot,
+            'first_open_dependency':dict(first) if first else None,
+            'assignments_for_dependency':assignments,
+          }
+          Path('/tmp/keddeh-r23-live/R23_LIVE_EXECUTION.json').write_text(json.dumps(result,indent=2))
+          print(json.dumps(result,indent=2))
+          PY
+      - name: Upload instantiated descendant state
+        uses: actions/upload-artifact@v4
+        with:
+          name: braink-r23-live-runtime
+          path: |
+            /tmp/keddeh-r23-live/R23_LIVE_EXECUTION.json
+            /tmp/keddeh-r23-live/foundry_r23.sqlite3
+            /tmp/keddeh-r23-live/FOUNDRY_OPERATIONAL_CORPUS_R22.json
+            /tmp/keddeh-r23-live/FOUNDRY_WORK_QUEUE_R22.json
+            /tmp/keddeh-r23-live/FOUNDRY_HR_TOPOLOGY_R22.json
+            /tmp/keddeh-r23-live/FOUNDRY_SERVER_TOPOLOGY_R22.json
