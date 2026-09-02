@@ -1,0 +1,12 @@
+{
+  "schema": "braink.market-signal-baseline.2026-09-02/v1",
+  "signals": [
+    {"id":"GLOBAL_IT","fact":"Worldwide IT spending forecast $6.37T in 2026, +14.2%.","source":"Gartner 2026-07-27"},
+    {"id":"AI_TOTAL","fact":"Worldwide AI spending forecast $2.59T in 2026, +47%.","source":"Gartner 2026-05-19"},
+    {"id":"AI_PLATFORM","fact":"AI models and platforms spending forecast $64B in 2026, +63.4%; buyers emphasize cost, latency, performance and reliability.","source":"Gartner 2026-07-20"},
+    {"id":"AI_SECURITY","fact":"Market for securing AI forecast nearly $4.8B in 2027, +68.7% over 2026.","source":"Gartner 2026-08-26"},
+    {"id":"AGENT_GOV","fact":"40% of enterprises predicted to demote/decommission autonomous agents by 2027 due to governance gaps.","source":"Gartner 2026-05-26"},
+    {"id":"FINOPS_AI","fact":"98% now manage AI spend; AI cost management is the top forward-looking skill need.","source":"FinOps Foundation 2026"},
+    {"id":"LEGAL_AI","fact":"Government legal departments report rising AI adoption while governance lags.","source":"Thomson Reuters Institute 2026-07-15"}
+  ]
+}
