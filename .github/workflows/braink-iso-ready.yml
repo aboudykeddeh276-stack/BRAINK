@@ -34,3 +34,9 @@ jobs:
         run: python scripts/kex-ci/test_iso_ready_controls.py
       - name: Supply-chain evidence invariants
         run: python scripts/kex-ci/test_supply_chain_and_release.py
+      - name: AI risk and impact invariants
+        run: python scripts/kex-ci/test_risk_impact_register.py
+      - name: HR/BRAINK sector federation invariants
+        run: python scripts/kex-ci/test_sector_federation_runtime.py
+      - name: Genome-defined server room invariants
+        run: python scripts/kex-ci/test_service_genome_server_room.py
