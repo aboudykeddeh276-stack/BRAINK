@@ -1,0 +1,14 @@
+{
+  "schema":"keddeh.systems.akd-authorship-ledger.r2/v1",
+  "author_id":"AKD",
+  "authorship_root":"enterprise/governance/AKD_AUTHORSHIP_ROOT.json",
+  "canonical_repository":"aboudykeddeh276-stack/BRAINK",
+  "lineage":[
+    {"service_id":"KEDDEH_SYSTEMS_RUNTIME_ACTIVE_R1","deployment_path":"deployment/KEDDEH_SYSTEMS_RUNTIME_ACTIVE_R1.json","predecessor_id":null,"classification":"AKD_AUTHORED"},
+    {"service_id":"KEDDEH_SYSTEMS_R18_PRODUCTION","deployment_path":"deployment/KEDDEH_SYSTEMS_R18_PRODUCTION.json","predecessor_id":"KEDDEH_SYSTEMS_RUNTIME_ACTIVE_R1","classification":"AKD_AUTHORED_INHERITED"},
+    {"service_id":"KEDDEH_SYSTEMS_R22_OPERATIONAL_FOUNDRIES","deployment_path":"deployment/KEDDEH_SYSTEMS_R22_OPERATIONAL_FOUNDRIES.json","predecessor_id":"KEDDEH_SYSTEMS_R18_PRODUCTION","classification":"AKD_AUTHORED_INHERITED"},
+    {"service_id":"KEDDEH_SYSTEMS_R23_FOUNDRY_EXECUTION","deployment_path":"deployment/KEDDEH_SYSTEMS_R23_FOUNDRY_EXECUTION.json","predecessor_id":"KEDDEH_SYSTEMS_R22_OPERATIONAL_FOUNDRIES","classification":"AKD_AUTHORED_INHERITED"},
+    {"service_id":"KEDDEH_SYSTEMS_R24_MARKET_SERVICE_FABRIC","deployment_path":"deployment/KEDDEH_SYSTEMS_R24_MARKET_SERVICE_FABRIC.json","predecessor_id":"KEDDEH_SYSTEMS_R23_FOUNDRY_EXECUTION","classification":"AKD_AUTHORED_INHERITED"},
+    {"service_id":"KEDDEH_SYSTEMS_R25_LIVE_SERVICE_DEPLOYMENT","deployment_path":"deployment/KEDDEH_SYSTEMS_R25_LIVE_SERVICE_DEPLOYMENT.json","predecessor_id":"KEDDEH_SYSTEMS_R24_MARKET_SERVICE_FABRIC","classification":"AKD_AUTHORED_INHERITED"}
+  ]
+}
