@@ -1,51 +1,82 @@
-name: BRAINK External Observer R16
+name: BRAINK Active Runtime External Observer R16
 
 on:
-  pull_request:
-    branches:
-      - build/service-supervisor-s1-host-survey
-    paths:
-      - 'runtime/braink_external_probe_r15.sh'
-      - '.github/workflows/braink-external-observer-r16.yml'
   workflow_dispatch:
+    inputs:
+      runtime_id:
+        description: Active BRAINK runtime identifier
+        required: true
+        type: string
+      runtime_active:
+        description: Confirm the target runtime is active
+        required: true
+        default: false
+        type: boolean
+  workflow_call:
+    inputs:
+      runtime_id:
+        required: true
+        type: string
+      runtime_active:
+        required: true
+        type: boolean
 
 permissions:
   contents: read
 
 jobs:
-  external-observer:
+  active-runtime-observer:
+    if: ${{ inputs.runtime_active == true }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    env:
+      BRAINK_RUNTIME_ID: ${{ inputs.runtime_id }}
+      BRAINK_RUNTIME_ACTIVE: '1'
     steps:
-      - name: Runner proof
+      - name: Active runner and runtime gate
         run: |
+          test "$BRAINK_RUNTIME_ACTIVE" = "1"
+          test -n "$BRAINK_RUNTIME_ID"
           echo "R16_RUNNER_ACTIVE=1"
+          echo "R16_RUNTIME_ACTIVE=1"
+          echo "R16_RUNTIME_ID=$BRAINK_RUNTIME_ID"
           uname -a
           python3 --version
           curl --version | head -n 1
       - name: Checkout BRAINK
         uses: actions/checkout@v4
-      - name: Execute R15 probe from independent runner
+      - name: Execute external path probe for active runtime
         run: |
           chmod +x runtime/braink_external_probe_r15.sh
           mkdir -p reports/r16
           runtime/braink_external_probe_r15.sh keddeh.com reports/r16/BRAINK_R16_EXTERNAL_OBSERVER_RECEIPT.json
-          cat reports/r16/BRAINK_R16_EXTERNAL_OBSERVER_RECEIPT.json
-      - name: Assert receipt classification
+          python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+          p=Path('reports/r16/BRAINK_R16_EXTERNAL_OBSERVER_RECEIPT.json')
+          r=json.loads(p.read_text())
+          r['runner_active']=True
+          r['runtime_active']=True
+          r['runtime_id']=os.environ['BRAINK_RUNTIME_ID']
+          p.write_text(json.dumps(r,indent=2))
+          print(p.read_text())
+          PY
+      - name: Assert active-runtime receipt classification
         run: |
           python3 - <<'PY'
           import json
           from pathlib import Path
-          p=Path('reports/r16/BRAINK_R16_EXTERNAL_OBSERVER_RECEIPT.json')
-          r=json.loads(p.read_text())
-          allowed={'PASS_PUBLIC_OBSERVED','PASS_BOUNDARY_CLASSIFIED'}
-          assert r.get('status') in allowed, r
+          r=json.loads(Path('reports/r16/BRAINK_R16_EXTERNAL_OBSERVER_RECEIPT.json').read_text())
+          assert r.get('runner_active') is True, r
+          assert r.get('runtime_active') is True, r
+          assert r.get('runtime_id'), r
+          assert r.get('status') in {'PASS_PUBLIC_OBSERVED','PASS_BOUNDARY_CLASSIFIED'}, r
           print('R16_RECEIPT_STATUS='+r['status'])
           PY
-      - name: Upload proof receipt
+      - name: Upload active-runtime proof receipt
         uses: actions/upload-artifact@v4
         with:
-          name: BRAINK_R16_EXTERNAL_OBSERVER_RECEIPT
+          name: BRAINK_R16_ACTIVE_RUNTIME_EXTERNAL_RECEIPT
           path: reports/r16/BRAINK_R16_EXTERNAL_OBSERVER_RECEIPT.json
           if-no-files-found: error
           retention-days: 7
