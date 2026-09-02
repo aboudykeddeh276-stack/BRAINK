@@ -1,0 +1,60 @@
+{
+  "schema": "braink.r22.foundary-gap-reconciliation/v1",
+  "foundary": "CUSTOMER_FILE_BASE_SOFTWARE_FOUNDARY",
+  "classification": "CREATE_GENUINELY_ABSENT_PROCESS_USING_RESIDENT_PERSISTENT_STORE",
+  "source_transition": {
+    "operations_module": "enterprise/foundry_operations_r22.py",
+    "source_commit": "affffd7aee2e2be92965e26bcaaaf48e7261bbd9",
+    "runtime_service_commit": "7c882c5a5cc097166d9c48291737c1c55d06fac7",
+    "invariant_commit": "d52d7186b25456f602b4950c05d9aed811e70ebc"
+  },
+  "resident_reuse": [
+    "PersistentFoundaryStore.commit atomic local carrier",
+    "FileSystemFoundary object_root and generation semantics",
+    "OperationReceipt content-rooted transition receipts",
+    "R22 restart/rehydration carrier"
+  ],
+  "new_operations": [
+    "customer_file.update_service_state",
+    "customer_file.attach_document",
+    "customer_file.record_communication",
+    "customer_file.record_billing",
+    "customer_file.export",
+    "customer_file.close"
+  ],
+  "invariants": [
+    "customer file must belong to an existing undertaking at creation",
+    "duplicate customer identity is rejected",
+    "document attachment requires a resident VFS file object and captures its generation/root",
+    "closed customer files reject subsequent service-state mutation",
+    "every lifecycle transition increments revision and emits a foundary receipt",
+    "export is a content-rooted manifest and does not claim external transfer",
+    "closure persists explicit disposition and retention policy without claiming physical deletion"
+  ],
+  "execution": {
+    "canonical_test": "scripts/kex-ci/test_foundry_operations_r22.py",
+    "status": "NOT_EXECUTED_CURRENT_RUN_NETWORK_DNS_BLOCKED_GITHUB_CLONE",
+    "attempted_command": "python3 -m py_compile ... && python3 scripts/kex-ci/test_foundry_operations_r22.py",
+    "observed_failure": "Could not resolve host: github.com",
+    "classification": "EXECUTION_HOST_NETWORK_BOUNDARY_NOT_SOURCE_TEST_FAILURE"
+  },
+  "claim_boundary": {
+    "implemented_source": true,
+    "http_dispatch_bound": true,
+    "canonical_invariant_updated": true,
+    "current_run_execution_verified": false,
+    "external_customer_delivery": false,
+    "physical_retention_or_deletion": false,
+    "public_deployment": false,
+    "physical_multi_host": false
+  },
+  "remaining_r22_gaps": [
+    "authoritative publication actuator / owner-host execution",
+    "registrar/DNS/TLS authority actuation",
+    "HR durable supervision/lease/replacement/rehydration",
+    "research reproducibility/promotion execution",
+    "live mailing server",
+    "frontage/site release to authoritative public origin",
+    "physical multi-host mesh/storage/server execution"
+  ]
+}
