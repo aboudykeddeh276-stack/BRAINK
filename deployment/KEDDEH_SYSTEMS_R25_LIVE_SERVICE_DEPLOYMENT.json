@@ -1,0 +1,32 @@
+{
+  "schema": "keddeh.systems.r25.live-service-deployment/v1",
+  "release": "R25",
+  "authority": "KEDDEH_SYSTEMS/BRAINK",
+  "canonical_repository": "aboudykeddeh276-stack/BRAINK",
+  "state": "LIVE_CONNECTOR_BOUND_AND_LOCALLY_QUALIFIED",
+  "runtime": "enterprise/market/live_service_fabric_r25.py",
+  "live_infrastructure": "enterprise/market/LIVE_INFRASTRUCTURE_R25.json",
+  "qualification": "scripts/kex-ci/test_live_service_fabric_r25.py",
+  "live_resources": {
+    "google_drive": 7,
+    "gmail": 4,
+    "total": 11
+  },
+  "active_service_instances": [
+    "casepath/customer_file_base",
+    "casepath/workspaces",
+    "casepath/publishing",
+    "casepath/customer_services_mail",
+    "braink/research_illlm",
+    "keddeh-systems/server_rooms"
+  ],
+  "promotion_boundaries": {
+    "payment_provider": "HELD_RESOURCE_HOLE",
+    "public_http_origin": "UNBOUND",
+    "production_metrics_collector": "UNBOUND"
+  },
+  "lineage": {
+    "predecessor": "R24",
+    "evolution": "connector resources are now first-class durable service resources and business service instances"
+  }
+}
