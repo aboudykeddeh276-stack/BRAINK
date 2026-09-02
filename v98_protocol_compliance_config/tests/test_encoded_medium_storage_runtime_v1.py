@@ -57,7 +57,7 @@ class MediumTests(unittest.TestCase):
         machine=BRAINKMachine(ident,m,c,v)
         receipt=machine.boot("BRAINK-GENESIS")
         self.assertTrue(receipt["root_verified"])
-        self.assertEqual(receipt["root_coordinate"],[1,1])
+        self.assertEqual(receipt["root_coordinate"],(1,1))
         self.assertEqual(v.read("/braink")["payload"],'{"braink":"B1","state":"resident"}')
 
     def test_recursive_constructor_a_b_c_auto_allocates(self):
@@ -66,22 +66,17 @@ class MediumTests(unittest.TestCase):
         a_id=MachineIdentity("A","BRAINK-A","LINEAGE-A")
         c.allocate(2,1,"ROOT-A","BRAINK_ROOT",a_id.lineage,b'{"braink":"A"}')
         a=BRAINKMachine(a_id,m,c,va); a.boot("ROOT-A")
-
         b,b_receipt=a.instantiate_child_auto(MachineIdentity("B","BRAINK-B","LINEAGE-B"),"ROOT-B")
         c_machine,c_receipt=b.instantiate_child_auto(MachineIdentity("C","BRAINK-C","LINEAGE-C"),"ROOT-C")
-
         self.assertEqual(b_receipt["allocation_mode"],"KEX_CONTROLLER_NEXT_FREE")
         self.assertEqual(c_receipt["allocation_mode"],"KEX_CONTROLLER_NEXT_FREE")
         self.assertNotEqual(tuple(b_receipt["child_root_coordinate"]),tuple(c_receipt["child_root_coordinate"]))
-        self.assertTrue(b_receipt["medium_inherited_by_reference"])
-        self.assertTrue(c_receipt["medium_inherited_by_reference"])
-        self.assertTrue(b_receipt["child_constructor_bearing"])
-        self.assertTrue(c_receipt["child_constructor_bearing"])
+        self.assertTrue(b_receipt["medium_inherited_by_reference"]); self.assertTrue(c_receipt["medium_inherited_by_reference"])
+        self.assertTrue(b_receipt["child_constructor_bearing"]); self.assertTrue(c_receipt["child_constructor_bearing"])
         self.assertIs(a.medium,b.medium); self.assertIs(b.medium,c_machine.medium)
         self.assertIs(a.controller,b.controller); self.assertIs(b.controller,c_machine.controller)
         self.assertIsNot(a.vfs,b.vfs); self.assertIsNot(b.vfs,c_machine.vfs)
-        self.assertEqual(b.parent_machine_id,"A")
-        self.assertEqual(c_machine.parent_machine_id,"B")
+        self.assertEqual(b.parent_machine_id,"A"); self.assertEqual(c_machine.parent_machine_id,"B")
         self.assertTrue(c_machine.boot_receipt["root_verified"])
         self.assertEqual(c_machine.vfs.read("/braink")["metadata"]["lineage"],"LINEAGE-C")
 
