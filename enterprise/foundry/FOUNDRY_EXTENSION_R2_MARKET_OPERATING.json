@@ -1,0 +1,20 @@
+{
+  "schema": "braink.foundry.extension.market-operating.r2/v1",
+  "predecessor": "enterprise/foundry/MASTER_DATASET_R1.json",
+  "predecessor_blob_sha": "a555a6ffc42476fdac505a53c9f9cf23ab405c2d",
+  "non_reduction_rule": "Extend only. Never truncate predecessor sectors, functions, controls, adapters, billable units, HR groups, process states, or runtime primitives.",
+  "sector_count_preserved": 12,
+  "function_count_preserved": 120,
+  "foundries": {
+    "domain_dns": {"dataset_planes":["registrars","domains","zones","records","nameservers","dnssec","certificates","tls","ingress","routes","health","failover","renewals","ownership","publication_state","proof"]},
+    "frontage_website_fleet": {"dataset_planes":["brands","domains","sites","pages","services","offers","pricing","trust","legal","contact","conversion","analytics","accessibility","responsive_contracts","experiments","publication_state"]},
+    "sales_crm": {"dataset_planes":["leads","accounts","contacts","opportunities","quotes","proposals","contracts","pipeline","renewals","upsell","attribution","commissions","activities","notes","receipts"]},
+    "billing_revenue": {"dataset_planes":["customers","products","plans","subscriptions","usage","meters","invoices","payments","refunds","credits","tax_metadata","revenue_events","reconciliation","receipts"]},
+    "customer_service": {"dataset_planes":["customers","tickets","threads","slas","priorities","queues","assignments","escalations","knowledge","incidents","satisfaction","history","receipts"]},
+    "identity_iam": {"dataset_planes":["users","agents","service_accounts","organisations","teams","roles","permissions","scopes","leases","epochs","sessions","revocations","mfa_hooks","audit"]},
+    "admin_console": {"dataset_planes":["organisations","customers","users","agents","services","domains","sites","billing","support","deployments","proof","workspaces","files","policies","approvals","incidents"]},
+    "observability": {"dataset_planes":["services","runtimes","nodes","logs","metrics","traces","health","errors","latency","throughput","cost","slo","error_budgets","events","alerts","receipts"]},
+    "deployment_release": {"dataset_planes":["artifacts","builds","tests","environments","releases","channels","canaries","approvals","promotions","rollbacks","deployments","host_bindings","receipts","proof"]},
+    "trust_centre": {"dataset_planes":["security","privacy","availability","policies","controls","certifications","incidents","data_handling","subprocessors","retention","status","evidence","disclosures","proof"]}
+  }
+}
