@@ -1,0 +1,11 @@
+{
+  "schema":"keddeh.systems.authorship-status.r1/v1",
+  "author_id":"AKD",
+  "canonical_root":"enterprise/governance/AKD_AUTHORSHIP_ROOT.json",
+  "guard":"enterprise/governance/authorship_guard.py",
+  "policy":"deployment/AKD_AUTHORSHIP_POLICY.json",
+  "ci":".github/workflows/akd-authorship-guard.yml",
+  "r25_binding":"deployment/KEDDEH_SYSTEMS_R25_AUTHORSHIP_BINDING.json",
+  "status":"ENFORCED_IN_REPOSITORY",
+  "legal_note":"This is deterministic software provenance and orphan detection metadata. It does not by itself replace external legal registration, copyright evidence, or cryptographic identity attestation."
+}
