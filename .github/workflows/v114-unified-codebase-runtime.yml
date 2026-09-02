@@ -31,44 +31,92 @@ concurrency:
 
 jobs:
   unified-runtime:
-    name: Portable BRAINK/KEX recursive runtime
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
+    name: Resident KEX BRAINK recursive runtime
+    runs-on:
+      - self-hosted
+      - kex
+    timeout-minutes: 60
     defaults:
       run:
         working-directory: v98_protocol_compliance_config
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-      - name: Read back execution carrier
+
+      - name: Resolve resident Python virtual environment
+        id: python
+        shell: bash
         run: |
+          set -euo pipefail
+          if [ -x .venv/bin/python ]; then
+            PY="$PWD/.venv/bin/python"
+            ENV_KIND=".venv"
+          elif [ -x venv/bin/python ]; then
+            PY="$PWD/venv/bin/python"
+            ENV_KIND="venv"
+          elif [ -x ../.venv/bin/python ]; then
+            PY="$PWD/../.venv/bin/python"
+            ENV_KIND="../.venv"
+          elif [ -x ../venv/bin/python ]; then
+            PY="$PWD/../venv/bin/python"
+            ENV_KIND="../venv"
+          else
+            PY="$(command -v python3)"
+            ENV_KIND="system-python-fallback"
+          fi
+          test -x "$PY"
+          "$PY" --version
+          echo "python=$PY" >> "$GITHUB_OUTPUT"
+          echo "environment=$ENV_KIND" >> "$GITHUB_OUTPUT"
+
+      - name: Read back resident execution carrier
+        shell: bash
+        run: |
+          set -euo pipefail
           uname -a
           uname -m
-          python3 --version
+          echo "runner=${RUNNER_NAME:-unknown}"
+          echo "runner_os=${RUNNER_OS:-unknown}"
+          echo "runner_arch=${RUNNER_ARCH:-unknown}"
+          echo "python=${{ steps.python.outputs.python }}"
+          echo "environment=${{ steps.python.outputs.environment }}"
+
       - name: Compile unified runtime and tests
+        shell: bash
         run: |
-          python3 -m compileall -q \
+          set -euo pipefail
+          PY="${{ steps.python.outputs.python }}"
+          "$PY" -m compileall -q \
             src/keddeh_unified_codebase_runtime.py \
             src/keddeh_encoded_medium_storage_runtime_v1.py \
             tests/test_unified_codebase_runtime.py \
             tests/test_encoded_medium_storage_runtime_v1.py
+
       - name: Execute supervisor and encoded-medium tests
+        shell: bash
         run: |
-          python3 -m unittest tests.test_unified_codebase_runtime -v
-          python3 -m unittest tests.test_encoded_medium_storage_runtime_v1 -v
+          set -euo pipefail
+          PY="${{ steps.python.outputs.python }}"
+          "$PY" -m unittest tests.test_unified_codebase_runtime -v
+          "$PY" -m unittest tests.test_encoded_medium_storage_runtime_v1 -v
+
       - name: Execute registered codebase runtimes and descendants
+        shell: bash
         run: |
+          set -euo pipefail
+          PY="${{ steps.python.outputs.python }}"
           mkdir -p evidence runtime_volume/outbox/unified_runtime
-          python3 src/keddeh_unified_codebase_runtime.py \
+          "$PY" src/keddeh_unified_codebase_runtime.py \
             --root . \
             --registry config/codebase_runtime_registry.json \
             --emit-receipt \
             | tee evidence/unified_codebase_runtime_cli.json
-      - name: Assert operational receipt, recursive execution and readback
+
+      - name: Assert operational receipt recursive execution and readback
+        shell: bash
         run: |
-          python3 - <<'PY'
+          set -euo pipefail
+          PY="${{ steps.python.outputs.python }}"
+          "$PY" - <<'PY'
           import json
           from pathlib import Path
           payload=json.loads(Path('evidence/unified_codebase_runtime_receipt.json').read_text())
@@ -94,11 +142,39 @@ jobs:
           assert Path('runtime_volume/unified_runtime.ledger.jsonl').is_file()
           assert Path('runtime_volume/outbox/unified_runtime/current.handoff.json').is_file()
           PY
-      - name: Upload portable runtime receipts and state
+
+      - name: Emit resident KEX carrier receipt
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          PY="${{ steps.python.outputs.python }}"
+          "$PY" - <<'PY'
+          import json, os, hashlib
+          from pathlib import Path
+          payload={
+            'schema':'keddeh.v114.resident-kex-carrier/v1',
+            'runner_name':os.environ.get('RUNNER_NAME'),
+            'runner_os':os.environ.get('RUNNER_OS'),
+            'runner_arch':os.environ.get('RUNNER_ARCH'),
+            'environment':'${{ steps.python.outputs.environment }}',
+            'python':'${{ steps.python.outputs.python }}',
+            'commit':os.environ.get('GITHUB_SHA'),
+            'runtime':'runtime://keddeh/unified-codebase/v114',
+            'continuation':'runtime://keddeh/encoded-medium-machine'
+          }
+          payload['proof']=hashlib.sha256(json.dumps(payload,sort_keys=True,separators=(',',':')).encode()).hexdigest()
+          p=Path('evidence/v114_resident_kex_carrier_receipt.json')
+          p.parent.mkdir(parents=True,exist_ok=True)
+          p.write_text(json.dumps(payload,indent=2,sort_keys=True)+'\n')
+          print(json.dumps(payload,indent=2,sort_keys=True))
+          PY
+
+      - name: Upload resident runtime receipts and state
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: v114-unified-codebase-runtime-${{ github.sha }}
+          name: v114-resident-kex-runtime-${{ github.sha }}
           if-no-files-found: error
           retention-days: 30
           path: |
@@ -106,6 +182,7 @@ jobs:
             v98_protocol_compliance_config/evidence/unified_codebase_runtime_cli.json
             v98_protocol_compliance_config/evidence/encoded_medium_reconciliation_receipt.json
             v98_protocol_compliance_config/evidence/encoded_medium_continuation_receipt.json
+            v98_protocol_compliance_config/evidence/v114_resident_kex_carrier_receipt.json
             v98_protocol_compliance_config/runtime_volume/encoded_medium/current.json
             v98_protocol_compliance_config/runtime_volume/encoded_medium/continuation.ledger.jsonl
             v98_protocol_compliance_config/runtime_volume/unified_runtime.ledger.jsonl
