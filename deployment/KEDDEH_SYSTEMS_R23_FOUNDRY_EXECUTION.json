@@ -1,0 +1,30 @@
+{
+  "schema":"keddeh.systems.foundry-execution.r23/v1",
+  "release":"R23",
+  "authority":"KEDDEH_SYSTEMS/BRAINK",
+  "lineage_parent":"R22",
+  "canonical_repository":"aboudykeddeh276-stack/BRAINK",
+  "execution_state":{
+    "work_modules_hydrated":190,
+    "group_assignments":950,
+    "stage_receipts":570,
+    "continuation_checkpoints":18,
+    "open_capability_holes":279,
+    "current_stage":"DESIGN",
+    "state_root":"2b8754216dfde37caf43cdb0cf43b3221714bb3647bc95fb88e2199a11340d50"
+  },
+  "usable_software":{
+    "module":"enterprise/products/foundry_product_runtime_r23.py",
+    "capabilities":["customer creation","workspace creation","revisioned file writes","site creation","page revisioning","qualified local publication","publication receipts","HTTP health/state API"],
+    "state":"LOCALLY_EXECUTED_AND_TESTED"
+  },
+  "foundry_executor":"enterprise/foundries/foundry_executor_r23.py",
+  "persistence":"SQLite WAL FULL + VFS-addressed work modules + continuation checkpoints",
+  "ci_classification":{
+    "r22_github_actions":"CI_RUNNER_OR_PRESTEP_FAILURE",
+    "evidence":"job completed failure with zero recorded steps",
+    "execution_effect":"does not negate locally executed R23 runtime state"
+  },
+  "public_projection":"UNBOUND_UNLESS_SEPARATELY_OBSERVED",
+  "next_stage":"IMPLEMENT capability holes with priority driven by marketable foundry services"
+}
