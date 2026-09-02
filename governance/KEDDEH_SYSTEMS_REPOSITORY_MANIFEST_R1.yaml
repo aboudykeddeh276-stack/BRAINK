@@ -1,12 +1,29 @@
-version: 1
+version: 2
 estate: KEDDEH_SYSTEMS
 principle: one logical sector -> one canonical repository authority
 repository_creation_boundary: github_connector_has_no_create_repository_actuator
+estate_governance_repo: aboudykeddeh276-stack/GENERAL-GOVERNANCE-
+classification_registry: ESTATE_REPOSITORY_REGISTRY_R1.md
+migration_backlog: FUNCTION_EXTRACTION_BACKLOG_R1.md
 
 sectors:
+  estate_governance:
+    canonical_repo: aboudykeddeh276-stack/GENERAL-GOVERNANCE-
+    status: ACTIVE
+    owns:
+      - repository classification
+      - authority maps
+      - migration law
+      - estate manifests
+      - qualification policy
+
   braink:
     canonical_repo: aboudykeddeh276-stack/BRAINK
     status: ACTIVE
+    supporting_repos:
+      - aboudykeddeh276-stack/BRAINK_DESKTOP_ORGANISED
+      - aboudykeddeh276-stack/Braink-Beta
+      - aboudykeddeh276-stack/BRAINK-CONSOLE-PLUS
     owns:
       - Observer2 federation mechanics
       - orchestration
@@ -20,6 +37,9 @@ sectors:
   servers:
     canonical_repo: aboudykeddeh276-stack/SERVERS-KEDDEHSYSTEMS
     status: ACTIVE
+    supporting_repos:
+      - aboudykeddeh276-stack/KERA_SERVER
+      - aboudykeddeh276-stack/KEDDEH-CLOUD-SERVERS-ID-1
     owns:
       - server runtimes
       - domain authority server execution
@@ -31,14 +51,49 @@ sectors:
       - runtime/domain_authority/KEX_DA_SERVER_QUALIFICATION_R1.json
       - runtime/domain_authority/KEX_DA_HOST_BIND_R1.json
 
+  btc_mining:
+    canonical_repo: aboudykeddeh276-stack/MINING
+    status: ACTIVE_MIXED_EXTRACTION_REQUIRED
+    supporting_repos:
+      - aboudykeddeh276-stack/btc-mining-edu
+    owns:
+      - Bitcoin Core RPC mining integration
+      - workload and candidate generation
+      - candidate reconstruction and submission
+      - mining-specific service/runtime mechanics
+    must_extract:
+      - BRAINK core and CLI mechanics
+      - generic KEX runtime checks
+      - generic mesh/server mechanics
+      - non-mining agent logic
+
+  quantum_compute:
+    canonical_repo: aboudykeddeh276-stack/quantum-computer-by-keddeh-systems
+    status: CANONICAL_CANDIDATE
+    supporting_repos:
+      - aboudykeddeh276-stack/KEDDEH-SYSTEMS-QUANTUM-RUNTIME-MATRIX-
+      - aboudykeddeh276-stack/Quantum-Dashboard
+    owns_candidate:
+      - quantum execution/runtime mechanics
+    projection_rule: dashboard_does_not_establish_execution
+
   kex:
-    canonical_repo: aboudykeddeh276-stack/KEX
-    status: REPOSITORY_REQUIRED
+    canonical_candidate_repo: aboudykeddeh276-stack/kex-braink-substrate
+    status: CANDIDATE_SPLIT_REQUIRED
+    supporting_repos:
+      - aboudykeddeh276-stack/KEDDEH-ALGEBRA-CORES
+      - aboudykeddeh276-stack/UNIVERSAL-CALIBRATION-MATRIX
+      - aboudykeddeh276-stack/untitled
+      - aboudykeddeh276-stack/untitled-good
+      - aboudykeddeh276-stack/KEX_HYPERDRIVE_DASHBOARD_UI
+    target_repo: aboudykeddeh276-stack/KEX
+    target_status: REPOSITORY_REQUIRED
     owns:
       - coordinate addressing
       - signal propagation semantics
       - kernel mechanics
       - execution plane contracts
+      - mathematical/algebra/calibration subsystems after qualification
 
   domain_authority:
     canonical_repo: aboudykeddeh276-stack/DOMAIN-AUTHORITY
@@ -54,6 +109,9 @@ sectors:
   network_fabric:
     canonical_repo: aboudykeddeh276-stack/NETWORK-FABRIC
     status: REPOSITORY_REQUIRED
+    supporting_candidates:
+      - aboudykeddeh276-stack/KERA_SERVER
+      - aboudykeddeh276-stack/KEDDEH_SOFTWARE_NODES
     owns:
       - routers
       - bridges
@@ -64,25 +122,37 @@ sectors:
       - load balancing
 
   cloud_infrastructure:
-    canonical_repo: aboudykeddeh276-stack/CLOUD-INFRASTRUCTURE
-    status: REPOSITORY_REQUIRED
+    canonical_candidate_repo: aboudykeddeh276-stack/kcloud-substrate
+    status: CANONICAL_CANDIDATE
+    supporting_repos:
+      - aboudykeddeh276-stack/KEDDEH-CLOUD-SERVERS-ID-1
+    target_repo: aboudykeddeh276-stack/CLOUD-INFRASTRUCTURE
+    target_status: OPTIONAL_RENAME_OR_NEW_REPO
     owns:
       - public compute hosts
       - public IP allocation state
       - edge/cloud substrates
+    proof_rule: logical_cloud_binding_does_not_prove_public_host_allocation
 
   k_drive:
-    canonical_repo: aboudykeddeh276-stack/K-DRIVE
-    status: REPOSITORY_REQUIRED
+    canonical_candidate_repo: aboudykeddeh276-stack/virtualized-storage
+    status: CANONICAL_CANDIDATE_COMPARISON_REQUIRED
+    supporting_repos:
+      - aboudykeddeh276-stack/VIRTUALISED_MEMORY
+    target_repo: aboudykeddeh276-stack/K-DRIVE
+    target_status: OPTIONAL_RENAME_OR_NEW_REPO
     owns:
       - storage abstraction
       - volumes
       - persistence
       - VFS substrate mechanics
+    qualification_rule: visualization_or_ledger_alone_does_not_establish_storage_authority
 
   il_llm:
     canonical_repo: aboudykeddeh276-stack/IL-LLM
     status: REPOSITORY_REQUIRED
+    supporting_candidate:
+      - aboudykeddeh276-stack/KSYSTEMS_LEARNING-
     owns:
       - language runtime
       - dictionaries and ontology
@@ -91,6 +161,9 @@ sectors:
   workbook_os:
     canonical_repo: aboudykeddeh276-stack/WORKBOOK-OS
     status: REPOSITORY_REQUIRED
+    supporting_candidates:
+      - aboudykeddeh276-stack/1AXIS-MATRIX-OS
+      - aboudykeddeh276-stack/Google-studio-Keddeh-OSxOS
     owns:
       - workbook-native execution
       - scheduler
@@ -116,6 +189,9 @@ sectors:
   web_fabric:
     canonical_repo: aboudykeddeh276-stack/WEB-FABRIC
     status: REPOSITORY_REQUIRED
+    supporting_candidates:
+      - aboudykeddeh276-stack/emrg-attempt-ui
+      - aboudykeddeh276-stack/app
     owns:
       - public sites
       - frontages
@@ -125,6 +201,8 @@ sectors:
   edge_iot:
     canonical_repo: aboudykeddeh276-stack/EDGE-IOT
     status: REPOSITORY_REQUIRED
+    supporting_candidate:
+      - aboudykeddeh276-stack/KEDDEH_SOFTWARE_NODES
     owns:
       - IoT edge nodes
       - telemetry
@@ -144,6 +222,10 @@ sectors:
   agents_orchestration:
     canonical_repo: aboudykeddeh276-stack/AGENTS-ORCHESTRATION
     status: REPOSITORY_REQUIRED
+    supporting_candidates:
+      - aboudykeddeh276-stack/ai-shell
+      - aboudykeddeh276-stack/K-SYSTEM_UPDATE_LANE_PROCESS_x-x
+      - aboudykeddeh276-stack/KSYSTEMS_LEARNING-
     owns:
       - operator agents
       - superagents
@@ -157,7 +239,16 @@ sectors:
       - benchmark evidence
       - conformance reports
 
+quarantine_carriers:
+  - aboudykeddeh276-stack/backend
+  - aboudykeddeh276-stack/app
+  - aboudykeddeh276-stack/repository-based-to
+  - aboudykeddeh276-stack/K-SYSTEMS-CODE-SPACE-
+  - aboudykeddeh276-stack/random.k.test-
+  - aboudykeddeh276-stack/gogo
+
 repository_contract:
+  role_marker: KEDDEH_REPOSITORY_ROLE.md
   required_files:
     - README.md
     - ARCHITECTURE.md
@@ -177,8 +268,20 @@ repository_contract:
     - WHAT_MAY_IT_MUTATE
     - WHAT_PROVES_IT_WORKED
 
+migration_protocol:
+  - SOURCE_DISCOVERY
+  - CLASSIFY_OWNER
+  - COPY
+  - CONTENT_HASH
+  - SOURCE_TEST
+  - TARGET_TEST
+  - TARGET_READBACK
+  - AUTHORITY_SWITCH
+  - OPTIONAL_SOURCE_RETIREMENT
+
 cross_sector_rule:
   relation_not_substitution: true
   candidate_state_not_authoritative_state: true
   actuator_receipt_not_environmental_readback: true
   no_silent_cross_sector_ownership: true
+  no_source_deletion_before_target_readback: true
