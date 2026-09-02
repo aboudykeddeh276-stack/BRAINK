@@ -1,0 +1,29 @@
+{
+  "schema": "kex.braink.foundary-dependency-graph.v25",
+  "release": "R25",
+  "nodes": [
+    {"id":"foundry://business-enterprise","depends_on":["foundry://software","foundry://agentics","foundry://workspace","foundry://customer-file-base"]},
+    {"id":"foundry://server","depends_on":["foundry://network","foundry://memory","foundry://observability","foundry://security"]},
+    {"id":"foundry://agentics","depends_on":["runtime://braink/root","foundry://research","foundry://hr-team-services","foundry://memory"]},
+    {"id":"foundry://software","depends_on":["foundry://filesystem","foundry://security","foundry://release-engineering"]},
+    {"id":"foundry://hci","depends_on":["foundry://software","foundry://workspace"]},
+    {"id":"foundry://landing-page","depends_on":["foundry://hci","foundry://publishing","foundry://domain"]},
+    {"id":"foundry://workspace","depends_on":["foundry://filesystem","foundry://memory","foundry://hci"]},
+    {"id":"foundry://filesystem","depends_on":["foundry://memory","foundry://security"]},
+    {"id":"foundry://customer-file-base","depends_on":["foundry://filesystem","foundry://security","foundry://business-enterprise"]},
+    {"id":"foundry://publishing","depends_on":["foundry://domain","foundry://release-engineering","foundry://observability"]},
+    {"id":"foundry://research","depends_on":["foundry://memory","foundry://publishing"]},
+    {"id":"foundry://hr-team-services","depends_on":["foundry://business-enterprise","foundry://agentics"]},
+    {"id":"foundry://domain","depends_on":["foundry://network","foundry://security","foundry://observability"]},
+    {"id":"foundry://network","depends_on":["foundry://server","foundry://security"]},
+    {"id":"foundry://memory","depends_on":["runtime://kex/virtual-memory"]},
+    {"id":"foundry://observability","depends_on":["foundry://memory"]},
+    {"id":"foundry://security","depends_on":["foundry://observability"]},
+    {"id":"foundry://release-engineering","depends_on":["foundry://observability","foundry://security"]}
+  ],
+  "cycle_policy": "Cycles are permitted only where the relationship is explicitly service-cooperative; deployment ordering must still be resolved by runtime capability readiness rather than graph topological sort alone.",
+  "deployment_readiness": {
+    "node_ready_when": ["dependencies_resolved", "owner_bound", "runtime_bound", "proof_bound", "rollback_bound"],
+    "public_ready_when": ["frontage_bound", "outside_in_readback_passed"]
+  }
+}
