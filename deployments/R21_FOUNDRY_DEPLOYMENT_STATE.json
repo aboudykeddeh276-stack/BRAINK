@@ -1,0 +1,36 @@
+{
+  "schema": "braink.r21.foundary-deployment-state/v1",
+  "governing_registry": "enterprise/FOUNDRY_REGISTRY_R21.json",
+  "topology": "enterprise/FOUNDARY_DEPLOYMENT_TOPOLOGY_R21.json",
+  "runtime": "enterprise/foundry_runtime.py",
+  "resident_operations_runtime": "enterprise/foundry_operations_r22.py",
+  "invariant": "scripts/kex-ci/test_foundry_runtime_r21.py",
+  "foundary_count": 15,
+  "material_reconciliation": {
+    "foundary_id": "PUBLISHING_MASTERY_FOUNDARY",
+    "transition": "PARTIAL_PUBLISHING_EDGE -> RESIDENT_STAGE_APPROVAL_AND_ACTUATOR_REUSE_BOUND_ORIGIN_AUTHORITY_PENDING",
+    "receipt": "deployments/R21_PUBLISHING_ACTUATOR_BINDING_R1.json",
+    "resident_stage": "enterprise/foundry_operations_r22.py::PublishingMasteryFoundary.stage_release",
+    "resident_mechanic": "mechanic://keddeh/admin/production-actuator",
+    "canonical_service": "app://casepath",
+    "reuse_unlocks": ["LANDING_PAGE_FOUNDARY manufactured-page to staged-release path", "FRONTAGES_SERVICES_GROWING_MESH_WEBSITES_DOMAIN_MASTERY_FOUNDARY release-marker/readback stage"]
+  },
+  "remaining_foundary_holes": [
+    "PUBLISHING_MASTERY_FOUNDARY production origin write authority and rollback qualification",
+    "FRONTAGES_SERVICES_GROWING_MESH_WEBSITES_DOMAIN_MASTERY_FOUNDARY authoritative owner-host/domain plane",
+    "LANDING_PAGE_FOUNDARY public artifact compiler, form/CRM and analytics bindings",
+    "CUSTOMER_FILE_BASE_SOFTWARE_FOUNDARY lifecycle mutations, privacy/retention, portal/API and audit/export",
+    "HR_AND_ALL_TEAM_SERVICES_FOUNDARY durable supervision/lease/replacement/rehydration",
+    "SERVER_FOUNDARY owner-host activation",
+    "physical multi-host mesh/storage proof"
+  ],
+  "execution_evidence": {
+    "github_source_mutation": "COMMITTED",
+    "r22_publication_stage": "IMPLEMENTED_SOURCE_WITH_DETERMINISTIC_INVARIANT_ADDED",
+    "local_invariant": "NOT_EXECUTED_CURRENT_RUN_NETWORK_DNS_BLOCKED_GITHUB_CLONE",
+    "github_actions": "NOT_USED_AS_SOURCE_TEST_PROOF",
+    "google_drive_mirror": "R21_PUBLISHING_ACTUATOR_BINDING_R1.json uploaded under KEDDEH_SYSTEMS_DEPLOYMENTS",
+    "library_mirror": "WRITE_INTERFACE_UNAVAILABLE_THIS_RUN"
+  },
+  "claim_boundary": "A_executed != A_claimed and S_observed != S_claimed. Resident publication staging/approval records and actuator mechanics are bound without claiming production origin mutation or universal domain authority."
+}
