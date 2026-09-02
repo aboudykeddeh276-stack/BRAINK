@@ -1,0 +1,24 @@
+{
+  "schema": "braink.foundry.market-operating.deployment.r2/v1",
+  "base_master": "enterprise/foundry/MASTER_DATASET_R1.json",
+  "base_master_blob_sha": "a555a6ffc42476fdac505a53c9f9cf23ab405c2d",
+  "extension_commit": "1d45066042532afa47fc764f3789f8c237805245",
+  "kernel_commit": "d753bc5f04598a420e22e7699d7854d1f691b62b",
+  "foundry_test_commit": "bf5b61b7dabc4a746f2b33388e951a7b17d06d74",
+  "workflow_commit": "91beff403bd00d0a5283f2a48f5b1b71f5324230",
+  "operating_runtime_commit": "9bab6aeec7138d4dc56f1bc6a599611dd1e9b352",
+  "operating_runtime_test_commit": "7302d2ff7d7eab6e388b0215b3f6982ef53a2b39",
+  "preserved": {"sectors":12,"sector_functions":120,"predecessor_foundries":9},
+  "new_foundries": ["domain_dns","frontage_website_fleet","sales_crm","billing_revenue","customer_service","identity_iam","admin_console","observability","deployment_release","trust_centre"],
+  "total_foundry_classes": 19,
+  "validated_runtime_actions": ["register_domain","create_account","record_usage","open_ticket","register_principal","record_metric","register_artifact"],
+  "operating_runtime_test_audit_root": "6361135dd8e7b9321db60c6b7a9c7318c8dc328577fdca4c1f212b5cab3af1cc",
+  "package_sha256": "5d7c8019fe303217c85dcbcbc61dbe2c4834ecdd67c9dec924b8808b3b2e0bc4",
+  "bindings": {
+    "SERVERS-KEDDEHSYSTEMS":"8c5c7cb17febd59056b337dc69cbf315f8d64854",
+    "BRAINK-CONSOLE-PLUS":"3f91faa4bda998835cf58d6c116873e47a889caf",
+    "VIRTUALISED_MEMORY":"57a38319335f215068a90d14ae7a19957d9c7628",
+    "K-SYSTEMS-CODE-SPACE-":"d90d61572af35b547f0940c7c5207e41a7a44065"
+  },
+  "evidence_boundary": "Repository code, generated local estate, persistence schemas, callable local operating actions, receipts and repo bindings are deployed. Registrar/DNS mutation, public website publication, live payment settlement and public production host exposure require external actuators and are not asserted by this receipt."
+}
