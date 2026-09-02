@@ -11,13 +11,17 @@ packet=rt.compile('LEGAL_SERVICE','SMALL')
 resident=[r for r in packet['requirements'] if r['gap_class']=='CAPABILITY_RESIDENT']
 holes=[r for r in packet['requirements'] if r['gap_class']=='ADAPTER_OR_FUNCTION_REQUIRED']
 assignment=next(r for r in packet['requirements'] if r['name']=='assignment')
+scope=next(r for r in packet['requirements'] if r['name']=='scope')
 assert len(packet['server_sets'])==18
 assert len(packet['requirements'])==72
-assert len(resident)==9
-assert len(holes)==63
+assert len(resident)==10
+assert len(holes)==62
 assert assignment['decision']=='REUSE'
 assert assignment['state']=='BOUND'
 assert assignment['implementation_ref'].endswith('braink_hr/hr_runtime.py::HRRuntime.assign')
-assert packet['resident_count']==9 and packet['gap_count']==63
+assert scope['decision']=='REUSE'
+assert scope['state']=='BOUND'
+assert scope['implementation_ref'].endswith('runtime://keddeh/identity/check_scope')
+assert packet['resident_count']==10 and packet['gap_count']==62
 assert packet['deployment_root']
-print(json.dumps({'status':'PASS','deployment_root':packet['deployment_root'],'server_sets':len(packet['server_sets']),'requirements':len(packet['requirements']),'resident':len(resident),'holes':len(holes),'selected_work_module':'WM://GENERAL_GOVERNANCE/assignment'},sort_keys=True))
+print(json.dumps({'status':'PASS','deployment_root':packet['deployment_root'],'server_sets':len(packet['server_sets']),'requirements':len(packet['requirements']),'resident':len(resident),'holes':len(holes),'selected_work_module':'WM://GENERAL_GOVERNANCE/scope'},sort_keys=True))
