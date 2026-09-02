@@ -8,7 +8,7 @@ PORT="${BRAINK_R26_PORT:-8811}"
 COMPUTER_ID="${BRAINK_R26_COMPUTER_ID:-A}"
 
 mkdir -p "${STATE_ROOT}"
-exec python3 "${ROOT}/deployment/recursive_computer_service_r26.py" \
+exec python3 "${ROOT}/deployment/recursive_computer_service_r29.py" \
   --state-root "${STATE_ROOT}" \
   --computer-id "${COMPUTER_ID}" \
   --host "${HOST}" \
