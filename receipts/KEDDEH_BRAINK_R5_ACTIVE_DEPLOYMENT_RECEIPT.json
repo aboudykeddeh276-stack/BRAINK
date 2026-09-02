@@ -1,0 +1,33 @@
+{
+  "schema": "keddah.braink.r5.active-deployment/v1",
+  "deployment_state": "ACTIVE_LOCAL_RUNTIME",
+  "work_id": "WORK-R5-ACTIVE-20260903-001",
+  "domain": "r5-active.keddeh",
+  "transaction": {
+    "tx_id": "TX-R5-ACTIVE-001",
+    "domain": "r5-active.keddeh",
+    "state": "COMMITTED"
+  },
+  "readback": {
+    "control": ["r5-active.keddeh", "BOUND_AUTHORITATIVE", "KEDDEH_SYSTEMS"],
+    "zone": ["r5-active.keddeh", "ACTIVE", "KEDDEH_SYSTEMS"],
+    "records": [["r5-active.keddeh", "A", "127.0.0.1", 300, "ACTIVE"]]
+  },
+  "checkpoint_root": "cf1332e0e3ba143b104f6c1e425b600c13e78f31745238a7587610c1c00b74e9",
+  "lease_before_successor": [1, "agent-A"],
+  "lease_after_successor": [2, "agent-B"],
+  "checks": {
+    "signed_envelope_consumed": true,
+    "atomic_domain_authority_commit": true,
+    "checkpoint_written_and_verified_in_fresh_process": true,
+    "successor_epoch_2_active": true,
+    "stale_agent_A_epoch_1_fenced": true,
+    "replay_rejected": true
+  },
+  "boundary": {
+    "physical_multi_host": "NOT_TESTED_THIS_RUN",
+    "public_dns_delegation": "NOT_APPLIED",
+    "public_network_exposure": "NOT_APPLIED"
+  },
+  "receipt_root": "0e7063d050b2162a01f14d2310c61d966765a9a79d527eb8a8850be5227fa12b"
+}
