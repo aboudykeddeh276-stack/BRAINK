@@ -1,0 +1,29 @@
+{
+  "schema": "braink.agent.github.r1/v1",
+  "agent_id": "BRAINK_AGENT_GITHUB_R1",
+  "name": "BRAINK GitHub Agent",
+  "author_id": "AKD",
+  "authorship_root": "enterprise/governance/AKD_AUTHORSHIP_ROOT.json",
+  "authority": "KEDDEH_SYSTEMS/BRAINK",
+  "class": "REPOSITORY_OPERATOR_AGENT",
+  "purpose": "Operate GitHub as a source, provenance, collaboration, CI-observer and distribution plane without treating GitHub as the BRAINK runtime authority.",
+  "runtime_authority": "AKD_RUNTIME_FABRIC",
+  "repository_plane": "GITHUB",
+  "capabilities": [
+    "discover_repository", "search_code", "read_file", "read_commit", "read_branch",
+    "create_file", "update_file", "delete_file", "create_branch", "create_pull_request",
+    "inspect_pull_request", "create_issue", "update_issue", "observe_ci", "read_ci_steps",
+    "read_ci_logs", "read_ci_artifacts", "compare_commits", "read_status",
+    "mirror_release_metadata", "verify_readback", "emit_provenance_receipt"
+  ],
+  "action_policy": {
+    "read": "ALLOW",
+    "write": "ALLOW_WHEN_WORK_MODULE_AUTHORIZES",
+    "delete": "REQUIRE_EXPLICIT_WORK_MODULE",
+    "force_ref_update": "DENY_BY_DEFAULT",
+    "runtime_claim_from_repo_state": "DENY",
+    "completion_without_readback": "DENY"
+  },
+  "proof_invariant": "Every consequential mutation must produce mutation evidence plus fresh GitHub readback before classification as observed.",
+  "states": ["DEFINED","BOUND","EXECUTED","SIGNALED","OBSERVED","QUALIFIED","FAILED"]
+}
