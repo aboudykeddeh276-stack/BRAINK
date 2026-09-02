@@ -1,0 +1,37 @@
+{
+  "schema": "braink.market-services.deployment-receipt.v1",
+  "deployed_at_utc": "2026-09-02T01:18:40Z",
+  "canonical_repository": {
+    "repository": "aboudykeddeh276-stack/BRAINK",
+    "files": {
+      "enterprise/market_services/service_broker.py": "227ccac3f2c83813d2ded88d4b8a29daff548e55",
+      "enterprise/market_services/SERVICE_CONTRACTS_R1.json": "02f7de7a879d354bf37dfc3b0a1c62b395864b75",
+      "scripts/kex-ci/test_market_services.py": "68b368c4ebb516ab5b41f3d6fd6382da543ea1d1",
+      "enterprise/market_services/runtime_entry.py": "19ce67053fbf94f1b29131a5714751d5b96fe0be",
+      "enterprise/market_services/DEPLOYMENT_BINDINGS_R1.json": "0be64dfb5d075bbb39e809bbf358120557f8135e"
+    }
+  },
+  "repository_bindings": [
+    {"repository":"aboudykeddeh276-stack/VIRTUALISED_MEMORY","commit":"315ab61fea23d4806d0d35d5cb7cef71a3ace035","role":"persistent_state_and_checkpoint_substrate"},
+    {"repository":"aboudykeddeh276-stack/KEDDEH_SOFTWARE_NODES","commit":"f9a4b77f2c0c620464c641df7aabad6226dcd4b3","role":"agent_and_service_node_registry"},
+    {"repository":"aboudykeddeh276-stack/K-SYSTEMS-CODE-SPACE-","commit":"9bd08f5b2381cb64b36ef030b56419a14ec3295b","role":"candidate_and_generated_function_workspace"},
+    {"repository":"aboudykeddeh276-stack/kcloud-substrate","commit":"abed816ff5ea376aa79265ca2316c6d666a79a3d","role":"runtime_and_cloud_substrate_binding"},
+    {"repository":"aboudykeddeh276-stack/BRAINK-CONSOLE-PLUS","commit":"00bc64e6fcd90e0a400f96b4b7380ba1f211d97c","role":"operator_and_observer_surface"},
+    {"repository":"aboudykeddeh276-stack/SERVERS-KEDDEHSYSTEMS","commit":"642e5e67fce90d721230f546d2d674fe483ffe71","role":"runtime_host_and_server_inventory"},
+    {"repository":"aboudykeddeh276-stack/Braink-Beta","commit":"5d2bd8ec75fdc2a08eeb9434877457089cf87eed","role":"staging_and_preproduction_surface"}
+  ],
+  "local_vfs_runtime": {
+    "path": "/mnt/data/KEDDEH_VFS_MARKET_SERVICES_R1",
+    "state": "ACTIVE_LOCAL_RUNTIME",
+    "agents": 1,
+    "runs": 1,
+    "receipts": 5,
+    "run_id": "RUN-MARKET-SERVICES-R1",
+    "checkpoint": "VFS://BRAINK/MARKET-SERVICES/CHECKPOINT/1",
+    "continuation": "SECTOR_FUNCTION_BINDING",
+    "package_sha256": "df97e7da0aa6e8956c58abfa5ecb1b97c7199bfdba2f855f5e924c9c64cb707b"
+  },
+  "library": "/BRAINK_DEPLOYMENTS/MARKET_SERVICES_R1",
+  "google_drive": "/Google Drive/KEDDEH_SYSTEMS_BRAINK_CURRENT_WORKS_2026-08-31",
+  "evidence_boundary": "GitHub and persistent file placements are deployed. Cloud/server manifests bind responsibilities but do not assert a live external network process beyond the locally instantiated runtime receipt."
+}
