@@ -5,6 +5,7 @@ on:
     paths:
       - 'enterprise/foundry/**'
       - 'scripts/kex-ci/test_market_operating_foundries_r2.py'
+      - 'scripts/kex-ci/test_recursive_foundry_instantiation_r3.py'
       - '.github/workflows/braink-market-operating-foundries.yml'
   workflow_dispatch:
 permissions:
@@ -20,3 +21,4 @@ jobs:
           python-version: '3.12'
       - run: python -m compileall -q enterprise/foundry
       - run: python scripts/kex-ci/test_market_operating_foundries_r2.py
+      - run: python scripts/kex-ci/test_recursive_foundry_instantiation_r3.py
