@@ -1,0 +1,38 @@
+name: Deploy CasePath V52 Optimization
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'casepath/deploy/**'
+      - '.github/workflows/deploy-casepath-v52.yml'
+
+concurrency:
+  group: casepath-production-optimization
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: [self-hosted]
+    permissions:
+      contents: read
+    env:
+      KEDDEH_DOMAIN_FABRIC_ROOT: /mnt/data/keddeh_deploy/resident_v5/KEDDEH_REGISTRAR_V5
+      KEDDEH_EVIDENCE_ROOT: /mnt/data/keddeh_deploy/resident_v5/KEDDEH_REGISTRAR_V5_EVIDENCE
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify resident KEDDEH fabric
+        run: |
+          test -x "$KEDDEH_DOMAIN_FABRIC_ROOT/START_FULL_DOMAIN_FABRIC.command"
+          test -f casepath/deploy/casepath_public_optimization_actuator_v51.py
+          test -f casepath/deploy/deploy_casepath_v52.py
+      - name: Execute CasePath production optimization
+        run: python3 casepath/deploy/deploy_casepath_v52.py
+      - name: Publish CasePath deployment readback
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: casepath-v52-deployment-readback
+          path: |
+            casepath/deploy/CASEPATH_V52_DEPLOYMENT_READBACK.json
+            /mnt/data/keddeh_deploy/resident_v5/KEDDEH_REGISTRAR_V5_EVIDENCE/**
