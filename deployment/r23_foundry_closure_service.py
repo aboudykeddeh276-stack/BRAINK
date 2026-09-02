@@ -5,11 +5,13 @@ import argparse,json,os,sys
 ROOT=Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:sys.path.insert(0,str(ROOT))
 from enterprise.foundry_closure_r23 import DurableStore,HRSupervisionRuntime,CustomerFileLifecycle,ResearchPromotionGate,PublicationRuntime
+from enterprise.customer_access_control_r24 import CustomerAccessControl
 
 def canonical(v):return json.dumps(v,sort_keys=True,separators=(",",":"),ensure_ascii=False).encode()
+def receipt_dict(r):return {**r.__dict__,"receipt_root":r.receipt_root}
 class Runtime:
     def __init__(self,state):
-        self.store=DurableStore(state);self.hr=HRSupervisionRuntime(self.store);self.customers=CustomerFileLifecycle(self.store);self.research=ResearchPromotionGate(self.store);self.publishing=PublicationRuntime(self.store)
+        self.store=DurableStore(state);self.hr=HRSupervisionRuntime(self.store);self.customers=CustomerFileLifecycle(self.store);self.research=ResearchPromotionGate(self.store);self.publishing=PublicationRuntime(self.store);self.access=CustomerAccessControl(self.store)
     def operate(self,a,p):
         d={
           "hr.lease.acquire":lambda:self.hr.acquire(p["lease_id"],p["supervisor_id"],p["subject_id"],int(p["ttl_ns"]),p.get("now_ns")),
@@ -24,21 +26,34 @@ class Runtime:
           "domain.public_activation.request":lambda:self.publishing.request_public_activation(p["release_id"],p["domain"],p.get("dns_changes",[]),p.get("tls_required",True),None),
         }
         if a not in d:raise KeyError("UNKNOWN_R23_ACTION")
-        r=d[a]();return {**r.__dict__,"receipt_root":r.receipt_root}
+        return receipt_dict(d[a]())
+    def portal_bind(self,p):
+        return receipt_dict(self.access.bind_oauth_session(p["session_token"],p["profile"],customer_id=p.get("customer_id"),scopes=p.get("scopes"),ttl_ns=int(p.get("ttl_ns",3_600_000_000_000)),now_ns=p.get("now_ns")))
+    def portal_revoke(self,p):
+        return receipt_dict(self.access.revoke(p["session_token"],p.get("reason","revoked"),p.get("now_ns")))
+    def portal_read(self,p):
+        return self.access.read_customer_file(p["session_token"],p["file_id"],now_ns=p.get("now_ns"))
 class Handler(BaseHTTPRequestHandler):
     runtime=None
     def reply(self,c,o):
-        b=canonical(o);self.send_response(c);self.send_header("Content-Type","application/json");self.send_header("Content-Length",str(len(b)));self.end_headers();self.wfile.write(b)
+        b=canonical(o);self.send_response(c);self.send_header("Content-Type","application/json");self.send_header("Cache-Control","no-store");self.send_header("Content-Length",str(len(b)));self.end_headers();self.wfile.write(b)
     def body(self):
         n=int(self.headers.get("Content-Length","0") or 0);return json.loads(self.rfile.read(n) or b"{}")
     def do_GET(self):
-        if urlparse(self.path).path=="/closure/health":return self.reply(200,{"status":"PASS","runtime":"BRAINK_R23","generation":self.runtime.store.state["generation"]})
-        if urlparse(self.path).path=="/closure/state":return self.reply(200,self.runtime.store.state)
+        path=urlparse(self.path).path
+        if path=="/closure/health":return self.reply(200,{"status":"PASS","runtime":"BRAINK_R23","generation":self.runtime.store.state["generation"],"customer_access":"BOUND"})
+        if path=="/closure/state":return self.reply(200,self.runtime.store.state)
         return self.reply(404,{"status":"NOT_FOUND"})
     def do_POST(self):
-        if urlparse(self.path).path!="/closure/operate":return self.reply(404,{"status":"NOT_FOUND"})
+        path=urlparse(self.path).path
         try:
-            b=self.body();return self.reply(200,self.runtime.operate(b["action"],b.get("payload",{})))
+            b=self.body()
+            if path=="/closure/operate":return self.reply(200,self.runtime.operate(b["action"],b.get("payload",{})))
+            if path=="/portal/session/bind":return self.reply(200,self.runtime.portal_bind(b))
+            if path=="/portal/session/revoke":return self.reply(200,self.runtime.portal_revoke(b))
+            if path=="/portal/customer-file/read":return self.reply(200,self.runtime.portal_read(b))
+            return self.reply(404,{"status":"NOT_FOUND"})
+        except PermissionError as e:return self.reply(403,{"status":"REJECTED","reason":str(e)})
         except (KeyError,ValueError,RuntimeError) as e:return self.reply(400,{"status":"REJECTED","reason":str(e)})
     def log_message(self,*args):pass
 
