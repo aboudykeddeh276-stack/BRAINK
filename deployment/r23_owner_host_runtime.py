@@ -30,8 +30,10 @@ class R23OwnerHostRuntime:
     """Start and observe the existing R23 closure HTTP service on one host.
 
     This is a binding around the resident R23 service and resident ManagedProcess.
-    It proves local process/service activation and durable restart rehydration only.
-    It does not claim public ingress, DNS/TLS activation, or physical multi-host state.
+    Durable state is read directly from the owner-host state carrier; it is not
+    exported through the HTTP service. This proves local process/service activation
+    and durable restart rehydration only. It does not claim public ingress, DNS/TLS
+    activation, or physical multi-host state.
     """
 
     def __init__(self, state_path: str | Path, host: str = "127.0.0.1", port: int = 8800):
@@ -67,6 +69,11 @@ class R23OwnerHostRuntime:
         with urllib.request.urlopen(req, timeout=timeout) as resp:
             return json.loads(resp.read())
 
+    def _local_state(self) -> dict[str, Any]:
+        if not self.state_path.exists():
+            raise RuntimeError("R23_LOCAL_STATE_CARRIER_MISSING")
+        return json.loads(self.state_path.read_text("utf-8"))
+
     def wait_ready(self, timeout: float = 8.0) -> dict[str, Any]:
         deadline = time.monotonic() + timeout
         last: Exception | None = None
@@ -85,7 +92,7 @@ class R23OwnerHostRuntime:
     def start(self) -> Readback:
         pid = self.process.start()
         health = self.wait_ready()
-        state = self._json("GET", "/closure/state")
+        state = self._local_state()
         return Readback("EXECUTED", health, state, pid)
 
     def operate(self, action: str, payload: dict[str, Any]) -> dict[str, Any]:
@@ -93,8 +100,11 @@ class R23OwnerHostRuntime:
 
     def readback(self) -> Readback:
         health = self._json("GET", "/closure/health")
-        state = self._json("GET", "/closure/state")
+        state = self._local_state()
         return Readback("OBSERVED", health, state, self.process.proc.pid if self.process.proc else None)
+
+    def public_state_summary(self) -> dict[str, Any]:
+        return self._json("GET", "/closure/state")
 
     def restart_and_rehydrate(self) -> Readback:
         before = self.readback().state
