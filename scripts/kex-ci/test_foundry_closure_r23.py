@@ -32,6 +32,12 @@ with tempfile.TemporaryDirectory() as td:
     pub.stage("release://1",["vfs://artifact"],"frontage://1",{"authority":"team://release","decision":"APPROVE"})
     internal=pub.publish_internal("release://1","vfs://projection/release-1")
     assert internal.effect["state"]=="INTERNAL_PROJECTED"
+    frontage={"frontage_id":"frontage://1","undertaking_id":"LEGAL_SERVICE","hostname":"casepath.internal","routes":{"/":"landing://casepath-home"},"mesh_targets":["server://casepath/web/1"],"publication_state":"INTERNAL_BOUND"}
+    landing={"page_id":"casepath-home","undertaking_id":"LEGAL_SERVICE","frontage_id":"frontage://1","proposition":"CasePath","sections":[],"conversion_actions":[]}
+    fr=pub.bind_frontage_release("release://1",frontage,landing,"/")
+    assert fr.status=="EXECUTED"
+    assert fr.effect["activation_state"]=="READY_FOR_EXTERNAL_ACTUATOR"
+    assert store.state["frontage_releases"]["release://1"]["page_id"]=="casepath-home"
     public=pub.request_public_activation("release://1","casepath.com.au",[{"type":"A","value":"203.0.113.10"}],True,None)
     assert public.status=="DEFERRED_EXTERNAL_ACTUATOR"
 
@@ -39,6 +45,7 @@ with tempfile.TemporaryDirectory() as td:
     reloaded=DurableStore(Path(td)/"state.json")
     assert reloaded.state["state_root"]==state_root
     assert reloaded.state["leases"]["agent://worker"]["epoch"]==2
-    assert len(reloaded.state["receipts"])>=15
+    assert reloaded.state["frontage_releases"]["release://1"]["activation_state"]=="READY_FOR_EXTERNAL_ACTUATOR"
+    assert len(reloaded.state["receipts"])>=16
 
 print("R23_FOUNDRY_CLOSURE_PASS")
