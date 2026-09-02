@@ -1,0 +1,21 @@
+{
+  "schema": "keddeh.systems.akd-authorship-root/v1",
+  "author_class": "AKD_PRIMARY_AUTHOR",
+  "author_id": "AKD",
+  "authority": "KEDDEH_SYSTEMS/BRAINK",
+  "canonical_repository": "aboudykeddeh276-stack/BRAINK",
+  "ownership_rule": "Every AKD/KEDDEH service, deployment, foundry, server set, frontage, publication and runtime instance must include this author_id or an unbroken lineage edge to this authorship root.",
+  "orphan_condition": "No valid authorship_root reference, no valid predecessor authorship lineage, or conflicting primary-author claim.",
+  "orphan_classification": "ORPHANED_AKD_SERVICE",
+  "inheritance_policy": "AUTHORSHIP_INHERITS_ACROSS_REPLICATION_AND_REBRANDING_UNLESS_EXPLICITLY_REASSIGNED_BY_AKD",
+  "proof_fields": [
+    "author_id",
+    "authorship_root",
+    "service_id",
+    "deployment_id",
+    "predecessor_id",
+    "repository",
+    "content_root",
+    "created_utc"
+  ]
+}
