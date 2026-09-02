@@ -1,0 +1,9 @@
+{
+  "schema":"keddeh.systems.authorship-field-contract/v1",
+  "required_fields":["author_id","authorship_root","service_id","deployment_id","repository","content_root","created_utc"],
+  "optional_lineage_fields":["predecessor_id","parent_service_id","replica_of","rebrand_of"],
+  "author_id":"AKD",
+  "authorship_root":"enterprise/governance/AKD_AUTHORSHIP_ROOT.json",
+  "orphan_class":"ORPHANED_AKD_SERVICE",
+  "rule":"Any deployment or service missing required authorship fields must be classified orphaned until repaired; external providers and repository commit authors are metadata, not substitutes for AKD authorship."
+}
