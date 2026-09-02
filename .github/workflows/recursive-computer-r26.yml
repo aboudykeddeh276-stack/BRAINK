@@ -22,16 +22,23 @@ on:
       - 'tests/R26/**'
       - '.github/workflows/recursive-computer-r26.yml'
 
+permissions:
+  contents: read
+
 jobs:
   recursive-proof:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
+    runs-on:
+      - self-hosted
+      - kex
+      - cascade
+      - hyperk0
+      - warmboot
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-      - run: python -m pip install --upgrade pip pytest
-      - run: python -m pytest -q tests/R26/test_recursive_computer_runtime_r26.py
-      - run: python -m compileall -q enterprise/recursive_computer_runtime_r26.py enterprise/self_addressing_runtime.py enterprise/continuation_runtime.py enterprise/substrate_adapters.py enterprise/auto_binder.py runtime/R25/system_evolution_runtime.py
+      - name: Verify Python carrier
+        run: python3 --version
+      - name: Execute recursive constructor proof
+        run: python3 -m pytest -q tests/R26/test_recursive_computer_runtime_r26.py
+      - name: Compile runtime lineage
+        run: python3 -m compileall -q enterprise/recursive_computer_runtime_r26.py enterprise/self_addressing_runtime.py enterprise/continuation_runtime.py enterprise/substrate_adapters.py enterprise/auto_binder.py runtime/R25/system_evolution_runtime.py
