@@ -1,0 +1,51 @@
+{
+  "schema": "braink.r24.customer-access-control-receipt/v1",
+  "release": "R24",
+  "subject": "R23 customer-file portal privacy/access membrane",
+  "status": "IMPLEMENTED_AND_LOCAL_INVARIANT_PASS_NOT_PROMOTED",
+  "authority": "KEDDEH_SYSTEMS/BRAINK",
+  "mechanism": "enterprise/customer_access_control_r24.py",
+  "resident_dependencies_reused": [
+    "enterprise/foundry_closure_r23.py::DurableStore",
+    "enterprise/foundry_closure_r23.py::CustomerFileLifecycle",
+    "enterprise/foundry_closure_r23.py::TransitionReceipt",
+    "runtime/google_oauth_rail.py OAuth session/profile output"
+  ],
+  "observed_local_invariant": {
+    "status": "PASS",
+    "marker": "R24_CUSTOMER_ACCESS_CONTROL_PASS",
+    "authorized_owner_read": "PASS",
+    "cross_customer_rejection": "PASS",
+    "privacy_consent_rejection": "PASS",
+    "expired_session_rejection": "PASS",
+    "revoked_session_rejection": "PASS",
+    "plaintext_session_persistence_rejection": "PASS",
+    "durable_session_and_audit_rehydration": "PASS",
+    "observed_state_root": "85d2a4a525a9dfbdec02c1c81988c887249f0e5bc537e40c31b89202e21e694a"
+  },
+  "r24_gate_state": {
+    "discover": "PASS",
+    "reconcile_source_state": "PASS",
+    "architecture_decision": "PASS_REUSE_EXISTING_OAUTH_AND_R23_STORE",
+    "implement": "PASS",
+    "static_validate": "PASS_PYTHON_IMPORT_EXECUTION",
+    "unit_test": "PASS_LOCAL_BEHAVIORAL_INVARIANT",
+    "integration_test": "PASS_R23_STORE_AND_CUSTOMER_LIFECYCLE",
+    "fault_injection": "PASS_DENIAL_EXPIRY_REVOCATION_CASES",
+    "security_gate": "PARTIAL_SESSION_HASHING_SCOPE_OWNERSHIP_CONSENT_ENFORCED",
+    "quality_gate": "PENDING_FORMAL_R24_PROFILE_EVALUATION",
+    "build_release_manifest": "PENDING",
+    "independent_verify": "PENDING",
+    "promote_or_reject": "REJECTED_PENDING_REMAINING_R24_GATES",
+    "deploy": "NOT_PROMOTED",
+    "readback_reconcile": "LOCAL_DURABLE_REHYDRATION_PASS",
+    "market_readiness_evaluate": "PENDING"
+  },
+  "claim_boundaries": {
+    "durable_customer_access_membrane": "PROVEN_LOCAL",
+    "oauth_provider_callback_execution": "NOT_REEXECUTED_IN_THIS_TRANSITION",
+    "public_customer_portal_http_surface": "UNBOUND",
+    "public_tls_ingress": "UNPROVEN",
+    "production_identity_assurance": "UNPROVEN"
+  }
+}
