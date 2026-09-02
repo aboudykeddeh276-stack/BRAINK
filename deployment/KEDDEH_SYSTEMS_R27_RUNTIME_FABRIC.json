@@ -1,0 +1,36 @@
+{
+  "schema": "keddeh.systems.runtime-fabric.r27/v1",
+  "author_id": "AKD",
+  "authorship_root": "enterprise/governance/AKD_AUTHORSHIP_ROOT.json",
+  "state": "LOCALLY_EXECUTED_CANONICAL_SOURCE_DEPLOYED",
+  "control_surface": "modules/kex_wbos/action_server.py:/runtime/control",
+  "components": [
+    "enterprise/runtime/process_supervisor.py",
+    "runtime/runtime_registry.py",
+    "runtime/runtime_route_registry.py",
+    "modules/kex_wbos/adapter_runtime.py",
+    "modules/kex_wbos/runtime_dispatcher.py",
+    "modules/kex_wbos/runtime_control.py",
+    "runtime/reconciler.py"
+  ],
+  "qualification": {
+    "registered": true,
+    "started": true,
+    "readback_ready": true,
+    "stable_reconcile": true,
+    "stopped": true,
+    "generation_incremented": true,
+    "authorship_preserved": true,
+    "state_root_present": true
+  },
+  "observed_test_runtime": "runtime://qualification-http",
+  "public_ingress": "NOT_CLAIMED",
+  "external_actuators": "UNCHANGED",
+  "next_evolution": [
+    "bind resident public-gateway through runtime control",
+    "bind R23 closure service through runtime control",
+    "add Unix-socket rail supervisor",
+    "add browser-carrier Playwright adapter",
+    "add work executor mapping resident action classes to runtime and adapter handlers"
+  ]
+}
