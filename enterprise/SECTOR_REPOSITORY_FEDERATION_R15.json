@@ -1,0 +1,20 @@
+{
+  "schema":"keddeh.sector-repository-federation.r15/v1",
+  "governing_rule":"Each sector is an independently split-ready repository root. Shared enterprise functions are inherited through BRAINK and HR rather than copied into divergent sector implementations.",
+  "shared_runtime":{"braink":"enterprise/braink_sector_federation.py","hr":"enterprise/hr_fabric.py","supervisor":"enterprise/sector_runtime.py","federation":"enterprise/sector_enterprise_federation.py"},
+  "repository_creation_state":"SPLIT_READY; CURRENT GITHUB CONNECTOR DOES NOT EXPOSE CREATE-REPOSITORY",
+  "sectors":[
+    {"sector_id":"AI_CLOUD_INFRA","repository":"KEDDEH-SECTOR-AI-CLOUD-INFRA","branch":"sector/ai-cloud-infra"},
+    {"sector_id":"CYBERSECURITY","repository":"KEDDEH-SECTOR-CYBERSECURITY","branch":"sector/cybersecurity"},
+    {"sector_id":"ENTERPRISE_AUTOMATION","repository":"KEDDEH-SECTOR-ENTERPRISE-AUTOMATION","branch":"sector/enterprise-automation"},
+    {"sector_id":"FINTECH_PAYMENTS","repository":"KEDDEH-SECTOR-FINTECH-PAYMENTS","branch":"sector/fintech-payments"},
+    {"sector_id":"HEALTHCARE","repository":"KEDDEH-SECTOR-HEALTHCARE","branch":"sector/healthcare"},
+    {"sector_id":"LEGAL_REGTECH","repository":"KEDDEH-SECTOR-LEGAL-REGTECH","branch":"sector/legal-regtech"},
+    {"sector_id":"DATA_INFORMATION_GOVERNANCE","repository":"KEDDEH-SECTOR-DATA-INFORMATION-GOVERNANCE","branch":"sector/data-information-governance"},
+    {"sector_id":"SUPPLY_CHAIN_LOGISTICS","repository":"KEDDEH-SECTOR-SUPPLY-CHAIN-LOGISTICS","branch":"sector/supply-chain-logistics"},
+    {"sector_id":"MANUFACTURING_INDUSTRIAL","repository":"KEDDEH-SECTOR-MANUFACTURING-INDUSTRIAL","branch":"sector/manufacturing-industrial"},
+    {"sector_id":"ENERGY_UTILITIES","repository":"KEDDEH-SECTOR-ENERGY-UTILITIES","branch":"sector/energy-utilities"},
+    {"sector_id":"COMMERCE_CUSTOMER_OPERATIONS","repository":"KEDDEH-SECTOR-COMMERCE-CUSTOMER-OPERATIONS","branch":"sector/commerce-customer-operations"},
+    {"sector_id":"GOVERNMENT_PUBLIC_ADMIN","repository":"KEDDEH-SECTOR-GOVERNMENT-PUBLIC-ADMIN","branch":"sector/government-public-admin"}
+  ]
+}
