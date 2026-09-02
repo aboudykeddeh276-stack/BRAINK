@@ -1,0 +1,3 @@
+BRAINK R16 independent observer trigger
+purpose: execute .github/workflows/braink-external-observer-r16.yml from a pull_request event against build/service-supervisor-s1-host-survey
+semantics: no runtime architecture mutation
