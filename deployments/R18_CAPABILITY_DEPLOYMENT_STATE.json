@@ -1,7 +1,6 @@
 {
-  "schema": "braink.deployment-state.r18/v4",
+  "schema": "braink.deployment-state.r18/v5",
   "status": "RESIDENT_CAPABILITY_BINDING_ADVANCED__LOCAL_INVARIANT_PASS__CI_EXECUTOR_BOUNDARY",
-  "braink_main_base_commit": "a6f8be565dc295eb5a9eb413fb77d0eb1c09cd8b",
   "runtime": "enterprise/capability_deployment_runtime.py",
   "binding_registry": "enterprise/R18_CAPABILITY_BINDINGS.json",
   "invariant": "scripts/kex-ci/test_capability_deployment_runtime.py",
@@ -9,63 +8,54 @@
   "current_graph": {
     "server_sets": 18,
     "requirements": 72,
-    "resident_capabilities": 10,
-    "unresolved_capability_holes": 62,
+    "resident_capabilities": 12,
+    "unresolved_capability_holes": 60,
     "selected_work_module": "WM://GENERAL_GOVERNANCE/scope",
     "selection_classification": "REUSE",
-    "implementation_ref": "Library/keddeh_enterprise_runtime.py::runtime://keddeh/identity/check_scope",
-    "authority_evidence_ref": "aboudykeddeh276-stack/GENERAL-GOVERNANCE-/braink_hr/HR_FEDERATION_R1.json"
+    "reconciled_resident_capabilities": ["identity", "role", "scope"]
   },
   "transition": {
-    "binding_commit": "55384e756d10e6528fb16e44d4fc4a567044ac62",
-    "recompile_invariant_commit": "390742ca5ae9ee51fb847f7af653292d6ecf92bb",
-    "receipt_path": "deployments/R18_WORK_MODULE_SCOPE_BIND_RECEIPT_R1.json",
-    "receipt_commit": "61dbb240bee9772512e1c3dc60681ec19bad384a",
+    "scope_binding_commit": "55384e756d10e6528fb16e44d4fc4a567044ac62",
+    "invariant_commit": "179b5363767fb5fc62c663fc56c7e55e50aaa16c",
+    "scope_receipt": "deployments/R18_WORK_MODULE_SCOPE_BIND_RECEIPT_R1.json",
+    "reconciliation_receipt": "deployments/R18_RECONCILIATION_IDENTITY_ROLE_SCOPE_R1.json",
+    "reconciliation_receipt_commit": "d14c858bd513f11b0381ede6fadc75c63c36d629",
     "prior_resident": 9,
     "prior_holes": 63,
-    "resident_delta": 1,
-    "hole_delta": -1
+    "resident_delta": 3,
+    "hole_delta": -3
   },
   "local_invariant": {
     "status": "PASS",
-    "deployment_root": "9d11b04fa0151f5c60fe9d8d2628de7df4a2e2d679d4c88a89495b5512665dcb",
+    "deployment_root": "e80ae52e2bd026a3cdbf366f659f65c57c3288750946c658c32ab07c90dd7db5",
     "server_sets": 18,
     "requirements": 72,
-    "resident": 10,
-    "holes": 62
+    "resident": 12,
+    "holes": 60
   },
-  "local_release_lineage": {
-    "status": "PASS",
+  "release_lineage": {
     "prior_reconciled_root": "47b1b800720a8322f959245e6f88cbb54384e4af03d7ad7c3e248ed1fe07a2a7",
     "release_root": "f48b99cc271f8440fe9656553ec8a6326e903d7a93d065999d5adf8ab63c025f",
     "zip_sha256": "1717ca6316cea792bc5b679ee878b954d43d93eeb63c923da63b4d39e1031f1e"
   },
   "github_ci": {
-    "r18_run_id": 33580347544,
-    "r18_job_id": 100093121463,
-    "enterprise_run_id": 33580347681,
-    "enterprise_job_id": 100093121963,
     "status": "FAILURE_PRE_STEP",
     "runner_id": 0,
     "steps_executed": 0,
-    "classification": "RUNNER_NOT_ALLOCATED_OR_PRE_EXECUTION_ACTIONS_FAILURE",
-    "not_proven": [
-      "test failure",
-      "source compile failure",
-      "capability binding failure",
-      "recompile invariant failure"
-    ]
+    "classification": "RUNNER_NOT_ALLOCATED_OR_PRE_EXECUTION_ACTIONS_FAILURE"
   },
   "persistent_mirrors": {
     "library": "/BRAINK_DEPLOYMENTS/R18_CAPABILITY_DEPLOYMENT/",
     "google_drive": "/Google Drive/KEDDEH_SYSTEMS_DEPLOYMENTS/"
   },
   "claim_boundary": [
-    "resident capability provenance is not equivalent to hosted workflow verification",
-    "observer signals remain reconciliation evidence and do not create execution permission",
-    "scope reuse is local authorization evidence and does not establish external SSO/OIDC, hardware-rooted identity or tenant isolation",
+    "identity is HR assignment identity only",
+    "role is declared HR role membership only",
+    "scope is local principal/scope authorization reuse only",
+    "tenant, supervision, lease, replacement and rehydration remain separate unresolved capabilities",
+    "external SSO/OIDC, hardware-rooted identity and tenant isolation are not promoted",
     "A_executed != A_claimed",
     "S_observed != S_claimed"
   ],
-  "next_runtime_transition": "re-rank remaining 62 typed capability holes; continue resident search by cross-genome unlock value with identity/HR/runtime/VFS/proof/observer/API capabilities ahead of undertaking-specific novelty"
+  "next_runtime_transition": "re-rank remaining 60 typed holes against resident implementations and compatible adapters before synthesis"
 }
