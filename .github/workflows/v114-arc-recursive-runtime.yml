@@ -1,0 +1,103 @@
+name: KEDDEH V114 ARC Recursive Runtime
+
+on:
+  push:
+    branches:
+      - 'keddeh/v98-protocol-compliance-deployment-os'
+    paths:
+      - 'v98_protocol_compliance_config/config/codebase_runtime_registry.json'
+      - 'v98_protocol_compliance_config/src/keddeh_unified_codebase_runtime.py'
+      - 'v98_protocol_compliance_config/src/keddeh_encoded_medium_storage_runtime_v1.py'
+      - 'v98_protocol_compliance_config/tests/test_unified_codebase_runtime.py'
+      - 'v98_protocol_compliance_config/tests/test_encoded_medium_storage_runtime_v1.py'
+      - '.github/workflows/v114-arc-recursive-runtime.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  arc-recursive-runtime:
+    name: KEDDEH ARC BRAINK recursive runtime
+    runs-on: keddeh-arc-runner-set
+    timeout-minutes: 60
+    defaults:
+      run:
+        working-directory: v98_protocol_compliance_config
+    steps:
+      - uses: actions/checkout@v4
+      - name: Resolve Python environment
+        id: python
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -x .venv/bin/python ]; then PY="$PWD/.venv/bin/python"; ENV_KIND=.venv;
+          elif [ -x venv/bin/python ]; then PY="$PWD/venv/bin/python"; ENV_KIND=venv;
+          else PY="$(command -v python3)"; ENV_KIND=runner-python; fi
+          test -x "$PY"
+          "$PY" --version
+          echo "python=$PY" >> "$GITHUB_OUTPUT"
+          echo "environment=$ENV_KIND" >> "$GITHUB_OUTPUT"
+      - name: Read back ARC carrier
+        run: |
+          uname -a
+          uname -m
+          echo "runner=${RUNNER_NAME:-unknown}"
+          echo "os=${RUNNER_OS:-unknown}"
+          echo "arch=${RUNNER_ARCH:-unknown}"
+          echo "environment=${{ steps.python.outputs.environment }}"
+      - name: Compile recursive runtime
+        run: |
+          PY="${{ steps.python.outputs.python }}"
+          "$PY" -m compileall -q src/keddeh_unified_codebase_runtime.py src/keddeh_encoded_medium_storage_runtime_v1.py tests/test_unified_codebase_runtime.py tests/test_encoded_medium_storage_runtime_v1.py
+      - name: Execute recursive runtime tests
+        run: |
+          PY="${{ steps.python.outputs.python }}"
+          "$PY" -m unittest tests.test_unified_codebase_runtime -v
+          "$PY" -m unittest tests.test_encoded_medium_storage_runtime_v1 -v
+      - name: Execute V114 supervisor and V116 descendants
+        run: |
+          set -euo pipefail
+          PY="${{ steps.python.outputs.python }}"
+          mkdir -p evidence runtime_volume/outbox/unified_runtime
+          "$PY" src/keddeh_unified_codebase_runtime.py --root . --registry config/codebase_runtime_registry.json --emit-receipt | tee evidence/unified_codebase_runtime_cli.json
+      - name: Verify recursive descendant state
+        run: |
+          PY="${{ steps.python.outputs.python }}"
+          "$PY" - <<'PY'
+          import json
+          from pathlib import Path
+          payload=json.loads(Path('evidence/unified_codebase_runtime_receipt.json').read_text())
+          receipt=payload['receipt']
+          results={x['runtime_id']:x for x in payload['runtime_results']}
+          encoded=results['runtime://keddeh/encoded-medium-machine']
+          assert receipt['ledger_readback_passed'] is True
+          assert receipt['global_stop'] is False
+          assert receipt['continuation_steps_executed'] >= 3
+          assert encoded['state']=='SUCCESS'
+          assert encoded['continuation_state']=='CONTINUED'
+          assert encoded['continuation_steps'] >= 3
+          handoff=json.loads(Path('runtime_volume/outbox/encoded_medium_reconciliation/authoritative.handoff.json').read_text())
+          snapshot=json.loads(Path('runtime_volume/encoded_medium/current.json').read_text())
+          assert handoff['state']=='VERIFIED'
+          assert handoff['next_operation']=='instantiate_child_auto'
+          assert handoff['snapshot_proof']==snapshot['proof']
+          PY
+      - name: Upload ARC recursive receipts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v114-arc-recursive-runtime-${{ github.sha }}
+          if-no-files-found: error
+          retention-days: 30
+          path: |
+            v98_protocol_compliance_config/evidence/unified_codebase_runtime_receipt.json
+            v98_protocol_compliance_config/evidence/unified_codebase_runtime_cli.json
+            v98_protocol_compliance_config/evidence/encoded_medium_reconciliation_receipt.json
+            v98_protocol_compliance_config/evidence/encoded_medium_continuation_receipt.json
+            v98_protocol_compliance_config/runtime_volume/encoded_medium/current.json
+            v98_protocol_compliance_config/runtime_volume/encoded_medium/continuation.ledger.jsonl
+            v98_protocol_compliance_config/runtime_volume/unified_runtime.ledger.jsonl
+            v98_protocol_compliance_config/runtime_volume/outbox/encoded_medium_reconciliation/authoritative.handoff.json
+            v98_protocol_compliance_config/runtime_volume/outbox/unified_runtime/current.handoff.json
