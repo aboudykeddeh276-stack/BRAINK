@@ -23,14 +23,35 @@ on:
 
 permissions:
   contents: read
+  actions: read
 
 concurrency:
   group: v114-unified-runtime-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
+  resolve-target-host:
+    name: Resolve target-host availability
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      should_run_m3: ${{ steps.resolve.outputs.should_run_m3 }}
+    steps:
+      - name: Resolve existing KEDDEH M3 availability signal
+        id: resolve
+        env:
+          M3_AVAILABLE: ${{ vars.KEDDEH_M3_AVAILABLE }}
+        run: |
+          if [[ "${M3_AVAILABLE:-false}" == "true" ]]; then
+            echo "should_run_m3=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "should_run_m3=false" >> "$GITHUB_OUTPUT"
+          fi
+
   unified-runtime:
-    runs-on: [self-hosted, macOS, ARM64, KEDDEH-M3]
+    name: Portable BRAINK/KEX recursive runtime
+    needs: resolve-target-host
+    runs-on: ubuntu-latest
     timeout-minutes: 20
     defaults:
       run:
@@ -38,11 +59,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Read back KEDDEH target host
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Read back execution carrier
         run: |
           uname -a
           uname -m
-          sw_vers
           python3 --version
 
       - name: Compile unified runtime and tests
@@ -102,7 +126,7 @@ jobs:
           assert Path('runtime_volume/outbox/unified_runtime/current.handoff.json').is_file()
           PY
 
-      - name: Upload runtime receipts and state
+      - name: Upload portable runtime receipts and state
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -120,3 +144,28 @@ jobs:
             v98_protocol_compliance_config/runtime_volume/outbox/encoded_medium_reconciliation/authoritative.handoff.json
             v98_protocol_compliance_config/runtime_volume/outbox/unified_runtime/current.handoff.json
             skills/keddeh-engineering-orchestrator/enterprise/runtime/enterprise-portfolio.sqlite3
+
+  m3-target-host-acceptance:
+    name: Optional KEDDEH M3 target-host acceptance
+    needs: [resolve-target-host, unified-runtime]
+    if: needs.resolve-target-host.outputs.should_run_m3 == 'true'
+    runs-on: [self-hosted, macOS, ARM64, KEDDEH-M3]
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Execute existing M3 host acceptance mechanic
+        run: |
+          cd v98_protocol_compliance_config
+          bash scripts/install.command
+          python3 src/keddeh_target_host_receipts.py --root . --emit-receipt
+          bash scripts/run_m3_host_acceptance.command
+      - name: Upload M3 target-host evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v114-keddeh-m3-target-host-${{ github.sha }}
+          if-no-files-found: error
+          retention-days: 30
+          path: |
+            v98_protocol_compliance_config/evidence/m3_host_readiness_receipt.json
+            v98_protocol_compliance_config/runtime_volume/m3_host/
