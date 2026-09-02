@@ -16,7 +16,8 @@ class TransitionReceipt:
 class DurableStore:
     def __init__(self,path:str|Path):
         self.path=Path(path);self.path.parent.mkdir(parents=True,exist_ok=True)
-        self.state=json.loads(self.path.read_text()) if self.path.exists() else {"generation":0,"leases":{},"customer_files":{},"research":{},"publications":{},"domain_intents":{},"receipts":[]}
+        self.state=json.loads(self.path.read_text()) if self.path.exists() else {"generation":0,"leases":{},"customer_files":{},"research":{},"publications":{},"domain_intents":{},"frontage_releases":{},"receipts":[]}
+        self.state.setdefault("frontage_releases",{})
     def commit(self,mutator):
         nxt=json.loads(json.dumps(self.state));effect=mutator(nxt);nxt["generation"]+=1;nxt["state_root"]=root({k:v for k,v in nxt.items() if k!="state_root"})
         tmp=self.path.with_suffix(".tmp");tmp.write_bytes(canonical(nxt));os.replace(tmp,self.path);self.state=nxt;return effect
@@ -70,6 +71,22 @@ class PublicationRuntime:
     def publish_internal(self,release_id,projection_ref):
         obj=json.loads(json.dumps(self.store.state["publications"][release_id]));obj["state"]="INTERNAL_PROJECTED";obj["projection_ref"]=projection_ref
         self.store.commit(lambda s:s["publications"].__setitem__(release_id,obj) or obj);return self.store.record(TransitionReceipt("PUBLISHING","PROJECT_INTERNAL",release_id,"EXECUTED",obj,time.time_ns()))
+    def bind_frontage_release(self,release_id,frontage,landing_page,route_path="/"):
+        pub=json.loads(json.dumps(self.store.state["publications"].get(release_id) or {}))
+        if pub.get("state")!="INTERNAL_PROJECTED":raise RuntimeError("PUBLICATION_NOT_INTERNAL_PROJECTED")
+        frontage_id=frontage.get("frontage_id")
+        if not frontage_id or pub.get("frontage_id")!=frontage_id:raise RuntimeError("FRONTAGE_ID_MISMATCH")
+        if landing_page.get("frontage_id")!=frontage_id:raise RuntimeError("LANDING_FRONTAGE_MISMATCH")
+        routes=dict(frontage.get("routes") or {})
+        if route_path not in routes:raise RuntimeError("FRONTAGE_ROUTE_NOT_REGISTERED")
+        page_id=landing_page.get("page_id")
+        route_target=routes[route_path]
+        if route_target not in {page_id,f"landing://{page_id}",landing_page.get("artifact_ref")}:
+            raise RuntimeError("FRONTAGE_ROUTE_TARGET_MISMATCH")
+        effect={"release_id":release_id,"frontage_id":frontage_id,"hostname":frontage.get("hostname"),"route_path":route_path,"route_target":route_target,"page_id":page_id,"projection_ref":pub["projection_ref"],"publication_state":"INTERNAL_PROJECTED","activation_state":"READY_FOR_EXTERNAL_ACTUATOR"}
+        effect["frontage_release_root"]=root(effect)
+        self.store.commit(lambda s:s["frontage_releases"].__setitem__(release_id,effect) or effect)
+        return self.store.record(TransitionReceipt("FRONTAGE","BIND_INTERNAL_RELEASE",release_id,"EXECUTED",effect,time.time_ns()))
     def request_public_activation(self,release_id,domain,dns_changes,tls_required=True,actuator=None):
         intent={"release_id":release_id,"domain":domain,"dns_changes":dns_changes,"tls_required":tls_required}
         intent["intent_root"]=root(intent)
