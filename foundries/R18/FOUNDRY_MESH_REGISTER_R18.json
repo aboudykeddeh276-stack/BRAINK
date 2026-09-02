@@ -1,0 +1,11 @@
+{
+  "schema":"keddeh.foundry-mesh.r18/v1",
+  "release":"KEDDEH-FOUNDRY-MESH-R18",
+  "law":"foundries are first-class massive data/process systems; sectors, functions and processes are referenced and extended, never collapsed into generic service labels",
+  "shared_planes":{"BRAINK":"state/routing/evidence/observer/reconciliation/continuation","HR":"workers/teams/roles/capacity/assignment/approval/accountability","VFS":"identity/namespace/lineage/backing/persistence","ORC":"selection/dispatch/continuation/failover","IL_LLM":"semantic indexing/research/process/function mapping"},
+  "foundry_index":["BUSINESS_ENTERPRISE_STRUCTURE_FOUNDRY","SERVER_FOUNDRY","AGENTICS_FOUNDRY","HCI_FOUNDRY","LANDING_PAGE_FOUNDRY","SVG_RUNTIME_FOUNDRY","WORKSPACE_FOUNDRY","FILE_SYSTEM_FOUNDRY","CUSTOMER_FILE_BASE_SOFTWARE_FOUNDRY","FRONTAGE_SERVICE_MESH_FOUNDRY","DOMAIN_MASTERY_FOUNDRY","PROCESS_MASTERY_FOUNDRY","RESEARCH_MASTERY_FOUNDRY","PUBLISHING_MASTERY_FOUNDRY","HR_TEAM_SERVICES_FOUNDRY","WEBSITE_FOUNDRY"],
+  "counts":{"foundries":16,"services":160,"processes":159,"domains":175},
+  "sector_inheritance":"R15/R16 sector estate remains intact and binds into foundries by capability/process coordinates",
+  "market_process_inheritance":"R17 canonical market processes remain intact and are consumed by foundries",
+  "full_manifest_authority":"/KEDDEH Systems/RUNTIMES/R18/KEDDEH_FOUNDRY_MESH_R18.zip"
+}
