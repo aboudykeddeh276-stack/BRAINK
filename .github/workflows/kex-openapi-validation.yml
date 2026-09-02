@@ -20,6 +20,7 @@ on:
     paths:
       - "openapi/**"
       - "modules/kex_wbos/**"
+      - "modules/kex_core/**"
       - "scripts/kex-ci/**"
       - ".kex/**"
       - ".github/workflows/kex-*.yml"
@@ -42,6 +43,12 @@ jobs:
         run: python scripts/kex-ci/test_wbos_api.py
       - name: Exercise Unified Action Runtime mutation semantics
         run: python scripts/kex-ci/test_action_runtime.py
+      - name: Prove canonical state core
+        run: python scripts/kex-ci/test_canonical_state.py
+      - name: Prove canonical action wrapper
+        run: python scripts/kex-ci/test_canonical_wbos.py
+      - name: Prove canonical state through live HTTP process
+        run: python scripts/kex-ci/test_canonical_http_runtime.py
       - name: Validate KEX repository surface
         run: python scripts/kex-ci/validate_control_plane.py --mode openapi
       - name: Upload receipts
@@ -53,9 +60,14 @@ jobs:
             reports/kex-ci/openapi.json
             reports/kex-wbos/integration.json
             reports/kex-wbos/action-runtime-integration.json
+            reports/kex-core/canonical-state-test.json
+            reports/kex-wbos/canonical-wbos-test.json
+            reports/kex-wbos/canonical-http-runtime-test.json
             reports/kex-wbos/proof-ledger.jsonl
             reports/kex-wbos/action-ledger.jsonl
             reports/kex-wbos/action-proof-ledger.jsonl
+            reports/kex-wbos/canonical-action-ledger.jsonl
+            reports/kex-wbos/canonical-http-ledger.jsonl
           if-no-files-found: warn
 
   specialist:
@@ -70,6 +82,12 @@ jobs:
         run: python3 scripts/kex-ci/test_wbos_api.py
       - name: Exercise Unified Action Runtime
         run: python3 scripts/kex-ci/test_action_runtime.py
+      - name: Prove canonical state core
+        run: python3 scripts/kex-ci/test_canonical_state.py
+      - name: Prove canonical action wrapper
+        run: python3 scripts/kex-ci/test_canonical_wbos.py
+      - name: Prove canonical state through live HTTP process
+        run: python3 scripts/kex-ci/test_canonical_http_runtime.py
       - name: Validate specialist surface
         run: |
           STRICT=""
@@ -83,7 +101,12 @@ jobs:
             reports/kex-ci/openapi.json
             reports/kex-wbos/integration.json
             reports/kex-wbos/action-runtime-integration.json
+            reports/kex-core/canonical-state-test.json
+            reports/kex-wbos/canonical-wbos-test.json
+            reports/kex-wbos/canonical-http-runtime-test.json
             reports/kex-wbos/proof-ledger.jsonl
             reports/kex-wbos/action-ledger.jsonl
             reports/kex-wbos/action-proof-ledger.jsonl
+            reports/kex-wbos/canonical-action-ledger.jsonl
+            reports/kex-wbos/canonical-http-ledger.jsonl
           if-no-files-found: warn
