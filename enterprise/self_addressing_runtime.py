@@ -6,13 +6,25 @@ from enterprise.auto_binder import AutoBinder
 from enterprise.continuation_runtime import ContinuationRuntime
 def root(v): return hashlib.sha256(json.dumps(v,sort_keys=True,separators=(",",":")).encode()).hexdigest()
 class SelfAddressingRuntime:
+    @staticmethod
+    def _observation_payload(result):
+        if not isinstance(result,dict): return result
+        status=result.get('status')
+        if status in {'COMMITTED','READ'}:
+            compact={k:v for k,v in result.items() if k!='value'}
+            if 'value' in result:
+                raw=json.dumps(result['value'],sort_keys=True,separators=(',',':'),ensure_ascii=False).encode()
+                compact['value_bytes']=len(raw)
+                compact['value_root']=hashlib.sha256(raw).hexdigest()
+            return compact
+        return result
     def __init__(self,state_path):
         self.state_path=Path(state_path); self.registry=CapabilityRegistry(); self.registry.register(SQLiteJsonAdapter(),priority=10); self.registry.register(FileJsonAdapter(),priority=20); self.registry.register(MemoryAdapter(),priority=100); self.binder=AutoBinder(self.registry); self.continuations=ContinuationRuntime(); self.observers=[]; self.tick_count=0
     def route(self,logical,backing,operation,payload=None):
         if logical not in self.binder.bindings:
             b=self.binder.bind(logical,backing,operation)
             if b['status']!='BOUND': self.observe('runtime://binder',logical,'HOLE_UNBOUND',b); self.checkpoint(); return b
-        result=self.binder.apply(logical,operation,payload); self.observe('runtime://adapter',logical,'ADAPTER_RESULT',result); self.tick_count+=1; self.checkpoint(); return result
+        result=self.binder.apply(logical,operation,payload); self.observe('runtime://adapter',logical,'ADAPTER_RESULT',self._observation_payload(result)); self.tick_count+=1; self.checkpoint(); return result
     def observe(self,source,subject,kind,payload):
         event={'source':source,'subject':subject,'kind':kind,'payload':payload,'payload_root':root(payload),'at_ns':time.time_ns()}; self.observers.append(event)
         if kind in {'HOLE_UNBOUND','CONTRADICTION','READBACK_MISMATCH'}: self.continuations.enqueue(f'KEX://REPAIR/{subject}','process://runtime/reconcile',{'subject':subject,'signal':event},priority=10.0)
