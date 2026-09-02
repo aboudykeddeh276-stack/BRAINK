@@ -10,9 +10,12 @@ on:
       - 'runtime/braink_observer2_bootstrap_r29.py'
       - 'runtime/braink_recursive_operator_r29.py'
       - 'runtime/observer2_federation_receipt_r29.py'
+      - 'runtime/observer2_resident_state_r29.py'
       - 'tests/test_observer2_federation_r29.py'
       - 'tests/test_braink_observer2_bootstrap_r29.py'
+      - 'tests/test_observer2_resident_state_r29.py'
       - 'reports/observer2_federation_r29.html'
+      - 'reports/r29/OBSERVER2_FEDERATION_ENGINEERING_RECEIPT.json'
       - '.github/workflows/observer2-federation-r29.yml'
   pull_request:
     paths:
@@ -20,8 +23,10 @@ on:
       - 'runtime/braink_observer2_bootstrap_r29.py'
       - 'runtime/braink_recursive_operator_r29.py'
       - 'runtime/observer2_federation_receipt_r29.py'
+      - 'runtime/observer2_resident_state_r29.py'
       - 'tests/test_observer2_federation_r29.py'
       - 'tests/test_braink_observer2_bootstrap_r29.py'
+      - 'tests/test_observer2_resident_state_r29.py'
       - 'reports/observer2_federation_r29.html'
       - '.github/workflows/observer2-federation-r29.yml'
   workflow_dispatch:
@@ -37,7 +42,7 @@ jobs:
       - name: Checkout BRAINK
         uses: actions/checkout@v4
 
-      - name: Unit and boundary tests
+      - name: Unit, resident-boundary, and reconciliation tests
         shell: bash
         run: |
           python -m unittest discover -s tests -p 'test_*observer2*r29.py' -v
