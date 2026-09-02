@@ -40,12 +40,36 @@ def run():
         )
         assert len(f.effect["object_root"]) == 64
 
-        rt.customers.create_customer_file(
-            "customer://casepath/demo-001",
+        customer = "customer://casepath/demo-001"
+        authority = "team://casepath/core"
+        created = rt.customers.create_customer_file(
+            customer,
             "undertaking://casepath",
             {"privacy_notice": "accepted"},
             {"matter_state": "INTAKE"},
         )
+        assert created.effect["revision"] == 1
+        updated = rt.customers.update_service_state(customer, {"matter_state": "PREPARATION"}, authority)
+        assert updated.effect["revision"] == 2
+        attached = rt.customers.attach_document(customer, "vfs://casepath/pages/your-data", "SOURCE_DOCUMENT", authority)
+        assert attached.effect["object_root"] == f.effect["object_root"]
+        communicated = rt.customers.record_communication(customer, "WEB", "INBOUND", "Customer submitted structured intake", authority)
+        assert len(communicated.effect["communication_root"]) == 64
+        billed = rt.customers.record_billing_event(customer, "ENTITLEMENT_RECORDED", 14900, "AUD", "local-test-reference", authority)
+        assert len(billed.effect["billing_root"]) == 64
+        exported = rt.customers.export_manifest(customer, "export://casepath/demo-001/r1", authority)
+        assert len(exported.effect["export_root"]) == 64
+        closed = rt.customers.close_customer_file(customer, "COMPLETED", {"policy": "retain-by-governed-policy", "deletion_state": "NOT_EXECUTED"}, authority)
+        assert closed.effect["state"] == "CLOSED"
+        assert rt.store.state["customers"][customer]["revision"] == 7
+        assert len(rt.store.state["customers"][customer]["audit"]) == 6
+
+        try:
+            rt.customers.update_service_state(customer, {"matter_state": "ILLEGAL_REOPEN"}, authority)
+            raise AssertionError("closed customer file accepted service mutation")
+        except ValueError as exc:
+            assert str(exc) == "CUSTOMER_FILE_NOT_ACTIVE"
+
         rt.frontages.register_frontage(
             "frontage://casepath/public",
             "undertaking://casepath",
@@ -110,16 +134,23 @@ def run():
         assert rel.effect["state"] == "STAGED_INTERNAL"
 
         summary = rt.process.process_summary()
-        assert summary["receipt_count"] == 14
+        assert summary["receipt_count"] == 20
         before_root = summary["state_root"]
 
-        # Restart/rehydrate the local foundary state carrier.
         rt2 = FoundaryOperationsRuntime(state)
         assert rt2.process.process_summary()["state_root"] == before_root
         assert "undertaking://casepath" in rt2.store.state["undertakings"]
         assert "release://casepath/r22-demo" in rt2.store.state["publications"]
+        restored_customer = rt2.store.state["customers"][customer]
+        assert restored_customer["state"] == "CLOSED"
+        assert restored_customer["revision"] == 7
+        assert len(restored_customer["documents"]) == 1
+        assert len(restored_customer["communications"]) == 1
+        assert len(restored_customer["billing"]) == 1
+        assert len(restored_customer["exports"]) == 1
 
         print("R22_FOUNDRY_OPERATIONS_PASS")
+        print("R22_CUSTOMER_FILE_LIFECYCLE_PASS")
         print(f"state_root={before_root}")
         print(f"receipt_count={summary['receipt_count']}")
 
