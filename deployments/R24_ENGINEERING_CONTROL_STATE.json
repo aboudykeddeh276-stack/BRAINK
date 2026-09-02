@@ -87,6 +87,26 @@
       "tls_public_origin": "UNPROVEN",
       "independent_verify": "PENDING",
       "promotion": "REJECTED_PENDING_REMAINING_R24_GATES"
+    },
+    "r22_kos_mesh_resident_reconciliation": {
+      "status": "UNDOCUMENTED_RESIDENT_CAPABILITY_RECONCILED_NOT_PROMOTED",
+      "receipt": "deployments/R24_KOS_MESH_RESIDENT_RECONCILIATION_R1.json",
+      "receipt_root": "c6554cf079d0111089fb692c6b97f8478511aa3cd40981d22aea295f1d7dbcc0",
+      "resident_package": "KEDDEH K-OS/BOS Mesh Substrate v2.0",
+      "resident_file_count": 108,
+      "local_real_socket_nodes": "HISTORICAL_PASS",
+      "independent_os_processes": "HISTORICAL_PASS",
+      "crash_fault_2_of_3_continuation": "HISTORICAL_PASS",
+      "restart_anti_entropy_catchup": "HISTORICAL_PASS",
+      "dns_udp_tcp_projection": "HISTORICAL_PASS",
+      "recorded_test_suite": "33/33 PASS",
+      "wheel_sha256": "4b25c0e670332038f46e09dcbc5f7090350131dcc0782f902155fb3c384876cc",
+      "zipapp_sha256": "7f48db1cfc94c3eaf11140d472a3e6e160ef4fa55ae5c9c275c1995ed8d980e2",
+      "distinct_physical_hosts": "UNEXECUTED",
+      "physical_root": "UNTESTED",
+      "decision": "REUSE_RESIDENT_KOS_MESH_DO_NOT_REIMPLEMENT",
+      "next_dependency": "DEPLOY_SAME_HASHED_PACKAGE_ON_DISTINCT_AUTHORISED_HOSTS_AND_READ_BACK_UNIQUE_HOST_IDENTITIES_AND_QUORUM_STATE",
+      "promotion": "REJECTED_PENDING_PHYSICAL_MULTI_HOST_EXECUTION_AND_REMAINING_R24_GATES"
     }
   },
   "observed_external_transitions": {
