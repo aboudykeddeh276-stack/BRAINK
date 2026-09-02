@@ -1,0 +1,19 @@
+{
+  "schema":"keddeh.foundry-execution.r19.deployment/v1",
+  "state":"REMOTE_MUTATED",
+  "preserves":["R15 sectors","R16 active sector bindings","R17 market processes","R18 foundry mesh"],
+  "execution_surfaces":{
+    "website":{"repo":"aboudykeddeh276-stack/app","path":"foundries/R19/site_registry.py","commit":"8166c4c6cf70af207ff1207ec2d9a51d77b9c5c2"},
+    "domain_mastery":{"repo":"aboudykeddeh276-stack/SERVERS-KEDDEHSYSTEMS","path":"foundries/R19/domain_adapters.py","commit":"cd937a8ca6bd7038189b8b36d66baac5cbda8b78"},
+    "agentics":{"repo":"aboudykeddeh276-stack/ai-shell","path":"foundries/R19/agentics_persistent.py","commit":"ceca613858671215cbfd9b978360f9feae0f9652"},
+    "hr":{"repo":"aboudykeddeh276-stack/GENERAL-GOVERNANCE-","path":"foundries/R19/hr_team_runtime.py","commit":"042ed5c580702c569d1d367d5e4a990e22320c2a"},
+    "research":{"repo":"aboudykeddeh276-stack/GENERAL-GOVERNANCE-","path":"foundries/R19/research_graph.py","commit":"bf7e3b7b4d40be0e7b875dc9d6430f9c6149e442"},
+    "publishing":{"repo":"aboudykeddeh276-stack/GENERAL-GOVERNANCE-","path":"foundries/R19/publishing_runtime.py","commit":"22e297fc759f1a2b9a7bd27033e1a3dba153ede2"},
+    "workspace":{"repo":"aboudykeddeh276-stack/virtualized-storage","path":"foundries/R19/workspace_tenancy.py","commit":"f46e96205ac4f64522370dffeb7a576095dbd824"},
+    "customer_file_api":{"repo":"aboudykeddeh276-stack/virtualized-storage","path":"foundries/R19/customer_file_api.py","commit":"cb17975b19c9447d578b6ec978c8cbd947c840f5"}
+  },
+  "runtime":"runtime://keddeh/foundry-execution/r19",
+  "evidence":"KEX://BRAINK/FOUNDRY/R19/EVIDENCE",
+  "external_authority_boundaries":["registrar","authoritative DNS","TLS issuer","public web host","external publishing channels"],
+  "rule":"inside-foundry software is deployed to the repository that owns the function; the BRAINK index references it and does not duplicate implementations"
+}
