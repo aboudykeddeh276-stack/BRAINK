@@ -1,0 +1,19 @@
+{
+  "schema":"keddeh.environment-contract.r17/v1",
+  "release_id":"KEDDEH-MARKET-PROCESS-R17",
+  "python":">=3.11",
+  "required_repository_bindings":{
+    "governance":"aboudykeddeh276-stack/GENERAL-GOVERNANCE-",
+    "server_execution":"aboudykeddeh276-stack/SERVERS-KEDDEHSYSTEMS",
+    "memory":"aboudykeddeh276-stack/VIRTUALISED_MEMORY",
+    "software_nodes":"aboudykeddeh276-stack/KEDDEH_SOFTWARE_NODES"
+  },
+  "required_runtime_bindings":[
+    "runtime://braink/market-process/r17",
+    "runtime://braink/active-continuation",
+    "runtime://keddeh/hr-fabric",
+    "KEX://MEMORY/RING1-RING2"
+  ],
+  "required_controls":["identity-policy","audit","overhead-policy","checkpoint","reconciliation","rollback"],
+  "external_adapters":"optional per process until bound; absence blocks only the corresponding external consequence"
+}
