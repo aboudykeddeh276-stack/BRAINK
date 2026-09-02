@@ -1,4 +1,105 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Observer² R29 Federated Environment Inspector</title>
-<style>:root{--bg:#071018;--panel:#0d1821;--line:#29404f;--text:#eaf2f6;--muted:#9fb3bf;--accent:#71cde3;--warn:#e2bb69}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.55 system-ui,sans-serif}.shell{display:grid;grid-template-columns:280px minmax(0,1fr);min-height:100vh}.side{border-right:1px solid var(--line);padding:20px}.main{padding:30px;max-width:1200px}h1{font:700 34px/1.05 Georgia,serif;margin:0 0 8px}h2{font:700 21px Georgia,serif;margin-top:34px}.muted{color:var(--muted)}textarea{width:100%;min-height:260px;background:#061019;color:#dff3fb;border:1px solid var(--line);padding:12px;font:12px/1.45 ui-monospace;border-radius:7px}button{background:#102431;color:#e7f7fc;border:1px solid #355568;border-radius:7px;padding:9px 11px;cursor:pointer}.card{border:1px solid var(--line);background:var(--panel);padding:14px;border-radius:8px;margin:10px 0}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.tag{font:700 10px ui-monospace;border:1px solid #3b5a6b;padding:3px 5px;border-radius:3px}.ok{color:#96ddbd}.unavailable{color:var(--warn)}code{font-family:ui-monospace}.rule{border-left:3px solid var(--accent);padding:10px 12px;background:#0a1720;margin:14px 0}@media(max-width:800px){.shell{grid-template-columns:1fr}.side{border-right:0;border-bottom:1px solid var(--line)}.grid{grid-template-columns:1fr}}</style></head>
-<body><div class="shell"><aside class="side"><div class="tag">OBSERVER² R29</div><h2>Receipt input</h2><p class="muted">Paste a real <code>FederatedFrame.as_dict()</code> receipt. This inspector does not mutate any observed environment.</p><textarea id="input"></textarea><p><button id="load">Inspect receipt</button></p><div class="rule"><b>Boundary</b><br>Observer = evidence. Actuator remains outside this surface.</div></aside><main class="main"><h1>Federated Environment Inspector</h1><p class="muted">One situated Observer² identity; multiple substrate-aware probes; one composite environment root; no assumption that repository, filesystem, HTTP edge, Drive or resident runtime share one substrate.</p><section><h2>Frame</h2><div id="frame" class="card">No receipt loaded.</div></section><section><h2>Environment receipts</h2><div id="receipts" class="grid"></div></section><section><h2>Continuation</h2><div id="continuation" class="card"></div></section></main></div>
-<script>const $=id=>document.getElementById(id);const esc=s=>String(s??'').replace(/[&<>\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]));function inspect(f){$('frame').innerHTML=`<b>${esc(f.observer_id)}</b><br><span class="muted">logical time</span> ${esc(f.logical_time)}<br><span class="muted">environment root</span><br><code>${esc(f.environment_root_sha256)}</code>`;$('receipts').innerHTML=(f.receipts||[]).map(r=>`<div class="card"><span class="tag ${r.status==='OBSERVED'?'ok':'unavailable'}">${esc(r.status)}</span><h3>${esc(r.environment_id)}</h3><p><b>Probe:</b> <code>${esc(r.probe_id)}</code><br><b>Substrate:</b> ${esc(r.substrate)}<br><b>Payload SHA-256:</b><br><code>${esc(r.payload_sha256)}</code></p><details><summary>Payload</summary><pre>${esc(JSON.stringify(r.payload,null,2))}</pre></details>${r.error?`<p class="unavailable"><b>Error:</b> ${esc(r.error)}</p>`:''}</div>`).join('');$('continuation').innerHTML=`<pre>${esc(JSON.stringify(f.continuation||{},null,2))}</pre>`}$('load').onclick=()=>{try{inspect(JSON.parse($('input').value))}catch(e){$('frame').textContent='Invalid receipt: '+e.message}};$('input').value=JSON.stringify({schema:'kex.observer2.federated-frame.r29',observer_id:'observer2://example',logical_time:1,environment_root_sha256:'example-only',receipts:[{environment_id:'env://repository',probe_id:'probe://repo',substrate:'git',status:'OBSERVED',payload_sha256:'example',payload:{head:'example'}},{environment_id:'env://edge',probe_id:'probe://edge',substrate:'http',status:'UNAVAILABLE',payload_sha256:'example',payload:{exception_type:'TimeoutError'},error:'example unavailable'}],continuation:{next_route:'FOLLOW_SUCCESSOR_STATE'}},null,2);inspect(JSON.parse($('input').value));</script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Observer² R29 Federated Environment Inspector</title>
+<style>
+:root{--bg:#071018;--panel:#0d1821;--panel2:#0a151d;--line:#29404f;--text:#eaf2f6;--muted:#9fb3bf;--accent:#71cde3;--ok:#96ddbd;--warn:#e2bb69;--bad:#e89898}
+*{box-sizing:border-box}html{color-scheme:dark}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.58 system-ui,-apple-system,"Segoe UI",sans-serif}
+.shell{display:grid;grid-template-columns:310px minmax(0,1fr);min-height:100vh}.side{border-right:1px solid var(--line);padding:22px;position:sticky;top:0;height:100vh;overflow:auto}.main{padding:32px 38px 80px;max-width:1280px}
+h1{font:700 36px/1.04 Georgia,serif;margin:0 0 9px;letter-spacing:-.02em}h2{font:700 21px/1.2 Georgia,serif;margin:34px 0 10px}h3{font-size:14px;margin:8px 0}.muted{color:var(--muted)}
+textarea{width:100%;min-height:320px;resize:vertical;background:#061019;color:#dff3fb;border:1px solid var(--line);padding:12px;font:12px/1.45 ui-monospace,SFMono-Regular,Menlo,monospace;border-radius:7px}
+button{background:#102431;color:#e7f7fc;border:1px solid #355568;border-radius:7px;padding:9px 11px;cursor:pointer}button:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.card{border:1px solid var(--line);background:var(--panel);padding:14px;border-radius:8px;margin:10px 0}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.metric-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.metric{border:1px solid var(--line);background:var(--panel2);padding:11px;border-radius:7px}.metric b{display:block;font:700 18px ui-monospace;margin-top:4px}
+.tag{display:inline-block;font:700 10px ui-monospace;border:1px solid #3b5a6b;padding:3px 5px;border-radius:3px}.ok{color:var(--ok)}.unavailable{color:var(--warn)}.bad{color:var(--bad)}code,pre{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}pre{white-space:pre-wrap;overflow-wrap:anywhere;margin:8px 0}.rule{border-left:3px solid var(--accent);padding:10px 12px;background:#0a1720;margin:14px 0}.hidden{display:none}.delta.changed{border-color:#735e37}.delta.stable{opacity:.78}.empty{color:var(--muted);padding:14px;border:1px dashed var(--line);border-radius:7px}
+.schema{font:700 10px ui-monospace;color:var(--accent);margin-bottom:8px}.path{overflow-wrap:anywhere}.section-note{max-width:80ch;color:var(--muted)}
+@media(max-width:900px){.shell{grid-template-columns:1fr}.side{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line)}.grid,.metric-grid{grid-template-columns:1fr}.main{padding:24px 18px}}
+@media print{body{background:#fff;color:#111}.side{display:none}.shell{display:block}.main{max-width:none;padding:0}.card,.metric{background:#fff;border-color:#888}.muted,.section-note{color:#444}.tag{color:#111;border-color:#777}}
+</style>
+</head>
+<body>
+<div class="shell">
+<aside class="side">
+  <div class="tag">OBSERVER² R29</div>
+  <h2>Evidence input</h2>
+  <p class="muted">Paste one resident evidence object: a federated frame, execution receipt, or pre/post environment relation.</p>
+  <textarea id="input" spellcheck="false" aria-label="Observer2 JSON evidence input"></textarea>
+  <p><button id="load">Inspect evidence</button></p>
+  <div class="rule"><b>Observer boundary</b><br>Observation is evidence. This surface exposes no actuator, write, commit, route, checkpoint, or dispatch operation.</div>
+  <div class="rule"><b>Environment rule</b><br>Repository, resident runtime, machine image, HTTP edge, Drive-backed artifact state, filesystem and process state remain substrate-specific observations.</div>
+</aside>
+<main class="main">
+  <div class="schema" id="schema">NO EVIDENCE LOADED</div>
+  <h1>Federated Environment Inspector</h1>
+  <p class="section-note">One situated Observer² identity can interrogate multiple already-existing environments and produce a composite relation without pretending those environments share one substrate or one mutation authority.</p>
+
+  <section id="summary-section">
+    <h2>Evidence summary</h2>
+    <div id="summary" class="card">No evidence loaded.</div>
+    <div id="metrics" class="metric-grid"></div>
+  </section>
+
+  <section id="receipts-section">
+    <h2>Environment receipts</h2>
+    <p class="section-note">Each receipt preserves its environment identity, probe identity, substrate, observation state, and payload root. An unavailable probe remains an explicit relation; it is not converted into absence.</p>
+    <div id="receipts" class="grid"></div>
+  </section>
+
+  <section id="delta-section" class="hidden">
+    <h2>Pre/post environment relation</h2>
+    <p class="section-note">Sampling timestamps are not treated as state changes. A delta is produced only when environment membership, status, or observed payload identity changes.</p>
+    <div id="delta-summary" class="card"></div>
+    <div id="deltas" class="grid"></div>
+  </section>
+
+  <section>
+    <h2>Continuation / evidence action</h2>
+    <div id="continuation" class="card empty">No continuation loaded.</div>
+  </section>
+</main>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]));
+const pretty=v=>esc(JSON.stringify(v??{},null,2));
+function badge(status){const cls=status==='OBSERVED'?'ok':status==='UNAVAILABLE'?'unavailable':status==='QUALIFIED'?'ok':'';return `<span class="tag ${cls}">${esc(status||'UNKNOWN')}</span>`}
+function frameFrom(obj){
+  if(obj?.schema==='kex.observer2.federation-execution-receipt.r29') return obj.cycle?.frame||null;
+  if(obj?.schema==='kex.observer2.operator-cycle.r29') return obj.frame||null;
+  if(obj?.schema==='kex.observer2.federated-frame.r29') return obj;
+  return null;
+}
+function renderFrame(frame, outer){
+  const rs=frame?.receipts||[];
+  $('summary').innerHTML=`<b>${esc(frame.observer_id)}</b><br><span class="muted">logical time</span> ${esc(frame.logical_time)}<br><span class="muted">environment root</span><br><code class="path">${esc(frame.environment_root_sha256)}</code>`;
+  const counts=rs.reduce((a,r)=>(a[r.status]=(a[r.status]||0)+1,a),{});
+  $('metrics').innerHTML=`<div class="metric"><span class="muted">receipts</span><b>${rs.length}</b></div><div class="metric"><span class="muted">observed</span><b>${counts.OBSERVED||0}</b></div><div class="metric"><span class="muted">unavailable</span><b>${counts.UNAVAILABLE||0}</b></div><div class="metric"><span class="muted">substrates</span><b>${new Set(rs.map(r=>r.substrate)).size}</b></div>`;
+  $('receipts').innerHTML=rs.length?rs.map(r=>`<article class="card">${badge(r.status)}<h3>${esc(r.environment_id)}</h3><p><b>Probe</b><br><code>${esc(r.probe_id)}</code><br><b>Substrate</b><br>${esc(r.substrate)}<br><b>Payload SHA-256</b><br><code class="path">${esc(r.payload_sha256)}</code></p><details><summary>Observed payload</summary><pre>${pretty(r.payload)}</pre></details>${r.error?`<p class="unavailable"><b>Unavailable evidence</b><br>${esc(r.error)}</p>`:''}</article>`).join(''):'<div class="empty">No environment receipts.</div>';
+  const continuation=outer?.cycle?.continuation||outer?.continuation||frame.continuation||{};
+  const action=outer?.cycle?.evidence_action||outer?.evidence_action;
+  $('continuation').classList.remove('empty');
+  $('continuation').innerHTML=`${action?`<p><b>Evidence action</b><br>${badge(action.authority)}<br><code>${esc(action.action_id)}</code></p>`:''}<pre>${pretty(continuation)}</pre>`;
+}
+function renderRelation(rel){
+  $('receipts-section').classList.add('hidden');
+  $('delta-section').classList.remove('hidden');
+  const ds=rel.environment_deltas||[];
+  const changed=ds.filter(x=>x.changed);
+  $('summary').innerHTML=`<b>${esc(rel.observer_id)}</b><br><span class="muted">mode</span> ${esc(rel.mode)}<br><span class="muted">comparison root</span><br><code class="path">${esc(rel.comparison_root)}</code>`;
+  $('metrics').innerHTML=`<div class="metric"><span class="muted">environments</span><b>${ds.length}</b></div><div class="metric"><span class="muted">changed</span><b>${changed.length}</b></div><div class="metric"><span class="muted">stable</span><b>${ds.length-changed.length}</b></div><div class="metric"><span class="muted">relation</span><b>${rel.changed?'Δ':'='}</b></div>`;
+  $('delta-summary').innerHTML=`<b>Before</b><br><code class="path">${esc(rel.left_environment_root)}</code><br><br><b>After</b><br><code class="path">${esc(rel.right_environment_root)}</code>`;
+  $('deltas').innerHTML=ds.map(d=>`<article class="card delta ${d.changed?'changed':'stable'}">${badge(d.changed?'CHANGED':'STABLE')}<h3>${esc(d.environment_id)}</h3><p><b>Probe</b><br><code>${esc(d.probe_id)}</code><br><b>Substrate</b><br>${esc(d.substrate)}<br><b>Status</b><br>${esc(d.before_status)} → ${esc(d.after_status)}</p><details><summary>Payload roots</summary><pre>before ${esc(d.before_payload_sha256)}\nafter  ${esc(d.after_payload_sha256)}</pre></details></article>`).join('');
+  $('continuation').classList.add('empty');$('continuation').textContent='A relation object contains comparison evidence only. Load the associated continuation receipt to inspect its next route.';
+}
+function inspect(obj){
+  $('schema').textContent=obj?.schema||'UNSCHEMATIZED JSON';
+  $('receipts-section').classList.remove('hidden');$('delta-section').classList.add('hidden');
+  if(obj?.schema==='kex.observer2.federated-pre-post-relation.r29'){renderRelation(obj);return}
+  const frame=frameFrom(obj);if(!frame)throw new Error('Unsupported evidence schema');renderFrame(frame,obj);
+}
+$('load').onclick=()=>{try{inspect(JSON.parse($('input').value))}catch(e){$('schema').textContent='INVALID / UNSUPPORTED';$('summary').textContent=e.message;$('metrics').innerHTML='';$('receipts').innerHTML='';}};
+const example={schema:'kex.observer2.federation-execution-receipt.r29',classification:'MIXED_OBSERVED_AND_UNAVAILABLE',authority:'EVIDENCE_ONLY_NO_ACTUATION',cycle:{schema:'kex.observer2.operator-cycle.r29',frame:{schema:'kex.observer2.federated-frame.r29',observer_id:'observer2://example',logical_time:1,environment_root_sha256:'example-environment-root',receipts:[{environment_id:'env://repository',probe_id:'probe://repo',substrate:'git',status:'OBSERVED',payload_sha256:'example-repository-root',payload:{head:'example'}},{environment_id:'env://edge',probe_id:'probe://edge',substrate:'http',status:'UNAVAILABLE',payload_sha256:'example-unavailable-root',payload:{exception_type:'TimeoutError'},error:'example unavailable'}],continuation:{source:'example'}},evidence_action:{action_id:'action://evidence/example',authority:'EVIDENCE_ONLY_NO_ACTUATION'},continuation:{next_route:'FOLLOW_SUCCESSOR_STATE'}}};
+$('input').value=JSON.stringify(example,null,2);inspect(example);
+</script>
+</body></html>
