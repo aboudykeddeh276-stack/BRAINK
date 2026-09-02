@@ -1,0 +1,22 @@
+name: BRAINK Market Operating Foundries
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'enterprise/foundry/**'
+      - 'scripts/kex-ci/test_market_operating_foundries_r2.py'
+      - '.github/workflows/braink-market-operating-foundries.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m compileall -q enterprise/foundry
+      - run: python scripts/kex-ci/test_market_operating_foundries_r2.py
