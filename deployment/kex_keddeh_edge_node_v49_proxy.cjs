@@ -1,48 +1,33 @@
 #!/usr/bin/env node
 'use strict';
-const http=require('http');
-const {KeddehEdgeNode,EDGE_SCHEMA,routeRoot}=require('../kex_keddeh_edge_node_v48.cjs');
-
+const http=require('http'),fs=require('fs'),path=require('path'),crypto=require('crypto');
+const SCHEMA='kex.edge.node.v49';
 const ROUTES=[
- {host:'braink.com.au',path:'/runtime/recursive',match:'PREFIX',coordinate:'KEX://RUNTIME/BRAINK/RECURSIVE-COMPUTER/R26',contract:'R26_RECURSIVE_RUNTIME',upstream:'http://127.0.0.1:8811',stripPrefix:'/runtime/recursive'},
- {host:'braink.com.au',path:'/auth',match:'PREFIX',coordinate:'KEX://RAIL/BRAINK/GOOGLE-OAUTH',contract:'BRAINK_OAUTH',upstream:'http://127.0.0.1:8799'},
- {host:'braink.com.au',path:'/payments',match:'PREFIX',coordinate:'KEX://RAIL/BRAINK/STRIPE',contract:'BRAINK_PAYMENTS',upstream:'http://127.0.0.1:8799'},
- {host:'braink.com.au',path:'/',match:'PREFIX',coordinate:'KEX://DOMAIN-SPACE/BRAINK/USER',contract:'BRAINK_SITE',upstream:'http://127.0.0.1:8901'},
- {host:'braink-intelligence.com.au',path:'/runtime/recursive',match:'PREFIX',coordinate:'KEX://RUNTIME/BRAINK/RECURSIVE-COMPUTER/R26',contract:'R26_RECURSIVE_RUNTIME',upstream:'http://127.0.0.1:8811',stripPrefix:'/runtime/recursive'},
- {host:'braink-intelligence.com.au',path:'/',match:'PREFIX',coordinate:'KEX://DOMAIN-SPACE/BRAINK/INTELLIGENCE',contract:'BRAINK_INTELLIGENCE_SITE',upstream:'http://127.0.0.1:8902'},
- {host:'braink-learning.com.au',path:'/runtime/recursive',match:'PREFIX',coordinate:'KEX://RUNTIME/BRAINK/RECURSIVE-COMPUTER/R26',contract:'R26_RECURSIVE_RUNTIME',upstream:'http://127.0.0.1:8811',stripPrefix:'/runtime/recursive'},
- {host:'braink-learning.com.au',path:'/',match:'PREFIX',coordinate:'KEX://DOMAIN-SPACE/BRAINK/LEARNING',contract:'BRAINK_LEARNING_SITE',upstream:'http://127.0.0.1:8903'}
+ {host:'braink.com.au',path:'/runtime/recursive',coordinate:'KEX://RUNTIME/BRAINK/RECURSIVE-COMPUTER/R26',contract:'R26_RECURSIVE_RUNTIME',upstream:'http://127.0.0.1:8811',stripPrefix:'/runtime/recursive'},
+ {host:'braink.com.au',path:'/auth',coordinate:'KEX://RAIL/BRAINK/GOOGLE-OAUTH',contract:'BRAINK_OAUTH',upstream:'http://127.0.0.1:8799'},
+ {host:'braink.com.au',path:'/payments',coordinate:'KEX://RAIL/BRAINK/STRIPE',contract:'BRAINK_PAYMENTS',upstream:'http://127.0.0.1:8799'},
+ {host:'braink.com.au',path:'/',coordinate:'KEX://DOMAIN-SPACE/BRAINK/USER',contract:'BRAINK_SITE',upstream:'http://127.0.0.1:8901'},
+ {host:'braink-intelligence.com.au',path:'/runtime/recursive',coordinate:'KEX://RUNTIME/BRAINK/RECURSIVE-COMPUTER/R26',contract:'R26_RECURSIVE_RUNTIME',upstream:'http://127.0.0.1:8811',stripPrefix:'/runtime/recursive'},
+ {host:'braink-intelligence.com.au',path:'/',coordinate:'KEX://DOMAIN-SPACE/BRAINK/INTELLIGENCE',contract:'BRAINK_INTELLIGENCE_SITE',upstream:'http://127.0.0.1:8902'},
+ {host:'braink-learning.com.au',path:'/runtime/recursive',coordinate:'KEX://RUNTIME/BRAINK/RECURSIVE-COMPUTER/R26',contract:'R26_RECURSIVE_RUNTIME',upstream:'http://127.0.0.1:8811',stripPrefix:'/runtime/recursive'},
+ {host:'braink-learning.com.au',path:'/',coordinate:'KEX://DOMAIN-SPACE/BRAINK/LEARNING',contract:'BRAINK_LEARNING_SITE',upstream:'http://127.0.0.1:8903'}
 ];
-
-class KeddehEdgeNodeV49 extends KeddehEdgeNode{
- constructor(opts={}){super({...opts,routes:opts.routes||ROUTES});}
- _proxy(req,res,route,url){
-  const target=new URL(route.upstream);
-  let pathname=url.pathname;
-  if(route.stripPrefix && pathname.startsWith(route.stripPrefix)) pathname=pathname.slice(route.stripPrefix.length)||'/';
-  const options={hostname:target.hostname,port:target.port||80,method:req.method,path:pathname+(url.search||''),headers:{...req.headers,host:target.host,'x-kex-original-host':req.headers.host||'','x-kex-coordinate':route.coordinate}};
-  const upstream=http.request(options,ur=>{
-    const headers={...ur.headers,'x-kex-edge-node':this.state.node_id,'x-kex-coordinate':route.coordinate,'x-kex-contract':route.contract};
-    res.writeHead(ur.statusCode||502,headers);ur.pipe(res);
-  });
-  upstream.on('error',err=>{
-    this._receipt('UPSTREAM_FAILURE',{host:req.headers.host||'',path:url.pathname,kex_coordinate:route.coordinate,upstream:route.upstream,error:err.code||err.message,state:'FAILED'});
-    if(!res.headersSent)this._send(res,502,{schema:'kex.edge.upstream.failure.v49',status:'UPSTREAM_FAILED',coordinate:route.coordinate,error:err.code||err.message},req.method);
-    else res.end();
-  });
-  req.pipe(upstream);
- }
- _handle(req,res){
-  const host=String(req.headers.host||'').split(':')[0].toLowerCase(); const url=new URL(req.url||'/','http://edge.local');
-  if(url.pathname==='/__kex/edge/status'||url.pathname==='/__kex/edge/health') return super._handle(req,res);
-  const route=this.resolve(host,url.pathname);this.state.request_sequence+=1;this._persist();
-  if(!route){const receipt=this._receipt('INGRESS_UNRESOLVED',{host,path:url.pathname,state:'UNRESOLVED'});return this._send(res,404,{schema:'kex.edge.ingress.readback.v49',resolved:false,host,path:url.pathname,receipt},req.method);}
-  const receipt=this._receipt('INGRESS_FORWARDED',{host,path:url.pathname,kex_coordinate:route.coordinate,contract:route.contract,upstream:route.upstream,state:'FORWARDING'});
-  if(!route.upstream)return this._send(res,200,{schema:'kex.edge.ingress.readback.v49',resolved:true,host,path:url.pathname,kex_coordinate:route.coordinate,contract:route.contract,receipt},req.method);
-  return this._proxy(req,res,route,url);
- }
- status(){return {...super.status(),schema:'kex.edge.status.v49',forwarding:true,upstreams:[...new Set(this.routes.map(r=>r.upstream).filter(Boolean))]};}
+function stable(v){if(Array.isArray(v))return '['+v.map(stable).join(',')+']';if(v&&typeof v==='object')return '{'+Object.keys(v).sort().map(k=>JSON.stringify(k)+':'+stable(v[k])).join(',')+'}';return JSON.stringify(v)}
+function sha(v){return crypto.createHash('sha256').update(typeof v==='string'?v:stable(v)).digest('hex')}
+function hostOnly(v=''){return String(v).split(':')[0].trim().toLowerCase()}
+function atomic(file,obj){fs.mkdirSync(path.dirname(file),{recursive:true});const tmp=file+'.tmp-'+process.pid;fs.writeFileSync(tmp,JSON.stringify(obj,null,2));fs.renameSync(tmp,file)}
+class Edge{
+ constructor(){this.host=process.env.KEX_EDGE_HOST||'0.0.0.0';this.port=Number(process.env.KEX_EDGE_PORT||8899);this.stateDir=path.resolve(process.env.KEX_EDGE_STATE_DIR||'.braink/edge-v49');this.stateFile=path.join(this.stateDir,'edge-state.json');this.receiptFile=path.join(this.stateDir,'edge-receipts.jsonl');fs.mkdirSync(this.stateDir,{recursive:true});this.state=fs.existsSync(this.stateFile)?JSON.parse(fs.readFileSync(this.stateFile)):{schema:SCHEMA,node_id:'kex-edge-'+crypto.randomBytes(12).toString('hex'),created_at:new Date().toISOString(),boot_sequence:0,heartbeat_sequence:0,request_sequence:0,route_root:sha(ROUTES),lifecycle:'CREATED',external:{public_name_authority:'UNBOUND',authoritative_dns:'UNBOUND',tls_identity:'UNBOUND',public_ingress:'LOCAL_ONLY'}};this.server=null;this.timer=null}
+ persist(){this.state.route_root=sha(ROUTES);atomic(this.stateFile,this.state)}
+ receipt(type,data={}){const r={schema:'kex.edge.receipt.v49',type,node_id:this.state.node_id,time:new Date().toISOString(),boot_sequence:this.state.boot_sequence,heartbeat_sequence:this.state.heartbeat_sequence,request_sequence:this.state.request_sequence,...data};fs.appendFileSync(this.receiptFile,JSON.stringify(r)+'\n');return r}
+ resolve(host,p){return ROUTES.filter(r=>r.host===host&&p.startsWith(r.path)).sort((a,b)=>b.path.length-a.path.length)[0]||null}
+ status(){const a=this.server&&this.server.address();return {schema:SCHEMA,node_id:this.state.node_id,lifecycle:this.state.lifecycle,physical_listener_count:this.server?1:0,logical_service_count:ROUTES.length,route_root:this.state.route_root,bind:a&&typeof a==='object'?{address:a.address,port:a.port,family:a.family}:null,transport_mode:'HTTP_LOCAL_PROOF',external:{...this.state.external},heartbeat_sequence:this.state.heartbeat_sequence,boot_sequence:this.state.boot_sequence,forwarding:true,upstreams:[...new Set(ROUTES.map(r=>r.upstream))]}}
+ send(res,code,obj,method){const b=Buffer.from(JSON.stringify(obj));res.writeHead(code,{'content-type':'application/json','content-length':String(b.length),'x-kex-edge-node':this.state.node_id});method==='HEAD'?res.end():res.end(b)}
+ proxy(req,res,route,u){const t=new URL(route.upstream);let p=u.pathname;if(route.stripPrefix&&p.startsWith(route.stripPrefix))p=p.slice(route.stripPrefix.length)||'/';const q=http.request({hostname:t.hostname,port:t.port||80,method:req.method,path:p+u.search,headers:{...req.headers,host:t.host,'x-kex-original-host':req.headers.host||'','x-kex-coordinate':route.coordinate}},ur=>{res.writeHead(ur.statusCode||502,{...ur.headers,'x-kex-edge-node':this.state.node_id,'x-kex-coordinate':route.coordinate,'x-kex-contract':route.contract});ur.pipe(res)});q.on('error',e=>this.send(res,502,{status:'UPSTREAM_FAILED',coordinate:route.coordinate,error:e.code||e.message},req.method));req.pipe(q)}
+ handle(req,res){const host=hostOnly(req.headers.host),u=new URL(req.url||'/','http://edge.local');this.state.request_sequence++;this.persist();if(u.pathname==='/__kex/edge/status')return this.send(res,200,this.status(),req.method);if(u.pathname==='/__kex/edge/health')return this.send(res,200,{state:'READY',node_id:this.state.node_id,heartbeat_sequence:this.state.heartbeat_sequence},req.method);const r=this.resolve(host,u.pathname);if(!r)return this.send(res,404,{status:'UNRESOLVED',host,path:u.pathname,receipt:this.receipt('INGRESS_UNRESOLVED',{host,path:u.pathname})},req.method);this.receipt('INGRESS_FORWARDED',{host,path:u.pathname,kex_coordinate:r.coordinate,contract:r.contract,upstream:r.upstream,state:'FORWARDING'});return this.proxy(req,res,r,u)}
+ async start(){this.state.boot_sequence++;this.state.lifecycle='BOOTING';this.persist();this.server=http.createServer((q,s)=>this.handle(q,s));await new Promise((ok,no)=>{this.server.once('error',no);this.server.listen(this.port,this.host,ok)});this.state.lifecycle='READY';this.persist();this.receipt('EDGE_BOOT_COMPLETED',{state:'COMPLETED',claim_boundary:'FINITE_LISTENER_ROUTE_AND_UPSTREAM_READBACK'});this.timer=setInterval(()=>{this.state.heartbeat_sequence++;this.persist()},1000);this.timer.unref?.();return this.status()}
+ async stop(){if(this.timer)clearInterval(this.timer);if(this.server)await new Promise(r=>this.server.close(r));this.state.lifecycle='STOPPED';this.persist()}
 }
-async function main(){const node=new KeddehEdgeNodeV49({host:process.env.KEX_EDGE_HOST||'0.0.0.0',port:Number(process.env.KEX_EDGE_PORT||8899),stateDir:process.env.KEX_EDGE_STATE_DIR||'.braink/edge-v49'});await node.start();console.log(JSON.stringify(node.status()));const stop=async()=>{await node.stop();process.exit(0)};process.on('SIGTERM',stop);process.on('SIGINT',stop);}
+async function main(){const e=new Edge();console.log(JSON.stringify(await e.start()));const stop=async()=>{await e.stop();process.exit(0)};process.on('SIGTERM',stop);process.on('SIGINT',stop)}
 if(require.main===module)main().catch(e=>{console.error(e.stack||e);process.exit(1)});
-module.exports={KeddehEdgeNodeV49,ROUTES};
+module.exports={Edge,ROUTES,SCHEMA};
