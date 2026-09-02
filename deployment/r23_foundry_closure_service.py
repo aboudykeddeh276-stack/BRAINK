@@ -20,6 +20,7 @@ class Runtime:
           "research.promotion.evaluate":lambda:self.research.evaluate(p["research_id"],p.get("claims",[]),p.get("sources",[]),p.get("replays",[]),p.get("independent_verifier")),
           "publishing.stage":lambda:self.publishing.stage(p["release_id"],p.get("artifacts",[]),p["frontage_id"],p.get("approval",{})),
           "publishing.project_internal":lambda:self.publishing.publish_internal(p["release_id"],p["projection_ref"]),
+          "frontage.release_internal":lambda:self.publishing.bind_frontage_release(p["release_id"],p["frontage"],p["landing_page"],p.get("route_path","/")),
           "domain.public_activation.request":lambda:self.publishing.request_public_activation(p["release_id"],p["domain"],p.get("dns_changes",[]),p.get("tls_required",True),None),
         }
         if a not in d:raise KeyError("UNKNOWN_R23_ACTION")
