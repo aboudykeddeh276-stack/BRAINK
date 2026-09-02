@@ -5,6 +5,7 @@ on:
     paths:
       - 'enterprise/**'
       - 'governance/**'
+      - 'deployment/**'
       - 'scripts/kex-ci/**'
       - '.github/workflows/keddeh-enterprise-control.yml'
   push:
@@ -12,6 +13,7 @@ on:
     paths:
       - 'enterprise/**'
       - 'governance/**'
+      - 'deployment/**'
       - 'scripts/kex-ci/**'
       - '.github/workflows/keddeh-enterprise-control.yml'
   workflow_dispatch:
@@ -35,7 +37,7 @@ jobs:
         with:
           python-version: '3.13'
       - name: Compile enterprise control modules
-        run: python -m compileall -q enterprise scripts/kex-ci
+        run: python -m compileall -q enterprise deployment scripts/kex-ci
       - name: Execute enterprise invariants
         run: python scripts/kex-ci/test_enterprise_control.py
       - name: Execute addressability fabric invariants
@@ -58,6 +60,8 @@ jobs:
         run: python scripts/kex-ci/test_engineering_control_plane_r24.py
       - name: Execute R24 torn-tail recovery invariant
         run: python scripts/kex-ci/test_engineering_ledger_recovery_r24.py
+      - name: Execute R23 owner-host activation invariant
+        run: python scripts/kex-ci/test_r23_owner_host_runtime.py
 
   specialist:
     if: ${{ github.event_name == 'workflow_dispatch' && inputs.use_self_hosted }}
@@ -66,8 +70,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Compile enterprise control modules
-        run: python3 -m compileall -q enterprise scripts/kex-ci
+        run: python3 -m compileall -q enterprise deployment scripts/kex-ci
       - name: Execute R24 engineering control plane invariants
         run: python3 scripts/kex-ci/test_engineering_control_plane_r24.py
       - name: Execute R24 torn-tail recovery invariant
         run: python3 scripts/kex-ci/test_engineering_ledger_recovery_r24.py
+      - name: Execute R23 owner-host activation invariant
+        run: python3 scripts/kex-ci/test_r23_owner_host_runtime.py
