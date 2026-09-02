@@ -1,0 +1,33 @@
+{
+  "schema": "keddeh.systems.live-infrastructure.r25/v1",
+  "authority": "KEDDEH_SYSTEMS/BRAINK",
+  "state": "LIVE_CONNECTOR_BOUND",
+  "drive": {
+    "runtime_bindings_folder": "1j9vxni-ZyWG156XN8VZrCVy6Pr6WzDI2",
+    "services_folder": "1OriBKH945j4ID1YKKQYhwgd9qjTF-OUk",
+    "customer_file_base_folder": "1dOe5p0xJJH-cRVcnkV-AJrz40sszXWnE",
+    "workspaces_folder": "1OUf5csOBFta3rE_QiURFLz7bbwByjkQT",
+    "publishing_folder": "1ryIx4rjX7VIByrRDK5b7wOe0HJG71lIU",
+    "research_illlm_folder": "1Zo4-XkdWXqeMms7iu_7mz5JLhrn2NREY",
+    "server_rooms_folder": "1G-ONy5A1-15oRjrK836WM8VImXed3Z0S"
+  },
+  "gmail": {
+    "runtime_mail_label": "Label_31",
+    "customer_services_label": "Label_32",
+    "publishing_label": "Label_33",
+    "runtime_alerts_label": "Label_34"
+  },
+  "service_bindings": {
+    "customer_file_base": "BOUND_WRITE",
+    "workspaces": "BOUND_WRITE",
+    "publishing": "BOUND_WRITE",
+    "research_illlm": "BOUND_WRITE",
+    "server_rooms": "BOUND_WRITE",
+    "mail_routing": "BOUND_CONTROL_PLANE"
+  },
+  "external_boundaries": {
+    "payment_provider": "UNBOUND",
+    "public_http_origin": "UNBOUND",
+    "production_metrics_collector": "UNBOUND"
+  }
+}
