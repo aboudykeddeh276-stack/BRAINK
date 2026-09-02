@@ -1,11 +1,23 @@
 name: KEDDEH V114 Unified Codebase Runtime
 
 on:
+  push:
+    branches:
+      - 'keddeh/v98-protocol-compliance-deployment-os'
+    paths:
+      - 'v98_protocol_compliance_config/config/codebase_runtime_registry.json'
+      - 'v98_protocol_compliance_config/src/keddeh_unified_codebase_runtime.py'
+      - 'v98_protocol_compliance_config/src/keddeh_encoded_medium_storage_runtime_v1.py'
+      - 'v98_protocol_compliance_config/tests/test_unified_codebase_runtime.py'
+      - 'v98_protocol_compliance_config/tests/test_encoded_medium_storage_runtime_v1.py'
+      - '.github/workflows/v114-unified-codebase-runtime.yml'
   pull_request:
     paths:
       - 'v98_protocol_compliance_config/config/codebase_runtime_registry.json'
       - 'v98_protocol_compliance_config/src/keddeh_unified_codebase_runtime.py'
+      - 'v98_protocol_compliance_config/src/keddeh_encoded_medium_storage_runtime_v1.py'
       - 'v98_protocol_compliance_config/tests/test_unified_codebase_runtime.py'
+      - 'v98_protocol_compliance_config/tests/test_encoded_medium_storage_runtime_v1.py'
       - '.github/workflows/v114-unified-codebase-runtime.yml'
   workflow_dispatch:
 
@@ -31,12 +43,19 @@ jobs:
           python-version: '3.12'
 
       - name: Compile unified runtime and tests
-        run: python3 -m compileall -q src/keddeh_unified_codebase_runtime.py tests/test_unified_codebase_runtime.py
+        run: |
+          python3 -m compileall -q \
+            src/keddeh_unified_codebase_runtime.py \
+            src/keddeh_encoded_medium_storage_runtime_v1.py \
+            tests/test_unified_codebase_runtime.py \
+            tests/test_encoded_medium_storage_runtime_v1.py
 
-      - name: Execute supervisor tests
-        run: python3 -m unittest tests.test_unified_codebase_runtime -v
+      - name: Execute supervisor and encoded-medium tests
+        run: |
+          python3 -m unittest tests.test_unified_codebase_runtime -v
+          python3 -m unittest tests.test_encoded_medium_storage_runtime_v1 -v
 
-      - name: Execute registered codebase runtimes
+      - name: Execute registered codebase runtimes and descendants
         run: |
           mkdir -p evidence runtime_volume/outbox/unified_runtime
           python3 src/keddeh_unified_codebase_runtime.py \
@@ -45,7 +64,7 @@ jobs:
             --emit-receipt \
             | tee evidence/unified_codebase_runtime_cli.json
 
-      - name: Assert operational receipt and bounded failure law
+      - name: Assert operational receipt, recursive execution and readback
         run: |
           python3 - <<'PY'
           import json
@@ -54,16 +73,34 @@ jobs:
           receipt_path = Path('evidence/unified_codebase_runtime_receipt.json')
           payload = json.loads(receipt_path.read_text())
           receipt = payload['receipt']
-          assert receipt['runtimes_declared'] >= 7
+          results = {item['runtime_id']: item for item in payload['runtime_results']}
+          encoded = results['runtime://keddeh/encoded-medium-machine']
+
+          assert receipt['runtimes_declared'] >= 8
           assert receipt['runtimes_executed'] >= 1
           assert receipt['ledger_readback_passed'] is True
           assert receipt['global_stop'] is False
           assert receipt['overall_state'] in {'OPERATIONAL', 'OPERATIONAL_DEGRADED'}
+          assert receipt['continuation_steps_executed'] >= 3
+
+          assert encoded['state'] == 'SUCCESS'
+          assert encoded['continuation_state'] == 'CONTINUED'
+          assert encoded['continuation_steps'] >= 3
+          assert len(encoded['continuation_receipts']) >= 3
+
+          handoff = json.loads(Path('runtime_volume/outbox/encoded_medium_reconciliation/authoritative.handoff.json').read_text())
+          snapshot = json.loads(Path('runtime_volume/encoded_medium/current.json').read_text())
+          assert handoff['state'] == 'VERIFIED'
+          assert handoff['next_operation'] == 'instantiate_child_auto'
+          assert handoff['current_machine']['generation'] >= 5
+          assert handoff['snapshot_proof'] == snapshot['proof']
+
           assert Path('runtime_volume/unified_runtime.ledger.jsonl').is_file()
           assert Path('runtime_volume/outbox/unified_runtime/current.handoff.json').is_file()
           PY
 
       - name: Upload runtime receipts and state
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: v114-unified-codebase-runtime-${{ github.sha }}
@@ -72,6 +109,11 @@ jobs:
           path: |
             v98_protocol_compliance_config/evidence/unified_codebase_runtime_receipt.json
             v98_protocol_compliance_config/evidence/unified_codebase_runtime_cli.json
+            v98_protocol_compliance_config/evidence/encoded_medium_reconciliation_receipt.json
+            v98_protocol_compliance_config/evidence/encoded_medium_continuation_receipt.json
+            v98_protocol_compliance_config/runtime_volume/encoded_medium/current.json
+            v98_protocol_compliance_config/runtime_volume/encoded_medium/continuation.ledger.jsonl
             v98_protocol_compliance_config/runtime_volume/unified_runtime.ledger.jsonl
+            v98_protocol_compliance_config/runtime_volume/outbox/encoded_medium_reconciliation/authoritative.handoff.json
             v98_protocol_compliance_config/runtime_volume/outbox/unified_runtime/current.handoff.json
             skills/keddeh-engineering-orchestrator/enterprise/runtime/enterprise-portfolio.sqlite3
