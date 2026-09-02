@@ -1,33 +1,90 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import json, os, pathlib, subprocess, sys, time, urllib.request, ssl, socket
+import hashlib, json, os, pathlib, shutil, subprocess, sys, time, urllib.request, ssl
+
 ROOT=pathlib.Path(__file__).resolve().parent
 FABRIC=pathlib.Path(os.environ.get('KEDDEH_DOMAIN_FABRIC_ROOT','/mnt/data/keddeh_deploy/resident_v5/KEDDEH_REGISTRAR_V5'))
 EVIDENCE=pathlib.Path(os.environ.get('KEDDEH_EVIDENCE_ROOT','/mnt/data/keddeh_deploy/resident_v5/KEDDEH_REGISTRAR_V5_EVIDENCE'))
 DOMAINS=['braink.com.au','braink-intelligence.com.au','braink-learning.com.au']
+DIST=ROOT/'dist'
+ROLLBACK=ROOT/'.rollback'/'previous-dist'
+RECEIPT=ROOT/'BRAINK_LIVE_DEPLOYMENT_RECEIPT.json'
+
 
 def run(cmd,**kw):
     p=subprocess.run(cmd,text=True,capture_output=True,**kw)
-    if p.returncode: raise RuntimeError('COMMAND_FAILED '+repr(cmd)+'\n'+p.stdout+'\n'+p.stderr)
+    if p.returncode:
+        raise RuntimeError('COMMAND_FAILED '+repr(cmd)+'\n'+p.stdout+'\n'+p.stderr)
     return p.stdout
 
-def main():
-    run([sys.executable,str(ROOT/'build_sites.py')])
-    if not (FABRIC/'START_FULL_DOMAIN_FABRIC.command').exists(): raise SystemExit('RESIDENT_DOMAIN_FABRIC_NOT_MOUNTED')
-    env=os.environ.copy(); env['KEDDEH_EVIDENCE_ROOT']=str(EVIDENCE)
-    out=run(['bash',str(FABRIC/'START_FULL_DOMAIN_FABRIC.command')],env=env)
-    receipt={'schema':'kex.braink.live-deployment.v1','domains':{},'fabric_output':out[-12000:],'at':time.time(),'overall':True}
-    ca=EVIDENCE/'fabric/tls/local-ca.pem'; ctx=ssl.create_default_context(cafile=str(ca))
+
+def tree_root(path:pathlib.Path)->str|None:
+    if not path.exists(): return None
+    rows=[]
+    for f in sorted(p for p in path.rglob('*') if p.is_file()):
+        rows.append((str(f.relative_to(path)),hashlib.sha256(f.read_bytes()).hexdigest()))
+    return hashlib.sha256(json.dumps(rows,separators=(',',':')).encode()).hexdigest()
+
+
+def snapshot_previous()->dict:
+    ROLLBACK.parent.mkdir(parents=True,exist_ok=True)
+    if ROLLBACK.exists(): shutil.rmtree(ROLLBACK)
+    existed=DIST.exists()
+    before=tree_root(DIST)
+    if existed: shutil.copytree(DIST,ROLLBACK)
+    return {'previous_dist_existed':existed,'previous_dist_root':before}
+
+
+def restore_previous(snapshot:dict,env:dict)->dict:
+    if DIST.exists(): shutil.rmtree(DIST)
+    if snapshot['previous_dist_existed'] and ROLLBACK.exists():
+        shutil.copytree(ROLLBACK,DIST)
+    restored=tree_root(DIST)
+    fabric_restart=None
+    if snapshot['previous_dist_existed']:
+        fabric_restart=run(['bash',str(FABRIC/'START_FULL_DOMAIN_FABRIC.command')],env=env)[-12000:]
+    return {'status':'ROLLBACK_EXECUTED','restored_dist_root':restored,'expected_dist_root':snapshot['previous_dist_root'],'root_match':restored==snapshot['previous_dist_root'],'fabric_restart_output':fabric_restart}
+
+
+def local_readback()->tuple[dict,bool]:
+    domains={}; overall=True
     for d in DOMAINS:
         req=urllib.request.Request('https://127.0.0.1:8443/health',headers={'Host':d})
-        # HTTPS hostname routing is independently checked by the resident fabric; this local request confirms service content.
         try:
             body=urllib.request.urlopen(req,context=ssl._create_unverified_context(),timeout=5).read(); data=json.loads(body)
             ok=data.get('state')=='PASS' and data.get('domain')==d
         except Exception as e:
             data={'error':str(e)}; ok=False
-        receipt['domains'][d]={'local_https':ok,'readback':data}
-        receipt['overall'] &= ok
-    (ROOT/'BRAINK_LIVE_DEPLOYMENT_RECEIPT.json').write_text(json.dumps(receipt,indent=2))
-    print(json.dumps(receipt,indent=2)); return 0 if receipt['overall'] else 2
+        domains[d]={'local_https':ok,'readback':data}; overall &= ok
+    return domains,overall
+
+
+def main():
+    if not (FABRIC/'START_FULL_DOMAIN_FABRIC.command').exists():
+        raise SystemExit('RESIDENT_DOMAIN_FABRIC_NOT_MOUNTED')
+    env=os.environ.copy(); env['KEDDEH_EVIDENCE_ROOT']=str(EVIDENCE)
+    snap=snapshot_previous()
+    receipt={'schema':'kex.braink.live-deployment.r24/v2','domains':{},'at':time.time(),'overall':False,'r24':{'rollback_ready':True,'snapshot':snap},'claim_boundary':'LOCAL_OWNER_HOST_FABRIC_READBACK_NOT_PUBLIC_DNS_TLS_PROOF'}
+    try:
+        run([sys.executable,str(ROOT/'build_sites.py')])
+        receipt['candidate_dist_root']=tree_root(DIST)
+        out=run(['bash',str(FABRIC/'START_FULL_DOMAIN_FABRIC.command')],env=env)
+        receipt['fabric_output']=out[-12000:]
+        receipt['domains'],receipt['overall']=local_readback()
+        if not receipt['overall']:
+            raise RuntimeError('LOCAL_HTTPS_READBACK_FAILED')
+        receipt['status']='DEPLOYED_LOCAL_OWNER_HOST_READBACK_PASS'
+        receipt['r24']['rollback_executed']=False
+        RECEIPT.write_text(json.dumps(receipt,indent=2)+'\n')
+        print(json.dumps(receipt,indent=2)); return 0
+    except Exception as exc:
+        receipt['status']='DEPLOYMENT_REJECTED_ROLLBACK_REQUIRED'
+        receipt['failure']=str(exc)
+        try:
+            receipt['r24']['rollback']=restore_previous(snap,env)
+        except Exception as rollback_exc:
+            receipt['r24']['rollback']={'status':'ROLLBACK_FAILED','error':str(rollback_exc)}
+        RECEIPT.write_text(json.dumps(receipt,indent=2)+'\n')
+        print(json.dumps(receipt,indent=2)); return 2
+
 if __name__=='__main__': raise SystemExit(main())
