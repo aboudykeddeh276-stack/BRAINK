@@ -21,12 +21,13 @@
     "evidence": {"implementation_ref":"enterprise/sector_runtime.py::SectorRuntime.complete","evidence_ref":"scripts/kex-ci/test_r18_shared_capabilities.py","state":"VERIFIED"},
     "readback": {"implementation_ref":"enterprise/observer_policy.py::ObserverPolicyEngine.decide","evidence_ref":"scripts/kex-ci/test_r18_shared_capabilities.py","state":"VERIFIED"},
     "conflict": {"implementation_ref":"enterprise/observer_policy.py::ObserverPolicyEngine.decide","evidence_ref":"scripts/kex-ci/test_r18_shared_capabilities.py","state":"VERIFIED"},
-    "signal": {"implementation_ref":"enterprise/observer_policy.py::ObserverPolicyEngine.decide","evidence_ref":"scripts/kex-ci/test_r18_shared_capabilities.py","state":"VERIFIED"}
+    "signal": {"implementation_ref":"enterprise/observer_policy.py::ObserverPolicyEngine.decide","evidence_ref":"scripts/kex-ci/test_r18_shared_capabilities.py","state":"VERIFIED"},
+    "hash": {"implementation_ref":"enterprise/substrate_adapters.py::digest","evidence_ref":"scripts/kex-ci/test_r18_vfs_hash_capability.py","state":"BOUND"}
   },
   "selection_receipt": {
-    "work_module": "WM://BRAINK/shared-control-plane-capabilities",
+    "work_module": "WM://DATA_INFORMATION_GOVERNANCE/hash",
     "classification": "REUSE_AND_QUALIFY",
-    "reason": "resident work-module, sector-routing, checkpoint, audit/evidence and observer readback/conflict/signal capabilities were found in the deployed BRAINK runtime and qualified by existing or newly executed invariants; no new functional implementation was synthesized",
-    "claim_boundary": "bindings establish software-level resident capability for the documented contracts only. They do not by themselves establish remote execution, external identity provider semantics, multi-host durability, or public projection success."
+    "reason": "resident canonical SHA-256 digest and file/SQLite value-hash mechanics already exist in the deployed substrate adapter layer; no hashing function was synthesized",
+    "claim_boundary": "binding establishes software content hashing for the documented adapter contract only. It does not establish hardware-rooted integrity, remote durability, distributed consensus, or public projection success."
   }
 }
