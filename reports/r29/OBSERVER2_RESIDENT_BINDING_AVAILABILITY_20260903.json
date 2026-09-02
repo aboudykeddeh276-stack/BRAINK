@@ -1,0 +1,44 @@
+{
+  "schema": "kex.observer2.resident-binding-availability.r29",
+  "observed_environment": "current execution container",
+  "classification": "UNAVAILABLE_IN_CURRENT_EXECUTION_ENVIRONMENT",
+  "does_not_mean": [
+    "resident runtime absent",
+    "resident source deleted",
+    "recorded R29 execution invalid",
+    "repository is authoritative over resident state"
+  ],
+  "expected_resident_roots": [
+    {
+      "path": "/mnt/data/BRAINK_LIVE_EXECUTION/KEDDEH_ROUTE_ACTUATION_RUNTIME_R13",
+      "observed": "NOT_MOUNTED"
+    },
+    {
+      "path": "/mnt/data/FULL_EPIC_R26",
+      "observed": "NOT_MOUNTED"
+    },
+    {
+      "path": "/mnt/data/r27_bench/FULL_EPIC_R26",
+      "observed": "NOT_MOUNTED"
+    },
+    {
+      "path": "/mnt/data/FULL_EPIC_RECOVERED",
+      "observed": "NOT_MOUNTED"
+    }
+  ],
+  "resident_evidence_still_addressable": {
+    "observer2_post_frame": "Library observer2_post_live.json",
+    "self_addressing_runtime_post_sha256": "9b542c9302f5f70d2830945368ce9e54a6a6abe8a7dd6b36def6d3eeecb0c0c1",
+    "observer2_runtime_post_sha256": "48fa7897e2991d26b328c98f8ad767a375215f42b69f5ae0e5947f9b3c84416c",
+    "recursive_operator_environment_post_sha256": "3f60d26987ac91718127cea9cde8b39e1f6998e5bf8edcec64514893efaf6f4c"
+  },
+  "current_branch_mechanic_state": {
+    "branch": "run/r29-observer2-federation-20260903",
+    "reconstructed_local_suite": "19/19 PASS",
+    "federation": "QUALIFIED_WITHIN_LOCAL_AND_BRANCH_READBACK_SCOPE",
+    "resident_snapshot_adapter": "QUALIFIED_WITHIN_LOCAL_AND_BRANCH_READBACK_SCOPE",
+    "federated_control_loop": "QUALIFIED_WITHIN_LOCAL_AND_BRANCH_READBACK_SCOPE",
+    "exact_resident_object_binding": "AWAITING_RESIDENT_ENVIRONMENT_EXECUTION"
+  },
+  "next_route": "When the resident R29 environment is mounted or otherwise addressable, bind the exact evolved resident objects through read-only snapshot probes, run an admitted external-actuator cycle, post-observe, compare environment roots, and preserve the successor-state receipt."
+}
