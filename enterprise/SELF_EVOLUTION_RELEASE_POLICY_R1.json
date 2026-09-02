@@ -1,0 +1,54 @@
+{
+  "schema": "braink.self-evolution-release-policy/v1",
+  "status": "ACTIVE_INTERNAL_CONTROL",
+  "classification": "ISO_READY_METHOD_NOT_CERTIFICATION",
+  "governing_principle": "BRAINK may synthesize a missing callable capability, but synthesis does not imply authority to verify, promote, deploy, or expand its own authority.",
+  "required_roles": {
+    "generator": "creates bounded candidate implementation from an explicit WorkModule/requirement contract",
+    "verifier": "independent group executes acceptance, static and security verification",
+    "promoter": "independent release role evaluates release gates, rollback and change record",
+    "observer_reconciler": "consumes post-execution observer evidence without rewriting process existence",
+    "risk_owner": "accepts or rejects residual risk where organizational acceptance is required"
+  },
+  "required_artifacts": [
+    "requirement record",
+    "risk and impact links",
+    "source root",
+    "contract root",
+    "acceptance tests",
+    "test results root",
+    "static-analysis evidence",
+    "security-analysis evidence",
+    "dependency/SBOM root",
+    "build provenance root",
+    "independent verification record",
+    "release qualification record",
+    "change record",
+    "rollback reference",
+    "promotion record",
+    "execution receipt",
+    "observer/reconciliation record"
+  ],
+  "fail_closed_conditions": [
+    "unknown requirement",
+    "required acceptance test absent",
+    "generator attempts self-verification",
+    "generator attempts self-promotion",
+    "verifier attempts self-promotion",
+    "independent verification absent",
+    "risk evidence absent",
+    "SBOM or provenance absent",
+    "rollback reference absent",
+    "change record absent",
+    "release gate failed",
+    "function revoked"
+  ],
+  "standards_baseline": [
+    "ISO/IEC/IEEE 12207:2026",
+    "ISO/IEC 25010:2023",
+    "ISO/IEC 27001:2022",
+    "ISO/IEC 42001:2023",
+    "ISO/IEC 23894:2023",
+    "ISO/IEC 42005:2025"
+  ]
+}
