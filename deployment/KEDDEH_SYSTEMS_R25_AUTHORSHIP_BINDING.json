@@ -1,0 +1,18 @@
+{
+  "schema": "keddeh.systems.r25-authorship-binding/v1",
+  "release": "R25",
+  "author_id": "AKD",
+  "authorship_root": "enterprise/governance/AKD_AUTHORSHIP_ROOT.json",
+  "deployment_id": "deployment://KEDDEH_SYSTEMS/R25/LIVE_SERVICE_DEPLOYMENT",
+  "service_lineage": [
+    "service://casepath/customer_file_base",
+    "service://casepath/workspaces",
+    "service://casepath/publishing",
+    "service://casepath/customer_services_mail",
+    "service://braink/research_illlm",
+    "service://keddeh-systems/server_rooms"
+  ],
+  "classification": "AKD_AUTHORED",
+  "orphan_detection": "enterprise/governance/authorship_guard.py",
+  "policy": "deployment/AKD_AUTHORSHIP_POLICY.json"
+}
