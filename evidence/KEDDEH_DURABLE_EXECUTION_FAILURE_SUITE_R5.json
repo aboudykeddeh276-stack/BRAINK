@@ -1,0 +1,31 @@
+{
+  "schema": "keddah.durable-execution.failure-suite.r5/v1",
+  "environment": {"python": "3.13.5", "cpu_count": 5},
+  "results": {
+    "signed_lineage": {"first_consumed": true, "replay_rejected": true, "tamper_rejected": true},
+    "lease_fencing": {"epoch_a": 1, "epoch_b": 2, "stale_epoch_rejected": true, "current": [2, "agent-B"]},
+    "crash_atomicity": {
+      "failures": [
+        {"failpoint": "after_control", "exception": true, "control_absent": true, "zone_absent": true, "records_absent": true},
+        {"failpoint": "after_authority", "exception": true, "control_absent": true, "zone_absent": true, "records_absent": true}
+      ],
+      "success": {"tx_id": "tx-ok", "domain": "atomic-ok.keddeh", "state": "COMMITTED"},
+      "success_observed": true
+    },
+    "concurrent_writers": {"attempts": 200, "failures": 0, "control_rows": 200, "authority_rows": 200, "seconds": 0.1545964609999828, "tx_per_s": 1293.690675105572},
+    "process_replacement": {"fresh_process": true, "identity_preserved": true, "epoch_advanced": true, "resumed_epoch": 8, "resumed_holder": "agent-B"},
+    "checkpoint_tamper": {"rejected": true}
+  },
+  "checks": {
+    "replay_rejected": true,
+    "tamper_rejected": true,
+    "stale_worker_fenced": true,
+    "crash_after_control_atomic": true,
+    "successful_atomic_commit": true,
+    "concurrent_writers_zero_failures": true,
+    "fresh_process_replacement": true,
+    "checkpoint_tamper_rejected": true
+  },
+  "all_passed": true,
+  "scope_note": "Local multi-process qualification only. This is not a physical multi-host, WAN partition, or production HA proof."
+}
