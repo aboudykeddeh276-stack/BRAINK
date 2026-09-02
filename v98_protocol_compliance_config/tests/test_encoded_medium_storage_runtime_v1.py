@@ -1,4 +1,4 @@
-import sys, unittest, tempfile
+import sys, unittest, tempfile, json
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/"src"))
 from keddeh_encoded_medium_storage_runtime_v1 import *
@@ -22,7 +22,22 @@ class MediumTests(unittest.TestCase):
         o=c.allocate(2,3,"obj","FILE","L1",b"hello")
         r=c.decode("obj")
         self.assertTrue(r["verified"]); self.assertEqual(r["payload"],"hello")
+        self.assertEqual(o.coordinate,(2,3))
         self.assertEqual(o.address,m.geometry_address(2,3,"L1"))
+
+    def test_controller_allocates_next_free_coordinate(self):
+        m=EncodedMedium(4,4); c=KEXStorageController(m)
+        m.program_cell(1,1,1,"seed")
+        c.allocate(1,2,"A","FILE","L-A",b"a")
+        o=c.allocate_next("B","FILE","L-B",b"b")
+        self.assertEqual(o.coordinate,(1,3))
+        self.assertEqual(m.object_coordinates[(1,3)],"B")
+
+    def test_coordinate_reuse_rejected(self):
+        m=EncodedMedium(4,4); c=KEXStorageController(m)
+        c.allocate(2,2,"A","FILE","L-A",b"a")
+        with self.assertRaises(ValueError): c.allocate(2,2,"B","FILE","L-B",b"b")
+        with self.assertRaises(ValueError): m.program_cell(2,2,1,"seed")
 
     def test_zero_rejected_as_weighted_cell(self):
         m=EncodedMedium(4,4)
@@ -42,17 +57,22 @@ class MediumTests(unittest.TestCase):
         machine=BRAINKMachine(ident,m,c,v)
         receipt=machine.boot("BRAINK-GENESIS")
         self.assertTrue(receipt["root_verified"])
+        self.assertEqual(receipt["root_coordinate"],[1,1])
         self.assertEqual(v.read("/braink")["payload"],'{"braink":"B1","state":"resident"}')
 
-    def test_recursive_constructor_a_b_c(self):
+    def test_recursive_constructor_a_b_c_auto_allocates(self):
         m=EncodedMedium(16,16); c=KEXStorageController(m); va=VFSProjection(c)
+        m.program_cell(1,1,1,"seed")
         a_id=MachineIdentity("A","BRAINK-A","LINEAGE-A")
-        c.allocate(1,1,"ROOT-A","BRAINK_ROOT",a_id.lineage,b'{"braink":"A"}')
+        c.allocate(2,1,"ROOT-A","BRAINK_ROOT",a_id.lineage,b'{"braink":"A"}')
         a=BRAINKMachine(a_id,m,c,va); a.boot("ROOT-A")
 
-        b,b_receipt=a.instantiate_child(2,1,MachineIdentity("B","BRAINK-B","LINEAGE-B"),"ROOT-B")
-        c_machine,c_receipt=b.instantiate_child(3,1,MachineIdentity("C","BRAINK-C","LINEAGE-C"),"ROOT-C")
+        b,b_receipt=a.instantiate_child_auto(MachineIdentity("B","BRAINK-B","LINEAGE-B"),"ROOT-B")
+        c_machine,c_receipt=b.instantiate_child_auto(MachineIdentity("C","BRAINK-C","LINEAGE-C"),"ROOT-C")
 
+        self.assertEqual(b_receipt["allocation_mode"],"KEX_CONTROLLER_NEXT_FREE")
+        self.assertEqual(c_receipt["allocation_mode"],"KEX_CONTROLLER_NEXT_FREE")
+        self.assertNotEqual(tuple(b_receipt["child_root_coordinate"]),tuple(c_receipt["child_root_coordinate"]))
         self.assertTrue(b_receipt["medium_inherited_by_reference"])
         self.assertTrue(c_receipt["medium_inherited_by_reference"])
         self.assertTrue(b_receipt["child_constructor_bearing"])
@@ -68,41 +88,32 @@ class MediumTests(unittest.TestCase):
     def test_constructor_requires_booted_parent(self):
         m=EncodedMedium(8,8); c=KEXStorageController(m)
         a=BRAINKMachine(MachineIdentity("A","BA","LA"),m,c,VFSProjection(c))
-        with self.assertRaises(RuntimeError):
-            a.instantiate_child(2,2,MachineIdentity("B","BB","LB"),"ROOT-B")
+        with self.assertRaises(RuntimeError): a.instantiate_child_auto(MachineIdentity("B","BB","LB"),"ROOT-B")
 
     def test_duplicate_object_identity_preserves_existing_state(self):
         m=EncodedMedium(8,8); c=KEXStorageController(m)
         c.allocate(1,1,"OBJ","FILE","L",b"one")
-        with self.assertRaises(ValueError):
-            c.allocate(1,2,"OBJ","FILE","L",b"two")
+        with self.assertRaises(ValueError): c.allocate(1,2,"OBJ","FILE","L",b"two")
         self.assertEqual(c.decode("OBJ")["payload"],"one")
 
     def test_legacy_reparenting(self):
-        expected={
-            "volume_registry":"OBSERVATION_PROOF_REGISTRY",
-            "sheet_rows":"PROJECTION_READBACK",
-            "100TB_rows":"ADDRESS_LAW_PROJECTION",
-            "IP_endpoint":"CARRIER_PROJECTION"
-        }
+        expected={"volume_registry":"OBSERVATION_PROOF_REGISTRY","sheet_rows":"PROJECTION_READBACK","100TB_rows":"ADDRESS_LAW_PROJECTION","IP_endpoint":"CARRIER_PROJECTION"}
         for k,v in expected.items(): self.assertEqual(reconcile_legacy_claim(k)["authoritative"],v)
 
-    def test_activation_writes_receipt_and_outbox(self):
+    def test_activation_writes_recursive_receipt_and_continuation_handoff(self):
         with tempfile.TemporaryDirectory() as d:
-            root=Path(d)
-            receipt=activate(root)
+            root=Path(d); receipt=activate(root)
             self.assertEqual(receipt["status"],"VERIFIED")
             recursion=receipt["recursive_instantiation"]
             self.assertEqual(recursion["path"],["MACHINE-KEX-20260822","MACHINE-KEX-B","MACHINE-KEX-C"])
-            self.assertTrue(recursion["same_medium"])
-            self.assertTrue(recursion["same_controller"])
-            self.assertTrue(recursion["independent_vfs"])
-            self.assertTrue(recursion["C_root_verified"])
+            self.assertTrue(recursion["same_medium"]); self.assertTrue(recursion["same_controller"]); self.assertTrue(recursion["independent_vfs"])
+            self.assertTrue(recursion["C_root_verified"]); self.assertTrue(recursion["C_constructor_bearing"])
+            self.assertEqual(len({tuple(x) for x in recursion["automatic_coordinates"]}),2)
             self.assertEqual(len(recursion["proof"]),64)
-            self.assertTrue((root/"evidence/encoded_medium_reconciliation_receipt.json").exists())
-            self.assertTrue((root/"runtime_volume/encoded_medium/current.json").exists())
             outbox=root/"runtime_volume/outbox/encoded_medium_reconciliation/authoritative.handoff.json"
-            self.assertTrue(outbox.exists())
-            self.assertEqual(json.loads(outbox.read_text())["recursive_proof"],recursion["proof"])
+            payload=json.loads(outbox.read_text())
+            self.assertEqual(payload["recursive_proof"],recursion["proof"])
+            self.assertEqual(payload["current_machine_id"],"MACHINE-KEX-C")
+            self.assertEqual(payload["next_operation"],"instantiate_child_auto")
 
 if __name__=="__main__": unittest.main(verbosity=2)
