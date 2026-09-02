@@ -8,8 +8,8 @@ def load_json(p):
 def audit(repo_root='.'):
     root=Path(repo_root); ledger=load_json(root/'deployment/AUTHORSHIP_LEDGER_R2.json') or {'lineage':[]}
     bindings={x['deployment_path']:x for x in ledger.get('lineage',[])}; results=[]
-    for p in sorted((root/'deployment').glob('*.json')):
-        if p.name.startswith(('AKD_AUTHORSHIP_','AUTHORSHIP_')): continue
+    for p in sorted((root/'deployment').glob('KEDDEH_SYSTEMS_*.json')):
+        if 'AUTHORSHIP' in p.name: continue
         rel=str(p.relative_to(root)); data=load_json(p)
         if not isinstance(data,dict):
             results.append({'path':rel,'classification':'ORPHANED_AKD_SERVICE','reason':'UNREADABLE_OR_NON_OBJECT'}); continue
