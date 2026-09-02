@@ -1,0 +1,56 @@
+{
+  "schema": "keddeh.systems.operational-foundry-deployment.r22/v1",
+  "release": "R22",
+  "authority": "KEDDEH_SYSTEMS/BRAINK",
+  "canonical_repository": "aboudykeddeh276-stack/BRAINK",
+  "lineage_parent": "R21",
+  "state_root": "072a10a26e4158ebc60d1c179941b8b3013d9d04e8d8f65ab3ab8dba4f96d17e",
+  "release_sha256": "d464b55502e349b22c4181e4052da47cfa022eb71bc25f2f532dc81856dd7ec1",
+  "counts": {
+    "foundries": 18,
+    "work_modules": 190,
+    "hr_team_assignments": 96,
+    "server_sets": 89
+  },
+  "foundries": [
+    "frontage_foundry",
+    "service_foundry",
+    "mesh_foundry",
+    "website_foundry",
+    "domain_mastery",
+    "process_mastery",
+    "research_mastery",
+    "publishing_mastery",
+    "agentics_foundry",
+    "hr_team_services",
+    "business_enterprise_foundry",
+    "server_foundry",
+    "software_foundry",
+    "hci_foundry",
+    "landing_page_foundry",
+    "workspace_foundry",
+    "file_system_foundry",
+    "customer_file_base_foundry"
+  ],
+  "canonical_virtual_space": "/KEDDEH_SYSTEMS/FOUNDRIES/R22_OPERATIONAL",
+  "persistent_artifacts": [
+    "FOUNDRY_OPERATIONAL_CORPUS_R22.json",
+    "FOUNDRY_WORK_QUEUE_R22.json",
+    "FOUNDRY_HR_TOPOLOGY_R22.json",
+    "FOUNDRY_SERVER_TOPOLOGY_R22.json",
+    "R22_EXECUTION_RECEIPT.json",
+    "KEDDEH_SYSTEMS_R22_OPERATIONAL_FOUNDRY_RELEASE.zip"
+  ],
+  "invariant": "Foundries remain distinct first-class process/data estates. Shared primitives are linked, never substituted for domain-specific terms, functions, sectors, datasets or processes.",
+  "execution_model": {
+    "work_module_groups": ["research", "runtime", "verification", "evolution", "proof"],
+    "lifecycle": ["DISCOVER", "RESEARCH", "DESIGN", "IMPLEMENT", "TEST", "QUALIFY", "DEPLOY", "OBSERVE", "RECONCILE", "EVOLVE"],
+    "supervision": "recursive HR/BRAINK supervision",
+    "state": "VFS-addressed continuation and evidence"
+  },
+  "promotion_boundary": {
+    "corpus": "PERSISTED_AND_LOCALLY_QUALIFIED",
+    "github_descriptor": "DEPLOYED",
+    "public_host_effects": "REQUIRE_TARGET-SPECIFIC_BINDING_AND_READBACK"
+  }
+}
