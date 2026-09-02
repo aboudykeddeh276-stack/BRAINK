@@ -11,32 +11,27 @@ from enterprise.server_room_runtime import AIServerRoomRuntime
 from enterprise.undertaking_deployer import UndertakingDeployer
 
 
-genome = ServiceGenome(
-    genome_id="genome://casepath/service/r1",
-    service_class="legal_preparation_platform",
-    functions=(
-        GenomeFunction("hr.casepath.agent_assignment", "hr_governance", "hr.assign", "hr"),
-        GenomeFunction("agent.casepath.intake", "research_learning_evolution", "agent.casepath.intake", "agentic_ai"),
-        GenomeFunction("mail.casepath.transactional", "runtime_servers", "mail.transactional", "mailing"),
-        GenomeFunction("runtime.casepath.service", "runtime_servers", "runtime.service.launch", "runtime"),
-        GenomeFunction("vfs.casepath.matter", "storage_memory", "vfs.commit", "storage"),
-        GenomeFunction("security.casepath.audit", "mesh_nodes", "audit.receipt", "security"),
-        GenomeFunction("web.casepath.public", "console_ui", "web.casepath.public", "web"),
-    ),
-    pairings=(
-        GenomePairing("hr.casepath.agent_assignment", "agent.casepath.intake", "assigns_authority"),
-        GenomePairing("agent.casepath.intake", "vfs.casepath.matter", "writes_matter_state"),
-        GenomePairing("runtime.casepath.service", "web.casepath.public", "serves_projection"),
-        GenomePairing("runtime.casepath.service", "mail.casepath.transactional", "emits_notifications"),
-        GenomePairing("vfs.casepath.matter", "security.casepath.audit", "emits_proof_receipts"),
-    ),
-)
+def load_genome(path: Path) -> ServiceGenome:
+    data = json.loads(path.read_text("utf-8"))
+    return ServiceGenome(
+        genome_id=data["genome_id"],
+        service_class=data["service_class"],
+        functions=tuple(GenomeFunction(**item) for item in data["functions"]),
+        pairings=tuple(GenomePairing(**item) for item in data["pairings"]),
+        policies=tuple(data.get("policies", ())),
+    )
 
+
+genome = load_genome(ROOT / "enterprise/genomes/CASEPATH_SERVICE_GENOME_R1.json")
 assert genome.validate()["valid"] is True
+assert genome.genome_id == "genome://casepath/service/r1"
+
 composer = GenomeComposer(default_server_classes())
 room = composer.compose_room("room://casepath/sa", "undertaking://casepath/sa", (genome,))
 classes = {x.server_class for x in room.server_instances}
 assert {"hr", "agentic_ai", "mailing", "runtime", "storage", "security", "web"}.issubset(classes)
+assert "payments" not in classes
+assert all("payment.casepath.entitlement" not in i.assigned_functions for i in room.server_instances)
 
 runtime = AIServerRoomRuntime(room)
 r0 = runtime.invoke("agent.casepath.intake", {"story": "example"})
@@ -59,5 +54,20 @@ assert small["genome_roots"] == large["genome_roots"]
 assert small["dependency_root"] == large["dependency_root"]
 assert len(large["server_instances"]) > len(small["server_instances"])
 assert large["predecessor_deployment_root"] == small["deployment_root"]
+assert not any(i["server_class"] == "payments" for i in large["server_instances"])
+
+paid = deployer.reconfigure(
+    large, (genome,),
+    {
+        "replication": {"agentic_ai": 5, "runtime": 4, "storage": 4, "web": 6, "mailing": 2},
+        "environment": {"mode": "expanded", "payments": "enabled"},
+        "enabled_optional_functions": ["payment.casepath.entitlement"],
+    },
+)
+assert paid["genome_roots"] == large["genome_roots"]
+assert any(i["server_class"] == "payments" for i in paid["server_instances"])
+assert any("payment.casepath.entitlement" in i["assigned_functions"] for i in paid["server_instances"])
+assert paid["dependency_root"] != large["dependency_root"]
+assert paid["predecessor_deployment_root"] == large["deployment_root"]
 
 print("SERVICE_GENOME_SERVER_ROOM_PASS")
