@@ -1,0 +1,15 @@
+{
+  "schema":"keddeh.rollback-contract.r17/v1",
+  "release_id":"KEDDEH-MARKET-PROCESS-R17",
+  "trigger_conditions":["validation_failure","runtime_regression","readback_mismatch","reconciliation_conflict","operator_revoke"],
+  "actions":[
+    "freeze new R17 promotion",
+    "preserve R17 evidence and receipts",
+    "restore previous promoted BRAINK runtime pointer",
+    "restore previous compatible governance/server adapter bindings",
+    "emit rollback event into lifecycle ledger",
+    "run reconciliation against restored state"
+  ],
+  "forbidden":["delete failed evidence","rewrite predecessor history","treat rollback as absence of attempted execution"],
+  "success_condition":"previous promoted runtime pointer restored and reconciliation returns MATCH or explicitly classified residual delta"
+}
