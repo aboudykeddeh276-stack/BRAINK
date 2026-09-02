@@ -7,6 +7,7 @@ on:
       - 'enterprise/**'
       - 'deployment/**'
       - 'scripts/kex-ci/test_authorship_guard.py'
+      - 'scripts/kex-ci/test_authorship_audit_r26.py'
   workflow_dispatch:
 
 permissions:
@@ -22,3 +23,5 @@ jobs:
           python-version: '3.12'
       - name: Validate AKD authorship guard
         run: python scripts/kex-ci/test_authorship_guard.py
+      - name: Audit deployment lineage and fail on orphaned AKD services
+        run: python scripts/kex-ci/test_authorship_audit_r26.py
