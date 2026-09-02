@@ -1,0 +1,33 @@
+{
+  "schema": "braink.foundry.deployment-receipt.r1/v1",
+  "created_utc": "2026-09-02T02:47:03.679896+00:00",
+  "master_dataset_root": "e5ca5743426f0cb6645657a7b2fd09e786d51e8d0e6dc995a255be1854638890",
+  "canonical_repository": "aboudykeddeh276-stack/BRAINK",
+  "github_commits": {
+    "enterprise/foundry/MASTER_DATASET_R1.json": "5b5a6c4c9759a168019072236110a87f1d658c5f",
+    "enterprise/foundry/foundry_os.py": "c4fd4589b5981f0462f583dd217aeca8aae39c20",
+    "enterprise/foundry/FOUNDRY_CLASS_REGISTRY_R1.json": "7e365a72e7986fb2e7f2393f81fed69bbab122ad",
+    "scripts/kex-ci/test_foundry_os_r1.py": "6f9f1f1207630125961f418a2874fe018f6d4aeb",
+    ".github/workflows/braink-foundry-os.yml": "32622c2c386df8e4006746f33e0c04cbbceee604"
+  },
+  "validated_state": {
+    "foundries": 9,
+    "sectors": 12,
+    "functions": 120,
+    "server_health": "PASS",
+    "server_exposed_functions": 120,
+    "same_master_root_all_foundries": true
+  },
+  "foundries": ["business_enterprise_structure","server","agentics","hci","landing_page","workspace","file_system","customer_file_base","publishing_process_research"],
+  "package_sha256": "b64eb404612cd575b0e3ac8164097e77b25046b301eb19a42d42ce12e1d6bed1",
+  "evidence_boundary": "The current 12-sector/120-function registry is fully preserved. Foundry classes are designed for larger registries and do not impose a record-count cap. Current dataset size is not claimed to be the eventual full market dataset.",
+  "binding_commits": {
+    "SERVERS-KEDDEHSYSTEMS": "6e21c9ee67612e8d257f723c52991574d1164517",
+    "KEDDEH_SOFTWARE_NODES": "d857e2104ea2e9490c6fd1116d5333769d61efdc",
+    "BRAINK-CONSOLE-PLUS": "8b9e438272be0bb45143f6ddfd7cdff1824748a4",
+    "VIRTUALISED_MEMORY": "0625a6f506c87326e3c4f3b57b6caa640c9b1cbb",
+    "K-SYSTEMS-CODE-SPACE-": "c0d0f993eff6250a417bd33f6452403fdec6ac68"
+  },
+  "library_target": "/BRAINK_DEPLOYMENTS/FOUNDRY_OS_R1",
+  "drive_target": "/Google Drive/KEDDEH_SYSTEMS_BRAINK_CURRENT_WORKS_2026-08-31"
+}
