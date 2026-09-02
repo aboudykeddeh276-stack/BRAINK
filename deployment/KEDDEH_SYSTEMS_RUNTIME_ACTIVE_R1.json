@@ -1,0 +1,19 @@
+{
+  "schema": "keddeh.systems.runtime.active.r1",
+  "authority": "KEDDEH_SYSTEMS/BRAINK",
+  "runtime_id": "braink://runtime/keddeh-systems/active-r1",
+  "canonical_repository": "aboudykeddeh276-stack/BRAINK",
+  "runtime_state": "HOST_LOCAL_EXECUTED",
+  "vfs_state": "PERSISTED_LOCAL",
+  "research_state": "PERSISTED_LOCAL",
+  "server_rooms": {
+    "casepath": {"status": "READY", "server_sets": 18},
+    "braink_ai_ops": {"status": "READY", "server_sets": 11},
+    "keddeh_data": {"status": "READY", "server_sets": 11}
+  },
+  "runtime_db_sha256": "b52fb2a1c5d0b0e974e70048499212f4bf2b518cae4dbb2ba9ab4620062486c2",
+  "research_db_sha256": "7abd95ad447e2b0a123a5935610785e2eb25f8f07bfee3d77123edb2397e9df4",
+  "release_sha256": "2881a046ebad2e082dfdd8c009816ea9397946dcdbc9ad568dbf85b5d28a1843",
+  "external_host_binding": "UNBOUND",
+  "public_projection": "UNOBSERVED"
+}
