@@ -30,12 +30,14 @@ class UndertakingDeployer:
         genomes = tuple(genomes)
         replication = dict(profile.get("replication", {}))
         environment = dict(profile.get("environment", {}))
+        enabled_optional_functions = tuple(profile.get("enabled_optional_functions", ()))
         room = self.composer.compose_room(
             room_id=room_id,
             undertaking_id=undertaking_id,
             genomes=genomes,
             replication_overrides=replication,
             environment=environment,
+            enabled_optional_functions=enabled_optional_functions,
         )
         record = {
             "schema": "braink.undertaking-deployment/v1",
