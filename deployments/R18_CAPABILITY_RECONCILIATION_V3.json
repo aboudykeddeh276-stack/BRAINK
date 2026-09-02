@@ -1,0 +1,40 @@
+{
+  "schema": "braink.r18.capability-reconciliation/v3",
+  "undertaking": "LEGAL_SERVICE",
+  "prior_resident_count": 20,
+  "prior_gap_count": 52,
+  "resident_count": 21,
+  "gap_count": 51,
+  "newly_closed": ["hash"],
+  "classification": "REUSE_AND_QUALIFY",
+  "selected_work_module": "WM://DATA_INFORMATION_GOVERNANCE/hash",
+  "implementation_ref": "enterprise/substrate_adapters.py::digest",
+  "evidence": {
+    "resident_source": "enterprise/substrate_adapters.py",
+    "existing_execution_lineage": "scripts/kex-ci/test_self_evolution_runtime.py",
+    "new_deterministic_invariant": "scripts/kex-ci/test_r18_vfs_hash_capability.py",
+    "invariant_commit": "a308f84715756fdec90e13609e0735154e287efa",
+    "binding_register_commit": "e4f86109e3cc1d1167dce21fa115089fc339e0a8",
+    "deployment_invariant_commit": "083939e0bdd85c453cc8b785de5dec78b49987fb",
+    "focused_local_replay": "PASS",
+    "focused_hash": "9c8b644ab55e4146c0c2e4a7104fe13d5900dc2fe9d77b847a44a3b822a44c47",
+    "compile_semantic_replay_root": "b354aec957e0c7bf2b4f7ee4c01a5077e8b9d1d4067a95d51dc0b6b813ba44d7",
+    "compile_semantic_replay_counts": {"server_sets":18,"requirements":72,"resident":21,"holes":51}
+  },
+  "next_ranked_shared_holes": ["tenant","supervision","lease","replacement","rehydration","health","restart","qualification","http","service_endpoint","auth_boundary"],
+  "stop_boundary": {
+    "reason": "higher-ranked HR lifecycle holes have declarations but no searched resident callable implementation; runtime/API holes have source surfaces but require current direct invariant execution or a bounded adapter before promotion",
+    "next_candidate": "health",
+    "next_candidate_existing_source": "modules/kex_wbos/server.py::/api/health"
+  },
+  "claim_boundary": [
+    "hash is a software SHA-256 content-hash binding only",
+    "hash state is BOUND, not hardware-rooted or remote-durability VERIFIED",
+    "no new hashing function was synthesized",
+    "tenant, supervision, lease, replacement and rehydration remain unresolved",
+    "public observer state is not an execution prerequisite",
+    "A_executed != A_claimed",
+    "S_observed != S_claimed"
+  ],
+  "reconciliation_root": "77005cf7d7e1e2118d6acbf4b9738ba64ad4195cf725d27a54e01f38812e4dea"
+}
