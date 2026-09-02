@@ -1,0 +1,7 @@
+{
+  "schema":"keddeh.systems.foundry-fabric.r1",
+  "authority":"KEDDEH_SYSTEMS/BRAINK",
+  "principle":"Do not collapse foundries, sectors, functions, processes, terms, subjects or research objects into generic aliases. Preserve each as independently addressable data/process domains while permitting cross-foundry genome composition.",
+  "foundries":["frontage_foundry","service_foundry","mesh_foundry","website_foundry","domain_mastery","process_mastery","research_mastery","publishing_mastery","agentics_foundry","hr_team_services","business_enterprise_foundry","server_foundry","software_foundry","hci_foundry","landing_page_foundry","workspace_foundry","file_system_foundry","customer_file_base_foundry"],
+  "unification":{"control_plane":["BRAINK","HR","KEX","IL-LLM","VFS"],"composition":["service genome","server-room composer","work modules","recursive supervision"]}
+}
