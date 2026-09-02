@@ -1,0 +1,26 @@
+{
+  "schema": "braink.r18.capability-reconciliation/v2",
+  "undertaking": "LEGAL_SERVICE",
+  "prior_resident_count": 12,
+  "prior_gap_count": 60,
+  "resident_count": 20,
+  "gap_count": 52,
+  "newly_closed": ["work_module","tool_routing","checkpoint","audit","evidence","readback","conflict","signal"],
+  "previously_closed_this_pass": ["identity","role"],
+  "classification": "REUSE_AND_QUALIFY",
+  "evidence": {
+    "hr_capability_invariant_commit": "99ef05d3729711a42ff3c93e6aeee955617cb7fe",
+    "shared_capability_invariant_commit": "23a96355103da939e662beab0ed214b55488121b",
+    "binding_register_commit": "ba2499d5e7e332b6d166d63376c2a00370d55d30",
+    "local_shared_invariant": "R18_SHARED_CAPABILITIES_PASS",
+    "local_hr_invariant": "HR_GENOME_CAPABILITIES_R18_PASS"
+  },
+  "next_ranked_shared_holes": ["tenant","supervision","lease","replacement","rehydration","hash","health","restart","qualification","http","service_endpoint","auth_boundary"],
+  "reconciliation_root": "4ecebf5d291340c92c99ccd7b9c92625f9deccd685e4a093c7e00372b31bc417",
+  "claim_boundary": [
+    "no new function was synthesized for the newly closed capabilities",
+    "bindings are software capability/provenance bindings",
+    "remote or multi-host execution is not implied",
+    "public observer state is not an execution prerequisite"
+  ]
+}
