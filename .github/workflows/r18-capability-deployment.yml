@@ -1,0 +1,29 @@
+name: BRAINK R18 Capability Deployment
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'enterprise/capability_deployment_runtime.py'
+      - 'scripts/kex-ci/test_capability_deployment_runtime.py'
+      - '.github/workflows/r18-capability-deployment.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  r18-validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Compile
+        run: python -m compileall -q enterprise/capability_deployment_runtime.py enterprise/service_genome.py enterprise/server_room.py scripts/kex-ci/test_capability_deployment_runtime.py
+      - name: Execute R18 undertaking compile invariant
+        run: python scripts/kex-ci/test_capability_deployment_runtime.py
