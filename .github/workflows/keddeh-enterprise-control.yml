@@ -15,6 +15,12 @@ on:
       - 'scripts/kex-ci/**'
       - '.github/workflows/keddeh-enterprise-control.yml'
   workflow_dispatch:
+    inputs:
+      use_self_hosted:
+        description: 'Also execute on the specialist KEX self-hosted runner'
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: read
@@ -50,3 +56,18 @@ jobs:
         run: python scripts/kex-ci/test_architecture_verification_r19.py
       - name: Execute R24 engineering control plane invariants
         run: python scripts/kex-ci/test_engineering_control_plane_r24.py
+      - name: Execute R24 torn-tail recovery invariant
+        run: python scripts/kex-ci/test_engineering_ledger_recovery_r24.py
+
+  specialist:
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.use_self_hosted }}
+    runs-on: [self-hosted, kex, cascade, hyperk0, warmboot]
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile enterprise control modules
+        run: python3 -m compileall -q enterprise scripts/kex-ci
+      - name: Execute R24 engineering control plane invariants
+        run: python3 scripts/kex-ci/test_engineering_control_plane_r24.py
+      - name: Execute R24 torn-tail recovery invariant
+        run: python3 scripts/kex-ci/test_engineering_ledger_recovery_r24.py
