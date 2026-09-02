@@ -123,6 +123,22 @@
       "promotion": "REJECTED_PENDING_UNIT_SECURITY_QUALITY_RELEASE_AND_INDEPENDENT_GATES",
       "smtp_transport_delivery": "UNPROVEN",
       "self_hosted_mail_server": "UNPROVEN"
+    },
+    "gmail_keddeh_destination_readback": {
+      "status": "EXECUTED_SUBMISSION_AND_INBOX_READBACK_NOT_SMTP_PROVEN_NOT_PROMOTED",
+      "probe_id": "R24-MAIL-20260903-0153",
+      "destination": "aboudy@keddeh.com",
+      "authenticated_submission": "PASS",
+      "inbox_readback": "PASS",
+      "raw_mime_readback": "PASS",
+      "received_transport": "GMAIL_API_HTTPREST_ONLY",
+      "independent_mx_hop": "UNOBSERVED",
+      "independent_smtp_hop": "UNOBSERVED",
+      "receipt": "deployments/R24_MAIL_DESTINATION_READBACK_R2.json",
+      "receipt_root": "d5c5cc84ce0ebd51fbded23fcc8a14d02c5b8d71ef81f6eae487ddddd8630d04",
+      "smtp_transport_delivery": "UNPROVEN",
+      "self_hosted_mail_server": "UNPROVEN",
+      "promotion": "REJECTED_PENDING_TRANSPORT_EVIDENCE_AND_REMAINING_R24_GATES"
     }
   },
   "promotion_policy": {
