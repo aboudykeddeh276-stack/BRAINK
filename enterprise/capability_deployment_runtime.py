@@ -28,7 +28,7 @@ class CapabilityDeploymentRuntime:
     def load_bindings(self,packet:Mapping[str,Any]):
         loaded=[]
         for capability,spec in packet.get("bindings",{}).items():
-            node=self.bind(capability,spec["implementation_ref"],spec.get("evidence_class"),"VERIFIED")
+            node=self.bind(capability,spec["implementation_ref"],spec.get("evidence_ref") or spec.get("evidence_class"),spec.get("state","VERIFIED"))
             if node:loaded.append(capability)
         return tuple(sorted(loaded))
     def compile(self,undertaking:str,scale="SMALL"):
@@ -43,5 +43,5 @@ class CapabilityDeploymentRuntime:
             gap={"REUSE":"CAPABILITY_RESIDENT","QUALIFY":"QUALIFICATION_REQUIRED","CREATE_OR_BIND":"ADAPTER_OR_FUNCTION_REQUIRED"}[decision]
             group={"CAPABILITY_RESIDENT":"group://runtime-dispatch","QUALIFICATION_REQUIRED":"group://verification-qualification","ADAPTER_OR_FUNCTION_REQUIRED":"group://engineering-synthesis"}[gap]
             required.append({**asdict(n),"decision":decision,"gap_class":gap,"work_group":group,"work_module":f"WM://{n.owner_sector}/{n.name}"})
-        body={"schema":"braink.capability-deployment.r18/v2","undertaking":undertaking,"generated_ns":time.time_ns(),"genome":{"id":genome.genome_id,"genes":list(genome.genes),"capability_root":genome.capability_root},"room_root":room.room_root,"server_sets":[{"family":s.family,"replicas":s.replicas,"services":list(s.services),"dependencies":list(s.dependencies),"config_root":s.config_root} for s in room.servers],"requirements":required,"resident_count":sum(1 for r in required if r["gap_class"]=="CAPABILITY_RESIDENT"),"gap_count":sum(1 for r in required if r["gap_class"]!="CAPABILITY_RESIDENT")}
+        body={"schema":"braink.capability-deployment.r18/v3","undertaking":undertaking,"generated_ns":time.time_ns(),"genome":{"id":genome.genome_id,"genes":list(genome.genes),"capability_root":genome.capability_root},"room_root":room.room_root,"server_sets":[{"family":s.family,"replicas":s.replicas,"services":list(s.services),"dependencies":list(s.dependencies),"config_root":s.config_root} for s in room.servers],"requirements":required,"resident_count":sum(1 for r in required if r["gap_class"]=="CAPABILITY_RESIDENT"),"gap_count":sum(1 for r in required if r["gap_class"]!="CAPABILITY_RESIDENT")}
         body["deployment_root"]=root(body);return body
