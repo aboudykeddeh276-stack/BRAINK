@@ -1,9 +1,18 @@
 {
-  "version": "V106-HYPERVISOR-PROVIDER-1",
+  "version": "V114-HYPERVISOR-PROVIDER-2",
   "registryId": "keddeh.hypervisor.provider-registry",
-  "canonicalRule": "GitHub-hosted execution ignites the control runtime; hypervisors resolve provider dependencies; provider absence never erases unrelated workloads.",
+  "canonicalRule": "BRAINK/KEX resolves execution by required capability across resident, scale-set, target-host and hosted providers; provider absence defers only the dependent workload.",
   "states": ["DECLARED", "AVAILABLE", "DEGRADED", "UNAVAILABLE", "DEFERRED", "SELECTED", "EXECUTING", "REINTEGRATED"],
   "providers": [
+    {
+      "providerId": "provider://self-hosted/kex",
+      "class": "RESIDENT_RUNNER",
+      "runner": ["self-hosted", "kex"],
+      "capabilities": ["linux-or-macos", "python", "portable-ci", "resident-venv", "braink", "kex", "recursive-runtime", "runtime-health", "persistent-workspace"],
+      "priority": 5,
+      "availability": "RECEIPT_REQUIRED",
+      "evidenceClass": "RUNNER_READBACK"
+    },
     {
       "providerId": "provider://github-hosted/ubuntu-x64",
       "class": "GITHUB_HOSTED",
@@ -35,7 +44,7 @@
       "providerId": "provider://kubernetes/arc",
       "class": "RUNNER_SCALE_SET",
       "runner": "keddeh-arc-runner-set",
-      "capabilities": ["linux", "container", "kubernetes", "ephemeral-runner", "horizontal-scale"],
+      "capabilities": ["linux", "container", "kubernetes", "ephemeral-runner", "horizontal-scale", "python", "portable-ci", "recursive-runtime"],
       "priority": 30,
       "availability": "RECEIPT_REQUIRED",
       "evidenceClass": "RECEIPT_BACKED"
@@ -44,7 +53,7 @@
       "providerId": "provider://local/m3",
       "class": "TARGET_HOST",
       "runner": ["self-hosted", "macOS", "ARM64", "KEDDEH-M3"],
-      "capabilities": ["macos", "arm64", "apple-silicon", "metal", "xcode-signing", "native-macos-package", "local-workstation", "target-host-readback"],
+      "capabilities": ["macos", "arm64", "apple-silicon", "metal", "xcode-signing", "native-macos-package", "local-workstation", "target-host-readback", "python", "resident-venv"],
       "priority": 40,
       "availability": "HOST_RECEIPT_REQUIRED",
       "evidenceClass": "HOST_VERIFIED"
@@ -52,9 +61,17 @@
   ],
   "workloads": [
     {
+      "workloadId": "workload://braink/v114-recursive-runtime",
+      "requiredCapabilities": ["python", "recursive-runtime"],
+      "preferredProviders": ["provider://self-hosted/kex", "provider://kubernetes/arc", "provider://github-hosted/ubuntu-x64"],
+      "substitutionPolicy": "FIRST_ELIGIBLE",
+      "unavailablePolicy": "DEFER_WITHOUT_GLOBAL_STOP",
+      "appleSpecific": false
+    },
+    {
       "workloadId": "workload://host-acceptance/portable",
       "requiredCapabilities": ["python", "portable-ci"],
-      "preferredProviders": ["provider://github-hosted/ubuntu-x64", "provider://github-hosted/ubuntu-arm64"],
+      "preferredProviders": ["provider://self-hosted/kex", "provider://github-hosted/ubuntu-x64", "provider://github-hosted/ubuntu-arm64"],
       "substitutionPolicy": "FIRST_ELIGIBLE",
       "unavailablePolicy": "DEFER_WITHOUT_GLOBAL_STOP",
       "appleSpecific": false
@@ -62,7 +79,7 @@
     {
       "workloadId": "workload://task-milestone/readback",
       "requiredCapabilities": ["python", "portable-ci"],
-      "preferredProviders": ["provider://github-hosted/ubuntu-x64", "provider://kubernetes/arc", "provider://local/m3"],
+      "preferredProviders": ["provider://self-hosted/kex", "provider://github-hosted/ubuntu-x64", "provider://kubernetes/arc", "provider://local/m3"],
       "substitutionPolicy": "FIRST_ELIGIBLE",
       "unavailablePolicy": "DEFER_WITHOUT_GLOBAL_STOP",
       "appleSpecific": false
@@ -70,7 +87,7 @@
     {
       "workloadId": "workload://mirror/commit-readback",
       "requiredCapabilities": ["python", "portable-ci"],
-      "preferredProviders": ["provider://github-hosted/ubuntu-x64", "provider://kubernetes/arc", "provider://local/m3"],
+      "preferredProviders": ["provider://self-hosted/kex", "provider://github-hosted/ubuntu-x64", "provider://kubernetes/arc", "provider://local/m3"],
       "substitutionPolicy": "FIRST_ELIGIBLE",
       "unavailablePolicy": "DEFER_WITHOUT_GLOBAL_STOP",
       "appleSpecific": false
