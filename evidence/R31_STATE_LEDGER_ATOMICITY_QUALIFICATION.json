@@ -1,0 +1,42 @@
+{
+  "schema": "kex.braink.r31.state-ledger-atomicity-qualification.v1",
+  "authority": "A.KEDDEH / KEDDEH_SYSTEMS / BRAINK / KEX",
+  "development": "R31_STATE_LEDGER_LOGICAL_ATOMICITY",
+  "status": "VERIFIED_LOCAL_LINUX_EXECUTION",
+  "invariant": "committed computer state commit_id/state_hash must correspond to append-only ledger head commit_id/state_hash",
+  "mechanics": [
+    "exclusive flock transition serialization",
+    "write-ahead PREPARED journal",
+    "file+directory fsync",
+    "atomic os.replace",
+    "commit_id correlation",
+    "hash-chained ledger",
+    "deterministic forward recovery",
+    "deterministic rollback of prepare-only intent",
+    "fail-closed unresolved divergence"
+  ],
+  "adversarial": {
+    "pytest": "10 passed in 16.72s",
+    "process_death_exit_codes": {"AFTER_PREPARE":91,"AFTER_STATE":92,"AFTER_LEDGER":93},
+    "independent_process_writers": 12,
+    "ledger_tamper_detected": true,
+    "ledger_reorder_detected": true,
+    "ledger_ahead_state_replay": true,
+    "state_ahead_ledger_forward_repair": true,
+    "unrelated_divergence_fail_closed": true,
+    "successor_after_recovery": true
+  },
+  "benchmark": {
+    "sequential_commits": 30,
+    "commit_latency_ms": {"mean":33.67380096666667,"median":30.376197,"p95":44.644748,"p99":52.037804,"max":58.942947},
+    "recovery_ms": {"AFTER_PREPARE":0.935156,"AFTER_STATE":19.062089,"AFTER_LEDGER":0.832992}
+  },
+  "claim_boundaries": {
+    "local_process_crash_recovery": true,
+    "independent_process_contention": true,
+    "physical_power_loss": false,
+    "cross_host_distributed_atomicity": false,
+    "integration_into_recursive_computer_runtime_r26": false
+  },
+  "receipt_root": "a530a978789e27fc20f0b690d964dc403d424c8bf97d9d772e0e0866f7f971ae"
+}
