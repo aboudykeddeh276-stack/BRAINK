@@ -1,0 +1,52 @@
+{
+  "schema": "kex.braink.governance-manifest.v1",
+  "component_id": "BRAINK_PUBLIC_TLS_HOST_ACTUATORS",
+  "classification": "RUNTIME_AUTHORITY_ADAPTER_ASSET",
+  "repository": "aboudykeddeh276-stack/BRAINK",
+  "sector": "DOMAIN_TLS_SERVER_AUTHORITY",
+  "governance_spec": "governance/specs/public_tls_host_actuators.v1.json",
+  "skeleton": "governance/control_skeleton",
+  "documents": [
+    "CONTROL_INDEX.md",
+    "FILING_STANDARD.md",
+    "SCHEMA_STANDARD.md",
+    "AUTHORSHIP_AUTHORITY.md",
+    "PROCESS_CONTROL.md",
+    "WORKFLOW_CONTROL.md",
+    "OPERATIONS_RUNBOOK.md",
+    "CROSS_PLATFORM_CONTRACT.md",
+    "ACCOUNTABILITY_EVIDENCE.md",
+    "KEY_CONSIDERATIONS.md"
+  ],
+  "authority": {
+    "owner": "BRAINK",
+    "mutation_authority": "PUBLIC_DOMAIN_AUTHORITY + PUBLIC_CA_AUTHORITY + SERVER_ROOT scoped adapters"
+  },
+  "promotion_states": [
+    "DISCOVERED",
+    "BOUND",
+    "DEPENDENCIES_ADMITTED",
+    "QUALIFIED",
+    "CHALLENGE_PUBLISHED",
+    "ISSUED",
+    "SERVER_BOUND",
+    "PUBLIC_TLS_VERIFIED",
+    "ROLLED_BACK",
+    "BLOCKED"
+  ],
+  "required_workflows": [
+    ".github/workflows/braink-dependency-graph.yml",
+    ".github/workflows/current-main-recursive-dependency-reconciliation.yml",
+    ".github/workflows/deploy-braink-public.yml"
+  ],
+  "proof_conditions": [
+    "GitHub dependency snapshot accepted for exact deployment SHA",
+    "host bindings resolve without ambiguity",
+    "DNS-01 mutation and cleanup read back",
+    "public CA material validates",
+    "SERVER_ROOT presents installed certificate",
+    "external hostname and system trust verification succeeds"
+  ],
+  "cross_platform_contract": "CROSS_PLATFORM_CONTRACT.md",
+  "accountability_contract": "ACCOUNTABILITY_EVIDENCE.md"
+}
