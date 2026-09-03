@@ -1,0 +1,62 @@
+{
+  "claim_id": "BRAINK_LOGICAL_COMPUTER_HOST_INDEPENDENCE_R1",
+  "title": "Logical BRAINK computer identity survives physical host migration",
+  "classification": "logical computer identity / migration / semantic virtualization",
+  "statement": "A logical BRAINK computer identity and its required persistent state can be reconstructed on a different physical host without redefining that logical identity.",
+  "known_cs_adjacency": [
+    "checkpoint restart",
+    "process and VM migration",
+    "persistent object systems",
+    "location-transparent distributed systems",
+    "capability-based identity"
+  ],
+  "invariants": [
+    "logical computer identifier is independent of hostname, machine-id, IP address and transport endpoint",
+    "required persistent state is preserved across host replacement",
+    "authority and lineage survive reconstruction",
+    "carrier-specific identifiers remain projections rather than logical identity"
+  ],
+  "falsification": {
+    "experiment": "Instantiate a logical computer on host A, persist its governed state, reconstruct it on independent host B, and verify the same logical identifier, state digest, lineage and authority while machine/transport identifiers differ.",
+    "pass_condition": "Host A and host B present the same logical computer identity and required state/authority invariants while exposing different machine/carrier identities.",
+    "fail_condition": "Logical identity changes with hostname/machine-id/IP, required state cannot be reconstructed, or authority/lineage diverges."
+  },
+  "proof_requirements": [
+    {
+      "proof_id": "HOST_A_BASELINE",
+      "description": "Capture logical identity, state, lineage and authority on host A.",
+      "minimum_level": 7,
+      "required_executor_capabilities": ["persistent-state", "independent-host"]
+    },
+    {
+      "proof_id": "HOST_B_REHYDRATION",
+      "description": "Reconstruct the same logical computer on independent host B.",
+      "minimum_level": 9,
+      "required_executor_capabilities": ["persistent-state", "independent-host", "state-transfer"]
+    },
+    {
+      "proof_id": "EXTERNAL_INTEROP",
+      "description": "External consumer resolves and interacts with the logical identity after migration.",
+      "minimum_level": 10,
+      "required_executor_capabilities": ["independent-host", "external-network-observer"]
+    },
+    {
+      "proof_id": "REPEATABILITY",
+      "description": "Repeat migration/rehydration without logical identity drift.",
+      "minimum_level": 11,
+      "required_executor_capabilities": ["two-independent-hosts", "state-transfer"]
+    }
+  ],
+  "required_evidence_level": 11,
+  "invalid_overclaims": [
+    "Current remote_fabric_node node_id is not proof of this claim because it includes machine_material().",
+    "A same-host process restart is not cross-host migration.",
+    "A carrier endpoint change is not physical-host replacement.",
+    "Queued independent-host CI is not cross-machine evidence."
+  ],
+  "next_experiments": [
+    "Define LogicalComputerIdentity above machine projection.",
+    "Bind R31 persisted state/lineage to LogicalComputerIdentity.",
+    "Execute controlled A-to-B host migration with signed receipts."
+  ]
+}
