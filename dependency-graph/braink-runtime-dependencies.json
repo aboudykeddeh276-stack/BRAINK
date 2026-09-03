@@ -1,0 +1,122 @@
+{
+  "schema": "kex.braink.dependency-edges.v1",
+  "detector": {
+    "name": "braink-kex-runtime-dependency-detector",
+    "version": "1.0.0"
+  },
+  "scan_roots": [
+    "enterprise",
+    "runtime"
+  ],
+  "declared_edges": [
+    {
+      "source": "enterprise/recursive_computer_runtime_r26.py",
+      "target": "enterprise/self_addressing_runtime.py",
+      "class": "MODULE_DEPENDENCY",
+      "relationship": "direct",
+      "scope": "runtime",
+      "interface": "SelfAddressingRuntime",
+      "authority": "BRAINK"
+    },
+    {
+      "source": "enterprise/recursive_computer_runtime_r26.py",
+      "target": "enterprise/recursive_commit_coordinator_r31.py",
+      "class": "MODULE_DEPENDENCY",
+      "relationship": "direct",
+      "scope": "runtime",
+      "interface": "RecursiveCommitCoordinatorR31",
+      "authority": "BRAINK"
+    },
+    {
+      "source": "enterprise/recursive_commit_coordinator_r31.py",
+      "target": "runtime/R25/system_evolution_runtime.py",
+      "class": "MODULE_DEPENDENCY",
+      "relationship": "direct",
+      "scope": "runtime",
+      "interface": "AppendOnlyLedger/TransactionReceipt",
+      "authority": "BRAINK"
+    },
+    {
+      "source": "enterprise/self_addressing_runtime.py",
+      "target": "enterprise/substrate_adapters.py",
+      "class": "MODULE_DEPENDENCY",
+      "relationship": "direct",
+      "scope": "runtime",
+      "interface": "CapabilityRegistry/AutoBinder adapters",
+      "authority": "BRAINK"
+    },
+    {
+      "source": "enterprise/substrate_adapters.py",
+      "target": "runtime://python/fcntl",
+      "class": "RUNTIME_AUTHORITY_DEPENDENCY",
+      "relationship": "direct",
+      "scope": "runtime",
+      "interface": "flock",
+      "authority": "HOST_OS"
+    },
+    {
+      "source": "enterprise/substrate_adapters.py",
+      "target": "runtime://filesystem/fsync-replace",
+      "class": "RUNTIME_AUTHORITY_DEPENDENCY",
+      "relationship": "direct",
+      "scope": "runtime",
+      "interface": "fsync/os.replace",
+      "authority": "HOST_FILESYSTEM"
+    },
+    {
+      "source": "enterprise/domain_authority_binding.py",
+      "target": "repository://aboudykeddeh276-stack/SERVERS-KEDDEHSYSTEMS",
+      "class": "REPOSITORY_DEPENDENCY",
+      "relationship": "direct",
+      "scope": "runtime",
+      "interface": "resident domain authority implementation",
+      "authority": "SERVERS-KEDDEHSYSTEMS",
+      "checkout_path": "dependencies/SERVERS-KEDDEHSYSTEMS"
+    },
+    {
+      "source": "enterprise/domain_authority_binding.py",
+      "target": "dependencies/SERVERS-KEDDEHSYSTEMS/runtime/domain_authority/kex_registrar_service.py",
+      "class": "RUNTIME_AUTHORITY_DEPENDENCY",
+      "relationship": "direct",
+      "scope": "runtime",
+      "interface": "register_domain/register_zone/upsert_record/readback",
+      "authority": "SERVERS-KEDDEHSYSTEMS"
+    },
+    {
+      "source": "dependencies/SERVERS-KEDDEHSYSTEMS/runtime/domain_authority/kex_dns.py",
+      "target": "runtime://python/socket/udp",
+      "class": "RUNTIME_AUTHORITY_DEPENDENCY",
+      "relationship": "direct",
+      "scope": "runtime",
+      "interface": "UDP DNS socket",
+      "authority": "HOST_NETWORK"
+    },
+    {
+      "source": "dependencies/SERVERS-KEDDEHSYSTEMS/runtime/domain_authority/kex_dns.py",
+      "target": "runtime://python/socket/tcp",
+      "class": "RUNTIME_AUTHORITY_DEPENDENCY",
+      "relationship": "direct",
+      "scope": "runtime",
+      "interface": "TCP DNS socket",
+      "authority": "HOST_NETWORK"
+    },
+    {
+      "source": "dependencies/SERVERS-KEDDEHSYSTEMS/runtime/domain_authority/kex_dns.py",
+      "target": "dependencies/SERVERS-KEDDEHSYSTEMS/runtime/domain_authority/kex_registrar_service.py",
+      "class": "MODULE_DEPENDENCY",
+      "relationship": "direct",
+      "scope": "runtime",
+      "interface": "find_zone/get_zone/get_records/resolve_domain",
+      "authority": "SERVERS-KEDDEHSYSTEMS"
+    },
+    {
+      "source": "dependencies/SERVERS-KEDDEHSYSTEMS/runtime/domain_authority/kex_registrar_service.py",
+      "target": "runtime://python/sqlite3",
+      "class": "RUNTIME_AUTHORITY_DEPENDENCY",
+      "relationship": "direct",
+      "scope": "runtime",
+      "interface": "SQLite registrar state",
+      "authority": "HOST_STORAGE"
+    }
+  ]
+}
