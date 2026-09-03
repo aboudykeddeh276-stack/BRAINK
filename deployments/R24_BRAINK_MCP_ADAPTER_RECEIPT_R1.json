@@ -1,0 +1,62 @@
+{
+  "schema": "braink.r24.mcp-adapter-receipt/v1",
+  "subject": "BRAINK_R23_CLOSURE_MCP_ADAPTER",
+  "classification": "IMPLEMENTED_SOURCE_CI_WIRED_LOCAL_EXECUTION_PASS_NOT_PROMOTED",
+  "architecture_decision": {
+    "decision": "EXPOSE_RESIDENT_R23_MECHANICS_THROUGH_THIN_MCP_ADAPTER",
+    "duplicate_capability": false,
+    "resident_binding": "enterprise/foundry_closure_r23.py",
+    "adapter": "enterprise/mcp/r23_adapter.py",
+    "server": "enterprise/mcp/server.py",
+    "transport": "stdio JSON-RPC MCP"
+  },
+  "source_commits": {
+    "package": "477fb4ee870c71843e2ab15e29930e76b6c429ed",
+    "adapter": "598957f665f30cf667414771cfbe0ce8738947c7",
+    "server": "efcdc1e2a8dcc67d4f657bf6a1230fce42417157",
+    "invariant": "b44858c342566e8267137432becb3d667975c4f8",
+    "ci": "873a4648bc4504cd90b2e9cc203a694fa6a6061e"
+  },
+  "r24_transition": {
+    "DISCOVER": "PASS_RESIDENT_R23_CLOSURE_REUSED",
+    "RECONCILE_SOURCE_STATE": "PASS",
+    "ARCHITECTURE_DECISION": "PASS_THIN_ADAPTER_NOT_REIMPLEMENTATION",
+    "IMPLEMENT": "PASS",
+    "STATIC_VALIDATE": "PASS_LOCAL_COMPILEALL",
+    "UNIT_TEST": "PASS_WITHIN_INVARIANT",
+    "INTEGRATION_TEST": "PASS_STDIO_SERVER_SUBPROCESS",
+    "FAULT_INJECTION": "PASS_UNEXPOSED_SHELL_ACTION_REJECTED",
+    "SECURITY_GATE": "PARTIAL_ALLOWLIST_AND_BOUNDED_STATE_ONLY",
+    "QUALITY_GATE": "PENDING_FULL_R24_PROFILE",
+    "BUILD_RELEASE_MANIFEST": "PENDING",
+    "INDEPENDENT_VERIFY": "PENDING",
+    "PROMOTE_OR_REJECT": "REJECTED_PENDING_REMAINING_R24_GATES",
+    "DEPLOY": "SOURCE_AND_CI_WIRED_MCP_PROCESS_NOT_PUBLICLY_DEPLOYED",
+    "READBACK_RECONCILE": "PASS_LOCAL_PROCESS_MUTATION_RECEIPT_PERSISTENCE",
+    "MARKET_READINESS_EVALUATE": "PENDING",
+    "CONTINUE": "NEXT_BIND_R24_ENGINEERING_AND_RUNTIME_SUPERVISOR_TOOLS"
+  },
+  "observed_local_execution": {
+    "exit_code": 0,
+    "marker": "R24_BRAINK_MCP_ADAPTER_PASS",
+    "tool_discovery": "PASS",
+    "customer_file_mutation": "PASS",
+    "state_root_change": "PASS",
+    "receipt_readback": "PASS",
+    "descendant_traversal": "PASS",
+    "deferred_domain_blocker_propagation": "PASS",
+    "unexposed_action_denial": "PASS",
+    "bounded_state_privacy": "PASS",
+    "durable_state_readback": "PASS"
+  },
+  "claim_boundaries": {
+    "chatgpt_connection": "UNPROVEN",
+    "codex_connection": "UNPROVEN",
+    "responses_api_hosted_mcp": "UNPROVEN",
+    "public_http_mcp": "NOT_IMPLEMENTED",
+    "external_domain_actuation": "UNPROVEN",
+    "independent_verification": "PENDING",
+    "promotion": "REJECTED"
+  },
+  "receipt_root": "3843f1edaa3511b28110dd459eed068a545b00c04daefbff105b404e5eec4c10"
+}
