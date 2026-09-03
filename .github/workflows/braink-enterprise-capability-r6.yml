@@ -9,6 +9,7 @@ on:
       - 'scripts/kex-ci/test_mcp_governance_surface_r6.py'
       - 'scripts/kex-ci/test_agent_authority_actual_process_r6.py'
       - 'scripts/kex-ci/test_agent_function_contracts_r7.py'
+      - 'scripts/kex-ci/test_agent_function_actual_process_r7.py'
       - '.github/workflows/braink-enterprise-capability-r6.yml'
   pull_request:
     paths:
@@ -17,6 +18,7 @@ on:
       - 'scripts/kex-ci/test_mcp_governance_surface_r6.py'
       - 'scripts/kex-ci/test_agent_authority_actual_process_r6.py'
       - 'scripts/kex-ci/test_agent_function_contracts_r7.py'
+      - 'scripts/kex-ci/test_agent_function_actual_process_r7.py'
       - '.github/workflows/braink-enterprise-capability-r6.yml'
 
 permissions:
@@ -49,3 +51,5 @@ jobs:
         run: python scripts/kex-ci/test_agent_authority_actual_process_r6.py
       - name: Typed agent function contracts
         run: python scripts/kex-ci/test_agent_function_contracts_r7.py
+      - name: Typed agent functions against resident process
+        run: python scripts/kex-ci/test_agent_function_actual_process_r7.py
