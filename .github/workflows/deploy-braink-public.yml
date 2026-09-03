@@ -7,16 +7,18 @@ on:
       - 'enterprise/tls_authority_runtime.py'
       - 'enterprise/public_ca_adapter.py'
       - 'assets/public_tls_host_actuators/**'
+      - 'dependency-graph/**'
+      - 'scripts/dependency_graph/**'
       - 'tests/integration/test_public_tls_host_actuators.py'
       - '.github/workflows/deploy-braink-public.yml'
 concurrency:
   group: braink-public-production
   cancel-in-progress: false
+permissions:
+  contents: write
 jobs:
   deploy:
     runs-on: [self-hosted]
-    permissions:
-      contents: read
     env:
       KEDDEH_DOMAIN_FABRIC_ROOT: /mnt/data/keddeh_deploy/resident_v5/KEDDEH_REGISTRAR_V5
       KEDDEH_EVIDENCE_ROOT: /mnt/data/keddeh_deploy/resident_v5/KEDDEH_REGISTRAR_V5_EVIDENCE
@@ -32,7 +34,66 @@ jobs:
       KEDDEH_SERVER_KEY_PATH: ${{ vars.KEDDEH_SERVER_KEY_PATH }}
       KEDDEH_REGISTRAR_DB: ${{ vars.KEDDEH_REGISTRAR_DB }}
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout BRAINK exact deployment revision
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Checkout resident server authority dependency
+        uses: actions/checkout@v4
+        with:
+          repository: aboudykeddeh276-stack/SERVERS-KEDDEHSYSTEMS
+          path: dependencies/SERVERS-KEDDEHSYSTEMS
+
+      - name: Generate exact deployment dependency graph
+        run: |
+          set -euo pipefail
+          python3 scripts/dependency_graph/braink_dependency_detector.py
+          python3 - <<'PY'
+          import json, subprocess
+          from pathlib import Path
+          semantic=json.loads(Path('build/braink-semantic-dependency-graph.json').read_text())
+          snapshot=json.loads(Path('build/github-dependency-snapshot.json').read_text())
+          head=subprocess.check_output(['git','rev-parse','HEAD'], text=True).strip()
+          assert semantic['sha'] == head
+          assert snapshot['sha'] == head
+          required={
+            'assets/public_tls_host_actuators/dns01_resident_actuator.py',
+            'assets/public_tls_host_actuators/server_tls_actuator.py',
+            'assets/public_tls_host_actuators/rollback_server_tls.py',
+            'assets/public_tls_host_actuators/resolve_host_bindings.py',
+            'runtime://acme/certbot',
+            'runtime://domain/public-dns-challenge-auth-hook',
+            'runtime://domain/public-dns-challenge-cleanup-hook',
+            'runtime://server/tls-install-hook',
+            'runtime://server/tls-rollback-hook',
+            'runtime://tls/system-public-trust-store',
+          }
+          targets={e['target'] for e in semantic['edges']}
+          missing=required-targets
+          assert not missing, f'public issuance dependency cut incomplete: {sorted(missing)}'
+          print('public-issuance-dependency-cut: PASS')
+          PY
+
+      - name: Submit deployment snapshot to GitHub Dependency Graph
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          curl --fail-with-body --silent --show-error \
+            -X POST \
+            -H 'Accept: application/vnd.github+json' \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H 'X-GitHub-Api-Version: 2026-03-10' \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/dependency-graph/snapshots" \
+            --data-binary @build/github-dependency-snapshot.json \
+            | tee build/github-public-deploy-dependency-submission.json
+          python3 - <<'PY'
+          import json
+          response=json.load(open('build/github-public-deploy-dependency-submission.json'))
+          assert response.get('result') == 'SUCCESS', response
+          print('public-deploy-dependency-submission: PASS', response.get('id'))
+          PY
 
       - name: Verify resident KEDDEH fabric
         run: |
@@ -127,6 +188,9 @@ jobs:
         with:
           name: braink-public-deployment-receipts
           path: |
+            build/braink-semantic-dependency-graph.json
+            build/github-dependency-snapshot.json
+            build/github-public-deploy-dependency-submission.json
             deploy/braink-public/*READBACK*.json
             deploy/braink-public/*RECEIPT*.json
             /mnt/data/keddeh_deploy/resident_v5/KEDDEH_REGISTRAR_V5_EVIDENCE/BRAINK_PUBLIC_LAYER2_READBACK.json
