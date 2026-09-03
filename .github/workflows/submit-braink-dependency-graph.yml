@@ -1,0 +1,62 @@
+name: BRAINK Dependency Graph
+
+on:
+  push:
+    branches:
+      - build/service-supervisor-s1-host-survey
+    paths:
+      - '.braink/dependency-edges.json'
+      - 'scripts/braink_dependency_detector.py'
+      - 'enterprise/**'
+      - 'runtime/**'
+      - 'modules/**'
+      - 'kex/**'
+      - '.github/workflows/submit-braink-dependency-graph.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  detect-submit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout BRAINK
+        uses: actions/checkout@v6
+
+      - name: Checkout authority repository
+        uses: actions/checkout@v6
+        with:
+          repository: aboudykeddeh276-stack/SERVERS-KEDDEHSYSTEMS
+          path: dependencies/SERVERS-KEDDEHSYSTEMS
+
+      - name: Build BRAINK dependency graph and snapshot
+        run: python3 scripts/braink_dependency_detector.py
+
+      - name: Show graph cuts
+        if: always()
+        run: |
+          test -f reports/BRAINK_DEPENDENCY_GRAPH.json && cat reports/BRAINK_DEPENDENCY_GRAPH.json || true
+
+      - name: Submit dependency snapshot to GitHub
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          curl --fail-with-body -L \
+            -X POST \
+            -H 'Accept: application/vnd.github+json' \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H 'X-GitHub-Api-Version: 2026-03-10' \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/dependency-graph/snapshots" \
+            --data-binary @reports/BRAINK_DEPENDENCY_SNAPSHOT.json \
+            | tee reports/BRAINK_DEPENDENCY_SUBMISSION_RESPONSE.json
+
+      - name: Preserve dependency evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: braink-dependency-graph-${{ github.sha }}
+          path: |
+            reports/BRAINK_DEPENDENCY_GRAPH.json
+            reports/BRAINK_DEPENDENCY_SNAPSHOT.json
+            reports/BRAINK_DEPENDENCY_SUBMISSION_RESPONSE.json
