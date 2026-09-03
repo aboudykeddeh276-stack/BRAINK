@@ -234,6 +234,71 @@
       "promotion": "REJECTED_PENDING_TRANSPORT_EVIDENCE_AND_REMAINING_R24_GATES"
     }
   },
+  "r24_promotion_gate_surfaces": {
+    "publication_domain": {
+      "gate": "scripts/kex-ci/test_r24_publication_domain_gate.py",
+      "workflow_wired": true,
+      "promotion": "REJECTED_PENDING_EXECUTION_AND_REMAINING_R24_GATES"
+    },
+    "mail_runtime": {
+      "gate": "scripts/kex-ci/test_r24_mail_runtime_gate.py",
+      "reconciliation": "deployments/R24_MAIL_RUNTIME_GATE_RECONCILIATION_R1.json",
+      "receipt_root": "7c2d585b2e24619085a28a026f0983fa56ec8d16235bfdf6a9d13bab7f64ba97",
+      "workflow_wired": true,
+      "smtp_transport_delivery": "UNPROVEN",
+      "independent_mx_hop": "UNPROVEN",
+      "self_hosted_mail_server": "UNPROVEN",
+      "promotion": "REJECTED"
+    },
+    "customer_portal_privacy": {
+      "gate": "scripts/kex-ci/test_r24_customer_portal_privacy_gate.py",
+      "reconciliation": "deployments/R24_CUSTOMER_PORTAL_PRIVACY_GATE_RECONCILIATION_R1.json",
+      "workflow_wired": true,
+      "public_ingress": "UNPROVEN",
+      "tls_public_origin": "UNPROVEN",
+      "external_idp_roundtrip": "UNPROVEN",
+      "independent_verification": "PENDING",
+      "promotion": "REJECTED"
+    },
+    "owner_host_runtime": {
+      "gate": "scripts/kex-ci/test_r24_owner_host_runtime_gate.py",
+      "reconciliation": "deployments/R24_OWNER_HOST_RUNTIME_GATE_RECONCILIATION_R1.json",
+      "receipt_root": "0b8b74bbb93bc91362b24543d48482f7b2eec76430f497bdc981ed8416ff1f2e",
+      "workflow_wired": true,
+      "public_owner_host_ingress": "UNPROVEN",
+      "authoritative_dns_tls": "UNPROVEN",
+      "physical_multi_host": "UNPROVEN",
+      "promotion": "REJECTED"
+    },
+    "physical_multi_host": {
+      "gate": "scripts/kex-ci/test_r24_physical_multi_host_gate.py",
+      "reconciliation": "deployments/R24_PHYSICAL_MULTI_HOST_GATE_RECONCILIATION_R1.json",
+      "receipt_root": "0a70a90542b94d388d5d6fbec0c9f0291ca19a27adfa302afffa044740332376",
+      "workflow_wired": true,
+      "resident_mesh": "REUSED_NOT_REIMPLEMENTED",
+      "distinct_physical_hosts": "UNEXECUTED",
+      "physical_rollback_proof": "MISSING",
+      "independent_verification": "PENDING",
+      "promotion": "REJECTED"
+    }
+  },
+  "executor_boundary": {
+    "classification": "FAULT",
+    "state": "EXECUTOR_BOUNDARY_ZERO_STEPS",
+    "reconciliation": "deployments/R24_EXECUTOR_BOUNDARY_RECONCILIATION_R2.json",
+    "receipt_root": "2148301d4994f9a8d3657422d7df4d370901e21e4869fcf7016110b0375acc2a",
+    "repository_test_failure_observed": false,
+    "hosted_gate_execution_observed": false,
+    "specialist_execution": "QUEUED_OR_NOT_OBSERVED",
+    "implementation_patch_justified": false,
+    "promotion": "REJECTED"
+  },
+  "canonical_gate_state_reconciliation": {
+    "receipt": "deployments/R24_CANONICAL_GATE_STATE_RECONCILIATION_R1.json",
+    "receipt_root": "31e1686ade3304bb4c9079d436d5aadcbdc209461a553a3cbf8f4839f277cb71",
+    "classification": "STATE_DRIFT_RECONCILED",
+    "decision": "RECONCILE_CANONICAL_STATE_ONLY_DO_NOT_DUPLICATE_RUNTIME_CAPABILITY"
+  },
   "promotion_policy": {
     "no_completion_claim_without_readback": true,
     "no_release_without_rollback": true,
