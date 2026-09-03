@@ -1,0 +1,21 @@
+{
+  "schema": "braink.kex.research-claim-registry.v1",
+  "claims": [
+    {
+      "claim_id": "BRAINK_RESIDENT_GRAPH_CARRIER_INDEPENDENCE_R1",
+      "spec": "research/claims/resident_graph_carrier_independence.v1.json",
+      "state": "FORMALISED",
+      "current_evidence_level": 2,
+      "current_evidence_label": "IMPLEMENTATION_EXISTS",
+      "qualification_state": "EXECUTION_REQUIRED"
+    },
+    {
+      "claim_id": "BRAINK_LOGICAL_COMPUTER_HOST_INDEPENDENCE_R1",
+      "spec": "research/claims/logical_computer_host_independence.proposed.v1.json",
+      "state": "PROPOSED",
+      "current_evidence_level": 1,
+      "current_evidence_label": "FORMALISED",
+      "qualification_state": "IMPLEMENTATION_GAP_IDENTIFIED"
+    }
+  ]
+}
