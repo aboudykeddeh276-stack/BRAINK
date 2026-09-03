@@ -7,8 +7,10 @@ on:
       - 'enterprise/tls_authority_runtime.py'
       - 'enterprise/public_ca_adapter.py'
       - 'assets/public_tls_host_actuators/**'
+      - 'governance/**'
       - 'dependency-graph/**'
       - 'scripts/dependency_graph/**'
+      - 'tests/governance/**'
       - 'tests/integration/test_public_tls_host_actuators.py'
       - '.github/workflows/deploy-braink-public.yml'
 concurrency:
@@ -38,6 +40,33 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: Qualify governance control package
+        run: |
+          set -euo pipefail
+          python3 -m pytest -q tests/governance/test_control_skeleton.py
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          root=Path('assets/public_tls_host_actuators')
+          manifest=json.loads((root/'GOVERNANCE_MANIFEST.json').read_text())
+          required={
+            'CONTROL_INDEX.md','FILING_STANDARD.md','SCHEMA_STANDARD.md','AUTHORSHIP_AUTHORITY.md',
+            'PROCESS_CONTROL.md','WORKFLOW_CONTROL.md','OPERATIONS_RUNBOOK.md','CROSS_PLATFORM_CONTRACT.md',
+            'ACCOUNTABILITY_EVIDENCE.md','KEY_CONSIDERATIONS.md'
+          }
+          missing={name for name in required if not (root/name).is_file()}
+          assert not missing, f'missing governance controls: {sorted(missing)}'
+          assert set(manifest['documents']) == required
+          assert manifest['component_id'] == 'BRAINK_PUBLIC_TLS_HOST_ACTUATORS'
+          assert 'PUBLIC_TLS_VERIFIED' in manifest['promotion_states']
+          spec=json.loads(Path(manifest['governance_spec']).read_text())
+          assert spec['component_id'] == manifest['component_id']
+          assert spec['proof_conditions']
+          assert spec['rollback_requirements']
+          assert spec['cross_platform']['required_capabilities']
+          print('governance-control-admission: PASS')
+          PY
 
       - name: Checkout resident server authority dependency
         uses: actions/checkout@v4
@@ -170,8 +199,10 @@ jobs:
             assets/public_tls_host_actuators/server_tls_actuator.py \
             assets/public_tls_host_actuators/rollback_server_tls.py \
             assets/public_tls_host_actuators/resolve_host_bindings.py \
-            assets/public_tls_host_actuators/install_launchers.py
+            assets/public_tls_host_actuators/install_launchers.py \
+            governance/control_skeleton/generate_governance.py
           python3 -m pytest -q \
+            tests/governance/test_control_skeleton.py \
             tests/integration/test_tls_authority_runtime.py \
             tests/integration/test_public_ca_adapter.py \
             tests/integration/test_public_tls_host_actuators.py
@@ -191,6 +222,8 @@ jobs:
             build/braink-semantic-dependency-graph.json
             build/github-dependency-snapshot.json
             build/github-public-deploy-dependency-submission.json
+            assets/public_tls_host_actuators/GOVERNANCE_MANIFEST.json
+            governance/specs/public_tls_host_actuators.v1.json
             deploy/braink-public/*READBACK*.json
             deploy/braink-public/*RECEIPT*.json
             /mnt/data/keddeh_deploy/resident_v5/KEDDEH_REGISTRAR_V5_EVIDENCE/BRAINK_PUBLIC_LAYER2_READBACK.json
