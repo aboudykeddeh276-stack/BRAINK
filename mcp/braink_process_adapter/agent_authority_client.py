@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from .backend import BrainkProcessBackend
+from .function_contracts import FUNCTION_CONTRACTS, manifest as function_manifest, validate_payload
 
 
 class AgentAuthorityError(RuntimeError):
@@ -23,11 +24,12 @@ class ResolvedCapability:
 
 
 class BRAINKAgentAuthorityClient:
-    """Agent-side adapter derived from the tested R6 enterprise execution path.
+    """Agent-side adapter derived from the tested enterprise execution path.
 
-    It deliberately has no raw mutation methods. Every invocation resolves the
-    live capability manifest first, checks the caller context against the contract,
-    and then calls the backend's authoritative invoke_capability() path.
+    Typed function contracts are projections over the live governed capability
+    manifest. They validate arguments, but they never replace authority checks or
+    call resident mutators directly. Every invocation still enters
+    backend.invoke_capability().
     """
 
     def __init__(self, backend: BrainkProcessBackend):
@@ -54,10 +56,16 @@ class BRAINKAgentAuthorityClient:
         self._manifest = manifest
         return [manifest[key] for key in sorted(manifest)]
 
+    def function_manifest(self) -> list[dict[str, Any]]:
+        """Return typed agent-call contracts derived from live capability authority."""
+        return function_manifest(self.backend.capability_manifest())
+
     def resolve(self, capability_id: str) -> ResolvedCapability:
         cap = self._manifest.get(capability_id)
         if cap is None:
             raise AgentAuthorityError(f"CAPABILITY_NOT_DISCOVERED:{capability_id}")
+        if capability_id not in FUNCTION_CONTRACTS:
+            raise AgentAuthorityError(f"FUNCTION_CONTRACT_NOT_DISCOVERED:{capability_id}")
         return cap
 
     def invoke(
@@ -73,6 +81,7 @@ class BRAINKAgentAuthorityClient:
         idempotency_key: str | None = None,
     ) -> dict[str, Any]:
         cap = self.resolve(capability_id)
+        normalized_payload = validate_payload(capability_id, payload)
         supplied = set(scopes)
         missing = sorted(set(cap.required_scopes) - supplied)
         if missing:
@@ -89,10 +98,11 @@ class BRAINKAgentAuthorityClient:
             "scopes": sorted(supplied),
             "approval_token": approval_token,
         }
-        result = self.backend.invoke_capability(capability_id, context, payload, idempotency_key)
+        result = self.backend.invoke_capability(capability_id, context, normalized_payload, idempotency_key)
         if not isinstance(result, dict):
             raise AgentAuthorityError("CAPABILITY_RESULT_NOT_STRUCTURED")
         return {
+            "function_name": FUNCTION_CONTRACTS[capability_id].function_name,
             "contract": {
                 "capability_id": cap.capability_id,
                 "sector": cap.sector,
@@ -104,6 +114,7 @@ class BRAINKAgentAuthorityClient:
                 "requires_approval": cap.requires_approval,
             },
             "context": context,
+            "payload": normalized_payload,
             "result": result,
         }
 
