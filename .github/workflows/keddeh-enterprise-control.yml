@@ -82,6 +82,8 @@ jobs:
         run: python scripts/kex-ci/test_agent_function_actual_process_r7.py
       - name: Execute R24 publication/domain promotion gate
         run: python scripts/kex-ci/test_r24_publication_domain_gate.py
+      - name: Execute R24 customer portal/privacy promotion gate
+        run: python scripts/kex-ci/test_r24_customer_portal_privacy_gate.py
 
   specialist:
     if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.use_self_hosted) }}
@@ -113,3 +115,5 @@ jobs:
         run: python3 scripts/kex-ci/test_agent_function_actual_process_r7.py
       - name: Execute R24 publication/domain promotion gate
         run: python3 scripts/kex-ci/test_r24_publication_domain_gate.py
+      - name: Execute R24 customer portal/privacy promotion gate
+        run: python3 scripts/kex-ci/test_r24_customer_portal_privacy_gate.py
