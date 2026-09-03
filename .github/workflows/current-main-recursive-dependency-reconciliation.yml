@@ -31,18 +31,23 @@ permissions:
 
 jobs:
   qualify:
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
+    runs-on:
+      - self-hosted
+      - kex
+      - cascade
+      - hyperk0
+      - warmboot
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.13'
-      - name: Install qualification dependency
-        run: python -m pip install --disable-pip-version-check pytest
+      - name: Verify resident runtime dependencies
+        run: |
+          python3 --version
+          python3 -c "import fcntl, sqlite3, hashlib, json; print('stdlib-runtime-dependencies: PASS')"
+          python3 -c "import pytest; print('pytest:', pytest.__version__)"
       - name: Compile reconciled dependency chain
         run: |
-          python -m py_compile \
+          python3 -m py_compile \
             enterprise/continuation_runtime.py \
             enterprise/substrate_adapters.py \
             enterprise/self_addressing_runtime.py \
@@ -50,10 +55,10 @@ jobs:
             enterprise/recursive_computer_runtime_r26.py \
             enterprise/state_ledger_atomicity_r31.py
       - name: Recursive computer core
-        run: python -m pytest -q tests/R26/test_recursive_computer_runtime_r26.py
+        run: python3 -m pytest -q tests/R26/test_recursive_computer_runtime_r26.py
       - name: Process adversarial persistence
-        run: python -m pytest -q tests/R26/test_recursive_process_adversarial_r26.py
+        run: python3 -m pytest -q tests/R26/test_recursive_process_adversarial_r26.py
       - name: Ledger integrity
-        run: python -m pytest -q tests/R26/test_ledger_integrity_r30.py
+        run: python3 -m pytest -q tests/R26/test_ledger_integrity_r30.py
       - name: State-ledger atomicity
-        run: python -m pytest -q tests/R31/test_state_ledger_atomicity_r31.py
+        run: python3 -m pytest -q tests/R31/test_state_ledger_atomicity_r31.py
