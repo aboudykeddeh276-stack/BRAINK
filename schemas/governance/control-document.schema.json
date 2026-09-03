@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://braink.local/schemas/governance/control-document.r16.json",
+  "title": "BRAINK Governance Control Document R16",
+  "type": "object",
+  "required": ["schema","unit","governance","controls","artifacts"],
+  "properties": {
+    "schema": {"const": "braink.governance.r16"},
+    "unit": {"type":"object","required":["unit_id","kind","name","sector","owner","author","authority","purpose","runtime_boundary","proof_condition","platform_contract"],"properties":{"unit_id":{"type":"string","minLength":1},"kind":{"enum":["SECTOR","MODULE","FUNCTION","SERVICE","AGENT","DOMAIN","RUNTIME","WORKFLOW","CONTROL"]},"name":{"type":"string","minLength":1},"sector":{"type":"string","minLength":1},"owner":{"type":"string","minLength":1},"author":{"type":"string","minLength":1},"authority":{"type":"string","minLength":1},"purpose":{"type":"string","minLength":1},"runtime_boundary":{"type":"string","minLength":1},"proof_condition":{"type":"string","minLength":1},"platform_contract":{"type":"array","minItems":1,"items":{"type":"string"}},"parent_unit_id":{"type":["string","null"]}},"additionalProperties":false},
+    "governance":{"type":"object"},"controls":{"type":"object"},"artifacts":{"type":"object"},"created_at":{"type":"string"}
+  },
+  "additionalProperties": false
+}
