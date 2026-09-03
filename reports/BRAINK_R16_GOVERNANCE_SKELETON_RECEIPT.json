@@ -1,0 +1,20 @@
+{
+  "schema": "braink.governance.skeleton.r16.receipt",
+  "proof_unit": "BRAINK-INFRA-SERVICE-FABRIC-R16",
+  "checks": {
+    "CONTROL.md": true,
+    "PROCESS.md": true,
+    "WORKFLOW.md": true,
+    "RUNBOOK.md": true,
+    "ADMIN.md": true,
+    "HELP.md": true,
+    "ACCOUNTABILITY.md": true,
+    "ADAPTATION.md": true,
+    "unit.control.json": true,
+    "MANIFEST.sha256.json": true,
+    "schema_match": true,
+    "platforms_present": true
+  },
+  "platforms": ["linux","macos","workbook","web"],
+  "status": "PASS"
+}
