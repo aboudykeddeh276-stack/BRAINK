@@ -8,6 +8,7 @@ on:
       - 'enterprise/**'
       - 'runtime/**'
       - 'modules/kex_core/**'
+      - 'deploy/braink-public/**'
       - 'dependency-graph/**'
       - 'scripts/dependency_graph/**'
       - 'governance/system_interface_inventory_r1.json'
@@ -20,6 +21,7 @@ on:
       - 'enterprise/**'
       - 'runtime/**'
       - 'modules/kex_core/**'
+      - 'deploy/braink-public/**'
       - 'dependency-graph/**'
       - 'scripts/dependency_graph/**'
       - 'governance/system_interface_inventory_r1.json'
@@ -58,13 +60,21 @@ jobs:
           python3 - <<'PY'
           import json
           from pathlib import Path
-          graph = json.loads(Path('build/braink-semantic-dependency-graph.json').read_text())
-          required = {'MODULE_DEPENDENCY','REPOSITORY_DEPENDENCY','RUNTIME_AUTHORITY_DEPENDENCY'}
-          observed = set(graph['summary']['by_class'])
-          missing = required - observed
-          if missing:
-              raise SystemExit(f'DEPENDENCY_GRAPH_INCOMPLETE:{sorted(missing)}')
-          print('dependency-graph-admission: PASS', graph['summary'])
+          graph=json.loads(Path('build/braink-semantic-dependency-graph.json').read_text())
+          required={'MODULE_DEPENDENCY','REPOSITORY_DEPENDENCY','RUNTIME_AUTHORITY_DEPENDENCY'}
+          missing=required-set(graph['summary']['by_class'])
+          if missing: raise SystemExit(f'DEPENDENCY_GRAPH_INCOMPLETE:{sorted(missing)}')
+          required_targets={
+              'runtime://acme/certbot',
+              'runtime://domain/public-dns-challenge-auth-hook',
+              'runtime://server/tls-install-hook',
+              'runtime://server/tls-rollback-hook',
+              'runtime://tls/system-public-trust-store',
+          }
+          observed={e['target'] for e in graph['edges']}
+          absent=required_targets-observed
+          if absent: raise SystemExit(f'PUBLIC_TLS_DEPENDENCY_GRAPH_INCOMPLETE:{sorted(absent)}')
+          print('dependency-graph-admission: PASS',graph['summary'])
           PY
 
       - name: Resolve resident BRAINK KEX roots before carrier tests
@@ -76,9 +86,9 @@ jobs:
           g=json.load(open('build/resident-root-graph.json'))
           required=('BRAINK_ROOT','DOMAIN_ROOT','DNS_ROOT','REGISTRAR_ROOT','TLS_ROOT','SERVER_ROOT','CLOUD_ROOT')
           for rid in required:
-              assert g['roots'][rid]['payload']['state']=='BOUND', (rid,g['roots'][rid]['payload']['state'])
-              assert g['roots'][rid]['payload']['implementation_exists'] is True, rid
-          print('resident-root-admission: PASS', g['graph_digest'])
+              assert g['roots'][rid]['payload']['state']=='BOUND',(rid,g['roots'][rid]['payload']['state'])
+              assert g['roots'][rid]['payload']['implementation_exists'] is True,rid
+          print('resident-root-admission: PASS',g['graph_digest'])
           PY
 
       - name: Verify resident runtime dependencies
@@ -86,11 +96,13 @@ jobs:
         run: |
           python3 --version
           openssl version
-          python3 -c "import fcntl, sqlite3, hashlib, json, socket, struct, ssl; print('stdlib-runtime-dependencies: PASS')"
-          python3 -c "import pytest; print('pytest:', pytest.__version__)"
+          python3 -c "import fcntl,sqlite3,hashlib,json,socket,struct,ssl; print('stdlib-runtime-dependencies: PASS')"
+          python3 -c "import pytest; print('pytest:',pytest.__version__)"
           test -f dependencies/SERVERS-KEDDEHSYSTEMS/runtime/domain_authority/kex_registrar_service.py
           test -f dependencies/SERVERS-KEDDEHSYSTEMS/runtime/domain_authority/kex_dns.py
           test -f enterprise/tls_authority_runtime.py
+          test -f enterprise/public_ca_adapter.py
+          test -f deploy/braink-public/provision_public_tls.py
 
       - name: Compile reconciled dependency chain
         working-directory: BRAINK
@@ -100,6 +112,7 @@ jobs:
             enterprise/resident_root_runtime.py \
             enterprise/remote_fabric_node.py \
             enterprise/tls_authority_runtime.py \
+            enterprise/public_ca_adapter.py \
             enterprise/continuation_runtime.py \
             enterprise/substrate_adapters.py \
             enterprise/self_addressing_runtime.py \
@@ -108,14 +121,19 @@ jobs:
             enterprise/recursive_computer_runtime_r26.py \
             enterprise/state_ledger_atomicity_r31.py \
             enterprise/domain_authority_binding.py \
+            deploy/braink-public/provision_public_tls.py \
+            deploy/braink-public/deploy_live.py \
             scripts/dependency_graph/braink_dependency_detector.py
 
       - name: Resident root authority and carrier invariance
         working-directory: BRAINK
         run: python3 -m pytest -q tests/integration/test_resident_root_runtime.py
-      - name: Resident TLS authority, renewal, readback and handshake
+      - name: Resident TLS authority renewal readback and handshake
         working-directory: BRAINK
         run: python3 -m pytest -q tests/integration/test_tls_authority_runtime.py
+      - name: Public CA adapter boundary qualification
+        working-directory: BRAINK
+        run: python3 -m pytest -q tests/integration/test_public_ca_adapter.py
       - name: Recursive computer core
         working-directory: BRAINK
         run: python3 -m pytest -q tests/R26/test_recursive_computer_runtime_r26.py
