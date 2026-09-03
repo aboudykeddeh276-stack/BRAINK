@@ -1,0 +1,50 @@
+{
+  "schema": "braink.r24.foundry-family-gate-reconciliation/v1",
+  "transition": "R22_R23_FOUNDRY_FAMILY_R24_GATE",
+  "classification": "STATE_DRIFT",
+  "governing_baseline": "R24_ENGINEERING_CONTROL",
+  "discovery": {
+    "resident_invariants": [
+      "scripts/kex-ci/test_foundry_operational_r22.py",
+      "scripts/kex-ci/test_foundry_operations_r22.py",
+      "scripts/kex-ci/test_foundry_closure_r23.py"
+    ],
+    "resident_runtime_reused": [
+      "enterprise/foundry_operations_r22.py",
+      "enterprise/foundry_closure_r23.py"
+    ],
+    "duplicate_capability_created": false
+  },
+  "architecture_decision": {
+    "id": "ADR-R24-R22-R23-FOUNDRY-FAMILY-GATE-001",
+    "decision": "REUSE_RESIDENT_R22_R23_FOUNDRY_MECHANICS_AND_FAIL_CLOSED_UNDER_R24"
+  },
+  "implementation": {
+    "gate": "scripts/kex-ci/test_r24_foundry_family_gate.py",
+    "gate_commit": "e9d7092d9a9fad6a447913153b4740645a9ab7ae",
+    "workflow": ".github/workflows/keddeh-enterprise-control.yml",
+    "workflow_commit": "7877ffc138f825bb6bf1a399e70dc1fd4b014deb",
+    "hosted_and_specialist_wired": true
+  },
+  "validation": {
+    "static_compile_local": "PASS_GATE_SOURCE_ONLY",
+    "resident_invariant_execution_local": "BLOCKED_CONTAINER_DNS_GITHUB_CLONE",
+    "hosted_workflow_run": 33806525877,
+    "hosted_workflow_state_at_readback": "QUEUED",
+    "post_change_gate_execution": "NOT_OBSERVED"
+  },
+  "r24_gate_boundary": {
+    "promotion": "REJECTED_PENDING_EXECUTION_AND_REMAINING_R24_GATES",
+    "fault_injection": "MISSING_DEDICATED_FOUNDRY_FAULT_INJECTION",
+    "rollback_readiness": "MISSING",
+    "independent_verification": "PENDING",
+    "quality_gate": "INCOMPLETE_BY_DESIGN",
+    "security_gate": "INCOMPLETE_BY_DESIGN",
+    "market_readiness": "ENGINEERING_ONLY_EXPECTED_ON_EXECUTION"
+  },
+  "canonical_state": {
+    "status": "STATE_DRIFT_PENDING_CANONICAL_ENUMERATION",
+    "reason": "new foundry-family gate is wired but deployments/R24_ENGINEERING_CONTROL_STATE.json does not yet enumerate it as a first-class promotion surface"
+  },
+  "receipt_root": "2b3da525799ea5c6e10a124a98333457529b957e3d87a29b4227f64f53f69936"
+}
