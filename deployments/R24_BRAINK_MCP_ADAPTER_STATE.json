@@ -1,0 +1,45 @@
+{
+  "schema": "braink.r24.mcp-adapter-state/v1",
+  "status": "IMPLEMENTED_SOURCE_CI_WIRED_LOCAL_EXECUTION_PASS_NOT_PROMOTED",
+  "governance": "BRAINK_R24_ENGINEERING_CONTROL",
+  "resident_process": "enterprise/foundry_closure_r23.py",
+  "adapter": "enterprise/mcp/r23_adapter.py",
+  "server": "enterprise/mcp/server.py",
+  "invariant": "scripts/kex-ci/test_braink_mcp_r24.py",
+  "receipt": "deployments/R24_BRAINK_MCP_ADAPTER_RECEIPT_R1.json",
+  "receipt_root": "3843f1edaa3511b28110dd459eed068a545b00c04daefbff105b404e5eec4c10",
+  "transport": "STDIO_JSON_RPC_MCP",
+  "tools": [
+    "braink_r23_state",
+    "braink_r23_operate",
+    "braink_r23_receipt",
+    "braink_r23_list_descendants"
+  ],
+  "observed": {
+    "compileall": "PASS",
+    "mcp_initialize": "PASS",
+    "tool_discovery": "PASS",
+    "resident_customer_file_mutation": "PASS",
+    "receipt_readback": "PASS",
+    "descendant_traversal": "PASS",
+    "domain_actuator_blocker_propagation": "PASS",
+    "unexposed_action_rejection": "PASS",
+    "bounded_state_privacy": "PASS",
+    "durable_state_readback": "PASS",
+    "marker": "R24_BRAINK_MCP_ADAPTER_PASS",
+    "exit_code": 0
+  },
+  "boundaries": {
+    "hosted_chatgpt_mcp_connection": "UNPROVEN",
+    "codex_mcp_connection": "UNPROVEN",
+    "responses_api_mcp_connection": "UNPROVEN",
+    "public_http_transport": "NOT_IMPLEMENTED",
+    "independent_verification": "PENDING",
+    "full_quality_gate": "PENDING",
+    "full_security_gate": "PENDING",
+    "release_manifest": "PENDING",
+    "market_readiness": "PENDING",
+    "promotion": "REJECTED_PENDING_REMAINING_R24_GATES"
+  },
+  "next_transition": "BIND_R24_ENGINEERING_CONTROL_AND_RESIDENT_PROCESS_SUPERVISOR_AS_ADDITIONAL_TYPED_TOOLS"
+}
