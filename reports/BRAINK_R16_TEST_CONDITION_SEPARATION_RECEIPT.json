@@ -1,0 +1,53 @@
+{
+  "test_case": {
+    "schema": "braink.test-condition.r16",
+    "mode": "TEST",
+    "operation": "PUBLIC_DNS_RDAP_TLS_HTTPS_OBSERVATION",
+    "executed": true,
+    "blocked_by": [],
+    "observations": [
+      {
+        "layer": "AUTHORITY",
+        "production_effect": "BLOCK",
+        "test_effect": "OBSERVE_ONLY",
+        "reason": "Authority is not a prerequisite for exercising a testing condition."
+      },
+      {
+        "layer": "SECURITY",
+        "production_effect": "BLOCK",
+        "test_effect": "OBSERVE_ONLY",
+        "reason": "Security policy is a separate production-control plane from test execution."
+      }
+    ],
+    "promotion_rule": "TEST_PASS_PROVES_TEST_BEHAVIOR_ONLY; PRODUCTION_AUTHORITY_AND_SECURITY_REQUIRE_SEPARATE_PROOF"
+  },
+  "production_control_case": {
+    "schema": "braink.test-condition.r16",
+    "mode": "PRODUCTION",
+    "operation": "PUBLIC_DNS_RDAP_TLS_HTTPS_OBSERVATION",
+    "executed": false,
+    "blocked_by": ["AUTHORITY", "SECURITY"],
+    "observations": [
+      {
+        "layer": "AUTHORITY",
+        "production_effect": "BLOCK",
+        "test_effect": "OBSERVE_ONLY",
+        "reason": "Authority is not a prerequisite for exercising a testing condition."
+      },
+      {
+        "layer": "SECURITY",
+        "production_effect": "BLOCK",
+        "test_effect": "OBSERVE_ONLY",
+        "reason": "Security policy is a separate production-control plane from test execution."
+      }
+    ],
+    "promotion_rule": "TEST_PASS_PROVES_TEST_BEHAVIOR_ONLY; PRODUCTION_AUTHORITY_AND_SECURITY_REQUIRE_SEPARATE_PROOF"
+  },
+  "checks": {
+    "test_executes_without_authority": true,
+    "test_executes_despite_security_gate": true,
+    "production_still_blocks_without_authority_security": true,
+    "planes_separated": true
+  },
+  "status": "PASS"
+}
