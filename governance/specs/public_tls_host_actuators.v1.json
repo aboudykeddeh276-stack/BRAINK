@@ -1,0 +1,77 @@
+{
+  "schema": "kex.braink.governance-component-spec.v1",
+  "component_id": "BRAINK_PUBLIC_TLS_HOST_ACTUATORS",
+  "display_name": "BRAINK Public TLS Host Actuators",
+  "classification": "RUNTIME_AUTHORITY_ADAPTER_ASSET",
+  "repository": "aboudykeddeh276-stack/BRAINK",
+  "sector": "DOMAIN_TLS_SERVER_AUTHORITY",
+  "source_paths": [
+    "assets/public_tls_host_actuators",
+    "enterprise/public_ca_adapter.py",
+    "enterprise/tls_authority_runtime.py",
+    "deploy/braink-public"
+  ],
+  "substrate_boundary": "resident registrar SQLite + resident server certificate loader + host TLS/network runtime",
+  "state_class": "resident authority state + public issuance state + server binding state",
+  "persistence_class": "SQLite/WAL + filesystem certificate state + append-only/unique receipts",
+  "address_space": "DOMAIN_ROOT/DNS_ROOT/TLS_ROOT/SERVER_ROOT plus DNS names and host binding paths",
+  "communication_mechanisms": ["Python module interface", "SQLite transaction", "DNS wire protocol", "ACME", "TCP", "TLS"],
+  "virtualisation_type": "semantic identity and authority indirection over replaceable carrier/substrate adapters",
+  "authority": {
+    "owner": "BRAINK",
+    "mutation_authority": "PUBLIC_DOMAIN_AUTHORITY + PUBLIC_CA_AUTHORITY + SERVER_ROOT scoped adapters",
+    "external_authorities": ["PUBLIC_CA_AUTHORITY", "HOST_OS", "HOST_FILESYSTEM", "HOST_TLS_RUNTIME"]
+  },
+  "interfaces": [
+    {"name": "DNS01_PUBLISH", "producer": "PublicCAAdapter", "consumer": "DNS01ResidentActuator", "contract": "publish and read back exact _acme-challenge TXT under owned zone"},
+    {"name": "DNS01_CLEANUP", "producer": "PublicCAAdapter", "consumer": "DNS01ResidentActuator", "contract": "remove exact challenge and read back absence"},
+    {"name": "PUBLIC_CA_ISSUE", "producer": "PublicCAAdapter", "consumer": "ACME client/public CA", "contract": "SAN-bound CSR to verified certificate material"},
+    {"name": "SERVER_TLS_INSTALL", "producer": "PublicTLSProvisioner", "consumer": "ServerTLSActuator", "contract": "atomic install restart and live fingerprint readback"},
+    {"name": "SERVER_TLS_ROLLBACK", "producer": "PublicTLSProvisioner", "consumer": "RollbackServerTLS", "contract": "restore pre-state restart and verify"},
+    {"name": "PUBLIC_TLS_READBACK", "producer": "SERVER_ROOT", "consumer": "external TLS client", "contract": "hostname and system-trust verification"}
+  ],
+  "dependencies": [
+    {"target": "repository://aboudykeddeh276-stack/SERVERS-KEDDEHSYSTEMS", "class": "REPOSITORY_DEPENDENCY", "required": true},
+    {"target": "enterprise/tls_authority_runtime.py", "class": "MODULE_DEPENDENCY", "required": true},
+    {"target": "enterprise/public_ca_adapter.py", "class": "MODULE_DEPENDENCY", "required": true},
+    {"target": "runtime://acme/certbot", "class": "RUNTIME_AUTHORITY_DEPENDENCY", "required": true},
+    {"target": "runtime://python/sqlite3", "class": "RUNTIME_AUTHORITY_DEPENDENCY", "required": true},
+    {"target": "runtime://python/ssl", "class": "RUNTIME_AUTHORITY_DEPENDENCY", "required": true},
+    {"target": "runtime://filesystem/fsync-replace", "class": "RUNTIME_AUTHORITY_DEPENDENCY", "required": true}
+  ],
+  "proof_conditions": [
+    "exact deployment SHA dependency snapshot accepted by GitHub",
+    "host bindings resolved without ambiguity",
+    "DNS-01 TXT mutation and cleanup read back through registrar authority",
+    "public CA returned key/certificate/chain material validates",
+    "live SERVER_ROOT presents installed certificate fingerprint",
+    "external hostname and system trust verification succeeds"
+  ],
+  "rollback_requirements": [
+    "snapshot existing server certificate/key before install",
+    "reverse partial server mutations in reverse order",
+    "restart resident fabric after rollback",
+    "read back restored server certificate state",
+    "clean DNS challenge state"
+  ],
+  "promotion_states": ["DISCOVERED", "BOUND", "DEPENDENCIES_ADMITTED", "QUALIFIED", "CHALLENGE_PUBLISHED", "ISSUED", "SERVER_BOUND", "PUBLIC_TLS_VERIFIED", "ROLLED_BACK", "BLOCKED"],
+  "invalid_claims": [
+    "localhost HTTPS proves public TLS",
+    "queued workflow proves external execution",
+    "certificate file creation proves SERVER_ROOT consumption",
+    "local CA test issuance proves public CA trust",
+    "dependency snapshot generation without GitHub acceptance proves dependency admission"
+  ],
+  "cross_platform": {
+    "required_capabilities": ["Python 3", "SQLite", "TLS client", "atomic file replacement", "process/service restart", "ACME client or adapter"],
+    "platform_specific_adapters": ["POSIX/Linux filesystem+process adapter", "macOS service/path adapter", "Windows service/filesystem adapter", "container/VM namespace adapter", "cloud/provider API adapter"]
+  },
+  "evidence": {
+    "root": "/mnt/data/keddeh_deploy/resident_v5/KEDDEH_REGISTRAR_V5_EVIDENCE",
+    "receipt_schemas": ["kex.braink.host-actuator-discovery.v1", "kex.braink.host-actuator-bindings.v1", "kex.braink.dns01-actuator-receipt.v1", "kex.braink.server-tls-install-receipt.v1", "kex.braink.server-tls-rollback-receipt.v1", "kex.braink.public-ca-receipt.v1", "kex.braink.public-tls-deployment-receipt.v1"]
+  },
+  "administration": {
+    "operators": ["BRAINK deployment workflow", "authorized resident host administrator"],
+    "required_runbooks": ["assets/public_tls_host_actuators/OPERATIONS_RUNBOOK.md"]
+  }
+}
