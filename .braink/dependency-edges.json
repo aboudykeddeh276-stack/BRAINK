@@ -1,5 +1,6 @@
 {
   "schema": "braink.dependency-edges.v1",
+  "control_revision": "R1-trigger-2026-09-03",
   "edge_classes": [
     "PACKAGE_DEPENDENCY",
     "MODULE_DEPENDENCY",
@@ -21,6 +22,7 @@
       "class": "RUNTIME_AUTHORITY_DEPENDENCY",
       "relationship": "direct",
       "scope": "runtime",
+      "checkout_path": "dependencies/SERVERS-KEDDEHSYSTEMS",
       "required_paths": [
         "runtime/domain_authority/kex_registrar_service.py",
         "runtime/domain_authority/kex_dns.py"
