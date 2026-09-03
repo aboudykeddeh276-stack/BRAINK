@@ -1,0 +1,274 @@
+name: Independent BRAINK Remote Fabric Node
+
+on:
+  push:
+    branches:
+      - reconcile/current-main-unification-r1
+    paths:
+      - 'enterprise/remote_fabric_node.py'
+      - '.github/workflows/independent-remote-fabric-node.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  remote-host:
+    name: Independent public BRAINK host
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+
+      - name: Verify independent host substrate
+        run: |
+          set -euo pipefail
+          uname -a
+          hostname
+          python3 --version
+          openssl version
+          test -r /etc/machine-id
+          printf 'runner=%s\narch=%s\n' "$RUNNER_NAME" "$RUNNER_ARCH"
+
+      - name: Generate ephemeral remote host identity key
+        run: |
+          set -euo pipefail
+          mkdir -p build/remote-fabric
+          openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:3072 -out build/remote-fabric/host-private.pem
+          openssl pkey -in build/remote-fabric/host-private.pem -pubout -out build/remote-fabric/host-public.pem
+          chmod 600 build/remote-fabric/host-private.pem
+          sha256sum build/remote-fabric/host-public.pem | tee build/remote-fabric/host-public.sha256
+
+      - name: Start BRAINK remote machine interface
+        run: |
+          set -euo pipefail
+          python3 enterprise/remote_fabric_node.py \
+            --host 127.0.0.1 \
+            --port 8787 \
+            --commit "$GITHUB_SHA" \
+            --run-id "$GITHUB_RUN_ID" \
+            --private-key build/remote-fabric/host-private.pem \
+            --public-key build/remote-fabric/host-public.pem \
+            --receipts build/remote-fabric/join-receipts.jsonl \
+            > build/remote-fabric/node.log 2>&1 &
+          echo $! > build/remote-fabric/node.pid
+          for i in $(seq 1 30); do
+            python3 - <<'PY' && exit 0 || true
+          import urllib.request
+          with urllib.request.urlopen('http://127.0.0.1:8787/health', timeout=2) as r:
+              assert r.status == 200
+          PY
+            sleep 1
+          done
+          cat build/remote-fabric/node.log
+          exit 1
+
+      - name: Expose independent host through public carrier
+        run: |
+          set -euo pipefail
+          curl -L --fail --silent --show-error \
+            -o build/remote-fabric/cloudflared \
+            https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64
+          chmod +x build/remote-fabric/cloudflared
+          build/remote-fabric/cloudflared tunnel \
+            --no-autoupdate \
+            --url http://127.0.0.1:8787 \
+            > build/remote-fabric/tunnel.log 2>&1 &
+          echo $! > build/remote-fabric/tunnel.pid
+          endpoint=''
+          for i in $(seq 1 60); do
+            endpoint=$(grep -Eo 'https://[-a-z0-9]+\.trycloudflare\.com' build/remote-fabric/tunnel.log | tail -1 || true)
+            if [ -n "$endpoint" ]; then break; fi
+            sleep 1
+          done
+          test -n "$endpoint"
+          echo "$endpoint" | tee build/remote-fabric/public-endpoint.txt
+          ENDPOINT="$endpoint" python3 - <<'PY'
+          import json, os, time, urllib.request
+          endpoint = os.environ['ENDPOINT']
+          for _ in range(30):
+              try:
+                  with urllib.request.urlopen(endpoint + '/identity', timeout=4) as r:
+                      data = json.load(r)
+                  assert data['commit_sha'] == os.environ['GITHUB_SHA']
+                  print(json.dumps(data, sort_keys=True))
+                  break
+              except Exception:
+                  time.sleep(2)
+          else:
+              raise SystemExit('PUBLIC_IDENTITY_READBACK_FAILED')
+          PY
+
+      - name: Publish machine rendezvous for existing fabric
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RENDEZVOUS_ISSUE: '66'
+        run: |
+          set -euo pipefail
+          endpoint=$(cat build/remote-fabric/public-endpoint.txt)
+          identity=$(python3 - <<'PY'
+          import json, urllib.request
+          endpoint=open('build/remote-fabric/public-endpoint.txt').read().strip()
+          with urllib.request.urlopen(endpoint + '/identity', timeout=5) as r:
+              d=json.load(r)
+          print(json.dumps({k:d[k] for k in ('node_id','commit_sha','run_id','public_key_sha256')}, separators=(',',':')))
+          PY
+          )
+          body="BRAINK_REMOTE_RENDEZVOUS run_id=${GITHUB_RUN_ID} endpoint=${endpoint} identity=${identity}"
+          curl --fail-with-body --silent --show-error \
+            -X POST \
+            -H 'Accept: application/vnd.github+json' \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H 'X-GitHub-Api-Version: 2022-11-28' \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/issues/${RENDEZVOUS_ISSUE}/comments" \
+            -d "$(python3 -c 'import json,sys; print(json.dumps({"body":sys.argv[1]}))' "$body")" \
+            | tee build/remote-fabric/rendezvous-comment-response.json
+
+      - name: Hold independent machine until fabric joins
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RENDEZVOUS_ISSUE: '66'
+        run: |
+          set -euo pipefail
+          for i in $(seq 1 120); do
+            joined=$(python3 - <<'PY'
+          import json, os, urllib.request
+          req=urllib.request.Request(
+              f"https://api.github.com/repos/{os.environ['GITHUB_REPOSITORY']}/issues/{os.environ['RENDEZVOUS_ISSUE']}/comments?per_page=100",
+              headers={'Authorization':'Bearer '+os.environ['GH_TOKEN'], 'Accept':'application/vnd.github+json'})
+          with urllib.request.urlopen(req, timeout=10) as r: comments=json.load(r)
+          marker=f"BRAINK_FABRIC_JOINED run_id={os.environ['GITHUB_RUN_ID']}"
+          print('1' if any(marker in c.get('body','') for c in comments) else '')
+          PY
+          )
+            if [ "$joined" = '1' ]; then
+              echo 'fabric join readback observed'
+              cat build/remote-fabric/join-receipts.jsonl
+              exit 0
+            fi
+            python3 - <<'PY'
+          import json, urllib.request
+          endpoint=open('build/remote-fabric/public-endpoint.txt').read().strip()
+          with urllib.request.urlopen(endpoint + '/health', timeout=4) as r:
+              d=json.load(r)
+          assert d['status']=='OK'
+          PY
+            sleep 5
+          done
+          echo 'FABRIC_JOIN_TIMEOUT'
+          exit 1
+
+  fabric-join:
+    name: Existing KEX fabric joins independent host
+    runs-on:
+      - self-hosted
+      - kex
+      - cascade
+      - hyperk0
+      - warmboot
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+
+      - name: Verify existing fabric substrate
+        run: |
+          set -euo pipefail
+          python3 --version
+          openssl version
+          hostname
+          mkdir -p build/fabric-join
+
+      - name: Resolve remote rendezvous
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RENDEZVOUS_ISSUE: '66'
+        run: |
+          set -euo pipefail
+          for i in $(seq 1 120); do
+            python3 - <<'PY' > build/fabric-join/rendezvous.json || true
+          import json, os, re, urllib.request
+          req=urllib.request.Request(
+              f"https://api.github.com/repos/{os.environ['GITHUB_REPOSITORY']}/issues/{os.environ['RENDEZVOUS_ISSUE']}/comments?per_page=100",
+              headers={'Authorization':'Bearer '+os.environ['GH_TOKEN'], 'Accept':'application/vnd.github+json'})
+          with urllib.request.urlopen(req, timeout=10) as r: comments=json.load(r)
+          marker=f"BRAINK_REMOTE_RENDEZVOUS run_id={os.environ['GITHUB_RUN_ID']} "
+          body=next((c['body'] for c in reversed(comments) if c.get('body','').startswith(marker)), None)
+          if not body: raise SystemExit(1)
+          m=re.search(r' endpoint=(https://[^ ]+) identity=(\{.*\})$', body)
+          if not m: raise SystemExit(2)
+          print(json.dumps({'endpoint':m.group(1),'identity':json.loads(m.group(2))}))
+          PY
+            if [ -s build/fabric-join/rendezvous.json ]; then break; fi
+            sleep 5
+          done
+          test -s build/fabric-join/rendezvous.json
+          cat build/fabric-join/rendezvous.json
+
+      - name: Perform signed cross-host fabric join
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import base64, json, os, pathlib, secrets, urllib.request
+          p=pathlib.Path('build/fabric-join')
+          rd=json.loads((p/'rendezvous.json').read_text())
+          endpoint=rd['endpoint']
+          with urllib.request.urlopen(endpoint + '/identity', timeout=10) as r:
+              identity=json.load(r)
+          assert identity['commit_sha']==os.environ['GITHUB_SHA']
+          assert identity['run_id']==os.environ['GITHUB_RUN_ID']
+          assert identity['node_id']==rd['identity']['node_id']
+          (p/'identity.json').write_text(json.dumps(identity, indent=2, sort_keys=True))
+          (p/'remote-public.pem').write_text(identity['public_key_pem'])
+          challenge='FABRIC-'+os.environ['GITHUB_RUN_ID']+'-'+secrets.token_hex(24)
+          fabric_node_id='KEX-FABRIC-'+os.environ.get('RUNNER_NAME','SELFHOSTED')
+          payload=json.dumps({'fabric_node_id':fabric_node_id,'challenge':challenge}, separators=(',',':')).encode()
+          req=urllib.request.Request(endpoint+'/fabric/join', data=payload, headers={'Content-Type':'application/json'}, method='POST')
+          with urllib.request.urlopen(req, timeout=15) as r:
+              result=json.load(r)
+          assert result['status']=='JOINED'
+          receipt=result['receipt']
+          assert receipt['remote_node_id']==identity['node_id']
+          assert receipt['fabric_node_id']==fabric_node_id
+          assert receipt['challenge']==challenge
+          assert receipt['commit_sha']==os.environ['GITHUB_SHA']
+          canonical=json.dumps(receipt, sort_keys=True, separators=(',',':'), ensure_ascii=False).encode()
+          (p/'join-receipt.json').write_bytes(canonical)
+          (p/'join-signature.bin').write_bytes(base64.b64decode(result['signature_b64']))
+          (p/'join-result.json').write_text(json.dumps(result, indent=2, sort_keys=True))
+          PY
+          openssl dgst -sha256 \
+            -verify build/fabric-join/remote-public.pem \
+            -signature build/fabric-join/join-signature.bin \
+            build/fabric-join/join-receipt.json \
+            | tee build/fabric-join/signature-verification.txt
+          grep -q 'Verified OK' build/fabric-join/signature-verification.txt
+
+      - name: Publish fabric join readback
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RENDEZVOUS_ISSUE: '66'
+        run: |
+          set -euo pipefail
+          receipt_sha=$(sha256sum build/fabric-join/join-receipt.json | awk '{print $1}')
+          remote_node=$(python3 -c "import json; print(json.load(open('build/fabric-join/identity.json'))['node_id'])")
+          body="BRAINK_FABRIC_JOINED run_id=${GITHUB_RUN_ID} remote_node=${remote_node} receipt_sha256=${receipt_sha} verifier=${RUNNER_NAME}"
+          curl --fail-with-body --silent --show-error \
+            -X POST \
+            -H 'Accept: application/vnd.github+json' \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H 'X-GitHub-Api-Version: 2022-11-28' \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/issues/${RENDEZVOUS_ISSUE}/comments" \
+            -d "$(python3 -c 'import json,sys; print(json.dumps({"body":sys.argv[1]}))' "$body")" \
+            | tee build/fabric-join/join-comment-response.json
+
+      - name: Preserve independent-host fabric evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: independent-braink-fabric-join-${{ github.sha }}
+          path: build/fabric-join/
+          if-no-files-found: error
