@@ -1,0 +1,23 @@
+{
+  "schema": "braink.sector-impact.r22",
+  "authoritative_chain": ["ENCODED_MEDIUM","ZEROLESS_GEOMETRY","KEX_STORAGE_CONTROLLER","LOGICAL_OBJECTS","VFS_RESOLVER"],
+  "sector_results": [
+    {"sector":"MACHINE_RUNTIME","status":"PASS","effect":"machine boots controller-first; BRAINK resident/root object is decoded from machine medium","violations":[]},
+    {"sector":"STORAGE","status":"PASS","effect":"capacity/addressability derives from encoded geometry/controller contract, never source-line or sheet count","violations":[]},
+    {"sector":"VFS","status":"PASS","effect":"VFS remains resolver/namespace only","violations":[]},
+    {"sector":"MEMORY","status":"PASS","effect":"memory arrays are encoded/addressed state under controller semantics; workbook rows remain projections","violations":[]},
+    {"sector":"NETWORK","status":"PASS","effect":"BRAINK lexical/vector identity precedes IP/HTTP/QUIC carrier mapping","violations":[]},
+    {"sector":"CLOUD","status":"PASS","effect":"cloud is replicated machine-resident object state with stable canonical identity and distinct machine lineage","violations":[]},
+    {"sector":"DOMAIN","status":"PASS","effect":"domain is a resident typed object; public DNS/registrar/TLS are adapter boundaries","violations":[]},
+    {"sector":"DNS","status":"PASS","effect":"internal DNS state may mutate locally; public DNS promotion requires external authoritative readback/mutation","violations":[]},
+    {"sector":"REGISTRAR","status":"PASS","effect":"registrar state is resident/internal; registry authority remains an external adapter boundary","violations":[]},
+    {"sector":"TLS","status":"PASS","effect":"TLS intent/state is resident/internal; CA-issued state requires external certificate proof","violations":[]},
+    {"sector":"AGENTS","status":"PASS","effect":"agents inherit machine/BRAINK identity and storage/controller roots rather than floating as unattached services","violations":[]},
+    {"sector":"OBSERVER_PROOF","status":"PASS","effect":"workbook and receipts observe/project state; they do not manufacture substrate capacity or authority","violations":[]},
+    {"sector":"DEPLOYMENT","status":"PASS","effect":"deployment status promotes only after runtime mutation and readback on the relevant authority boundary","violations":[]}
+  ],
+  "negative_guard_test":{"sector":"VFS","status":"FAIL","effect":"VFS remains resolver/namespace only","violations":["VFS_IS_STORAGE_MEDIUM","VFS_ROLE_NOT_RESOLVER_ONLY"]},
+  "all_sector_contracts_pass":true,
+  "forbidden_semantics_rejected":true,
+  "status":"PASS"
+}
