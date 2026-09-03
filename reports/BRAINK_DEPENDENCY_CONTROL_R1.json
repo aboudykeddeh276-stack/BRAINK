@@ -1,0 +1,85 @@
+{
+  "schema": "braink.dependency-control.r1",
+  "active_branch": "build/service-supervisor-s1-host-survey",
+  "control_path": "DETECT -> CLASSIFY -> SNAPSHOT -> GITHUB_DEPENDENCY_GRAPH -> ADMISSION",
+  "edge_classes": [
+    "PACKAGE_DEPENDENCY",
+    "MODULE_DEPENDENCY",
+    "REPOSITORY_DEPENDENCY",
+    "RUNTIME_AUTHORITY_DEPENDENCY"
+  ],
+  "implemented": {
+    "edge_policy": ".braink/dependency-edges.json",
+    "detector": "scripts/braink_dependency_detector.py",
+    "workflow": ".github/workflows/submit-braink-dependency-graph.yml"
+  },
+  "github_submission_contract": {
+    "snapshot_version": 0,
+    "commit_bound": true,
+    "ref_bound": true,
+    "contents_write_permission": true,
+    "api_version": "2026-03-10"
+  },
+  "observed_edges": [
+    {
+      "source": "BRAINK",
+      "target": "aboudykeddeh276-stack/SERVERS-KEDDEHSYSTEMS",
+      "class": "REPOSITORY_DEPENDENCY",
+      "state": "PRESENT"
+    },
+    {
+      "source": "DomainAuthorityBinding",
+      "target": "runtime/domain_authority/kex_registrar_service.py",
+      "class": "RUNTIME_AUTHORITY_DEPENDENCY",
+      "state": "AUTHORITY_IMPLEMENTATION_PRESENT_IN_SERVERS_REPO",
+      "blob_sha": "b8601266c61359c494fff58718e341691146ace3"
+    },
+    {
+      "source": "DomainAuthorityBinding",
+      "target": "runtime/domain_authority/kex_dns.py",
+      "class": "RUNTIME_AUTHORITY_DEPENDENCY",
+      "state": "AUTHORITY_IMPLEMENTATION_PRESENT_IN_SERVERS_REPO",
+      "blob_sha": "bcc6151d1a293e0731c664b349b26617de9d557b"
+    }
+  ],
+  "graph_cuts": [
+    {
+      "node": "enterprise/recursive_computer_runtime_r26.py",
+      "active_branch": "MISSING",
+      "source_branch": "kex/recursive-computer-r26",
+      "source_blob_sha": "d57b2c358811ef81b656ee93ed961e310a706c65"
+    },
+    {
+      "node": "enterprise/self_addressing_runtime.py",
+      "active_branch": "MISSING",
+      "source_branch": "kex/recursive-computer-r26",
+      "source_blob_sha": "798eee84cf8d1c54f1eeb37b808264e56578f763"
+    },
+    {
+      "node": "enterprise/substrate_adapters.py",
+      "active_branch": "MISSING",
+      "source_branch": "kex/recursive-computer-r26",
+      "source_blob_sha": "49ccdb0d740a1abdba2450abad05b30cfabf776e"
+    },
+    {
+      "node": "enterprise/state_ledger_atomicity_r31.py",
+      "active_branch": "MISSING",
+      "kex_recursive_computer_r26_branch": "MISSING",
+      "ownership": "UNRESOLVED"
+    },
+    {
+      "node": "enterprise/domain_authority_binding.py",
+      "active_branch": "MISSING",
+      "ownership": "UNRESOLVED_IN_CURRENT_CONTROL_PASS"
+    }
+  ],
+  "ci_readback": {
+    "run_33708011394": "FAIL_BEFORE_STEPS",
+    "run_33708102910": "FAIL_BEFORE_STEPS",
+    "job_steps": null,
+    "durable_job_log": "UNAVAILABLE",
+    "classification": "HOSTED_ACTIONS_LAUNCH_FAILURE_NOT_DETECTOR_EXECUTION_FAILURE"
+  },
+  "admission_state": "BLOCKED_ON_R31_OWNERSHIP_AND_CI_RUNNER_EXECUTION",
+  "next_graph_operation": "resolve R31 owning branch/commit, then port only required graph cut and rerun dependency snapshot + tests"
+}
