@@ -72,6 +72,8 @@ jobs:
         run: python scripts/kex-ci/test_runtime_fabric_real_routes_r27.py
       - name: Execute R24 BRAINK MCP adapter invariant
         run: python scripts/kex-ci/test_braink_mcp_r24.py
+      - name: Execute R24 BRAINK MCP agent-client conformance invariant
+        run: python scripts/kex-ci/test_braink_mcp_agent_client_r24.py
       - name: Execute R24 publication/domain promotion gate
         run: python scripts/kex-ci/test_r24_publication_domain_gate.py
 
@@ -97,5 +99,7 @@ jobs:
         run: python3 scripts/kex-ci/test_runtime_fabric_real_routes_r27.py
       - name: Execute R24 BRAINK MCP adapter invariant
         run: python3 scripts/kex-ci/test_braink_mcp_r24.py
+      - name: Execute R24 BRAINK MCP agent-client conformance invariant
+        run: python3 scripts/kex-ci/test_braink_mcp_agent_client_r24.py
       - name: Execute R24 publication/domain promotion gate
         run: python3 scripts/kex-ci/test_r24_publication_domain_gate.py
