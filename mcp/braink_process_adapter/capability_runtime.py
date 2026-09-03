@@ -22,6 +22,7 @@ class IdempotencyConflict(CapabilityError): pass
 class CapabilityUnavailable(CapabilityError): pass
 class ApprovalRequired(CapabilityError): pass
 class CircuitOpen(CapabilityError): pass
+class CapabilityExecutionRejected(CapabilityError): pass
 
 
 class Risk(str, Enum):
@@ -177,6 +178,11 @@ class CapabilityRegistry:
 
 
 class CapabilityRuntime:
+    FAILURE_STATUSES = {
+        "FAILED", "REJECTED", "NOT_EXECUTED", "UNSUPPORTED_OPERATION",
+        "UNBOUND_RUNTIME_PATH", "UNBOUND_ACTUATOR", "LOAD_FAILED", "ERROR",
+    }
+
     def __init__(self, ledger: ReceiptLedger, registry: CapabilityRegistry):
         self.ledger = ledger
         self.registry = registry
@@ -196,6 +202,25 @@ class CapabilityRuntime:
             if elapsed < contract.cooldown_seconds:
                 raise CircuitOpen(contract.capability_id)
             self.ledger.record_success(contract.capability_id)
+
+    @classmethod
+    def _semantic_failure(cls, value: Any, path: str = "result") -> str | None:
+        if isinstance(value, dict):
+            status = value.get("status")
+            if isinstance(status, str):
+                normalized = status.upper()
+                if normalized in cls.FAILURE_STATUSES or normalized.startswith(("FAILED_", "REJECTED_", "UNBOUND_", "ERROR_")):
+                    return f"{path}.status={status}"
+            for key, nested in value.items():
+                failure = cls._semantic_failure(nested, f"{path}.{key}")
+                if failure:
+                    return failure
+        elif isinstance(value, list):
+            for index, nested in enumerate(value):
+                failure = cls._semantic_failure(nested, f"{path}[{index}]")
+                if failure:
+                    return failure
+        return None
 
     def invoke(self, capability_id: str, ctx: InvocationContext, payload: dict[str, Any],
                idempotency_key: str | None = None) -> dict[str, Any]:
@@ -237,6 +262,9 @@ class CapabilityRuntime:
             result = reg.handler(payload)
             if not isinstance(result, dict):
                 raise TypeError("capability handler must return dict")
+            semantic_failure = self._semantic_failure(result)
+            if semantic_failure:
+                raise CapabilityExecutionRejected(semantic_failure)
             self.ledger.finish(invocation_id, "SUCCEEDED", result=result)
             self.ledger.record_success(capability_id)
             return {
