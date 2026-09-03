@@ -102,7 +102,28 @@ class AppendOnlyLedger:
         return receipt
 
     def verify(self) -> bool:
-        return len({event.event_id for event in self._events}) == len(self._events)
+        previous_event: str | None = None
+        seen: set[str] = set()
+        for sequence, event in enumerate(self._events, start=1):
+            if event.event_id in seen:
+                return False
+            body = {
+                "sequence": sequence,
+                "operation": event.operation,
+                "actor": event.actor,
+                "owner": event.owner,
+                "input_hash": event.input_hash,
+                "output_hash": event.output_hash,
+                "proof": event.proof,
+                "rollback": event.rollback,
+                "lineage": list(event.lineage),
+                "previous_event": previous_event,
+            }
+            if sha256_json(body) != event.event_id:
+                return False
+            seen.add(event.event_id)
+            previous_event = event.event_id
+        return True
 
     def export(self, path: Path) -> None:
         path.parent.mkdir(parents=True, exist_ok=True)
