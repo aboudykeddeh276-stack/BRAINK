@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import socket
 import threading
-import time
+from pathlib import Path
 
 import pytest
 
@@ -22,7 +22,6 @@ def test_tls_authority_persists_and_reads_back(tmp_path):
     assert material.cert_sha256
     assert auth.verify_chain(material)
 
-    # Recreate the controller to prove process lifetime is not authority lifetime.
     restored = ResidentTLSAuthority(tmp_path / "tls")
     rb = restored.readback(material.certificate_id)
     assert rb.cert_sha256 == material.cert_sha256
@@ -33,18 +32,39 @@ def test_tls_authority_persists_and_reads_back(tmp_path):
 def test_tls_readback_detects_material_tampering(tmp_path):
     auth = ResidentTLSAuthority(tmp_path / "tls")
     material = auth.issue_server_certificate("localhost", dns_names=["localhost"], days=30)
-    cert = __import__("pathlib").Path(material.cert_path)
+    cert = Path(material.cert_path)
     cert.write_bytes(cert.read_bytes() + b"\nTAMPERED\n")
     with pytest.raises(RuntimeError, match="TLS_READBACK_MISMATCH|TLS_CHAIN_READBACK_FAILED"):
         auth.readback(material.certificate_id)
 
 
-def test_tls_renewal_uses_persisted_authority(tmp_path):
+def test_tls_ca_authority_drift_fails_closed(tmp_path):
     auth = ResidentTLSAuthority(tmp_path / "tls")
-    old = auth.issue_server_certificate("localhost", dns_names=["localhost"], days=1)
+    original = auth.ensure_ca()
+    original_cert = Path(original["ca_cert_path"])
+    original_cert.unlink()
+    # Create a different certificate while preserving the old authority DB record.
+    auth.ca_key.unlink()
+    auth2 = ResidentTLSAuthority(tmp_path / "tls")
+    with pytest.raises(RuntimeError, match="TLS_CA_AUTHORITY_DRIFT"):
+        auth2.ensure_ca()
+
+
+def test_tls_renewal_preserves_full_san_set(tmp_path):
+    auth = ResidentTLSAuthority(tmp_path / "tls")
+    old = auth.issue_server_certificate(
+        "localhost",
+        dns_names=["localhost", "braink.internal"],
+        ip_addresses=["127.0.0.1", "192.0.2.10"],
+        days=1,
+    )
+    old_dns, old_ips = auth._subject_alt_names(Path(old.cert_path))
     renewed = auth.renew_if_needed(old.certificate_id, renew_before_seconds=2 * 24 * 3600, days=30)
+    new_dns, new_ips = auth._subject_alt_names(Path(renewed.cert_path))
     assert renewed.certificate_id != old.certificate_id
     assert renewed.cert_sha256 != old.cert_sha256
+    assert set(new_dns) == set(old_dns) == {"localhost", "braink.internal"}
+    assert set(new_ips) == set(old_ips) == {"127.0.0.1", "192.0.2.10"}
     assert auth.verify_chain(renewed)
     assert auth.authority_state()["certificate_count"] == 2
 
@@ -75,7 +95,7 @@ def test_real_tls_client_server_handshake_uses_resident_ca(tmp_path):
                     result["request"] = request
                     result["version"] = tls.version()
                     tls.sendall(b"BRAINK-TLS-OK")
-        except BaseException as exc:  # propagate thread failure to test
+        except BaseException as exc:
             result["error"] = exc
         finally:
             listener.close()
