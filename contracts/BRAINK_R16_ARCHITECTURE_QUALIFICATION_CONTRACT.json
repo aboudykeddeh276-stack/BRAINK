@@ -1,0 +1,13 @@
+{
+  "schema": "braink.architecture-qualification-contract.r16",
+  "version": "R16",
+  "authoritative_chain": ["ENCODED_MEDIUM","ZEROLESS_GEOMETRY","KEX_STORAGE_CONTROLLER","LOGICAL_OBJECTS","VFS_RESOLVER","BRAINK_MACHINE_SERVICES","PROOF"],
+  "forbidden_promotions": ["L#_IS_VOLUME","SHEET_ROW_IS_CAPACITY","VFS_IS_STORAGE_MEDIUM","REGISTRY_ROW_IS_ALLOCATION","INTERNAL_STATE_IMPLIES_EXTERNAL_AUTHORITY","GENERATED_ARTIFACT_IMPLIES_EXECUTION","DESCRIPTION_IMPLIES_AGENT_RUNTIME"],
+  "machine_qualification": ["LAUNCH","ENTER","INSTALL_BRAINK","PERSIST","FRESH_PROCESS_RESTART","DISCOVER","VERIFY"],
+  "distributed_invariants": {"identity_distinct":true,"ancestry_preserved":true,"canonical_object_equal":true,"payload_digest_equal":true,"lineage_distinct":true,"secondary_availability_required":true,"reconciliation_required":true},
+  "typed_roots": ["SERVER_ROOT","DOMAIN_ROOT","DNS_ROOT","REGISTRAR_ROOT","TLS_ROOT","CLOUD_ROOT"],
+  "authority_promotions": {"public_dns":"external mutation + authoritative DNS readback","registrar_registry":"external registrar/registry mutation + registry/RDAP readback","public_tls":"CA/ACME issuance + certificate readback","wan":"independent-host ingress + response readback"},
+  "release_required_artifacts": ["architecture_contract","implementation","qualification_test","execution_receipt","migration_ledger","external_boundary_ledger","hashes_and_commits","readback_state","known_unknowns","next_capability_delta"],
+  "progress_rule": "Progress = delta in verified mandatory predicates",
+  "completion_rule": "COMPLETE iff readback satisfies exact requirement"
+}
