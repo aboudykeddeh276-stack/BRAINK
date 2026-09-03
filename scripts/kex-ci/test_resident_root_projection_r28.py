@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# R28 independent-runner verification trigger; no architecture semantics live here.
 from __future__ import annotations
 
 from copy import deepcopy
@@ -76,8 +77,6 @@ def main() -> int:
     wrong_identity = deepcopy(p1); wrong_identity["resident_identity"] = "braink://forged"
     assert verify_remote_join(local, wrong_identity, remote)["status"] == "REJECTED"
 
-    # Exercise the real remote-host path through public_gateway.py. The bootstrap
-    # URL only transports proof; the advertised carrier becomes trusted afterward.
     port = 18799
     advertised = "https://public-tunnel.example.invalid/braink"
     env = os.environ.copy()
