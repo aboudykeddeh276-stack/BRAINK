@@ -1,0 +1,42 @@
+{
+  "schema": "braink.r24.publication-domain-gate-binding/v1",
+  "release": "R24",
+  "subject": "publication_domain_durable_execution_r5",
+  "governing_profile": "governance/ENGINEERING_STANDARD_PROFILE_R24.json",
+  "resident_binding": "enterprise/orchestration/durable_execution_r5.py",
+  "reconciliation_evidence": "deployments/R24_DOMAIN_DURABLE_EXECUTION_RECONCILIATION_R1.json",
+  "gate_invariant": "scripts/kex-ci/test_r24_publication_domain_gate.py",
+  "workflow": ".github/workflows/keddeh-enterprise-control.yml",
+  "source_commits": {
+    "gate_invariant": "ba2391d5cc888a9dda8b7930736d7e3945da8b67",
+    "workflow_binding": "bb94a12cf0e62cf6e36250f7b05aa3272a1afc72"
+  },
+  "r24_transition": {
+    "discover": "PASS_RESIDENT_R5_REUSED",
+    "reconcile_source_state": "PASS_RECORDED_LOCAL_EVIDENCE_BOUND",
+    "architecture_decision": "REUSE_R5_DO_NOT_DUPLICATE",
+    "implement": "PASS_EXECUTABLE_GATE_ADDED",
+    "static_validate": "SOURCE_REVIEWED_EXECUTION_PENDING",
+    "unit_test": "BOUND_TO_GATE_EXECUTION_PENDING",
+    "integration_test": "BOUND_TO_RECORDED_ATOMIC_DOMAIN_AUTHORITY_COMMIT",
+    "fault_injection": "BOUND_TO_RECORDED_CRASH_AND_SPLIT_BRAIN_EVIDENCE",
+    "security_gate": "FAIL_CLOSED_UNTIL_ALL_SSDF_GROUPS_EVIDENCED",
+    "quality_gate": "FAIL_CLOSED_UNTIL_ALL_ISO_IEC_25010_CHARACTERISTICS_EVIDENCED",
+    "build_release_manifest": "EXECUTABLE_MANIFEST_CONSTRUCTION_ADDED",
+    "independent_verify": "NOT_SATISFIED",
+    "promote_or_reject": "EXPECTED_REJECT_UNTIL_MISSING_GATES_CLOSE",
+    "deploy": "CI_GATE_WIRED",
+    "readback_reconcile": "WORKFLOW_33699170395_QUEUED",
+    "market_readiness_evaluate": "EXECUTABLE_ENGINEERING_ONLY_CLASSIFICATION_ADDED",
+    "continue": "PHYSICAL_MULTI_HOST_PUBLIC_AUTHORITY_AND_INDEPENDENT_VERIFICATION"
+  },
+  "claim_boundaries": {
+    "physical_multi_host": "UNPROVEN",
+    "wan_partition": "UNPROVEN",
+    "public_authoritative_dns": "UNPROVEN",
+    "registrar_epp_authority": "UNPROVEN",
+    "production_ha": "UNPROVEN",
+    "ci_gate_execution": "PENDING"
+  },
+  "promotion": "NOT_PROMOTED"
+}
