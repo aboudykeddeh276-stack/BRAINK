@@ -1,0 +1,11 @@
+{
+  "schema": "braink.definition-conformance.r16.receipt",
+  "registry_sha256": "3fb8a3a133f64d885899d7890317d5e15cd77d17337236c6a085dd0386a82637",
+  "manifest_sha256": "bac8c97782aa59e608c10816d9db0a0ae1663d529a1d88a1b1d800c0f21caff8",
+  "results": [
+    {"instance_id":"BRAINK_MACHINE_FABRIC_R13","definition_id":"BRAINK","definition_version":"R16.1","version_match":true,"missing_properties":[],"forbidden_interpretations":[],"missing_proofs":[],"invalid_transitions":[],"status":"PASS_CONFORMS"},
+    {"instance_id":"BRAINK_VFS_RESOLVER_R13","definition_id":"VFS","definition_version":"R16.1","version_match":true,"missing_properties":[],"forbidden_interpretations":[],"missing_proofs":[],"invalid_transitions":[],"status":"PASS_CONFORMS"},
+    {"instance_id":"BRAINK_OBSERVER_RUNTIME_R6","definition_id":"Observer","definition_version":"R16.1","version_match":true,"missing_properties":[],"forbidden_interpretations":[],"missing_proofs":[],"invalid_transitions":[],"status":"PASS_CONFORMS"}
+  ],
+  "status": "PASS"
+}
