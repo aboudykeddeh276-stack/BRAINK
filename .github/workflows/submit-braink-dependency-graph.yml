@@ -22,13 +22,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout BRAINK
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Checkout authority repository
-        uses: actions/checkout@v6
-        with:
-          repository: aboudykeddeh276-stack/SERVERS-KEDDEHSYSTEMS
-          path: dependencies/SERVERS-KEDDEHSYSTEMS
+        run: git clone --depth=1 https://github.com/aboudykeddeh276-stack/SERVERS-KEDDEHSYSTEMS.git dependencies/SERVERS-KEDDEHSYSTEMS
 
       - name: Build BRAINK dependency graph and snapshot
         run: python3 scripts/braink_dependency_detector.py
