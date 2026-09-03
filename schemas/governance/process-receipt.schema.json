@@ -1,0 +1,8 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "title":"BRAINK Process Receipt R16",
+  "type":"object",
+  "required":["receipt_id","unit_id","actor","authority","action","input_state","mutation","evidence","verification","result_state","status","timestamp"],
+  "properties":{"receipt_id":{"type":"string"},"unit_id":{"type":"string"},"actor":{"type":"string"},"authority":{"type":"string"},"action":{"type":"string"},"input_state":{},"mutation":{},"evidence":{},"verification":{},"result_state":{},"rollback":{"type":["object","string","null"]},"status":{"enum":["PASS","FAIL","BLOCKED","UNKNOWN"]},"timestamp":{"type":"string"},"digest":{"type":["string","null"]}},
+  "additionalProperties":false
+}
