@@ -1,0 +1,36 @@
+{
+  "schema": "braink.epp-session.r18.receipt",
+  "ancestry": {
+    "legacy_registry_adapter_sha256": "3fc072831124068775f92cc426472d427acf746a7d20bd40f03160c909209daf",
+    "legacy_role": "PRESERVED_TRANSPORT_ONLY_ANCESTOR",
+    "legacy_defect": "GREETING_TO_COMMAND_WITHOUT_EPP_LOGIN_SESSION"
+  },
+  "recovered_registrar_core_sha256": "e61b82a4abf2b8c7d38391649b4eda227867e6e8d3373289a9c63628977a9b0e",
+  "repaired_adapter_sha256": "b5a1d7a569e6d4a672a17dcf0c0188672e7980551238a0f298549d950096e5ef",
+  "dispatch_binding_sha256": "b7211bbb4377b6f3053b5e7870ee42851fbedbec09eb2d87ab2729cb499be847",
+  "tests": {
+    "mutual_tls_fixture": {
+      "status": "PASS",
+      "client_sequence": ["TLS", "GREETING", "LOGIN", "COMMAND", "LOGOUT"],
+      "server_observed": ["LOGIN", "COMMAND", "LOGOUT"],
+      "epp_result_code": 1000,
+      "classification": "COMPLETED"
+    },
+    "registrar_authority_gate": {
+      "status": "PASS",
+      "domain": "keddeh.com",
+      "queue_state": "AWAITING_REGISTRY_AUTHORITY",
+      "authority_ready": false,
+      "missing_authorities": ["ICANN_RAA", "REGISTRY_RRA_COM", "REGISTRAR_DATA_ESCROW"],
+      "dispatch": "BLOCKED_AS_REQUIRED"
+    }
+  },
+  "promotion": {
+    "local_epp_session_mechanics": "VERIFIED",
+    "registrar_gate_binding": "VERIFIED",
+    "production_registry_authority": "NOT_PRESENT",
+    "production_epp_transaction": "NOT_EXECUTED",
+    "parent_delegation": "NOT_CHANGED"
+  },
+  "status": "PASS_LOCAL_SESSION_AND_FAIL_CLOSED_AUTHORITY"
+}
