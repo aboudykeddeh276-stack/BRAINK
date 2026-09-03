@@ -10,6 +10,7 @@ from enterprise.orchestration.durable_execution_r5 import (
     SignedEnvelopeAuthority,
 )
 from .sector_bridges import ServerRuntimeBridge, VirtualMemoryBridge
+from .capability_catalog import GovernedCapabilityService
 
 LEGAL_ENTITY = {
     "identity": "organisation://the-layna-company",
@@ -25,7 +26,7 @@ OPERATING_IDENTITY = {
 }
 
 class BrainkProcessBackend:
-    """Thin callable adapter over BRAINK R5 durable execution and verified cross-repo mechanics."""
+    """Resident BRAINK mechanics plus one governed enterprise capability invocation path."""
 
     def __init__(self, state_dir: str | Path | None = None, key: bytes | None = None):
         self.state_dir = Path(state_dir or os.environ.get("BRAINK_MCP_STATE_DIR", "runtime/braink_mcp")).resolve()
@@ -38,6 +39,7 @@ class BrainkProcessBackend:
         )
         self.servers = ServerRuntimeBridge()
         self.vfs = VirtualMemoryBridge()
+        self.capabilities = GovernedCapabilityService(self, self.state_dir / "capability_receipts.sqlite")
 
     @staticmethod
     def _load_key() -> bytes:
@@ -91,6 +93,7 @@ class BrainkProcessBackend:
             return {"work_id": work_id, "state": "UNLEASED"}
         return {"work_id": work_id, "epoch": row[0], "holder": row[1], "state": "LEASED"}
 
+    # Raw resident mechanics. MCP mutation tools should not call these directly.
     def provision_domain_authority(self, tx_id: str, domain: str, ip: str, owner_scope: str = "KEDDEH_SYSTEMS") -> dict[str, Any]:
         result = self.domain.provision(tx_id, domain, owner_scope, ip)
         return {"result": result, "readback": self.domain.observe(domain)}
@@ -126,3 +129,10 @@ class BrainkProcessBackend:
 
     def vfs_migrate(self, logical: str, current_backing: str, new_backing: str) -> dict[str, Any]:
         return self.vfs.migrate(logical, current_backing, new_backing)
+
+    # Authoritative enterprise surface.
+    def capability_manifest(self) -> list[dict[str, Any]]:
+        return self.capabilities.manifest()
+
+    def invoke_capability(self, capability_id: str, context: dict[str, Any], payload: dict[str, Any], idempotency_key: str | None = None) -> dict[str, Any]:
+        return self.capabilities.invoke(capability_id, context, payload, idempotency_key)
