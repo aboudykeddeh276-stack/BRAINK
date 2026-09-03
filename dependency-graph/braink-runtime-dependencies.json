@@ -1,222 +1,45 @@
 {
   "schema": "kex.braink.dependency-edges.v1",
-  "detector": {
-    "name": "braink-kex-runtime-dependency-detector",
-    "version": "1.2.0"
-  },
-  "scan_roots": [
-    "enterprise",
-    "runtime",
-    "modules/kex_core"
-  ],
+  "detector": {"name": "braink-kex-runtime-dependency-detector", "version": "1.3.0"},
+  "scan_roots": ["enterprise", "runtime", "modules/kex_core", "deploy/braink-public"],
   "declared_edges": [
-    {
-      "source": "enterprise/recursive_computer_runtime_r26.py",
-      "target": "enterprise/self_addressing_runtime.py",
-      "class": "MODULE_DEPENDENCY",
-      "relationship": "direct",
-      "scope": "runtime",
-      "interface": "SelfAddressingRuntime",
-      "authority": "BRAINK"
-    },
-    {
-      "source": "enterprise/recursive_computer_runtime_r26.py",
-      "target": "enterprise/recursive_commit_coordinator_r31.py",
-      "class": "MODULE_DEPENDENCY",
-      "relationship": "direct",
-      "scope": "runtime",
-      "interface": "RecursiveCommitCoordinatorR31",
-      "authority": "BRAINK"
-    },
-    {
-      "source": "enterprise/recursive_commit_coordinator_r31.py",
-      "target": "runtime/R25/system_evolution_runtime.py",
-      "class": "MODULE_DEPENDENCY",
-      "relationship": "direct",
-      "scope": "runtime",
-      "interface": "AppendOnlyLedger/TransactionReceipt",
-      "authority": "BRAINK"
-    },
-    {
-      "source": "enterprise/self_addressing_runtime.py",
-      "target": "enterprise/substrate_adapters.py",
-      "class": "MODULE_DEPENDENCY",
-      "relationship": "direct",
-      "scope": "runtime",
-      "interface": "CapabilityRegistry/AutoBinder adapters",
-      "authority": "BRAINK"
-    },
-    {
-      "source": "enterprise/substrate_adapters.py",
-      "target": "runtime://python/fcntl",
-      "class": "RUNTIME_AUTHORITY_DEPENDENCY",
-      "relationship": "direct",
-      "scope": "runtime",
-      "interface": "flock",
-      "authority": "HOST_OS"
-    },
-    {
-      "source": "enterprise/substrate_adapters.py",
-      "target": "runtime://filesystem/fsync-replace",
-      "class": "RUNTIME_AUTHORITY_DEPENDENCY",
-      "relationship": "direct",
-      "scope": "runtime",
-      "interface": "fsync/os.replace",
-      "authority": "HOST_FILESYSTEM"
-    },
-    {
-      "source": "enterprise/resident_root_runtime.py",
-      "target": "modules/kex_core/canonical_state.py",
-      "class": "MODULE_DEPENDENCY",
-      "relationship": "direct",
-      "scope": "runtime",
-      "interface": "CanonicalBoundary/CanonicalState",
-      "authority": "KEX"
-    },
-    {
-      "source": "enterprise/resident_root_runtime.py",
-      "target": "enterprise/domain_authority_binding.py",
-      "class": "MODULE_DEPENDENCY",
-      "relationship": "direct",
-      "scope": "runtime",
-      "interface": "DOMAIN_ROOT binding",
-      "authority": "BRAINK+SERVERS-KEDDEHSYSTEMS"
-    },
-    {
-      "source": "enterprise/resident_root_runtime.py",
-      "target": "enterprise/tls_authority_runtime.py",
-      "class": "MODULE_DEPENDENCY",
-      "relationship": "direct",
-      "scope": "runtime",
-      "interface": "TLS_ROOT local authority/controller",
-      "authority": "BRAINK_LOCAL_TLS_AUTHORITY"
-    },
-    {
-      "source": "enterprise/tls_authority_runtime.py",
-      "target": "runtime://openssl/x509",
-      "class": "RUNTIME_AUTHORITY_DEPENDENCY",
-      "relationship": "direct",
-      "scope": "runtime",
-      "interface": "CA/key generation, X.509 issuance and chain verification",
-      "authority": "HOST_CRYPTO_RUNTIME"
-    },
-    {
-      "source": "enterprise/tls_authority_runtime.py",
-      "target": "runtime://python/ssl",
-      "class": "RUNTIME_AUTHORITY_DEPENDENCY",
-      "relationship": "direct",
-      "scope": "runtime",
-      "interface": "SSLContext and TLS handshake",
-      "authority": "HOST_TLS_RUNTIME"
-    },
-    {
-      "source": "enterprise/tls_authority_runtime.py",
-      "target": "runtime://python/sqlite3",
-      "class": "RUNTIME_AUTHORITY_DEPENDENCY",
-      "relationship": "direct",
-      "scope": "runtime",
-      "interface": "TLS authority/certificate/receipt persistence",
-      "authority": "HOST_STORAGE"
-    },
-    {
-      "source": "enterprise/tls_authority_runtime.py",
-      "target": "runtime://filesystem/private-key-material",
-      "class": "RUNTIME_AUTHORITY_DEPENDENCY",
-      "relationship": "direct",
-      "scope": "runtime",
-      "interface": "persisted CA/server private key and certificate material",
-      "authority": "HOST_FILESYSTEM"
-    },
-    {
-      "source": "enterprise/resident_root_runtime.py",
-      "target": "runtime/runtime_registry.py",
-      "class": "MODULE_DEPENDENCY",
-      "relationship": "direct",
-      "scope": "runtime",
-      "interface": "SERVER_ROOT resident runtime registry",
-      "authority": "BRAINK"
-    },
-    {
-      "source": "enterprise/resident_root_runtime.py",
-      "target": "deployment/bootstrap_keddeh_fabric.py",
-      "class": "MODULE_DEPENDENCY",
-      "relationship": "direct",
-      "scope": "runtime",
-      "interface": "CLOUD_ROOT machine-fabric bootstrap",
-      "authority": "BRAINK"
-    },
-    {
-      "source": "enterprise/remote_fabric_node.py",
-      "target": "enterprise/resident_root_runtime.py",
-      "class": "MODULE_DEPENDENCY",
-      "relationship": "direct",
-      "scope": "runtime",
-      "interface": "resident typed-root graph before carrier projection",
-      "authority": "BRAINK"
-    },
-    {
-      "source": "enterprise/remote_fabric_node.py",
-      "target": "runtime://python/socket/tcp",
-      "class": "RUNTIME_AUTHORITY_DEPENDENCY",
-      "relationship": "direct",
-      "scope": "runtime",
-      "interface": "HTTP service over TCP carrier projection",
-      "authority": "HOST_NETWORK"
-    },
-    {
-      "source": "enterprise/domain_authority_binding.py",
-      "target": "repository://aboudykeddeh276-stack/SERVERS-KEDDEHSYSTEMS",
-      "class": "REPOSITORY_DEPENDENCY",
-      "relationship": "direct",
-      "scope": "runtime",
-      "interface": "resident domain authority implementation",
-      "authority": "SERVERS-KEDDEHSYSTEMS",
-      "checkout_path": "dependencies/SERVERS-KEDDEHSYSTEMS"
-    },
-    {
-      "source": "enterprise/domain_authority_binding.py",
-      "target": "dependencies/SERVERS-KEDDEHSYSTEMS/runtime/domain_authority/kex_registrar_service.py",
-      "class": "RUNTIME_AUTHORITY_DEPENDENCY",
-      "relationship": "direct",
-      "scope": "runtime",
-      "interface": "register_domain/register_zone/upsert_record/readback",
-      "authority": "SERVERS-KEDDEHSYSTEMS"
-    },
-    {
-      "source": "dependencies/SERVERS-KEDDEHSYSTEMS/runtime/domain_authority/kex_dns.py",
-      "target": "runtime://python/socket/udp",
-      "class": "RUNTIME_AUTHORITY_DEPENDENCY",
-      "relationship": "direct",
-      "scope": "runtime",
-      "interface": "UDP DNS socket",
-      "authority": "HOST_NETWORK"
-    },
-    {
-      "source": "dependencies/SERVERS-KEDDEHSYSTEMS/runtime/domain_authority/kex_dns.py",
-      "target": "runtime://python/socket/tcp",
-      "class": "RUNTIME_AUTHORITY_DEPENDENCY",
-      "relationship": "direct",
-      "scope": "runtime",
-      "interface": "TCP DNS socket",
-      "authority": "HOST_NETWORK"
-    },
-    {
-      "source": "dependencies/SERVERS-KEDDEHSYSTEMS/runtime/domain_authority/kex_dns.py",
-      "target": "dependencies/SERVERS-KEDDEHSYSTEMS/runtime/domain_authority/kex_registrar_service.py",
-      "class": "MODULE_DEPENDENCY",
-      "relationship": "direct",
-      "scope": "runtime",
-      "interface": "find_zone/get_zone/get_records/resolve_domain",
-      "authority": "SERVERS-KEDDEHSYSTEMS"
-    },
-    {
-      "source": "dependencies/SERVERS-KEDDEHSYSTEMS/runtime/domain_authority/kex_registrar_service.py",
-      "target": "runtime://python/sqlite3",
-      "class": "RUNTIME_AUTHORITY_DEPENDENCY",
-      "relationship": "direct",
-      "scope": "runtime",
-      "interface": "SQLite registrar state",
-      "authority": "HOST_STORAGE"
-    }
+    {"source":"enterprise/recursive_computer_runtime_r26.py","target":"enterprise/self_addressing_runtime.py","class":"MODULE_DEPENDENCY","relationship":"direct","scope":"runtime","interface":"SelfAddressingRuntime","authority":"BRAINK"},
+    {"source":"enterprise/recursive_computer_runtime_r26.py","target":"enterprise/recursive_commit_coordinator_r31.py","class":"MODULE_DEPENDENCY","relationship":"direct","scope":"runtime","interface":"RecursiveCommitCoordinatorR31","authority":"BRAINK"},
+    {"source":"enterprise/recursive_commit_coordinator_r31.py","target":"runtime/R25/system_evolution_runtime.py","class":"MODULE_DEPENDENCY","relationship":"direct","scope":"runtime","interface":"AppendOnlyLedger/TransactionReceipt","authority":"BRAINK"},
+    {"source":"enterprise/self_addressing_runtime.py","target":"enterprise/substrate_adapters.py","class":"MODULE_DEPENDENCY","relationship":"direct","scope":"runtime","interface":"CapabilityRegistry/AutoBinder adapters","authority":"BRAINK"},
+    {"source":"enterprise/substrate_adapters.py","target":"runtime://python/fcntl","class":"RUNTIME_AUTHORITY_DEPENDENCY","relationship":"direct","scope":"runtime","interface":"flock","authority":"HOST_OS"},
+    {"source":"enterprise/substrate_adapters.py","target":"runtime://filesystem/fsync-replace","class":"RUNTIME_AUTHORITY_DEPENDENCY","relationship":"direct","scope":"runtime","interface":"fsync/os.replace","authority":"HOST_FILESYSTEM"},
+
+    {"source":"enterprise/resident_root_runtime.py","target":"modules/kex_core/canonical_state.py","class":"MODULE_DEPENDENCY","relationship":"direct","scope":"runtime","interface":"CanonicalBoundary/CanonicalState","authority":"KEX"},
+    {"source":"enterprise/resident_root_runtime.py","target":"enterprise/domain_authority_binding.py","class":"MODULE_DEPENDENCY","relationship":"direct","scope":"runtime","interface":"DOMAIN_ROOT binding","authority":"BRAINK+SERVERS-KEDDEHSYSTEMS"},
+    {"source":"enterprise/resident_root_runtime.py","target":"enterprise/tls_authority_runtime.py","class":"MODULE_DEPENDENCY","relationship":"direct","scope":"runtime","interface":"TLS_ROOT local authority/controller","authority":"BRAINK_LOCAL_TLS_AUTHORITY"},
+    {"source":"enterprise/resident_root_runtime.py","target":"runtime/runtime_registry.py","class":"MODULE_DEPENDENCY","relationship":"direct","scope":"runtime","interface":"SERVER_ROOT resident runtime registry","authority":"BRAINK"},
+    {"source":"enterprise/resident_root_runtime.py","target":"deployment/bootstrap_keddeh_fabric.py","class":"MODULE_DEPENDENCY","relationship":"direct","scope":"runtime","interface":"CLOUD_ROOT machine-fabric bootstrap","authority":"BRAINK"},
+
+    {"source":"enterprise/tls_authority_runtime.py","target":"runtime://openssl/x509","class":"RUNTIME_AUTHORITY_DEPENDENCY","relationship":"direct","scope":"runtime","interface":"CA/key generation X.509 issuance and chain verification","authority":"HOST_CRYPTO_RUNTIME"},
+    {"source":"enterprise/tls_authority_runtime.py","target":"runtime://python/ssl","class":"RUNTIME_AUTHORITY_DEPENDENCY","relationship":"direct","scope":"runtime","interface":"SSLContext and TLS handshake","authority":"HOST_TLS_RUNTIME"},
+    {"source":"enterprise/tls_authority_runtime.py","target":"runtime://python/sqlite3","class":"RUNTIME_AUTHORITY_DEPENDENCY","relationship":"direct","scope":"runtime","interface":"TLS authority/certificate/receipt persistence","authority":"HOST_STORAGE"},
+    {"source":"enterprise/tls_authority_runtime.py","target":"runtime://filesystem/private-key-material","class":"RUNTIME_AUTHORITY_DEPENDENCY","relationship":"direct","scope":"runtime","interface":"persisted CA/server private key and certificate material","authority":"HOST_FILESYSTEM"},
+
+    {"source":"enterprise/public_ca_adapter.py","target":"enterprise/tls_authority_runtime.py","class":"MODULE_DEPENDENCY","relationship":"direct","scope":"runtime","interface":"consume resident TLS_ROOT state before public projection","authority":"BRAINK_LOCAL_TLS_AUTHORITY"},
+    {"source":"enterprise/public_ca_adapter.py","target":"runtime://acme/certbot","class":"RUNTIME_AUTHORITY_DEPENDENCY","relationship":"direct","scope":"runtime","interface":"ACME certificate issuance client","authority":"PUBLIC_CA_AUTHORITY"},
+    {"source":"enterprise/public_ca_adapter.py","target":"runtime://domain/public-dns-challenge-auth-hook","class":"RUNTIME_AUTHORITY_DEPENDENCY","relationship":"direct","scope":"runtime","interface":"publish DNS-01 challenge on publicly authoritative DNS path","authority":"PUBLIC_DOMAIN_AUTHORITY"},
+    {"source":"enterprise/public_ca_adapter.py","target":"runtime://domain/public-dns-challenge-cleanup-hook","class":"RUNTIME_AUTHORITY_DEPENDENCY","relationship":"direct","scope":"runtime","interface":"remove DNS-01 challenge from publicly authoritative DNS path","authority":"PUBLIC_DOMAIN_AUTHORITY"},
+    {"source":"enterprise/public_ca_adapter.py","target":"runtime://tls/system-public-trust-store","class":"RUNTIME_AUTHORITY_DEPENDENCY","relationship":"direct","scope":"runtime","interface":"external hostname and public trust verification","authority":"HOST_TLS_RUNTIME"},
+
+    {"source":"deploy/braink-public/provision_public_tls.py","target":"enterprise/public_ca_adapter.py","class":"MODULE_DEPENDENCY","relationship":"direct","scope":"runtime","interface":"public certificate request issuance verification","authority":"BRAINK"},
+    {"source":"deploy/braink-public/provision_public_tls.py","target":"runtime://server/tls-install-hook","class":"RUNTIME_AUTHORITY_DEPENDENCY","relationship":"direct","scope":"runtime","interface":"install verified public certificate into resident SERVER_ROOT","authority":"SERVER_ROOT"},
+    {"source":"deploy/braink-public/provision_public_tls.py","target":"runtime://server/tls-rollback-hook","class":"RUNTIME_AUTHORITY_DEPENDENCY","relationship":"direct","scope":"runtime","interface":"reverse partial SERVER_ROOT TLS mutation","authority":"SERVER_ROOT"},
+    {"source":"deploy/braink-public/deploy_live.py","target":"deploy/braink-public/provision_public_tls.py","class":"MODULE_DEPENDENCY","relationship":"direct","scope":"runtime","interface":"public TLS promotion inside R24 deployment transaction","authority":"BRAINK"},
+
+    {"source":"enterprise/remote_fabric_node.py","target":"enterprise/resident_root_runtime.py","class":"MODULE_DEPENDENCY","relationship":"direct","scope":"runtime","interface":"resident typed-root graph before carrier projection","authority":"BRAINK"},
+    {"source":"enterprise/remote_fabric_node.py","target":"runtime://python/socket/tcp","class":"RUNTIME_AUTHORITY_DEPENDENCY","relationship":"direct","scope":"runtime","interface":"HTTP service over TCP carrier projection","authority":"HOST_NETWORK"},
+
+    {"source":"enterprise/domain_authority_binding.py","target":"repository://aboudykeddeh276-stack/SERVERS-KEDDEHSYSTEMS","class":"REPOSITORY_DEPENDENCY","relationship":"direct","scope":"runtime","interface":"resident domain authority implementation","authority":"SERVERS-KEDDEHSYSTEMS","checkout_path":"dependencies/SERVERS-KEDDEHSYSTEMS"},
+    {"source":"enterprise/domain_authority_binding.py","target":"dependencies/SERVERS-KEDDEHSYSTEMS/runtime/domain_authority/kex_registrar_service.py","class":"RUNTIME_AUTHORITY_DEPENDENCY","relationship":"direct","scope":"runtime","interface":"register_domain/register_zone/upsert_record/readback","authority":"SERVERS-KEDDEHSYSTEMS"},
+    {"source":"dependencies/SERVERS-KEDDEHSYSTEMS/runtime/domain_authority/kex_dns.py","target":"runtime://python/socket/udp","class":"RUNTIME_AUTHORITY_DEPENDENCY","relationship":"direct","scope":"runtime","interface":"UDP DNS socket","authority":"HOST_NETWORK"},
+    {"source":"dependencies/SERVERS-KEDDEHSYSTEMS/runtime/domain_authority/kex_dns.py","target":"runtime://python/socket/tcp","class":"RUNTIME_AUTHORITY_DEPENDENCY","relationship":"direct","scope":"runtime","interface":"TCP DNS socket","authority":"HOST_NETWORK"},
+    {"source":"dependencies/SERVERS-KEDDEHSYSTEMS/runtime/domain_authority/kex_dns.py","target":"dependencies/SERVERS-KEDDEHSYSTEMS/runtime/domain_authority/kex_registrar_service.py","class":"MODULE_DEPENDENCY","relationship":"direct","scope":"runtime","interface":"find_zone/get_zone/get_records/resolve_domain","authority":"SERVERS-KEDDEHSYSTEMS"},
+    {"source":"dependencies/SERVERS-KEDDEHSYSTEMS/runtime/domain_authority/kex_registrar_service.py","target":"runtime://python/sqlite3","class":"RUNTIME_AUTHORITY_DEPENDENCY","relationship":"direct","scope":"runtime","interface":"SQLite registrar state","authority":"HOST_STORAGE"}
   ]
 }
