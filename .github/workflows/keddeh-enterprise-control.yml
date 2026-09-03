@@ -68,6 +68,8 @@ jobs:
         run: python scripts/kex-ci/test_r23_owner_host_runtime.py
       - name: Execute R24 owner-host runtime promotion gate
         run: python scripts/kex-ci/test_r24_owner_host_runtime_gate.py
+      - name: Execute R24 physical multi-host promotion gate
+        run: python scripts/kex-ci/test_r24_physical_multi_host_gate.py
       - name: Execute R24 customer portal HTTP binding invariant
         run: python scripts/kex-ci/test_r24_customer_portal_http_binding.py
       - name: Execute R24 R23 public-state privacy invariant
@@ -105,6 +107,8 @@ jobs:
         run: python3 scripts/kex-ci/test_r23_owner_host_runtime.py
       - name: Execute R24 owner-host runtime promotion gate
         run: python3 scripts/kex-ci/test_r24_owner_host_runtime_gate.py
+      - name: Execute R24 physical multi-host promotion gate
+        run: python3 scripts/kex-ci/test_r24_physical_multi_host_gate.py
       - name: Execute R24 customer portal HTTP binding invariant
         run: python3 scripts/kex-ci/test_r24_customer_portal_http_binding.py
       - name: Execute R24 R23 public-state privacy invariant
