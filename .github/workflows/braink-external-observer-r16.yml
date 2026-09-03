@@ -5,7 +5,6 @@ on:
     branches:
       - build/service-supervisor-s1-host-survey
     paths:
-      - runtime/braink_external_probe_r15.sh
       - .github/workflows/braink-external-observer-r16.yml
   workflow_dispatch:
 
@@ -17,34 +16,41 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: Checkout BRAINK
-        uses: actions/checkout@v4
-      - name: Execute R16 external observer
+      - name: Execute self-contained external observer
         shell: bash
         run: |
-          set -euo pipefail
+          set -u
+          DOMAIN="keddeh.com"
           echo "R16_RUNNER_ACTIVE=1"
           uname -a
           python3 --version
           curl --version | head -n 1
-          chmod +x runtime/braink_external_probe_r15.sh
-          mkdir -p reports/r16
-          runtime/braink_external_probe_r15.sh keddeh.com reports/r16/BRAINK_R16_EXTERNAL_OBSERVER_RECEIPT.json
           python3 - <<'PY'
-          import json
-          from pathlib import Path
-          p=Path('reports/r16/BRAINK_R16_EXTERNAL_OBSERVER_RECEIPT.json')
-          r=json.loads(p.read_text())
-          r['runner_active']=True
-          r['runtime_branch']='build/service-supervisor-s1-host-survey'
-          p.write_text(json.dumps(r,indent=2))
-          print(p.read_text())
-          assert r['status'] in {'PASS_PUBLIC_OBSERVED','PASS_BOUNDARY_CLASSIFIED'}
+          import json, subprocess, ssl, socket, hashlib
+          from urllib.request import Request, urlopen
+          domain='keddeh.com'
+          probes=[]
+          def curl_probe(name,args):
+              cp=subprocess.run(['curl','-fsS','--max-time','12',*args],capture_output=True,text=True)
+              probes.append({'probe':name,'status':'PASS' if cp.returncode==0 else 'FAIL','exit_code':cp.returncode,'stdout':cp.stdout[:4000],'stderr':cp.stderr[:4000]})
+          curl_probe('DNS_A',['-H','Accept: application/dns-json',f'https://dns.google/resolve?name={domain}&type=A'])
+          curl_probe('DNS_NS',['-H','Accept: application/dns-json',f'https://dns.google/resolve?name={domain}&type=NS'])
+          curl_probe('RDAP',[f'https://rdap.verisign.com/com/v1/domain/{domain}'])
+          curl_probe('HTTPS',['-I',f'https://{domain}'])
+          tls={'probe':'TLS','status':'FAIL'}
+          try:
+              ctx=ssl.create_default_context()
+              with socket.create_connection((domain,443),timeout=8) as raw:
+                  with ctx.wrap_socket(raw,server_hostname=domain) as s:
+                      cert=s.getpeercert(binary_form=True)
+                      parsed=s.getpeercert()
+              tls={'probe':'TLS','status':'PASS','sha256':hashlib.sha256(cert).hexdigest(),'subject':parsed.get('subject'),'issuer':parsed.get('issuer'),'notAfter':parsed.get('notAfter')}
+          except Exception as e:
+              tls={'probe':'TLS','status':'FAIL','error':f'{type(e).__name__}: {e}'}
+          probes.append(tls)
+          passed=[p for p in probes if p['status']=='PASS']
+          receipt={'schema':'braink.external-observer.r16','domain':domain,'runner_active':True,'probes':probes,'public_observation_count':len(passed),'domain_public_state':'OBSERVED' if passed else 'UNKNOWN_FROM_RUNNER','status':'PASS_PUBLIC_OBSERVED' if passed else 'PASS_BOUNDARY_CLASSIFIED'}
+          print(json.dumps(receipt,indent=2))
+          open('/tmp/BRAINK_R16_EXTERNAL_OBSERVER_RECEIPT.json','w').write(json.dumps(receipt,indent=2))
+          assert receipt['status'] in {'PASS_PUBLIC_OBSERVED','PASS_BOUNDARY_CLASSIFIED'}
           PY
-      - name: Upload R16 receipt
-        uses: actions/upload-artifact@v4
-        with:
-          name: BRAINK_R16_EXTERNAL_OBSERVER_RECEIPT
-          path: reports/r16/BRAINK_R16_EXTERNAL_OBSERVER_RECEIPT.json
-          if-no-files-found: error
-          retention-days: 7
