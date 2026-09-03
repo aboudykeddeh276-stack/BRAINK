@@ -3,7 +3,7 @@
 
 Authority chain:
 resident object graph -> canonical typed roots -> root digest verification ->
-carrier projection.  The carrier endpoint is intentionally excluded from the
+carrier projection. The carrier endpoint is intentionally excluded from the
 canonical snapshot digest and cannot establish BRAINK identity.
 """
 from __future__ import annotations
@@ -14,7 +14,7 @@ from typing import Any, Mapping
 import hashlib
 import json
 
-from modules.kex_core.canonical_state import CanonicalState, digest
+from modules.kex_core.canonical_state import CanonicalState
 from runtime.runtime_route_registry import RuntimeRouteRegistry
 from enterprise.domain_replication import DOMAIN_BINDINGS
 
@@ -59,8 +59,8 @@ class RootBinding:
 class ResidentRootResolver:
     """Resolve typed roots from resident repository/runtime mechanics.
 
-    This resolver does not discover identity from a public endpoint.  It derives
-    identity from resident state and records missing concrete adapters explicitly.
+    Identity is derived from resident state, never from a public endpoint.
+    Missing concrete adapters remain explicit unresolved bindings.
     """
 
     def __init__(self, repo_root: str | Path = ".") -> None:
@@ -76,6 +76,8 @@ class ResidentRootResolver:
             raise KeyError(f"resident domain binding not found: {domain}")
 
         public_gateway = self.routes.resolve("public-gateway")
+        gateway_argv = list(public_gateway.get("argv", []))
+        gateway_adapter = gateway_argv[1] if len(gateway_argv) > 1 else None
         durable_domain = "enterprise/orchestration/durable_execution_r5.py"
         addressability = "enterprise/addressability_fabric.py"
         self_addressing = "enterprise/self_addressing_runtime.py"
@@ -114,9 +116,10 @@ class ResidentRootResolver:
                 {"domain": domain, "observer_class": "TLS_OBSERVED"},
             ),
             "SERVER_ROOT": RootBinding(
-                "SERVER_ROOT", "runtime://public-gateway", "KEX://SERVER/PUBLIC-GATEWAY",
+                "SERVER_ROOT", public_gateway["runtime_id"], "KEX://SERVER/PUBLIC-GATEWAY",
                 "runtime/runtime_route_registry.py:public-gateway",
-                public_gateway["command_route"], "BOUND",
+                gateway_adapter,
+                "BOUND" if gateway_adapter and self._exists(gateway_adapter) else "UNRESOLVED",
                 "BRAINK_RESIDENT_RUNTIME_AUTHORITY",
                 {k: public_gateway[k] for k in ("runtime_id", "runtime_class", "argv", "dependencies")},
             ),
