@@ -10,9 +10,12 @@ on:
       - 'enterprise/self_addressing_runtime.py'
       - 'enterprise/recursive_computer_runtime_r26.py'
       - 'enterprise/state_ledger_atomicity_r31.py'
+      - 'enterprise/domain_authority_binding.py'
       - 'runtime/R25/system_evolution_runtime.py'
+      - 'governance/system_interface_inventory_r1.json'
       - 'tests/R26/**'
       - 'tests/R31/**'
+      - 'tests/integration/**'
       - '.github/workflows/current-main-recursive-dependency-reconciliation.yml'
   pull_request:
     paths:
@@ -21,9 +24,12 @@ on:
       - 'enterprise/self_addressing_runtime.py'
       - 'enterprise/recursive_computer_runtime_r26.py'
       - 'enterprise/state_ledger_atomicity_r31.py'
+      - 'enterprise/domain_authority_binding.py'
       - 'runtime/R25/system_evolution_runtime.py'
+      - 'governance/system_interface_inventory_r1.json'
       - 'tests/R26/**'
       - 'tests/R31/**'
+      - 'tests/integration/**'
       - '.github/workflows/current-main-recursive-dependency-reconciliation.yml'
 
 permissions:
@@ -40,12 +46,22 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
+        with:
+          path: BRAINK
+      - uses: actions/checkout@v4
+        with:
+          repository: aboudykeddeh276-stack/SERVERS-KEDDEHSYSTEMS
+          path: BRAINK/dependencies/SERVERS-KEDDEHSYSTEMS
       - name: Verify resident runtime dependencies
+        working-directory: BRAINK
         run: |
           python3 --version
-          python3 -c "import fcntl, sqlite3, hashlib, json; print('stdlib-runtime-dependencies: PASS')"
+          python3 -c "import fcntl, sqlite3, hashlib, json, socket, struct; print('stdlib-runtime-dependencies: PASS')"
           python3 -c "import pytest; print('pytest:', pytest.__version__)"
+          test -f dependencies/SERVERS-KEDDEHSYSTEMS/runtime/domain_authority/kex_registrar_service.py
+          test -f dependencies/SERVERS-KEDDEHSYSTEMS/runtime/domain_authority/kex_dns.py
       - name: Compile reconciled dependency chain
+        working-directory: BRAINK
         run: |
           python3 -m py_compile \
             enterprise/continuation_runtime.py \
@@ -53,12 +69,20 @@ jobs:
             enterprise/self_addressing_runtime.py \
             runtime/R25/system_evolution_runtime.py \
             enterprise/recursive_computer_runtime_r26.py \
-            enterprise/state_ledger_atomicity_r31.py
+            enterprise/state_ledger_atomicity_r31.py \
+            enterprise/domain_authority_binding.py
       - name: Recursive computer core
+        working-directory: BRAINK
         run: python3 -m pytest -q tests/R26/test_recursive_computer_runtime_r26.py
       - name: Process adversarial persistence
+        working-directory: BRAINK
         run: python3 -m pytest -q tests/R26/test_recursive_process_adversarial_r26.py
       - name: Ledger integrity
+        working-directory: BRAINK
         run: python3 -m pytest -q tests/R26/test_ledger_integrity_r30.py
       - name: State-ledger atomicity
+        working-directory: BRAINK
         run: python3 -m pytest -q tests/R31/test_state_ledger_atomicity_r31.py
+      - name: Domain authority UDP and TCP integration
+        working-directory: BRAINK
+        run: python3 -m pytest -q tests/integration/test_domain_authority_binding.py
