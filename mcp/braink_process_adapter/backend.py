@@ -9,6 +9,7 @@ from enterprise.orchestration.durable_execution_r5 import (
     DomainAuthorityAtomicCoordinator,
     SignedEnvelopeAuthority,
 )
+from .sector_bridges import ServerRuntimeBridge, VirtualMemoryBridge
 
 LEGAL_ENTITY = {
     "identity": "organisation://the-layna-company",
@@ -24,7 +25,7 @@ OPERATING_IDENTITY = {
 }
 
 class BrainkProcessBackend:
-    """Thin callable adapter over BRAINK R5 durable execution primitives."""
+    """Thin callable adapter over BRAINK R5 durable execution and verified cross-repo mechanics."""
 
     def __init__(self, state_dir: str | Path | None = None, key: bytes | None = None):
         self.state_dir = Path(state_dir or os.environ.get("BRAINK_MCP_STATE_DIR", "runtime/braink_mcp")).resolve()
@@ -35,6 +36,8 @@ class BrainkProcessBackend:
             self.state_dir / "domain_control.sqlite",
             self.state_dir / "domain_authority.sqlite",
         )
+        self.servers = ServerRuntimeBridge()
+        self.vfs = VirtualMemoryBridge()
 
     @staticmethod
     def _load_key() -> bytes:
@@ -105,3 +108,21 @@ class BrainkProcessBackend:
         path = self.state_dir / "checkpoints" / f"{work_id}.json"
         payload = CheckpointStore(path, self.key).read()
         return {"work_id": work_id, "state": "READ_BACK", "checkpoint": payload}
+
+    def server_probe(self) -> dict[str, Any]:
+        return self.servers.probe()
+
+    def server_apply(self, operation: str, payload: dict[str, Any] | None = None) -> dict[str, Any]:
+        return self.servers.apply(operation, payload)
+
+    def vfs_bind(self, logical: str, backing: str) -> dict[str, Any]:
+        return self.vfs.bind(logical, backing)
+
+    def vfs_write(self, logical: str, backing: str, payload: dict[str, Any]) -> dict[str, Any]:
+        return self.vfs.write(logical, backing, payload)
+
+    def vfs_read(self, logical: str, backing: str) -> dict[str, Any]:
+        return self.vfs.read(logical, backing)
+
+    def vfs_migrate(self, logical: str, current_backing: str, new_backing: str) -> dict[str, Any]:
+        return self.vfs.migrate(logical, current_backing, new_backing)
