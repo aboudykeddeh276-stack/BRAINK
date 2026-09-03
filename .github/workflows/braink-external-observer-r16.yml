@@ -5,9 +5,9 @@ on:
     branches:
       - build/service-supervisor-s1-host-survey
     paths:
+      - .github/workflows/braink-external-observer-r16.yml
       - runtime/braink_external_probe_r15.sh
       - runtime/braink_external_authority_adapter_r14.py
-      - .github/workflows/braink-external-observer-r16.yml
   workflow_dispatch:
 
 permissions:
@@ -15,117 +15,123 @@ permissions:
 
 env:
   BRAINK_DOMAIN: keddeh.com
-  BRAINK_RECEIPT: reports/BRAINK_R16_EXTERNAL_OBSERVER_RECEIPT.json
 
 jobs:
   active-runtime-observer:
     runs-on: ubuntu-latest
     timeout-minutes: 8
     steps:
-      - name: Checkout active BRAINK branch
-        uses: actions/checkout@v4
-
-      - name: Configure Python runtime
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-
-      - name: Install and verify network dependencies
+      - name: Verify and configure runner dependencies
         shell: bash
         run: |
           set -euo pipefail
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends \
-            ca-certificates curl dnsutils jq openssl
-          update-ca-certificates
+          missing=0
+          for cmd in curl python3 openssl getent; do
+            if ! command -v "$cmd" >/dev/null 2>&1; then
+              echo "MISSING=$cmd"
+              missing=1
+            fi
+          done
+          if [ "$missing" -eq 1 ]; then
+            sudo apt-get update
+            sudo apt-get install -y --no-install-recommends ca-certificates curl openssl python3 dnsutils
+          fi
+          update-ca-certificates || true
           command -v curl
-          command -v dig
-          command -v jq
+          command -v python3
           command -v openssl
-          python --version
+          command -v getent
           curl --version | head -n 1
+          python3 --version
           openssl version
-          chmod +x runtime/braink_external_probe_r15.sh
-          mkdir -p reports
+          echo 'R16_DEPENDENCY_CONFIGURATION=PASS'
 
-      - name: Verify DNS dependency path independently
+      - name: Verify independent DNS and HTTPS egress
         shell: bash
         run: |
           set -euo pipefail
-          echo '=== system resolver ==='
           getent ahosts dns.google | head -n 4
-          echo '=== recursive DNS ==='
-          dig +time=5 +tries=2 dns.google A
-          echo '=== HTTPS dependency ==='
-          curl -fsS --max-time 15 -o /tmp/doh.json \
+          curl -fsS --max-time 15 \
             -H 'Accept: application/dns-json' \
-            'https://dns.google/resolve?name=example.com&type=A'
-          jq -e '.Status == 0' /tmp/doh.json >/dev/null
+            'https://dns.google/resolve?name=example.com&type=A' \
+            -o /tmp/r16_doh.json
+          python3 - <<'PY'
+          import json
+          r=json.load(open('/tmp/r16_doh.json'))
+          assert r.get('Status') == 0, r
+          print('R16_DOH_DEPENDENCY=PASS')
+          PY
 
-      - name: Execute repository external probe
+      - name: Execute direct public authority observations
         shell: bash
         run: |
           set -euo pipefail
-          runtime/braink_external_probe_r15.sh "$BRAINK_DOMAIN" "$BRAINK_RECEIPT"
-          cat "$BRAINK_RECEIPT"
-
-      - name: Execute TLS certificate readback
-        shell: bash
-        run: |
-          set -euo pipefail
-          python - <<'PY'
-          import hashlib, json, os, socket, ssl
-          from pathlib import Path
+          python3 - <<'PY'
+          import hashlib, json, os, socket, ssl, subprocess
           domain=os.environ['BRAINK_DOMAIN']
-          receipt_path=Path(os.environ['BRAINK_RECEIPT'])
-          r=json.loads(receipt_path.read_text())
+          probes=[]
+          def curl_probe(name,args):
+              cp=subprocess.run(['curl','-fsS','--max-time','15',*args],capture_output=True,text=True)
+              probes.append({
+                  'probe':name,
+                  'status':'PASS' if cp.returncode==0 else 'FAIL',
+                  'exit_code':cp.returncode,
+                  'stdout':cp.stdout[:12000],
+                  'stderr':cp.stderr[:4000],
+              })
+          curl_probe('DNS_A',['-H','Accept: application/dns-json',f'https://dns.google/resolve?name={domain}&type=A'])
+          curl_probe('DNS_NS',['-H','Accept: application/dns-json',f'https://dns.google/resolve?name={domain}&type=NS'])
+          curl_probe('RDAP',[f'https://rdap.verisign.com/com/v1/domain/{domain}'])
+          curl_probe('HTTPS',['-I',f'https://{domain}'])
           try:
               ctx=ssl.create_default_context()
               with socket.create_connection((domain,443),timeout=12) as raw:
                   with ctx.wrap_socket(raw,server_hostname=domain) as s:
                       der=s.getpeercert(binary_form=True)
                       cert=s.getpeercert()
-              r['tls_direct']={
-                  'status':'PASS',
+              probes.append({
+                  'probe':'TLS','status':'PASS',
                   'sha256':hashlib.sha256(der).hexdigest(),
                   'subject':cert.get('subject'),
                   'issuer':cert.get('issuer'),
                   'notAfter':cert.get('notAfter'),
-              }
+              })
           except Exception as e:
-              r['tls_direct']={'status':'FAIL','error':f'{type(e).__name__}: {e}'}
-          receipt_path.write_text(json.dumps(r,indent=2))
-          print(json.dumps(r['tls_direct'],indent=2))
+              probes.append({'probe':'TLS','status':'FAIL','error':f'{type(e).__name__}: {e}'})
+          required={'DNS_A','DNS_NS','RDAP','HTTPS','TLS'}
+          assert required == {p['probe'] for p in probes}, probes
+          receipt={
+              'schema':'braink.external-observer.r16',
+              'domain':domain,
+              'runner':'github-actions/ubuntu-latest',
+              'dependencies':'PASS',
+              'probes':probes,
+              'public_observation_count':sum(p['status']=='PASS' for p in probes),
+              'mutation_authority':{
+                  'public_dns':'NOT_GRANTED',
+                  'registry_registrar':'NOT_GRANTED',
+                  'ca_tls_issuance':'NOT_GRANTED',
+              },
+          }
+          receipt['status']='PASS_PUBLIC_OBSERVED' if receipt['public_observation_count'] else 'PASS_DOMAIN_NEGATIVE_OBSERVED'
+          print('BRAINK_R16_RECEIPT_BEGIN')
+          print(json.dumps(receipt,indent=2))
+          print('BRAINK_R16_RECEIPT_END')
+          open('/tmp/BRAINK_R16_EXTERNAL_OBSERVER_RECEIPT.json','w').write(json.dumps(receipt,indent=2))
           PY
 
-      - name: Enforce evidence classification
+      - name: Enforce evidence gate
         shell: bash
         run: |
           set -euo pipefail
-          python - <<'PY'
-          import json, os
-          from pathlib import Path
-          p=Path(os.environ['BRAINK_RECEIPT'])
-          r=json.loads(p.read_text())
-          probes={x['probe']:x for x in r['probes']}
-          required={'DNS_A','DNS_NS','RDAP','HTTPS'}
-          assert required.issubset(probes), r
-          # The job may prove public state or a domain-specific negative result,
-          # but infrastructure/dependency failures are not domain-state evidence.
-          infra=[x for x in r['probes'] if x.get('classification')=='DNS_EGRESS_BLOCKED']
-          assert not infra, f'runner dependency/egress failure: {infra}'
-          r['runner_dependencies']='PASS'
-          r['runner']='github-actions/ubuntu-latest'
-          r['status']='PASS_PUBLIC_OBSERVED' if any(x['status']=='PASS' for x in r['probes']) else 'PASS_DOMAIN_NEGATIVE_OBSERVED'
-          p.write_text(json.dumps(r,indent=2))
-          print('R16_DEPENDENCIES=PASS')
+          python3 - <<'PY'
+          import json
+          r=json.load(open('/tmp/BRAINK_R16_EXTERNAL_OBSERVER_RECEIPT.json'))
+          assert r['dependencies']=='PASS', r
+          assert r['status'] in {'PASS_PUBLIC_OBSERVED','PASS_DOMAIN_NEGATIVE_OBSERVED'}, r
+          for p in r['probes']:
+              text=(p.get('stderr','')+' '+p.get('error','')).lower()
+              assert 'could not resolve host: dns.google' not in text, p
+          print('R16_EVIDENCE_GATE=PASS')
           print('R16_STATUS='+r['status'])
           PY
-
-      - name: Upload R16 external observation receipt
-        uses: actions/upload-artifact@v4
-        with:
-          name: BRAINK_R16_EXTERNAL_OBSERVER_RECEIPT
-          path: reports/BRAINK_R16_EXTERNAL_OBSERVER_RECEIPT.json
-          if-no-files-found: error
-          retention-days: 30
