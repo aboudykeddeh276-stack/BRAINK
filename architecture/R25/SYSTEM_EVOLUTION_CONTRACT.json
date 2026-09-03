@@ -1,0 +1,59 @@
+{
+  "schema": "kex.braink.system-evolution-contract.v25",
+  "release": "R25",
+  "authority": "A.KEDDEH / KEDDEH_SYSTEMS / BRAINK / KEX",
+  "objective": "End-to-end system evolution, automated synthesis, deterministic reconciliation, and market-ready deployment",
+  "invariants": {
+    "canonical_substrate": "BRAINK",
+    "execution_precedence": ["OBSERVE", "DELTA", "ADAPT", "GENERATE_OR_REPAIR", "TEST", "PROVE", "PROMOTE"],
+    "promotion_requires_readback": true,
+    "projection_never_replaces_canonical_state": true,
+    "artifacts_are_content_addressed": true,
+    "absolute_logical_paths_required": true,
+    "orphaned_service_prevention": "Every service must resolve owner, lineage, runtime, rollback, proof and public projection before promotion"
+  },
+  "foundries": [
+    "business-enterprise",
+    "server",
+    "agentics",
+    "software",
+    "hci",
+    "landing-page",
+    "workspace",
+    "filesystem",
+    "customer-file-base",
+    "publishing",
+    "research",
+    "hr-team-services",
+    "domain",
+    "network",
+    "memory",
+    "observability",
+    "security",
+    "release-engineering"
+  ],
+  "system_streams": {
+    "discovery": "inventory -> classify -> dependency graph -> capability match",
+    "synthesis": "validated pattern -> module template -> generated implementation -> static validation",
+    "reconciliation": "source state -> observed state -> delta -> repair transaction -> receipt",
+    "deployment": "build -> test -> qualify -> staged publish -> outside-in readback -> promote",
+    "recovery": "checkpoint -> failure classification -> alternate carrier -> rehydrate -> verify identity preservation",
+    "market": "capability -> proof -> value metric -> service contract -> frontage -> customer workflow"
+  },
+  "transaction_model": {
+    "event_id": "sha256(canonical_event)",
+    "required_fields": ["actor", "owner", "input_state", "operation", "output_state", "proof", "rollback", "timestamp", "lineage"],
+    "append_only_ledger": true
+  },
+  "quality_gates": [
+    "architecture_contract",
+    "unit_tests",
+    "integration_tests",
+    "determinism_tests",
+    "reconciliation_tests",
+    "security_tests",
+    "rollback_tests",
+    "market_service_qualification",
+    "outside_in_readback"
+  ]
+}

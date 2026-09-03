@@ -1,0 +1,60 @@
+{
+  "schema": "kex.braink.automated-synthesis-policy.v25",
+  "release": "R25",
+  "synthesis_loop": [
+    "discover primitives",
+    "classify capability and constraints",
+    "select validated architecture pattern",
+    "instantiate module template",
+    "generate implementation candidate",
+    "run static and invariant checks",
+    "run deterministic tests",
+    "compare generated candidate against source contract",
+    "emit proof and lineage",
+    "admit only passing candidate"
+  ],
+  "cognitive_multiplex": {
+    "roles": [
+      "ARCHITECT",
+      "IMPLEMENTER",
+      "ADVERSARIAL_REVIEWER",
+      "TEST_ENGINEER",
+      "SECURITY_REVIEWER",
+      "MARKET_QUALIFIER",
+      "PROOF_VERIFIER"
+    ],
+    "rule": "A role may propose a mutation but may not self-promote its own mutation without an independent proof-verifier result.",
+    "shared_state": "content-addressed canonical work packet",
+    "conflict_resolution": "evidence-ranked reconciliation; observed execution outranks unexecuted claims"
+  },
+  "module_contract": {
+    "required": [
+      "module_id",
+      "owner",
+      "inputs",
+      "outputs",
+      "dependencies",
+      "invariants",
+      "tests",
+      "proof",
+      "rollback",
+      "version",
+      "lineage"
+    ],
+    "forbidden": [
+      "implicit global state without ownership",
+      "unbounded side effects",
+      "promotion without readback",
+      "orphaned public service",
+      "unversioned mutation"
+    ]
+  },
+  "hardening": {
+    "mutation_strategy": "smallest safe deterministic delta",
+    "fault_injection": true,
+    "rollback_rehearsal": true,
+    "race_detection": true,
+    "idempotence_testing": true,
+    "replay_testing": true
+  }
+}
