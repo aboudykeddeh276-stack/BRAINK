@@ -1,0 +1,16 @@
+{
+  "schema": "braink.r28.resident-root-implementation-state/v1",
+  "authority_order": [
+    "RESIDENT_OBJECT_GRAPH",
+    "CANONICAL_TYPED_ROOTS",
+    "RECOMPUTED_ROOT_DIGEST_VERIFICATION",
+    "RECOMPUTED_CANONICAL_SNAPSHOT_VERIFICATION",
+    "REMOTE_HOST_PROJECTION",
+    "CARRIER_ENDPOINT_LAST"
+  ],
+  "typed_roots": ["DOMAIN_ROOT", "DNS_ROOT", "REGISTRAR_ROOT", "TLS_ROOT", "SERVER_ROOT", "CLOUD_ROOT"],
+  "tls_adapter_binding": "UNRESOLVED_CONCRETE_ADAPTER",
+  "dns_adapter_binding": "UNRESOLVED_CONCRETE_ADAPTER",
+  "carrier_identity_authority": false,
+  "ci_state": "PENDING_OBSERVED_RUNNER_READBACK"
+}
