@@ -1,0 +1,57 @@
+{
+  "schema": "braink.r24.r7-agent-function-reconciliation/v1",
+  "subject": "R7_TYPED_AGENT_FUNCTION_AUTHORITY",
+  "status": "IMPLEMENTED_CI_WIRED_EXECUTION_PENDING_NOT_PROMOTED",
+  "discovery": {
+    "existing_r6_authority": "mcp/braink_process_adapter/capability_runtime.py",
+    "existing_agent_adapter": "mcp/braink_process_adapter/agent_authority_client.py",
+    "r7_function_contracts": "mcp/braink_process_adapter/function_contracts.py"
+  },
+  "reconciliation": {
+    "classification": "STATE_DRIFT",
+    "finding": "R7 typed function contracts were qualified against synthetic authority metadata rather than the resident governed BRAINK process."
+  },
+  "decision": "BIND_TYPED_FUNCTION_VALIDATION_TO_LIVE_R6_AUTHORITY_CLIENT_AND_QUALIFY_AGAINST_RESIDENT_PROCESS",
+  "implementation_commits": {
+    "agent_authority_binding": "13da5aeb2a471bfbbf7624523324d4a7bf445187",
+    "actual_process_test": "58063cb05253150cd083ce6ae60e9745e938e2b1",
+    "r7_ci_gate": "009ac63c1a9697281edfe76a946fe77d3326d5c1",
+    "r24_ci_binding": "ce4a4cf680a290ea8f4d8fd71cc53d17849f4931"
+  },
+  "actual_process_invariant": "scripts/kex-ci/test_agent_function_actual_process_r7.py",
+  "mechanics": {
+    "function_manifest_from_live_capability_manifest": true,
+    "typed_payload_validation_before_invocation_ledger": true,
+    "invalid_payload_must_not_reach_invocation_ledger": true,
+    "default_normalization_before_governed_execution": true,
+    "all_execution_via": "braink_invoke_capability",
+    "direct_resident_mutator_exposure": false,
+    "idempotent_replay_tested_by_source_invariant": true,
+    "domain_readback_tested_by_source_invariant": true
+  },
+  "r24_workflow": {
+    "run_id": 33702491779,
+    "status": "QUEUED_AT_READBACK",
+    "conclusion": null
+  },
+  "gates": {
+    "static_validate": "CI_WIRED",
+    "unit_test": "CI_WIRED",
+    "integration_test": "CI_WIRED_ACTUAL_PROCESS",
+    "fault_injection": "PARTIAL_INVALID_PAYLOAD_PRE_LEDGER",
+    "security_gate": "PENDING_FULL_R24_PROFILE",
+    "quality_gate": "PENDING_FULL_R24_PROFILE",
+    "release_manifest": "PENDING",
+    "independent_verify": "PENDING",
+    "promotion": "REJECTED_PENDING_EXECUTION_AND_REMAINING_R24_GATES",
+    "market_readiness": "PENDING"
+  },
+  "claim_boundaries": {
+    "local_source_execution_this_transition": "NOT_OBSERVED",
+    "github_ci_execution": "QUEUED_NOT_OBSERVED",
+    "chatgpt_client_connection": "UNPROVEN",
+    "codex_client_connection": "UNPROVEN",
+    "physical_multi_host": "UNPROVEN"
+  },
+  "receipt_root": "0f8ae93ab743879d32b4825ce7a90c8c56abdbe8bb7af4a33bbe2014efa102c9"
+}
