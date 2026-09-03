@@ -1,0 +1,22 @@
+{
+  "schema": "braink.runtime-manifest",
+  "authority_rule": "STABLE_ROLE_OVER_REVISION_LABEL",
+  "progress_rule": "VERIFIED_CAPABILITY_DELTA_ONLY",
+  "reference_packet_default": "REFERENCE_ONLY",
+  "roles": {
+    "MACHINE_GENESIS": "runtime/braink_machine_genesis_r8.js",
+    "REGENERATIVE_MACHINE_FABRIC": "runtime/braink_regenerative_fabric_r9_r10.py",
+    "SERVICE_FABRIC": "runtime/braink_global_service_fabric_r11.py",
+    "LIVE_MACHINE_SERVICE": "runtime/braink_machine_service_r12.py",
+    "SEMANTIC_SERVICE_RESOLVER": "runtime/braink_semantic_service_resolver_r12.py",
+    "TYPED_SERVICE_FABRIC": "runtime/braink_typed_service_fabric_r13.py",
+    "EXTERNAL_AUTHORITY_OBSERVER": "runtime/braink_external_authority_adapter_r14.py",
+    "EXTERNAL_PATH_PROBE": "runtime/braink_external_probe_r15.sh"
+  },
+  "interpretation": {
+    "revision_suffixes": "HISTORICAL_ARTIFACT_METADATA_ONLY",
+    "packet_version_labels": "SOURCE_METADATA_ONLY",
+    "packet_claims": "UNVERIFIED_UNTIL_LOCAL_READBACK",
+    "next_action": "DERIVE_FROM_MISSING_VERIFIED_PREDICATE_NOT_VERSION_NUMBER"
+  }
+}
