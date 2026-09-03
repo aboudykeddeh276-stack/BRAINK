@@ -2,11 +2,12 @@
   "schema": "kex.braink.dependency-edges.v1",
   "detector": {
     "name": "braink-kex-runtime-dependency-detector",
-    "version": "1.0.0"
+    "version": "1.1.0"
   },
   "scan_roots": [
     "enterprise",
-    "runtime"
+    "runtime",
+    "modules/kex_core"
   ],
   "declared_edges": [
     {
@@ -62,6 +63,60 @@
       "scope": "runtime",
       "interface": "fsync/os.replace",
       "authority": "HOST_FILESYSTEM"
+    },
+    {
+      "source": "enterprise/resident_root_runtime.py",
+      "target": "modules/kex_core/canonical_state.py",
+      "class": "MODULE_DEPENDENCY",
+      "relationship": "direct",
+      "scope": "runtime",
+      "interface": "CanonicalBoundary/CanonicalState",
+      "authority": "KEX"
+    },
+    {
+      "source": "enterprise/resident_root_runtime.py",
+      "target": "enterprise/domain_authority_binding.py",
+      "class": "MODULE_DEPENDENCY",
+      "relationship": "direct",
+      "scope": "runtime",
+      "interface": "DOMAIN_ROOT binding",
+      "authority": "BRAINK+SERVERS-KEDDEHSYSTEMS"
+    },
+    {
+      "source": "enterprise/resident_root_runtime.py",
+      "target": "runtime/runtime_registry.py",
+      "class": "MODULE_DEPENDENCY",
+      "relationship": "direct",
+      "scope": "runtime",
+      "interface": "SERVER_ROOT resident runtime registry",
+      "authority": "BRAINK"
+    },
+    {
+      "source": "enterprise/resident_root_runtime.py",
+      "target": "deployment/bootstrap_keddeh_fabric.py",
+      "class": "MODULE_DEPENDENCY",
+      "relationship": "direct",
+      "scope": "runtime",
+      "interface": "CLOUD_ROOT machine-fabric bootstrap",
+      "authority": "BRAINK"
+    },
+    {
+      "source": "enterprise/remote_fabric_node.py",
+      "target": "enterprise/resident_root_runtime.py",
+      "class": "MODULE_DEPENDENCY",
+      "relationship": "direct",
+      "scope": "runtime",
+      "interface": "resident typed-root graph before carrier projection",
+      "authority": "BRAINK"
+    },
+    {
+      "source": "enterprise/remote_fabric_node.py",
+      "target": "runtime://python/socket/tcp",
+      "class": "RUNTIME_AUTHORITY_DEPENDENCY",
+      "relationship": "direct",
+      "scope": "runtime",
+      "interface": "HTTP service over TCP carrier projection",
+      "authority": "HOST_NETWORK"
     },
     {
       "source": "enterprise/domain_authority_binding.py",
