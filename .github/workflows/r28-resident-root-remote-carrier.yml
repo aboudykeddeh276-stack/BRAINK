@@ -1,0 +1,38 @@
+name: R28 Resident Root Remote Carrier
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'runtime/resident_root_projection_r28.py'
+      - 'scripts/kex-ci/test_resident_root_projection_r28.py'
+      - '.github/workflows/r28-resident-root-remote-carrier.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-resident-root-carrier-order:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Execute resident-root remote-carrier verification
+        run: python scripts/kex-ci/test_resident_root_projection_r28.py
+      - name: Verify receipt exists
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('reports/BRAINK_R28_RESIDENT_ROOT_REMOTE_CARRIER_RECEIPT.json')
+          x=json.loads(p.read_text())
+          assert x['status']=='PASS'
+          print(x['snapshot_digest'])
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: braink-r28-resident-root-carrier-receipt
+          path: reports/BRAINK_R28_RESIDENT_ROOT_REMOTE_CARRIER_RECEIPT.json
