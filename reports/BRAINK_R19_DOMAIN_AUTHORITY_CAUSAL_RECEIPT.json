@@ -1,0 +1,38 @@
+{
+  "schema": "braink.domain-authority-fabric.r19.causal-receipt",
+  "status": "PASS",
+  "execution_surface": "recovered local runtime files",
+  "resident_resolver": {
+    "readback_domain": "resident-test.keddeh",
+    "readback_ip": "127.0.0.44",
+    "state": "PASS_PRESERVED"
+  },
+  "registrar_v2": {
+    "domain": "keddeh.com",
+    "registry_queue_state": "AWAITING_REGISTRY_AUTHORITY",
+    "authority_ready": false,
+    "missing_authorities": ["ICANN_RAA", "REGISTRY_RRA_COM", "REGISTRAR_DATA_ESCROW"]
+  },
+  "epp_dispatch": {
+    "state": "BLOCKED_AS_REQUIRED",
+    "error": "REGISTRY_AUTHORITY_NOT_BOUND:ICANN_RAA,REGISTRY_RRA_COM,REGISTRAR_DATA_ESCROW"
+  },
+  "isolation_proof": {
+    "legacy_ledger_after_block": ["127.0.0.44", 8044, "TEST"],
+    "failed_external_mutation_isolated": true,
+    "legacy_resolver_replaced": false
+  },
+  "identity": {
+    "canonical_id": "LEX://DOMAIN/keddeh.com",
+    "lineage_id": "LIN://DOMAIN/1e3a2be2d6b5069d818c88b3",
+    "one_canonical_object_many_resolution_paths": true
+  },
+  "promotion_boundary": {
+    "resident_resolver_mechanics": "VERIFIED",
+    "registrar_queue_and_gate": "VERIFIED",
+    "failed_mutation_isolation": "VERIFIED",
+    "production_registry_authority": "NOT_BOUND",
+    "public_parent_delegation": "NOT_CHANGED"
+  },
+  "sha256": "f9a05adefd5311a1a8d2a633b92829319884c156b7b82f615e9c66f97f8422e3"
+}
