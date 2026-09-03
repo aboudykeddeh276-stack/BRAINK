@@ -183,9 +183,15 @@ class CapabilityRuntime:
         "UNBOUND_RUNTIME_PATH", "UNBOUND_ACTUATOR", "LOAD_FAILED", "ERROR",
     }
 
-    def __init__(self, ledger: ReceiptLedger, registry: CapabilityRegistry):
+    def __init__(
+        self,
+        ledger: ReceiptLedger,
+        registry: CapabilityRegistry,
+        context_validator: Callable[[InvocationContext], None] | None = None,
+    ):
         self.ledger = ledger
         self.registry = registry
+        self.context_validator = context_validator
 
     @staticmethod
     def _authorize(contract: CapabilityContract, ctx: InvocationContext):
@@ -227,6 +233,8 @@ class CapabilityRuntime:
         reg = self.registry.resolve(capability_id)
         contract = reg.contract
         self._authorize(contract, ctx)
+        if self.context_validator is not None:
+            self.context_validator(ctx)
         self._check_circuit(contract)
 
         request = {
