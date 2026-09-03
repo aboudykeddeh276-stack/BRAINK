@@ -1,7 +1,7 @@
 {
   "schema": "kex.braink.dependency-edges.v1",
-  "detector": {"name": "braink-kex-runtime-dependency-detector", "version": "1.3.0"},
-  "scan_roots": ["enterprise", "runtime", "modules/kex_core", "deploy/braink-public"],
+  "detector": {"name": "braink-kex-runtime-dependency-detector", "version": "1.4.0"},
+  "scan_roots": ["enterprise", "runtime", "modules/kex_core", "deploy/braink-public", "assets/public_tls_host_actuators"],
   "declared_edges": [
     {"source":"enterprise/recursive_computer_runtime_r26.py","target":"enterprise/self_addressing_runtime.py","class":"MODULE_DEPENDENCY","relationship":"direct","scope":"runtime","interface":"SelfAddressingRuntime","authority":"BRAINK"},
     {"source":"enterprise/recursive_computer_runtime_r26.py","target":"enterprise/recursive_commit_coordinator_r31.py","class":"MODULE_DEPENDENCY","relationship":"direct","scope":"runtime","interface":"RecursiveCommitCoordinatorR31","authority":"BRAINK"},
@@ -23,13 +23,22 @@
 
     {"source":"enterprise/public_ca_adapter.py","target":"enterprise/tls_authority_runtime.py","class":"MODULE_DEPENDENCY","relationship":"direct","scope":"runtime","interface":"consume resident TLS_ROOT state before public projection","authority":"BRAINK_LOCAL_TLS_AUTHORITY"},
     {"source":"enterprise/public_ca_adapter.py","target":"runtime://acme/certbot","class":"RUNTIME_AUTHORITY_DEPENDENCY","relationship":"direct","scope":"runtime","interface":"ACME certificate issuance client","authority":"PUBLIC_CA_AUTHORITY"},
-    {"source":"enterprise/public_ca_adapter.py","target":"runtime://domain/public-dns-challenge-auth-hook","class":"RUNTIME_AUTHORITY_DEPENDENCY","relationship":"direct","scope":"runtime","interface":"publish DNS-01 challenge on publicly authoritative DNS path","authority":"PUBLIC_DOMAIN_AUTHORITY"},
-    {"source":"enterprise/public_ca_adapter.py","target":"runtime://domain/public-dns-challenge-cleanup-hook","class":"RUNTIME_AUTHORITY_DEPENDENCY","relationship":"direct","scope":"runtime","interface":"remove DNS-01 challenge from publicly authoritative DNS path","authority":"PUBLIC_DOMAIN_AUTHORITY"},
+    {"source":"enterprise/public_ca_adapter.py","target":"assets/public_tls_host_actuators/dns01_resident_actuator.py","class":"MODULE_DEPENDENCY","relationship":"direct","scope":"runtime","interface":"public DNS-01 challenge publication and cleanup","authority":"PUBLIC_DOMAIN_AUTHORITY"},
     {"source":"enterprise/public_ca_adapter.py","target":"runtime://tls/system-public-trust-store","class":"RUNTIME_AUTHORITY_DEPENDENCY","relationship":"direct","scope":"runtime","interface":"external hostname and public trust verification","authority":"HOST_TLS_RUNTIME"},
 
+    {"source":"assets/public_tls_host_actuators/dns01_resident_actuator.py","target":"runtime://python/sqlite3","class":"RUNTIME_AUTHORITY_DEPENDENCY","relationship":"direct","scope":"runtime","interface":"transactional ACME TXT mutation/readback in KEX registrar state","authority":"REGISTRAR_ROOT"},
+    {"source":"assets/public_tls_host_actuators/dns01_resident_actuator.py","target":"dependencies/SERVERS-KEDDEHSYSTEMS/runtime/domain_authority/kex_registrar_service.py","class":"RUNTIME_AUTHORITY_DEPENDENCY","relationship":"direct","scope":"runtime","interface":"shared zones/zone_records schema consumed by authoritative DNS","authority":"SERVERS-KEDDEHSYSTEMS"},
+    {"source":"assets/public_tls_host_actuators/server_tls_actuator.py","target":"runtime://filesystem/fsync-replace","class":"RUNTIME_AUTHORITY_DEPENDENCY","relationship":"direct","scope":"runtime","interface":"atomic certificate/key replacement and durable directory update","authority":"SERVER_ROOT"},
+    {"source":"assets/public_tls_host_actuators/server_tls_actuator.py","target":"runtime://python/socket/tcp","class":"RUNTIME_AUTHORITY_DEPENDENCY","relationship":"direct","scope":"runtime","interface":"post-restart TLS listener readback","authority":"HOST_NETWORK"},
+    {"source":"assets/public_tls_host_actuators/server_tls_actuator.py","target":"runtime://python/ssl","class":"RUNTIME_AUTHORITY_DEPENDENCY","relationship":"direct","scope":"runtime","interface":"SNI-bound live certificate fingerprint readback","authority":"HOST_TLS_RUNTIME"},
+    {"source":"assets/public_tls_host_actuators/server_tls_actuator.py","target":"assets/public_tls_host_actuators/rollback_server_tls.py","class":"MODULE_DEPENDENCY","relationship":"direct","scope":"runtime","interface":"automatic rollback on failed SERVER_ROOT readback","authority":"SERVER_ROOT"},
+    {"source":"assets/public_tls_host_actuators/resolve_host_bindings.py","target":"deploy/braink-public/discover_host_actuators.py","class":"MODULE_DEPENDENCY","relationship":"direct","scope":"runtime","interface":"fail-closed resolution of registrar/certificate/key/restart bindings","authority":"SERVER_ROOT+REGISTRAR_ROOT"},
+    {"source":"assets/public_tls_host_actuators/install_launchers.py","target":"assets/public_tls_host_actuators/dns01_resident_actuator.py","class":"MODULE_DEPENDENCY","relationship":"direct","scope":"runtime","interface":"Certbot executable hook launcher","authority":"BRAINK"},
+    {"source":"assets/public_tls_host_actuators/install_launchers.py","target":"assets/public_tls_host_actuators/server_tls_actuator.py","class":"MODULE_DEPENDENCY","relationship":"direct","scope":"runtime","interface":"SERVER_ROOT install launcher","authority":"BRAINK"},
+
     {"source":"deploy/braink-public/provision_public_tls.py","target":"enterprise/public_ca_adapter.py","class":"MODULE_DEPENDENCY","relationship":"direct","scope":"runtime","interface":"public certificate request issuance verification","authority":"BRAINK"},
-    {"source":"deploy/braink-public/provision_public_tls.py","target":"runtime://server/tls-install-hook","class":"RUNTIME_AUTHORITY_DEPENDENCY","relationship":"direct","scope":"runtime","interface":"install verified public certificate into resident SERVER_ROOT","authority":"SERVER_ROOT"},
-    {"source":"deploy/braink-public/provision_public_tls.py","target":"runtime://server/tls-rollback-hook","class":"RUNTIME_AUTHORITY_DEPENDENCY","relationship":"direct","scope":"runtime","interface":"reverse partial SERVER_ROOT TLS mutation","authority":"SERVER_ROOT"},
+    {"source":"deploy/braink-public/provision_public_tls.py","target":"assets/public_tls_host_actuators/server_tls_actuator.py","class":"MODULE_DEPENDENCY","relationship":"direct","scope":"runtime","interface":"install verified public certificate into resident SERVER_ROOT","authority":"SERVER_ROOT"},
+    {"source":"deploy/braink-public/provision_public_tls.py","target":"assets/public_tls_host_actuators/rollback_server_tls.py","class":"MODULE_DEPENDENCY","relationship":"direct","scope":"runtime","interface":"reverse partial SERVER_ROOT TLS mutation","authority":"SERVER_ROOT"},
     {"source":"deploy/braink-public/deploy_live.py","target":"deploy/braink-public/provision_public_tls.py","class":"MODULE_DEPENDENCY","relationship":"direct","scope":"runtime","interface":"public TLS promotion inside R24 deployment transaction","authority":"BRAINK"},
 
     {"source":"enterprise/remote_fabric_node.py","target":"enterprise/resident_root_runtime.py","class":"MODULE_DEPENDENCY","relationship":"direct","scope":"runtime","interface":"resident typed-root graph before carrier projection","authority":"BRAINK"},
