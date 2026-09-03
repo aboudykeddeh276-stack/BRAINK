@@ -1,0 +1,33 @@
+{
+  "schema": "braink.r24.canonical-gate-state-reconciliation/v1",
+  "subject": "R24_CANONICAL_GATE_SURFACE_AND_EXECUTOR_STATE",
+  "classification": "STATE_DRIFT",
+  "governing_baseline": "R24_ENGINEERING_CONTROL_ABOVE_R23_FOUNDRY_CLOSURE",
+  "discover": {
+    "canonical_state": "deployments/R24_ENGINEERING_CONTROL_STATE.json",
+    "workflow": ".github/workflows/keddeh-enterprise-control.yml",
+    "gate_surfaces": [
+      "scripts/kex-ci/test_r24_publication_domain_gate.py",
+      "scripts/kex-ci/test_r24_mail_runtime_gate.py",
+      "scripts/kex-ci/test_r24_customer_portal_privacy_gate.py",
+      "scripts/kex-ci/test_r24_owner_host_runtime_gate.py",
+      "scripts/kex-ci/test_r24_physical_multi_host_gate.py"
+    ],
+    "executor_receipt": "deployments/R24_EXECUTOR_BOUNDARY_RECONCILIATION_R2.json"
+  },
+  "reconcile_source_state": {
+    "finding": "Canonical R24 state records underlying runtime families but does not enumerate the five current R24 promotion-gate surfaces or the reproduced zero-step hosted executor fault.",
+    "classification": "STATE_DRIFT"
+  },
+  "architecture_decision": "RECONCILE_CANONICAL_STATE_ONLY_DO_NOT_DUPLICATE_RUNTIME_CAPABILITY",
+  "promotion": "REJECTED",
+  "claim_boundaries": {
+    "hosted_executor": "FAULT_EXECUTOR_BOUNDARY_ZERO_STEPS",
+    "repository_test_failure": "NOT_OBSERVED",
+    "specialist_execution": "QUEUED_OR_NOT_OBSERVED",
+    "independent_verification": "PENDING"
+  },
+  "non_duplication": "NO_RESIDENT_CAPABILITY_DUPLICATED",
+  "certification_claim": "NONE",
+  "receipt_root": "31e1686ade3304bb4c9079d436d5aadcbdc209461a553a3cbf8f4839f277cb71"
+}
