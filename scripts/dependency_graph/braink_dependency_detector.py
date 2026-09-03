@@ -5,7 +5,7 @@ from __future__ import annotations
 Produces two outputs from one source-of-truth edge declaration:
 
 1. GitHub Dependency Submission snapshot
-   A standards-compatible supply-chain representation tied to the exact commit/ref.
+   A standards-compatible supply-chain representation tied to the exact checked-out commit/ref.
 2. BRAINK semantic dependency graph
    Preserves architectural edge classes that package-manager graphs cannot express.
 
@@ -20,7 +20,6 @@ import json
 import os
 import platform
 import subprocess
-import sys
 import urllib.parse
 from pathlib import Path
 from typing import Any
@@ -38,11 +37,22 @@ def _git(*args: str, cwd: Path = ROOT) -> str:
 
 
 def _sha() -> str:
-    return os.environ.get("GITHUB_SHA") or _git("rev-parse", "HEAD")
+    # For pull_request events GITHUB_SHA identifies the synthetic merge commit.
+    # Dependency submission must represent the code actually scanned, so use HEAD.
+    return _git("rev-parse", "HEAD")
 
 
 def _ref() -> str:
-    return os.environ.get("GITHUB_REF") or f"refs/heads/{_git('branch', '--show-current')}"
+    # A PR run exposes refs/pull/<n>/merge in GITHUB_REF.  The dependency snapshot
+    # should instead identify the source branch associated with the checked-out head.
+    head_ref = os.environ.get("GITHUB_HEAD_REF")
+    if head_ref:
+        return f"refs/heads/{head_ref}"
+    ref = os.environ.get("GITHUB_REF")
+    if ref and ref.startswith("refs/heads/"):
+        return ref
+    branch = _git("branch", "--show-current")
+    return f"refs/heads/{branch}" if branch else ref or "refs/heads/detached"
 
 
 def _module_name(path: Path) -> str:
@@ -70,7 +80,7 @@ def _discover_import_edges(scan_roots: list[str]) -> list[dict[str, Any]]:
     edges: list[dict[str, Any]] = []
     seen: set[tuple[str, str]] = set()
 
-    for source_name, source_rel in sorted(index.items()):
+    for _source_name, source_rel in sorted(index.items()):
         source = ROOT / source_rel
         if source.name == "__init__.py" or not source.exists():
             continue
@@ -156,7 +166,6 @@ def _dedupe_edges(edges: list[dict[str, Any]]) -> list[dict[str, Any]]:
         if key not in merged:
             merged[key] = dict(edge)
         elif not edge.get("detected"):
-            # Explicit declarations override discovered metadata.
             merged[key].update(edge)
     return sorted(merged.values(), key=lambda e: (e["source"], e["class"], e["target"]))
 
