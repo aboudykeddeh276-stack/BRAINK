@@ -4,6 +4,7 @@
 # R16 execution trigger 3: force Actions path match after workflow installation readback.
 # R16 execution trigger 4: execute after scoped push trigger was actually installed.
 # R16 execution trigger 5: explicit user-requested push after workflow installation.
+# R16 execution trigger 6: approved explicit push after workflow installation.
 set -u
 DOMAIN="${1:-keddeh.com}"
 OUT="${2:-/mnt/data/BRAINK_R15_EXTERNAL_PATH_RECEIPT.json}"
