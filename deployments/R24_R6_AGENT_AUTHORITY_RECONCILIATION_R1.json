@@ -1,0 +1,73 @@
+{
+  "schema": "braink.r24.r6-agent-authority-reconciliation/v1",
+  "status": "IMPLEMENTED_SOURCE_CI_WIRED_EXECUTION_PENDING",
+  "governing_baseline": "BRAINK_R24_ENGINEERING_CONTROL",
+  "subject": "R6_ENTERPRISE_AGENT_AUTHORITY_ADAPTER",
+  "discover": {
+    "resident_runtime": "mcp/braink_process_adapter/capability_runtime.py",
+    "catalog": "mcp/braink_process_adapter/capability_catalog.py",
+    "backend": "mcp/braink_process_adapter/backend.py",
+    "mcp_surface": "mcp/braink_process_adapter/main.py"
+  },
+  "defects_found": [
+    {
+      "classification": "FAULT",
+      "id": "LEASE_EPOCH_DECLARED_NOT_ENFORCED",
+      "resolution": "capability invocation now validates authoritative work lease holder and epoch before execution"
+    },
+    {
+      "classification": "FAULT",
+      "id": "SEMANTIC_RESIDENT_FAILURE_RECORDED_SUCCEEDED",
+      "resolution": "nested resident failure statuses now convert invocation to FAILED and advance circuit failure state"
+    }
+  ],
+  "implemented": [
+    {
+      "path": "mcp/braink_process_adapter/agent_authority_client.py",
+      "commit": "fab5ad2cdf945baaa1812a5fbc3f1b35de09b142"
+    },
+    {
+      "path": "mcp/braink_process_adapter/capability_runtime.py",
+      "commit": "e17b943df59ec1e0a4729f0f77e07e4b5ee0f09c"
+    },
+    {
+      "path": "mcp/braink_process_adapter/capability_catalog.py",
+      "commit": "7f2e469150e94ab7da31c471306b24ff45e12a2d"
+    },
+    {
+      "path": "scripts/kex-ci/test_enterprise_capability_runtime_r6.py",
+      "commit": "5c8617fe466479a194fa3c6640413ce41466f881"
+    },
+    {
+      "path": "scripts/kex-ci/test_agent_authority_actual_process_r6.py",
+      "commit": "a2d4dd5223171f0e80b8b8dd4d98d837d0f3a9c5"
+    },
+    {
+      "path": ".github/workflows/braink-enterprise-capability-r6.yml",
+      "commit": "05d63e115d701133ad55a1381cac95d7a5402d4c"
+    }
+  ],
+  "agent_contract": {
+    "resolution": "live capability manifest",
+    "mutation_path": "braink_invoke_capability / backend.invoke_capability",
+    "raw_mutators_exposed_by_agent_client": false,
+    "required_chain": [
+      "capability contract",
+      "scope",
+      "authoritative lease",
+      "approval",
+      "idempotency",
+      "circuit",
+      "durable invocation",
+      "resident mechanic",
+      "semantic result classification",
+      "receipt"
+    ]
+  },
+  "execution": {
+    "local_clone": "BLOCKED_DNS_RESOLUTION",
+    "github_ci": "NOT_YET_OBSERVED",
+    "promotion": "REJECTED_PENDING_EXECUTION_AND_REMAINING_R24_GATES"
+  },
+  "receipt_root": "18f84aa7c5247fbbc958ac67600ebb844f20cdbbec56f4357e768eb6ea7e6a9f"
+}
