@@ -5,14 +5,10 @@ on:
     branches:
       - reconcile/current-main-unification-r1
     paths:
-      - 'enterprise/continuation_runtime.py'
-      - 'enterprise/substrate_adapters.py'
-      - 'enterprise/self_addressing_runtime.py'
-      - 'enterprise/recursive_commit_coordinator_r31.py'
-      - 'enterprise/recursive_computer_runtime_r26.py'
-      - 'enterprise/state_ledger_atomicity_r31.py'
-      - 'enterprise/domain_authority_binding.py'
-      - 'runtime/R25/system_evolution_runtime.py'
+      - 'enterprise/**'
+      - 'runtime/**'
+      - 'dependency-graph/**'
+      - 'scripts/dependency_graph/**'
       - 'governance/system_interface_inventory_r1.json'
       - 'tests/R26/**'
       - 'tests/R31/**'
@@ -20,14 +16,10 @@ on:
       - '.github/workflows/current-main-recursive-dependency-reconciliation.yml'
   pull_request:
     paths:
-      - 'enterprise/continuation_runtime.py'
-      - 'enterprise/substrate_adapters.py'
-      - 'enterprise/self_addressing_runtime.py'
-      - 'enterprise/recursive_commit_coordinator_r31.py'
-      - 'enterprise/recursive_computer_runtime_r26.py'
-      - 'enterprise/state_ledger_atomicity_r31.py'
-      - 'enterprise/domain_authority_binding.py'
-      - 'runtime/R25/system_evolution_runtime.py'
+      - 'enterprise/**'
+      - 'runtime/**'
+      - 'dependency-graph/**'
+      - 'scripts/dependency_graph/**'
       - 'governance/system_interface_inventory_r1.json'
       - 'tests/R26/**'
       - 'tests/R31/**'
@@ -50,10 +42,29 @@ jobs:
       - uses: actions/checkout@v4
         with:
           path: BRAINK
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - uses: actions/checkout@v4
         with:
           repository: aboudykeddeh276-stack/SERVERS-KEDDEHSYSTEMS
           path: BRAINK/dependencies/SERVERS-KEDDEHSYSTEMS
+
+      - name: Detect dependency graph before admission
+        working-directory: BRAINK
+        run: |
+          python3 scripts/dependency_graph/braink_dependency_detector.py
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          graph = json.loads(Path('build/braink-semantic-dependency-graph.json').read_text())
+          required = {'MODULE_DEPENDENCY','REPOSITORY_DEPENDENCY','RUNTIME_AUTHORITY_DEPENDENCY'}
+          observed = set(graph['summary']['by_class'])
+          missing = required - observed
+          if missing:
+              raise SystemExit(f'DEPENDENCY_GRAPH_INCOMPLETE:{sorted(missing)}')
+          print('dependency-graph-admission: PASS', graph['summary'])
+          PY
+
       - name: Verify resident runtime dependencies
         working-directory: BRAINK
         run: |
@@ -62,6 +73,7 @@ jobs:
           python3 -c "import pytest; print('pytest:', pytest.__version__)"
           test -f dependencies/SERVERS-KEDDEHSYSTEMS/runtime/domain_authority/kex_registrar_service.py
           test -f dependencies/SERVERS-KEDDEHSYSTEMS/runtime/domain_authority/kex_dns.py
+
       - name: Compile reconciled dependency chain
         working-directory: BRAINK
         run: |
@@ -73,7 +85,9 @@ jobs:
             runtime/R25/system_evolution_runtime.py \
             enterprise/recursive_computer_runtime_r26.py \
             enterprise/state_ledger_atomicity_r31.py \
-            enterprise/domain_authority_binding.py
+            enterprise/domain_authority_binding.py \
+            scripts/dependency_graph/braink_dependency_detector.py
+
       - name: Recursive computer core
         working-directory: BRAINK
         run: python3 -m pytest -q tests/R26/test_recursive_computer_runtime_r26.py
