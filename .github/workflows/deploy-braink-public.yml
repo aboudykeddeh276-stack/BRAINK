@@ -6,6 +6,8 @@ on:
       - 'deploy/braink-public/**'
       - 'enterprise/tls_authority_runtime.py'
       - 'enterprise/public_ca_adapter.py'
+      - 'assets/public_tls_host_actuators/**'
+      - 'tests/integration/test_public_tls_host_actuators.py'
       - '.github/workflows/deploy-braink-public.yml'
 concurrency:
   group: braink-public-production
@@ -19,57 +21,106 @@ jobs:
       KEDDEH_DOMAIN_FABRIC_ROOT: /mnt/data/keddeh_deploy/resident_v5/KEDDEH_REGISTRAR_V5
       KEDDEH_EVIDENCE_ROOT: /mnt/data/keddeh_deploy/resident_v5/KEDDEH_REGISTRAR_V5_EVIDENCE
       KEDDEH_PUBLIC_TLS_REQUIRED: '1'
-      KEDDEH_PUBLIC_CA_AUTH_HOOK: ${{ vars.KEDDEH_PUBLIC_CA_AUTH_HOOK }}
-      KEDDEH_PUBLIC_CA_CLEANUP_HOOK: ${{ vars.KEDDEH_PUBLIC_CA_CLEANUP_HOOK }}
-      KEDDEH_SERVER_TLS_INSTALL_HOOK: ${{ vars.KEDDEH_SERVER_TLS_INSTALL_HOOK }}
-      KEDDEH_SERVER_TLS_ROLLBACK_HOOK: ${{ vars.KEDDEH_SERVER_TLS_ROLLBACK_HOOK }}
       KEDDEH_ACME_CLIENT: ${{ vars.KEDDEH_ACME_CLIENT || 'certbot' }}
       KEDDEH_ACME_DIRECTORY_URL: ${{ vars.KEDDEH_ACME_DIRECTORY_URL }}
       KEDDEH_ACME_EMAIL: ${{ vars.KEDDEH_ACME_EMAIL }}
       KEDDEH_TLS_STATE_ROOT: /mnt/data/keddeh_deploy/resident_v5/KEDDEH_REGISTRAR_V5_EVIDENCE/TLS_ROOT
       KEDDEH_PUBLIC_CA_STATE_ROOT: /mnt/data/keddeh_deploy/resident_v5/KEDDEH_REGISTRAR_V5_EVIDENCE/PUBLIC_CA
+      KEDDEH_HOST_ACTUATOR_BINDINGS: deploy/braink-public/BRAINK_HOST_ACTUATOR_BINDINGS.json
+      KEDDEH_HOST_ACTUATOR_BIN: /mnt/data/keddeh_deploy/resident_v5/KEDDEH_REGISTRAR_V5_EVIDENCE/HOST_ACTUATORS/bin
+      KEDDEH_SERVER_CERT_PATH: ${{ vars.KEDDEH_SERVER_CERT_PATH }}
+      KEDDEH_SERVER_KEY_PATH: ${{ vars.KEDDEH_SERVER_KEY_PATH }}
+      KEDDEH_REGISTRAR_DB: ${{ vars.KEDDEH_REGISTRAR_DB }}
     steps:
       - uses: actions/checkout@v4
+
       - name: Verify resident KEDDEH fabric
         run: |
           set -euo pipefail
           test -x "$KEDDEH_DOMAIN_FABRIC_ROOT/START_FULL_DOMAIN_FABRIC.command"
           ps -ef | grep -E 'KEDDEH_RECURSIVE_EDGE_NODE_R1|authoritative_dns.py|registrar_server.py|webspace_server.py' | grep -v grep
+
       - name: Discover concrete resident host actuators
         run: |
           set -euo pipefail
           python3 deploy/braink-public/discover_host_actuators.py
           cat deploy/braink-public/BRAINK_HOST_ACTUATOR_DISCOVERY.json
-      - name: Preserve host actuator discovery
+
+      - name: Resolve fail-closed host bindings
+        run: |
+          set -euo pipefail
+          python3 -m assets.public_tls_host_actuators.resolve_host_bindings
+          cat "$KEDDEH_HOST_ACTUATOR_BINDINGS"
+          python3 - <<'PY'
+          import json, os
+          b=json.load(open(os.environ['KEDDEH_HOST_ACTUATOR_BINDINGS']))
+          with open(os.environ['GITHUB_ENV'],'a',encoding='utf-8') as f:
+              f.write('KEDDEH_REGISTRAR_DB='+b['registrar_db']+'\n')
+              f.write('KEDDEH_SERVER_TLS_CERT_TARGET='+b['certificate_target']+'\n')
+              f.write('KEDDEH_SERVER_TLS_KEY_TARGET='+b['private_key_target']+'\n')
+              f.write('KEDDEH_SERVER_TLS_RESTART_COMMAND='+b['restart_command']+'\n')
+              f.write('KEDDEH_SERVER_TLS_READBACK_HOST='+str(b['readback_host'])+'\n')
+              f.write('KEDDEH_SERVER_TLS_READBACK_PORT='+str(b['readback_port'])+'\n')
+          PY
+
+      - name: Install executable host actuator launchers
+        run: |
+          set -euo pipefail
+          python3 -m assets.public_tls_host_actuators.install_launchers
+          test -x "$KEDDEH_PUBLIC_CA_AUTH_HOOK"
+          test -x "$KEDDEH_PUBLIC_CA_CLEANUP_HOOK"
+          test -x "$KEDDEH_SERVER_TLS_INSTALL_HOOK"
+          test -x "$KEDDEH_SERVER_TLS_ROLLBACK_HOOK"
+
+      - name: Preserve host actuator discovery and bindings
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: braink-host-actuator-discovery-${{ github.sha }}
-          path: deploy/braink-public/BRAINK_HOST_ACTUATOR_DISCOVERY.json
+          name: braink-host-actuator-bindings-${{ github.sha }}
+          path: |
+            deploy/braink-public/BRAINK_HOST_ACTUATOR_DISCOVERY.json
+            deploy/braink-public/BRAINK_HOST_ACTUATOR_BINDINGS.json
           if-no-files-found: warn
+
       - name: Verify public TLS authority actuators
         run: |
           set -euo pipefail
           python3 --version
           openssl version
           command -v "${KEDDEH_ACME_CLIENT:-certbot}"
-          test -n "$KEDDEH_PUBLIC_CA_AUTH_HOOK"
-          test -n "$KEDDEH_PUBLIC_CA_CLEANUP_HOOK"
-          test -n "$KEDDEH_SERVER_TLS_INSTALL_HOOK"
-          test -n "$KEDDEH_SERVER_TLS_ROLLBACK_HOOK"
+          test -f "$KEDDEH_REGISTRAR_DB"
+          test -f "$KEDDEH_SERVER_TLS_CERT_TARGET"
+          test -f "$KEDDEH_SERVER_TLS_KEY_TARGET"
           test -x "$KEDDEH_PUBLIC_CA_AUTH_HOOK"
           test -x "$KEDDEH_PUBLIC_CA_CLEANUP_HOOK"
           test -x "$KEDDEH_SERVER_TLS_INSTALL_HOOK"
           test -x "$KEDDEH_SERVER_TLS_ROLLBACK_HOOK"
+
       - name: Qualify resident and public TLS adapters before mutation
         run: |
           set -euo pipefail
-          python3 -m py_compile enterprise/tls_authority_runtime.py enterprise/public_ca_adapter.py deploy/braink-public/provision_public_tls.py deploy/braink-public/deploy_live.py deploy/braink-public/discover_host_actuators.py
-          python3 -m pytest -q tests/integration/test_tls_authority_runtime.py tests/integration/test_public_ca_adapter.py
+          python3 -m py_compile \
+            enterprise/tls_authority_runtime.py \
+            enterprise/public_ca_adapter.py \
+            deploy/braink-public/provision_public_tls.py \
+            deploy/braink-public/deploy_live.py \
+            deploy/braink-public/discover_host_actuators.py \
+            assets/public_tls_host_actuators/dns01_resident_actuator.py \
+            assets/public_tls_host_actuators/server_tls_actuator.py \
+            assets/public_tls_host_actuators/rollback_server_tls.py \
+            assets/public_tls_host_actuators/resolve_host_bindings.py \
+            assets/public_tls_host_actuators/install_launchers.py
+          python3 -m pytest -q \
+            tests/integration/test_tls_authority_runtime.py \
+            tests/integration/test_public_ca_adapter.py \
+            tests/integration/test_public_tls_host_actuators.py
+
       - name: Build canonical BRAINK surface and governed replicas
         run: python3 deploy/braink-public/build_sites.py
+
       - name: Deploy resident fabric and require public TLS promotion
         run: python3 deploy/braink-public/deploy_live.py
+
       - name: Publish execution receipts
         if: always()
         uses: actions/upload-artifact@v4
@@ -80,4 +131,5 @@ jobs:
             deploy/braink-public/*RECEIPT*.json
             /mnt/data/keddeh_deploy/resident_v5/KEDDEH_REGISTRAR_V5_EVIDENCE/BRAINK_PUBLIC_LAYER2_READBACK.json
             /mnt/data/keddeh_deploy/resident_v5/KEDDEH_REGISTRAR_V5_EVIDENCE/PUBLIC_CA/public-ca-receipts.jsonl
+            /mnt/data/keddeh_deploy/resident_v5/KEDDEH_REGISTRAR_V5_EVIDENCE/TLS_ACTUATORS/*.json
           if-no-files-found: warn
