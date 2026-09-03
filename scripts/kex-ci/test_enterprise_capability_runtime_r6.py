@@ -16,7 +16,10 @@ class Backend:
     def __init__(self):
         self.calls=[]
         self.failures=0
+        self.lease={"work_id":"WORK-R6-TEST","actor_id":"agent-A","holder":"agent-A","epoch":4,"state":"LEASED"}
 
+    def current_lease(self,work_id):
+        return self.lease if work_id==self.lease["work_id"] else {"work_id":work_id,"state":"UNLEASED"}
     def resolve_identity(self): self.calls.append("identity"); return {"identity":"keddeh"}
     def observe_domain_authority(self,d): self.calls.append(("observe",d)); return {"domain":d}
     def provision_domain_authority(self,*a): self.calls.append(("provision",a)); return {"state":"COMMITTED"}
@@ -30,11 +33,11 @@ class Backend:
     def vfs_migrate(self,l,a,b): self.calls.append(("migrate",l,a,b)); return {"status":"COMMITTED"}
 
 
-def ctx(scopes,approval=None):
+def ctx(scopes,approval=None,actor="agent-A",epoch=4):
     return {
         "work_id":"WORK-R6-TEST",
-        "actor_id":"agent-A",
-        "lease_epoch":4,
+        "actor_id":actor,
+        "lease_epoch":epoch,
         "scopes":scopes,
         "approval_token":approval,
     }
@@ -57,6 +60,20 @@ def main():
             pass
         else:
             raise AssertionError("domain.provision bypassed scope authorization")
+
+        try:
+            svc.invoke("domain.observe",ctx(["domain:read"],actor="agent-B"),{"domain":"braink.com.au"},"observe-holder")
+        except AuthorizationError:
+            pass
+        else:
+            raise AssertionError("capability bypassed authoritative lease holder")
+
+        try:
+            svc.invoke("domain.observe",ctx(["domain:read"],epoch=3),{"domain":"braink.com.au"},"observe-epoch")
+        except AuthorizationError:
+            pass
+        else:
+            raise AssertionError("capability bypassed authoritative lease epoch")
 
         try:
             svc.invoke("server.amend",ctx(["server:write"]),{"origin":"o","target":"t","patch_id":"p"},"a1")
@@ -85,6 +102,12 @@ def main():
             pass
         else:
             raise AssertionError("vfs.migrate bypassed approval")
+
+        backend.server_probe=lambda:{"status":"UNBOUND_RUNTIME_PATH","module":"server"}
+        failed=svc.invoke("server.probe",ctx(["server:read"]),{},"probe-unbound")
+        assert failed["status"]=="FAILED"
+        assert failed["error_type"]=="CapabilityExecutionRejected"
+        assert failed["failure_count"]==1
 
         print("R6 enterprise capability controls PASS")
 
