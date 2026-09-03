@@ -1,0 +1,12 @@
+{
+  "schema": "braink.governance.root.r16",
+  "authority_model": "AUTHORED_PROTOCOL>INVARIANT>FUNCTION>IMPLEMENTATION>ADAPTER>OPERATOR>EVIDENCE>READBACK>PROMOTION",
+  "canonical_lifecycle": ["DISCOVER","DESIGN","IMPLEMENT","TEST","VERIFY","DOCUMENT","DEPLOY","READBACK","OPERATE","REVIEW","RETIRE"],
+  "governed_kinds": ["SECTOR","MODULE","FUNCTION","SERVICE","AGENT","DOMAIN","RUNTIME","WORKFLOW","CONTROL"],
+  "required_documents": ["CONTROL.md","PROCESS.md","WORKFLOW.md","RUNBOOK.md","ADMIN.md","HELP.md","ACCOUNTABILITY.md","ADAPTATION.md","unit.control.json","MANIFEST.sha256.json"],
+  "filing_root": "KEX://GOVERNANCE/",
+  "receipt_policy": "APPEND_ONLY",
+  "promotion_policy": "IMPLEMENTED_AND_VERIFIED_ONLY",
+  "cross_platform_policy": "SEMANTIC_CONTRACT_STABLE_ADAPTERS_DECLARED",
+  "orphan_policy": "CLASSIFY_MIGRATE_ARCHIVE_OR_RETIRE"
+}
