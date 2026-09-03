@@ -1,4 +1,4 @@
-name: BRAINK Enterprise Capability R6
+name: BRAINK Enterprise Capability R7
 
 on:
   push:
@@ -8,6 +8,7 @@ on:
       - 'scripts/kex-ci/test_enterprise_capability_runtime_r6.py'
       - 'scripts/kex-ci/test_mcp_governance_surface_r6.py'
       - 'scripts/kex-ci/test_agent_authority_actual_process_r6.py'
+      - 'scripts/kex-ci/test_agent_function_contracts_r7.py'
       - '.github/workflows/braink-enterprise-capability-r6.yml'
   pull_request:
     paths:
@@ -15,6 +16,7 @@ on:
       - 'scripts/kex-ci/test_enterprise_capability_runtime_r6.py'
       - 'scripts/kex-ci/test_mcp_governance_surface_r6.py'
       - 'scripts/kex-ci/test_agent_authority_actual_process_r6.py'
+      - 'scripts/kex-ci/test_agent_function_contracts_r7.py'
       - '.github/workflows/braink-enterprise-capability-r6.yml'
 
 permissions:
@@ -34,6 +36,7 @@ jobs:
           python -m py_compile \
             mcp/braink_process_adapter/capability_runtime.py \
             mcp/braink_process_adapter/capability_catalog.py \
+            mcp/braink_process_adapter/function_contracts.py \
             mcp/braink_process_adapter/agent_authority_client.py \
             mcp/braink_process_adapter/backend.py \
             mcp/braink_process_adapter/sector_bridges.py \
@@ -44,3 +47,5 @@ jobs:
         run: python scripts/kex-ci/test_mcp_governance_surface_r6.py
       - name: Agent authority actual-process qualification
         run: python scripts/kex-ci/test_agent_authority_actual_process_r6.py
+      - name: Typed agent function contracts
+        run: python scripts/kex-ci/test_agent_function_contracts_r7.py
