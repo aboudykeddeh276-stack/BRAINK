@@ -1,21 +1,17 @@
 from __future__ import annotations
 
-"""Minimal independently-routable BRAINK fabric node.
+"""Independently-routable BRAINK fabric node bound to resident BRAINK/KEX state.
 
-This service is intentionally narrow. It does not pretend that HTTP is BRAINK identity
-or that a tunnel is the machine. It exposes a concrete transport interface for a
-logical BRAINK machine identity and produces a signed fabric-join receipt.
+Authority order:
+    resident BRAINK/KEX state
+      -> canonical typed root graph
+      -> machine-specific projection
+      -> HTTP/TCP interface
+      -> public carrier
 
-Boundary model:
-    logical BRAINK node identity
-        -> HTTP service interface
-        -> TCP listener
-        -> public tunnel/carrier
-        -> remote fabric peer
-
-The service signs each join receipt with an ephemeral host key generated on the
-independent machine. The fabric peer verifies that signature against the public key
-advertised by the same remote node identity.
+The carrier never defines the node.  This process refuses to start without a resolved
+resident-root graph, and every fabric-join receipt is cryptographically bound to that
+graph plus the canonical BRAINK/CLOUD/SERVER root digests.
 """
 
 import argparse
@@ -48,23 +44,69 @@ def machine_material() -> str:
     return "|".join(parts)
 
 
+def load_resident_graph(path: Path) -> dict[str, Any]:
+    graph = json.loads(path.read_text("utf-8"))
+    required = {"BRAINK_ROOT", "SERVER_ROOT", "CLOUD_ROOT"}
+    roots = graph.get("roots", {})
+    missing = required - set(roots)
+    if missing:
+        raise RuntimeError(f"RESIDENT_ROOTS_MISSING:{sorted(missing)}")
+    material = dict(graph)
+    claimed = material.pop("graph_digest", None)
+    observed = hashlib.sha256(canonical(material)).hexdigest()
+    if claimed != observed:
+        raise RuntimeError("RESIDENT_GRAPH_DIGEST_MISMATCH")
+    for rid in required:
+        envelope = roots[rid]
+        if envelope.get("stateDigest") is None:
+            raise RuntimeError(f"ROOT_DIGEST_MISSING:{rid}")
+        if envelope.get("payload", {}).get("state") != "BOUND":
+            raise RuntimeError(f"ROOT_NOT_BOUND:{rid}")
+    return graph
+
+
 class FabricNodeState:
-    def __init__(self, *, commit_sha: str, run_id: str, private_key: Path, public_key: Path, receipt_path: Path):
+    def __init__(
+        self,
+        *,
+        commit_sha: str,
+        run_id: str,
+        private_key: Path,
+        public_key: Path,
+        receipt_path: Path,
+        resident_roots: Path,
+    ):
         self.commit_sha = commit_sha
         self.run_id = run_id
         self.private_key = private_key
         self.public_key = public_key
         self.receipt_path = receipt_path
+        self.resident_graph = load_resident_graph(resident_roots)
+        self.resident_graph_digest = self.resident_graph["graph_digest"]
+        roots = self.resident_graph["roots"]
+        self.root_digests = {
+            rid: roots[rid]["stateDigest"]
+            for rid in ("BRAINK_ROOT", "SERVER_ROOT", "CLOUD_ROOT")
+        }
         self.public_key_pem = public_key.read_text("utf-8")
         self.public_key_sha256 = sha256_bytes(self.public_key_pem.encode("utf-8"))
-        seed = f"{run_id}|{commit_sha}|{machine_material()}".encode("utf-8")
-        self.node_id = "BRAINK-REMOTE-" + hashlib.sha256(seed).hexdigest()[:24]
+        semantic_seed = canonical(
+            {
+                "braink_root": self.root_digests["BRAINK_ROOT"],
+                "cloud_root": self.root_digests["CLOUD_ROOT"],
+                "server_root": self.root_digests["SERVER_ROOT"],
+                "resident_graph": self.resident_graph_digest,
+                "machine_projection": machine_material(),
+            }
+        )
+        self.node_id = "BRAINK-REMOTE-" + hashlib.sha256(semantic_seed).hexdigest()[:24]
         self.started_ns = time.time_ns()
 
     def identity(self) -> dict[str, Any]:
         return {
-            "schema": "braink.remote-fabric-node.identity.v1",
+            "schema": "braink.remote-fabric-node.identity.v2",
             "node_id": self.node_id,
+            "semantic_identity": f"LEX://BRAINK/MACHINE/{self.node_id}",
             "commit_sha": self.commit_sha,
             "run_id": self.run_id,
             "hostname": socket.gethostname(),
@@ -72,9 +114,32 @@ class FabricNodeState:
             "machine": platform.machine(),
             "pid": os.getpid(),
             "started_ns": self.started_ns,
+            "resident_graph_digest": self.resident_graph_digest,
+            "root_digests": self.root_digests,
             "public_key_sha256": self.public_key_sha256,
             "public_key_pem": self.public_key_pem,
             "interfaces": ["http/tcp", "fabric/join/challenge-response"],
+            "carrier_role": "PROJECTION_ONLY",
+        }
+
+    def roots_projection(self) -> dict[str, Any]:
+        return {
+            "schema": self.resident_graph["schema"],
+            "graph_digest": self.resident_graph_digest,
+            "authority_order": self.resident_graph["authority_order"],
+            "roots": {
+                rid: self.resident_graph["roots"][rid]
+                for rid in (
+                    "BRAINK_ROOT",
+                    "DOMAIN_ROOT",
+                    "DNS_ROOT",
+                    "REGISTRAR_ROOT",
+                    "TLS_ROOT",
+                    "SERVER_ROOT",
+                    "CLOUD_ROOT",
+                )
+                if rid in self.resident_graph["roots"]
+            },
         }
 
     def sign(self, payload: dict[str, Any]) -> str:
@@ -90,18 +155,24 @@ class FabricNodeState:
     def join(self, request: dict[str, Any], peer_ip: str) -> dict[str, Any]:
         fabric_node_id = str(request.get("fabric_node_id") or "").strip()
         challenge = str(request.get("challenge") or "").strip()
-        if not fabric_node_id or not challenge:
-            raise ValueError("fabric_node_id and challenge are required")
+        expected_graph = str(request.get("resident_graph_digest") or "").strip()
+        if not fabric_node_id or not challenge or not expected_graph:
+            raise ValueError("fabric_node_id, challenge and resident_graph_digest are required")
+        if expected_graph != self.resident_graph_digest:
+            raise ValueError("RESIDENT_GRAPH_MISMATCH")
         receipt = {
-            "schema": "braink.remote-fabric-node.join-receipt.v1",
+            "schema": "braink.remote-fabric-node.join-receipt.v2",
             "remote_node_id": self.node_id,
             "fabric_node_id": fabric_node_id,
             "challenge": challenge,
             "commit_sha": self.commit_sha,
             "run_id": self.run_id,
+            "resident_graph_digest": self.resident_graph_digest,
+            "root_digests": self.root_digests,
             "peer_ip": peer_ip,
             "joined_ns": time.time_ns(),
             "transport": "http-over-tcp-public-carrier",
+            "carrier_role": "PROJECTION_ONLY",
             "public_key_sha256": self.public_key_sha256,
         }
         self.receipt_path.parent.mkdir(parents=True, exist_ok=True)
@@ -125,10 +196,20 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_GET(self) -> None:
         if self.path == "/health":
-            self._json(200, {"status": "OK", "node_id": self.state.node_id})
+            self._json(
+                200,
+                {
+                    "status": "OK",
+                    "node_id": self.state.node_id,
+                    "resident_graph_digest": self.state.resident_graph_digest,
+                },
+            )
             return
         if self.path == "/identity":
             self._json(200, self.state.identity())
+            return
+        if self.path == "/roots":
+            self._json(200, self.state.roots_projection())
             return
         self._json(404, {"status": "NOT_FOUND"})
 
@@ -157,6 +238,7 @@ def main() -> int:
     parser.add_argument("--run-id", required=True)
     parser.add_argument("--private-key", type=Path, required=True)
     parser.add_argument("--public-key", type=Path, required=True)
+    parser.add_argument("--resident-roots", type=Path, required=True)
     parser.add_argument("--receipts", type=Path, default=Path("build/remote-fabric-join-receipts.jsonl"))
     args = parser.parse_args()
 
@@ -166,6 +248,7 @@ def main() -> int:
         private_key=args.private_key,
         public_key=args.public_key,
         receipt_path=args.receipts,
+        resident_roots=args.resident_roots,
     )
     Handler.state = state
     server = ThreadingHTTPServer((args.host, args.port), Handler)
