@@ -1,0 +1,58 @@
+{
+  "schema": "braink.dependency-edges.v1",
+  "edge_classes": [
+    "PACKAGE_DEPENDENCY",
+    "MODULE_DEPENDENCY",
+    "REPOSITORY_DEPENDENCY",
+    "RUNTIME_AUTHORITY_DEPENDENCY"
+  ],
+  "required_repository_edges": [
+    {
+      "source": "BRAINK",
+      "target": "aboudykeddeh276-stack/SERVERS-KEDDEHSYSTEMS",
+      "class": "REPOSITORY_DEPENDENCY",
+      "relationship": "direct",
+      "scope": "runtime",
+      "checkout_path": "dependencies/SERVERS-KEDDEHSYSTEMS"
+    },
+    {
+      "source": "DomainAuthorityBinding",
+      "target": "aboudykeddeh276-stack/SERVERS-KEDDEHSYSTEMS",
+      "class": "RUNTIME_AUTHORITY_DEPENDENCY",
+      "relationship": "direct",
+      "scope": "runtime",
+      "required_paths": [
+        "runtime/domain_authority/kex_registrar_service.py",
+        "runtime/domain_authority/kex_dns.py"
+      ]
+    }
+  ],
+  "expected_module_edges": [
+    {
+      "source": "enterprise/recursive_computer_runtime_r26.py",
+      "target": "enterprise/self_addressing_runtime.py",
+      "class": "MODULE_DEPENDENCY"
+    },
+    {
+      "source": "enterprise/self_addressing_runtime.py",
+      "target": "enterprise/substrate_adapters.py",
+      "class": "MODULE_DEPENDENCY"
+    },
+    {
+      "source": "enterprise/recursive_computer_runtime_r26.py",
+      "target": "enterprise/state_ledger_atomicity_r31.py",
+      "class": "MODULE_DEPENDENCY"
+    },
+    {
+      "source": "enterprise/domain_authority_binding.py",
+      "target": "repository://aboudykeddeh276-stack/SERVERS-KEDDEHSYSTEMS",
+      "class": "RUNTIME_AUTHORITY_DEPENDENCY"
+    }
+  ],
+  "policy": {
+    "missing_expected_module_edge": "REPORT_GRAPH_CUT",
+    "missing_required_repository_edge": "FAIL",
+    "snapshot_commit_binding": "REQUIRED",
+    "dependency_graph_submission": "REQUIRED_IN_CI"
+  }
+}
