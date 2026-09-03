@@ -7,6 +7,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 GEN = ROOT / "governance" / "control_skeleton" / "generate_governance.py"
+REGISTRY_DRIVER = ROOT / "governance" / "control_skeleton" / "scaffold_registry.py"
+REGISTRY = ROOT / "governance" / "GOVERNANCE_TARGET_REGISTRY.json"
 SPEC = ROOT / "governance" / "specs" / "public_tls_host_actuators.v1.json"
 
 REQUIRED = {
@@ -51,3 +53,38 @@ def test_spec_declares_cross_platform_and_accountability_fields():
     assert spec["proof_conditions"]
     assert spec["rollback_requirements"]
     assert spec["invalid_claims"]
+
+
+def test_registry_tracks_unspecified_targets_without_inventing_specs():
+    registry = json.loads(REGISTRY.read_text())
+    assert registry["schema"] == "kex.braink.governance-target-registry.v1"
+    targets = {t["component_id"]: t for t in registry["targets"]}
+    assert targets["PUBLIC_TLS_HOST_ACTUATORS"]["state"] == "SPECIFIED"
+    assert targets["PUBLIC_TLS_HOST_ACTUATORS"]["spec"].endswith("public_tls_host_actuators.v1.json")
+    assert targets["IL_LLM"]["state"] == "DISCOVERY_REQUIRED"
+    assert "spec" not in targets["IL_LLM"]
+    assert targets["VFS_K_DRIVE"]["state"] == "DISCOVERY_REQUIRED"
+
+
+def test_registry_driver_generates_only_specified_component(tmp_path: Path):
+    out = tmp_path / "generated"
+    p = subprocess.run(
+        [
+            sys.executable,
+            str(REGISTRY_DRIVER),
+            "--registry",
+            str(REGISTRY),
+            "--output-root",
+            str(out),
+            "--component-id",
+            "PUBLIC_TLS_HOST_ACTUATORS",
+        ],
+        capture_output=True,
+        text=True,
+    )
+    assert p.returncode == 0, p.stderr + p.stdout
+    generated = out / "PUBLIC_TLS_HOST_ACTUATORS"
+    assert generated.is_dir()
+    assert {p.name for p in generated.iterdir()} == REQUIRED
+    result = json.loads(p.stdout)
+    assert result["results"][0]["status"] == "GENERATED"
