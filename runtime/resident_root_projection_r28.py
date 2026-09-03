@@ -59,6 +59,7 @@ class RootBinding:
     identity: str
     logical_address: str
     source_binding: str
+    source_digests: Mapping[str, str | None]
     adapter_binding: str | None
     adapter_state: str
     authority: str
@@ -86,11 +87,24 @@ class ResidentRootResolver:
     def _exists(self, relative: str) -> bool:
         return (self.repo_root / relative).exists()
 
+    def _file_digest(self, relative: str) -> str | None:
+        p = self.repo_root / relative
+        if not p.is_file():
+            return None
+        return hashlib.sha256(p.read_bytes()).hexdigest()
+
+    def _digests(self, *paths: str) -> dict[str, str | None]:
+        return {p: self._file_digest(p) for p in paths}
+
     def resolve(self, domain: str = "keddeh.com") -> dict[str, RootBinding]:
         app_binding = DOMAIN_BINDINGS.get(domain)
         if not app_binding:
             raise KeyError(f"resident domain binding not found: {domain}")
 
+        domain_replication = "enterprise/domain_replication.py"
+        r24_reconciliation = "deployments/R24_DOMAIN_DURABLE_EXECUTION_RECONCILIATION_R1.json"
+        route_registry = "runtime/runtime_route_registry.py"
+        public_gateway_path = "runtime/public_gateway.py"
         public_gateway = self.routes.resolve("public-gateway")
         gateway_argv = list(public_gateway.get("argv", []))
         gateway_adapter = gateway_argv[1] if len(gateway_argv) > 1 else None
@@ -104,6 +118,7 @@ class ResidentRootResolver:
             "DOMAIN_ROOT": RootBinding(
                 "DOMAIN_ROOT", f"domain://{domain}", f"KEX://DOMAIN/{domain.upper()}",
                 "enterprise/domain_replication.py:DOMAIN_BINDINGS",
+                self._digests(domain_replication, durable_domain),
                 durable_domain if self._exists(durable_domain) else None,
                 "BOUND" if self._exists(durable_domain) else "UNRESOLVED",
                 "BRAINK_RESIDENT_DOMAIN_AUTHORITY",
@@ -112,13 +127,15 @@ class ResidentRootResolver:
             "DNS_ROOT": RootBinding(
                 "DNS_ROOT", f"dns://{domain}", f"KEX://DNS/{domain.upper()}",
                 "enterprise/domain_replication.py:PUBLIC_OBSERVER_CLASSES",
+                self._digests(domain_replication),
                 None, "UNRESOLVED_CONCRETE_ADAPTER",
                 "BRAINK_RESIDENT_DNS_STATE_NOT_PUBLIC_DNS_AUTHORITY",
                 {"domain": domain, "observer_class": "DNS_OBSERVED"},
             ),
             "REGISTRAR_ROOT": RootBinding(
                 "REGISTRAR_ROOT", f"registrar://{domain}", f"KEX://REGISTRAR/{domain.upper()}",
-                "deployments/R24_DOMAIN_DURABLE_EXECUTION_RECONCILIATION_R1.json",
+                r24_reconciliation,
+                self._digests(r24_reconciliation, durable_domain),
                 durable_domain if self._exists(durable_domain) else None,
                 "BOUND_INTERNAL_DURABLE_AUTHORITY" if self._exists(durable_domain) else "UNRESOLVED",
                 "BRAINK_RESIDENT_REGISTRAR_STATE_NOT_REGISTRY_EPP_AUTHORITY",
@@ -127,6 +144,7 @@ class ResidentRootResolver:
             "TLS_ROOT": RootBinding(
                 "TLS_ROOT", f"tls://{domain}", f"KEX://TLS/{domain.upper()}",
                 "enterprise/domain_replication.py:PUBLIC_OBSERVER_CLASSES",
+                self._digests(domain_replication),
                 None, "UNRESOLVED_CONCRETE_ADAPTER",
                 "BRAINK_RESIDENT_TLS_STATE_NOT_CA_AUTHORITY",
                 {"domain": domain, "observer_class": "TLS_OBSERVED"},
@@ -134,6 +152,7 @@ class ResidentRootResolver:
             "SERVER_ROOT": RootBinding(
                 "SERVER_ROOT", public_gateway["runtime_id"], "KEX://SERVER/PUBLIC-GATEWAY",
                 "runtime/runtime_route_registry.py:public-gateway",
+                self._digests(route_registry, public_gateway_path),
                 gateway_adapter,
                 "BOUND" if gateway_adapter and self._exists(gateway_adapter) else "UNRESOLVED",
                 "BRAINK_RESIDENT_RUNTIME_AUTHORITY",
@@ -142,6 +161,7 @@ class ResidentRootResolver:
             "CLOUD_ROOT": RootBinding(
                 "CLOUD_ROOT", "braink://runtime/addressability", "KEX://CLOUD/BRAINK/RESIDENT",
                 addressability,
+                self._digests(addressability, self_addressing, canonical, runtime_registry),
                 self_addressing if self._exists(self_addressing) else None,
                 "BOUND" if self._exists(addressability) and self._exists(self_addressing) else "UNRESOLVED",
                 "BRAINK_RESIDENT_ADDRESSABILITY_AUTHORITY",
