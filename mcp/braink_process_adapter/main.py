@@ -27,7 +27,12 @@ def braink_capability_manifest()->list[dict[str,Any]]:
     return backend().capability_manifest()
 
 
-@mcp.tool(description="Authoritative enterprise invocation path. Every sector mutation must pass capability contract resolution, scope authorization, approval policy where required, idempotency checks, durable invocation receipts, and circuit-breaker state before the resident mechanic is called.",annotations=ToolAnnotations(readOnlyHint=False,destructiveHint=True,idempotentHint=False,openWorldHint=True))
+@mcp.tool(description="Return the typed agent function-call manifest for governed BRAINK capabilities. Each function has an explicit parameter schema/defaults but still executes only through braink_invoke_capability.",annotations=ToolAnnotations(readOnlyHint=True,destructiveHint=False,idempotentHint=True,openWorldHint=False))
+def braink_function_manifest()->list[dict[str,Any]]:
+    return backend().function_manifest()
+
+
+@mcp.tool(description="Authoritative enterprise invocation path. Payload is validated against the selected typed function contract, then scope, lease, approval, idempotency, circuit, durable invocation and resident-mechanic controls are enforced.",annotations=ToolAnnotations(readOnlyHint=False,destructiveHint=True,idempotentHint=False,openWorldHint=True))
 def braink_invoke_capability(capability_id:str,context:dict[str,Any],payload:dict[str,Any],idempotency_key:str|None=None)->dict[str,Any]:
     return backend().invoke_capability(capability_id,context,payload,idempotency_key)
 
