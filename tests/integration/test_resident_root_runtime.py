@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from pathlib import Path
 import json
-import shutil
 
 import pytest
 
@@ -16,6 +15,7 @@ def _fixture_tree(tmp_path: Path) -> Path:
         'enterprise/recursive_computer_runtime_r26.py',
         'enterprise/self_addressing_runtime.py',
         'enterprise/domain_authority_binding.py',
+        'enterprise/tls_authority_runtime.py',
         'runtime/runtime_registry.py',
         'deployment/bootstrap_keddeh_fabric.py',
         'dependencies/SERVERS-KEDDEHSYSTEMS/runtime/domain_authority/kex_dns.py',
@@ -29,32 +29,31 @@ def _fixture_tree(tmp_path: Path) -> Path:
 
 
 def test_resident_roots_resolve_without_any_carrier_probe(tmp_path: Path) -> None:
-    root = _fixture_tree(tmp_path)
-    graph = resolve_roots(root)
+    graph = resolve_roots(_fixture_tree(tmp_path))
     require_resident_integrity(graph)
-    for rid in ('BRAINK_ROOT','DOMAIN_ROOT','DNS_ROOT','REGISTRAR_ROOT','SERVER_ROOT','CLOUD_ROOT'):
+    for rid in ('BRAINK_ROOT','DOMAIN_ROOT','DNS_ROOT','REGISTRAR_ROOT','TLS_ROOT','SERVER_ROOT','CLOUD_ROOT'):
         assert graph['roots'][rid]['payload']['state'] == 'BOUND'
         assert graph['roots'][rid]['payload']['implementation_exists'] is True
         assert graph['roots'][rid]['stateDigest']
-    assert graph['roots']['TLS_ROOT']['payload']['state'] == 'UNBOUND'
     assert graph['roots']['TLS_ROOT']['identity'] == 'LEX://BRAINK/TLS_ROOT'
+    assert graph['roots']['TLS_ROOT']['payload']['authority'] == 'BRAINK_LOCAL_TLS_AUTHORITY'
 
 
 def test_carrier_metadata_cannot_change_resident_graph_digest(tmp_path: Path) -> None:
     root = _fixture_tree(tmp_path)
     first = resolve_roots(root)
-    # Create arbitrary carrier material outside the declared resident object graph.
-    (root / 'carrier.json').write_text(json.dumps({'ip':'192.0.2.10','port':443}), encoding='utf-8')
+    (root / 'carrier.json').write_text(json.dumps({'carrier':'changed'}), encoding='utf-8')
     second = resolve_roots(root)
     assert first['graph_digest'] == second['graph_digest']
-    assert first['roots']['BRAINK_ROOT']['stateDigest'] == second['roots']['BRAINK_ROOT']['stateDigest']
+    assert first['roots']['TLS_ROOT']['stateDigest'] == second['roots']['TLS_ROOT']['stateDigest']
 
 
 def test_broken_resident_binding_blocks_integrity(tmp_path: Path) -> None:
     root = _fixture_tree(tmp_path)
-    (root / 'runtime/runtime_registry.py').unlink()
+    target = root / 'enterprise/tls_authority_runtime.py'
+    target.rename(target.with_suffix('.missing'))
     graph = resolve_roots(root)
-    assert graph['roots']['SERVER_ROOT']['payload']['state'] == 'BROKEN_BINDING'
+    assert graph['roots']['TLS_ROOT']['payload']['state'] == 'BROKEN_BINDING'
     with pytest.raises(RuntimeError, match='RESIDENT_ROOT_BINDING_FAILURE'):
         require_resident_integrity(graph)
 
@@ -62,12 +61,7 @@ def test_broken_resident_binding_blocks_integrity(tmp_path: Path) -> None:
 def test_canonical_root_roundtrip_preserves_identity() -> None:
     boundary = CanonicalBoundary()
     boundary.register(mapping_adapter('root'))
-    state = boundary.enter(
-        'root',
-        {'root_id':'DOMAIN_ROOT','state':'BOUND'},
-        identity='LEX://BRAINK/DOMAIN_ROOT',
-        authority='BRAINK',
-    )
+    state = boundary.enter('root', {'root_id':'DOMAIN_ROOT','state':'BOUND'}, identity='LEX://BRAINK/DOMAIN_ROOT', authority='BRAINK')
     outward = boundary.exit('root', state)
     assert outward == {'root_id':'DOMAIN_ROOT','state':'BOUND'}
     assert boundary.evidence[-1].identity_preserved is True
