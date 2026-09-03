@@ -11,9 +11,11 @@ on:
       - 'runtime/**'
       - 'assets/public_tls_host_actuators/**'
       - 'deploy/braink-public/**'
+      - 'governance/**'
       - 'dependency-graph/**'
       - 'scripts/dependency_graph/**'
       - 'tests/dependency_graph/**'
+      - 'tests/governance/**'
       - 'tests/integration/test_public_tls_host_actuators.py'
       - '.github/workflows/braink-dependency-graph.yml'
   pull_request:
@@ -22,9 +24,11 @@ on:
       - 'runtime/**'
       - 'assets/public_tls_host_actuators/**'
       - 'deploy/braink-public/**'
+      - 'governance/**'
       - 'dependency-graph/**'
       - 'scripts/dependency_graph/**'
       - 'tests/dependency_graph/**'
+      - 'tests/governance/**'
       - 'tests/integration/test_public_tls_host_actuators.py'
       - '.github/workflows/braink-dependency-graph.yml'
   workflow_dispatch:
@@ -50,6 +54,10 @@ jobs:
           repository: aboudykeddeh276-stack/SERVERS-KEDDEHSYSTEMS
           path: BRAINK/dependencies/SERVERS-KEDDEHSYSTEMS
 
+      - name: Qualify governance skeleton
+        working-directory: BRAINK
+        run: python3 -m pytest -q tests/governance/test_control_skeleton.py
+
       - name: Detect build-resolved architectural dependencies
         working-directory: BRAINK
         run: python3 scripts/dependency_graph/braink_dependency_detector.py
@@ -71,6 +79,8 @@ jobs:
           assert semantic['sha'] == snapshot['sha']
           assert semantic['ref'] == snapshot['ref']
           assert semantic['summary']['edges'] > 0
+          assert semantic['summary']['fragments'] >= 1
+          assert 'dependency-graph/braink-governance-dependencies.fragment.json' in semantic['fragments']
           assert snapshot['version'] == 0
           assert snapshot['manifests']
 
@@ -104,6 +114,10 @@ jobs:
               'runtime://server/tls-install-hook',
               'runtime://server/tls-rollback-hook',
               'runtime://tls/system-public-trust-store',
+              'governance/control_skeleton/generate_governance.py',
+              'governance/control_skeleton/component_spec.schema.json',
+              'governance/control_skeleton/ADAPTATION_PROTOCOL.md',
+              'governance/specs/public_tls_host_actuators.v1.json',
           }
           targets = {edge['target'] for edge in semantic['edges']}
           absent = required_targets - targets
@@ -148,6 +162,8 @@ jobs:
             BRAINK/build/braink-semantic-dependency-graph.json
             BRAINK/build/github-dependency-snapshot.json
             BRAINK/build/github-dependency-submission-response.json
+            BRAINK/assets/public_tls_host_actuators/GOVERNANCE_MANIFEST.json
+            BRAINK/governance/specs/public_tls_host_actuators.v1.json
           if-no-files-found: error
 
   dependency-review:
