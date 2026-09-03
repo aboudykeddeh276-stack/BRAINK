@@ -1,5 +1,6 @@
 {
   "schema": "braink.r28.resident-root-implementation-state/v1",
+  "status": "IMPLEMENTED_NOT_FULLY_CI_QUALIFIED",
   "authority_order": [
     "RESIDENT_OBJECT_GRAPH",
     "CANONICAL_TYPED_ROOTS",
@@ -9,8 +10,33 @@
     "CARRIER_ENDPOINT_LAST"
   ],
   "typed_roots": ["DOMAIN_ROOT", "DNS_ROOT", "REGISTRAR_ROOT", "TLS_ROOT", "SERVER_ROOT", "CLOUD_ROOT"],
-  "tls_adapter_binding": "UNRESOLVED_CONCRETE_ADAPTER",
-  "dns_adapter_binding": "UNRESOLVED_CONCRETE_ADAPTER",
-  "carrier_identity_authority": false,
-  "ci_state": "PENDING_OBSERVED_RUNNER_READBACK"
+  "resident_sources": [
+    "modules/kex_core/canonical_state.py",
+    "runtime/runtime_registry.py",
+    "runtime/runtime_route_registry.py",
+    "enterprise/addressability_fabric.py",
+    "enterprise/self_addressing_runtime.py",
+    "enterprise/domain_replication.py",
+    "deployments/R24_DOMAIN_DURABLE_EXECUTION_RECONCILIATION_R1.json"
+  ],
+  "remote_host_path": {
+    "resident_snapshot_endpoint": "/braink/resident-roots",
+    "carrier_projection_endpoint": "/braink/carrier-projection",
+    "join_verifier": "runtime/remote_host_join_r28.py",
+    "carrier_identity_authority": false
+  },
+  "adapter_state": {
+    "TLS_ROOT": "UNRESOLVED_CONCRETE_ADAPTER",
+    "DNS_ROOT": "UNRESOLVED_CONCRETE_ADAPTER",
+    "REGISTRAR_ROOT": "BOUND_INTERNAL_DURABLE_AUTHORITY_NOT_REGISTRY_EPP_AUTHORITY"
+  },
+  "verification": {
+    "local_semantic_harness": "PASS",
+    "local_semantic_harness_scope": "carrier mutation isolation; resident material tamper rejection; forged root digest rejection; forged resident identity rejection",
+    "github_actions_run_id": 33719630256,
+    "github_actions_job_id": 100535927664,
+    "github_actions_result": "RUNNER_NOT_STARTED",
+    "github_actions_observation": "job completed failure with runner_id=0, empty runner_name and zero executed steps",
+    "full_repository_gateway_integration": "NOT_EXECUTION_PROVEN_BY_GITHUB_RUNNER"
+  }
 }
