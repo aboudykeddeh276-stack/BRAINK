@@ -1,0 +1,62 @@
+{
+  "schema": "braink.r24.customer-portal-privacy-gate-reconciliation/v1",
+  "subject": "r23_customer_portal_privacy_r24_gate",
+  "classification": "STATE_DRIFT",
+  "discover": {
+    "resident_mechanics": [
+      "enterprise/customer_access_control_r24.py",
+      "deployment/r23_foundry_closure_service.py"
+    ],
+    "existing_evidence": [
+      "deployments/R24_CUSTOMER_ACCESS_CONTROL_RECEIPT_R1.json",
+      "deployments/R24_CUSTOMER_PORTAL_HTTP_BINDING_RECEIPT_R1.json"
+    ],
+    "duplicate_capability_created": false
+  },
+  "reconcile_source_state": {
+    "finding": "Customer portal/privacy had executed local and loopback HTTP evidence but no executable formal R24 promotion gate covering release manifest, ISO/IEC 25010 quality completeness, NIST SSDF practice-group completeness, rollback, independent verification and market-readiness classification.",
+    "classification": "STATE_DRIFT"
+  },
+  "architecture_decision": {
+    "decision": "Reuse resident R23/R24 customer portal mechanics and add only an R24 evidence/promotion gate.",
+    "promotion_policy": "FAIL_CLOSED"
+  },
+  "implementation": {
+    "gate": "scripts/kex-ci/test_r24_customer_portal_privacy_gate.py",
+    "gate_commit": "8dd16bc5a5749aad66fb9cb461170e3df62af71a",
+    "workflow": ".github/workflows/keddeh-enterprise-control.yml",
+    "workflow_commit": "2fc7432f6ce45f0082a5919fbfa471bb40233605"
+  },
+  "gate_contract": {
+    "observed_local_access_evidence_required": true,
+    "observed_loopback_http_evidence_required": true,
+    "release_manifest_built": true,
+    "rollback_ready_required": true,
+    "independent_verifier_required_for_promotion": true,
+    "quality_complete_required_for_promotion": true,
+    "security_complete_required_for_promotion": true,
+    "expected_current_promotion": "REJECTED",
+    "expected_current_market_classification": "ENGINEERING_ONLY"
+  },
+  "claim_boundaries_preserved": {
+    "public_ingress": "UNPROVEN",
+    "external_idp_roundtrip": "UNPROVEN",
+    "tls_public_origin": "UNPROVEN",
+    "production_identity_assurance": "UNPROVEN",
+    "independent_verification": "PENDING"
+  },
+  "execution_state": {
+    "static_validate": "NOT_OBSERVED_POST_COMMIT",
+    "unit_test": "NOT_OBSERVED_POST_COMMIT",
+    "integration_test": "NOT_OBSERVED_POST_COMMIT",
+    "fault_injection": "NOT_OBSERVED_POST_COMMIT",
+    "security_gate": "PENDING_EXECUTION_AND_COMPLETENESS",
+    "quality_gate": "PENDING_EXECUTION_AND_COMPLETENESS",
+    "independent_verify": "PENDING",
+    "promote_or_reject": "REJECTED_PENDING_EXECUTION_AND_REMAINING_R24_GATES",
+    "deploy": "CI_GATE_SOURCE_DEPLOYED",
+    "readback_reconcile": "WORKFLOW_RUN_NOT_YET_OBSERVED",
+    "market_readiness_evaluate": "DEFINED_NOT_YET_EXECUTION_OBSERVED"
+  },
+  "certification_claim": "NONE"
+}
