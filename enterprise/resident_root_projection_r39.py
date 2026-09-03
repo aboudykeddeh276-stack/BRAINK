@@ -50,74 +50,46 @@ class ResidentRootProjection:
 
     @staticmethod
     def _build_roots() -> Dict[str, ResidentRoot]:
-        # These are stable semantic identities projected from mechanics present in
-        # the R26 branch. External carrier/provider state is not used as identity.
         return {
             "DOMAIN_ROOT": ResidentRoot(
-                "DOMAIN_ROOT",
-                "LEX://BRAINK/DOMAIN_ROOT",
-                "DOMAIN_AUTHORITY",
+                "DOMAIN_ROOT", "LEX://BRAINK/DOMAIN_ROOT", "DOMAIN_AUTHORITY",
                 ("enterprise/domain_replication.py", "enterprise/addressability_fabric.py"),
                 "repository://github/aboudykeddeh276-stack/SERVERS-KEDDEHSYSTEMS/runtime/domain_authority",
-                "RESOLVED_REPOSITORY_AUTHORITY",
-                "authority://braink/domain",
+                "RESOLVED_REPOSITORY_AUTHORITY", "authority://braink/domain",
             ),
             "DNS_ROOT": ResidentRoot(
-                "DNS_ROOT",
-                "LEX://BRAINK/DNS_ROOT",
-                "DNS_AUTHORITY",
+                "DNS_ROOT", "LEX://BRAINK/DNS_ROOT", "DNS_AUTHORITY",
                 ("enterprise/addressability_fabric.py",),
                 "repository://github/aboudykeddeh276-stack/SERVERS-KEDDEHSYSTEMS/runtime/domain_authority/kex_dns.py",
-                "RESOLVED_REPOSITORY_AUTHORITY",
-                "authority://kex/dns",
+                "RESOLVED_REPOSITORY_AUTHORITY", "authority://kex/dns",
             ),
             "REGISTRAR_ROOT": ResidentRoot(
-                "REGISTRAR_ROOT",
-                "LEX://BRAINK/REGISTRAR_ROOT",
-                "REGISTRAR_AUTHORITY",
+                "REGISTRAR_ROOT", "LEX://BRAINK/REGISTRAR_ROOT", "REGISTRAR_AUTHORITY",
                 ("enterprise/domain_replication.py",),
                 "repository://github/aboudykeddeh276-stack/SERVERS-KEDDEHSYSTEMS/runtime/domain_authority/kex_registrar_service.py",
-                "RESOLVED_REPOSITORY_AUTHORITY",
-                "authority://kex/registrar",
+                "RESOLVED_REPOSITORY_AUTHORITY", "authority://kex/registrar",
             ),
             "TLS_ROOT": ResidentRoot(
-                "TLS_ROOT",
-                "LEX://BRAINK/TLS_ROOT",
-                "TLS_AUTHORITY",
-                ("enterprise/addressability_fabric.py",),
-                None,
-                "UNRESOLVED_ADAPTER",
-                "authority://braink/tls",
+                "TLS_ROOT", "LEX://BRAINK/TLS_ROOT", "TLS_AUTHORITY",
+                ("enterprise/addressability_fabric.py",), None,
+                "UNRESOLVED_ADAPTER", "authority://braink/tls",
             ),
             "SERVER_ROOT": ResidentRoot(
-                "SERVER_ROOT",
-                "LEX://BRAINK/SERVER_ROOT",
-                "SERVER_RUNTIME",
+                "SERVER_ROOT", "LEX://BRAINK/SERVER_ROOT", "SERVER_RUNTIME",
                 ("enterprise/server_room.py", "deployment/independent_fabric_node_r38.py"),
-                "adapter://kex/server-runtime",
-                "RESOLVED_INTERNAL_RUNTIME",
-                "runtime://kex/server",
+                "adapter://kex/server-runtime", "RESOLVED_INTERNAL_RUNTIME", "runtime://kex/server",
             ),
             "CLOUD_ROOT": ResidentRoot(
-                "CLOUD_ROOT",
-                "LEX://BRAINK/CLOUD_ROOT",
-                "MACHINE_FABRIC",
+                "CLOUD_ROOT", "LEX://BRAINK/CLOUD_ROOT", "MACHINE_FABRIC",
                 ("enterprise/addressability_fabric.py", "enterprise/market/live_service_fabric_r25.py"),
-                "adapter://kex/machine-fabric",
-                "RESOLVED_INTERNAL_RUNTIME",
-                "authority://braink/machine-fabric",
+                "adapter://kex/machine-fabric", "RESOLVED_INTERNAL_RUNTIME", "authority://braink/machine-fabric",
             ),
         }
 
     def _mount(self) -> None:
         for root_id in ROOT_ORDER:
             item = self._roots[root_id]
-            self.fabric.map(
-                item.logical,
-                aperture=f"typed-root://{root_id}",
-                adapter=self.adapter_id,
-                backing=self.backing_id,
-            )
+            self.fabric.map(item.logical, aperture=f"typed-root://{root_id}", adapter=self.adapter_id, backing=self.backing_id)
             result = self.fabric.apply(item.logical, "WRITE", asdict(item))
             if result.get("status") != "COMMITTED":
                 raise RuntimeError(f"ROOT_MOUNT_FAILED:{root_id}:{result.get('status')}")
@@ -161,7 +133,7 @@ class ResidentRootProjection:
     @staticmethod
     def verify_snapshot(snapshot: Dict[str, Any]) -> bool:
         roots = snapshot.get("roots")
-        if not isinstance(roots, dict) or tuple(roots.keys()) != ROOT_ORDER:
+        if not isinstance(roots, dict) or set(roots) != set(ROOT_ORDER):
             return False
         digest_material: Dict[str, Any] = {}
         for root_id in ROOT_ORDER:
