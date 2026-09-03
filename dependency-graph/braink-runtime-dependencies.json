@@ -2,7 +2,7 @@
   "schema": "kex.braink.dependency-edges.v1",
   "detector": {
     "name": "braink-kex-runtime-dependency-detector",
-    "version": "1.1.0"
+    "version": "1.2.0"
   },
   "scan_roots": [
     "enterprise",
@@ -81,6 +81,51 @@
       "scope": "runtime",
       "interface": "DOMAIN_ROOT binding",
       "authority": "BRAINK+SERVERS-KEDDEHSYSTEMS"
+    },
+    {
+      "source": "enterprise/resident_root_runtime.py",
+      "target": "enterprise/tls_authority_runtime.py",
+      "class": "MODULE_DEPENDENCY",
+      "relationship": "direct",
+      "scope": "runtime",
+      "interface": "TLS_ROOT local authority/controller",
+      "authority": "BRAINK_LOCAL_TLS_AUTHORITY"
+    },
+    {
+      "source": "enterprise/tls_authority_runtime.py",
+      "target": "runtime://openssl/x509",
+      "class": "RUNTIME_AUTHORITY_DEPENDENCY",
+      "relationship": "direct",
+      "scope": "runtime",
+      "interface": "CA/key generation, X.509 issuance and chain verification",
+      "authority": "HOST_CRYPTO_RUNTIME"
+    },
+    {
+      "source": "enterprise/tls_authority_runtime.py",
+      "target": "runtime://python/ssl",
+      "class": "RUNTIME_AUTHORITY_DEPENDENCY",
+      "relationship": "direct",
+      "scope": "runtime",
+      "interface": "SSLContext and TLS handshake",
+      "authority": "HOST_TLS_RUNTIME"
+    },
+    {
+      "source": "enterprise/tls_authority_runtime.py",
+      "target": "runtime://python/sqlite3",
+      "class": "RUNTIME_AUTHORITY_DEPENDENCY",
+      "relationship": "direct",
+      "scope": "runtime",
+      "interface": "TLS authority/certificate/receipt persistence",
+      "authority": "HOST_STORAGE"
+    },
+    {
+      "source": "enterprise/tls_authority_runtime.py",
+      "target": "runtime://filesystem/private-key-material",
+      "class": "RUNTIME_AUTHORITY_DEPENDENCY",
+      "relationship": "direct",
+      "scope": "runtime",
+      "interface": "persisted CA/server private key and certificate material",
+      "authority": "HOST_FILESYSTEM"
     },
     {
       "source": "enterprise/resident_root_runtime.py",
