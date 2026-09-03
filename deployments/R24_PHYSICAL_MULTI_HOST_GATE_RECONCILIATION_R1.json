@@ -1,0 +1,29 @@
+{
+  "schema": "braink.r24.physical-multi-host-gate-reconciliation/v1",
+  "subject": "R22_KOS_MESH_PHYSICAL_MULTI_HOST",
+  "classification": "STATE_DRIFT",
+  "source_receipt": "deployments/R24_KOS_MESH_RESIDENT_RECONCILIATION_R1.json",
+  "source_receipt_root": "c6554cf079d0111089fb692c6b97f8478511aa3cd40981d22aea295f1d7dbcc0",
+  "decision": "REUSE_RESIDENT_KOS_MESH_DO_NOT_REIMPLEMENT; ADD_R24_FAIL_CLOSED_PHYSICAL_HOST_PROMOTION_GATE",
+  "implementation": {
+    "gate": "scripts/kex-ci/test_r24_physical_multi_host_gate.py",
+    "gate_commit": "dd686ad9b379f6a4c5972230b6b9cbb0617b8a58",
+    "workflow": ".github/workflows/keddeh-enterprise-control.yml",
+    "workflow_commit": "303ec55ebc862400479fe320ac400d557511bb01"
+  },
+  "required_future_evidence": [
+    "distinct authorised host identities",
+    "same resident package hashes on each host",
+    "peer and quorum state readback",
+    "physical host outage continuation",
+    "restart and anti-entropy recovery readback",
+    "rollback evidence",
+    "independent verification"
+  ],
+  "preserved_boundary": {
+    "historical_local_real_socket_mesh": "PASS_RETAINED",
+    "distinct_physical_hosts": "UNEXECUTED",
+    "promotion": "REJECTED"
+  },
+  "receipt_root": "0a70a90542b94d388d5d6fbec0c9f0291ca19a27adfa302afffa044740332376"
+}
