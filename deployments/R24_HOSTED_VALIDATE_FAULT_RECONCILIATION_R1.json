@@ -1,0 +1,25 @@
+{
+  "schema": "braink.r24.ci-fault-reconciliation/v1",
+  "subject": "r24_hosted_validation_after_r6_r7_reconciliation",
+  "classification": "FAULT",
+  "observed": {
+    "workflow": "KEDDEH Enterprise Control Validation",
+    "workflow_run_id": 33707656688,
+    "head_sha": "3dbe8eae420ac763939f5d5ecbd30afb83e303a8",
+    "validate_job_id": 100500181489,
+    "validate_status": "completed",
+    "validate_conclusion": "failure",
+    "specialist_job_id": 100500181615,
+    "specialist_status": "queued",
+    "workflow_status": "queued",
+    "log_readback": "UNAVAILABLE_BLOB_404"
+  },
+  "reconciliation": {
+    "previous_state": "QUEUED_NOT_OBSERVED",
+    "corrected_state": "HOSTED_VALIDATE_FAILED_SPECIALIST_QUEUED",
+    "promotion": "REJECTED",
+    "reason": "Hosted validation failure is authoritative observed evidence. Exact failed step is not asserted because step/log readback was unavailable."
+  },
+  "next_action": "Identify failed hosted step from reproducible execution or restored job logs; correct the fault; rerun R24; require hosted and independent/specialist evidence before promotion.",
+  "receipt_root": "696aca946737cb3af74161aead318a6284e2245fb05c72cafb332623269d96c2"
+}
