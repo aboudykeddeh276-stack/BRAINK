@@ -1,0 +1,52 @@
+name: BRAINK Cross Resolution R17
+
+on:
+  push:
+    branches:
+      - build/service-supervisor-s1-host-survey
+    paths:
+      - runtime/domain_authority/kex_registrar_service.py
+      - runtime/domain_authority/kex_dns.py
+      - runtime/domain_authority/braink_cross_resolution_adapter_r17.py
+      - .github/workflows/braink-cross-resolution-r17.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  cross-resolution:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile preserved and new resolver paths
+        run: |
+          python3 -m py_compile \
+            runtime/domain_authority/kex_registrar_service.py \
+            runtime/domain_authority/kex_dns.py \
+            runtime/domain_authority/braink_cross_resolution_adapter_r17.py
+      - name: Execute preserved resolver plus carrier adapters
+        working-directory: runtime/domain_authority
+        run: |
+          python3 braink_cross_resolution_adapter_r17.py keddeh.com | tee BRAINK_R17_EXECUTION.log
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('BRAINK_R17_CROSS_RESOLUTION_RECEIPT.json')
+          r=json.loads(p.read_text())
+          assert r['status']=='PASS', r
+          assert r['old_resolver_policy']=='PRESERVE_PRIMARY', r
+          assert r['local_preservation_test']['status']=='PASS', r
+          assert r['domain_resolution']['resident_resolver_replaced'] is False, r
+          assert r['domain_resolution']['canonical_identity_preserved'] is True, r
+          print('R17_LOCAL_PRESERVATION=PASS')
+          print('R17_EXTERNAL_ROUTE='+r['domain_resolution']['carrier_escape']['status'])
+          PY
+      - name: Upload R17 execution receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: BRAINK_R17_CROSS_RESOLUTION_RECEIPT
+          path: runtime/domain_authority/BRAINK_R17_CROSS_RESOLUTION_RECEIPT.json
+          if-no-files-found: error
+          retention-days: 14
