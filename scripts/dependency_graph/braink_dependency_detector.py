@@ -2,15 +2,17 @@ from __future__ import annotations
 
 """BRAINK/KEX build-time dependency detector.
 
-Produces two outputs from one source-of-truth edge declaration:
+Produces two outputs from a merged dependency declaration set:
 
 1. GitHub Dependency Submission snapshot
    A standards-compatible supply-chain representation tied to the exact checked-out commit/ref.
 2. BRAINK semantic dependency graph
    Preserves architectural edge classes that package-manager graphs cannot express.
 
-The detector also discovers ordinary intra-repository Python imports and merges them
-with explicitly declared cross-repository/runtime-authority edges.
+The detector discovers ordinary intra-repository Python imports and merges them
+with explicitly declared cross-repository/runtime-authority edges. Governed
+subsystems may add `dependency-graph/braink-*-dependencies.fragment.json`
+files; those fragments are merged deterministically with the primary config.
 """
 
 import argparse
@@ -26,10 +28,36 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_CONFIG = ROOT / "dependency-graph" / "braink-runtime-dependencies.json"
+FRAGMENT_GLOB = "braink-*-dependencies.fragment.json"
 
 
 def _read_json(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text("utf-8"))
+
+
+def _load_config_bundle(primary: Path) -> dict[str, Any]:
+    base = _read_json(primary)
+    scan_roots = list(base.get("scan_roots", []))
+    declared_edges = list(base.get("declared_edges", []))
+    fragments: list[str] = []
+
+    for path in sorted((ROOT / "dependency-graph").glob(FRAGMENT_GLOB)):
+        if path.resolve() == primary.resolve():
+            continue
+        fragment = _read_json(path)
+        if fragment.get("schema") != "kex.braink.dependency-edges-fragment.v1":
+            raise SystemExit(f"INVALID_DEPENDENCY_FRAGMENT_SCHEMA:{path}")
+        fragments.append(path.relative_to(ROOT).as_posix())
+        for root in fragment.get("scan_roots", []):
+            if root not in scan_roots:
+                scan_roots.append(root)
+        declared_edges.extend(fragment.get("declared_edges", []))
+
+    merged = dict(base)
+    merged["scan_roots"] = scan_roots
+    merged["declared_edges"] = declared_edges
+    merged["fragments"] = fragments
+    return merged
 
 
 def _git(*args: str, cwd: Path = ROOT) -> str:
@@ -37,14 +65,10 @@ def _git(*args: str, cwd: Path = ROOT) -> str:
 
 
 def _sha() -> str:
-    # For pull_request events GITHUB_SHA identifies the synthetic merge commit.
-    # Dependency submission must represent the code actually scanned, so use HEAD.
     return _git("rev-parse", "HEAD")
 
 
 def _ref() -> str:
-    # A PR run exposes refs/pull/<n>/merge in GITHUB_REF.  The dependency snapshot
-    # should instead identify the source branch associated with the checked-out head.
     head_ref = os.environ.get("GITHUB_HEAD_REF")
     if head_ref:
         return f"refs/heads/{head_ref}"
@@ -135,12 +159,6 @@ def _repo_sha(path: Path) -> str | None:
 
 
 def _purl_for_target(target: str, commit_sha: str) -> str:
-    """Return a stable PURL for GitHub's snapshot representation.
-
-    Architectural/runtime nodes use pkg:generic because they are not package-manager
-    artifacts. Repository dependencies use pkg:github. The richer BRAINK graph retains
-    exact class/interface/authority metadata.
-    """
     if target.startswith("repository://"):
         repo = target.removeprefix("repository://")
         checkout = ROOT / "dependencies" / repo.split("/")[-1]
@@ -191,6 +209,7 @@ def build(config: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any]]:
         "ref": ref,
         "scanned": scanned,
         "detector": detector,
+        "fragments": config.get("fragments", []),
         "edge_classes": [
             "PACKAGE_DEPENDENCY",
             "MODULE_DEPENDENCY",
@@ -202,6 +221,7 @@ def build(config: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any]]:
             "edges": len(edges),
             "declared": sum(not e.get("detected", False) for e in edges),
             "detected": sum(bool(e.get("detected")) for e in edges),
+            "fragments": len(config.get("fragments", [])),
             "by_class": {
                 cls: sum(e["class"] == cls for e in edges)
                 for cls in sorted({e["class"] for e in edges})
@@ -265,6 +285,7 @@ def build(config: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any]]:
             "metadata": {
                 "semantic_graph": "braink-semantic-dependency-graph.json",
                 "edge_count": len(edges),
+                "fragment_count": len(config.get("fragments", [])),
             },
         },
         "scanned": scanned,
@@ -280,7 +301,7 @@ def main() -> int:
     parser.add_argument("--snapshot-output", type=Path, default=ROOT / "build" / "github-dependency-snapshot.json")
     args = parser.parse_args()
 
-    config = _read_json(args.config)
+    config = _load_config_bundle(args.config)
     semantic, snapshot = build(config)
     args.semantic_output.parent.mkdir(parents=True, exist_ok=True)
     args.snapshot_output.parent.mkdir(parents=True, exist_ok=True)

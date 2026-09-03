@@ -1,0 +1,12 @@
+{
+  "schema": "kex.braink.dependency-edges-fragment.v1",
+  "component_id": "BRAINK_GOVERNANCE_CONTROL_SKELETON",
+  "scan_roots": ["governance/control_skeleton"],
+  "declared_edges": [
+    {"source":".github/workflows/deploy-braink-public.yml","target":"governance/control_skeleton/generate_governance.py","class":"MODULE_DEPENDENCY","relationship":"direct","scope":"development","interface":"governance control generation/admission","authority":"BRAINK_GOVERNANCE"},
+    {"source":".github/workflows/deploy-braink-public.yml","target":"governance/specs/public_tls_host_actuators.v1.json","class":"MODULE_DEPENDENCY","relationship":"direct","scope":"development","interface":"component governance specification","authority":"BRAINK_GOVERNANCE"},
+    {"source":"governance/control_skeleton/generate_governance.py","target":"governance/control_skeleton/component_spec.schema.json","class":"MODULE_DEPENDENCY","relationship":"direct","scope":"development","interface":"component specification schema contract","authority":"BRAINK_GOVERNANCE"},
+    {"source":"assets/public_tls_host_actuators/GOVERNANCE_MANIFEST.json","target":"governance/specs/public_tls_host_actuators.v1.json","class":"MODULE_DEPENDENCY","relationship":"direct","scope":"development","interface":"asset governance spec binding","authority":"BRAINK_GOVERNANCE"},
+    {"source":"assets/public_tls_host_actuators/GOVERNANCE_MANIFEST.json","target":"governance/control_skeleton/ADAPTATION_PROTOCOL.md","class":"MODULE_DEPENDENCY","relationship":"direct","scope":"development","interface":"cross-sector/module adaptation contract","authority":"BRAINK_GOVERNANCE"}
+  ]
+}

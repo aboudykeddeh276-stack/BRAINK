@@ -6,78 +6,227 @@ on:
       - 'deploy/braink-public/**'
       - 'enterprise/tls_authority_runtime.py'
       - 'enterprise/public_ca_adapter.py'
+      - 'assets/public_tls_host_actuators/**'
+      - 'governance/**'
+      - 'dependency-graph/**'
+      - 'scripts/dependency_graph/**'
+      - 'tests/governance/**'
+      - 'tests/integration/test_public_tls_host_actuators.py'
       - '.github/workflows/deploy-braink-public.yml'
 concurrency:
   group: braink-public-production
   cancel-in-progress: false
+permissions:
+  contents: write
 jobs:
   deploy:
     runs-on: [self-hosted]
-    permissions:
-      contents: read
     env:
       KEDDEH_DOMAIN_FABRIC_ROOT: /mnt/data/keddeh_deploy/resident_v5/KEDDEH_REGISTRAR_V5
       KEDDEH_EVIDENCE_ROOT: /mnt/data/keddeh_deploy/resident_v5/KEDDEH_REGISTRAR_V5_EVIDENCE
       KEDDEH_PUBLIC_TLS_REQUIRED: '1'
-      KEDDEH_PUBLIC_CA_AUTH_HOOK: ${{ vars.KEDDEH_PUBLIC_CA_AUTH_HOOK }}
-      KEDDEH_PUBLIC_CA_CLEANUP_HOOK: ${{ vars.KEDDEH_PUBLIC_CA_CLEANUP_HOOK }}
-      KEDDEH_SERVER_TLS_INSTALL_HOOK: ${{ vars.KEDDEH_SERVER_TLS_INSTALL_HOOK }}
-      KEDDEH_SERVER_TLS_ROLLBACK_HOOK: ${{ vars.KEDDEH_SERVER_TLS_ROLLBACK_HOOK }}
       KEDDEH_ACME_CLIENT: ${{ vars.KEDDEH_ACME_CLIENT || 'certbot' }}
       KEDDEH_ACME_DIRECTORY_URL: ${{ vars.KEDDEH_ACME_DIRECTORY_URL }}
       KEDDEH_ACME_EMAIL: ${{ vars.KEDDEH_ACME_EMAIL }}
       KEDDEH_TLS_STATE_ROOT: /mnt/data/keddeh_deploy/resident_v5/KEDDEH_REGISTRAR_V5_EVIDENCE/TLS_ROOT
       KEDDEH_PUBLIC_CA_STATE_ROOT: /mnt/data/keddeh_deploy/resident_v5/KEDDEH_REGISTRAR_V5_EVIDENCE/PUBLIC_CA
+      KEDDEH_HOST_ACTUATOR_BINDINGS: deploy/braink-public/BRAINK_HOST_ACTUATOR_BINDINGS.json
+      KEDDEH_HOST_ACTUATOR_BIN: /mnt/data/keddeh_deploy/resident_v5/KEDDEH_REGISTRAR_V5_EVIDENCE/HOST_ACTUATORS/bin
+      KEDDEH_SERVER_CERT_PATH: ${{ vars.KEDDEH_SERVER_CERT_PATH }}
+      KEDDEH_SERVER_KEY_PATH: ${{ vars.KEDDEH_SERVER_KEY_PATH }}
+      KEDDEH_REGISTRAR_DB: ${{ vars.KEDDEH_REGISTRAR_DB }}
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout BRAINK exact deployment revision
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Qualify governance control package
+        run: |
+          set -euo pipefail
+          python3 -m pytest -q tests/governance/test_control_skeleton.py
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          root=Path('assets/public_tls_host_actuators')
+          manifest=json.loads((root/'GOVERNANCE_MANIFEST.json').read_text())
+          required={
+            'CONTROL_INDEX.md','FILING_STANDARD.md','SCHEMA_STANDARD.md','AUTHORSHIP_AUTHORITY.md',
+            'PROCESS_CONTROL.md','WORKFLOW_CONTROL.md','OPERATIONS_RUNBOOK.md','CROSS_PLATFORM_CONTRACT.md',
+            'ACCOUNTABILITY_EVIDENCE.md','KEY_CONSIDERATIONS.md'
+          }
+          missing={name for name in required if not (root/name).is_file()}
+          assert not missing, f'missing governance controls: {sorted(missing)}'
+          assert set(manifest['documents']) == required
+          assert manifest['component_id'] == 'BRAINK_PUBLIC_TLS_HOST_ACTUATORS'
+          assert 'PUBLIC_TLS_VERIFIED' in manifest['promotion_states']
+          spec=json.loads(Path(manifest['governance_spec']).read_text())
+          assert spec['component_id'] == manifest['component_id']
+          assert spec['proof_conditions']
+          assert spec['rollback_requirements']
+          assert spec['cross_platform']['required_capabilities']
+          print('governance-control-admission: PASS')
+          PY
+
+      - name: Checkout resident server authority dependency
+        uses: actions/checkout@v4
+        with:
+          repository: aboudykeddeh276-stack/SERVERS-KEDDEHSYSTEMS
+          path: dependencies/SERVERS-KEDDEHSYSTEMS
+
+      - name: Generate exact deployment dependency graph
+        run: |
+          set -euo pipefail
+          python3 scripts/dependency_graph/braink_dependency_detector.py
+          python3 - <<'PY'
+          import json, subprocess
+          from pathlib import Path
+          semantic=json.loads(Path('build/braink-semantic-dependency-graph.json').read_text())
+          snapshot=json.loads(Path('build/github-dependency-snapshot.json').read_text())
+          head=subprocess.check_output(['git','rev-parse','HEAD'], text=True).strip()
+          assert semantic['sha'] == head
+          assert snapshot['sha'] == head
+          required={
+            'assets/public_tls_host_actuators/dns01_resident_actuator.py',
+            'assets/public_tls_host_actuators/server_tls_actuator.py',
+            'assets/public_tls_host_actuators/rollback_server_tls.py',
+            'assets/public_tls_host_actuators/resolve_host_bindings.py',
+            'runtime://acme/certbot',
+            'runtime://domain/public-dns-challenge-auth-hook',
+            'runtime://domain/public-dns-challenge-cleanup-hook',
+            'runtime://server/tls-install-hook',
+            'runtime://server/tls-rollback-hook',
+            'runtime://tls/system-public-trust-store',
+          }
+          targets={e['target'] for e in semantic['edges']}
+          missing=required-targets
+          assert not missing, f'public issuance dependency cut incomplete: {sorted(missing)}'
+          print('public-issuance-dependency-cut: PASS')
+          PY
+
+      - name: Submit deployment snapshot to GitHub Dependency Graph
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          curl --fail-with-body --silent --show-error \
+            -X POST \
+            -H 'Accept: application/vnd.github+json' \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H 'X-GitHub-Api-Version: 2026-03-10' \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/dependency-graph/snapshots" \
+            --data-binary @build/github-dependency-snapshot.json \
+            | tee build/github-public-deploy-dependency-submission.json
+          python3 - <<'PY'
+          import json
+          response=json.load(open('build/github-public-deploy-dependency-submission.json'))
+          assert response.get('result') == 'SUCCESS', response
+          print('public-deploy-dependency-submission: PASS', response.get('id'))
+          PY
+
       - name: Verify resident KEDDEH fabric
         run: |
           set -euo pipefail
           test -x "$KEDDEH_DOMAIN_FABRIC_ROOT/START_FULL_DOMAIN_FABRIC.command"
           ps -ef | grep -E 'KEDDEH_RECURSIVE_EDGE_NODE_R1|authoritative_dns.py|registrar_server.py|webspace_server.py' | grep -v grep
+
       - name: Discover concrete resident host actuators
         run: |
           set -euo pipefail
           python3 deploy/braink-public/discover_host_actuators.py
           cat deploy/braink-public/BRAINK_HOST_ACTUATOR_DISCOVERY.json
-      - name: Preserve host actuator discovery
+
+      - name: Resolve fail-closed host bindings
+        run: |
+          set -euo pipefail
+          python3 -m assets.public_tls_host_actuators.resolve_host_bindings
+          cat "$KEDDEH_HOST_ACTUATOR_BINDINGS"
+          python3 - <<'PY'
+          import json, os
+          b=json.load(open(os.environ['KEDDEH_HOST_ACTUATOR_BINDINGS']))
+          with open(os.environ['GITHUB_ENV'],'a',encoding='utf-8') as f:
+              f.write('KEDDEH_REGISTRAR_DB='+b['registrar_db']+'\n')
+              f.write('KEDDEH_SERVER_TLS_CERT_TARGET='+b['certificate_target']+'\n')
+              f.write('KEDDEH_SERVER_TLS_KEY_TARGET='+b['private_key_target']+'\n')
+              f.write('KEDDEH_SERVER_TLS_RESTART_COMMAND='+b['restart_command']+'\n')
+              f.write('KEDDEH_SERVER_TLS_READBACK_HOST='+str(b['readback_host'])+'\n')
+              f.write('KEDDEH_SERVER_TLS_READBACK_PORT='+str(b['readback_port'])+'\n')
+          PY
+
+      - name: Install executable host actuator launchers
+        run: |
+          set -euo pipefail
+          python3 -m assets.public_tls_host_actuators.install_launchers
+          test -x "$KEDDEH_PUBLIC_CA_AUTH_HOOK"
+          test -x "$KEDDEH_PUBLIC_CA_CLEANUP_HOOK"
+          test -x "$KEDDEH_SERVER_TLS_INSTALL_HOOK"
+          test -x "$KEDDEH_SERVER_TLS_ROLLBACK_HOOK"
+
+      - name: Preserve host actuator discovery and bindings
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: braink-host-actuator-discovery-${{ github.sha }}
-          path: deploy/braink-public/BRAINK_HOST_ACTUATOR_DISCOVERY.json
+          name: braink-host-actuator-bindings-${{ github.sha }}
+          path: |
+            deploy/braink-public/BRAINK_HOST_ACTUATOR_DISCOVERY.json
+            deploy/braink-public/BRAINK_HOST_ACTUATOR_BINDINGS.json
           if-no-files-found: warn
+
       - name: Verify public TLS authority actuators
         run: |
           set -euo pipefail
           python3 --version
           openssl version
           command -v "${KEDDEH_ACME_CLIENT:-certbot}"
-          test -n "$KEDDEH_PUBLIC_CA_AUTH_HOOK"
-          test -n "$KEDDEH_PUBLIC_CA_CLEANUP_HOOK"
-          test -n "$KEDDEH_SERVER_TLS_INSTALL_HOOK"
-          test -n "$KEDDEH_SERVER_TLS_ROLLBACK_HOOK"
+          test -f "$KEDDEH_REGISTRAR_DB"
+          test -f "$KEDDEH_SERVER_TLS_CERT_TARGET"
+          test -f "$KEDDEH_SERVER_TLS_KEY_TARGET"
           test -x "$KEDDEH_PUBLIC_CA_AUTH_HOOK"
           test -x "$KEDDEH_PUBLIC_CA_CLEANUP_HOOK"
           test -x "$KEDDEH_SERVER_TLS_INSTALL_HOOK"
           test -x "$KEDDEH_SERVER_TLS_ROLLBACK_HOOK"
+
       - name: Qualify resident and public TLS adapters before mutation
         run: |
           set -euo pipefail
-          python3 -m py_compile enterprise/tls_authority_runtime.py enterprise/public_ca_adapter.py deploy/braink-public/provision_public_tls.py deploy/braink-public/deploy_live.py deploy/braink-public/discover_host_actuators.py
-          python3 -m pytest -q tests/integration/test_tls_authority_runtime.py tests/integration/test_public_ca_adapter.py
+          python3 -m py_compile \
+            enterprise/tls_authority_runtime.py \
+            enterprise/public_ca_adapter.py \
+            deploy/braink-public/provision_public_tls.py \
+            deploy/braink-public/deploy_live.py \
+            deploy/braink-public/discover_host_actuators.py \
+            assets/public_tls_host_actuators/dns01_resident_actuator.py \
+            assets/public_tls_host_actuators/server_tls_actuator.py \
+            assets/public_tls_host_actuators/rollback_server_tls.py \
+            assets/public_tls_host_actuators/resolve_host_bindings.py \
+            assets/public_tls_host_actuators/install_launchers.py \
+            governance/control_skeleton/generate_governance.py
+          python3 -m pytest -q \
+            tests/governance/test_control_skeleton.py \
+            tests/integration/test_tls_authority_runtime.py \
+            tests/integration/test_public_ca_adapter.py \
+            tests/integration/test_public_tls_host_actuators.py
+
       - name: Build canonical BRAINK surface and governed replicas
         run: python3 deploy/braink-public/build_sites.py
+
       - name: Deploy resident fabric and require public TLS promotion
         run: python3 deploy/braink-public/deploy_live.py
+
       - name: Publish execution receipts
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: braink-public-deployment-receipts
           path: |
+            build/braink-semantic-dependency-graph.json
+            build/github-dependency-snapshot.json
+            build/github-public-deploy-dependency-submission.json
+            assets/public_tls_host_actuators/GOVERNANCE_MANIFEST.json
+            governance/specs/public_tls_host_actuators.v1.json
             deploy/braink-public/*READBACK*.json
             deploy/braink-public/*RECEIPT*.json
             /mnt/data/keddeh_deploy/resident_v5/KEDDEH_REGISTRAR_V5_EVIDENCE/BRAINK_PUBLIC_LAYER2_READBACK.json
             /mnt/data/keddeh_deploy/resident_v5/KEDDEH_REGISTRAR_V5_EVIDENCE/PUBLIC_CA/public-ca-receipts.jsonl
+            /mnt/data/keddeh_deploy/resident_v5/KEDDEH_REGISTRAR_V5_EVIDENCE/TLS_ACTUATORS/*.json
           if-no-files-found: warn

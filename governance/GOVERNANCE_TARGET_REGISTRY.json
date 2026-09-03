@@ -1,0 +1,20 @@
+{
+  "schema": "kex.braink.governance-target-registry.v1",
+  "states": ["DISCOVERY_REQUIRED", "SPECIFIED", "GENERATED", "ADMITTED", "QUALIFIED", "PROMOTED", "BLOCKED"],
+  "targets": [
+    {"component_id":"BRAINK_CORE","classification":"SECTOR_RUNTIME","repository":"aboudykeddeh276-stack/BRAINK","sector":"BRAINK","state":"DISCOVERY_REQUIRED"},
+    {"component_id":"KEX_CORE","classification":"SECTOR_RUNTIME","repository":"aboudykeddeh276-stack/BRAINK","sector":"KEX","state":"DISCOVERY_REQUIRED"},
+    {"component_id":"DOMAIN_AUTHORITY","classification":"SECTOR_SERVICE","repository":"aboudykeddeh276-stack/SERVERS-KEDDEHSYSTEMS","sector":"DOMAIN_DNS_REGISTRAR","state":"DISCOVERY_REQUIRED"},
+    {"component_id":"PUBLIC_TLS_HOST_ACTUATORS","classification":"RUNTIME_AUTHORITY_ADAPTER_ASSET","repository":"aboudykeddeh276-stack/BRAINK","sector":"DOMAIN_TLS_SERVER_AUTHORITY","state":"SPECIFIED","spec":"governance/specs/public_tls_host_actuators.v1.json","manifest":"assets/public_tls_host_actuators/GOVERNANCE_MANIFEST.json"},
+    {"component_id":"IL_LLM","classification":"SECTOR_RUNTIME","repository":"UNRESOLVED_CANONICAL_REPOSITORY","sector":"IL_LLM","state":"DISCOVERY_REQUIRED"},
+    {"component_id":"VFS_K_DRIVE","classification":"SECTOR_STORAGE_RUNTIME","repository":"UNRESOLVED_CANONICAL_REPOSITORY","sector":"VFS_K_DRIVE","state":"DISCOVERY_REQUIRED"},
+    {"component_id":"WORKBOOK_OS","classification":"SECTOR_RUNTIME","repository":"UNRESOLVED_CANONICAL_REPOSITORY","sector":"WORKBOOK_OS","state":"DISCOVERY_REQUIRED"},
+    {"component_id":"NETWORK_FABRIC","classification":"SECTOR_NETWORK_RUNTIME","repository":"UNRESOLVED_CANONICAL_REPOSITORY","sector":"NETWORK_FABRIC","state":"DISCOVERY_REQUIRED"},
+    {"component_id":"CLOUD_INFRASTRUCTURE","classification":"SECTOR_CLOUD_RUNTIME","repository":"aboudykeddeh276-stack/KEDDEH-CLOUD-SERVERS-ID-1","sector":"CLOUD_INFRASTRUCTURE","state":"DISCOVERY_REQUIRED"},
+    {"component_id":"K_CLOUD_SUBSTRATE","classification":"SUBSTRATE_BINDING","repository":"aboudykeddeh276-stack/kcloud-substrate","sector":"CLOUD_INFRASTRUCTURE","state":"DISCOVERY_REQUIRED"},
+    {"component_id":"AGENTS_ORCHESTRATION","classification":"SECTOR_ORCHESTRATION","repository":"UNRESOLVED_CANONICAL_REPOSITORY","sector":"AGENTS_ORCHESTRATION","state":"DISCOVERY_REQUIRED"},
+    {"component_id":"EVIDENCE_LEDGER","classification":"SECTOR_EVIDENCE_RUNTIME","repository":"aboudykeddeh276-stack/BRAINK","sector":"EVIDENCE_LEDGER","state":"DISCOVERY_REQUIRED"},
+    {"component_id":"CASEPATH","classification":"SERVICE_SECTOR","repository":"UNRESOLVED_CANONICAL_REPOSITORY","sector":"CASEPATH","state":"DISCOVERY_REQUIRED"},
+    {"component_id":"CLAIMPATH","classification":"SERVICE_SECTOR","repository":"UNRESOLVED_CANONICAL_REPOSITORY","sector":"CLAIMPATH","state":"DISCOVERY_REQUIRED"}
+  ]
+}
