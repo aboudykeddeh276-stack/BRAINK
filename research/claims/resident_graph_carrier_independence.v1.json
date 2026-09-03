@@ -1,0 +1,54 @@
+{
+  "claim_id": "BRAINK_RESIDENT_GRAPH_CARRIER_INDEPENDENCE_R1",
+  "title": "Resident BRAINK root identity is independent of HTTP/TCP carrier endpoint",
+  "classification": "semantic identity / carrier projection",
+  "statement": "For a fixed resident root graph and fixed machine projection, changing the HTTP/TCP listener endpoint or process instance does not redefine the resident BRAINK root graph identity; the carrier is projection-only.",
+  "known_cs_adjacency": [
+    "location-transparent distributed objects",
+    "service discovery and endpoint indirection",
+    "content-addressed state identity",
+    "capability and semantic addressing"
+  ],
+  "invariants": [
+    "resident graph digest is derived from resident root state, not HTTP host/port",
+    "BRAINK_ROOT/SERVER_ROOT/CLOUD_ROOT state digests remain authoritative over carrier observations",
+    "carrier_role remains PROJECTION_ONLY",
+    "fabric join rejects a mismatched resident graph digest"
+  ],
+  "falsification": {
+    "experiment": "Instantiate the same resident graph through two different process instances and carrier endpoints on the same machine projection, then compare resident graph digest/root digests and complete a signed join against each endpoint.",
+    "pass_condition": "Both carrier instances expose identical resident graph/root digests and accept the same expected resident graph digest while their carrier endpoint/process identity differs.",
+    "fail_condition": "Changing process or HTTP/TCP endpoint changes resident graph/root identity or allows a mismatched graph to be accepted."
+  },
+  "proof_requirements": [
+    {
+      "proof_id": "ROOT_GRAPH_INVARIANCE",
+      "description": "Resident graph/root digests remain identical across carrier endpoint/process replacement.",
+      "minimum_level": 5,
+      "required_executor_capabilities": ["python", "tcp-loopback", "process-spawn"]
+    },
+    {
+      "proof_id": "MISMATCH_REJECTION",
+      "description": "Join rejects a deliberately wrong resident graph digest.",
+      "minimum_level": 6,
+      "required_executor_capabilities": ["python", "tcp-loopback"]
+    },
+    {
+      "proof_id": "REPEATABILITY",
+      "description": "Carrier replacement proof repeats without identity drift.",
+      "minimum_level": 11,
+      "required_executor_capabilities": ["python", "tcp-loopback", "process-spawn"]
+    }
+  ],
+  "required_evidence_level": 11,
+  "invalid_overclaims": [
+    "This does not prove host-independent remote-node identity because current remote node_id includes machine_material().",
+    "This does not prove cross-machine migration.",
+    "This does not prove public Internet reachability.",
+    "A workflow trigger or queued runner is not execution evidence."
+  ],
+  "next_experiments": [
+    "Introduce a logical-computer identity above machine projection and test preservation across two independent hosts.",
+    "Compare carrier replacement latency and state continuity with a conventional endpoint-bound service identity baseline."
+  ]
+}
