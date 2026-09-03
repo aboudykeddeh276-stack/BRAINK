@@ -1,0 +1,56 @@
+{
+  "schema": "braink.r24.executor-boundary-reconciliation/v1",
+  "subject": "R24_GITHUB_HOSTED_VALIDATE_EXECUTOR_BOUNDARY",
+  "classification": "FAULT",
+  "observed_at": "2026-09-03T10:20:50Z",
+  "governing_baseline": "R24_ENGINEERING_CONTROL_ABOVE_R23_FOUNDRY_CLOSURE",
+  "workflow": {
+    "path": ".github/workflows/keddeh-enterprise-control.yml",
+    "run_id": 33732565830,
+    "head_sha": "188761387a7464172ee6f80365659ed1edd241e6",
+    "validate_job_id": 100575635873,
+    "validate_status": "COMPLETED",
+    "validate_conclusion": "FAILURE",
+    "validate_steps_observed": 0,
+    "validate_logs": "BLOB_NOT_FOUND_404",
+    "specialist_job_id": 100575635534,
+    "specialist_status": "QUEUED"
+  },
+  "reconciliation": {
+    "code_test_failure_observed": false,
+    "executor_boundary_observed": true,
+    "claim": "HOSTED_EXECUTOR_FAILED_BEFORE_ANY_REPOSITORY_STEP_EXECUTED",
+    "promotion": "REJECTED",
+    "implementation_patch_required": false,
+    "reason": "No repository step executed, therefore no code-level failure is evidenced."
+  },
+  "r24_transition": {
+    "DISCOVER": "PASS",
+    "RECONCILE_SOURCE_STATE": "FAULT_EXECUTOR_BOUNDARY_ZERO_STEPS",
+    "ARCHITECTURE_DECISION": "SEPARATE_EXECUTOR_AVAILABILITY_FROM_CODE_QUALIFICATION",
+    "IMPLEMENT": "NO_CODE_MUTATION_JUSTIFIED",
+    "STATIC_VALIDATE": "NOT_EXECUTED_ON_HOSTED_RUN",
+    "UNIT_TEST": "NOT_EXECUTED_ON_HOSTED_RUN",
+    "INTEGRATION_TEST": "NOT_EXECUTED_ON_HOSTED_RUN",
+    "FAULT_INJECTION": "NOT_EXECUTED_ON_HOSTED_RUN",
+    "SECURITY_GATE": "NOT_EXECUTED_ON_HOSTED_RUN",
+    "QUALITY_GATE": "NOT_EXECUTED_ON_HOSTED_RUN",
+    "BUILD_RELEASE_MANIFEST": "NOT_ELIGIBLE",
+    "INDEPENDENT_VERIFY": "PENDING",
+    "PROMOTE_OR_REJECT": "REJECT",
+    "DEPLOY": "NO_NEW_RUNTIME_DEPLOYMENT",
+    "READBACK_RECONCILE": "PASS_EXECUTOR_BOUNDARY_OBSERVED",
+    "MARKET_READINESS_EVALUATE": "UNCHANGED_ENGINEERING_ONLY",
+    "CONTINUE": "AWAIT_EXECUTABLE_HOSTED_OR_SPECIALIST_RUN_WITH_NONZERO_STEPS"
+  },
+  "affected_current_gates": [
+    "scripts/kex-ci/test_r24_publication_domain_gate.py",
+    "scripts/kex-ci/test_r24_mail_runtime_gate.py",
+    "scripts/kex-ci/test_r24_customer_portal_privacy_gate.py",
+    "scripts/kex-ci/test_r24_owner_host_runtime_gate.py",
+    "scripts/kex-ci/test_r24_physical_multi_host_gate.py"
+  ],
+  "receipt_root": "2148301d4994f9a8d3657422d7df4d370901e21e4869fcf7016110b0375acc2a",
+  "non_duplication": "NO_RESIDENT_CAPABILITY_DUPLICATED",
+  "certification_claim": "NONE"
+}
