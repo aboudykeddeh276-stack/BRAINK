@@ -1,0 +1,51 @@
+{
+  "schema": "kex.braink.dependency-edges.fragment.v1",
+  "fragment_id": "BRAINK_RESEARCH_QUALIFICATION_FABRIC",
+  "declared_edges": [
+    {
+      "source": "research/qualification_fabric/qualification_fabric.py",
+      "target": "research/qualification_fabric/research_claim.schema.json",
+      "class": "MODULE_DEPENDENCY",
+      "relationship": "direct",
+      "scope": "development",
+      "interface": "research claim validation contract",
+      "authority": "BRAINK_RESEARCH_GOVERNANCE"
+    },
+    {
+      "source": "research/qualification_fabric/qualification_fabric.py",
+      "target": "research/qualification_fabric/executor_registry.json",
+      "class": "MODULE_DEPENDENCY",
+      "relationship": "direct",
+      "scope": "development",
+      "interface": "execution adapter capability registry",
+      "authority": "BRAINK_QUALIFICATION_FABRIC"
+    },
+    {
+      "source": "research/CLAIM_REGISTRY.json",
+      "target": "research/claims/resident_graph_carrier_independence.v1.json",
+      "class": "MODULE_DEPENDENCY",
+      "relationship": "direct",
+      "scope": "development",
+      "interface": "registered falsifiable research claim",
+      "authority": "BRAINK_RESEARCH_GOVERNANCE"
+    },
+    {
+      "source": "research/CLAIM_REGISTRY.json",
+      "target": "research/claims/logical_computer_host_independence.proposed.v1.json",
+      "class": "MODULE_DEPENDENCY",
+      "relationship": "direct",
+      "scope": "development",
+      "interface": "registered proposed research claim",
+      "authority": "BRAINK_RESEARCH_GOVERNANCE"
+    },
+    {
+      "source": "research/claims/resident_graph_carrier_independence.v1.json",
+      "target": "enterprise/remote_fabric_node.py",
+      "class": "MODULE_DEPENDENCY",
+      "relationship": "direct",
+      "scope": "development",
+      "interface": "implementation under qualification",
+      "authority": "BRAINK"
+    }
+  ]
+}
