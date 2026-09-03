@@ -30,11 +30,12 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - name: Checkout BRAINK
+      - name: Checkout BRAINK exact source revision
         uses: actions/checkout@v4
         with:
           path: BRAINK
           fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Checkout resident server authority dependency
         uses: actions/checkout@v4
@@ -44,19 +45,22 @@ jobs:
 
       - name: Detect build-resolved architectural dependencies
         working-directory: BRAINK
-        run: |
-          python3 scripts/dependency_graph/braink_dependency_detector.py
+        run: python3 scripts/dependency_graph/braink_dependency_detector.py
 
       - name: Validate semantic graph and GitHub snapshot
         working-directory: BRAINK
         run: |
           python3 - <<'PY'
           import json
+          import subprocess
           from pathlib import Path
 
           semantic = json.loads(Path('build/braink-semantic-dependency-graph.json').read_text())
           snapshot = json.loads(Path('build/github-dependency-snapshot.json').read_text())
+          checked_out = subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip()
 
+          assert semantic['sha'] == checked_out
+          assert snapshot['sha'] == checked_out
           assert semantic['sha'] == snapshot['sha']
           assert semantic['ref'] == snapshot['ref']
           assert semantic['summary']['edges'] > 0
@@ -114,7 +118,7 @@ jobs:
       - name: Preserve dependency proof artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: braink-dependency-graph-${{ github.sha }}
+          name: braink-dependency-graph-${{ github.event.pull_request.head.sha || github.sha }}
           path: |
             BRAINK/build/braink-semantic-dependency-graph.json
             BRAINK/build/github-dependency-snapshot.json
