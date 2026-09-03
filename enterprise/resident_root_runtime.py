@@ -14,7 +14,7 @@ import argparse
 import hashlib
 import json
 
-from modules.kex_core.canonical_state import CanonicalBoundary, CanonicalState, mapping_adapter
+from modules.kex_core.canonical_state import CanonicalBoundary, mapping_adapter
 
 
 @dataclass(frozen=True)
@@ -59,6 +59,14 @@ ROOTS = (
         "BOUND",
     ),
     ResidentRoot(
+        "TLS_ROOT", "class://domain/tls-authority", "BRAINK_LOCAL_TLS_AUTHORITY",
+        "enterprise/tls_authority_runtime.py",
+        "ResidentTLSAuthority issue/readback/renew/SSLContext",
+        "SERVER_ROOT/TLS transport/public-CA adapters",
+        "BOUND",
+        "Resident local CA authority is bound. Public ACME/edge CA authority remains a downstream adapter boundary.",
+    ),
+    ResidentRoot(
         "SERVER_ROOT", "class://server/runtime", "BRAINK",
         "runtime/runtime_registry.py",
         "RuntimeRegistry/RuntimeRouteRegistry",
@@ -71,14 +79,6 @@ ROOTS = (
         "runtime fabric bootstrap",
         "SERVER_ROOT/remote machine nodes",
         "BOUND",
-    ),
-    ResidentRoot(
-        "TLS_ROOT", "class://domain/tls-authority", "BRAINK",
-        None,
-        None,
-        "carrier TLS/CA adapter",
-        "UNBOUND",
-        "Typed root preserved; no concrete resident TLS actuator is visible in the current reconciliation tree.",
     ),
 )
 
@@ -131,6 +131,7 @@ def resolve_roots(repository_root: str | Path = ".") -> dict[str, Any]:
             ["DOMAIN_ROOT", "DNS_ROOT"],
             ["DOMAIN_ROOT", "REGISTRAR_ROOT"],
             ["DOMAIN_ROOT", "TLS_ROOT"],
+            ["TLS_ROOT", "SERVER_ROOT"],
             ["BRAINK_ROOT", "SERVER_ROOT"],
             ["SERVER_ROOT", "CLOUD_ROOT"],
         ],
@@ -141,7 +142,7 @@ def resolve_roots(repository_root: str | Path = ".") -> dict[str, Any]:
 
 
 def require_resident_integrity(graph: dict[str, Any]) -> None:
-    required_bound = {"BRAINK_ROOT", "DOMAIN_ROOT", "DNS_ROOT", "REGISTRAR_ROOT", "SERVER_ROOT", "CLOUD_ROOT"}
+    required_bound = {"BRAINK_ROOT", "DOMAIN_ROOT", "DNS_ROOT", "REGISTRAR_ROOT", "TLS_ROOT", "SERVER_ROOT", "CLOUD_ROOT"}
     failures = []
     for rid in sorted(required_bound):
         payload = graph["roots"][rid]["payload"]
