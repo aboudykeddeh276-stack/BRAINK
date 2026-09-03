@@ -3,12 +3,23 @@
 BRAINK public rail gateway.
 Sites never hold Google/Stripe secret material. They call dedicated local rail
 processes over Unix sockets and receive bounded results.
+
+R28: the public endpoint is a carrier projection only. Resident BRAINK/KEX
+identity is exposed from a canonical typed-root snapshot and must be verified
+before a remote peer trusts this carrier.
 """
 from __future__ import annotations
 import json, os, socket, http.server, urllib.parse, base64
 
+from runtime.resident_root_projection_r28 import ResidentRootResolver, carrier_projection
+
 OAUTH_SOCKET = os.environ.get("BRAINK_OAUTH_SOCKET", "/tmp/braink-oauth.sock")
 STRIPE_SOCKET = os.environ.get("BRAINK_STRIPE_SOCKET", "/tmp/braink-stripe.sock")
+REPO_ROOT = os.environ.get("BRAINK_REPO_ROOT", ".")
+CARRIER_ENDPOINT = os.environ.get("BRAINK_CARRIER_ENDPOINT", "")
+CARRIER_KIND = os.environ.get("BRAINK_CARRIER_KIND", "HTTP")
+HOST_ID = os.environ.get("BRAINK_HOST_ID", socket.gethostname())
+
 
 def rail_call(path: str, payload: dict) -> dict:
     body=(json.dumps(payload,separators=(",",":"))+"\n").encode()
@@ -30,8 +41,13 @@ def rail_call(path: str, payload: dict) -> dict:
     finally:
         s.close()
 
+
+def resident_snapshot(domain: str) -> dict:
+    return ResidentRootResolver(REPO_ROOT).canonical_snapshot(domain)
+
+
 class Handler(http.server.BaseHTTPRequestHandler):
-    server_version="BRAINKPublic/1"
+    server_version="BRAINKPublic/2"
     def json(self, code, obj):
         b=json.dumps(obj,separators=(",",":")).encode()
         self.send_response(code); self.send_header("Content-Type","application/json")
@@ -42,7 +58,24 @@ class Handler(http.server.BaseHTTPRequestHandler):
         u=urllib.parse.urlsplit(self.path)
         q=urllib.parse.parse_qs(u.query)
         if u.path=="/health":
-            return self.json(200,{"status":"PASS","runtime":"runtime://braink/public-gateway/1"})
+            return self.json(200,{"status":"PASS","runtime":"runtime://braink/public-gateway/2","carrier_role":"PROJECTION_ONLY"})
+        if u.path=="/braink/resident-roots":
+            domain=q.get("domain",["keddeh.com"])[0]
+            try:
+                snapshot=resident_snapshot(domain)
+                return self.json(200,{"status":"PASS","authority":"BRAINK_RESIDENT_OBJECT_GRAPH",**snapshot})
+            except Exception as e:
+                return self.json(500,{"status":"FAIL","component":"BRAINK_RESIDENT_ROOT_RESOLVER","error":str(e)})
+        if u.path=="/braink/carrier-projection":
+            domain=q.get("domain",["keddeh.com"])[0]
+            if not CARRIER_ENDPOINT:
+                return self.json(409,{"status":"UNBOUND","component":"BRAINK_CARRIER_PROJECTION","reason":"BRAINK_CARRIER_ENDPOINT_NOT_SET"})
+            try:
+                snapshot=resident_snapshot(domain)
+                projection=carrier_projection(snapshot,endpoint=CARRIER_ENDPOINT,carrier=CARRIER_KIND,host_id=HOST_ID)
+                return self.json(200,{"status":"PASS","carrier_role":"PROJECTION_ONLY","projection":projection})
+            except Exception as e:
+                return self.json(500,{"status":"FAIL","component":"BRAINK_CARRIER_PROJECTION","error":str(e)})
         if u.path=="/auth/google/start":
             domain=q.get("domain",["braink.com.au"])[0]
             try:
