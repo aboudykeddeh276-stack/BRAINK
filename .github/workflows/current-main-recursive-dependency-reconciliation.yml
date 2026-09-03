@@ -74,10 +74,10 @@ jobs:
           python3 - <<'PY'
           import json
           g=json.load(open('build/resident-root-graph.json'))
-          required=('BRAINK_ROOT','DOMAIN_ROOT','DNS_ROOT','REGISTRAR_ROOT','SERVER_ROOT','CLOUD_ROOT')
+          required=('BRAINK_ROOT','DOMAIN_ROOT','DNS_ROOT','REGISTRAR_ROOT','TLS_ROOT','SERVER_ROOT','CLOUD_ROOT')
           for rid in required:
               assert g['roots'][rid]['payload']['state']=='BOUND', (rid,g['roots'][rid]['payload']['state'])
-          assert g['roots']['TLS_ROOT']['payload']['state']=='UNBOUND'
+              assert g['roots'][rid]['payload']['implementation_exists'] is True, rid
           print('resident-root-admission: PASS', g['graph_digest'])
           PY
 
@@ -85,10 +85,12 @@ jobs:
         working-directory: BRAINK
         run: |
           python3 --version
-          python3 -c "import fcntl, sqlite3, hashlib, json, socket, struct; print('stdlib-runtime-dependencies: PASS')"
+          openssl version
+          python3 -c "import fcntl, sqlite3, hashlib, json, socket, struct, ssl; print('stdlib-runtime-dependencies: PASS')"
           python3 -c "import pytest; print('pytest:', pytest.__version__)"
           test -f dependencies/SERVERS-KEDDEHSYSTEMS/runtime/domain_authority/kex_registrar_service.py
           test -f dependencies/SERVERS-KEDDEHSYSTEMS/runtime/domain_authority/kex_dns.py
+          test -f enterprise/tls_authority_runtime.py
 
       - name: Compile reconciled dependency chain
         working-directory: BRAINK
@@ -97,6 +99,7 @@ jobs:
             modules/kex_core/canonical_state.py \
             enterprise/resident_root_runtime.py \
             enterprise/remote_fabric_node.py \
+            enterprise/tls_authority_runtime.py \
             enterprise/continuation_runtime.py \
             enterprise/substrate_adapters.py \
             enterprise/self_addressing_runtime.py \
@@ -110,6 +113,9 @@ jobs:
       - name: Resident root authority and carrier invariance
         working-directory: BRAINK
         run: python3 -m pytest -q tests/integration/test_resident_root_runtime.py
+      - name: Resident TLS authority, renewal, readback and handshake
+        working-directory: BRAINK
+        run: python3 -m pytest -q tests/integration/test_tls_authority_runtime.py
       - name: Recursive computer core
         working-directory: BRAINK
         run: python3 -m pytest -q tests/R26/test_recursive_computer_runtime_r26.py
