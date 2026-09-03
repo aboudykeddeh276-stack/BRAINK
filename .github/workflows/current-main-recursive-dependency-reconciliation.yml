@@ -8,6 +8,7 @@ on:
       - 'enterprise/continuation_runtime.py'
       - 'enterprise/substrate_adapters.py'
       - 'enterprise/self_addressing_runtime.py'
+      - 'enterprise/recursive_commit_coordinator_r31.py'
       - 'enterprise/recursive_computer_runtime_r26.py'
       - 'enterprise/state_ledger_atomicity_r31.py'
       - 'enterprise/domain_authority_binding.py'
@@ -22,6 +23,7 @@ on:
       - 'enterprise/continuation_runtime.py'
       - 'enterprise/substrate_adapters.py'
       - 'enterprise/self_addressing_runtime.py'
+      - 'enterprise/recursive_commit_coordinator_r31.py'
       - 'enterprise/recursive_computer_runtime_r26.py'
       - 'enterprise/state_ledger_atomicity_r31.py'
       - 'enterprise/domain_authority_binding.py'
@@ -67,6 +69,7 @@ jobs:
             enterprise/continuation_runtime.py \
             enterprise/substrate_adapters.py \
             enterprise/self_addressing_runtime.py \
+            enterprise/recursive_commit_coordinator_r31.py \
             runtime/R25/system_evolution_runtime.py \
             enterprise/recursive_computer_runtime_r26.py \
             enterprise/state_ledger_atomicity_r31.py \
@@ -80,9 +83,12 @@ jobs:
       - name: Ledger integrity
         working-directory: BRAINK
         run: python3 -m pytest -q tests/R26/test_ledger_integrity_r30.py
-      - name: State-ledger atomicity
+      - name: Generic state-ledger atomicity primitive
         working-directory: BRAINK
         run: python3 -m pytest -q tests/R31/test_state_ledger_atomicity_r31.py
+      - name: Native recursive state-ledger crash recovery
+        working-directory: BRAINK
+        run: python3 -m pytest -q tests/R31/test_recursive_native_atomicity_r31.py
       - name: Domain authority UDP and TCP integration
         working-directory: BRAINK
         run: python3 -m pytest -q tests/integration/test_domain_authority_binding.py
