@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import Any
 from .capability_runtime import (
-    CapabilityContract, CapabilityRegistry, CapabilityRuntime,
+    AuthorizationError, CapabilityContract, CapabilityRegistry, CapabilityRuntime,
     InvocationContext, ReceiptLedger, Risk,
 )
 
@@ -56,8 +56,18 @@ def build_registry(backend) -> CapabilityRegistry:
 
 class GovernedCapabilityService:
     def __init__(self, backend, ledger_path):
+        self.backend=backend
         self.registry=build_registry(backend)
-        self.runtime=CapabilityRuntime(ReceiptLedger(ledger_path),self.registry)
+        self.runtime=CapabilityRuntime(ReceiptLedger(ledger_path),self.registry,context_validator=self._validate_lease)
+
+    def _validate_lease(self, ctx: InvocationContext) -> None:
+        lease=self.backend.current_lease(ctx.work_id)
+        if lease.get("state")!="LEASED":
+            raise AuthorizationError(f"work lease required: {ctx.work_id}")
+        if lease.get("holder")!=ctx.actor_id:
+            raise AuthorizationError(f"lease holder mismatch: {ctx.actor_id}")
+        if int(lease.get("epoch",-1))!=ctx.lease_epoch:
+            raise AuthorizationError(f"lease epoch mismatch: {ctx.lease_epoch}")
 
     def manifest(self):
         return self.registry.manifest()
