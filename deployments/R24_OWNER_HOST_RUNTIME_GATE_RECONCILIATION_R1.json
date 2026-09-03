@@ -1,0 +1,43 @@
+{
+  "schema": "braink.r24.owner-host-runtime-gate-reconciliation/v1",
+  "governing_baseline": "R24_ENGINEERING_CONTROL",
+  "classification": "STATE_DRIFT",
+  "subject": "R23_OWNER_HOST_RUNTIME_PROMOTION_GATE",
+  "discovery": {
+    "resident_runtime": "deployment/r23_owner_host_runtime.py",
+    "resident_service": "deployment/r23_foundry_closure_service.py",
+    "resident_invariant": "scripts/kex-ci/test_r23_owner_host_runtime.py",
+    "source_receipt": "deployments/R24_R23_OWNER_HOST_ACTIVATION_RECEIPT_R1.json"
+  },
+  "decision": "REUSE_RESIDENT_OWNER_HOST_RUNTIME_AND_ADD_R24_PROMOTION_GATE_ONLY",
+  "implementation": {
+    "gate": "scripts/kex-ci/test_r24_owner_host_runtime_gate.py",
+    "gate_commit": "40c637ac670caa32f8f6ad9481b2956bf5a7b2a4",
+    "workflow_commit": "fc613973a6483815073dc6d934aae8ae8c583ec7",
+    "workflow_run_id": 33727291461
+  },
+  "observed_prior_evidence": {
+    "single_host_loopback_activation": "PASS",
+    "http_service_readback": "PASS",
+    "customer_lifecycle_mutation": "PASS",
+    "process_stop_restart": "PASS",
+    "state_root_rehydration_equality": "PASS",
+    "generation_rehydration_equality": "PASS",
+    "non_loopback_bind": "REJECTED"
+  },
+  "claim_boundaries": {
+    "public_owner_host_ingress": "UNPROVEN",
+    "authoritative_dns_tls": "UNPROVEN",
+    "physical_multi_host": "UNPROVEN",
+    "independent_verification": "PENDING",
+    "full_quality_gate": "PENDING_EXECUTION",
+    "full_security_gate": "PENDING_EXECUTION"
+  },
+  "promotion": "REJECTED_PENDING_R24_GATE_EXECUTION_AND_REMAINING_EVIDENCE",
+  "readback": {
+    "workflow_status": "QUEUED",
+    "workflow_conclusion": null,
+    "post_change_pass_claim": false
+  },
+  "receipt_root": "0b8b74bbb93bc91362b24543d48482f7b2eec76430f497bdc981ed8416ff1f2e"
+}
