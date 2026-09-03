@@ -5,7 +5,12 @@ on:
     branches:
       - reconcile/current-main-unification-r1
     paths:
+      - 'enterprise/resident_root_runtime.py'
       - 'enterprise/remote_fabric_node.py'
+      - 'enterprise/domain_authority_binding.py'
+      - 'runtime/runtime_registry.py'
+      - 'deployment/bootstrap_keddeh_fabric.py'
+      - 'modules/kex_core/canonical_state.py'
       - '.github/workflows/independent-remote-fabric-node.yml'
   workflow_dispatch:
 
@@ -15,13 +20,20 @@ permissions:
 
 jobs:
   remote-host:
-    name: Independent public BRAINK host
+    name: Independent BRAINK host: resident state then public projection
     runs-on: ubuntu-latest
     timeout-minutes: 22
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout BRAINK exact revision
+        uses: actions/checkout@v4
         with:
           ref: ${{ github.sha }}
+
+      - name: Checkout resident domain-authority implementation
+        uses: actions/checkout@v4
+        with:
+          repository: aboudykeddeh276-stack/SERVERS-KEDDEHSYSTEMS
+          path: dependencies/SERVERS-KEDDEHSYSTEMS
 
       - name: Verify independent host substrate
         run: |
@@ -33,16 +45,38 @@ jobs:
           test -r /etc/machine-id
           printf 'runner=%s\narch=%s\n' "$RUNNER_NAME" "$RUNNER_ARCH"
 
-      - name: Generate ephemeral remote host identity key
+      - name: Resolve resident BRAINK KEX typed roots
         run: |
           set -euo pipefail
           mkdir -p build/remote-fabric
+          python3 enterprise/resident_root_runtime.py \
+            --root . \
+            --output build/remote-fabric/resident-root-graph.json \
+            | tee build/remote-fabric/resident-root-resolution.log
+          python3 - <<'PY'
+          import json
+          p='build/remote-fabric/resident-root-graph.json'
+          g=json.load(open(p))
+          required=['BRAINK_ROOT','DOMAIN_ROOT','DNS_ROOT','REGISTRAR_ROOT','SERVER_ROOT','CLOUD_ROOT']
+          for rid in required:
+              r=g['roots'][rid]
+              assert r['payload']['state']=='BOUND', (rid,r['payload']['state'])
+              assert r['payload']['implementation_exists'] is True, rid
+              assert r['stateDigest']
+          assert g['roots']['TLS_ROOT']['payload']['state']=='UNBOUND'
+          assert g['graph_digest']
+          print('RESIDENT_STATE_RESOLVED', g['graph_digest'])
+          PY
+
+      - name: Generate independent machine projection key
+        run: |
+          set -euo pipefail
           openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:3072 -out build/remote-fabric/host-private.pem
           openssl pkey -in build/remote-fabric/host-private.pem -pubout -out build/remote-fabric/host-public.pem
           chmod 600 build/remote-fabric/host-private.pem
           sha256sum build/remote-fabric/host-public.pem | tee build/remote-fabric/host-public.sha256
 
-      - name: Start BRAINK remote machine interface
+      - name: Start BRAINK machine interface from resident state
         run: |
           set -euo pipefail
           python3 enterprise/remote_fabric_node.py \
@@ -52,26 +86,35 @@ jobs:
             --run-id "$GITHUB_RUN_ID" \
             --private-key build/remote-fabric/host-private.pem \
             --public-key build/remote-fabric/host-public.pem \
+            --resident-roots build/remote-fabric/resident-root-graph.json \
             --receipts build/remote-fabric/join-receipts.jsonl \
             > build/remote-fabric/node.log 2>&1 &
           echo $! > build/remote-fabric/node.pid
           for i in $(seq 1 30); do
             python3 - <<'PY' && exit 0 || true
-          import urllib.request
-          with urllib.request.urlopen('http://127.0.0.1:8787/health', timeout=2) as r:
-              assert r.status == 200
+          import json, urllib.request
+          with urllib.request.urlopen('http://127.0.0.1:8787/identity', timeout=2) as r:
+              d=json.load(r)
+          assert d['carrier_role']=='PROJECTION_ONLY'
+          assert d['resident_graph_digest']
+          assert d['root_digests']['BRAINK_ROOT']
           PY
             sleep 1
           done
           cat build/remote-fabric/node.log
           exit 1
 
-      - name: Expose independent host through public carrier
+      - name: Project BRAINK interface through public carrier
         run: |
           set -euo pipefail
-          curl -L --fail --silent --show-error \
+          # This is a downstream carrier operation. Failure here means CARRIER_PROJECTION_FAILED,
+          # not resident BRAINK state failure.
+          if ! curl -L --fail --silent --show-error \
             -o build/remote-fabric/cloudflared \
-            https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64
+            https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64; then
+            echo 'CARRIER_PROJECTION_FAILED:cloudflared-download' | tee build/remote-fabric/carrier-failure.txt
+            exit 1
+          fi
           chmod +x build/remote-fabric/cloudflared
           build/remote-fabric/cloudflared tunnel \
             --no-autoupdate \
@@ -84,25 +127,34 @@ jobs:
             if [ -n "$endpoint" ]; then break; fi
             sleep 1
           done
-          test -n "$endpoint"
+          if [ -z "$endpoint" ]; then
+            echo 'CARRIER_PROJECTION_FAILED:no-public-endpoint' | tee build/remote-fabric/carrier-failure.txt
+            cat build/remote-fabric/tunnel.log
+            exit 1
+          fi
           echo "$endpoint" | tee build/remote-fabric/public-endpoint.txt
           ENDPOINT="$endpoint" python3 - <<'PY'
           import json, os, time, urllib.request
-          endpoint = os.environ['ENDPOINT']
+          endpoint=os.environ['ENDPOINT']
+          local=json.load(open('build/remote-fabric/resident-root-graph.json'))
           for _ in range(30):
               try:
-                  with urllib.request.urlopen(endpoint + '/identity', timeout=4) as r:
-                      data = json.load(r)
-                  assert data['commit_sha'] == os.environ['GITHUB_SHA']
-                  print(json.dumps(data, sort_keys=True))
+                  with urllib.request.urlopen(endpoint+'/identity', timeout=4) as r:
+                      ident=json.load(r)
+                  with urllib.request.urlopen(endpoint+'/roots', timeout=4) as r:
+                      roots=json.load(r)
+                  assert ident['commit_sha']==os.environ['GITHUB_SHA']
+                  assert ident['resident_graph_digest']==local['graph_digest']
+                  assert roots['graph_digest']==local['graph_digest']
+                  print('CARRIER_PROJECTED', endpoint, local['graph_digest'])
                   break
               except Exception:
                   time.sleep(2)
           else:
-              raise SystemExit('PUBLIC_IDENTITY_READBACK_FAILED')
+              raise SystemExit('CARRIER_PROJECTION_FAILED:public-readback')
           PY
 
-      - name: Publish machine rendezvous for existing fabric
+      - name: Publish resident-bound rendezvous for existing fabric
         env:
           GH_TOKEN: ${{ github.token }}
           RENDEZVOUS_ISSUE: '66'
@@ -112,9 +164,9 @@ jobs:
           identity=$(python3 - <<'PY'
           import json, urllib.request
           endpoint=open('build/remote-fabric/public-endpoint.txt').read().strip()
-          with urllib.request.urlopen(endpoint + '/identity', timeout=5) as r:
-              d=json.load(r)
-          print(json.dumps({k:d[k] for k in ('node_id','commit_sha','run_id','public_key_sha256')}, separators=(',',':')))
+          with urllib.request.urlopen(endpoint+'/identity', timeout=5) as r: d=json.load(r)
+          keep=('node_id','semantic_identity','commit_sha','run_id','public_key_sha256','resident_graph_digest','root_digests')
+          print(json.dumps({k:d[k] for k in keep}, separators=(',',':'), sort_keys=True))
           PY
           )
           body="BRAINK_REMOTE_RENDEZVOUS run_id=${GITHUB_RUN_ID} endpoint=${endpoint} identity=${identity}"
@@ -138,31 +190,40 @@ jobs:
           import json, os, urllib.request
           req=urllib.request.Request(
               f"https://api.github.com/repos/{os.environ['GITHUB_REPOSITORY']}/issues/{os.environ['RENDEZVOUS_ISSUE']}/comments?per_page=100",
-              headers={'Authorization':'Bearer '+os.environ['GH_TOKEN'], 'Accept':'application/vnd.github+json'})
+              headers={'Authorization':'Bearer '+os.environ['GH_TOKEN'],'Accept':'application/vnd.github+json'})
           with urllib.request.urlopen(req, timeout=10) as r: comments=json.load(r)
           marker=f"BRAINK_FABRIC_JOINED run_id={os.environ['GITHUB_RUN_ID']}"
           print('1' if any(marker in c.get('body','') for c in comments) else '')
           PY
           )
             if [ "$joined" = '1' ]; then
-              echo 'fabric join readback observed'
+              echo 'FABRIC_JOINED'
               cat build/remote-fabric/join-receipts.jsonl
               exit 0
             fi
             python3 - <<'PY'
           import json, urllib.request
           endpoint=open('build/remote-fabric/public-endpoint.txt').read().strip()
-          with urllib.request.urlopen(endpoint + '/health', timeout=4) as r:
-              d=json.load(r)
+          local=json.load(open('build/remote-fabric/resident-root-graph.json'))
+          with urllib.request.urlopen(endpoint+'/health', timeout=4) as r: d=json.load(r)
           assert d['status']=='OK'
+          assert d['resident_graph_digest']==local['graph_digest']
           PY
             sleep 5
           done
           echo 'FABRIC_JOIN_TIMEOUT'
           exit 1
 
+      - name: Preserve remote-host state and carrier evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: independent-braink-remote-host-${{ github.sha }}
+          path: build/remote-fabric/
+          if-no-files-found: error
+
   fabric-join:
-    name: Existing KEX fabric joins independent host
+    name: Existing KEX fabric verifies resident identity and joins
     runs-on:
       - self-hosted
       - kex
@@ -171,17 +232,27 @@ jobs:
       - warmboot
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout BRAINK exact revision
+        uses: actions/checkout@v4
         with:
           ref: ${{ github.sha }}
 
-      - name: Verify existing fabric substrate
+      - name: Checkout resident domain-authority implementation
+        uses: actions/checkout@v4
+        with:
+          repository: aboudykeddeh276-stack/SERVERS-KEDDEHSYSTEMS
+          path: dependencies/SERVERS-KEDDEHSYSTEMS
+
+      - name: Resolve local fabric resident roots independently
         run: |
           set -euo pipefail
+          mkdir -p build/fabric-join
+          python3 enterprise/resident_root_runtime.py \
+            --root . \
+            --output build/fabric-join/local-resident-root-graph.json
           python3 --version
           openssl version
           hostname
-          mkdir -p build/fabric-join
 
       - name: Resolve remote rendezvous
         env:
@@ -194,7 +265,7 @@ jobs:
           import json, os, re, urllib.request
           req=urllib.request.Request(
               f"https://api.github.com/repos/{os.environ['GITHUB_REPOSITORY']}/issues/{os.environ['RENDEZVOUS_ISSUE']}/comments?per_page=100",
-              headers={'Authorization':'Bearer '+os.environ['GH_TOKEN'], 'Accept':'application/vnd.github+json'})
+              headers={'Authorization':'Bearer '+os.environ['GH_TOKEN'],'Accept':'application/vnd.github+json'})
           with urllib.request.urlopen(req, timeout=10) as r: comments=json.load(r)
           marker=f"BRAINK_REMOTE_RENDEZVOUS run_id={os.environ['GITHUB_RUN_ID']} "
           body=next((c['body'] for c in reversed(comments) if c.get('body','').startswith(marker)), None)
@@ -209,6 +280,24 @@ jobs:
           test -s build/fabric-join/rendezvous.json
           cat build/fabric-join/rendezvous.json
 
+      - name: Verify resident root identity before carrier join
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, pathlib, urllib.request
+          p=pathlib.Path('build/fabric-join')
+          local=json.loads((p/'local-resident-root-graph.json').read_text())
+          rd=json.loads((p/'rendezvous.json').read_text())
+          advertised=rd['identity']
+          assert advertised['resident_graph_digest']==local['graph_digest'], 'RESIDENT_GRAPH_MISMATCH_BEFORE_CARRIER'
+          for rid in ('BRAINK_ROOT','SERVER_ROOT','CLOUD_ROOT'):
+              assert advertised['root_digests'][rid]==local['roots'][rid]['stateDigest'], f'ROOT_MISMATCH:{rid}'
+          with urllib.request.urlopen(rd['endpoint']+'/roots', timeout=10) as r: remote_roots=json.load(r)
+          assert remote_roots['graph_digest']==local['graph_digest']
+          (p/'remote-roots.json').write_text(json.dumps(remote_roots, indent=2, sort_keys=True))
+          print('RESIDENT_IDENTITY_VERIFIED', local['graph_digest'])
+          PY
+
       - name: Perform signed cross-host fabric join
         run: |
           set -euo pipefail
@@ -216,26 +305,32 @@ jobs:
           import base64, json, os, pathlib, secrets, urllib.request
           p=pathlib.Path('build/fabric-join')
           rd=json.loads((p/'rendezvous.json').read_text())
+          local=json.loads((p/'local-resident-root-graph.json').read_text())
           endpoint=rd['endpoint']
-          with urllib.request.urlopen(endpoint + '/identity', timeout=10) as r:
-              identity=json.load(r)
+          with urllib.request.urlopen(endpoint+'/identity', timeout=10) as r: identity=json.load(r)
           assert identity['commit_sha']==os.environ['GITHUB_SHA']
           assert identity['run_id']==os.environ['GITHUB_RUN_ID']
           assert identity['node_id']==rd['identity']['node_id']
+          assert identity['resident_graph_digest']==local['graph_digest']
           (p/'identity.json').write_text(json.dumps(identity, indent=2, sort_keys=True))
           (p/'remote-public.pem').write_text(identity['public_key_pem'])
           challenge='FABRIC-'+os.environ['GITHUB_RUN_ID']+'-'+secrets.token_hex(24)
           fabric_node_id='KEX-FABRIC-'+os.environ.get('RUNNER_NAME','SELFHOSTED')
-          payload=json.dumps({'fabric_node_id':fabric_node_id,'challenge':challenge}, separators=(',',':')).encode()
+          payload=json.dumps({
+              'fabric_node_id':fabric_node_id,
+              'challenge':challenge,
+              'resident_graph_digest':local['graph_digest'],
+          }, separators=(',',':')).encode()
           req=urllib.request.Request(endpoint+'/fabric/join', data=payload, headers={'Content-Type':'application/json'}, method='POST')
-          with urllib.request.urlopen(req, timeout=15) as r:
-              result=json.load(r)
+          with urllib.request.urlopen(req, timeout=15) as r: result=json.load(r)
           assert result['status']=='JOINED'
           receipt=result['receipt']
           assert receipt['remote_node_id']==identity['node_id']
           assert receipt['fabric_node_id']==fabric_node_id
           assert receipt['challenge']==challenge
           assert receipt['commit_sha']==os.environ['GITHUB_SHA']
+          assert receipt['resident_graph_digest']==local['graph_digest']
+          assert receipt['root_digests']==identity['root_digests']
           canonical=json.dumps(receipt, sort_keys=True, separators=(',',':'), ensure_ascii=False).encode()
           (p/'join-receipt.json').write_bytes(canonical)
           (p/'join-signature.bin').write_bytes(base64.b64decode(result['signature_b64']))
@@ -256,7 +351,8 @@ jobs:
           set -euo pipefail
           receipt_sha=$(sha256sum build/fabric-join/join-receipt.json | awk '{print $1}')
           remote_node=$(python3 -c "import json; print(json.load(open('build/fabric-join/identity.json'))['node_id'])")
-          body="BRAINK_FABRIC_JOINED run_id=${GITHUB_RUN_ID} remote_node=${remote_node} receipt_sha256=${receipt_sha} verifier=${RUNNER_NAME}"
+          graph=$(python3 -c "import json; print(json.load(open('build/fabric-join/local-resident-root-graph.json'))['graph_digest'])")
+          body="BRAINK_FABRIC_JOINED run_id=${GITHUB_RUN_ID} remote_node=${remote_node} resident_graph=${graph} receipt_sha256=${receipt_sha} verifier=${RUNNER_NAME}"
           curl --fail-with-body --silent --show-error \
             -X POST \
             -H 'Accept: application/vnd.github+json' \
@@ -267,6 +363,7 @@ jobs:
             | tee build/fabric-join/join-comment-response.json
 
       - name: Preserve independent-host fabric evidence
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: independent-braink-fabric-join-${{ github.sha }}
