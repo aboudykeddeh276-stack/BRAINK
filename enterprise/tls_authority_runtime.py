@@ -12,7 +12,7 @@ It owns a local persisted certificate authority and exposes concrete TLS semanti
       -> Python SSLContext
       -> TLS transport consumer
 
-Public ACME/edge/CA issuance is deliberately outside this authority boundary.  A
+Public ACME/edge/CA issuance is deliberately outside this authority boundary. A
 future public-CA adapter may consume the same typed TLS object without changing
 its semantic identity.
 """
@@ -22,13 +22,13 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 import hashlib
+import ipaddress
 import json
 import os
 import shutil
 import sqlite3
 import ssl
 import subprocess
-import tempfile
 import time
 
 SCHEMA = "braink.kex.tls-authority.v1"
@@ -59,7 +59,6 @@ def _openssl() -> str:
 
 
 def _parse_openssl_time(value: str) -> int:
-    # OpenSSL emits e.g. "Sep  3 05:00:00 2026 GMT".
     dt = datetime.strptime(" ".join(value.split()), "%b %d %H:%M:%S %Y %Z").replace(tzinfo=timezone.utc)
     return int(dt.timestamp())
 
@@ -79,10 +78,7 @@ class TLSMaterial:
     authority: str = AUTHORITY
 
     def as_dict(self) -> dict[str, Any]:
-        return {
-            "schema": SCHEMA,
-            **self.__dict__,
-        }
+        return {"schema": SCHEMA, **self.__dict__}
 
 
 class ResidentTLSAuthority:
@@ -160,8 +156,17 @@ class ResidentTLSAuthority:
         db.commit()
         db.close()
 
+    def _ca_material(self) -> tuple[str, str]:
+        pub = _run([self.openssl, "x509", "-in", str(self.ca_cert), "-pubkey", "-noout"]).stdout
+        return _sha256_file(self.ca_cert), _sha256_bytes(pub)
+
     def ensure_ca(self, *, common_name: str = "BRAINK KEX Resident TLS Root", days: int = 3650) -> dict[str, Any]:
-        if not self.ca_key.exists() or not self.ca_cert.exists():
+        key_exists = self.ca_key.exists()
+        cert_exists = self.ca_cert.exists()
+        if key_exists != cert_exists:
+            raise RuntimeError("TLS_CA_PARTIAL_MATERIAL")
+        created = False
+        if not key_exists:
             _run([self.openssl, "genpkey", "-algorithm", "RSA", "-pkeyopt", "rsa_keygen_bits:3072", "-out", str(self.ca_key)])
             os.chmod(self.ca_key, 0o600)
             _run([
@@ -172,27 +177,34 @@ class ResidentTLSAuthority:
                 "-addext", "keyUsage=critical,keyCertSign,cRLSign",
                 "-addext", "subjectKeyIdentifier=hash",
             ])
-        pub = _run([self.openssl, "x509", "-in", str(self.ca_cert), "-pubkey", "-noout"]).stdout
+            created = True
+
+        cert_sha, pub_sha = self._ca_material()
         state = {
             "schema": SCHEMA,
             "authority": AUTHORITY,
             "ca_cert_path": str(self.ca_cert),
-            "ca_cert_sha256": _sha256_file(self.ca_cert),
-            "ca_public_key_sha256": _sha256_bytes(pub),
+            "ca_cert_sha256": cert_sha,
+            "ca_public_key_sha256": pub_sha,
         }
         now = time.time_ns()
         db = self._db()
-        db.execute(
-            """INSERT INTO authority(authority_id,ca_cert_sha256,ca_public_key_sha256,created_ns,updated_ns)
-               VALUES(?,?,?,?,?)
-               ON CONFLICT(authority_id) DO UPDATE SET
-                 ca_cert_sha256=excluded.ca_cert_sha256,
-                 ca_public_key_sha256=excluded.ca_public_key_sha256,
-                 updated_ns=excluded.updated_ns""",
-            (AUTHORITY, state["ca_cert_sha256"], state["ca_public_key_sha256"], now, now),
-        )
-        db.commit(); db.close()
-        self._receipt("CA_READY", AUTHORITY, state)
+        prior = db.execute("SELECT * FROM authority WHERE authority_id=?", (AUTHORITY,)).fetchone()
+        if prior is not None and (
+            prior["ca_cert_sha256"] != cert_sha or prior["ca_public_key_sha256"] != pub_sha
+        ):
+            db.close()
+            raise RuntimeError("TLS_CA_AUTHORITY_DRIFT")
+        if prior is None:
+            db.execute(
+                "INSERT INTO authority(authority_id,ca_cert_sha256,ca_public_key_sha256,created_ns,updated_ns) VALUES(?,?,?,?,?)",
+                (AUTHORITY, cert_sha, pub_sha, now, now),
+            )
+        else:
+            db.execute("UPDATE authority SET updated_ns=? WHERE authority_id=?", (now, AUTHORITY))
+        db.commit()
+        db.close()
+        self._receipt("CA_CREATED" if created else "CA_READBACK", AUTHORITY, state)
         return state
 
     def _inspect_cert(self, cert: Path, key: Path, common_name: str, certificate_id: str) -> TLSMaterial:
@@ -205,7 +217,10 @@ class ResidentTLSAuthority:
             if "=" in line:
                 k, v = line.split("=", 1)
                 fields[k.strip()] = v.strip()
-        pub = _run([self.openssl, "x509", "-in", str(cert), "-pubkey", "-noout"]).stdout
+        cert_pub = _run([self.openssl, "x509", "-in", str(cert), "-pubkey", "-noout"]).stdout
+        key_pub = _run([self.openssl, "pkey", "-in", str(key), "-pubout"]).stdout
+        if _sha256_bytes(cert_pub) != _sha256_bytes(key_pub):
+            raise RuntimeError("TLS_KEY_CERT_MISMATCH")
         return TLSMaterial(
             certificate_id=certificate_id,
             common_name=common_name,
@@ -213,11 +228,25 @@ class ResidentTLSAuthority:
             key_path=str(key),
             ca_cert_path=str(self.ca_cert),
             cert_sha256=_sha256_file(cert),
-            public_key_sha256=_sha256_bytes(pub),
+            public_key_sha256=_sha256_bytes(cert_pub),
             serial_hex=fields["serial"],
             not_before_epoch=_parse_openssl_time(fields["notBefore"]),
             not_after_epoch=_parse_openssl_time(fields["notAfter"]),
         )
+
+    def _subject_alt_names(self, cert: Path) -> tuple[list[str], list[str]]:
+        text = _run([self.openssl, "x509", "-in", str(cert), "-noout", "-ext", "subjectAltName"]).stdout.decode("utf-8")
+        dns_names: list[str] = []
+        ip_addresses: list[str] = []
+        body = " ".join(line.strip() for line in text.splitlines()[1:])
+        for item in body.split(","):
+            item = item.strip()
+            if item.startswith("DNS:"):
+                dns_names.append(item[4:].strip())
+            elif item.startswith("IP Address:"):
+                value = item[len("IP Address:"):].strip()
+                ip_addresses.append(str(ipaddress.ip_address(value)))
+        return dns_names, ip_addresses
 
     def issue_server_certificate(
         self,
@@ -230,7 +259,9 @@ class ResidentTLSAuthority:
     ) -> TLSMaterial:
         self.ensure_ca()
         dns_names = list(dict.fromkeys(dns_names or [common_name]))
-        ip_addresses = list(dict.fromkeys(ip_addresses or []))
+        ip_addresses = [str(ipaddress.ip_address(ip)) for ip in dict.fromkeys(ip_addresses or [])]
+        if not dns_names and not ip_addresses:
+            raise ValueError("TLS_SAN_REQUIRED")
         seed = _canon({"cn": common_name, "dns": dns_names, "ip": ip_addresses, "ns": time.time_ns()})
         certificate_id = "TLS-" + _sha256_bytes(seed)[:24]
         out = self.cert_dir / certificate_id
@@ -264,14 +295,15 @@ class ResidentTLSAuthority:
             raise RuntimeError("TLS_CHAIN_VERIFICATION_FAILED")
         db = self._db()
         db.execute(
-            """INSERT INTO certificates VALUES(?,?,?,?,?,?,?,?,?,?,?)""",
+            "INSERT INTO certificates VALUES(?,?,?,?,?,?,?,?,?,?,?)",
             (
                 material.certificate_id, material.common_name, material.cert_path, material.key_path,
                 material.cert_sha256, material.public_key_sha256, material.serial_hex,
                 material.not_before_epoch, material.not_after_epoch, time.time_ns(), renewed_from,
             ),
         )
-        db.commit(); db.close()
+        db.commit()
+        db.close()
         self._receipt("CERT_ISSUED" if renewed_from is None else "CERT_RENEWED", material.certificate_id, material.as_dict())
         return material
 
@@ -283,12 +315,14 @@ class ResidentTLSAuthority:
         return proc.returncode == 0
 
     def readback(self, certificate_id: str) -> TLSMaterial:
+        self.ensure_ca()
         db = self._db()
         row = db.execute("SELECT * FROM certificates WHERE certificate_id=?", (certificate_id,)).fetchone()
         db.close()
         if not row:
             raise KeyError(certificate_id)
-        cert = Path(row["cert_path"]); key = Path(row["key_path"])
+        cert = Path(row["cert_path"])
+        key = Path(row["key_path"])
         if not cert.exists() or not key.exists():
             raise RuntimeError("TLS_MATERIAL_MISSING")
         current = self._inspect_cert(cert, key, row["common_name"], certificate_id)
@@ -302,7 +336,14 @@ class ResidentTLSAuthority:
         current = self.readback(certificate_id)
         if current.not_after_epoch - int(time.time()) > renew_before_seconds:
             return current
-        return self.issue_server_certificate(current.common_name, dns_names=[current.common_name], days=days, renewed_from=certificate_id)
+        dns_names, ip_addresses = self._subject_alt_names(Path(current.cert_path))
+        return self.issue_server_certificate(
+            current.common_name,
+            dns_names=dns_names or [current.common_name],
+            ip_addresses=ip_addresses,
+            days=days,
+            renewed_from=certificate_id,
+        )
 
     def server_context(self, certificate_id: str) -> ssl.SSLContext:
         material = self.readback(certificate_id)
