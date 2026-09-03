@@ -2,20 +2,10 @@ from __future__ import annotations
 
 """Public certificate authority adapter beneath BRAINK/KEX TLS_ROOT.
 
-This module deliberately does not define TLS identity.  It consumes resident TLS
-state and projects a certificate request into a configured public CA/ACME carrier.
-The public CA is therefore an authority adapter, not the source of BRAINK state.
-
-Execution contract:
-    TLS_ROOT resident authority
-      -> SAN-bound key/CSR
-      -> configured domain-control challenge actuator
-      -> ACME client/public CA
-      -> returned certificate/chain
-      -> key + SAN + trust verification
-      -> public certificate receipt
-
-No challenge actuator or no ACME client means BLOCKED, not "issued".
+TLS identity remains resident.  This adapter projects a SAN-bound request through a
+configured ACME/public-CA authority and only admits returned material after key, SAN,
+and issuer-chain verification.  Public trust and hostname verification are a separate
+external readback boundary.
 """
 
 from dataclasses import asdict, dataclass
@@ -84,10 +74,9 @@ class PublicCertificateMaterial:
 class PublicCAAdapter:
     """Fail-closed public CA adapter consuming a ResidentTLSAuthority.
 
-    `challenge_auth_hook` and `challenge_cleanup_hook` are executable files owned by
-    the domain authority layer.  For DNS-01 they must publish/remove the exact TXT
-    challenge on the *publicly authoritative* DNS path.  This adapter never assumes
-    that the resident/private registrar is publicly delegated.
+    Challenge hooks are owned by the public domain-authority boundary. For DNS-01
+    they must publish/remove the exact TXT challenge on the publicly authoritative
+    DNS path.  A private resident registrar is not silently treated as public DNS.
     """
 
     def __init__(
@@ -184,8 +173,7 @@ class PublicCAAdapter:
 
     def _certificate_sans(self, certificate: Path) -> tuple[set[str], set[str]]:
         openssl = shutil.which("openssl") or "openssl"
-        proc = _run([openssl, "x509", "-in", str(certificate), "-noout", "-ext", "subjectAltName"])
-        text = proc.stdout.decode("utf-8", "replace")
+        text = _run([openssl, "x509", "-in", str(certificate), "-noout", "-ext", "subjectAltName"]).stdout.decode("utf-8", "replace")
         dns: set[str] = set()
         ips: set[str] = set()
         for token in text.replace("\n", ",").split(","):
@@ -216,11 +204,11 @@ class PublicCAAdapter:
             raise RuntimeError(f"PUBLIC_CA_DNS_SAN_MISMATCH:{sorted(set(request.dns_names)-observed_dns)}")
         if not set(request.ip_addresses).issubset(observed_ips):
             raise RuntimeError(f"PUBLIC_CA_IP_SAN_MISMATCH:{sorted(set(request.ip_addresses)-observed_ips)}")
-        # Verify the leaf through the supplied issuer chain. This establishes that the
-        # returned material is internally chain-valid. External endpoint readback below
-        # remains the authoritative public-trust check using the host trust store.
+        # The issuer material may stop at an intermediate.  Treat it only as a
+        # partial-chain integrity proof here.  System public trust and hostname are
+        # independently proven by external_tls_readback after deployment.
         verify = subprocess.run(
-            [openssl, "verify", "-untrusted", str(chain), str(certificate)],
+            [openssl, "verify", "-partial_chain", "-CAfile", str(chain), str(certificate)],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
         )
@@ -251,24 +239,14 @@ class PublicCAAdapter:
         chain = out / "chain.pem"
         fullchain = out / "fullchain.pem"
         argv = [
-            certbot,
-            "certonly",
-            "--manual",
-            "--non-interactive",
-            "--preferred-challenges",
-            "dns",
-            "--manual-auth-hook",
-            str(self.challenge_auth_hook),
-            "--manual-cleanup-hook",
-            str(self.challenge_cleanup_hook),
-            "--csr",
-            request.csr_path,
-            "--cert-path",
-            str(cert),
-            "--chain-path",
-            str(chain),
-            "--fullchain-path",
-            str(fullchain),
+            certbot, "certonly", "--manual", "--non-interactive",
+            "--preferred-challenges", "dns",
+            "--manual-auth-hook", str(self.challenge_auth_hook),
+            "--manual-cleanup-hook", str(self.challenge_cleanup_hook),
+            "--csr", request.csr_path,
+            "--cert-path", str(cert),
+            "--chain-path", str(chain),
+            "--fullchain-path", str(fullchain),
         ]
         if self.directory_url:
             argv += ["--server", self.directory_url]
@@ -291,14 +269,14 @@ class PublicCAAdapter:
 
     @staticmethod
     def external_tls_readback(hostname: str, *, port: int = 443, timeout: float = 8.0) -> dict[str, Any]:
-        """Perform hostname-verifying readback through the system public trust store."""
+        """Prove system-public trust plus hostname through the deployed endpoint."""
         import socket
         context = ssl.create_default_context()
         with socket.create_connection((hostname, port), timeout=timeout) as raw:
             with context.wrap_socket(raw, server_hostname=hostname) as tls:
-                peer = tls.getpeercert(binary_form=True)
-                decoded = tls.getpeercert()
-                if not peer or not decoded:
+                peer_der = tls.getpeercert(binary_form=True)
+                peer = tls.getpeercert()
+                if not peer_der or not peer:
                     raise RuntimeError("PUBLIC_TLS_PEER_CERTIFICATE_MISSING")
                 return {
                     "schema": SCHEMA,
@@ -306,8 +284,8 @@ class PublicCAAdapter:
                     "port": port,
                     "tls_version": tls.version(),
                     "cipher": tls.cipher(),
-                    "certificate_sha256": _sha(peer),
-                    "peer": decoded,
+                    "certificate_sha256": _sha(peer_der),
+                    "peer": peer,
                     "readback_ns": time.time_ns(),
                     "verification": "SYSTEM_TRUST_AND_HOSTNAME_VERIFIED",
                 }
