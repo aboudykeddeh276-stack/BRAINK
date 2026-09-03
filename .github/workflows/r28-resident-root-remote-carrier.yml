@@ -5,6 +5,16 @@ on:
     branches: [main]
     paths:
       - 'runtime/resident_root_projection_r28.py'
+      - 'runtime/remote_host_join_r28.py'
+      - 'runtime/public_gateway.py'
+      - 'scripts/kex-ci/test_resident_root_projection_r28.py'
+      - '.github/workflows/r28-resident-root-remote-carrier.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'runtime/resident_root_projection_r28.py'
+      - 'runtime/remote_host_join_r28.py'
+      - 'runtime/public_gateway.py'
       - 'scripts/kex-ci/test_resident_root_projection_r28.py'
       - '.github/workflows/r28-resident-root-remote-carrier.yml'
   workflow_dispatch:
@@ -30,6 +40,8 @@ jobs:
           p=Path('reports/BRAINK_R28_RESIDENT_ROOT_REMOTE_CARRIER_RECEIPT.json')
           x=json.loads(p.read_text())
           assert x['status']=='PASS'
+          assert x['checks']['independent_host_join_verified_before_carrier_trust'] is True
+          assert x['checks']['bootstrap_transport_not_promoted_to_identity'] is True
           print(x['snapshot_digest'])
           PY
       - uses: actions/upload-artifact@v4
