@@ -7,12 +7,15 @@ on:
       - 'mcp/braink_process_adapter/**'
       - 'scripts/kex-ci/test_enterprise_capability_runtime_r6.py'
       - 'scripts/kex-ci/test_mcp_governance_surface_r6.py'
+      - 'scripts/kex-ci/test_agent_authority_actual_process_r6.py'
       - '.github/workflows/braink-enterprise-capability-r6.yml'
   pull_request:
     paths:
       - 'mcp/braink_process_adapter/**'
       - 'scripts/kex-ci/test_enterprise_capability_runtime_r6.py'
       - 'scripts/kex-ci/test_mcp_governance_surface_r6.py'
+      - 'scripts/kex-ci/test_agent_authority_actual_process_r6.py'
+      - '.github/workflows/braink-enterprise-capability-r6.yml'
 
 permissions:
   contents: read
@@ -31,6 +34,7 @@ jobs:
           python -m py_compile \
             mcp/braink_process_adapter/capability_runtime.py \
             mcp/braink_process_adapter/capability_catalog.py \
+            mcp/braink_process_adapter/agent_authority_client.py \
             mcp/braink_process_adapter/backend.py \
             mcp/braink_process_adapter/sector_bridges.py \
             mcp/braink_process_adapter/main.py
@@ -38,3 +42,5 @@ jobs:
         run: python scripts/kex-ci/test_enterprise_capability_runtime_r6.py
       - name: MCP mutation bypass guard
         run: python scripts/kex-ci/test_mcp_governance_surface_r6.py
+      - name: Agent authority actual-process qualification
+        run: python scripts/kex-ci/test_agent_authority_actual_process_r6.py
