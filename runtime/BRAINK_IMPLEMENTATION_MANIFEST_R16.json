@@ -1,0 +1,32 @@
+{
+  "schema": "braink.implementation-manifest.r16",
+  "instances": [
+    {
+      "instance_id": "BRAINK_MACHINE_FABRIC_R13",
+      "definition_id": "BRAINK",
+      "definition_version": "R16.1",
+      "properties": ["machine-bound identity","lineage","observer state","semantic routing","persistent state","agent/process orchestration"],
+      "interpretations": [],
+      "transitions_used": ["RESOLVE_IDENTITY","LOAD_LINEAGE","LOAD_OBSERVER","RESOLVE_SERVICE","EXECUTE_PROCESS","PERSIST","PROVE"],
+      "proof_conditions_satisfied": ["resident identity readback","lineage proof","restart/rehydration proof","service execution receipt"]
+    },
+    {
+      "instance_id": "BRAINK_VFS_RESOLVER_R13",
+      "definition_id": "VFS",
+      "definition_version": "R16.1",
+      "properties": ["namespace","resolver","mount semantics","object routing"],
+      "interpretations": [],
+      "transitions_used": ["RESOLVE_PATH","RESOLVE_OBJECT_ID","DISPATCH_CONTROLLER_OPERATION"],
+      "proof_conditions_satisfied": ["resolved object identity","controller-backed read/write receipt"]
+    },
+    {
+      "instance_id": "BRAINK_OBSERVER_RUNTIME_R6",
+      "definition_id": "Observer",
+      "definition_version": "R16.1",
+      "properties": ["observer identity","frame","representation","zero role","translation invariants"],
+      "interpretations": [],
+      "transitions_used": ["RESOLVE_OBSERVER","RESOLVE_FRAME","RESOLVE_REPRESENTATION","TRANSLATE","CHECK_INVARIANTS"],
+      "proof_conditions_satisfied": ["observer/frame/representation provenance","translation invariant gate"]
+    }
+  ]
+}
