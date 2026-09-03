@@ -70,6 +70,8 @@ jobs:
         run: python scripts/kex-ci/test_r23_privacy_state_boundary_r24.py
       - name: Execute R27 real runtime route and recovery invariant
         run: python scripts/kex-ci/test_runtime_fabric_real_routes_r27.py
+      - name: Execute R24 BRAINK MCP adapter invariant
+        run: python scripts/kex-ci/test_braink_mcp_r24.py
 
   specialist:
     if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.use_self_hosted) }}
@@ -91,3 +93,5 @@ jobs:
         run: python3 scripts/kex-ci/test_r23_privacy_state_boundary_r24.py
       - name: Execute R27 real runtime route and recovery invariant
         run: python3 scripts/kex-ci/test_runtime_fabric_real_routes_r27.py
+      - name: Execute R24 BRAINK MCP adapter invariant
+        run: python3 scripts/kex-ci/test_braink_mcp_r24.py
