@@ -280,6 +280,20 @@
       "physical_rollback_proof": "MISSING",
       "independent_verification": "PENDING",
       "promotion": "REJECTED"
+    },
+    "foundry_family": {
+      "gate": "scripts/kex-ci/test_r24_foundry_family_gate.py",
+      "reconciliation": "deployments/R24_FOUNDRY_FAMILY_GATE_RECONCILIATION_R1.json",
+      "receipt_root": "2b3da525799ea5c6e10a124a98333457529b957e3d87a29b4227f64f53f69936",
+      "workflow_wired": true,
+      "resident_r22_r23_mechanics": "REUSED_NOT_REIMPLEMENTED",
+      "fault_injection": "MISSING_DEDICATED_FOUNDRY_FAULT_INJECTION",
+      "rollback_readiness": "MISSING",
+      "independent_verification": "PENDING",
+      "quality_gate": "INCOMPLETE_BY_DESIGN",
+      "security_gate": "INCOMPLETE_BY_DESIGN",
+      "market_readiness": "ENGINEERING_ONLY_EXPECTED_ON_EXECUTION",
+      "promotion": "REJECTED_PENDING_EXECUTION_AND_REMAINING_R24_GATES"
     }
   },
   "executor_boundary": {
