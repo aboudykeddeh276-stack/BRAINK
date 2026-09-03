@@ -4,6 +4,8 @@ on:
   push:
     paths:
       - 'deploy/braink-public/**'
+      - 'enterprise/tls_authority_runtime.py'
+      - 'enterprise/public_ca_adapter.py'
       - '.github/workflows/deploy-braink-public.yml'
 concurrency:
   group: braink-public-production
@@ -13,18 +15,48 @@ jobs:
     runs-on: [self-hosted]
     permissions:
       contents: read
+    env:
+      KEDDEH_DOMAIN_FABRIC_ROOT: /mnt/data/keddeh_deploy/resident_v5/KEDDEH_REGISTRAR_V5
+      KEDDEH_EVIDENCE_ROOT: /mnt/data/keddeh_deploy/resident_v5/KEDDEH_REGISTRAR_V5_EVIDENCE
+      KEDDEH_PUBLIC_TLS_REQUIRED: '1'
+      KEDDEH_PUBLIC_CA_AUTH_HOOK: ${{ vars.KEDDEH_PUBLIC_CA_AUTH_HOOK }}
+      KEDDEH_PUBLIC_CA_CLEANUP_HOOK: ${{ vars.KEDDEH_PUBLIC_CA_CLEANUP_HOOK }}
+      KEDDEH_SERVER_TLS_INSTALL_HOOK: ${{ vars.KEDDEH_SERVER_TLS_INSTALL_HOOK }}
+      KEDDEH_SERVER_TLS_ROLLBACK_HOOK: ${{ vars.KEDDEH_SERVER_TLS_ROLLBACK_HOOK }}
+      KEDDEH_ACME_CLIENT: ${{ vars.KEDDEH_ACME_CLIENT || 'certbot' }}
+      KEDDEH_ACME_DIRECTORY_URL: ${{ vars.KEDDEH_ACME_DIRECTORY_URL }}
+      KEDDEH_ACME_EMAIL: ${{ vars.KEDDEH_ACME_EMAIL }}
+      KEDDEH_TLS_STATE_ROOT: /mnt/data/keddeh_deploy/resident_v5/KEDDEH_REGISTRAR_V5_EVIDENCE/TLS_ROOT
+      KEDDEH_PUBLIC_CA_STATE_ROOT: /mnt/data/keddeh_deploy/resident_v5/KEDDEH_REGISTRAR_V5_EVIDENCE/PUBLIC_CA
     steps:
       - uses: actions/checkout@v4
       - name: Verify resident KEDDEH fabric
         run: |
-          test -x /mnt/data/keddeh_deploy/resident_v5/KEDDEH_REGISTRAR_V5/START_FULL_DOMAIN_FABRIC.command
+          set -euo pipefail
+          test -x "$KEDDEH_DOMAIN_FABRIC_ROOT/START_FULL_DOMAIN_FABRIC.command"
           ps -ef | grep -E 'KEDDEH_RECURSIVE_EDGE_NODE_R1|authoritative_dns.py|registrar_server.py|webspace_server.py' | grep -v grep
+      - name: Verify public TLS authority actuators
+        run: |
+          set -euo pipefail
+          python3 --version
+          openssl version
+          command -v "${KEDDEH_ACME_CLIENT:-certbot}"
+          test -n "$KEDDEH_PUBLIC_CA_AUTH_HOOK"
+          test -n "$KEDDEH_PUBLIC_CA_CLEANUP_HOOK"
+          test -n "$KEDDEH_SERVER_TLS_INSTALL_HOOK"
+          test -n "$KEDDEH_SERVER_TLS_ROLLBACK_HOOK"
+          test -x "$KEDDEH_PUBLIC_CA_AUTH_HOOK"
+          test -x "$KEDDEH_PUBLIC_CA_CLEANUP_HOOK"
+          test -x "$KEDDEH_SERVER_TLS_INSTALL_HOOK"
+          test -x "$KEDDEH_SERVER_TLS_ROLLBACK_HOOK"
+      - name: Qualify resident and public TLS adapters before mutation
+        run: |
+          set -euo pipefail
+          python3 -m py_compile enterprise/tls_authority_runtime.py enterprise/public_ca_adapter.py deploy/braink-public/provision_public_tls.py deploy/braink-public/deploy_live.py
+          python3 -m pytest -q tests/integration/test_tls_authority_runtime.py tests/integration/test_public_ca_adapter.py
       - name: Build canonical BRAINK surface and governed replicas
         run: python3 deploy/braink-public/build_sites.py
-      - name: Deploy through resident Layer-2 domain fabric
-        env:
-          KEDDEH_DOMAIN_FABRIC_ROOT: /mnt/data/keddeh_deploy/resident_v5/KEDDEH_REGISTRAR_V5
-          KEDDEH_EVIDENCE_ROOT: /mnt/data/keddeh_deploy/resident_v5/KEDDEH_REGISTRAR_V5_EVIDENCE
+      - name: Deploy resident fabric and require public TLS promotion
         run: python3 deploy/braink-public/deploy_live.py
       - name: Publish execution receipts
         if: always()
@@ -35,3 +67,5 @@ jobs:
             deploy/braink-public/*READBACK*.json
             deploy/braink-public/*RECEIPT*.json
             /mnt/data/keddeh_deploy/resident_v5/KEDDEH_REGISTRAR_V5_EVIDENCE/BRAINK_PUBLIC_LAYER2_READBACK.json
+            /mnt/data/keddeh_deploy/resident_v5/KEDDEH_REGISTRAR_V5_EVIDENCE/PUBLIC_CA/public-ca-receipts.jsonl
+          if-no-files-found: warn
