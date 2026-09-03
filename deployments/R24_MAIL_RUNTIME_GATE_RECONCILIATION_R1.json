@@ -1,0 +1,46 @@
+{
+  "schema": "braink.r24.mail-runtime-gate-reconciliation/v1",
+  "subject": "mail_runtime_r24_gate",
+  "classification": "STATE_DRIFT",
+  "decision": "REUSE_RESIDENT_GMAIL_CONTROL_PLANE_AND_DESTINATION_EVIDENCE_DO_NOT_DUPLICATE_TRANSPORT",
+  "source_evidence": [
+    "deployments/R24_MAIL_CONTROL_PLANE_EXTERNAL_READBACK_R1.json",
+    "deployments/R24_MAIL_DESTINATION_READBACK_R2.json"
+  ],
+  "implementation": "scripts/kex-ci/test_r24_mail_runtime_gate.py",
+  "workflow": ".github/workflows/keddeh-enterprise-control.yml",
+  "implementation_commit": "3ddbd1b09fc29eeedae4df2e49257f901cd9bca9",
+  "workflow_commit": "bbc52346265f8d0d4be12dc25a0069c50ed79136",
+  "claim_boundaries": {
+    "gmail_control_plane_mutation": "PROVEN_BY_PREEXISTING_RECEIPT",
+    "gmail_control_plane_rollback": "PROVEN_BY_PREEXISTING_RECEIPT",
+    "gmail_submission_destination_readback": "PROVEN_BY_PREEXISTING_RECEIPT",
+    "smtp_transport_delivery": "UNPROVEN",
+    "independent_mx_hop": "UNPROVEN",
+    "mx_dns_dkim_spf_dmarc": "UNPROVEN",
+    "self_hosted_mail_server": "UNPROVEN",
+    "customer_facing_mail_flow": "UNPROVEN"
+  },
+  "r24_sequence": {
+    "DISCOVER": "PASS_RESIDENT_EVIDENCE_FOUND",
+    "RECONCILE_SOURCE_STATE": "STATE_DRIFT_MISSING_EXECUTABLE_PROMOTION_GATE",
+    "ARCHITECTURE_DECISION": "REUSE_RESIDENT_MECHANICS",
+    "IMPLEMENT": "PASS_SOURCE_COMMITTED",
+    "STATIC_VALIDATE": "PENDING_CI_EXECUTION",
+    "UNIT_TEST": "PENDING_FORMAL_MAIL_UNIT_EVIDENCE",
+    "INTEGRATION_TEST": "PREEXISTING_EXTERNAL_EVIDENCE_PASS_GATE_EXECUTION_PENDING",
+    "FAULT_INJECTION": "PREEXISTING_ROLLBACK_EVIDENCE_PASS_GATE_EXECUTION_PENDING",
+    "SECURITY_GATE": "PENDING",
+    "QUALITY_GATE": "PENDING",
+    "BUILD_RELEASE_MANIFEST": "IMPLEMENTED_IN_GATE_EXECUTION_PENDING",
+    "INDEPENDENT_VERIFY": "PENDING",
+    "PROMOTE_OR_REJECT": "REJECTED_PENDING_EXECUTION_AND_REMAINING_GATES",
+    "DEPLOY": "CI_GATE_SOURCE_DEPLOYED",
+    "READBACK_RECONCILE": "NO_WORKFLOW_RUN_OBSERVED_AT_IMMEDIATE_READBACK",
+    "MARKET_READINESS_EVALUATE": "IMPLEMENTED_IN_GATE_EXECUTION_PENDING",
+    "CONTINUE": "OWNER_HOST_AND_PHYSICAL_MULTI_HOST_R24_GATING"
+  },
+  "promotion": "REJECTED",
+  "certification_claim": "NONE",
+  "receipt_root": "7c2d585b2e24619085a28a026f0983fa56ec8d16235bfdf6a9d13bab7f64ba97"
+}
