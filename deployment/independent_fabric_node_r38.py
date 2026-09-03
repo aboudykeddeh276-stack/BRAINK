@@ -9,6 +9,7 @@ from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
 from enterprise.recursive_computer_runtime_r26 import RecursiveComputer
+from enterprise.resident_root_projection_r39 import ResidentRootProjection
 from runtime.R25.system_evolution_runtime import canonical_json, sha256_json
 
 
@@ -21,11 +22,21 @@ class IndependentFabricNode:
         self.node_id = node_id
         self.state_root = state_root
         self.state_root.mkdir(parents=True, exist_ok=True)
+        self.resident_roots = ResidentRootProjection()
+        self.resident_snapshot = self.resident_roots.snapshot()
+        if not self.resident_roots.verify_snapshot(self.resident_snapshot):
+            raise RuntimeError("RESIDENT_ROOT_SNAPSHOT_INVALID")
         if (self.state_root / "computer.json").exists():
             self.computer = RecursiveComputer.restore_tree(self.state_root)
         else:
             self.computer = RecursiveComputer(computer_id=node_id, state_root=self.state_root)
             self.computer.write_state("role", "INDEPENDENT_ROUTABLE_FABRIC_NODE")
+        # Persist semantic machine authority independently of carrier coordinates.
+        self.computer.write_state("resident_root_set_digest", self.resident_snapshot["root_set_digest"])
+        self.computer.write_memory(
+            "resident_root_digests",
+            {key: value["digest"] for key, value in self.resident_snapshot["roots"].items()},
+        )
         if advertised_endpoint:
             self.computer.write_state("advertised_endpoint", advertised_endpoint)
 
@@ -38,22 +49,48 @@ class IndependentFabricNode:
             "lineage": list(self.computer.identity.lineage),
             "state_root": committed["value_hash"],
             "ledger_verified": committed["ledger_verified"],
+            "resident_root_set_digest": self.resident_snapshot["root_set_digest"],
+            "resident_roots": {
+                key: {
+                    "logical": value["logical"],
+                    "digest": value["digest"],
+                    "adapter_binding": value["adapter_binding"],
+                    "authority": value["authority"],
+                }
+                for key, value in self.resident_snapshot["roots"].items()
+            },
             "advertised_endpoint": committed["value"].get("state", {}).get("advertised_endpoint"),
         }
 
+    def root_snapshot(self):
+        return _copy(self.resident_snapshot)
+
     def join(self, peer):
-        required = {"node_id", "endpoint", "state_root"}
+        required = {"node_id", "endpoint", "state_root", "resident_root_snapshot"}
         missing = sorted(required.difference(peer))
         if missing:
             raise ValueError("MISSING_JOIN_FIELDS:" + ",".join(missing))
+        peer_snapshot = peer["resident_root_snapshot"]
+        if not ResidentRootProjection.verify_snapshot(peer_snapshot):
+            raise ValueError("INVALID_RESIDENT_ROOT_SNAPSHOT")
+        peer_root_set_digest = str(peer_snapshot["root_set_digest"])
         peers = _copy(self.computer.readback().get("memory", {}).get("fabric_peers", {}))
         peers[str(peer["node_id"])] = {
             "endpoint": str(peer["endpoint"]),
             "state_root": str(peer["state_root"]),
+            "resident_root_set_digest": peer_root_set_digest,
+            "resident_roots": {
+                key: value["digest"] for key, value in peer_snapshot["roots"].items()
+            },
             "authority": str(peer.get("authority", "runtime://kex/fabric")),
         }
         self.computer.write_memory("fabric_peers", peers)
-        return {"status": "JOINED", "peer": peers[str(peer["node_id"])], "node": self.identity()}
+        return {
+            "status": "JOINED",
+            "peer": peers[str(peer["node_id"])],
+            "node": self.identity(),
+            "carrier_classification": "PROJECTION_AFTER_RESIDENT_AUTHORITY",
+        }
 
     def peers(self):
         return _copy(self.computer.readback().get("memory", {}).get("fabric_peers", {}))
@@ -64,6 +101,7 @@ class IndependentFabricNode:
             "node_id": ident["node_id"],
             "state_root": ident["state_root"],
             "constructor_id": ident["constructor_id"],
+            "resident_root_set_digest": ident["resident_root_set_digest"],
             "challenge": challenge,
         }
         return {"status": "PROVED", "body": body, "proof": hashlib.sha256(canonical_json(body).encode()).hexdigest()}
@@ -71,7 +109,7 @@ class IndependentFabricNode:
 
 def build_handler(node: IndependentFabricNode, token: str | None):
     class Handler(BaseHTTPRequestHandler):
-        server_version = "KEDDEH-KEX-R38/1"
+        server_version = "KEDDEH-KEX-R39/1"
 
         def _authorized(self):
             if not token:
@@ -98,9 +136,13 @@ def build_handler(node: IndependentFabricNode, token: str | None):
                 return self._send(200, {"status": "ALIVE", "node_id": node.node_id})
             if parsed.path == "/readyz":
                 ident = node.identity()
-                return self._send(200 if ident["ledger_verified"] else 503, ident)
+                root_ok = ResidentRootProjection.verify_snapshot(node.root_snapshot())
+                ready = ident["ledger_verified"] and root_ok
+                return self._send(200 if ready else 503, {**ident, "resident_roots_verified": root_ok})
             if parsed.path == "/v1/fabric/identity":
                 return self._send(200, node.identity())
+            if parsed.path == "/v1/fabric/resident-roots":
+                return self._send(200, node.root_snapshot())
             if parsed.path == "/v1/fabric/peers":
                 return self._send(200, {"status": "READ", "peers": node.peers()})
             if parsed.path == "/v1/fabric/proof":
@@ -128,8 +170,8 @@ def build_handler(node: IndependentFabricNode, token: str | None):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--node-id", default=os.environ.get("BRAINK_NODE_ID", "BRAINK_REMOTE_R38"))
-    ap.add_argument("--state-root", default=os.environ.get("BRAINK_STATE_ROOT", str(Path.home() / ".local/share/keddeh/braink-independent-r38")))
+    ap.add_argument("--node-id", default=os.environ.get("BRAINK_NODE_ID", "BRAINK_REMOTE_R39"))
+    ap.add_argument("--state-root", default=os.environ.get("BRAINK_STATE_ROOT", str(Path.home() / ".local/share/keddeh/braink-independent-r39")))
     ap.add_argument("--bind", default=os.environ.get("BRAINK_BIND", "0.0.0.0"))
     ap.add_argument("--port", type=int, default=int(os.environ.get("BRAINK_PORT", "29700")))
     ap.add_argument("--advertised-endpoint", default=os.environ.get("BRAINK_ADVERTISED_ENDPOINT"))
