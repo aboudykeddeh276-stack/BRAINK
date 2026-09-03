@@ -7,6 +7,7 @@ on:
     paths:
       - 'enterprise/**'
       - 'runtime/**'
+      - 'modules/kex_core/**'
       - 'dependency-graph/**'
       - 'scripts/dependency_graph/**'
       - 'governance/system_interface_inventory_r1.json'
@@ -18,6 +19,7 @@ on:
     paths:
       - 'enterprise/**'
       - 'runtime/**'
+      - 'modules/kex_core/**'
       - 'dependency-graph/**'
       - 'scripts/dependency_graph/**'
       - 'governance/system_interface_inventory_r1.json'
@@ -65,6 +67,20 @@ jobs:
           print('dependency-graph-admission: PASS', graph['summary'])
           PY
 
+      - name: Resolve resident BRAINK KEX roots before carrier tests
+        working-directory: BRAINK
+        run: |
+          python3 enterprise/resident_root_runtime.py --root . --output build/resident-root-graph.json
+          python3 - <<'PY'
+          import json
+          g=json.load(open('build/resident-root-graph.json'))
+          required=('BRAINK_ROOT','DOMAIN_ROOT','DNS_ROOT','REGISTRAR_ROOT','SERVER_ROOT','CLOUD_ROOT')
+          for rid in required:
+              assert g['roots'][rid]['payload']['state']=='BOUND', (rid,g['roots'][rid]['payload']['state'])
+          assert g['roots']['TLS_ROOT']['payload']['state']=='UNBOUND'
+          print('resident-root-admission: PASS', g['graph_digest'])
+          PY
+
       - name: Verify resident runtime dependencies
         working-directory: BRAINK
         run: |
@@ -78,6 +94,9 @@ jobs:
         working-directory: BRAINK
         run: |
           python3 -m py_compile \
+            modules/kex_core/canonical_state.py \
+            enterprise/resident_root_runtime.py \
+            enterprise/remote_fabric_node.py \
             enterprise/continuation_runtime.py \
             enterprise/substrate_adapters.py \
             enterprise/self_addressing_runtime.py \
@@ -88,6 +107,9 @@ jobs:
             enterprise/domain_authority_binding.py \
             scripts/dependency_graph/braink_dependency_detector.py
 
+      - name: Resident root authority and carrier invariance
+        working-directory: BRAINK
+        run: python3 -m pytest -q tests/integration/test_resident_root_runtime.py
       - name: Recursive computer core
         working-directory: BRAINK
         run: python3 -m pytest -q tests/R26/test_recursive_computer_runtime_r26.py
