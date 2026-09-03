@@ -1,5 +1,6 @@
 name: BRAINK Cross Resolution R17
 
+# Trigger refresh after workflow installation; semantics unchanged.
 on:
   push:
     branches:
