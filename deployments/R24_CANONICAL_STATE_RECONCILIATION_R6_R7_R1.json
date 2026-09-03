@@ -1,0 +1,17 @@
+{
+  "schema": "braink.r24.canonical-state-reconciliation/v1",
+  "status": "STATE_DRIFT_RECONCILED_NOT_PROMOTED",
+  "subject": "R24_ENGINEERING_CONTROL_STATE",
+  "classification": "STATE_DRIFT",
+  "finding": "Canonical R24 state omitted already-persisted R6 enterprise agent authority and R7 typed agent function authority transitions.",
+  "decision": "RECONCILE_CANONICAL_R24_STATE_WITH_EXISTING_R6_R7_RECEIPTS_WITHOUT_PROMOTION",
+  "state_commit": "bed38b1f8d605668a633c6d2cba6343f9a9e2b18",
+  "state_blob": "0748f111ca84c53d23ad3a68e39b142912ba9269",
+  "r6_receipt_root": "18f84aa7c5247fbbc958ac67600ebb844f20cdbbec56f4357e768eb6ea7e6a9f",
+  "r7_receipt_root": "0f8ae93ab743879d32b4825ce7a90c8c56abdbe8bb7af4a33bbe2014efa102c9",
+  "readback": "PASS",
+  "workflow_run": 33707623936,
+  "workflow_status": "QUEUED_AT_READBACK",
+  "promotion": "REJECTED_PENDING_EXECUTION_AND_REMAINING_R24_GATES",
+  "receipt_root": "f8b2663d73aa782d6f67bdf921abd1f7e25fee9fb8021c4836288d1c65fbd623"
+}
