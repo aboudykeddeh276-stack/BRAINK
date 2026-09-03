@@ -1,0 +1,18 @@
+{
+  "schema": "keddah.mcp-sector-bridge.r2/v1",
+  "checks": {
+    "server_probe_truthful": true,
+    "vfs_write_committed": true,
+    "vfs_source_readback": true,
+    "vfs_migration_committed": true,
+    "vfs_hash_preserved": true,
+    "vfs_destination_readback": true
+  },
+  "server_probe": {
+    "status": "UNBOUND_ACTUATOR",
+    "path": null
+  },
+  "vfs_value_hash": "a199ff57e17ac6d2cd97cd888f5a3a97e7298691e49d2100a0381887aab2d5ba",
+  "vfs_transition": "file:// -> sqlite://",
+  "note": "Server runtime bridge loaded successfully but no production actuator path was configured. VFS bridge executed write, source readback, migration, destination readback and hash preservation."
+}
