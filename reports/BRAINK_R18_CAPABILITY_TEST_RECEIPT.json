@@ -1,0 +1,23 @@
+{
+  "status": "PASS",
+  "tests": [
+    "valid_one_shot",
+    "expiry",
+    "payload_tamper",
+    "product_scope",
+    "operation_scope",
+    "principal_relabel",
+    "signature_flip",
+    "malformed",
+    "replay_10000",
+    "persistent_replay",
+    "gate_exact_binding",
+    "gate_changed_request_rejected"
+  ],
+  "count": 12,
+  "module_sha256": "133f7df83efa75366c60fafa5f66045cfe9dbfff1ae446b22bc8e784b39877e3",
+  "test_sha256": "98e3426ad199c611ec82c158e3c4fbb264e3efa93b796340850ce26d4b541e31",
+  "receipt_sha256": "b03219722bef38d6fa47959452b5c1b4c7793921829d0dda8f3b10f2dee18956",
+  "replay_cache": "SQLITE_PERSISTENT",
+  "integration_state": "ENGINE_IMPLEMENTED_REAL_TARGET_FILES_ABSENT_FROM_ACTIVE_BRANCH"
+}
