@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import importlib.util
 import os
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -16,7 +17,12 @@ def _load_module(path: str | Path | None, name: str):
     if not spec or not spec.loader:
         return None, {"status": "LOAD_FAILED", "module": name, "path": str(p)}
     mod = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(mod)
+    sys.modules[name] = mod
+    try:
+        spec.loader.exec_module(mod)
+    except Exception:
+        sys.modules.pop(name, None)
+        raise
     return mod, None
 
 
