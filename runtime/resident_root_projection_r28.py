@@ -14,7 +14,7 @@ from typing import Any, Mapping
 import hashlib
 import json
 
-from modules.kex_core.canonical_state import CanonicalState
+from modules.kex_core.canonical_state import CanonicalState, digest as canonical_digest
 from runtime.runtime_route_registry import RuntimeRouteRegistry
 from enterprise.domain_replication import DOMAIN_BINDINGS
 
@@ -35,6 +35,22 @@ def canonical_json(value: Any) -> bytes:
 
 def sha256(value: Any) -> str:
     return hashlib.sha256(value if isinstance(value, bytes) else canonical_json(value)).hexdigest()
+
+
+def _root_material(root: Mapping[str, Any]) -> dict[str, Any]:
+    return {k: v for k, v in root.items() if k != "root_digest"}
+
+
+def _canonical_material(envelope: Mapping[str, Any]) -> dict[str, Any]:
+    return {
+        "schema": envelope["schema"],
+        "identity": envelope["identity"],
+        "revision": envelope["revision"],
+        "authority": envelope["authority"],
+        "lineage": envelope["lineage"],
+        "payload": envelope["payload"],
+        "metadata": envelope["metadata"],
+    }
 
 
 @dataclass(frozen=True)
@@ -174,21 +190,57 @@ def carrier_projection(snapshot: Mapping[str, Any], *, endpoint: str, carrier: s
 
 
 def verify_remote_join(local_snapshot: Mapping[str, Any], remote_projection: Mapping[str, Any], remote_snapshot: Mapping[str, Any]) -> dict[str, Any]:
-    """Trust resident root digests first; accept carrier only after identity proof."""
-    local_roots = local_snapshot["canonical_state"]["payload"]["roots"]
-    remote_roots = remote_snapshot["canonical_state"]["payload"]["roots"]
-    root_checks = {
+    """Recompute resident proof first; accept the carrier only after it passes."""
+    local_env = local_snapshot["canonical_state"]
+    remote_env = remote_snapshot["canonical_state"]
+    local_roots = local_env["payload"]["roots"]
+    remote_roots = remote_env["payload"]["roots"]
+
+    local_root_integrity = {
+        name: local_roots[name]["root_digest"] == sha256(_root_material(local_roots[name]))
+        for name in ROOT_TYPES
+    }
+    remote_root_integrity = {
+        name: remote_roots[name]["root_digest"] == sha256(_root_material(remote_roots[name]))
+        for name in ROOT_TYPES
+    }
+    root_identity_checks = {
         name: local_roots[name]["root_digest"] == remote_roots[name]["root_digest"]
         for name in ROOT_TYPES
     }
-    snapshot_match = local_snapshot["snapshot_digest"] == remote_snapshot["snapshot_digest"]
-    projection_links_snapshot = remote_projection.get("snapshot_digest") == remote_snapshot["snapshot_digest"]
-    accepted = snapshot_match and projection_links_snapshot and all(root_checks.values())
+
+    local_recomputed = canonical_digest(_canonical_material(local_env))
+    remote_recomputed = canonical_digest(_canonical_material(remote_env))
+    local_snapshot_valid = (
+        local_snapshot["snapshot_digest"] == local_recomputed == local_env.get("stateDigest")
+    )
+    remote_snapshot_valid = (
+        remote_snapshot["snapshot_digest"] == remote_recomputed == remote_env.get("stateDigest")
+    )
+    snapshot_match = local_recomputed == remote_recomputed
+    projection_links_snapshot = remote_projection.get("snapshot_digest") == remote_recomputed
+    projection_links_identity = remote_projection.get("resident_identity") == remote_env.get("identity")
+
+    accepted = (
+        local_snapshot_valid
+        and remote_snapshot_valid
+        and snapshot_match
+        and projection_links_snapshot
+        and projection_links_identity
+        and all(local_root_integrity.values())
+        and all(remote_root_integrity.values())
+        and all(root_identity_checks.values())
+    )
     return {
         "status": "ACCEPTED" if accepted else "REJECTED",
+        "local_snapshot_valid": local_snapshot_valid,
+        "remote_snapshot_valid": remote_snapshot_valid,
         "snapshot_match": snapshot_match,
         "projection_links_snapshot": projection_links_snapshot,
-        "root_digest_checks": root_checks,
+        "projection_links_identity": projection_links_identity,
+        "local_root_integrity": local_root_integrity,
+        "remote_root_integrity": remote_root_integrity,
+        "root_digest_checks": root_identity_checks,
         "carrier_trusted": accepted,
         "carrier_endpoint": remote_projection.get("endpoint") if accepted else None,
     }
