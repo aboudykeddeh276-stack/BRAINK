@@ -11,6 +11,7 @@ from enterprise.orchestration.durable_execution_r5 import (
 )
 from .sector_bridges import ServerRuntimeBridge, VirtualMemoryBridge
 from .capability_catalog import GovernedCapabilityService
+from .function_contracts import manifest as function_manifest_projection, validate_payload
 
 LEGAL_ENTITY = {
     "identity": "organisation://the-layna-company",
@@ -24,6 +25,7 @@ OPERATING_IDENTITY = {
     "legal_holder": LEGAL_ENTITY["identity"],
     "operating_authority": "KEDDEH_SYSTEMS",
 }
+
 
 class BrainkProcessBackend:
     """Resident BRAINK mechanics plus one governed enterprise capability invocation path."""
@@ -130,9 +132,20 @@ class BrainkProcessBackend:
     def vfs_migrate(self, logical: str, current_backing: str, new_backing: str) -> dict[str, Any]:
         return self.vfs.migrate(logical, current_backing, new_backing)
 
-    # Authoritative enterprise surface.
+    # Authoritative enterprise surfaces.
     def capability_manifest(self) -> list[dict[str, Any]]:
         return self.capabilities.manifest()
 
-    def invoke_capability(self, capability_id: str, context: dict[str, Any], payload: dict[str, Any], idempotency_key: str | None = None) -> dict[str, Any]:
-        return self.capabilities.invoke(capability_id, context, payload, idempotency_key)
+    def function_manifest(self) -> list[dict[str, Any]]:
+        """Typed agent-function projection over the governed capability catalog."""
+        return function_manifest_projection(self.capability_manifest())
+
+    def invoke_capability(
+        self,
+        capability_id: str,
+        context: dict[str, Any],
+        payload: dict[str, Any],
+        idempotency_key: str | None = None,
+    ) -> dict[str, Any]:
+        normalized = validate_payload(capability_id, payload)
+        return self.capabilities.invoke(capability_id, context, normalized, idempotency_key)
