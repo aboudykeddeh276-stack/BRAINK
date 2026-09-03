@@ -1,16 +1,24 @@
 name: BRAINK Active Runtime External Observer R16
 
 on:
+  push:
+    branches:
+      - build/service-supervisor-s1-host-survey
+    paths:
+      - runtime/braink_external_probe_r15.sh
+      - runtime/braink_external_authority_adapter_r14.py
+      - .github/workflows/braink-external-observer-r16.yml
   workflow_dispatch:
     inputs:
       runtime_id:
         description: Active BRAINK runtime identifier
-        required: true
+        required: false
+        default: BRAINK-ACTIVE-BRANCH-R16
         type: string
       runtime_active:
         description: Confirm the target runtime is active
-        required: true
-        default: false
+        required: false
+        default: true
         type: boolean
   workflow_call:
     inputs:
@@ -26,12 +34,11 @@ permissions:
 
 jobs:
   active-runtime-observer:
-    if: ${{ inputs.runtime_active == true }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     env:
-      BRAINK_RUNTIME_ID: ${{ inputs.runtime_id }}
-      BRAINK_RUNTIME_ACTIVE: '1'
+      BRAINK_RUNTIME_ID: ${{ github.event_name == 'push' && format('BRAINK-BRANCH-{0}', github.ref_name) || inputs.runtime_id }}
+      BRAINK_RUNTIME_ACTIVE: ${{ github.event_name == 'push' && '1' || (inputs.runtime_active && '1' || '0') }}
     steps:
       - name: Active runner and runtime gate
         run: |
