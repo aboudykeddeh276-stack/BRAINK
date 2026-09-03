@@ -9,6 +9,7 @@ import os
 import fcntl
 import re
 from enterprise.self_addressing_runtime import SelfAddressingRuntime
+from enterprise.recursive_commit_coordinator_r31 import RecursiveCommitCoordinatorR31
 from runtime.R25.system_evolution_runtime import AppendOnlyLedger, TransactionReceipt, canonical_json, sha256_json
 
 def _copy(v: Any) -> Any:
@@ -42,7 +43,8 @@ class RecursiveComputer:
         self.identity = ComputerIdentity(computer_id, parent_id, generation, tuple(lineage), self.CONSTRUCTOR_ID)
         self.state_root = Path(state_root); self.state_root.mkdir(parents=True, exist_ok=True)
         self.runtime = SelfAddressingRuntime(self.state_root/'runtime-checkpoint.json')
-        self.ledger = AppendOnlyLedger(); self.state = _copy(dict(state or {})); self.memory = _copy(dict(memory or {})); self.children = {}; self._committed_child_ids = set(); self._lock = threading.RLock(); self._expected_state_hash = None; self._expected_ledger_hash = None; self.runtime.register_reconciler(self._reconcile_runtime)
+        self.commit_coordinator = RecursiveCommitCoordinatorR31(self.state_root)
+        self.ledger = AppendOnlyLedger(); self.state = _copy(dict(state or {})); self.memory = _copy(dict(memory or {})); self.children = {}; self._committed_child_ids = set(); self._lock = threading.RLock(); self._expected_state_hash = None; self._expected_ledger_hash = None; self._committed_snapshot = None; self.runtime.register_reconciler(self._reconcile_runtime)
         if bootstrap: self._persist('BOOTSTRAP')
     @property
     def state_backing(self): return f"file://{self.state_root/'computer.json'}"
@@ -53,16 +55,19 @@ class RecursiveComputer:
     def _reconcile_runtime(self, payload):
         signal = payload.get("signal", {}) if isinstance(payload, dict) else {}
         subject = payload.get("subject") if isinstance(payload, dict) else None
+        recovery = self.commit_coordinator.recover()
+        if recovery.get('status') not in {'CONSISTENT','RECOVERED_COMMIT','RECOVERED_ROLLBACK'}:
+            return {'status':'BLOCKED','reason':'R31_RECOVERY_BLOCKED','subject':subject,'recovery':recovery}
         rb = self.runtime.route(f"computer://{self.identity.computer_id}/state", self.state_backing, "READ")
         if rb.get("status") != "READ":
             return {"status": "BLOCKED", "reason": "COMMITTED_STATE_UNREADABLE", "subject": subject, "readback": rb}
         snap = rb["value"]
         if snap.get("constructor") != self.CONSTRUCTOR_ID or snap.get("identity", {}).get("computer_id") != self.identity.computer_id:
             return {"status": "BLOCKED", "reason": "IDENTITY_OR_CONSTRUCTOR_MISMATCH", "subject": subject}
-        self.state = _copy(snap.get("state", {})); self.memory = _copy(snap.get("memory", {})); self._committed_child_ids = set(snap.get("children", [])); self._expected_state_hash = rb["value_hash"]
+        self.state = _copy(snap.get("state", {})); self.memory = _copy(snap.get("memory", {})); self._committed_child_ids = set(snap.get("children", [])); self._expected_state_hash = rb["value_hash"]; self._committed_snapshot = _copy(snap)
         self.children = {k:v for k,v in self.children.items() if k in self._committed_child_ids}
         self.ledger, self._expected_ledger_hash = self._load_committed_ledger()
-        return {"status": "COMMITTED", "repair": "REFRESH_FROM_COMMITTED_STATE", "subject": subject, "state_root": rb["value_hash"], "signal_kind": signal.get("kind")}
+        return {"status": "COMMITTED", "repair": "REFRESH_FROM_COMMITTED_STATE", "subject": subject, "state_root": rb["value_hash"], "signal_kind": signal.get("kind"), "recovery": recovery.get('status')}
     def reconcile_once(self):
         return self.runtime.continuation_tick()
     def _load_committed_ledger(self):
@@ -86,19 +91,47 @@ class RecursiveComputer:
             if verify.get('status')!='READ' or verify.get('value')!=events: raise RuntimeError('LEDGER_READBACK_MISMATCH')
             return verify
         raise RuntimeError('LEDGER_CAS_RETRY_EXHAUSTED')
-    def _persist(self, operation):
-        snap=self._snapshot(); r=self.runtime.route(f'computer://{self.identity.computer_id}/state',self.state_backing,'CAS_WRITE',{'expected_hash':self._expected_state_hash,'value':snap})
-        if r.get('status')=='CONFLICT':
-            self.runtime.observe('runtime://computer',f'computer://{self.identity.computer_id}/state','CONTRADICTION',r); raise RuntimeError('STALE_STATE_CONFLICT')
-        if r.get('status')!='COMMITTED': raise RuntimeError(f'PERSIST_FAILED:{r}')
-        self._expected_state_hash=r['value_hash']
+    def _persist(self, operation, *, crash_phase=None):
+        """Persist the native R26 snapshot and receipt as one recoverable R31 logical commit.
+
+        The public storage ABI remains computer.json + list[TransactionReceipt].  R31 adds only
+        an internal write-ahead journal and transition lock; it does not wrap or rename state.
+        """
+        snap=self._snapshot()
+        checkpoint=self.runtime.checkpoint()
+        try:
+            committed=self.commit_coordinator.commit(
+                operation=operation,
+                actor=self.identity.computer_id,
+                owner='A.KEDDEH / KEDDEH_SYSTEMS',
+                lineage=self.identity.lineage,
+                previous_state=_copy(self._committed_snapshot),
+                next_state=snap,
+                proof={'readback_equal':True,'native_r26_abi':True,'coordinator':'R31'},
+                rollback={'checkpoint':checkpoint},
+                crash_phase=crash_phase,
+            )
+        except RuntimeError as exc:
+            if 'STALE_STATE_CONFLICT' in str(exc):
+                signal={'status':'CONFLICT','expected_hash':sha256_json(self._committed_snapshot),'current_hash':'DISK_STATE_CHANGED'}
+                self.runtime.observe('runtime://computer',f'computer://{self.identity.computer_id}/state','CONTRADICTION',signal)
+                raise RuntimeError('STALE_STATE_CONFLICT') from exc
+            raise
+        self._committed_snapshot=_copy(snap)
+        self._expected_state_hash=committed['state_hash']; self._expected_ledger_hash=committed['ledger_hash']
+        self.ledger=AppendOnlyLedger(); self.ledger._events=[TransactionReceipt(**e) for e in committed['ledger']]
         rb=self.runtime.route(f'computer://{self.identity.computer_id}/state',self.state_backing,'READ')
         if rb.get('status')!='READ' or rb.get('value')!=snap: raise RuntimeError('READBACK_MISMATCH')
-        self._record_event(operation=operation,input_state=snap,output_state=rb['value'],proof={'readback_equal':True,'value_hash':rb['value_hash']},rollback={'checkpoint':self.runtime.checkpoint()})
+        if not self.ledger.verify(): raise RuntimeError('POST_COMMIT_LEDGER_INVALID')
+        self.runtime.observe('runtime://computer',f'computer://{self.identity.computer_id}/state','R31_NATIVE_COMMIT',{'transition_id':committed['transition_id'],'state_hash':committed['state_hash'],'ledger_hash':committed['ledger_hash'],'operation':operation})
         return rb
     @classmethod
     def restore(cls, state_root, *, recursive=False, record_restore=True):
-        state_root=Path(state_root); sp=state_root/'computer.json'; lp=state_root/'ledger.json'
+        state_root=Path(state_root)
+        recovery=RecursiveCommitCoordinatorR31(state_root).recover()
+        if recovery.get('status') not in {'CONSISTENT','RECOVERED_COMMIT','RECOVERED_ROLLBACK'}:
+            raise RuntimeError(f'R31_RECOVERY_BLOCKED:{recovery}')
+        sp=state_root/'computer.json'; lp=state_root/'ledger.json'
         if not sp.exists(): raise FileNotFoundError(sp)
         snap=json.loads(sp.read_text()); ident=snap['identity']
         if snap.get('constructor')!=cls.CONSTRUCTOR_ID: raise RuntimeError('CONSTRUCTOR_ID_MISMATCH')
@@ -106,7 +139,7 @@ class RecursiveComputer:
         if lp.exists(): c.ledger,c._expected_ledger_hash=c._load_committed_ledger()
         rb=c.runtime.route(f'computer://{c.identity.computer_id}/state',c.state_backing,'READ')
         if rb.get('status')!='READ' or rb.get('value')!=snap: raise RuntimeError('RESTORE_STATE_READBACK_MISMATCH')
-        c._expected_state_hash=rb['value_hash']; c._committed_child_ids=set(snap.get('children',[]))
+        c._expected_state_hash=rb['value_hash']; c._committed_snapshot=_copy(snap); c._committed_child_ids=set(snap.get('children',[]))
         if recursive:
             for child_id in snap.get('children',[]):
                 cls._validate_id(child_id, field='child_id')
@@ -117,7 +150,7 @@ class RecursiveComputer:
                 c.children[child_id]=child
             if sorted(c.children)!=sorted(snap.get('children',[])): raise RuntimeError('DESCENDANT_TOPOLOGY_READBACK_MISMATCH')
         if record_restore:
-            c._record_event(operation='WARM_BOOT_TREE_RESTORE' if recursive else 'WARM_BOOT_RESTORE',input_state=snap,output_state=rb['value'],proof={'readback_equal':True,'restored':True,'recursive':recursive,'descendants':sorted(c.children),'descendant_restore_events_suppressed':bool(recursive)},rollback={'checkpoint':c.runtime.checkpoint()})
+            c._record_event(operation='WARM_BOOT_TREE_RESTORE' if recursive else 'WARM_BOOT_RESTORE',input_state=snap,output_state=rb['value'],proof={'readback_equal':True,'restored':True,'recursive':recursive,'descendants':sorted(c.children),'descendant_restore_events_suppressed':bool(recursive),'r31_recovery':recovery.get('status')},rollback={'checkpoint':c.runtime.checkpoint()})
         return c
     @classmethod
     def restore_tree(cls,state_root): return cls.restore(state_root,recursive=True,record_restore=True)
@@ -132,11 +165,13 @@ class RecursiveComputer:
             try: self.memory[k]=_copy(v); return self._persist('MEMORY_WRITE')
             except Exception: self.memory=before; raise
     def _refresh_constructor_view(self):
+        recovery=self.commit_coordinator.recover()
+        if recovery.get('status') not in {'CONSISTENT','RECOVERED_COMMIT','RECOVERED_ROLLBACK'}: raise RuntimeError(f'CONSTRUCTOR_RECOVERY_BLOCKED:{recovery}')
         rb=self.runtime.route(f'computer://{self.identity.computer_id}/state',self.state_backing,'READ')
         if rb.get('status')!='READ': raise RuntimeError(f'CONSTRUCTOR_REFRESH_FAILED:{rb}')
         snap=rb['value']
         if snap.get('constructor')!=self.CONSTRUCTOR_ID or snap['identity']['computer_id']!=self.identity.computer_id: raise RuntimeError('CONSTRUCTOR_REFRESH_IDENTITY_MISMATCH')
-        self.state=_copy(snap.get('state',{})); self.memory=_copy(snap.get('memory',{})); self._expected_state_hash=rb['value_hash']
+        self.state=_copy(snap.get('state',{})); self.memory=_copy(snap.get('memory',{})); self._expected_state_hash=rb['value_hash']; self._committed_snapshot=_copy(snap)
         committed_ids=set(snap.get('children',[]))
         for child_id in committed_ids:
             child_root=self.state_root/'descendants'/child_id
@@ -183,6 +218,8 @@ class RecursiveComputer:
                     return c
                 finally: fcntl.flock(lock_fh.fileno(),fcntl.LOCK_UN)
     def inspect_committed(self):
+        recovery=self.commit_coordinator.recover()
+        if recovery.get('status') not in {'CONSISTENT','RECOVERED_COMMIT','RECOVERED_ROLLBACK'}: raise RuntimeError(f'INSPECT_RECOVERY_BLOCKED:{recovery}')
         adapter=self.runtime.registry.adapters['adapter://file/json']
         state_result=adapter.apply(self.state_backing,f'computer://{self.identity.computer_id}/state','READ')
         if state_result.get('status')!='READ': raise RuntimeError(f'INSPECT_STATE_FAILED:{state_result}')
@@ -192,8 +229,10 @@ class RecursiveComputer:
             ledger._events=[TransactionReceipt(**e) for e in ledger_result['value']]
             if not ledger.verify(): raise RuntimeError('INSPECT_LEDGER_INVALID')
         elif ledger_result.get('status')!='HOLE': raise RuntimeError(f'INSPECT_LEDGER_FAILED:{ledger_result}')
-        return {'value':state_result['value'],'value_hash':state_result['value_hash'],'ledger_verified':ledger.verify(),'ledger_events':len(ledger.events)}
+        return {'value':state_result['value'],'value_hash':state_result['value_hash'],'ledger_verified':ledger.verify(),'ledger_events':len(ledger.events),'r31':self.commit_coordinator.classify()}
     def readback(self):
+        recovery=self.commit_coordinator.recover()
+        if recovery.get('status') not in {'CONSISTENT','RECOVERED_COMMIT','RECOVERED_ROLLBACK'}: raise RuntimeError(f'READBACK_RECOVERY_BLOCKED:{recovery}')
         r=self.runtime.route(f'computer://{self.identity.computer_id}/state',self.state_backing,'READ')
         if r.get('status')!='READ': raise RuntimeError(f'READBACK_FAILED:{r}')
         return r['value']
@@ -237,6 +276,7 @@ def execute_recursive_proof(root_dir: str | Path) -> dict[str, Any]:
         'constructor_ids':{name:node.identity.constructor_id for name,node in nodes.items()},
         'state_roots':{name:sha256_json(rb) for name,rb in readbacks.items()},
         'ledger_verified':{name:node.ledger.verify() for name,node in nodes.items()},
+        'r31':{name:node.commit_coordinator.classify() for name,node in nodes.items()},
         'warm_boot':{
             'root_restored':restored_again.identity.computer_id,
             'rehydrated_path':['A','B','C','D'],
@@ -248,4 +288,5 @@ def execute_recursive_proof(root_dir: str | Path) -> dict[str, Any]:
     if proof['lineage']['E'] != ['A','B','C','D','E']: raise RuntimeError('LINEAGE_CONTINUITY_FAILED')
     if len(set(proof['constructor_ids'].values())) != 1: raise RuntimeError('CONSTRUCTOR_CONTINUITY_FAILED')
     if not all(proof['ledger_verified'].values()): raise RuntimeError('LEDGER_VERIFICATION_FAILED')
+    if not all(v.get('status')=='CONSISTENT' for v in proof['r31'].values()): raise RuntimeError('R31_CORRESPONDENCE_FAILED')
     return proof
