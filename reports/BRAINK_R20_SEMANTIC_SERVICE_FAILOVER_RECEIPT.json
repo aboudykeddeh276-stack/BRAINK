@@ -1,0 +1,22 @@
+{
+  "schema": "braink.semantic-service-failover.r20",
+  "contract": "CANONICAL_DOMAIN_TO_SERVICE_ID_TO_HEALTHY_CARRIER",
+  "domain": "keddeh.com",
+  "canonical_id": "LEX://DOMAIN/keddeh.com",
+  "service_id": "LEX://SERVER/GLOBAL",
+  "checks": {
+    "semantic_domain_resolves": true,
+    "primary_selected_initially": true,
+    "same_canonical_domain_after_failover": true,
+    "same_service_identity_after_failover": true,
+    "secondary_selected_after_primary_loss": true,
+    "machine_identity_distinct": true,
+    "machine_lineage_distinct": true,
+    "domain_identity_does_not_change_with_carrier": true,
+    "primary_reselected_after_restore": true
+  },
+  "domain_proof_sha256": "2f1ad5b92d0f9919aa07b14c6e85a11e9cbed68ba7517dbcdbc076fae472e5f0",
+  "runtime_sha256": "a65f896fd742f15990447b74acf36472729a50239b05e2a07fb5c02f0f36787c",
+  "receipt_sha256": "af78323241b95083eec487dbac1f51a6c5b77ca5957c004a49fb4d00c651615b",
+  "status": "PASS"
+}
