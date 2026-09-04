@@ -1,0 +1,47 @@
+{
+  "schema": "kex.casepath.publication-control.v1",
+  "canonical_identity": "app://casepath",
+  "transaction": "CP-PUB-002-V51-TRUST-FUNCTION-R1",
+  "patch": "CP-TRUST-FUNCTION-TRACE-R1",
+  "public_target": "https://casepath.com.au/your-data.html",
+  "required_marker": "How CasePath verifies what the platform does",
+  "patch_marker": "casepath-surface-function-verification-r1",
+  "promotion": {
+    "public_live": false,
+    "requires": [
+      "verified_owner_origin",
+      "target_preimage_verified",
+      "additive_patch_executed",
+      "local_postimage_verified",
+      "owner_release_consumed",
+      "exact_public_target_http_200",
+      "required_marker_present",
+      "patch_marker_present",
+      "proof_ledger_agreement"
+    ],
+    "fail_closed": true
+  },
+  "authority_rules": {
+    "dns_is_not_owner_authority": true,
+    "public_url_is_not_owner_authority": true,
+    "drive_materialisation_is_not_production_proof": true,
+    "unrelated_repository_is_not_production_proof": true,
+    "chatgpt_site_is_not_production_origin": true
+  },
+  "execution_adapters": [
+    "owner_host_filesystem",
+    "sftp_ssh",
+    "hosting_control_panel",
+    "git_ci",
+    "cloudflare_pages",
+    "static_object_host",
+    "provider_api"
+  ],
+  "adapter_contract": {
+    "must_bind_explicit_authority": true,
+    "must_capture_preimage": true,
+    "must_report_release_id": true,
+    "must_support_postimage_verification": true,
+    "must_not_promote_public_live": true
+  }
+}
