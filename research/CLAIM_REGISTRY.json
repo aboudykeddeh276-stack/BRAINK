@@ -33,7 +33,15 @@
         "component_spec": "mirror_lane_storage_substrate/MIRROR_LANE_COMPONENT_SPEC.json",
         "qualification_workflow": ".github/workflows/mirror-lane-state-transfer-qualification.yml"
       },
-      "current_execution_observation": "A prior dedicated L5 hosted job instantiated but executed zero steps; Host A L7 remained queued. This blocks evidence acquisition and is not application failure evidence. New governed revisions must execute before the evidence level changes."
+      "current_execution_observation": {
+        "cloud_owner_run": 33881475702,
+        "cloud_hosted_job": {"job_id":101050925070,"status":"completed","conclusion":"failure","steps_executed":0,"classification":"EXECUTOR_CARRIER_FAILURE_BEFORE_STEP_1"},
+        "cloud_resident_job": {"job_id":101050924675,"status":"queued","classification":"EXECUTOR_PENDING"},
+        "braink_consumer_run": 33881699589,
+        "braink_l5_job": {"job_id":101051642752,"status":"completed","conclusion":"failure","steps_executed":0,"classification":"EXECUTOR_CARRIER_FAILURE_BEFORE_STEP_1"},
+        "braink_host_a_job": {"job_id":101051642555,"status":"queued","classification":"EXECUTOR_PENDING"},
+        "evidence_effect":"No runtime/governance/identity test executed in these hosted lanes; claim remains L2 IMPLEMENTATION_EXISTS."
+      }
     }
   ]
 }
