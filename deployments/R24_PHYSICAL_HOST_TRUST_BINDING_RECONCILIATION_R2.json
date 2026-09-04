@@ -1,0 +1,70 @@
+{
+  "schema": "braink.r24.physical-host-trust-binding-reconciliation/v1",
+  "subject": "R22_KOS_MESH_PHYSICAL_MULTI_HOST_EXTERNAL_TRUST_BINDING",
+  "governing_baseline": "BRAINK_R24_ENGINEERING_CONTROL",
+  "classification": "STATE_DRIFT_RECONCILED_IMPLEMENTATION_BOUNDARY",
+  "architecture_decision": "ADR-R24-R22-PHYSICAL-HOST-TRUST-BINDING-001",
+  "implementation": {
+    "binder": "enterprise/physical_host_trust_binding_r24.py",
+    "invariant": "scripts/kex-ci/test_physical_host_trust_binding_r24.py",
+    "physical_gate": "scripts/kex-ci/test_r24_physical_multi_host_gate.py",
+    "workflow": ".github/workflows/keddeh-enterprise-control.yml"
+  },
+  "commits": {
+    "binder": "21b19d91b5ac09fc6fe1801d552233ba97a9a539",
+    "invariant": "2fa346736cba5aecb8291cad46895ceccc641786",
+    "physical_gate": "2c82909f873be08fe29d6dd199354fb76745638b",
+    "workflow": "97d44ccf87960c1f134c175cd6d73284bffa1a11"
+  },
+  "mechanics": {
+    "structural_result_reproduction_required": true,
+    "external_anchor_material_separate_from_attestation_payload": true,
+    "binding_integrity": "HMAC_SHA256",
+    "minimum_anchor_diversity": 2,
+    "forged_signature_fail_closed": true,
+    "single_anchor_concentration_fail_closed": true,
+    "maximum_contract_fixture_status": "TRUST_BOUND",
+    "contract_fixture_physical_host_status": "UNVERIFIED",
+    "synthetic_fixture_is_execution_evidence": false
+  },
+  "r24_transition": {
+    "DISCOVER": "PASS",
+    "RECONCILE_SOURCE_STATE": "PASS",
+    "ARCHITECTURE_DECISION": "PASS_EXISTING_ADR",
+    "IMPLEMENT": "PASS_REPOSITORY_MUTATION",
+    "STATIC_VALIDATE": "CI_QUEUED_NOT_OBSERVED",
+    "UNIT_TEST": "CI_QUEUED_NOT_OBSERVED",
+    "INTEGRATION_TEST": "NOT_OBSERVED_DISTINCT_PHYSICAL_HOSTS",
+    "FAULT_INJECTION": "CONTRACT_ADVERSE_PATHS_IMPLEMENTED_EXECUTION_NOT_OBSERVED",
+    "SECURITY_GATE": "INCOMPLETE",
+    "QUALITY_GATE": "INCOMPLETE",
+    "BUILD_RELEASE_MANIFEST": "CANDIDATE_MANIFEST_WIRED_IN_R24_PHYSICAL_GATE",
+    "INDEPENDENT_VERIFY": "PENDING",
+    "PROMOTE_OR_REJECT": "REJECTED",
+    "DEPLOY": "GITHUB_MAIN_MUTATION_PASS",
+    "READBACK_RECONCILE": "PASS_SOURCE_READBACK",
+    "MARKET_READINESS_EVALUATE": "ENGINEERING_ONLY",
+    "CONTINUE": "DISTINCT_AUTHORISED_PHYSICAL_HOST_EXECUTION"
+  },
+  "ci": {
+    "run_id": 33866908624,
+    "head_sha": "97d44ccf87960c1f134c175cd6d73284bffa1a11",
+    "status_at_receipt": "QUEUED",
+    "conclusion_at_receipt": null
+  },
+  "preserved_boundary": {
+    "resident_mesh": "REUSED_NOT_REIMPLEMENTED",
+    "structural_qualifier": "REUSED",
+    "external_trust_binding": "IMPLEMENTED_CONTRACT_BOUNDARY",
+    "production_external_trust_evidence": "NOT_OBSERVED",
+    "distinct_physical_hosts": "UNEXECUTED",
+    "physical_host_status": "UNVERIFIED",
+    "rollback_execution": "NOT_OBSERVED",
+    "independent_verification": "PENDING",
+    "promotion": "REJECTED",
+    "market_readiness": "ENGINEERING_ONLY",
+    "certification_claim": false
+  },
+  "receipt_root": "907697e4ca94d405bf3dc1aa722ed76c0e81ddc628e0e1c408a9c087c44c2405",
+  "receipt_root_scope": "sha256(canonical_json_without_receipt_root_fields)"
+}
