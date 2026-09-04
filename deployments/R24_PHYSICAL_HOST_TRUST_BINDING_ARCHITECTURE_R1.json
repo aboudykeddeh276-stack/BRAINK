@@ -1,0 +1,52 @@
+{
+  "schema": "braink.r24.physical-host-trust-binding-architecture/v1",
+  "subject": "R22_KOS_MESH_PHYSICAL_MULTI_HOST_EXTERNAL_TRUST_BINDING",
+  "classification": "STATE_DRIFT_RECONCILED_DESIGN_BOUNDARY",
+  "governing_baseline": "BRAINK_R24_ENGINEERING_CONTROL",
+  "decision_id": "ADR-R24-R22-PHYSICAL-HOST-TRUST-BINDING-001",
+  "decision": "ADD_EXTERNAL_TRUST_BINDING_WITHOUT_DUPLICATING_RESIDENT_MESH_OR_STRUCTURAL_QUALIFIER",
+  "resident_capabilities_reused": [
+    "KEDDEH K-OS/BOS Mesh Substrate v2.0",
+    "enterprise/physical_host_evidence_r24.py",
+    "scripts/kex-ci/test_physical_host_evidence_r24.py",
+    "scripts/kex-ci/test_r24_physical_multi_host_gate.py"
+  ],
+  "required_new_boundary": {
+    "purpose": "bind structurally qualified host attestations to trust anchors provisioned outside the attestation bundle",
+    "must_not_claim": [
+      "distinct physical hardware merely from valid structured evidence",
+      "independent verification merely from operator-controlled trust material",
+      "hardware-rooted provenance without a hardware-backed attestation chain",
+      "physical multi-host promotion without real execution, fault recovery and rollback readback"
+    ],
+    "minimum_contract": [
+      "external trust anchors are supplied independently of host attestation payloads",
+      "attestation integrity is cryptographically checked against those anchors",
+      "package hash equality remains mandatory across all hosts",
+      "host identity and machine-fingerprint uniqueness remain mandatory",
+      "execution, peer-state, fault-recovery and rollback roots remain mandatory",
+      "synthetic fixtures may prove the trust-binding contract only and remain non-execution evidence",
+      "successful trust binding may advance evidence to TRUST_BOUND but physical_host_status remains UNVERIFIED",
+      "VERIFIED requires distinct authorised physical-host execution plus independent verifier evidence"
+    ]
+  },
+  "r24_transition": [
+    "DISCOVER",
+    "RECONCILE_SOURCE_STATE",
+    "ARCHITECTURE_DECISION"
+  ],
+  "implementation_status": "BLOCKED_BEFORE_REPOSITORY_MUTATION",
+  "static_validate": "NOT_OBSERVED",
+  "unit_test": "NOT_OBSERVED",
+  "integration_test": "NOT_OBSERVED",
+  "fault_injection": "NOT_OBSERVED",
+  "security_gate": "INCOMPLETE",
+  "quality_gate": "INCOMPLETE",
+  "release_manifest": "NOT_BUILT",
+  "independent_verify": "PENDING",
+  "rollback_ready": false,
+  "promotion": "REJECTED",
+  "market_readiness": "ENGINEERING_ONLY",
+  "certification_claim": false,
+  "next_action": "IMPLEMENT_A_FAIL_CLOSED_EXTERNAL_TRUST_BINDER_AND_CONTRACT_INVARIANT_THEN_WIRE_IT_INTO_THE_EXISTING_PHYSICAL_MULTI_HOST_GATE"
+}
