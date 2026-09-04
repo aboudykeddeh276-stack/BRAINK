@@ -1,0 +1,13 @@
+{
+  "schema": "kex.casepath.publication-control.v1.test",
+  "cases": [
+    {"name":"dns-only","owner_authority":false,"expected_public_live":false},
+    {"name":"drive-materialisation-only","owner_authority":false,"expected_public_live":false},
+    {"name":"unrelated-github-repository","owner_authority":false,"expected_public_live":false},
+    {"name":"chatgpt-site-candidate","owner_authority":false,"expected_public_live":false},
+    {"name":"owner-origin-bound-but-unreleased","owner_authority":true,"released":false,"expected_public_live":false},
+    {"name":"released-but-marker-absent","owner_authority":true,"released":true,"required_marker":false,"expected_public_live":false},
+    {"name":"released-target-and-markers-but-ledger-disagrees","owner_authority":true,"released":true,"required_marker":true,"patch_marker":true,"proof_ledger_agreement":false,"expected_public_live":false},
+    {"name":"complete-promotion-proof","owner_authority":true,"released":true,"required_marker":true,"patch_marker":true,"proof_ledger_agreement":true,"expected_public_live":true}
+  ]
+}
