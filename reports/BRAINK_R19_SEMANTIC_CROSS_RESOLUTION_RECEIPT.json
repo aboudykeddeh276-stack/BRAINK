@@ -1,0 +1,27 @@
+{
+  "schema": "braink.semantic-cross-resolution.r19.local-execution",
+  "domain": "keddeh.com",
+  "contract": "SEMANTIC_RESIDENT_PRIMARY_WITH_SUBORDINATE_CARRIER_ESCAPE",
+  "resident_primary": {
+    "operation": "SEMANTIC_RESIDENT_RESOLVE",
+    "canonical_id": "LEX://DOMAIN/keddeh.com",
+    "status": "PASS",
+    "evidence_class": "KEX_SEMANTIC_REGISTRAR_LEDGER_READBACK",
+    "carrier_ip_required": false
+  },
+  "carrier_escape": {
+    "operation": "BOOTSTRAP_CARRIER_RESOLVE",
+    "canonical_id": "LEX://DOMAIN/keddeh.com",
+    "status": "UNREACHABLE"
+  },
+  "checks": {
+    "resident_primary_pass": true,
+    "resident_semantic_evidence": true,
+    "canonical_identity_preserved": true,
+    "resident_not_replaced": true,
+    "no_carrier_ip_required": true,
+    "proof_readback_present": true,
+    "external_carrier_subordinate": true
+  },
+  "status": "PASS"
+}
