@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Any
 import json
 import subprocess
+import sys
 
 
 @dataclass(frozen=True)
@@ -28,16 +29,21 @@ class MirrorLaneTransferAdapter:
     def __init__(self, runtime_executable: str | Path):
         self.runtime_executable = Path(runtime_executable)
 
-    def update(self, source_root: str | Path, mirror_root: str | Path) -> MirrorLaneTransferReceipt:
+    def _argv(self, *args: str) -> list[str]:
+        if self.runtime_executable.suffix == ".py":
+            return [sys.executable, str(self.runtime_executable), *args]
+        return [str(self.runtime_executable), *args]
+
+    def _run(self, *args: str) -> dict[str, Any]:
         if not self.runtime_executable.exists():
             raise RuntimeError(f"MIRROR_LANE_RUNTIME_UNAVAILABLE:{self.runtime_executable}")
-        proc = subprocess.run(
-            [str(self.runtime_executable), "update", "--source", str(source_root), "--mirror", str(mirror_root), "--json"],
-            stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
-        )
+        proc = subprocess.run(self._argv(*args), stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
         if proc.returncode != 0:
-            raise RuntimeError(f"MIRROR_LANE_UPDATE_FAILED:{proc.stderr.strip() or proc.stdout.strip()}")
-        payload: dict[str, Any] = json.loads(proc.stdout)
+            raise RuntimeError(f"MIRROR_LANE_RUNTIME_FAILED:{proc.stderr.strip() or proc.stdout.strip()}")
+        return json.loads(proc.stdout)
+
+    def update(self, source_root: str | Path, mirror_root: str | Path) -> MirrorLaneTransferReceipt:
+        payload = self._run("update", "--source", str(source_root), "--mirror", str(mirror_root), "--json")
         if payload.get("status") != "MIRROR_VERIFIED":
             raise RuntimeError(f"MIRROR_LANE_NOT_VERIFIED:{payload}")
         return MirrorLaneTransferReceipt(
@@ -47,13 +53,7 @@ class MirrorLaneTransferAdapter:
         )
 
     def restore(self, mirror_root: str | Path, destination_root: str | Path) -> MirrorLaneTransferReceipt:
-        proc = subprocess.run(
-            [str(self.runtime_executable), "restore", "--mirror", str(mirror_root), "--destination", str(destination_root), "--json"],
-            stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
-        )
-        if proc.returncode != 0:
-            raise RuntimeError(f"MIRROR_LANE_RESTORE_FAILED:{proc.stderr.strip() or proc.stdout.strip()}")
-        payload = json.loads(proc.stdout)
+        payload = self._run("restore", "--mirror", str(mirror_root), "--destination", str(destination_root), "--json")
         if payload.get("status") != "RESTORE_VERIFIED":
             raise RuntimeError(f"MIRROR_LANE_RESTORE_NOT_VERIFIED:{payload}")
         return MirrorLaneTransferReceipt(
