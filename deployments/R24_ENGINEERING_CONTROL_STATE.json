@@ -112,8 +112,10 @@
     "publication_domain_durable_execution_r5": {
       "status": "IMPLEMENTED_AND_ADVERSARIALLY_QUALIFIED_LOCAL_NOT_PROMOTED",
       "binding": "enterprise/orchestration/durable_execution_r5.py",
-      "receipt": "deployments/R24_DOMAIN_DURABLE_EXECUTION_RECONCILIATION_R1.json",
-      "receipt_root": "279c9eadb50ca49d7dad90f28b9bc8da0e01fd94cba059796ea5b017e46dcb49",
+      "receipt": "deployments/R24_DOMAIN_DURABLE_EXECUTION_RECONCILIATION_R2.json",
+      "receipt_root": "09134b13ebdd15935b1ce5898a7891ce6116d840d8319be06d1a7093549dcf43",
+      "qualified_source_git_blob_sha": "e51ccd625b49a39f6fe0552e65f3cb36f9195c1b",
+      "source_lineage_gate": "CURRENT_BYTES_MUST_MATCH_QUALIFIED_GIT_BLOB",
       "replay_rejection": "PASS",
       "tamper_rejection": "PASS",
       "lease_fencing": "PASS_LOCAL",
@@ -128,8 +130,8 @@
       "registrar_epp_authority": "UNPROVEN",
       "independent_verify": "PENDING",
       "quality_gate": "PENDING_FULL_R24_PROFILE",
-      "release_manifest": "PENDING",
-      "market_readiness": "PENDING",
+      "release_manifest": "CANDIDATE_RUNTIME_MANIFEST_ONLY_NOT_PROMOTED",
+      "market_readiness": "ENGINEERING_ONLY",
       "decision": "REUSE_RESIDENT_DURABLE_EXECUTION_R5_DO_NOT_REIMPLEMENT",
       "promotion": "REJECTED_PENDING_REMAINING_R24_GATES"
     },
@@ -237,7 +239,18 @@
   "r24_promotion_gate_surfaces": {
     "publication_domain": {
       "gate": "scripts/kex-ci/test_r24_publication_domain_gate.py",
+      "gate_revision_commit": "d040142a13fc51abca2e11c1ef287604b7baba7c",
+      "reconciliation": "deployments/R24_DOMAIN_DURABLE_EXECUTION_RECONCILIATION_R2.json",
+      "receipt_root": "09134b13ebdd15935b1ce5898a7891ce6116d840d8319be06d1a7093549dcf43",
+      "qualified_source_git_blob_sha": "e51ccd625b49a39f6fe0552e65f3cb36f9195c1b",
+      "source_lineage_gate": "CURRENT_BYTES_MUST_MATCH_QUALIFIED_GIT_BLOB",
       "workflow_wired": true,
+      "public_authoritative_dns": "UNPROVEN",
+      "registrar_epp_authority": "UNPROVEN",
+      "wan_partition": "UNPROVEN",
+      "physical_multi_host": "UNPROVEN",
+      "independent_verification": "PENDING",
+      "market_readiness": "ENGINEERING_ONLY",
       "promotion": "REJECTED_PENDING_EXECUTION_AND_REMAINING_R24_GATES"
     },
     "mail_runtime": {
