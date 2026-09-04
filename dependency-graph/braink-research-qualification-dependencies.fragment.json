@@ -107,7 +107,16 @@
       "class": "RUNTIME_AUTHORITY_DEPENDENCY",
       "relationship": "pinned",
       "scope": "qualification",
-      "interface": "governed mirror update/restore runtime from KEDDEH-CLOUD-SERVERS-ID-1 @ 0c23cbfcee2a2d86a69da59d86188005017c4b38",
+      "interface": "governed mirror update/restore runtime from KEDDEH-CLOUD-SERVERS-ID-1 @ a3e25b1d5b3ed4e57d57d8543ef61338ecf3c69a",
+      "authority": "KEX_CLOUD_MIRROR_LANE"
+    },
+    {
+      "source": ".github/workflows/logical-computer-host-independence.yml",
+      "target": "external-workflow://KEX_MIRROR_LANE_STATE_TRANSFER_R1/qualification",
+      "class": "REPOSITORY_DEPENDENCY",
+      "relationship": "requires-owner-qualification",
+      "scope": "qualification",
+      "interface": ".github/workflows/mirror-lane-state-transfer-qualification.yml @ KEDDEH-CLOUD-SERVERS-ID-1",
       "authority": "KEX_CLOUD_MIRROR_LANE"
     }
   ]
