@@ -8,11 +8,18 @@ on:
       - 'enterprise/mirror_lane_transfer_adapter.py'
       - 'research/experiments/logical_computer_host_migration.py'
       - 'research/claims/logical_computer_host_independence.proposed.v1.json'
+      - 'research/qualification_fabric/**'
+      - 'governance/GOVERNANCE_TARGET_REGISTRY.json'
+      - 'governance/control_skeleton/CROSS_REPOSITORY_COMPONENT_PROTOCOL.md'
+      - 'dependency-graph/braink-research-qualification-dependencies.fragment.json'
       - 'tests/integration/test_logical_computer_mirror_migration.py'
       - '.github/workflows/logical-computer-host-independence.yml'
 
 permissions:
   contents: read
+
+env:
+  KEDDEH_MIRROR_AUTHORITY_SHA: 0c23cbfcee2a2d86a69da59d86188005017c4b38
 
 jobs:
   integration-l5:
@@ -20,12 +27,28 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Checkout KEDDEH mirror-lane authority repo
+      - name: Checkout governed KEDDEH mirror-lane authority revision
         uses: actions/checkout@v4
         with:
           repository: aboudykeddeh276-stack/KEDDEH-CLOUD-SERVERS-ID-1
-          ref: 2add889bdd9259df459a0ad1f9b53569c24dc0c8
+          ref: ${{ env.KEDDEH_MIRROR_AUTHORITY_SHA }}
           path: keddeh-cloud
+      - name: Admit mirror-lane governance and dependency contract
+        run: |
+          test -f keddeh-cloud/mirror_lane_storage_substrate/CONTROL_INDEX.md
+          test -f keddeh-cloud/mirror_lane_storage_substrate/MIRROR_LANE_COMPONENT_SPEC.json
+          test -f keddeh-cloud/mirror_lane_storage_substrate/PROCESS_WORKFLOW_CONTROL.md
+          test -f keddeh-cloud/mirror_lane_storage_substrate/FILING_EVIDENCE_STANDARD.md
+          test -f keddeh-cloud/mirror_lane_storage_substrate/CROSS_REPO_AUTHORITY_CONTRACT.md
+          test -f keddeh-cloud/dependency-graph/kex-mirror-lane-dependencies.fragment.json
+          python - <<'PY'
+          import json
+          spec=json.load(open('keddeh-cloud/mirror_lane_storage_substrate/MIRROR_LANE_COMPONENT_SPEC.json'))
+          assert spec['component_id']=='KEX_MIRROR_LANE_STATE_TRANSFER_R1'
+          assert spec['classification']=='RUNTIME_STATE_TRANSFER_ACTUATOR'
+          assert 'post-update mirror manifest digest equals source manifest digest' in spec['proof_conditions']
+          print({'mirror_governance':'ADMITTED','authority_sha':'0c23cbfcee2a2d86a69da59d86188005017c4b38'})
+          PY
       - name: Qualify mirror runtime
         run: python -m pytest -q keddeh-cloud/mirror_lane_storage_substrate/tests/test_kex_mirror_lane_runtime.py
       - name: Qualify same-executor integration boundary
@@ -35,14 +58,18 @@ jobs:
       - name: Record evidence boundary
         run: |
           mkdir -p evidence/research
-          cat > evidence/research/logical-computer-integration-l5.json <<'JSON'
+          cat > evidence/research/logical-computer-integration-l5.json <<JSON
           {
             "claim_id": "BRAINK_LOGICAL_COMPUTER_HOST_INDEPENDENCE_R1",
             "proof_id": "LOCAL_MIRROR_INTEGRATION",
             "executor_id": "github-hosted-linux",
             "status": "PASS",
             "evidence_level": 5,
-            "observation": "Logical identity and R26 state survived KEX mirror update/restore on one executor. This is integration evidence only, not cross-machine proof."
+            "producer_repository": "aboudykeddeh276-stack/KEDDEH-CLOUD-SERVERS-ID-1",
+            "producer_commit_sha": "${KEDDEH_MIRROR_AUTHORITY_SHA}",
+            "consumer_repository": "${GITHUB_REPOSITORY}",
+            "consumer_commit_sha": "${GITHUB_SHA}",
+            "observation": "Logical identity and R26 state survived governed KEX mirror update/restore on one executor. This is integration evidence only, not cross-machine proof."
           }
           JSON
       - uses: actions/upload-artifact@v4
@@ -55,12 +82,16 @@ jobs:
     runs-on: [self-hosted, braink-host-a]
     steps:
       - uses: actions/checkout@v4
-      - name: Checkout KEDDEH mirror-lane authority repo
+      - name: Checkout governed KEDDEH mirror-lane authority revision
         uses: actions/checkout@v4
         with:
           repository: aboudykeddeh276-stack/KEDDEH-CLOUD-SERVERS-ID-1
-          ref: 2add889bdd9259df459a0ad1f9b53569c24dc0c8
+          ref: ${{ env.KEDDEH_MIRROR_AUTHORITY_SHA }}
           path: keddeh-cloud
+      - name: Admit cross-repository owner contract
+        run: |
+          test -f keddeh-cloud/mirror_lane_storage_substrate/CROSS_REPO_AUTHORITY_CONTRACT.md
+          test -f keddeh-cloud/mirror_lane_storage_substrate/MIRROR_LANE_COMPONENT_SPEC.json
       - name: Prepare logical computer on Host A and update mirror lane
         run: |
           rm -rf .qualification/host-a .qualification/mirror
@@ -74,15 +105,18 @@ jobs:
         run: |
           tar -czf .qualification/mirror-lane.tgz -C .qualification mirror
           python - <<'PY'
-          import json
-          b=json.load(open('.qualification/HOST_A_BASELINE.json'))
+          import json, os
           receipt={
             'claim_id':'BRAINK_LOGICAL_COMPUTER_HOST_INDEPENDENCE_R1',
             'proof_id':'HOST_A_BASELINE',
             'executor_id':'resident-host-a',
             'status':'PASS',
             'evidence_level':7,
-            'observation':'Host A persisted R26 state, logical identity, lineage and authority and produced a verified KEX mirror-lane manifest.',
+            'producer_repository':'aboudykeddeh276-stack/KEDDEH-CLOUD-SERVERS-ID-1',
+            'producer_commit_sha':os.environ['KEDDEH_MIRROR_AUTHORITY_SHA'],
+            'consumer_repository':os.environ['GITHUB_REPOSITORY'],
+            'consumer_commit_sha':os.environ['GITHUB_SHA'],
+            'observation':'Host A persisted R26 state, logical identity, lineage and authority and produced a verified governed KEX mirror-lane manifest.',
             'artifact':'.qualification/HOST_A_BASELINE.json'
           }
           json.dump(receipt,open('.qualification/HOST_A_RECEIPT.json','w'),indent=2,sort_keys=True)
@@ -101,11 +135,11 @@ jobs:
     runs-on: [self-hosted, braink-host-b]
     steps:
       - uses: actions/checkout@v4
-      - name: Checkout KEDDEH mirror-lane authority repo
+      - name: Checkout governed KEDDEH mirror-lane authority revision
         uses: actions/checkout@v4
         with:
           repository: aboudykeddeh276-stack/KEDDEH-CLOUD-SERVERS-ID-1
-          ref: 2add889bdd9259df459a0ad1f9b53569c24dc0c8
+          ref: ${{ env.KEDDEH_MIRROR_AUTHORITY_SHA }}
           path: keddeh-cloud
       - uses: actions/download-artifact@v4
         with:
@@ -126,7 +160,7 @@ jobs:
       - name: Record L9 receipt
         run: |
           python - <<'PY'
-          import json
+          import json, os
           r=json.load(open('.qualification/HOST_B_REHYDRATION.json'))
           if r['status']!='PASS': raise SystemExit('HOST_B_REHYDRATION_FAILED')
           receipt={
@@ -135,7 +169,11 @@ jobs:
             'executor_id':'resident-host-b',
             'status':'PASS',
             'evidence_level':9,
-            'observation':'Independent Host B restored the KEX mirror package and preserved logical ID, R26 state digest, lineage and authority while machine projection changed.',
+            'producer_repository':'aboudykeddeh276-stack/KEDDEH-CLOUD-SERVERS-ID-1',
+            'producer_commit_sha':os.environ['KEDDEH_MIRROR_AUTHORITY_SHA'],
+            'consumer_repository':os.environ['GITHUB_REPOSITORY'],
+            'consumer_commit_sha':os.environ['GITHUB_SHA'],
+            'observation':'Independent Host B restored the governed KEX mirror package and preserved logical ID, R26 state digest, lineage and authority while machine projection changed.',
             'artifact':'.qualification/HOST_B_REHYDRATION.json'
           }
           json.dump(receipt,open('.qualification/HOST_B_RECEIPT.json','w'),indent=2,sort_keys=True)
