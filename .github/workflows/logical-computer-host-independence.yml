@@ -17,8 +17,6 @@ on:
       - 'tests/governance/test_control_skeleton.py'
       - '.github/workflows/logical-computer-host-independence.yml'
 
-actions_permissions_note: "Workflow actions are pinned to reviewed full commit SHAs."
-
 permissions:
   contents: read
 
