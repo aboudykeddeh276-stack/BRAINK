@@ -1,0 +1,34 @@
+{
+  "schema": "braink.r24.physical-host-verifier-overclaim-resolution/v1",
+  "subject": "R24_PHYSICAL_HOST_EVIDENCE_VERIFIER",
+  "classification": "OVERCLAIM_RESOLVED_CODE_BOUNDARY",
+  "governing_baseline": "R24_ENGINEERING_CONTROL",
+  "supersedes": "deployments/R24_PHYSICAL_HOST_VERIFIER_OVERCLAIM_RECONCILIATION_R1.json",
+  "changes": {
+    "verifier_commit": "e6c51b293eb903246a738ba80c4b0c88e7f3d1f0",
+    "contract_test_commit": "829030d3bbae6fe948992c5b9cdc48fd7c5109c1",
+    "promotion_gate_commit": "255d04c74375ee9039237d9e0fcbfa237ea3e9a5",
+    "physical_host_verified_from_structural_objects": false,
+    "structural_success_state": "STRUCTURALLY_QUALIFIED",
+    "physical_host_status_without_external_trust": "UNVERIFIED",
+    "external_trust_binding": "REQUIRED_NOT_IMPLEMENTED"
+  },
+  "validation": {
+    "repository_mutation_readback": "PASS",
+    "clean_clone_execution": "BLOCKED_ENVIRONMENT_DNS_RESOLUTION",
+    "post_change_unit_execution": "NOT_OBSERVED",
+    "post_change_integration_execution": "NOT_OBSERVED",
+    "fault_injection": "NOT_APPLICABLE_TO_THIS_CLASSIFIER_FIX_PENDING_PHYSICAL_EXECUTION",
+    "security_gate": "INCOMPLETE",
+    "quality_gate": "INCOMPLETE",
+    "rollback_readiness": "SOURCE_COMMITS_REVERSIBLE_NO_RUNTIME_PROMOTION",
+    "independent_verification": "PENDING"
+  },
+  "promotion": {
+    "physical_multi_host": "REJECTED",
+    "market_readiness": "ENGINEERING_ONLY",
+    "certification_claim": false
+  },
+  "next_dependency": "IMPLEMENT_EXTERNALLY_ANCHORED_TRUST_BINDING_AND_EXECUTE_IDENTICAL_HASHED_PACKAGE_ON_DISTINCT_AUTHORISED_PHYSICAL_HOSTS",
+  "receipt_root": "416c18b2e9e0810c5adbbf2ddd22abc64d17d8db71182234dff3176563f0893f"
+}
