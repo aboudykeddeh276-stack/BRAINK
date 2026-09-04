@@ -8,7 +8,6 @@ on:
       - 'enterprise/mirror_lane_transfer_adapter.py'
       - 'research/experiments/logical_computer_host_migration.py'
       - 'research/claims/logical_computer_host_independence.v1.json'
-      - 'research/claims/logical_computer_host_independence.proposed.v1.json'
       - 'research/qualification_fabric/**'
       - 'governance/GOVERNANCE_TARGET_REGISTRY.json'
       - 'governance/control_skeleton/CROSS_REPOSITORY_COMPONENT_PROTOCOL.md'
@@ -29,9 +28,9 @@ jobs:
     name: Integration L5 - mirror lane + logical identity
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - name: Checkout governed KEDDEH mirror-lane authority revision
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           repository: aboudykeddeh276-stack/KEDDEH-CLOUD-SERVERS-ID-1
           ref: ${{ env.KEDDEH_MIRROR_AUTHORITY_SHA }}
@@ -80,7 +79,7 @@ jobs:
             "observation": "Logical identity and R26 state survived governed KEX mirror update/restore on one executor. This is integration evidence only, not cross-machine proof."
           }
           JSON
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: logical-computer-integration-l5
           path: evidence/research/logical-computer-integration-l5.json
@@ -89,9 +88,9 @@ jobs:
     name: Host A L7 - baseline + durable mirror update
     runs-on: [self-hosted, braink-host-a]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - name: Checkout governed KEDDEH mirror-lane authority revision
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           repository: aboudykeddeh276-stack/KEDDEH-CLOUD-SERVERS-ID-1
           ref: ${{ env.KEDDEH_MIRROR_AUTHORITY_SHA }}
@@ -130,7 +129,7 @@ jobs:
           }
           json.dump(receipt,open('.qualification/HOST_A_RECEIPT.json','w'),indent=2,sort_keys=True)
           PY
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: logical-computer-host-a-mirror
           path: |
@@ -143,14 +142,14 @@ jobs:
     needs: host-a-l7
     runs-on: [self-hosted, braink-host-b]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - name: Checkout governed KEDDEH mirror-lane authority revision
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           repository: aboudykeddeh276-stack/KEDDEH-CLOUD-SERVERS-ID-1
           ref: ${{ env.KEDDEH_MIRROR_AUTHORITY_SHA }}
           path: keddeh-cloud
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           name: logical-computer-host-a-mirror
           path: .qualification/incoming
@@ -187,7 +186,7 @@ jobs:
           }
           json.dump(receipt,open('.qualification/HOST_B_RECEIPT.json','w'),indent=2,sort_keys=True)
           PY
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: logical-computer-host-b-evidence
           path: |
