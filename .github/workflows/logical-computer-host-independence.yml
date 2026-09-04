@@ -7,12 +7,15 @@ on:
       - 'enterprise/logical_computer_identity.py'
       - 'enterprise/mirror_lane_transfer_adapter.py'
       - 'research/experiments/logical_computer_host_migration.py'
+      - 'research/claims/logical_computer_host_independence.v1.json'
       - 'research/claims/logical_computer_host_independence.proposed.v1.json'
       - 'research/qualification_fabric/**'
       - 'governance/GOVERNANCE_TARGET_REGISTRY.json'
       - 'governance/control_skeleton/CROSS_REPOSITORY_COMPONENT_PROTOCOL.md'
+      - 'governance/ESTATE_EVOLUTION_PROCESS.md'
       - 'dependency-graph/braink-research-qualification-dependencies.fragment.json'
       - 'tests/integration/test_logical_computer_mirror_migration.py'
+      - 'tests/governance/test_control_skeleton.py'
       - '.github/workflows/logical-computer-host-independence.yml'
 
 permissions:
@@ -49,8 +52,13 @@ jobs:
           assert 'post-update mirror manifest digest equals source manifest digest' in spec['proof_conditions']
           print({'mirror_governance':'ADMITTED','authority_sha':'0c23cbfcee2a2d86a69da59d86188005017c4b38'})
           PY
-      - name: Qualify mirror runtime
-        run: python -m pytest -q keddeh-cloud/mirror_lane_storage_substrate/tests/test_kex_mirror_lane_runtime.py
+      - name: Qualify governance registry and owner/consumer mapping
+        run: python -m pytest -q tests/governance/test_control_skeleton.py
+      - name: Qualify mirror runtime and controls
+        run: |
+          python -m pytest -q \
+            keddeh-cloud/mirror_lane_storage_substrate/tests/test_kex_mirror_lane_runtime.py \
+            keddeh-cloud/mirror_lane_storage_substrate/tests/test_mirror_lane_governance.py
       - name: Qualify same-executor integration boundary
         env:
           KEDDEH_MIRROR_LANE_RUNTIME: ${{ github.workspace }}/keddeh-cloud/mirror_lane_storage_substrate/runtime/kex_mirror_lane_runtime.py
@@ -92,6 +100,7 @@ jobs:
         run: |
           test -f keddeh-cloud/mirror_lane_storage_substrate/CROSS_REPO_AUTHORITY_CONTRACT.md
           test -f keddeh-cloud/mirror_lane_storage_substrate/MIRROR_LANE_COMPONENT_SPEC.json
+          python -m pytest -q keddeh-cloud/mirror_lane_storage_substrate/tests/test_mirror_lane_governance.py
       - name: Prepare logical computer on Host A and update mirror lane
         run: |
           rm -rf .qualification/host-a .qualification/mirror
