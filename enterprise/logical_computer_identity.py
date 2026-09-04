@@ -6,8 +6,9 @@ from typing import Any
 import hashlib
 import json
 import os
-import shutil
 import time
+
+from enterprise.mirror_lane_transfer_adapter import MirrorLaneTransferAdapter
 
 
 def _canonical(value: Any) -> bytes:
@@ -39,9 +40,9 @@ class LogicalComputerController:
     """Host-independent logical identity over a machine-specific projection.
 
     Logical identity is derived only from stable logical material. Machine/host/carrier
-    data is persisted separately as a replaceable projection. This layer deliberately
-    does not redefine R26 state; it binds an existing recursive computer state root to
-    a host-independent identity and records migrations as evidence.
+    data is persisted separately as a replaceable projection. Cross-host movement must
+    use the governed KEX mirror/update lane; this controller does not implement a second
+    state-copy mechanism.
     """
 
     SCHEMA = "braink.logical-computer.identity.v1"
@@ -120,38 +121,59 @@ class LogicalComputerController:
             },
         )
 
-    def migrate_to(self, destination_root: str | Path, *, new_projection: MachineProjection) -> "LogicalComputerController":
+    def migrate_via_mirror_lane(
+        self,
+        destination_root: str | Path,
+        *,
+        mirror_root: str | Path,
+        new_projection: MachineProjection,
+        mirror_adapter: MirrorLaneTransferAdapter,
+    ) -> "LogicalComputerController":
         destination_root = Path(destination_root)
+        mirror_root = Path(mirror_root)
         if destination_root.exists() and any(destination_root.iterdir()):
             raise RuntimeError("MIGRATION_DESTINATION_NOT_EMPTY")
         source_identity = self.read_identity()
         source_projection = self.read_projection()
-        shutil.copytree(self.state_root, destination_root, dirs_exist_ok=True)
+        source_digest = self.state_digest()
+
+        update_receipt = mirror_adapter.update(self.state_root, mirror_root)
+        restore_receipt = mirror_adapter.restore(mirror_root, destination_root)
+        if update_receipt.manifest_digest != restore_receipt.manifest_digest:
+            raise RuntimeError("MIRROR_UPDATE_RESTORE_DIGEST_MISMATCH")
+
         migrated = LogicalComputerController(destination_root)
-        copied_identity = migrated.read_identity()
-        if copied_identity.logical_id != source_identity.logical_id:
+        restored_identity = migrated.read_identity()
+        if restored_identity.logical_id != source_identity.logical_id:
             raise RuntimeError("MIGRATION_LOGICAL_IDENTITY_MISMATCH")
+
         migrated.bind_projection(new_projection)
         final_identity = migrated.read_identity()
+        destination_digest = migrated.state_digest()
         if final_identity.logical_id != source_identity.logical_id:
             raise RuntimeError("POST_MIGRATION_LOGICAL_IDENTITY_MISMATCH")
+        if source_digest != destination_digest:
+            raise RuntimeError("MIGRATION_STATE_DIGEST_MISMATCH")
+
         migrated._append_receipt(
-            "LOGICAL_COMPUTER_MIGRATED",
+            "LOGICAL_COMPUTER_MIGRATED_VIA_MIRROR_LANE",
             projection=new_projection,
             proof={
                 "logical_id_unchanged": True,
                 "source_projection_id": source_projection.projection_id,
                 "destination_projection_id": new_projection.projection_id,
-                "source_state_digest": self.state_digest(),
-                "destination_state_digest": migrated.state_digest(),
+                "source_state_digest": source_digest,
+                "destination_state_digest": destination_digest,
+                "mirror_manifest_digest": update_receipt.manifest_digest,
+                "mirror_runtime": update_receipt.runtime,
+                "mirror_update_status": update_receipt.status,
+                "mirror_restore_status": restore_receipt.status,
             },
         )
-        if self.state_digest() != migrated.state_digest():
-            raise RuntimeError("MIGRATION_STATE_DIGEST_MISMATCH")
         return migrated
 
     def state_digest(self) -> str:
-        excluded = {self.projection_path.name, self.receipts_path.name}
+        excluded = {self.projection_path.name, self.receipts_path.name, ".kex-mirror-manifest.json"}
         entries = []
         for p in sorted(self.state_root.rglob("*")):
             if not p.is_file() or p.name in excluded:
