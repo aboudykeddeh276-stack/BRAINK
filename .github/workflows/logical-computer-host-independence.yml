@@ -22,7 +22,7 @@ permissions:
   contents: read
 
 env:
-  KEDDEH_MIRROR_AUTHORITY_SHA: 0c23cbfcee2a2d86a69da59d86188005017c4b38
+  KEDDEH_MIRROR_AUTHORITY_SHA: a3e25b1d5b3ed4e57d57d8543ef61338ecf3c69a
 
 jobs:
   integration-l5:
@@ -45,12 +45,12 @@ jobs:
           test -f keddeh-cloud/mirror_lane_storage_substrate/CROSS_REPO_AUTHORITY_CONTRACT.md
           test -f keddeh-cloud/dependency-graph/kex-mirror-lane-dependencies.fragment.json
           python - <<'PY'
-          import json
+          import json, os
           spec=json.load(open('keddeh-cloud/mirror_lane_storage_substrate/MIRROR_LANE_COMPONENT_SPEC.json'))
           assert spec['component_id']=='KEX_MIRROR_LANE_STATE_TRANSFER_R1'
           assert spec['classification']=='RUNTIME_STATE_TRANSFER_ACTUATOR'
           assert 'post-update mirror manifest digest equals source manifest digest' in spec['proof_conditions']
-          print({'mirror_governance':'ADMITTED','authority_sha':'0c23cbfcee2a2d86a69da59d86188005017c4b38'})
+          print({'mirror_governance':'ADMITTED','authority_sha':os.environ['KEDDEH_MIRROR_AUTHORITY_SHA']})
           PY
       - name: Qualify governance registry and owner/consumer mapping
         run: python -m pytest -q tests/governance/test_control_skeleton.py
