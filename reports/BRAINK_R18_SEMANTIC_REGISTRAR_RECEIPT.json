@@ -1,0 +1,22 @@
+{
+  "schema": "braink.semantic-registrar.r18.local-execution",
+  "domain": "keddeh.com",
+  "canonical_id": "LEX://DOMAIN/keddeh.com",
+  "contract": "SEMANTIC_IDENTITY_AUTHORITY_DISTINCT_FROM_CARRIER_IP",
+  "legacy_carrier_route": {"domain": "os.keddeh", "before": "127.0.0.1", "after": "127.0.0.1"},
+  "domain_carrier_ip": null,
+  "semantic_binding": {
+    "domain": "keddeh.com",
+    "canonical_id": "LEX://DOMAIN/keddeh.com",
+    "braink_id": "BRAINK::KEX-MACHINE-001::R18",
+    "lineage_id": "BRAINK::LINEAGE::KEX-MACHINE-001::GENESIS",
+    "lexical_id": "LEX://DOMAIN/keddeh.com",
+    "vector_id": "VEC://GLOBAL/DOMAIN/KEDDEH",
+    "service_route": "KEX://MACHINE/KEX-MACHINE-001/SERVER/",
+    "storage_route": "KEX://MACHINE/KEX-MACHINE-001/STORAGE/",
+    "adapter_id": "BRAINK_SEMANTIC_REGISTRAR_R18",
+    "state": "ACTIVE",
+    "proof_sha256": "e4d2885a0a86bbac064bb6dfd8bf0f30a53faf57b1de65f84797441e65a62afc"
+  },
+  "status": "PASS"
+}
