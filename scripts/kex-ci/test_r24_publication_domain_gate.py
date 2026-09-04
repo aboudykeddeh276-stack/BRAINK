@@ -19,9 +19,19 @@ def sha256_path(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def git_blob_sha(path: Path) -> str:
+    data = path.read_bytes()
+    return hashlib.sha1(b"blob " + str(len(data)).encode("ascii") + b"\0" + data).hexdigest()
+
+
+def canonical_root(value: object) -> str:
+    payload = json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
+    return hashlib.sha256(payload).hexdigest()
+
+
 def main() -> None:
     source = ROOT / "enterprise/orchestration/durable_execution_r5.py"
-    reconciliation_path = ROOT / "deployments/R24_DOMAIN_DURABLE_EXECUTION_RECONCILIATION_R1.json"
+    reconciliation_path = ROOT / "deployments/R24_DOMAIN_DURABLE_EXECUTION_RECONCILIATION_R2.json"
     profile_path = ROOT / "governance/ENGINEERING_STANDARD_PROFILE_R24.json"
 
     assert source.exists(), "R5_SOURCE_MISSING"
@@ -32,6 +42,16 @@ def main() -> None:
     profile = json.loads(profile_path.read_text("utf-8"))
     observed = rec["observed_evidence"]
     boundaries = rec["claim_boundaries"]
+
+    # The qualification receipt is immutable and the historical evidence is valid
+    # only for the exact source bytes it qualified. If durable_execution_r5.py changes,
+    # the gate fails closed until the adversarial qualification is re-run and a new
+    # reconciliation receipt is emitted.
+    receipt_body = {k: v for k, v in rec.items() if k != "receipt_root"}
+    assert canonical_root(receipt_body) == rec["receipt_root"], "R24_RECONCILIATION_ROOT_MISMATCH"
+    assert rec["resident_binding"] == "enterprise/orchestration/durable_execution_r5.py"
+    assert rec["source_lineage_gate"] == "CURRENT_BYTES_MUST_MATCH_QUALIFIED_GIT_BLOB"
+    assert git_blob_sha(source) == rec["qualified_source_git_blob_sha"], "R24_PUBLICATION_DOMAIN_SOURCE_EVIDENCE_STALE"
 
     # Reconcile recorded evidence into executable gate facts. These checks fail closed
     # if the underlying R24 reconciliation loses any previously observed mechanic.
@@ -57,33 +77,36 @@ def main() -> None:
     assert boundaries["production_ha"] == "UNPROVEN"
 
     decision = EngineeringDecision(
-        decision_id="ADR-R24-PUBLICATION-DOMAIN-R5-GATE-001",
-        title="Gate resident R5 durable publication/domain authority without duplication",
-        context="R5 already provides local durable execution, fencing, crash rollback and signed-lineage mechanics.",
-        decision="Reuse enterprise/orchestration/durable_execution_r5.py and reject promotion until missing external and independent evidence is supplied.",
+        decision_id="ADR-R24-PUBLICATION-DOMAIN-R5-GATE-002",
+        title="Bind resident R5 publication/domain evidence to exact qualified source bytes",
+        context="R5 already provides local durable execution, fencing, crash rollback and signed-lineage mechanics, but historical qualification evidence must not float across later source mutations.",
+        decision="Reuse enterprise/orchestration/durable_execution_r5.py, require exact Git-blob byte lineage to the qualification receipt, and reject promotion until missing external and independent evidence is supplied.",
         consequences=(
             "No duplicate publication/domain transaction engine",
+            "Historical evidence cannot qualify mutated source bytes",
+            "Any source mutation requires adversarial requalification and a successor receipt",
             "Local evidence remains local",
             "Physical multi-host and public authority remain unproven",
             "Promotion fails closed until all R24 gates are evidenced",
         ),
+        supersedes="ADR-R24-PUBLICATION-DOMAIN-R5-GATE-001",
     )
 
     evidence = Evidence(
-        evidence_id="R24-DOMAIN-DURABLE-RECONCILIATION-R1",
-        class_id="EXECUTED_LOCAL_ADVERSARIAL_EVIDENCE",
+        evidence_id="R24-DOMAIN-DURABLE-RECONCILIATION-R2",
+        class_id="EXECUTED_LOCAL_ADVERSARIAL_EVIDENCE_SOURCE_BOUND",
         subject="publication_domain_durable_execution_r5",
         status=rec["status"],
         mechanism_ref="enterprise/orchestration/durable_execution_r5.py",
-        test_ref="deployments/R24_DOMAIN_DURABLE_EXECUTION_RECONCILIATION_R1.json",
+        test_ref="deployments/R24_DOMAIN_DURABLE_EXECUTION_RECONCILIATION_R2.json",
         evidence_root=rec["receipt_root"],
     )
 
     release = ReleaseManifestBuilder().build(
-        release_id="R24-PUBLICATION-DOMAIN-R5-CANDIDATE-1",
+        release_id="R24-PUBLICATION-DOMAIN-R5-CANDIDATE-2",
         artifacts=[
             {"path": "enterprise/orchestration/durable_execution_r5.py", "sha256": sha256_path(source)},
-            {"path": "deployments/R24_DOMAIN_DURABLE_EXECUTION_RECONCILIATION_R1.json", "sha256": sha256_path(reconciliation_path)},
+            {"path": "deployments/R24_DOMAIN_DURABLE_EXECUTION_RECONCILIATION_R2.json", "sha256": sha256_path(reconciliation_path)},
             {"path": "governance/ENGINEERING_STANDARD_PROFILE_R24.json", "sha256": sha256_path(profile_path)},
         ],
         decisions=[decision],
@@ -150,6 +173,8 @@ def main() -> None:
         "marker": "R24_PUBLICATION_DOMAIN_GATE_PASS",
         "release_root": release["release_root"],
         "decision_root": decision.decision_root,
+        "qualified_source_git_blob_sha": rec["qualified_source_git_blob_sha"],
+        "source_lineage": "PASS",
         "promotion_status": gate["status"],
         "promotion_root": gate["promotion_root"],
         "quality_missing": gate["quality_missing"],
