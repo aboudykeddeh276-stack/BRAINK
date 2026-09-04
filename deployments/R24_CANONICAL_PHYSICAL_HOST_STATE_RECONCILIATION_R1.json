@@ -1,0 +1,31 @@
+{
+  "canonical_state": {
+    "blob": "5e7ea19ac5515cfe898b70f94fafbbb998a24c4c",
+    "commit": "7518d4a408ee65fe956809b34ce8bb84a76b4796",
+    "path": "deployments/R24_ENGINEERING_CONTROL_STATE.json",
+    "readback": "PASS"
+  },
+  "certification_claim": false,
+  "classification": "STATE_DRIFT_RECONCILED",
+  "decision": "RECONCILE_CANONICAL_STATE_ONLY_DO_NOT_DUPLICATE_RUNTIME_CAPABILITY",
+  "governing_baseline": "R24_ENGINEERING_CONTROL_ABOVE_R23_FOUNDRY_CLOSURE",
+  "physical_multi_host": {
+    "actual_physical_attestations": "NOT_OBSERVED",
+    "distinct_physical_hosts": "UNEXECUTED",
+    "independent_verification": "PENDING",
+    "market_readiness": "ENGINEERING_ONLY",
+    "physical_fault_injection": "NOT_OBSERVED",
+    "physical_rollback_proof": "MISSING",
+    "promotion": "REJECTED",
+    "proof_verifier": "enterprise/physical_host_evidence_r24.py",
+    "proof_verifier_contract": "LOCAL_PASS_EXECUTION_EVIDENCE_NOT_INFERRED",
+    "proof_verifier_invariant": "scripts/kex-ci/test_physical_host_evidence_r24.py",
+    "proof_verifier_receipt_root": "85f4a8eefb6773931ea88c22875006b59b4557e0a93aa5c6d7f5c217681038d5",
+    "proof_verifier_reconciliation": "deployments/R24_PHYSICAL_HOST_EVIDENCE_VERIFIER_RECONCILIATION_R1.json",
+    "quality_gate": "INCOMPLETE",
+    "resident_mesh": "REUSED_NOT_REIMPLEMENTED",
+    "security_gate": "INCOMPLETE"
+  },
+  "receipt_root": "7307b76c74c318c8fa80dce43a0c56fd3cca91ae6b7bfcd1eaf28f27d906f5b9",
+  "schema": "braink.r24.canonical-physical-host-state-reconciliation/v1"
+}
