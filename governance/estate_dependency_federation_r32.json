@@ -1,0 +1,28 @@
+{
+  "schema":"braink.estate-dependency-federation.r32/v1",
+  "authority":"BRAINK_MAIN_CONSUMES_GENERAL_GOVERNANCE_R32",
+  "governance_contract":"aboudykeddeh276-stack/GENERAL-GOVERNANCE-/controls/unification/R32/00_ESTATE_DEPENDENCY_FEDERATION_R32.md",
+  "resident_root_process":"runtime/resident_root_projection_r28.py",
+  "remote_join_process":"runtime/remote_host_join_r28.py",
+  "physical_host_trust_process":"enterprise/physical_host_trust_binding_r24.py",
+  "durable_transition_dependency":"R31 governance contract; executable implementation must be independently resolved before promotion",
+  "storage_primitive":"ENCODED_MEDIUM -> ZEROLESS_GEOMETRY -> KEX_STORAGE_CONTROLLER -> LOGICAL_OBJECTS -> VFS_RESOLVER",
+  "federated_repositories":[
+    "aboudykeddeh276-stack/SERVERS-KEDDEHSYSTEMS",
+    "aboudykeddeh276-stack/kcloud-substrate",
+    "aboudykeddeh276-stack/virtualized-storage",
+    "aboudykeddeh276-stack/VIRTUALISED_MEMORY",
+    "aboudykeddeh276-stack/KEDDEH_SOFTWARE_NODES",
+    "aboudykeddeh276-stack/KEDDEH-CLOUD-SERVERS-ID-1",
+    "aboudykeddeh276-stack/kex-braink-substrate"
+  ],
+  "promotion_invariants":[
+    "RESIDENT_ROOT_BEFORE_CARRIER_TRUST",
+    "CARRIER_IS_PROJECTION_NOT_IDENTITY",
+    "STRUCTURAL_QUALIFICATION_NE_PHYSICAL_VERIFICATION",
+    "TRUST_BOUND_NE_PHYSICAL_VERIFIED",
+    "VFS_ROLE_RESOLVER_ONLY",
+    "EXTERNAL_CLAIM_REQUIRES_ACTUATION_AND_READBACK"
+  ],
+  "status":"FEDERATION_CONTRACT_BOUND_NO_AUTOMATIC_AUTHORITY_PROMOTION"
+}
