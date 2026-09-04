@@ -22,9 +22,13 @@ def sha256_path(path: Path) -> str:
 def main() -> None:
     reconciliation_path = ROOT / "deployments/R24_KOS_MESH_RESIDENT_RECONCILIATION_R1.json"
     profile_path = ROOT / "governance/ENGINEERING_STANDARD_PROFILE_R24.json"
+    verifier_path = ROOT / "enterprise/physical_host_evidence_r24.py"
+    verifier_test_path = ROOT / "scripts/kex-ci/test_physical_host_evidence_r24.py"
 
     assert reconciliation_path.exists(), "R24_KOS_MESH_RECONCILIATION_MISSING"
     assert profile_path.exists(), "R24_PROFILE_MISSING"
+    assert verifier_path.exists(), "R24_PHYSICAL_HOST_EVIDENCE_VERIFIER_MISSING"
+    assert verifier_test_path.exists(), "R24_PHYSICAL_HOST_EVIDENCE_VERIFIER_TEST_MISSING"
 
     reconciliation = json.loads(reconciliation_path.read_text("utf-8"))
     profile = json.loads(profile_path.read_text("utf-8"))
@@ -55,24 +59,28 @@ def main() -> None:
     assert boundary["hardware_signer"] == "UNINSTANTIATED"
 
     decision = EngineeringDecision(
-        decision_id="ADR-R24-R22-PHYSICAL-MULTI-HOST-GATE-001",
-        title="Gate physical multi-host proof without reimplementing the resident K-OS/BOS mesh",
+        decision_id="ADR-R24-R22-PHYSICAL-MULTI-HOST-GATE-002",
+        title="Gate physical multi-host proof through a fail-closed host-attestation verifier",
         context=(
             "The reconciled K-OS/BOS Mesh Substrate v2.0 has historical evidence for three local real-socket nodes, "
             "three OS processes, 2-of-3 continuation, restart anti-entropy catch-up and DNS UDP/TCP, while distinct "
-            "physical-host execution remains unobserved."
+            "physical-host execution remains unobserved. R24 now also has a resident verifier that refuses to infer "
+            "physical distinctness from self-declared process, container, hostname or machine identities."
         ),
         decision=(
-            "Reuse the resident hashed K-OS/BOS package. Reject physical multi-host promotion until the same package "
-            "is executed on distinct authorised hosts and read back with unique host identities, package hashes, "
-            "peer/quorum state, failure/recovery evidence, rollback evidence and independent verification."
+            "Reuse the resident hashed K-OS/BOS package and the R24 physical-host evidence verifier. Reject physical "
+            "multi-host promotion until the same package is executed on distinct authorised hosts and the verifier "
+            "accepts unique independently or hardware-rooted attestations carrying execution, peer/quorum, "
+            "fault-recovery and rollback roots."
         ),
         consequences=(
             "No duplicate mesh implementation",
-            "Local multi-process evidence is retained but cannot satisfy physical-host proof",
-            "Physical host identity and package-hash equality become explicit promotion evidence",
+            "No process-count or hostname evidence can be promoted as physical-host proof",
+            "Package hash equality and unique machine fingerprints are mandatory",
+            "Fault-recovery and rollback evidence roots are mandatory per host",
             "Promotion fails closed until reproducible distinct-host execution exists",
         ),
+        supersedes="ADR-R24-R22-PHYSICAL-MULTI-HOST-GATE-001",
     )
 
     evidence = Evidence(
@@ -80,13 +88,13 @@ def main() -> None:
         class_id="HISTORICAL_LOCAL_MULTI_PROCESS_MESH_EVIDENCE",
         subject="r22_kos_mesh_physical_multi_host",
         status=reconciliation["classification"],
-        mechanism_ref="KEDDEH K-OS/BOS Mesh Substrate v2.0",
-        test_ref="recorded 33/33 resident package suite",
+        mechanism_ref="KEDDEH K-OS/BOS Mesh Substrate v2.0 + R24 physical-host evidence verifier",
+        test_ref="recorded 33/33 resident package suite + test_physical_host_evidence_r24.py contract invariant",
         evidence_root=sha256_path(reconciliation_path),
     )
 
     release = ReleaseManifestBuilder().build(
-        release_id="R24-R22-PHYSICAL-MULTI-HOST-CANDIDATE-1",
+        release_id="R24-R22-PHYSICAL-MULTI-HOST-CANDIDATE-2",
         artifacts=[
             {
                 "path": "deployments/R24_KOS_MESH_RESIDENT_RECONCILIATION_R1.json",
@@ -95,6 +103,14 @@ def main() -> None:
             {
                 "path": "governance/ENGINEERING_STANDARD_PROFILE_R24.json",
                 "sha256": sha256_path(profile_path),
+            },
+            {
+                "path": "enterprise/physical_host_evidence_r24.py",
+                "sha256": sha256_path(verifier_path),
+            },
+            {
+                "path": "scripts/kex-ci/test_physical_host_evidence_r24.py",
+                "sha256": sha256_path(verifier_test_path),
             },
         ],
         decisions=[decision],
@@ -112,14 +128,13 @@ def main() -> None:
 
     security = {key: False for key in required_security}
     security.update({
-        # Hash-addressed package artifacts are recorded, but physical-host software
-        # protection and deployment controls have not yet been observed.
         "protect_software": False,
         "produce_well_secured_software": False,
     })
 
     tests = {
-        # These are historical resident-package results, not a current physical-host run.
+        # Verifier unit qualification exists, but this candidate has no current
+        # physical-host integration or physical fault-injection execution.
         "unit": True,
         "integration": False,
         "fault_injection": False,
@@ -146,6 +161,7 @@ def main() -> None:
         technical={
             "resident_mesh_package": 1.0,
             "local_real_socket_mesh": 1.0,
+            "physical_evidence_verifier": 1.0,
             "physical_multi_host": 0.0,
             "physical_host_identity_readback": 0.0,
             "physical_quorum_recovery": 0.0,
@@ -159,7 +175,7 @@ def main() -> None:
             "public_authoritative_dns": 0.0,
             "production_multi_host_service": 0.0,
         },
-        evidence_coverage=0.35,
+        evidence_coverage=0.42,
     )
     assert market["classification"] == "ENGINEERING_ONLY"
 
@@ -170,6 +186,7 @@ def main() -> None:
         "promotion_status": gate["status"],
         "promotion_root": gate["promotion_root"],
         "physical_multi_host": boundary["distinct_physical_hosts"],
+        "physical_host_verifier": "IMPLEMENTED_AND_CONTRACT_QUALIFIED",
         "rollback_ready": gate["criteria"]["rollback_ready"],
         "independent_verifier": gate["criteria"]["independent_verifier"],
         "market_classification": market["classification"],
