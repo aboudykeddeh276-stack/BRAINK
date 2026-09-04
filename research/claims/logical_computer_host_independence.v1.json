@@ -1,0 +1,90 @@
+{
+  "claim_id": "BRAINK_LOGICAL_COMPUTER_HOST_INDEPENDENCE_R1",
+  "title": "Logical BRAINK computer identity survives physical host migration",
+  "classification": "logical computer identity / migration / semantic virtualization",
+  "state": "IMPLEMENTED_UNEXECUTED",
+  "statement": "A logical BRAINK computer identity and its required persistent state can be reconstructed on a different physical host without redefining that logical identity.",
+  "implementation_paths": [
+    "enterprise/logical_computer_identity.py",
+    "enterprise/mirror_lane_transfer_adapter.py",
+    "research/experiments/logical_computer_host_migration.py",
+    ".github/workflows/logical-computer-host-independence.yml"
+  ],
+  "external_owned_dependency": {
+    "component_id": "KEX_MIRROR_LANE_STATE_TRANSFER_R1",
+    "repository": "aboudykeddeh276-stack/KEDDEH-CLOUD-SERVERS-ID-1",
+    "runtime": "runtime://kex/mirror-lane/state-transfer/r1",
+    "qualification_revision": "0c23cbfcee2a2d86a69da59d86188005017c4b38",
+    "control_index": "mirror_lane_storage_substrate/CONTROL_INDEX.md",
+    "component_spec": "mirror_lane_storage_substrate/MIRROR_LANE_COMPONENT_SPEC.json"
+  },
+  "known_cs_adjacency": [
+    "checkpoint restart",
+    "process and VM migration",
+    "persistent object systems",
+    "location-transparent distributed systems",
+    "capability-based identity",
+    "replicated state transfer"
+  ],
+  "invariants": [
+    "logical computer identifier is independent of hostname, machine-id, IP address and transport endpoint",
+    "required persistent state is preserved across host replacement",
+    "authority and lineage survive reconstruction",
+    "carrier-specific identifiers remain projections rather than logical identity",
+    "state transfer is performed through the governed KEX mirror/update lane rather than a duplicate BRAINK copy mechanism"
+  ],
+  "falsification": {
+    "experiment": "Instantiate a logical computer on host A, persist its governed R26/R31 state, create a verified KEX mirror package, restore it on independent host B through the same mirror runtime, and verify the same logical identifier, state digest, lineage and authority while machine/transport identifiers differ.",
+    "pass_condition": "Host A and host B present the same logical computer identity and required state/authority invariants while exposing different machine/carrier identities and matching verified mirror update/restore manifest digests.",
+    "fail_condition": "Logical identity changes with hostname/machine-id/IP, required state cannot be reconstructed, mirror parity fails, or authority/lineage diverges."
+  },
+  "proof_requirements": [
+    {
+      "proof_id": "LOCAL_MIRROR_INTEGRATION",
+      "description": "Exercise logical identity and governed KEX mirror update/restore on one executor without claiming cross-machine proof.",
+      "minimum_level": 5,
+      "required_executor_capabilities": ["persistent-state", "state-transfer"]
+    },
+    {
+      "proof_id": "HOST_A_BASELINE",
+      "description": "Capture logical identity, R26/R31 state, lineage, authority and verified KEX mirror manifest on host A.",
+      "minimum_level": 7,
+      "required_executor_capabilities": ["persistent-state", "independent-host"]
+    },
+    {
+      "proof_id": "HOST_B_REHYDRATION",
+      "description": "Reconstruct the same logical computer on independent host B through the governed mirror restore runtime.",
+      "minimum_level": 9,
+      "required_executor_capabilities": ["persistent-state", "independent-host", "state-transfer"]
+    },
+    {
+      "proof_id": "EXTERNAL_INTEROP",
+      "description": "External consumer resolves and interacts with the logical identity after migration.",
+      "minimum_level": 10,
+      "required_executor_capabilities": ["independent-host", "external-network-observer"]
+    },
+    {
+      "proof_id": "REPEATABILITY",
+      "description": "Repeat migration/rehydration without logical identity drift.",
+      "minimum_level": 11,
+      "required_executor_capabilities": ["two-independent-hosts", "state-transfer"]
+    }
+  ],
+  "required_evidence_level": 11,
+  "invalid_overclaims": [
+    "Current remote_fabric_node node_id is not proof of this claim because it includes machine_material().",
+    "A same-host process restart is not cross-host migration.",
+    "A same-executor mirror restore is integration evidence only.",
+    "A carrier endpoint change is not physical-host replacement.",
+    "Queued independent-host CI is not cross-machine evidence.",
+    "A verified mirror receipt proves transfer parity, not BRAINK logical identity invariance by itself."
+  ],
+  "supersedes": "research/claims/logical_computer_host_independence.proposed.v1.json",
+  "next_experiments": [
+    "Execute governed L5 integration lane on an available executor.",
+    "Execute Host A L7 baseline on a distinct resident executor.",
+    "Execute Host B L9 rehydration on a distinct resident executor.",
+    "Add L10 external consumer resolution/readback.",
+    "Repeat A-to-B and B-to-A migrations for L11 repeatability evidence."
+  ]
+}
