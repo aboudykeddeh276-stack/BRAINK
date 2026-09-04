@@ -1,0 +1,30 @@
+name: Executor qualification
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'research/qualification_fabric/executor_probe.py'
+      - 'research/qualification_fabric/executor.schema.json'
+      - 'tests/test_executor_probe.py'
+      - '.github/workflows/executor-qualification.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  hosted-executor-sentinel:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Run executor capability probe
+        run: python research/qualification_fabric/executor_probe.py --output evidence/executor-hosted.json
+      - name: Run executor tests
+        run: python -m pytest -q tests/test_executor_probe.py
+      - name: Upload executor evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: executor-qualification
+          path: evidence/executor-hosted.json
+          if-no-files-found: error

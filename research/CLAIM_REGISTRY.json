@@ -1,0 +1,48 @@
+{
+  "schema": "braink.kex.research-claim-registry.v1",
+  "claims": [
+    {
+      "claim_id": "BRAINK_RESIDENT_GRAPH_CARRIER_INDEPENDENCE_R1",
+      "spec": "research/claims/resident_graph_carrier_independence.v1.json",
+      "state": "FORMALISED",
+      "current_evidence_level": 2,
+      "current_evidence_label": "IMPLEMENTATION_EXISTS",
+      "qualification_state": "EXECUTION_REQUIRED"
+    },
+    {
+      "claim_id": "BRAINK_LOGICAL_COMPUTER_HOST_INDEPENDENCE_R1",
+      "spec": "research/claims/logical_computer_host_independence.v1.json",
+      "historical_spec": "research/claims/logical_computer_host_independence.proposed.v1.json",
+      "state": "IMPLEMENTED_UNEXECUTED",
+      "current_evidence_level": 2,
+      "current_evidence_label": "IMPLEMENTATION_EXISTS",
+      "qualification_state": "MIRROR_LANE_EXECUTION_REQUIRED",
+      "implementation": [
+        "enterprise/logical_computer_identity.py",
+        "enterprise/mirror_lane_transfer_adapter.py",
+        "research/experiments/logical_computer_host_migration.py",
+        ".github/workflows/logical-computer-host-independence.yml"
+      ],
+      "external_runtime_dependency": {
+        "component_id": "KEX_MIRROR_LANE_STATE_TRANSFER_R1",
+        "repository": "aboudykeddeh276-stack/KEDDEH-CLOUD-SERVERS-ID-1",
+        "pull_request": 5,
+        "commit": "43c18753303a941f7a88cdec4ae4547759b34311",
+        "runtime": "runtime://kex/mirror-lane/state-transfer/r1",
+        "control_index": "mirror_lane_storage_substrate/CONTROL_INDEX.md",
+        "component_spec": "mirror_lane_storage_substrate/MIRROR_LANE_COMPONENT_SPEC.json",
+        "qualification_workflow": ".github/workflows/mirror-lane-state-transfer-qualification.yml"
+      },
+      "current_execution_observation": {
+        "status": "STALE_OBSERVATION_PENDING_REFRESH",
+        "last_observed_cloud_owner_run": 33881475702,
+        "last_observed_cloud_hosted_job": {"job_id":101050925070,"status":"completed","conclusion":"failure","steps_executed":0,"classification":"EXECUTOR_CARRIER_FAILURE_BEFORE_STEP_1"},
+        "last_observed_cloud_resident_job": {"job_id":101050924675,"status":"queued","classification":"EXECUTOR_PENDING"},
+        "last_observed_braink_consumer_run": 33881699589,
+        "last_observed_braink_l5_job": {"job_id":101051642752,"status":"completed","conclusion":"failure","steps_executed":0,"classification":"EXECUTOR_CARRIER_FAILURE_BEFORE_STEP_1"},
+        "last_observed_braink_host_a_job": {"job_id":101051642555,"status":"queued","classification":"EXECUTOR_PENDING"},
+        "evidence_effect":"No runtime/governance/identity test executed in the last observed hosted lanes; claim remains L2 IMPLEMENTATION_EXISTS. A new execution must refresh this observation before promotion."
+      }
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "braink.kex.qualification-executor.v1",
+  "type": "object",
+  "required": ["executor_id", "kind", "capabilities", "availability", "environment_fingerprint"],
+  "properties": {
+    "executor_id": {"type": "string", "minLength": 1},
+    "kind": {"type": "string", "minLength": 1},
+    "capabilities": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "availability": {"type": "string", "enum": ["AVAILABLE", "UNAVAILABLE", "BLOCKED"]},
+    "environment_fingerprint": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "probe": {"type": "object", "additionalProperties": true}
+  },
+  "additionalProperties": true
+}

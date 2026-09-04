@@ -1,0 +1,35 @@
+{
+  "schema": "braink.kex.qualification-executor-registry.v1",
+  "executors": [
+    {
+      "executor_id": "resident-self-hosted",
+      "kind": "resident-host",
+      "capabilities": ["python", "openssl", "sqlite", "tcp-loopback", "udp-loopback", "process-spawn", "persistent-state", "resident-fabric", "filesystem-mutation"],
+      "availability_source": "runtime-probe"
+    },
+    {
+      "executor_id": "github-hosted-linux",
+      "kind": "ci-carrier",
+      "capabilities": ["python", "openssl", "sqlite", "tcp-loopback", "udp-loopback", "process-spawn", "ephemeral-filesystem"],
+      "availability_source": "workflow-job-readback"
+    },
+    {
+      "executor_id": "local-container",
+      "kind": "container",
+      "capabilities": ["python", "tcp-loopback", "process-spawn", "isolated-filesystem"],
+      "availability_source": "runtime-probe"
+    },
+    {
+      "executor_id": "independent-remote-host",
+      "kind": "independent-host",
+      "capabilities": ["independent-host", "external-network-observer", "python", "tcp-public", "state-transfer"],
+      "availability_source": "signed-remote-readback"
+    }
+  ],
+  "rules": [
+    "executor availability is observed at execution time",
+    "executor unavailability does not falsify the claim under test",
+    "proof definitions must not name a vendor-specific executor unless the vendor itself is the subject of the claim",
+    "promotion depends on required proof receipts, not executor brand"
+  ]
+}

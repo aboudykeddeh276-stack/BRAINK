@@ -66,6 +66,23 @@ def test_registry_tracks_unspecified_targets_without_inventing_specs():
     assert targets["VFS_K_DRIVE"]["state"] == "DISCOVERY_REQUIRED"
 
 
+def test_registry_preserves_external_mirror_lane_ownership_and_consumer_contract():
+    registry = json.loads(REGISTRY.read_text())
+    targets = {t["component_id"]: t for t in registry["targets"]}
+    mirror = targets["KEX_MIRROR_LANE_STATE_TRANSFER_R1"]
+    assert mirror["state"] == "SPECIFIED"
+    assert mirror["classification"] == "RUNTIME_STATE_TRANSFER_ACTUATOR"
+    assert mirror["repository"] == "aboudykeddeh276-stack/KEDDEH-CLOUD-SERVERS-ID-1"
+    assert mirror["sector"] == "CLOUD_INFRASTRUCTURE_MIRROR_LANE"
+    assert mirror["external_spec"] == "mirror_lane_storage_substrate/MIRROR_LANE_COMPONENT_SPEC.json"
+    assert mirror["external_control_index"] == "mirror_lane_storage_substrate/CONTROL_INDEX.md"
+    assert mirror["consumer"] == "enterprise/mirror_lane_transfer_adapter.py"
+    assert mirror["qualification_claim"] == "BRAINK_LOGICAL_COMPUTER_HOST_INDEPENDENCE_R1"
+    # Sector-level cloud governance remains separately unresolved; specifying one child
+    # runtime must not silently promote the whole cloud sector.
+    assert targets["CLOUD_INFRASTRUCTURE"]["state"] == "DISCOVERY_REQUIRED"
+
+
 def test_registry_driver_generates_only_specified_component(tmp_path: Path):
     out = tmp_path / "generated"
     p = subprocess.run(

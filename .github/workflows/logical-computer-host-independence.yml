@@ -1,0 +1,194 @@
+name: Logical Computer Host Independence Qualification
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'enterprise/logical_computer_identity.py'
+      - 'enterprise/mirror_lane_transfer_adapter.py'
+      - 'research/experiments/logical_computer_host_migration.py'
+      - 'research/claims/logical_computer_host_independence.v1.json'
+      - 'research/qualification_fabric/**'
+      - 'governance/GOVERNANCE_TARGET_REGISTRY.json'
+      - 'governance/control_skeleton/CROSS_REPOSITORY_COMPONENT_PROTOCOL.md'
+      - 'governance/ESTATE_EVOLUTION_PROCESS.md'
+      - 'dependency-graph/braink-research-qualification-dependencies.fragment.json'
+      - 'tests/integration/test_logical_computer_mirror_migration.py'
+      - 'tests/governance/test_control_skeleton.py'
+      - '.github/workflows/logical-computer-host-independence.yml'
+
+permissions:
+  contents: read
+
+env:
+  KEDDEH_MIRROR_AUTHORITY_SHA: 43c18753303a941f7a88cdec4ae4547759b34311
+
+jobs:
+  integration-l5:
+    name: Integration L5 - mirror lane + logical identity
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Checkout governed KEDDEH mirror-lane authority revision
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          repository: aboudykeddeh276-stack/KEDDEH-CLOUD-SERVERS-ID-1
+          ref: ${{ env.KEDDEH_MIRROR_AUTHORITY_SHA }}
+          path: keddeh-cloud
+      - name: Admit mirror-lane governance and dependency contract
+        run: |
+          test -f keddeh-cloud/mirror_lane_storage_substrate/CONTROL_INDEX.md
+          test -f keddeh-cloud/mirror_lane_storage_substrate/MIRROR_LANE_COMPONENT_SPEC.json
+          test -f keddeh-cloud/mirror_lane_storage_substrate/PROCESS_WORKFLOW_CONTROL.md
+          test -f keddeh-cloud/mirror_lane_storage_substrate/FILING_EVIDENCE_STANDARD.md
+          test -f keddeh-cloud/mirror_lane_storage_substrate/CROSS_REPO_AUTHORITY_CONTRACT.md
+          test -f keddeh-cloud/dependency-graph/kex-mirror-lane-dependencies.fragment.json
+          python - <<'PY'
+          import json, os
+          spec=json.load(open('keddeh-cloud/mirror_lane_storage_substrate/MIRROR_LANE_COMPONENT_SPEC.json'))
+          assert spec['component_id']=='KEX_MIRROR_LANE_STATE_TRANSFER_R1'
+          assert spec['classification']=='RUNTIME_STATE_TRANSFER_ACTUATOR'
+          assert 'post-update mirror manifest digest equals source manifest digest' in spec['proof_conditions']
+          print({'mirror_governance':'ADMITTED','authority_sha':os.environ['KEDDEH_MIRROR_AUTHORITY_SHA']})
+          PY
+      - name: Qualify governance registry and owner/consumer mapping
+        run: python -m pytest -q tests/governance/test_control_skeleton.py
+      - name: Qualify mirror runtime and controls
+        run: |
+          python -m pytest -q \
+            keddeh-cloud/mirror_lane_storage_substrate/tests/test_kex_mirror_lane_runtime.py \
+            keddeh-cloud/mirror_lane_storage_substrate/tests/test_mirror_lane_governance.py
+      - name: Qualify same-executor integration boundary
+        env:
+          KEDDEH_MIRROR_LANE_RUNTIME: ${{ github.workspace }}/keddeh-cloud/mirror_lane_storage_substrate/runtime/kex_mirror_lane_runtime.py
+        run: python -m pytest -q tests/integration/test_logical_computer_mirror_migration.py
+      - name: Record evidence boundary
+        run: |
+          mkdir -p evidence/research
+          cat > evidence/research/logical-computer-integration-l5.json <<JSON
+          {
+            "claim_id": "BRAINK_LOGICAL_COMPUTER_HOST_INDEPENDENCE_R1",
+            "proof_id": "LOCAL_MIRROR_INTEGRATION",
+            "executor_id": "github-hosted-linux",
+            "status": "PASS",
+            "evidence_level": 5,
+            "producer_repository": "aboudykeddeh276-stack/KEDDEH-CLOUD-SERVERS-ID-1",
+            "producer_commit_sha": "${KEDDEH_MIRROR_AUTHORITY_SHA}",
+            "consumer_repository": "${GITHUB_REPOSITORY}",
+            "consumer_commit_sha": "${GITHUB_SHA}",
+            "observation": "Logical identity and R26 state survived governed KEX mirror update/restore on one executor. This is integration evidence only, not cross-machine proof."
+          }
+          JSON
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: logical-computer-integration-l5
+          path: evidence/research/logical-computer-integration-l5.json
+
+  host-a-l7:
+    name: Host A L7 - baseline + durable mirror update
+    runs-on: [self-hosted, braink-host-a]
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Checkout governed KEDDEH mirror-lane authority revision
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          repository: aboudykeddeh276-stack/KEDDEH-CLOUD-SERVERS-ID-1
+          ref: ${{ env.KEDDEH_MIRROR_AUTHORITY_SHA }}
+          path: keddeh-cloud
+      - name: Admit cross-repository owner contract
+        run: |
+          test -f keddeh-cloud/mirror_lane_storage_substrate/CROSS_REPO_AUTHORITY_CONTRACT.md
+          test -f keddeh-cloud/mirror_lane_storage_substrate/MIRROR_LANE_COMPONENT_SPEC.json
+          python -m pytest -q keddeh-cloud/mirror_lane_storage_substrate/tests/test_mirror_lane_governance.py
+      - name: Prepare logical computer on Host A and update mirror lane
+        run: |
+          rm -rf .qualification/host-a .qualification/mirror
+          python research/experiments/logical_computer_host_migration.py prepare \
+            --state-root .qualification/host-a/computer \
+            --mirror-root .qualification/mirror \
+            --mirror-runtime keddeh-cloud/mirror_lane_storage_substrate/runtime/kex_mirror_lane_runtime.py \
+            --baseline .qualification/HOST_A_BASELINE.json \
+            --carrier "runner://${RUNNER_NAME}/host-a"
+      - name: Package mirror carrier and Host A evidence
+        run: |
+          tar -czf .qualification/mirror-lane.tgz -C .qualification mirror
+          python - <<'PY'
+          import json, os
+          receipt={
+            'claim_id':'BRAINK_LOGICAL_COMPUTER_HOST_INDEPENDENCE_R1',
+            'proof_id':'HOST_A_BASELINE',
+            'executor_id':'resident-host-a',
+            'status':'PASS',
+            'evidence_level':7,
+            'producer_repository':'aboudykeddeh276-stack/KEDDEH-CLOUD-SERVERS-ID-1',
+            'producer_commit_sha':os.environ['KEDDEH_MIRROR_AUTHORITY_SHA'],
+            'consumer_repository':os.environ['GITHUB_REPOSITORY'],
+            'consumer_commit_sha':os.environ['GITHUB_SHA'],
+            'observation':'Host A persisted R26 state, logical identity, lineage and authority and produced a verified governed KEX mirror-lane manifest.',
+            'artifact':'.qualification/HOST_A_BASELINE.json'
+          }
+          json.dump(receipt,open('.qualification/HOST_A_RECEIPT.json','w'),indent=2,sort_keys=True)
+          PY
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: logical-computer-host-a-mirror
+          path: |
+            .qualification/mirror-lane.tgz
+            .qualification/HOST_A_BASELINE.json
+            .qualification/HOST_A_RECEIPT.json
+
+  host-b-l9:
+    name: Host B L9 - independent rehydration
+    needs: host-a-l7
+    runs-on: [self-hosted, braink-host-b]
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Checkout governed KEDDEH mirror-lane authority revision
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          repository: aboudykeddeh276-stack/KEDDEH-CLOUD-SERVERS-ID-1
+          ref: ${{ env.KEDDEH_MIRROR_AUTHORITY_SHA }}
+          path: keddeh-cloud
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: logical-computer-host-a-mirror
+          path: .qualification/incoming
+      - name: Rehydrate mirror package on Host B
+        run: |
+          rm -rf .qualification/mirror .qualification/host-b
+          mkdir -p .qualification
+          tar -xzf .qualification/incoming/mirror-lane.tgz -C .qualification
+          python research/experiments/logical_computer_host_migration.py rehydrate \
+            --mirror-root .qualification/mirror \
+            --destination-root .qualification/host-b/computer \
+            --mirror-runtime keddeh-cloud/mirror_lane_storage_substrate/runtime/kex_mirror_lane_runtime.py \
+            --baseline .qualification/incoming/HOST_A_BASELINE.json \
+            --output .qualification/HOST_B_REHYDRATION.json \
+            --carrier "runner://${RUNNER_NAME}/host-b"
+      - name: Record L9 receipt
+        run: |
+          python - <<'PY'
+          import json, os
+          r=json.load(open('.qualification/HOST_B_REHYDRATION.json'))
+          if r['status']!='PASS': raise SystemExit('HOST_B_REHYDRATION_FAILED')
+          receipt={
+            'claim_id':'BRAINK_LOGICAL_COMPUTER_HOST_INDEPENDENCE_R1',
+            'proof_id':'HOST_B_REHYDRATION',
+            'executor_id':'resident-host-b',
+            'status':'PASS',
+            'evidence_level':9,
+            'producer_repository':'aboudykeddeh276-stack/KEDDEH-CLOUD-SERVERS-ID-1',
+            'producer_commit_sha':os.environ['KEDDEH_MIRROR_AUTHORITY_SHA'],
+            'consumer_repository':os.environ['GITHUB_REPOSITORY'],
+            'consumer_commit_sha':os.environ['GITHUB_SHA'],
+            'observation':'Independent Host B restored the governed KEX mirror package and preserved logical ID, R26 state digest, lineage and authority while machine projection changed.',
+            'artifact':'.qualification/HOST_B_REHYDRATION.json'
+          }
+          json.dump(receipt,open('.qualification/HOST_B_RECEIPT.json','w'),indent=2,sort_keys=True)
+          PY
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: logical-computer-host-b-evidence
+          path: |
+            .qualification/HOST_B_REHYDRATION.json
+            .qualification/HOST_B_RECEIPT.json
