@@ -46,6 +46,42 @@
       "scope": "development",
       "interface": "implementation under qualification",
       "authority": "BRAINK"
+    },
+    {
+      "source": "research/claims/logical_computer_host_independence.proposed.v1.json",
+      "target": "enterprise/logical_computer_identity.py",
+      "class": "MODULE_DEPENDENCY",
+      "relationship": "direct",
+      "scope": "development",
+      "interface": "host-independent logical identity implementation under qualification",
+      "authority": "BRAINK"
+    },
+    {
+      "source": "enterprise/logical_computer_identity.py",
+      "target": "enterprise/mirror_lane_transfer_adapter.py",
+      "class": "MODULE_DEPENDENCY",
+      "relationship": "direct",
+      "scope": "runtime",
+      "interface": "verified mirror update/restore transfer contract",
+      "authority": "BRAINK"
+    },
+    {
+      "source": "enterprise/mirror_lane_transfer_adapter.py",
+      "target": "repository://aboudykeddeh276-stack/KEDDEH-CLOUD-SERVERS-ID-1",
+      "class": "REPOSITORY_DEPENDENCY",
+      "relationship": "direct",
+      "scope": "runtime",
+      "interface": "KEX mirror-lane state-transfer runtime",
+      "authority": "KEDDEH_CLOUD_SERVERS"
+    },
+    {
+      "source": ".github/workflows/logical-computer-host-independence.yml",
+      "target": "runtime://kex/mirror-lane/state-transfer/r1",
+      "class": "RUNTIME_AUTHORITY_DEPENDENCY",
+      "relationship": "direct",
+      "scope": "qualification",
+      "interface": "pinned mirror update/restore runtime from KEDDEH-CLOUD-SERVERS-ID-1",
+      "authority": "KEDDEH_CLOUD_SERVERS"
     }
   ]
 }
