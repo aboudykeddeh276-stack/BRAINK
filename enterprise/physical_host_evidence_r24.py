@@ -7,7 +7,7 @@ import json
 import re
 
 _SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
-_VERIFIED_ATTESTATION_CLASSES = {"INDEPENDENT_ATTESTOR", "HARDWARE_ROOTED_ATTESTATION"}
+_QUALIFYING_ATTESTATION_CLASSES = {"INDEPENDENT_ATTESTOR", "HARDWARE_ROOTED_ATTESTATION"}
 
 
 def canonical(value: Any) -> bytes:
@@ -64,13 +64,16 @@ class HostAttestation:
 
 
 class PhysicalHostEvidenceVerifier:
-    """Fail-closed verifier for R24 distinct physical-host evidence.
+    """Fail-closed structural qualifier for R24 physical-host evidence.
 
-    Physical distinctness is not inferred from process IDs, sockets, container IDs,
-    hostnames, or self-declared machine IDs. A host contributes to physical-host
-    proof only when its attestation is independently or hardware-rooted and the
-    package, execution, quorum, fault-recovery and rollback evidence roots are
-    structurally valid.
+    This component validates the shape, uniqueness and package consistency of
+    supplied host-attestation records. It deliberately does *not* establish that
+    an attestor, hardware root, machine fingerprint or evidence root is genuine.
+
+    Therefore structural qualification can never by itself produce a physical
+    host status of VERIFIED. A separate externally anchored trust-binding layer
+    must validate provenance and cryptographic trust before R24 may promote
+    physical-host execution as verified evidence.
     """
 
     def verify(
@@ -99,21 +102,21 @@ class PhysicalHostEvidenceVerifier:
         package_mismatches = sorted(
             item["host_id"] for item in normalized if item["package_sha256"] != expected_package
         )
-        unverified_hosts = sorted(
+        unqualified_hosts = sorted(
             item["host_id"]
             for item in normalized
-            if item["attestation_class"] not in _VERIFIED_ATTESTATION_CLASSES
+            if item["attestation_class"] not in _QUALIFYING_ATTESTATION_CLASSES
         )
 
-        verified_host_count = sum(
-            1 for item in normalized if item["attestation_class"] in _VERIFIED_ATTESTATION_CLASSES
+        qualified_host_count = sum(
+            1 for item in normalized if item["attestation_class"] in _QUALIFYING_ATTESTATION_CLASSES
         )
-        unique_attestors = sorted({
+        declared_independent_attestors = sorted({
             item["attestor_id"]
             for item in normalized
             if item["attestation_class"] == "INDEPENDENT_ATTESTOR"
         })
-        hardware_rooted_count = sum(
+        declared_hardware_rooted_count = sum(
             1 for item in normalized if item["attestation_class"] == "HARDWARE_ROOTED_ATTESTATION"
         )
 
@@ -123,18 +126,24 @@ class PhysicalHostEvidenceVerifier:
             "unique_machine_fingerprints": not duplicate_fingerprints,
             "unique_attestation_roots": not duplicate_attestation_roots,
             "expected_package_on_all_hosts": not package_mismatches,
-            "all_hosts_independently_or_hardware_attested": not unverified_hosts,
-            "verified_host_count": verified_host_count >= minimum_hosts,
-            "attestation_independence_present": bool(unique_attestors) or hardware_rooted_count >= minimum_hosts,
+            "all_hosts_have_qualifying_attestation_class": not unqualified_hosts,
+            "qualified_host_count": qualified_host_count >= minimum_hosts,
+            "declared_attestation_independence_present": (
+                bool(declared_independent_attestors)
+                or declared_hardware_rooted_count >= minimum_hosts
+            ),
         }
 
-        physical_status = "VERIFIED" if all(criteria.values()) else "UNVERIFIED"
+        structural_status = "STRUCTURALLY_QUALIFIED" if all(criteria.values()) else "UNQUALIFIED"
         body = {
-            "schema": "braink.r24.physical-host-evidence-verification/v1",
-            "physical_host_status": physical_status,
+            "schema": "braink.r24.physical-host-evidence-verification/v2",
+            "structural_evidence_status": structural_status,
+            "physical_host_status": "UNVERIFIED",
+            "verification_boundary": "EXTERNAL_TRUST_BINDING_REQUIRED",
+            "external_trust_binding": "NOT_EVALUATED_BY_STRUCTURAL_VERIFIER",
             "minimum_hosts": minimum_hosts,
             "observed_host_count": len(normalized),
-            "verified_host_count": verified_host_count,
+            "qualified_host_count": qualified_host_count,
             "expected_package_sha256": expected_package,
             "criteria": criteria,
             "failures": {
@@ -142,10 +151,10 @@ class PhysicalHostEvidenceVerifier:
                 "duplicate_machine_fingerprints": duplicate_fingerprints,
                 "duplicate_attestation_roots": duplicate_attestation_roots,
                 "package_mismatches": package_mismatches,
-                "unverified_hosts": unverified_hosts,
+                "unqualified_hosts": unqualified_hosts,
             },
-            "attestation_classes": sorted({item["attestation_class"] for item in normalized}),
-            "attestors": sorted({item["attestor_id"] for item in normalized}),
+            "declared_attestation_classes": sorted({item["attestation_class"] for item in normalized}),
+            "declared_attestors": sorted({item["attestor_id"] for item in normalized}),
             "evidence_roots": sorted(attestation_roots),
         }
         body["verification_root"] = root(body)
