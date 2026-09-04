@@ -24,11 +24,15 @@ def main() -> None:
     profile_path = ROOT / "governance/ENGINEERING_STANDARD_PROFILE_R24.json"
     verifier_path = ROOT / "enterprise/physical_host_evidence_r24.py"
     verifier_test_path = ROOT / "scripts/kex-ci/test_physical_host_evidence_r24.py"
+    trust_binder_path = ROOT / "enterprise/physical_host_trust_binding_r24.py"
+    trust_binder_test_path = ROOT / "scripts/kex-ci/test_physical_host_trust_binding_r24.py"
 
     assert reconciliation_path.exists(), "R24_KOS_MESH_RECONCILIATION_MISSING"
     assert profile_path.exists(), "R24_PROFILE_MISSING"
     assert verifier_path.exists(), "R24_PHYSICAL_HOST_EVIDENCE_VERIFIER_MISSING"
     assert verifier_test_path.exists(), "R24_PHYSICAL_HOST_EVIDENCE_VERIFIER_TEST_MISSING"
+    assert trust_binder_path.exists(), "R24_PHYSICAL_HOST_TRUST_BINDER_MISSING"
+    assert trust_binder_test_path.exists(), "R24_PHYSICAL_HOST_TRUST_BINDER_TEST_MISSING"
 
     reconciliation = json.loads(reconciliation_path.read_text("utf-8"))
     profile = json.loads(profile_path.read_text("utf-8"))
@@ -57,43 +61,46 @@ def main() -> None:
     assert boundary["hardware_signer"] == "UNINSTANTIATED"
 
     decision = EngineeringDecision(
-        decision_id="ADR-R24-R22-PHYSICAL-MULTI-HOST-GATE-003",
-        title="Separate structural host-evidence qualification from physical execution verification",
+        decision_id="ADR-R24-R22-PHYSICAL-MULTI-HOST-GATE-004",
+        title="Bind structural host evidence to external trust anchors without claiming physical execution",
         context=(
-            "The resident K-OS/BOS mesh has historical local multi-process evidence, while distinct physical-host "
-            "execution remains unobserved. The first R24 host-evidence verifier could return VERIFIED from structurally "
-            "valid synthetic attestation objects. R24 classified that as OVERCLAIM because no externally anchored trust "
-            "binding established that the attestors, hardware roots, machine fingerprints or evidence roots were genuine."
+            "The resident K-OS/BOS mesh has historical local multi-process evidence and the R24 structural qualifier "
+            "correctly leaves physical_host_status UNVERIFIED. ADR-R24-R22-PHYSICAL-HOST-TRUST-BINDING-001 then "
+            "required a separate external trust-binding membrane before provenance-bound evidence could advance."
         ),
         decision=(
-            "Reuse the resident mesh and retain the host-evidence component only as a fail-closed structural qualifier. "
-            "It may emit STRUCTURALLY_QUALIFIED, but physical_host_status remains UNVERIFIED. Physical verification and "
-            "promotion require a separate externally anchored trust-binding layer plus execution on distinct authorised "
-            "hosts with quorum, fault-recovery and rollback evidence."
+            "Reuse the resident mesh and structural qualifier. Add the fail-closed external trust binder and its contract "
+            "invariant as a separate proposition. Successful cryptographic binding may produce TRUST_BOUND only; it does "
+            "not prove distinct physical execution and cannot promote physical_host_status beyond UNVERIFIED."
         ),
         consequences=(
-            "No duplicate mesh implementation",
-            "Synthetic fixtures cannot produce VERIFIED physical-host status",
-            "Structural qualification and external trust verification are separate propositions",
-            "Package hash equality and unique machine fingerprints remain mandatory",
-            "Fault-recovery and rollback roots remain mandatory evidence fields",
-            "Promotion fails closed until reproducible physical execution and trust binding exist",
+            "No duplicate mesh or host qualifier implementation",
+            "Structural qualification must reproduce before trust binding",
+            "External anchor material is supplied separately from host attestations",
+            "Forged signatures and insufficient anchor diversity fail closed",
+            "Synthetic TRUST_BOUND fixtures remain non-execution evidence",
+            "Physical promotion still requires distinct authorised hosts, recovery, rollback and independent verification",
         ),
-        supersedes="ADR-R24-R22-PHYSICAL-MULTI-HOST-GATE-002",
+        supersedes="ADR-R24-R22-PHYSICAL-MULTI-HOST-GATE-003",
     )
 
     evidence = Evidence(
-        evidence_id="R24-R22-KOS-MESH-RESIDENT-R2",
-        class_id="HISTORICAL_LOCAL_MULTI_PROCESS_MESH_EVIDENCE",
+        evidence_id="R24-R22-KOS-MESH-RESIDENT-R3",
+        class_id="HISTORICAL_LOCAL_MULTI_PROCESS_MESH_PLUS_TRUST_BINDING_CONTRACT",
         subject="r22_kos_mesh_physical_multi_host",
         status=reconciliation["classification"],
-        mechanism_ref="KEDDEH K-OS/BOS Mesh Substrate v2.0 + R24 structural host-evidence qualifier",
-        test_ref="recorded 33/33 resident package suite + test_physical_host_evidence_r24.py contract invariant",
+        mechanism_ref=(
+            "KEDDEH K-OS/BOS Mesh Substrate v2.0 + R24 structural qualifier + external trust-binding membrane"
+        ),
+        test_ref=(
+            "recorded 33/33 resident package suite + test_physical_host_evidence_r24.py + "
+            "test_physical_host_trust_binding_r24.py contract invariants"
+        ),
         evidence_root=sha256_path(reconciliation_path),
     )
 
     release = ReleaseManifestBuilder().build(
-        release_id="R24-R22-PHYSICAL-MULTI-HOST-CANDIDATE-3",
+        release_id="R24-R22-PHYSICAL-MULTI-HOST-CANDIDATE-4",
         artifacts=[
             {
                 "path": "deployments/R24_KOS_MESH_RESIDENT_RECONCILIATION_R1.json",
@@ -110,6 +117,14 @@ def main() -> None:
             {
                 "path": "scripts/kex-ci/test_physical_host_evidence_r24.py",
                 "sha256": sha256_path(verifier_test_path),
+            },
+            {
+                "path": "enterprise/physical_host_trust_binding_r24.py",
+                "sha256": sha256_path(trust_binder_path),
+            },
+            {
+                "path": "scripts/kex-ci/test_physical_host_trust_binding_r24.py",
+                "sha256": sha256_path(trust_binder_test_path),
             },
         ],
         decisions=[decision],
@@ -152,7 +167,8 @@ def main() -> None:
         technical={
             "resident_mesh_package": 1.0,
             "structural_host_evidence_qualifier": 1.0,
-            "external_trust_binding": 0.0,
+            "external_trust_binding_contract": 1.0,
+            "externally_anchored_production_evidence": 0.0,
             "physical_multi_host": 0.0,
             "physical_host_identity_readback": 0.0,
             "physical_quorum_recovery": 0.0,
@@ -166,7 +182,7 @@ def main() -> None:
             "public_authoritative_dns": 0.0,
             "production_multi_host_service": 0.0,
         },
-        evidence_coverage=0.40,
+        evidence_coverage=0.48,
     )
     assert market["classification"] == "ENGINEERING_ONLY"
 
@@ -178,7 +194,9 @@ def main() -> None:
         "promotion_root": gate["promotion_root"],
         "physical_multi_host": boundary["distinct_physical_hosts"],
         "host_evidence_qualifier": "IMPLEMENTED_AND_CONTRACT_QUALIFIED",
-        "physical_host_verification": "UNAVAILABLE_PENDING_EXTERNAL_TRUST_BINDING",
+        "external_trust_binding": "IMPLEMENTED_CONTRACT_QUALIFIED_PRODUCTION_EVIDENCE_NOT_OBSERVED",
+        "maximum_synthetic_fixture_status": "TRUST_BOUND_PHYSICAL_UNVERIFIED",
+        "physical_host_verification": "UNAVAILABLE_PENDING_DISTINCT_HOST_EXECUTION_AND_INDEPENDENT_VERIFY",
         "rollback_ready": gate["criteria"]["rollback_ready"],
         "independent_verifier": gate["criteria"]["independent_verifier"],
         "market_classification": market["classification"],
