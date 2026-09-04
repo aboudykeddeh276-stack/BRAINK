@@ -31,11 +31,20 @@
     },
     {
       "source": "research/CLAIM_REGISTRY.json",
-      "target": "research/claims/logical_computer_host_independence.proposed.v1.json",
+      "target": "research/claims/logical_computer_host_independence.v1.json",
       "class": "MODULE_DEPENDENCY",
       "relationship": "direct",
       "scope": "development",
-      "interface": "registered proposed research claim",
+      "interface": "registered implemented research claim under qualification",
+      "authority": "BRAINK_RESEARCH_GOVERNANCE"
+    },
+    {
+      "source": "research/claims/logical_computer_host_independence.v1.json",
+      "target": "research/claims/logical_computer_host_independence.proposed.v1.json",
+      "class": "MODULE_DEPENDENCY",
+      "relationship": "supersedes",
+      "scope": "governance-history",
+      "interface": "claim lineage",
       "authority": "BRAINK_RESEARCH_GOVERNANCE"
     },
     {
@@ -48,13 +57,22 @@
       "authority": "BRAINK"
     },
     {
-      "source": "research/claims/logical_computer_host_independence.proposed.v1.json",
+      "source": "research/claims/logical_computer_host_independence.v1.json",
       "target": "enterprise/logical_computer_identity.py",
       "class": "MODULE_DEPENDENCY",
       "relationship": "direct",
       "scope": "development",
       "interface": "host-independent logical identity implementation under qualification",
       "authority": "BRAINK"
+    },
+    {
+      "source": "research/claims/logical_computer_host_independence.v1.json",
+      "target": "governance/control_skeleton/CROSS_REPOSITORY_COMPONENT_PROTOCOL.md",
+      "class": "MODULE_DEPENDENCY",
+      "relationship": "governed-by",
+      "scope": "development",
+      "interface": "cross-repository ownership/adoption protocol",
+      "authority": "BRAINK_RESEARCH_GOVERNANCE"
     },
     {
       "source": "enterprise/logical_computer_identity.py",
@@ -69,19 +87,28 @@
       "source": "enterprise/mirror_lane_transfer_adapter.py",
       "target": "repository://aboudykeddeh276-stack/KEDDEH-CLOUD-SERVERS-ID-1",
       "class": "REPOSITORY_DEPENDENCY",
-      "relationship": "direct",
+      "relationship": "consumes",
       "scope": "runtime",
-      "interface": "KEX mirror-lane state-transfer runtime",
-      "authority": "KEDDEH_CLOUD_SERVERS"
+      "interface": "KEX_MIRROR_LANE_STATE_TRANSFER_R1",
+      "authority": "KEX_CLOUD_MIRROR_LANE"
+    },
+    {
+      "source": "enterprise/mirror_lane_transfer_adapter.py",
+      "target": "external-component://KEX_MIRROR_LANE_STATE_TRANSFER_R1/component-spec",
+      "class": "REPOSITORY_DEPENDENCY",
+      "relationship": "contract",
+      "scope": "governance",
+      "interface": "mirror_lane_storage_substrate/MIRROR_LANE_COMPONENT_SPEC.json @ KEDDEH-CLOUD-SERVERS-ID-1",
+      "authority": "KEX_CLOUD_MIRROR_LANE"
     },
     {
       "source": ".github/workflows/logical-computer-host-independence.yml",
       "target": "runtime://kex/mirror-lane/state-transfer/r1",
       "class": "RUNTIME_AUTHORITY_DEPENDENCY",
-      "relationship": "direct",
+      "relationship": "pinned",
       "scope": "qualification",
-      "interface": "pinned mirror update/restore runtime from KEDDEH-CLOUD-SERVERS-ID-1",
-      "authority": "KEDDEH_CLOUD_SERVERS"
+      "interface": "governed mirror update/restore runtime from KEDDEH-CLOUD-SERVERS-ID-1 @ 0c23cbfcee2a2d86a69da59d86188005017c4b38",
+      "authority": "KEX_CLOUD_MIRROR_LANE"
     }
   ]
 }
