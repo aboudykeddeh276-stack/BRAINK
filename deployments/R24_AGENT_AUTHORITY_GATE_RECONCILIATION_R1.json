@@ -1,0 +1,41 @@
+{
+  "classification": "STATE_DRIFT",
+  "decision": "REUSE_RESIDENT_R6_R7_AUTHORITY_CHAIN_DO_NOT_DUPLICATE",
+  "gate_boundaries": {
+    "fault_injection": "COVERED_BY_RESIDENT_ADVERSE_PATHS",
+    "independent_verifier": false,
+    "market_readiness": "ENGINEERING_ONLY_EXPECTED_UNTIL_EXECUTION",
+    "promotion": "REJECTED",
+    "quality_complete": false,
+    "rollback_ready": false,
+    "security_complete": false
+  },
+  "next_dependency": "EXECUTE_GATE_REPRODUCIBLY_THEN_ADD_ROLLBACK_AND_INDEPENDENT_VERIFICATION_WITH_COMPLETE_QUALITY_SECURITY_EVIDENCE",
+  "no_certification_claim": true,
+  "r24_transition": {
+    "gate": "scripts/kex-ci/test_r24_agent_authority_gate.py",
+    "gate_commit": "eee9d0637307e6c26f2bb68a20954cde11856a69",
+    "gate_source_sha256": "198485701b99d9993ec3feb7363eb67ff641f179cf0904809f49a6658b424a0e",
+    "hosted_and_specialist_wired": true,
+    "post_change_ci_run": 33828621155,
+    "post_change_ci_state": "QUEUED_NOT_OBSERVED",
+    "static_compile": "PASS_LOCAL_SOURCE_ONLY",
+    "workflow": ".github/workflows/keddeh-enterprise-control.yml",
+    "workflow_blob": "cc36613f7f788f7c74231eded2113f88d25015f6",
+    "workflow_commit": "1fe1eee220522a48bde83eef9c66a017b0d7a447"
+  },
+  "receipt_root": "9e7e373bde82ec6e61434af8e50b1334a4df6d920537d5ff006586ea7f8127e5",
+  "resident_evidence": {
+    "capability_count": 14,
+    "domain_readback": "RESIDENT_TESTED",
+    "idempotent_replay": "RESIDENT_TESTED",
+    "r6_invariant": "scripts/kex-ci/test_agent_authority_actual_process_r6.py",
+    "r7_invariant": "scripts/kex-ci/test_agent_function_actual_process_r7.py",
+    "scope_denial": "RESIDENT_TESTED",
+    "semantic_resident_failure_propagation": "RESIDENT_TESTED",
+    "stale_lease_fencing": "RESIDENT_TESTED",
+    "typed_payload_rejection_before_invocation_ledger": "RESIDENT_TESTED"
+  },
+  "schema": "braink.r24.agent-authority-gate-reconciliation/v1",
+  "status": "R24_GATE_IMPLEMENTED_WORKFLOW_WIRED_NOT_PROMOTED"
+}
