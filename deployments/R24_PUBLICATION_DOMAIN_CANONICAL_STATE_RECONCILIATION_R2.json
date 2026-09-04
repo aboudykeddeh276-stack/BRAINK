@@ -1,0 +1,57 @@
+{
+  "schema": "braink.r24.publication-domain-canonical-state-reconciliation/v1",
+  "subject": "R24_ENGINEERING_CONTROL_STATE_PUBLICATION_DOMAIN",
+  "governing_baseline": "BRAINK_R24_ENGINEERING_CONTROL",
+  "classification": "STATE_DRIFT_RECONCILED",
+  "predecessor_drift_receipt": {
+    "path": "deployments/R24_PUBLICATION_DOMAIN_CANONICAL_STATE_DRIFT_R1.json",
+    "receipt_root": "bf1e3bd9329b088b80bc97a247d835305fe6bfef06739f1d4f530bc87078db26"
+  },
+  "discovered_resident_capability": {
+    "runtime": "enterprise/orchestration/durable_execution_r5.py",
+    "gate": "scripts/kex-ci/test_r24_publication_domain_gate.py",
+    "gate_revision_commit": "d040142a13fc51abca2e11c1ef287604b7baba7c",
+    "source_reconciliation": "deployments/R24_DOMAIN_DURABLE_EXECUTION_RECONCILIATION_R2.json",
+    "source_reconciliation_receipt_root": "09134b13ebdd15935b1ce5898a7891ce6116d840d8319be06d1a7093549dcf43",
+    "qualified_source_git_blob_sha": "e51ccd625b49a39f6fe0552e65f3cb36f9195c1b",
+    "source_lineage_gate": "CURRENT_BYTES_MUST_MATCH_QUALIFIED_GIT_BLOB"
+  },
+  "canonical_mutation": {
+    "target": "deployments/R24_ENGINEERING_CONTROL_STATE.json",
+    "surface": "applied_runtime_transitions.publication_domain_durable_execution_r5 + r24_promotion_gate_surfaces.publication_domain",
+    "commit": "757f148692f77e27c6c0865c814d15bd014c249e",
+    "blob": "22ec1f38d3302a48a0605822e424a80dbb323838",
+    "decision": "RECONCILE_CANONICAL_STATE_TO_RESIDENT_R2_SOURCE_LINEAGE_WITHOUT_DUPLICATING_DURABLE_EXECUTION_R5"
+  },
+  "preserved_boundary": {
+    "public_authoritative_dns": "UNPROVEN",
+    "registrar_epp_authority": "UNPROVEN",
+    "wan_partition": "UNPROVEN",
+    "physical_multi_host": "UNPROVEN",
+    "independent_verification": "PENDING",
+    "market_readiness": "ENGINEERING_ONLY",
+    "promotion": "REJECTED",
+    "certification_claim": false
+  },
+  "r24_transition": {
+    "DISCOVER": "PASS",
+    "RECONCILE_SOURCE_STATE": "PASS",
+    "ARCHITECTURE_DECISION": "REUSE_RESIDENT_DURABLE_EXECUTION_R5_DO_NOT_REIMPLEMENT",
+    "IMPLEMENT": "CANONICAL_STATE_RECONCILIATION_ONLY",
+    "STATIC_VALIDATE": "JSON_READBACK_REQUIRED",
+    "UNIT_TEST": "NOT_REQUIRED_FOR_METADATA_ONLY_MUTATION",
+    "INTEGRATION_TEST": "NO_NEW_RUNTIME_MUTATION",
+    "FAULT_INJECTION": "EXISTING_SOURCE_BOUND_LOCAL_EVIDENCE_ONLY",
+    "SECURITY_GATE": "PARTIAL_LOCAL_REPLAY_TAMPER_FENCING_ONLY",
+    "QUALITY_GATE": "INCOMPLETE_FULL_R24_PROFILE",
+    "BUILD_RELEASE_MANIFEST": "CANDIDATE_RUNTIME_MANIFEST_ONLY_NOT_PROMOTED",
+    "INDEPENDENT_VERIFY": "PENDING",
+    "PROMOTE_OR_REJECT": "REJECTED",
+    "DEPLOY": "GITHUB_MAIN_CANONICAL_METADATA_MUTATION",
+    "READBACK_RECONCILE": "PENDING_POST_WRITE",
+    "MARKET_READINESS_EVALUATE": "ENGINEERING_ONLY",
+    "CONTINUE": "PUBLIC_AUTHORITY_AND_REMAINING_R24_EVIDENCE"
+  },
+  "receipt_root": "4db31fb827c2207c101fdcf250b8cdaef8c4a9b5378a4a6a26167f9c146ee631",
+  "receipt_root_scope": "sha256(canonical_json_without_receipt_root_fields)"
+}
