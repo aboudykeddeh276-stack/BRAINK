@@ -1,0 +1,34 @@
+{
+  "schema": "braink.cross-resolution-adapter.r17.local-execution",
+  "canonical_id": "LEX://DOMAIN/keddeh.com",
+  "old_resolver_policy": "PRESERVE_PRIMARY",
+  "cross_resolution_contract": "ONE_CANONICAL_OBJECT_MANY_RESOLUTION_PATHS",
+  "resident_primary": {
+    "status": "MISS",
+    "ip": null,
+    "canonical_id": "LEX://DOMAIN/keddeh.com"
+  },
+  "carrier_escape": {
+    "status": "UNREACHABLE",
+    "canonical_id": "LEX://DOMAIN/keddeh.com",
+    "attempts": [
+      {"resolver": "cloudflare", "ip": "1.1.1.1", "status": "FAIL", "error": "TimeoutError:timed out"},
+      {"resolver": "google", "ip": "8.8.8.8", "status": "FAIL", "error": "TimeoutError:timed out"},
+      {"resolver": "quad9", "ip": "9.9.9.9", "status": "FAIL", "error": "TimeoutError:timed out"}
+    ]
+  },
+  "canonical_identity_preserved": true,
+  "resident_resolver_replaced": false,
+  "local_preservation_test": {
+    "checks": {
+      "registrar_readback": true,
+      "old_dns_server_answer": true,
+      "old_resolver_preserved": true,
+      "bootstrap_is_subordinate_carrier": true,
+      "canonical_identity_rule_present": true
+    },
+    "wire_error": null,
+    "status": "PASS"
+  },
+  "status": "PASS"
+}
