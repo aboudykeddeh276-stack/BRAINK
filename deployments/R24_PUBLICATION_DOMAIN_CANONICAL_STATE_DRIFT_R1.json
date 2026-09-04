@@ -1,0 +1,23 @@
+{
+  "schema": "braink.r24.publication-domain-canonical-state-drift/v1",
+  "release": "R24",
+  "subject": "publication_domain",
+  "classification": "STATE_DRIFT",
+  "observed": {
+    "gate": "scripts/kex-ci/test_r24_publication_domain_gate.py",
+    "gate_revision_commit": "d040142a13fc51abca2e11c1ef287604b7baba7c",
+    "reconciliation": "deployments/R24_DOMAIN_DURABLE_EXECUTION_RECONCILIATION_R2.json",
+    "receipt_root": "09134b13ebdd15935b1ce5898a7891ce6116d840d8319be06d1a7093549dcf43",
+    "qualified_source_git_blob_sha": "e51ccd625b49a39f6fe0552e65f3cb36f9195c1b",
+    "source_lineage_gate": "CURRENT_BYTES_MUST_MATCH_QUALIFIED_GIT_BLOB"
+  },
+  "declared_canonical_state": {
+    "reconciliation": "deployments/R24_DOMAIN_DURABLE_EXECUTION_RECONCILIATION_R1.json",
+    "receipt_root": "279c9eadb50ca49d7dad90f28b9bc8da0e01fd94cba059796ea5b017e46dcb49"
+  },
+  "decision": "RECONCILE_CANONICAL_STATE_TO_R2_WITHOUT_DUPLICATING_DURABLE_EXECUTION_R5",
+  "promotion": "REJECTED",
+  "market_readiness": "ENGINEERING_ONLY",
+  "certification_claim": "NONE",
+  "receipt_root": "bf1e3bd9329b088b80bc97a247d835305fe6bfef06739f1d4f530bc87078db26"
+}
