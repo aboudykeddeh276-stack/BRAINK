@@ -1,0 +1,29 @@
+{
+  "schema": "braink.semantic-typed-service.r21",
+  "contract": "DOMAIN_IDENTITY_TO_TYPED_SERVICE_TO_REPLICATED_OBJECT_WITH_FAILOVER",
+  "canonical_id": "LEX://DOMAIN/keddeh.com",
+  "service_id": "LEX://SERVER/GLOBAL",
+  "domain_proof_sha256": "4897187b1d709515c4a641edc5d8b03ac4acca46779ff3a75be50c5d6138b215",
+  "object": {
+    "object_id": "CLOUD-R21-001",
+    "payload_sha256": "aa3bb34f885eb26679519450e81b9da006127f144c04f6ed1cdd508942d91772",
+    "revision": 2,
+    "m1_lineage": "LINEAGE::M1",
+    "m2_lineage": "LINEAGE::M2"
+  },
+  "checks": {
+    "initial_write_via_semantic_route": true,
+    "same_domain_identity_on_failover": true,
+    "secondary_read_after_primary_loss": true,
+    "secondary_write_after_primary_loss": true,
+    "revision_advanced_on_secondary": true,
+    "primary_reselected_after_restore": true,
+    "reconciled_payload_hash_equal": true,
+    "reconciled_revision_equal": true,
+    "lineage_remains_distinct": true,
+    "canonical_domain_never_changed": true
+  },
+  "runtime_sha256": "b2bea6cf2b30e675c161e108b3afd0158b68edb6107118b6e234977da8ed7af4",
+  "receipt_sha256": "c9dfb5914bb11f36f371d775b7052510b9af0d1f2384155a60223525a71c172b",
+  "status": "PASS"
+}
