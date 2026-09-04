@@ -1,0 +1,52 @@
+{
+  "schema": "braink.r24.canonical-physical-host-trust-binding-state-reconciliation/v1",
+  "subject": "R24_ENGINEERING_CONTROL_STATE_PHYSICAL_MULTI_HOST_TRUST_BINDING",
+  "governing_baseline": "BRAINK_R24_ENGINEERING_CONTROL",
+  "classification": "STATE_DRIFT_RECONCILED",
+  "discovered_resident_capability": {
+    "trust_binder": "enterprise/physical_host_trust_binding_r24.py",
+    "trust_binding_invariant": "scripts/kex-ci/test_physical_host_trust_binding_r24.py",
+    "implementation_reconciliation": "deployments/R24_PHYSICAL_HOST_TRUST_BINDING_RECONCILIATION_R2.json",
+    "implementation_receipt_root": "907697e4ca94d405bf3dc1aa722ed76c0e81ddc628e0e1c408a9c087c44c2405"
+  },
+  "canonical_mutation": {
+    "target": "deployments/R24_ENGINEERING_CONTROL_STATE.json",
+    "surface": "r24_promotion_gate_surfaces.physical_multi_host",
+    "decision": "RECONCILE_CANONICAL_STATE_ONLY_DO_NOT_DUPLICATE_RESIDENT_MESH_VERIFIER_OR_TRUST_BINDER"
+  },
+  "preserved_boundary": {
+    "trust_binding_status": "IMPLEMENTED_CONTRACT_BOUNDARY",
+    "physical_host_status": "UNVERIFIED",
+    "production_external_trust_evidence": "NOT_OBSERVED",
+    "distinct_physical_hosts": "UNEXECUTED",
+    "physical_fault_injection": "NOT_OBSERVED",
+    "physical_rollback_proof": "MISSING",
+    "independent_verification": "PENDING",
+    "quality_gate": "INCOMPLETE",
+    "security_gate": "INCOMPLETE",
+    "promotion": "REJECTED",
+    "market_readiness": "ENGINEERING_ONLY",
+    "certification_claim": false
+  },
+  "r24_transition": {
+    "DISCOVER": "PASS",
+    "RECONCILE_SOURCE_STATE": "PASS",
+    "ARCHITECTURE_DECISION": "REUSE_EXISTING_ADR_R24_R22_PHYSICAL_HOST_TRUST_BINDING_001",
+    "IMPLEMENT": "CANONICAL_STATE_RECONCILIATION_ONLY",
+    "STATIC_VALIDATE": "JSON_STRUCTURE_TO_BE_READBACK_VERIFIED",
+    "UNIT_TEST": "NOT_REQUIRED_FOR_METADATA_ONLY_MUTATION",
+    "INTEGRATION_TEST": "NOT_OBSERVED_DISTINCT_PHYSICAL_HOSTS",
+    "FAULT_INJECTION": "NO_NEW_RUNTIME_MUTATION",
+    "SECURITY_GATE": "INCOMPLETE",
+    "QUALITY_GATE": "INCOMPLETE",
+    "BUILD_RELEASE_MANIFEST": "EXISTING_CANDIDATE_MANIFEST_REFERENCE_PRESERVED",
+    "INDEPENDENT_VERIFY": "PENDING",
+    "PROMOTE_OR_REJECT": "REJECTED",
+    "DEPLOY": "GITHUB_MAIN_CANONICAL_METADATA_MUTATION",
+    "READBACK_RECONCILE": "PENDING_POST_WRITE",
+    "MARKET_READINESS_EVALUATE": "ENGINEERING_ONLY",
+    "CONTINUE": "DISTINCT_AUTHORISED_PHYSICAL_HOST_EXECUTION"
+  },
+  "receipt_root": "2fe86120445aa0b6ddba0fa8b57b1ca65bdd146b57252d4085a4c719307d0f5c",
+  "receipt_root_scope": "sha256(canonical_json_without_receipt_root_fields)"
+}
