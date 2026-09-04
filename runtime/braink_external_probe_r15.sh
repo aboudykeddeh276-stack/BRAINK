@@ -5,6 +5,7 @@
 # R16 execution trigger 4: execute after scoped push trigger was actually installed.
 # R16 execution trigger 5: explicit user-requested push after workflow installation.
 # R16 execution trigger 6: approved explicit push after workflow installation.
+# R16 execution trigger 7: explicit continuation trigger after verified workflow discovery.
 set -u
 DOMAIN="${1:-keddeh.com}"
 OUT="${2:-/mnt/data/BRAINK_R15_EXTERNAL_PATH_RECEIPT.json}"
