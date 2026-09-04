@@ -14,7 +14,7 @@
     "component_id": "KEX_MIRROR_LANE_STATE_TRANSFER_R1",
     "repository": "aboudykeddeh276-stack/KEDDEH-CLOUD-SERVERS-ID-1",
     "runtime": "runtime://kex/mirror-lane/state-transfer/r1",
-    "qualification_revision": "a3e25b1d5b3ed4e57d57d8543ef61338ecf3c69a",
+    "qualification_revision": "43c18753303a941f7a88cdec4ae4547759b34311",
     "control_index": "mirror_lane_storage_substrate/CONTROL_INDEX.md",
     "component_spec": "mirror_lane_storage_substrate/MIRROR_LANE_COMPONENT_SPEC.json",
     "qualification_workflow": ".github/workflows/mirror-lane-state-transfer-qualification.yml"
