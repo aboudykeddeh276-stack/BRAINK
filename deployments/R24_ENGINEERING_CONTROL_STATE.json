@@ -294,6 +294,22 @@
       "security_gate": "INCOMPLETE_BY_DESIGN",
       "market_readiness": "ENGINEERING_ONLY_EXPECTED_ON_EXECUTION",
       "promotion": "REJECTED_PENDING_EXECUTION_AND_REMAINING_R24_GATES"
+    },
+    "agent_authority": {
+      "gate": "scripts/kex-ci/test_r24_agent_authority_gate.py",
+      "reconciliation": "deployments/R24_AGENT_AUTHORITY_GATE_RECONCILIATION_R1.json",
+      "receipt_root": "9e7e373bde82ec6e61434af8e50b1334a4df6d920537d5ff006586ea7f8127e5",
+      "workflow_wired": true,
+      "resident_r6_r7_authority_chain": "REUSED_NOT_REIMPLEMENTED",
+      "fault_injection": "COVERED_BY_RESIDENT_ADVERSE_PATHS",
+      "rollback_readiness": "MISSING",
+      "independent_verification": "PENDING",
+      "quality_gate": "INCOMPLETE_BY_DESIGN",
+      "security_gate": "INCOMPLETE_BY_DESIGN",
+      "market_readiness": "ENGINEERING_ONLY_EXPECTED_UNTIL_EXECUTION",
+      "hosted_execution": "FAULT_EXECUTOR_BOUNDARY_ZERO_STEPS",
+      "specialist_execution": "QUEUED_NOT_OBSERVED",
+      "promotion": "REJECTED"
     }
   },
   "executor_boundary": {
