@@ -39,8 +39,6 @@ def main() -> None:
     assert reconciliation["classification"] == "UNDOCUMENTED_RESIDENT_CAPABILITY_RECONCILED_PHYSICAL_MULTI_HOST_UNPROVEN"
     assert reconciliation["r24_decision"].startswith("DO_NOT_REIMPLEMENT_MESH")
 
-    # Preserve the distinction R24 requires: three local nodes/processes are useful
-    # resident execution evidence, but they are not evidence of distinct physical hosts.
     for key in (
         "static_compilation",
         "three_local_nodes_real_sockets",
@@ -59,42 +57,43 @@ def main() -> None:
     assert boundary["hardware_signer"] == "UNINSTANTIATED"
 
     decision = EngineeringDecision(
-        decision_id="ADR-R24-R22-PHYSICAL-MULTI-HOST-GATE-002",
-        title="Gate physical multi-host proof through a fail-closed host-attestation verifier",
+        decision_id="ADR-R24-R22-PHYSICAL-MULTI-HOST-GATE-003",
+        title="Separate structural host-evidence qualification from physical execution verification",
         context=(
-            "The reconciled K-OS/BOS Mesh Substrate v2.0 has historical evidence for three local real-socket nodes, "
-            "three OS processes, 2-of-3 continuation, restart anti-entropy catch-up and DNS UDP/TCP, while distinct "
-            "physical-host execution remains unobserved. R24 now also has a resident verifier that refuses to infer "
-            "physical distinctness from self-declared process, container, hostname or machine identities."
+            "The resident K-OS/BOS mesh has historical local multi-process evidence, while distinct physical-host "
+            "execution remains unobserved. The first R24 host-evidence verifier could return VERIFIED from structurally "
+            "valid synthetic attestation objects. R24 classified that as OVERCLAIM because no externally anchored trust "
+            "binding established that the attestors, hardware roots, machine fingerprints or evidence roots were genuine."
         ),
         decision=(
-            "Reuse the resident hashed K-OS/BOS package and the R24 physical-host evidence verifier. Reject physical "
-            "multi-host promotion until the same package is executed on distinct authorised hosts and the verifier "
-            "accepts unique independently or hardware-rooted attestations carrying execution, peer/quorum, "
-            "fault-recovery and rollback roots."
+            "Reuse the resident mesh and retain the host-evidence component only as a fail-closed structural qualifier. "
+            "It may emit STRUCTURALLY_QUALIFIED, but physical_host_status remains UNVERIFIED. Physical verification and "
+            "promotion require a separate externally anchored trust-binding layer plus execution on distinct authorised "
+            "hosts with quorum, fault-recovery and rollback evidence."
         ),
         consequences=(
             "No duplicate mesh implementation",
-            "No process-count or hostname evidence can be promoted as physical-host proof",
-            "Package hash equality and unique machine fingerprints are mandatory",
-            "Fault-recovery and rollback evidence roots are mandatory per host",
-            "Promotion fails closed until reproducible distinct-host execution exists",
+            "Synthetic fixtures cannot produce VERIFIED physical-host status",
+            "Structural qualification and external trust verification are separate propositions",
+            "Package hash equality and unique machine fingerprints remain mandatory",
+            "Fault-recovery and rollback roots remain mandatory evidence fields",
+            "Promotion fails closed until reproducible physical execution and trust binding exist",
         ),
-        supersedes="ADR-R24-R22-PHYSICAL-MULTI-HOST-GATE-001",
+        supersedes="ADR-R24-R22-PHYSICAL-MULTI-HOST-GATE-002",
     )
 
     evidence = Evidence(
-        evidence_id="R24-R22-KOS-MESH-RESIDENT-R1",
+        evidence_id="R24-R22-KOS-MESH-RESIDENT-R2",
         class_id="HISTORICAL_LOCAL_MULTI_PROCESS_MESH_EVIDENCE",
         subject="r22_kos_mesh_physical_multi_host",
         status=reconciliation["classification"],
-        mechanism_ref="KEDDEH K-OS/BOS Mesh Substrate v2.0 + R24 physical-host evidence verifier",
+        mechanism_ref="KEDDEH K-OS/BOS Mesh Substrate v2.0 + R24 structural host-evidence qualifier",
         test_ref="recorded 33/33 resident package suite + test_physical_host_evidence_r24.py contract invariant",
         evidence_root=sha256_path(reconciliation_path),
     )
 
     release = ReleaseManifestBuilder().build(
-        release_id="R24-R22-PHYSICAL-MULTI-HOST-CANDIDATE-2",
+        release_id="R24-R22-PHYSICAL-MULTI-HOST-CANDIDATE-3",
         artifacts=[
             {
                 "path": "deployments/R24_KOS_MESH_RESIDENT_RECONCILIATION_R1.json",
@@ -121,20 +120,12 @@ def main() -> None:
     required_security = set(profile["standards"]["NIST_SP_800_218_SSDF_1_1"]["required_practice_groups"])
 
     quality = {key: False for key in required_quality}
-    quality.update({
-        "functional_suitability": True,
-        "reliability": True,
-    })
+    quality.update({"functional_suitability": True, "reliability": True})
 
     security = {key: False for key in required_security}
-    security.update({
-        "protect_software": False,
-        "produce_well_secured_software": False,
-    })
+    security.update({"protect_software": False, "produce_well_secured_software": False})
 
     tests = {
-        # Verifier unit qualification exists, but this candidate has no current
-        # physical-host integration or physical fault-injection execution.
         "unit": True,
         "integration": False,
         "fault_injection": False,
@@ -160,8 +151,8 @@ def main() -> None:
     market = MarketReadinessEvaluator().evaluate(
         technical={
             "resident_mesh_package": 1.0,
-            "local_real_socket_mesh": 1.0,
-            "physical_evidence_verifier": 1.0,
+            "structural_host_evidence_qualifier": 1.0,
+            "external_trust_binding": 0.0,
             "physical_multi_host": 0.0,
             "physical_host_identity_readback": 0.0,
             "physical_quorum_recovery": 0.0,
@@ -175,7 +166,7 @@ def main() -> None:
             "public_authoritative_dns": 0.0,
             "production_multi_host_service": 0.0,
         },
-        evidence_coverage=0.42,
+        evidence_coverage=0.40,
     )
     assert market["classification"] == "ENGINEERING_ONLY"
 
@@ -186,7 +177,8 @@ def main() -> None:
         "promotion_status": gate["status"],
         "promotion_root": gate["promotion_root"],
         "physical_multi_host": boundary["distinct_physical_hosts"],
-        "physical_host_verifier": "IMPLEMENTED_AND_CONTRACT_QUALIFIED",
+        "host_evidence_qualifier": "IMPLEMENTED_AND_CONTRACT_QUALIFIED",
+        "physical_host_verification": "UNAVAILABLE_PENDING_EXTERNAL_TRUST_BINDING",
         "rollback_ready": gate["criteria"]["rollback_ready"],
         "independent_verifier": gate["criteria"]["independent_verifier"],
         "market_classification": market["classification"],
