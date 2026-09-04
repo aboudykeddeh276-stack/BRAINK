@@ -1,0 +1,60 @@
+{
+  "schema": "braink.r24.canonical-physical-host-trust-binding-state-drift/v1",
+  "subject": "R24_ENGINEERING_CONTROL_STATE.physical_multi_host",
+  "governing_baseline": "BRAINK_R24_ENGINEERING_CONTROL",
+  "classification": "STATE_DRIFT",
+  "discovery": {
+    "canonical_state": "deployments/R24_ENGINEERING_CONTROL_STATE.json",
+    "canonical_blob_sha": "5e7ea19ac5515cfe898b70f94fafbbb998a24c4c",
+    "resident_binder": "enterprise/physical_host_trust_binding_r24.py",
+    "resident_invariant": "scripts/kex-ci/test_physical_host_trust_binding_r24.py",
+    "resident_gate": "scripts/kex-ci/test_r24_physical_multi_host_gate.py",
+    "resident_reconciliation": "deployments/R24_PHYSICAL_HOST_TRUST_BINDING_RECONCILIATION_R2.json",
+    "resident_reconciliation_root": "907697e4ca94d405bf3dc1aa722ed76c0e81ddc628e0e1c408a9c087c44c2405",
+    "resident_reconciliation_commit": "e44906b500f144c157e3a5d6b9066b1047a1bb03"
+  },
+  "observed_mismatch": {
+    "canonical_physical_surface_contains_structural_verifier": true,
+    "canonical_physical_surface_contains_external_trust_binder": false,
+    "canonical_physical_surface_contains_trust_binding_invariant": false,
+    "canonical_physical_surface_contains_trust_binding_reconciliation": false,
+    "resident_trust_binding_implementation_exists": true,
+    "workflow_wiring_exists": true
+  },
+  "required_canonical_reconciliation": {
+    "external_trust_binder": "enterprise/physical_host_trust_binding_r24.py",
+    "external_trust_binding_invariant": "scripts/kex-ci/test_physical_host_trust_binding_r24.py",
+    "external_trust_binding_reconciliation": "deployments/R24_PHYSICAL_HOST_TRUST_BINDING_RECONCILIATION_R2.json",
+    "external_trust_binding_receipt_root": "907697e4ca94d405bf3dc1aa722ed76c0e81ddc628e0e1c408a9c087c44c2405",
+    "trust_binding_contract": "IMPLEMENTED_MAXIMUM_TRUST_BOUND_PHYSICAL_UNVERIFIED",
+    "production_external_trust_evidence": "NOT_OBSERVED",
+    "distinct_physical_hosts": "UNEXECUTED",
+    "physical_host_status": "UNVERIFIED",
+    "independent_verification": "PENDING",
+    "promotion": "REJECTED",
+    "market_readiness": "ENGINEERING_ONLY"
+  },
+  "r24_transition": {
+    "DISCOVER": "PASS",
+    "RECONCILE_SOURCE_STATE": "STATE_DRIFT_IDENTIFIED",
+    "ARCHITECTURE_DECISION": "REUSE_RESIDENT_TRUST_BINDER_DO_NOT_REIMPLEMENT",
+    "IMPLEMENT": "NO_NEW_RUNTIME_IMPLEMENTATION_REQUIRED",
+    "STATIC_VALIDATE": "RESIDENT_SOURCE_READBACK_PASS",
+    "UNIT_TEST": "NOT_REEXECUTED_THIS_TRANSITION",
+    "INTEGRATION_TEST": "NOT_OBSERVED_DISTINCT_PHYSICAL_HOSTS",
+    "FAULT_INJECTION": "RESIDENT_CONTRACT_ADVERSE_PATHS_EXIST_EXECUTION_NOT_REOBSERVED",
+    "SECURITY_GATE": "INCOMPLETE",
+    "QUALITY_GATE": "INCOMPLETE",
+    "BUILD_RELEASE_MANIFEST": "EXISTING_CANDIDATE_GATE_MANIFEST",
+    "INDEPENDENT_VERIFY": "PENDING",
+    "PROMOTE_OR_REJECT": "REJECTED",
+    "DEPLOY": "RECONCILIATION_RECEIPT_ONLY",
+    "READBACK_RECONCILE": "PENDING_CANONICAL_STATE_MUTATION",
+    "MARKET_READINESS_EVALUATE": "ENGINEERING_ONLY",
+    "CONTINUE": "MUTATE_CANONICAL_PHYSICAL_MULTI_HOST_SURFACE_THEN_DISTINCT_HOST_EXECUTION"
+  },
+  "no_duplicate_capability": true,
+  "certification_claim": false,
+  "receipt_root": "0397976a9ad4f68a8f26980d8b67fbcb4a3f768af64f4cde14b971127f2ae72b",
+  "receipt_root_scope": "sha256(canonical_json_without_receipt_root_fields)"
+}
