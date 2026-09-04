@@ -1,0 +1,41 @@
+{
+  "schema": "braink.typed-authority-fabric.r23",
+  "contract": "ONE_CANONICAL_DOMAIN_MANY_TYPED_SERVICES_WITH_INDEPENDENT_AUTHORITY_GATES",
+  "canonical_id": "LEX://DOMAIN/keddeh.com",
+  "services": {
+    "CLOUD": "LEX://CLOUD/BRAINK/GLOBAL",
+    "DNS": "LEX://DNS/keddeh.com",
+    "REGISTRAR": "LEX://REGISTRAR/keddeh.com",
+    "TLS": "LEX://TLS/keddeh.com"
+  },
+  "checks": {
+    "all_typed_services_initial_write": true,
+    "all_service_ids_distinct": true,
+    "canonical_domain_shared": true,
+    "all_secondary_reads_after_primary_loss": true,
+    "all_secondary_carriers_selected": true,
+    "public_dns_blocked": true,
+    "registry_authority_blocked": true,
+    "ca_authority_blocked": true,
+    "cloud_revision_advanced_on_secondary": true,
+    "dns_revision_advanced_on_secondary": true,
+    "cloud_reconciled_exact": true,
+    "dns_reconciled_exact": true,
+    "lineage_distinct_after_reconcile": true,
+    "registrar_tls_state_preserved": true
+  },
+  "final_hashes": {
+    "cloud": "53c04d06347820f585e82f9244b7a3f5d9c0b0e5e3a0d404280ff52e968befd7",
+    "dns": "ba951b324c79a2990729925d2bda89521650d314326bcc79da7bc0a78c81834c",
+    "registrar": "0b69d37180612025c9ff5a62353c15dc80fc04894b7fcddfefdb806618cc1b6d",
+    "tls": "d269ead49a169b62534f3e573bf9ff010475b2df9913ee138d0f8bf845fdd8f6"
+  },
+  "external_authority": {
+    "public_dns": "NOT_GRANTED",
+    "registry": "NOT_GRANTED",
+    "ca_tls": "NOT_GRANTED"
+  },
+  "runtime_sha256": "e8fadbb08da815d1b82a12b61a3fd36bc5303e8dbeafcc9ff1ee8ff3790ded98",
+  "receipt_sha256": "c30f4e5d35b113466befa0ab9e3266331947e127f759c285ec25268f2d97d912",
+  "status": "PASS"
+}
