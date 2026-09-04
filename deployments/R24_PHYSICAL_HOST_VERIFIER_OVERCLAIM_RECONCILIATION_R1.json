@@ -1,0 +1,28 @@
+{
+  "schema": "braink.r24.physical-host-verifier-reconciliation/v1",
+  "subject": "R24_PHYSICAL_HOST_EVIDENCE_VERIFIER",
+  "classification": "OVERCLAIM",
+  "observed": {
+    "verifier_path": "enterprise/physical_host_evidence_r24.py",
+    "test_path": "scripts/kex-ci/test_physical_host_evidence_r24.py",
+    "current_positive_fixture_status": "VERIFIED",
+    "fixture_uses_synthetic_attestation_roots": true,
+    "external_trust_binding": "NOT_REQUIRED_BY_CURRENT_API",
+    "physical_execution_evidence": "NOT_OBSERVED"
+  },
+  "fault": {
+    "id": "R24_PHYSICAL_ATTESTATION_TRUST_BINDING_MISSING",
+    "description": "Current verifier can return VERIFIED from structurally valid synthetic attestations without externally anchored trust over attestation roots.",
+    "impact": "VERIFIED is stronger than the evidence actually established by the verifier contract."
+  },
+  "r24_decision": "DO_NOT_PROMOTE_PHYSICAL_MULTI_HOST; REQUIRE_EXPLICIT_EXTERNAL_TRUST_BINDING_BEFORE_VERIFIED_STATUS",
+  "required_correction": [
+    "separate structural qualification from physical verification",
+    "require explicit external trust source for accepted attestation roots",
+    "keep synthetic fixtures non-execution evidence",
+    "retain physical_multi_host promotion REJECTED until actual distinct-host execution, rollback, fault-injection and independent verification exist"
+  ],
+  "promotion": "REJECTED",
+  "certification_claim": false,
+  "receipt_root": "3e388d8ac7495e283021d23b7b42b0c13642c5c82aa9b90eec4b7ca385c6dafb"
+}
