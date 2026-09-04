@@ -1,0 +1,62 @@
+{
+  "certification_claim": false,
+  "classification": "STATE_DRIFT_RECONCILED_PROOF_MECHANISM_ADDED_EXECUTION_UNPROVEN",
+  "commits": {
+    "contract_invariant": "5457b6fa458c18d97648b056cc3a6349b029a7b9",
+    "gate": "cc5297acd0376b6b77fbba0a68771be1db9a9ee5",
+    "verifier": "340fa56a907b8b3c9ac8e72f3a400ca50690c2b4",
+    "workflow": "0407cf9b3b8044294333abef949785550295be53"
+  },
+  "governing_baseline": "R24_ENGINEERING_CONTROL_ABOVE_R23_FOUNDRY_CLOSURE",
+  "implemented": {
+    "contract_invariant": "scripts/kex-ci/test_physical_host_evidence_r24.py",
+    "promotion_gate": "scripts/kex-ci/test_r24_physical_multi_host_gate.py",
+    "verifier": "enterprise/physical_host_evidence_r24.py",
+    "workflow": ".github/workflows/keddeh-enterprise-control.yml"
+  },
+  "local_validation": {
+    "contract_invariant": "PASS",
+    "duplicate_fingerprint_fixture": "UNVERIFIED",
+    "gate_compile": "PASS",
+    "marker": "R24_PHYSICAL_HOST_EVIDENCE_VERIFIER_PASS",
+    "module_compile": "PASS",
+    "positive_contract_fixture": "VERIFIED_CONTRACT_ONLY",
+    "positive_contract_fixture_is_execution_evidence": false,
+    "self_declared_three_host_fixture": "UNVERIFIED",
+    "wrong_package_fixture": "UNVERIFIED"
+  },
+  "preserved_boundary": {
+    "actual_physical_attestations": "NOT_OBSERVED",
+    "distinct_physical_hosts": "UNEXECUTED",
+    "independent_verification": "PENDING",
+    "market_readiness": "ENGINEERING_ONLY",
+    "physical_fault_injection": "NOT_OBSERVED",
+    "physical_rollback_execution": "NOT_OBSERVED",
+    "promotion": "REJECTED",
+    "quality_gate": "INCOMPLETE",
+    "security_gate": "INCOMPLETE"
+  },
+  "proof_rules": [
+    "DO_NOT_INFER_PHYSICAL_DISTINCTNESS_FROM_PROCESS_IDS_SOCKETS_CONTAINERS_HOSTNAMES_OR_SELF_DECLARED_MACHINE_IDS",
+    "REQUIRE_MINIMUM_THREE_HOSTS",
+    "REQUIRE_UNIQUE_HOST_IDS_MACHINE_FINGERPRINTS_AND_ATTESTATION_ROOTS",
+    "REQUIRE_IDENTICAL_EXPECTED_PACKAGE_HASH_ON_ALL_HOSTS",
+    "REQUIRE_INDEPENDENT_OR_HARDWARE_ROOTED_ATTESTATION",
+    "REQUIRE_EXECUTION_PEER_QUORUM_FAULT_RECOVERY_AND_ROLLBACK_ROOTS"
+  ],
+  "receipt_root": "85f4a8eefb6773931ea88c22875006b59b4557e0a93aa5c6d7f5c217681038d5",
+  "resident_capability": {
+    "decision": "REUSE_RESIDENT_MESH_DO_NOT_REIMPLEMENT",
+    "mesh": "KEDDEH K-OS/BOS Mesh Substrate v2.0",
+    "package_sha256": "7f48db1cfc94c3eaf11140d472a3e6e160ef4fa55ae5c9c275c1995ed8d980e2"
+  },
+  "schema": "braink.r24.physical-host-proof-verifier-reconciliation/v1",
+  "subject": "R22_KOS_MESH_PHYSICAL_MULTI_HOST_PROOF_VERIFIER",
+  "workflow_readback": {
+    "conclusion": null,
+    "head_sha": "cc5297acd0376b6b77fbba0a68771be1db9a9ee5",
+    "post_change_ci": "NOT_OBSERVED",
+    "run_id": 33839940709,
+    "status": "QUEUED"
+  }
+}
