@@ -27,12 +27,13 @@
         "component_id": "KEX_MIRROR_LANE_STATE_TRANSFER_R1",
         "repository": "aboudykeddeh276-stack/KEDDEH-CLOUD-SERVERS-ID-1",
         "pull_request": 5,
-        "commit": "0c23cbfcee2a2d86a69da59d86188005017c4b38",
+        "commit": "a3e25b1d5b3ed4e57d57d8543ef61338ecf3c69a",
         "runtime": "runtime://kex/mirror-lane/state-transfer/r1",
         "control_index": "mirror_lane_storage_substrate/CONTROL_INDEX.md",
-        "component_spec": "mirror_lane_storage_substrate/MIRROR_LANE_COMPONENT_SPEC.json"
+        "component_spec": "mirror_lane_storage_substrate/MIRROR_LANE_COMPONENT_SPEC.json",
+        "qualification_workflow": ".github/workflows/mirror-lane-state-transfer-qualification.yml"
       },
-      "current_execution_observation": "Dedicated L5 hosted job instantiated but executed zero steps; Host A L7 remains queued. This blocks evidence acquisition and is not application failure evidence."
+      "current_execution_observation": "A prior dedicated L5 hosted job instantiated but executed zero steps; Host A L7 remained queued. This blocks evidence acquisition and is not application failure evidence. New governed revisions must execute before the evidence level changes."
     }
   ]
 }
