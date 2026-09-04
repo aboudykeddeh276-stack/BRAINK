@@ -64,11 +64,11 @@ class KexDNSServer:
                 res_question = data[12:idx+4]
                 ip_bytes = socket.inet_aton(resolved_ip)
                 res_answer = struct.pack('!HHHLH', 0xC00C, 1, 1, 60, 4) + ip_bytes
-                return data[:12] + res_header[12:] + res_question + res_answer
+                return res_header + res_question + res_answer
             else:
                 response_flags = 0x8183
                 res_header = struct.pack('!HHHHHH', tx_id, response_flags, qdcount, 0, 0, 0)
-                return data[:12] + res_header[12:] + data[12:idx+4]
+                return res_header + data[12:idx+4]
 
         except Exception as e:
             print(f"[KEX_DNS] Parsing Error: {e}")
