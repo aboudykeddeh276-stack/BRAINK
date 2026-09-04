@@ -1,0 +1,54 @@
+{
+  "schema": "braink.r24.domain-durable-execution-reconciliation/v2",
+  "release": "R24",
+  "subject": "publication_domain_durable_execution_r5",
+  "status": "IMPLEMENTED_AND_ADVERSARIALLY_QUALIFIED_LOCAL_NOT_PROMOTED",
+  "predecessor_receipt": "deployments/R24_DOMAIN_DURABLE_EXECUTION_RECONCILIATION_R1.json",
+  "predecessor_receipt_root": "279c9eadb50ca49d7dad90f28b9bc8da0e01fd94cba059796ea5b017e46dcb49",
+  "resident_binding": "enterprise/orchestration/durable_execution_r5.py",
+  "qualified_source_git_blob_sha": "e51ccd625b49a39f6fe0552e65f3cb36f9195c1b",
+  "source_lineage_gate": "CURRENT_BYTES_MUST_MATCH_QUALIFIED_GIT_BLOB",
+  "observed_evidence": {
+    "signed_lineage_replay_rejected": true,
+    "signed_lineage_tamper_rejected": true,
+    "lease_fencing_stale_epoch_rejected": true,
+    "crash_atomicity_after_control": "PASS_ROLLBACK_EMPTY",
+    "crash_atomicity_after_authority": "PASS_ROLLBACK_EMPTY",
+    "successful_atomic_domain_authority_commit": "PASS",
+    "concurrent_writers": {
+      "attempts": 200,
+      "failures": 0
+    },
+    "fresh_process_replacement": "PASS",
+    "checkpoint_tamper_rejected": true,
+    "hard_process_crash_returncode": 137,
+    "hard_process_crash_rollback_verified": true,
+    "local_split_brain_contenders": 20,
+    "local_split_brain_winner_count": 1,
+    "local_split_brain_fenced": true
+  },
+  "r24_reconciliation": {
+    "classification": "STATE_DRIFT_RECONCILED_EVIDENCE_SOURCE_LINEAGE",
+    "architecture_decision": "REUSE_DURABLE_EXECUTION_R5; BIND_QUALIFICATION_EVIDENCE_TO_EXACT_SOURCE_BYTES; DO_NOT_DUPLICATE",
+    "static_validation": "SOURCE_BYTE_LINEAGE_REQUIRED",
+    "rollback_readiness_local": "PASS",
+    "fault_injection_local": "PASS",
+    "security_mechanics_partial": "REPLAY_TAMPER_FENCING_PASS_LOCAL",
+    "quality_gate": "PENDING_FULL_R24_PROFILE",
+    "independent_verify": "PENDING",
+    "immutable_release_manifest": "CANDIDATE_RUNTIME_MANIFEST_ONLY_NOT_PROMOTED",
+    "market_readiness": "ENGINEERING_ONLY",
+    "promotion": "REJECTED_PENDING_REMAINING_R24_GATES"
+  },
+  "claim_boundaries": {
+    "single_host_local_multi_process": "PROVEN_BY_RECORDED_EVIDENCE_FOR_QUALIFIED_SOURCE_BYTES_ONLY",
+    "physical_multi_host": "UNPROVEN",
+    "wan_partition": "UNPROVEN",
+    "public_authoritative_dns": "UNPROVEN",
+    "registrar_epp_authority": "UNPROVEN",
+    "production_ha": "UNPROVEN"
+  },
+  "next_transition": "RUN_R24_PUBLICATION_DOMAIN_GATE_WITH_EXACT_SOURCE_LINEAGE_CHECK; REQUALIFY_IF_SOURCE_BYTES_CHANGE",
+  "certification_claim": "NONE",
+  "receipt_root": "09134b13ebdd15935b1ce5898a7891ce6116d840d8319be06d1a7093549dcf43"
+}
