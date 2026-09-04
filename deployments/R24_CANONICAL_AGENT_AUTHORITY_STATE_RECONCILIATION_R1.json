@@ -1,0 +1,27 @@
+{
+  "canonical_state": {
+    "blob": "1d3696dc91e1f52f5ac2015140434318e3c18ade",
+    "commit": "74a06ce0382de83910bb2769973c76420ea4ebfa",
+    "path": "deployments/R24_ENGINEERING_CONTROL_STATE.json",
+    "readback": "PASS",
+    "surface": "agent_authority"
+  },
+  "classification": "STATE_DRIFT_RECONCILED",
+  "decision": "RECONCILE_CANONICAL_AGENT_AUTHORITY_SURFACE_ONLY_DO_NOT_DUPLICATE_RUNTIME_CAPABILITY",
+  "no_certification_claim": true,
+  "promotion_boundary": {
+    "hosted_execution": "FAULT_EXECUTOR_BOUNDARY_ZERO_STEPS",
+    "independent_verification": "PENDING",
+    "promotion": "REJECTED",
+    "quality_gate": "INCOMPLETE_BY_DESIGN",
+    "rollback_readiness": "MISSING",
+    "security_gate": "INCOMPLETE_BY_DESIGN",
+    "specialist_execution": "QUEUED_NOT_OBSERVED"
+  },
+  "receipt_root": "da92910e8caccc834b4d06b6e147ab04f27a7ab85eb0956991edba4b9ab52796",
+  "schema": "braink.r24.canonical-agent-authority-state-reconciliation/v1",
+  "source_reconciliation": {
+    "path": "deployments/R24_AGENT_AUTHORITY_GATE_RECONCILIATION_R1.json",
+    "receipt_root": "9e7e373bde82ec6e61434af8e50b1334a4df6d920537d5ff006586ea7f8127e5"
+  }
+}
