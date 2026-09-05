@@ -1,0 +1,30 @@
+name: Repository Capability Observation
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 2 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  observe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout BRAINK
+        uses: actions/checkout@v4
+      - name: Observe repository estate
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_OWNER: aboudykeddeh276-stack
+          KEX_OUTPUT: repository-capability-observation.json
+        run: python3 scripts/repository_capability_scanner.py
+      - name: Validate observation artifact
+        run: python3 -m json.tool repository-capability-observation.json >/dev/null
+      - name: Upload observation
+        uses: actions/upload-artifact@v4
+        with:
+          name: repository-capability-observation
+          path: repository-capability-observation.json
+          if-no-files-found: error
