@@ -1,0 +1,21 @@
+[Unit]
+Description=BRAINK Canonical Window Propagation Service
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/braink
+Environment=BRAINK_PROPAGATION_HOST=127.0.0.1
+Environment=BRAINK_PROPAGATION_PORT=18771
+Environment=BRAINK_PROPAGATION_LEDGER=/var/lib/braink/window-propagation.sqlite3
+ExecStart=/usr/bin/env python3 /opt/braink/services/window_propagation_server.py
+Restart=on-failure
+RestartSec=2
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/braink
+
+[Install]
+WantedBy=multi-user.target
