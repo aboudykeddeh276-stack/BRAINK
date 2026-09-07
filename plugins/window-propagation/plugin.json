@@ -1,0 +1,38 @@
+{
+  "id": "braink.window-propagation",
+  "version": "1.0.0",
+  "authority": "braink://local/orchestrator",
+  "runtime": "services/window_propagation_server.py",
+  "transport": {
+    "type": "http-local",
+    "bind": "127.0.0.1:18771"
+  },
+  "capabilities": [
+    {
+      "id": "window.compile",
+      "method": "POST",
+      "path": "/v1/compile",
+      "risk": "MUTATE",
+      "semantics": "canonicalise ordered sector signals into one proof-addressed propagation frame"
+    },
+    {
+      "id": "window.replay",
+      "method": "GET",
+      "path": "/v1/replay/{work_id}",
+      "risk": "READ",
+      "semantics": "read the latest durable frame for a work identity"
+    },
+    {
+      "id": "window.health",
+      "method": "GET",
+      "path": "/healthz",
+      "risk": "READ"
+    }
+  ],
+  "invariants": [
+    "originating sector retains semantic ownership",
+    "signals are deterministically ordered before wrapper exit",
+    "one canonical SHA-256 root identifies the compiled frame",
+    "durable replay is backed by SQLite WAL state"
+  ]
+}
