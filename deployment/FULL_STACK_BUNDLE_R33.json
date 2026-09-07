@@ -1,0 +1,36 @@
+{
+  "bundle_id": "BRAINK_FULL_STACK_BUNDLE_R33",
+  "status": "IMPLEMENTED_ON_BRANCH",
+  "authority": "braink://local/orchestrator",
+  "branch": "evolution/full-stack-bundle-r33",
+  "components": {
+    "app_runtime": "runtime/window_propagation.py",
+    "server": "services/window_propagation_server.py",
+    "plugin": "plugins/window-propagation/plugin.json",
+    "skill": "skills/window-propagation/SKILL.md",
+    "service_unit": "deployment/braink-window-propagation.service",
+    "tests": "tests/test_window_propagation.py"
+  },
+  "integration_targets": [
+    "NativeChatBot",
+    "mcp/braink_process_adapter",
+    "enterprise/runtime",
+    "enterprise/market_services",
+    "modules/kex_wbos",
+    "runtime/agents"
+  ],
+  "invariants": [
+    "one canonical propagation frame exits a logical wrapper",
+    "sector business semantics remain sector-owned",
+    "projection is not execution proof",
+    "every persisted frame has a SHA-256 canonical root",
+    "replay is durable and root-verifiable",
+    "the service binds locally by default"
+  ],
+  "deployment_state": {
+    "repository_written": true,
+    "branch_created": true,
+    "production_host_started": false,
+    "reason": "repository connector can mutate GitHub state but does not provide shell or host-service control for the owner machine"
+  }
+}
