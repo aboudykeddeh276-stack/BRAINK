@@ -18,9 +18,10 @@ class ResidentExecutionFabricTests(unittest.TestCase):
     def setUp(self):
         self.tmp=tempfile.TemporaryDirectory(); self.root=Path(self.tmp.name); self.state=self.root/"state"; self.key=b"K"*32; self.routes_before=dict(DEFAULT_ROUTES)
         DEFAULT_ROUTES.clear(); DEFAULT_ROUTES.update({
-            "test-pass":{"runtime_id":"runtime://test/pass","runtime_class":"ONE_SHOT_JOB","argv":[sys.executable,"-c","import json;print(json.dumps({'observed':'PASS'}))"],"dependencies":[],"health_endpoint":None},
+            "test-pass":{"runtime_id":"runtime://test/pass","runtime_class":"ONE_SHOT_JOB","argv":[sys.executable,"-c","import json;print(json.dumps({'observed':'PASS'}))"],"dependencies":[],"health_endpoint":None,"timeout_seconds":9},
             "test-fail":{"runtime_id":"runtime://test/fail","runtime_class":"ONE_SHOT_JOB","argv":[sys.executable,"-c","import sys;print('intentional failure');sys.exit(7)"],"dependencies":[],"health_endpoint":None},
             "test-service":{"runtime_id":"runtime://test/service","runtime_class":"PROCESS","argv":[sys.executable,"-c","import time;time.sleep(30)"],"dependencies":[],"health_endpoint":None},
+            "test-invalid-timeout":{"runtime_id":"runtime://test/bad-timeout","runtime_class":"ONE_SHOT_JOB","argv":[sys.executable,"-c","print('no')"],"dependencies":[],"health_endpoint":None,"timeout_seconds":7200},
         }); self.fabric=ResidentExecutionFabric(self.root,self.state,self.key)
     def tearDown(self):
         try:
@@ -32,7 +33,7 @@ class ResidentExecutionFabricTests(unittest.TestCase):
     def envelope(self,work_id,route="test-pass",operation="RUN_ONCE",epoch=1):
         return self.fabric.sign({"work_id":work_id,"correlation_id":"corr-"+work_id,"actor":{"type":"TEST_AUTHORITY","id":"kex-ci"},"sector":"runtime","route":route,"operation":operation,"continuation":{"epoch":epoch,"status":"ADMITTED"},"carrier":"test://local"})
     def test_registered_job_executes_and_returns_rooted_proof(self):
-        result=self.fabric.dispatch(self.envelope("work-pass")); self.assertEqual(result["status"],"COMPLETED"); self.assertEqual(result["observed"]["returncode"],0); self.assertEqual(len(result["proof"]),64)
+        result=self.fabric.dispatch(self.envelope("work-pass")); self.assertEqual(result["status"],"COMPLETED"); self.assertEqual(result["observed"]["returncode"],0); self.assertEqual(result["observed"]["timeout_seconds"],9.0); self.assertEqual(len(result["proof"]),64)
         persisted=self.fabric.journal.get("work-pass"); self.assertEqual(persisted["state"],"COMPLETED"); self.assertEqual(persisted["proof_root"],result["proof"]); self.assertEqual([e["state"] for e in self.fabric.journal.events("work-pass")],["ADMITTED","EXECUTING","COMPLETED"])
     def test_same_signed_envelope_cannot_replay(self):
         envelope=self.envelope("work-replay"); self.fabric.dispatch(envelope)
@@ -44,6 +45,9 @@ class ResidentExecutionFabricTests(unittest.TestCase):
         envelope=self.fabric.sign({"work_id":"work-injection","actor":{"type":"TEST_AUTHORITY"},"sector":"runtime","route":"../../bin/sh","operation":"RUN_ONCE","continuation":{"epoch":1,"status":"ADMITTED"}})
         with self.assertRaises(RoutePolicyError):self.fabric.dispatch(envelope)
         self.assertIsNone(self.fabric.journal.get("work-injection"))
+    def test_invalid_route_timeout_is_rejected_before_execution(self):
+        with self.assertRaises(RoutePolicyError):self.fabric.dispatch(self.envelope("work-bad-timeout",route="test-invalid-timeout"))
+        persisted=self.fabric.journal.get("work-bad-timeout"); self.assertEqual(persisted["state"],"FAILED"); self.assertIn("invalid timeout_seconds",persisted["failure"])
     def test_failed_registered_job_is_not_promoted_and_is_journaled(self):
         with self.assertRaises(RuntimeError):self.fabric.dispatch(self.envelope("work-fail",route="test-fail"))
         persisted=self.fabric.journal.get("work-fail"); self.assertEqual(persisted["state"],"FAILED"); self.assertIn("registered job failed",persisted["failure"]); self.assertIsNone(persisted["proof_root"])
