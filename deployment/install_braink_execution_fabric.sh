@@ -15,24 +15,41 @@ MODE="${1:-install}"
 
 require() { command -v "$1" >/dev/null 2>&1 || { echo "MISSING_COMMAND:$1" >&2; exit 10; }; }
 require python3
+
+if git -C "$ROOT" rev-parse --verify HEAD >/dev/null 2>&1; then
+  RELEASE_ID="$(git -C "$ROOT" rev-parse HEAD)"
+else
+  require sha256sum
+  RELEASE_ID="tree-$(find "$ROOT" -type f -not -path '*/.git/*' -print0 | sort -z | xargs -0 sha256sum | sha256sum | awk '{print $1}')"
+fi
+RELEASE_DIR="$RELEASES/$RELEASE_ID"
+
+python3 -m py_compile \
+  "$ROOT/enterprise/orchestration/resident_execution_fabric.py" \
+  "$ROOT/deployment/braink_execution_service.py" \
+  "$ROOT/deployment/braink_execctl.py" \
+  "$ROOT/enterprise/runtime/process_supervisor.py" \
+  "$ROOT/runtime/runtime_route_registry.py"
+python3 "$ROOT/scripts/kex-ci/test_resident_execution_fabric.py"
+
+if [[ "$MODE" == "preflight" ]]; then
+  printf '{"status":"PREFLIGHT_PASS","release_id":"%s","source":"%s"}\n' "$RELEASE_ID" "$ROOT"
+  exit 0
+fi
+if [[ "$MODE" != "install" ]]; then
+  echo "USAGE:$0 [preflight|install]" >&2
+  exit 12
+fi
+
 require systemctl
 require tar
-require sha256sum
-
 if [[ "$EUID" -ne 0 ]]; then
   echo "ROOT_REQUIRED" >&2
   exit 11
 fi
 
-if git -C "$ROOT" rev-parse --verify HEAD >/dev/null 2>&1; then
-  RELEASE_ID="$(git -C "$ROOT" rev-parse HEAD)"
-else
-  RELEASE_ID="tree-$(find "$ROOT" -type f -not -path '*/.git/*' -print0 | sort -z | xargs -0 sha256sum | sha256sum | awk '{print $1}')"
-fi
-RELEASE_DIR="$RELEASES/$RELEASE_ID"
 PREVIOUS_TARGET="$(readlink -f "$CURRENT" 2>/dev/null || true)"
 ACTIVATED=0
-
 rollback() {
   rc=$?
   if [[ $rc -ne 0 && $ACTIVATED -eq 1 ]]; then
@@ -50,24 +67,6 @@ rollback() {
   exit "$rc"
 }
 trap rollback EXIT
-
-python3 -m py_compile \
-  "$ROOT/enterprise/orchestration/resident_execution_fabric.py" \
-  "$ROOT/deployment/braink_execution_service.py" \
-  "$ROOT/deployment/braink_execctl.py" \
-  "$ROOT/enterprise/runtime/process_supervisor.py" \
-  "$ROOT/runtime/runtime_route_registry.py"
-python3 "$ROOT/scripts/kex-ci/test_resident_execution_fabric.py"
-
-if [[ "$MODE" == "preflight" ]]; then
-  printf '{"status":"PREFLIGHT_PASS","release_id":"%s","source":"%s"}\n' "$RELEASE_ID" "$ROOT"
-  trap - EXIT
-  exit 0
-fi
-if [[ "$MODE" != "install" ]]; then
-  echo "USAGE:$0 [preflight|install]" >&2
-  exit 12
-fi
 
 mkdir -p "$RELEASES" "$ENV_DIR" "$STATE_DIR"
 chmod 0700 "$ENV_DIR" "$STATE_DIR"
@@ -95,12 +94,11 @@ systemctl daemon-reload
 systemctl enable --now "$SERVICE_NAME"
 
 for _ in $(seq 1 80); do
-  if [[ -S "$SOCKET" ]]; then
-    break
-  fi
+  [[ -S "$SOCKET" ]] && break
   sleep 0.1
 done
 test -S "$SOCKET"
+[[ "$(stat -c '%a' "$SOCKET")" == "600" ]]
 
 set -a
 # shellcheck disable=SC1090
@@ -121,6 +119,7 @@ for _ in $(seq 1 80); do
   sleep 0.1
 done
 test -S "$SOCKET"
+[[ "$(stat -c '%a' "$SOCKET")" == "600" ]]
 HEALTH_AFTER="$(python3 "$CURRENT/deployment/braink_execctl.py" --socket "$SOCKET" health)"
 READBACK_AFTER="$(python3 "$CURRENT/deployment/braink_execctl.py" --socket "$SOCKET" readback "$WORK_ID")"
 
@@ -143,7 +142,7 @@ print(json.dumps({
   'previous_release':previous or None,
   'work_id':work_id,
   'proof_root':dispatch['proof'],
-  'socket_mode_required':'0600',
+  'socket_mode':'0600',
   'service':'braink-execution.service',
   'health_before_restart':health_before,
   'health_after_restart':health_after,
