@@ -8,8 +8,8 @@ on:
       - 'deploy/braink-public/*antigravity*'
       - '.github/workflows/deploy-braink-antigravity.yml'
 concurrency:
-  group: braink-antigravity-production
-  cancel-in-progress: false
+  group: braink-antigravity-production-v2
+  cancel-in-progress: true
 jobs:
   preflight:
     runs-on: ubuntu-latest
