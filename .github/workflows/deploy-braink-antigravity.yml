@@ -11,8 +11,8 @@ concurrency:
   group: braink-antigravity-production
   cancel-in-progress: false
 jobs:
-  deploy:
-    runs-on: [self-hosted]
+  preflight:
+    runs-on: ubuntu-latest
     permissions:
       contents: read
     steps:
@@ -23,6 +23,73 @@ jobs:
             deploy/braink-public/antigravity_gateway.py \
             deploy/braink-public/build_antigravity_sites.py \
             deploy/braink-public/deploy_antigravity_live.py
+      - name: Exercise gateway Unix-socket dispatch and proof propagation
+        run: |
+          python3 - <<'PY'
+          import json, os, socket, subprocess, sys, tempfile, threading, time, urllib.request
+          sock_path = os.path.join(tempfile.gettempdir(), 'braink-antigravity-preflight.sock')
+          try: os.unlink(sock_path)
+          except FileNotFoundError: pass
+          stop = threading.Event()
+          def server():
+              s=socket.socket(socket.AF_UNIX,socket.SOCK_STREAM); s.bind(sock_path); s.listen(4); s.settimeout(0.25)
+              try:
+                  while not stop.is_set():
+                      try: c,_=s.accept()
+                      except socket.timeout: continue
+                      with c:
+                          buf=b''
+                          while not buf.endswith(b'\n'):
+                              x=c.recv(65536)
+                              if not x: break
+                              buf+=x
+                          req=json.loads(buf.decode())
+                          env=req['envelope']
+                          out={'status':'PASS','correlation_id':env['correlation_id'],'proof':{'ledger':'preflight','root':'deterministic'}}
+                          c.sendall((json.dumps(out,separators=(',',':'))+'\n').encode())
+              finally: s.close()
+          t=threading.Thread(target=server,daemon=True); t.start()
+          deadline=time.time()+3
+          while not os.path.exists(sock_path) and time.time()<deadline: time.sleep(0.02)
+          env=os.environ.copy(); env['BRAINK_ORCHESTRATOR_SOCKET']=sock_path; env['BRAINK_ANTIGRAVITY_PORT']='18800'
+          p=subprocess.Popen([sys.executable,'deploy/braink-public/antigravity_gateway.py'],env=env)
+          try:
+              time.sleep(0.4)
+              health=json.loads(urllib.request.urlopen('http://127.0.0.1:18800/health',timeout=3).read())
+              assert health['status']=='PASS' and health['orchestrator_socket_ready'] is True, health
+              probe={'protocol':'braink.adapter.v1','kind':'intent','correlation_id':'preflight-1','intent':'non-mutating readiness proof'}
+              req=urllib.request.Request('http://127.0.0.1:18800/braink/dispatch',data=json.dumps(probe).encode(),headers={'content-type':'application/json'},method='POST')
+              result=json.loads(urllib.request.urlopen(req,timeout=3).read())
+              assert result['status']=='PASS', result
+              assert result['correlation_id']=='preflight-1', result
+              assert result.get('proof'), result
+          finally:
+              p.terminate(); p.wait(timeout=3); stop.set(); t.join(timeout=1)
+              try: os.unlink(sock_path)
+              except FileNotFoundError: pass
+          PY
+      - name: Verify fail-closed envelope validation
+        run: |
+          python3 - <<'PY'
+          import importlib.util
+          p='deploy/braink-public/antigravity_gateway.py'
+          spec=importlib.util.spec_from_file_location('ag',p); ag=importlib.util.module_from_spec(spec); spec.loader.exec_module(ag)
+          bad={'protocol':'wrong','kind':'intent','correlation_id':'x','intent':'x'}
+          try:
+              ag.validate_envelope(bad)
+          except ValueError as exc:
+              assert str(exc)=='INVALID_PROTOCOL'
+          else:
+              raise SystemExit('gateway accepted invalid protocol')
+          PY
+
+  deploy:
+    needs: preflight
+    runs-on: [self-hosted]
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
       - name: Verify resident execution boundaries
         run: |
           test -x /mnt/data/keddeh_deploy/resident_v5/KEDDEH_REGISTRAR_V5/START_FULL_DOMAIN_FABRIC.command
