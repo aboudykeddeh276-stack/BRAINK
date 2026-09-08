@@ -5,11 +5,11 @@ Wants=braink-runtime.service
 
 [Service]
 Type=simple
-WorkingDirectory=/opt/braink
+WorkingDirectory=/opt/braink/current
 EnvironmentFile=/etc/braink/execution.env
 Environment=BRAINK_EXECUTION_SOCKET=/run/braink/execution.sock
 Environment=BRAINK_EXECUTION_STATE=/var/lib/braink/resident-execution
-ExecStart=/usr/bin/python3 /opt/braink/deployment/braink_execution_service.py --socket /run/braink/execution.sock --state-dir /var/lib/braink/resident-execution
+ExecStart=/usr/bin/python3 /opt/braink/current/deployment/braink_execution_service.py --socket /run/braink/execution.sock --state-dir /var/lib/braink/resident-execution
 Restart=on-failure
 RestartSec=2
 RuntimeDirectory=braink
