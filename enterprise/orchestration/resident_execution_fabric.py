@@ -25,14 +25,11 @@ TERMINAL_STATES = {"COMPLETED", "FAILED", "REJECTED"}
 def canonical(value: Any) -> bytes:
     return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False, default=str).encode("utf-8")
 
-
 def root(value: Any) -> str:
     return hashlib.sha256(canonical(value)).hexdigest()
 
-
 class AdmissionError(RuntimeError): pass
 class RoutePolicyError(RuntimeError): pass
-
 
 class ExecutionJournal:
     """Crash-durable work/event journal. It records observed transitions, never inferred success."""
@@ -73,12 +70,10 @@ class ExecutionJournal:
     def events(self,work_id:str)->list[dict]:
         with self._db() as db:return [dict(r) for r in db.execute("SELECT * FROM events WHERE work_id=? ORDER BY seq",(work_id,)).fetchall()]
 
-
 @dataclass
 class ExecutionPolicy:
     max_run_seconds: float = 120.0
     require_proof: bool = True
-
 
 class ResidentExecutionFabric:
     """Signed, replay-fenced convergence over resident runtime mechanics; carriers never gain execution authority."""
@@ -122,7 +117,6 @@ class ResidentExecutionFabric:
     def _route(self,route:str)->dict:
         spec=self.routes.resolve(route); argv=list(spec.get("argv") or [])
         if not argv or not all(isinstance(x,str) and x for x in argv):raise RoutePolicyError("registered route has invalid argv")
-        # Resolve registered repository scripts to absolute paths so service WorkingDirectory cannot alter route meaning.
         for i,arg in enumerate(argv[1:],start=1):
             if arg.startswith("-") or Path(arg).is_absolute():continue
             candidate=(self.repo_root/arg).resolve()
@@ -140,14 +134,14 @@ class ResidentExecutionFabric:
     def _run_once(self,spec:dict)->Dict[str,Any]:
         started=time.monotonic_ns(); p=subprocess.run(spec["argv"],cwd=self.repo_root,capture_output=True,text=True,timeout=self.policy.max_run_seconds,shell=False)
         observed={"runtime_id":spec["runtime_id"],"runtime_class":spec["runtime_class"],"returncode":p.returncode,"stdout":p.stdout,"stderr":p.stderr,"elapsed_ns":time.monotonic_ns()-started}
-        if p.returncode!=0:raise RuntimeError("registered job failed: "+canonical(observed).decode()); return observed
+        if p.returncode!=0:raise RuntimeError("registered job failed: "+canonical(observed).decode())
         return observed
     def _start_runtime(self,spec:dict,restarted:bool=False)->Dict[str,Any]:
         rid=spec["runtime_id"]
         with self._lock:
             proc=self._processes.get(rid)
             if not proc:proc=ManagedProcess(rid,list(spec["argv"])); self._processes[rid]=proc
-            pid=proc.restart() if restarted and proc.alive() else proc.start(); observed=proc.snapshot()
+            pid=proc.restart() if restarted else proc.start(); observed=proc.snapshot()
             self.registry.upsert({**spec,"pid":pid,"generation":observed["generation"],"desired_state":"RUNNING","observed_state":"RUNNING" if observed["alive"] else "FAILED",
                                   "restart_count":observed["restart_count"],"last_readback":observed,"last_failure":observed["last_failure"]})
             return {"runtime_id":rid,**observed}
