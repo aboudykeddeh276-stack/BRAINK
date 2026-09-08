@@ -1,0 +1,121 @@
+{
+  "schema": "braink.agent-fabric.v1",
+  "authority": {
+    "orchestrator": "braink://local/orchestrator",
+    "semantic_traversal": "illlm://local/traversal",
+    "addressing": "kex://local/addressing",
+    "execution": "kex://local/execution",
+    "vfs": "vfs://kex/root",
+    "proof": "ledger://braink/proof"
+  },
+  "element_classes": [
+    "site",
+    "frontend_skill",
+    "user_agent",
+    "site_adapter",
+    "admin_surface",
+    "admin_adapter",
+    "admin_runtime",
+    "configuration_system",
+    "agent_registry",
+    "skill_registry",
+    "runtime_registry",
+    "api_server",
+    "ai_server",
+    "linux_runtime",
+    "workbook_runtime",
+    "vfs",
+    "memory",
+    "tool",
+    "proof_ledger"
+  ],
+  "resident_surfaces": {
+    "api": {
+      "class": "api_server",
+      "protocols": ["HTTP", "OpenAPI"],
+      "health_contract": "/healthz",
+      "compile_contract": "/v1/compile",
+      "replay_contract": "/v1/replay/{work_id}",
+      "role": "transport_and_runtime_ingress"
+    },
+    "linux": {
+      "class": "linux_runtime",
+      "role": "resident_execution_host",
+      "address": "runtime://kex/linux",
+      "required": ["kernel_or_guest_runtime", "process_execution", "durable_state_binding"]
+    },
+    "ai": {
+      "class": "ai_server",
+      "role": "model_and_agent_inference",
+      "address": "runtime://braink/ai",
+      "authority_rule": "inference_does_not_own_orchestration_state"
+    },
+    "workbook": {
+      "class": "workbook_runtime",
+      "address": "runtime://kex/ooxml/1",
+      "role": "structured_state_and_document_computation",
+      "addressing": "workbook://<id>/sheet/<sheet>/cell/<ref>"
+    },
+    "vfs": {
+      "class": "vfs",
+      "address": "vfs://kex/root",
+      "role": "logical_file_and_carrier_identity",
+      "host_filesystem_authority": false
+    },
+    "memory": {
+      "class": "memory",
+      "address": "memory://braink/session",
+      "role": "continuation_context_checkpoint_and_rehydration"
+    }
+  },
+  "dispatch_pipeline": [
+    "CAPTURE_SIGNAL",
+    "CLASSIFY_ACTOR",
+    "RESOLVE_AUTHORITY",
+    "ILLLM_TRAVERSE",
+    "BRAINK_RESOLVE_CAPABILITY",
+    "KEX_RESOLVE_ADDRESS",
+    "MOUNT_REQUIRED_STATE",
+    "SELECT_RESIDENT_RUNTIME",
+    "DISPATCH_TRIGGER",
+    "MUTATE_STATE",
+    "WRITEBACK",
+    "PROOF_COMMIT",
+    "PROJECT_RESULT",
+    "CHECKPOINT_CONTINUATION"
+  ],
+  "runtime_selection_rules": [
+    {
+      "when": "task.requires_workbook_or_sheet_state",
+      "select": "runtime://kex/ooxml/1"
+    },
+    {
+      "when": "task.requires_linux_process_execution",
+      "select": "runtime://kex/linux"
+    },
+    {
+      "when": "task.requires_model_inference",
+      "select": "runtime://braink/ai"
+    },
+    {
+      "when": "task.requires_file_identity_or_persistence",
+      "select": "vfs://kex/root"
+    }
+  ],
+  "non_equivalence": [
+    "site != frontend_skill",
+    "frontend_skill != user_agent",
+    "user_agent != adapter",
+    "adapter != orchestrator",
+    "orchestrator != runtime",
+    "runtime != api_server",
+    "api_server != ai_server",
+    "ai_server != model",
+    "workbook != workbook_runtime",
+    "vfs != host_filesystem",
+    "memory != proof_ledger",
+    "IL-LLM != BRAINK",
+    "BRAINK != KEX"
+  ],
+  "completion_rule": "NO_COMPLETED_STATE_WITHOUT_OBSERVED_PROOF"
+}
