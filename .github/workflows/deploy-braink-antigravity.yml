@@ -1,0 +1,43 @@
+name: Deploy BRAINK Antigravity
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'adapters/web/**'
+      - 'deploy/braink-public/*antigravity*'
+      - '.github/workflows/deploy-braink-antigravity.yml'
+concurrency:
+  group: braink-antigravity-production
+  cancel-in-progress: false
+jobs:
+  deploy:
+    runs-on: [self-hosted]
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile deployment lane
+        run: |
+          python3 -m py_compile \
+            deploy/braink-public/antigravity_gateway.py \
+            deploy/braink-public/build_antigravity_sites.py \
+            deploy/braink-public/deploy_antigravity_live.py
+      - name: Verify resident execution boundaries
+        run: |
+          test -x /mnt/data/keddeh_deploy/resident_v5/KEDDEH_REGISTRAR_V5/START_FULL_DOMAIN_FABRIC.command
+          test -S "${BRAINK_ORCHESTRATOR_SOCKET:-/tmp/braink-orchestrator.sock}"
+          ps -ef | grep -E 'KEDDEH_RECURSIVE_EDGE_NODE_R1|authoritative_dns.py|registrar_server.py|webspace_server.py' | grep -v grep
+      - name: Deploy and perform proof-bearing readback
+        env:
+          KEDDEH_DOMAIN_FABRIC_ROOT: /mnt/data/keddeh_deploy/resident_v5/KEDDEH_REGISTRAR_V5
+          KEDDEH_EVIDENCE_ROOT: /mnt/data/keddeh_deploy/resident_v5/KEDDEH_REGISTRAR_V5_EVIDENCE
+        run: python3 deploy/braink-public/deploy_antigravity_live.py
+      - name: Publish Antigravity deployment evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: braink-antigravity-deployment-evidence
+          path: |
+            deploy/braink-public/ANTIGRAVITY_SITE_BUILD_READBACK.json
+            deploy/braink-public/BRAINK_ANTIGRAVITY_DEPLOYMENT_RECEIPT.json
