@@ -117,6 +117,9 @@ class ResidentExecutionFabric:
     def _route(self,route:str)->dict:
         spec=self.routes.resolve(route); argv=list(spec.get("argv") or [])
         if not argv or not all(isinstance(x,str) and x for x in argv):raise RoutePolicyError("registered route has invalid argv")
+        timeout=spec.get("timeout_seconds",self.policy.max_run_seconds)
+        if not isinstance(timeout,(int,float)) or isinstance(timeout,bool) or timeout<=0 or timeout>3600:raise RoutePolicyError("registered route has invalid timeout_seconds")
+        spec["timeout_seconds"]=float(timeout)
         for i,arg in enumerate(argv[1:],start=1):
             if arg.startswith("-") or Path(arg).is_absolute():continue
             candidate=(self.repo_root/arg).resolve()
@@ -132,8 +135,9 @@ class ResidentExecutionFabric:
         if operation=="READBACK_RUNTIME":return self._readback_runtime(spec)
         raise AdmissionError("unreachable operation")
     def _run_once(self,spec:dict)->Dict[str,Any]:
-        started=time.monotonic_ns(); p=subprocess.run(spec["argv"],cwd=self.repo_root,capture_output=True,text=True,timeout=self.policy.max_run_seconds,shell=False)
-        observed={"runtime_id":spec["runtime_id"],"runtime_class":spec["runtime_class"],"returncode":p.returncode,"stdout":p.stdout,"stderr":p.stderr,"elapsed_ns":time.monotonic_ns()-started}
+        timeout=float(spec.get("timeout_seconds",self.policy.max_run_seconds)); started=time.monotonic_ns()
+        p=subprocess.run(spec["argv"],cwd=self.repo_root,capture_output=True,text=True,timeout=timeout,shell=False)
+        observed={"runtime_id":spec["runtime_id"],"runtime_class":spec["runtime_class"],"returncode":p.returncode,"stdout":p.stdout,"stderr":p.stderr,"elapsed_ns":time.monotonic_ns()-started,"timeout_seconds":timeout}
         if p.returncode!=0:raise RuntimeError("registered job failed: "+canonical(observed).decode())
         return observed
     def _start_runtime(self,spec:dict,restarted:bool=False)->Dict[str,Any]:
