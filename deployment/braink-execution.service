@@ -1,0 +1,28 @@
+[Unit]
+Description=BRAINK Resident Execution Fabric
+After=network.target braink-runtime.service
+Wants=braink-runtime.service
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/braink
+EnvironmentFile=/etc/braink/execution.env
+Environment=BRAINK_EXECUTION_SOCKET=/run/braink/execution.sock
+Environment=BRAINK_EXECUTION_STATE=/var/lib/braink/resident-execution
+ExecStart=/usr/bin/python3 /opt/braink/deployment/braink_execution_service.py --socket /run/braink/execution.sock --state-dir /var/lib/braink/resident-execution
+Restart=on-failure
+RestartSec=2
+RuntimeDirectory=braink
+RuntimeDirectoryMode=0700
+StateDirectory=braink
+StateDirectoryMode=0700
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/braink /run/braink
+RestrictSUIDSGID=true
+LockPersonality=true
+
+[Install]
+WantedBy=multi-user.target
