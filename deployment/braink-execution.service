@@ -10,6 +10,7 @@ EnvironmentFile=/etc/braink/execution.env
 Environment=BRAINK_EXECUTION_SOCKET=/run/braink/execution.sock
 Environment=BRAINK_EXECUTION_STATE=/var/lib/braink/resident-execution
 Environment=BRAINK_ANTIGRAVITY_WORK_ROOT=/var/lib/braink/antigravity
+Environment=BRAINK_ORCHESTRATOR_SOCKET=/tmp/braink-orchestrator.sock
 ExecStart=/usr/bin/python3 /opt/braink/current/deployment/braink_execution_service.py --socket /run/braink/execution.sock --state-dir /var/lib/braink/resident-execution
 Restart=on-failure
 RestartSec=2
@@ -18,9 +19,10 @@ RuntimeDirectoryMode=0700
 StateDirectory=braink
 StateDirectoryMode=0700
 NoNewPrivileges=true
-PrivateTmp=true
+PrivateTmp=false
 ProtectSystem=strict
 ProtectHome=true
+ReadOnlyPaths=/tmp
 ReadWritePaths=/var/lib/braink /run/braink /mnt/data/keddeh_deploy
 RestrictSUIDSGID=true
 LockPersonality=true
