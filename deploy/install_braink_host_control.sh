@@ -29,9 +29,15 @@ rsync -a --delete --exclude '.git' "${REPO_SRC}/" "${INSTALL_ROOT}/"
 install -m 0644 "${UNIT_SRC}" "${UNIT_DST}"
 chown -R "${RUN_USER}:${RUN_USER}" "${STATE_ROOT}/host-control/${RUN_USER}" "${STATE_ROOT}/host-activation"
 
-python3 "${INSTALL_ROOT}/runtime/host_control/braink_desktop_commander_runtime.py" self-test
-python3 "${INSTALL_ROOT}/runtime/host_control/braink_host_fabric.py" --self-test
-python3 "${INSTALL_ROOT}/runtime/host_control/braink_host_activation.py" --self-test
+cd "${INSTALL_ROOT}"
+python3 -m py_compile runtime/runtime_registry.py
+python3 -m py_compile runtime/host_control/braink_desktop_commander_runtime.py
+python3 -m py_compile runtime/host_control/braink_host_fabric.py
+python3 -m py_compile runtime/host_control/braink_host_activation.py
+python3 -m py_compile runtime/host_control/braink_dc_remote_probe.py
+python3 -m runtime.host_control.braink_host_fabric --self-test
+python3 -m runtime.host_control.braink_host_activation --self-test
+python3 -m runtime.host_control.braink_dc_remote_probe --self-test
 
 systemctl daemon-reload
 systemctl enable --now "braink-desktop-commander@${RUN_USER}.service"
@@ -44,21 +50,28 @@ systemctl is-active --quiet "braink-desktop-commander@${RUN_USER}.service" || {
 
 export BRAINK_HOST_CONTROL_STATE="${STATE_ROOT}/host-control/${RUN_USER}"
 export BRAINK_HOST_ACTIVATION_STATE="${STATE_ROOT}/host-activation"
-python3 "${INSTALL_ROOT}/runtime/host_control/braink_host_activation.py" --issue-challenge
+python3 -m runtime.host_control.braink_host_activation --issue-challenge
 
 cat <<EOF
 BRAINK_HOST_CONTROL_CARRIER_ACTIVE user=${RUN_USER}
 ACTIVATION_CHALLENGE=${STATE_ROOT}/host-activation/challenge.json
+ACTIVATION_RESPONSE=${STATE_ROOT}/host-activation/response.json
 
-The service is alive, but HOST_READY is intentionally NOT promoted yet.
-The remote Desktop Commander control path must execute:
-  BRAINK_HOST_CONTROL_ACTOR=desktop-commander-remote \
-  BRAINK_HOST_ACTIVATION_STATE=${STATE_ROOT}/host-activation \
-  python3 ${INSTALL_ROOT}/runtime/host_control/braink_host_activation.py --prove-carrier
+The Desktop Commander supervisor is active, but HOST_READY is intentionally NOT promoted yet.
+The Desktop Commander remote control path must execute this bounded probe on this host:
 
-Then bind BRAINK_HOST_AUTHORITY_ROOT on the host and execute:
+  python3 ${INSTALL_ROOT}/runtime/host_control/braink_dc_remote_probe.py \
+    --challenge ${STATE_ROOT}/host-activation/challenge.json \
+    --response ${STATE_ROOT}/host-activation/response.json
+
+That command must be issued THROUGH the Desktop Commander remote/MCP path, not locally by the installer.
+The response is operational correlation evidence, not cryptographic carrier attestation.
+
+After that external probe has completed, bind BRAINK_HOST_AUTHORITY_ROOT and execute:
+
+  cd ${INSTALL_ROOT} && \
   BRAINK_HOST_CONTROL_STATE=${STATE_ROOT}/host-control/${RUN_USER} \
   BRAINK_HOST_ACTIVATION_STATE=${STATE_ROOT}/host-activation \
   BRAINK_HOST_AUTHORITY_ROOT=<bound-proof-root> \
-  python3 ${INSTALL_ROOT}/runtime/host_control/braink_host_activation.py --activate
+  python3 -m runtime.host_control.braink_host_activation --activate
 EOF
