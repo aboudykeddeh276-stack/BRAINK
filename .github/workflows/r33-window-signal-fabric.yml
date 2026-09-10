@@ -5,9 +5,13 @@ on:
     paths:
       - 'runtime/signal_fabric.py'
       - 'runtime/signal_service.py'
+      - 'runtime/estate_signal_handlers.py'
+      - 'runtime/runtime_registry.py'
+      - 'modules/kex_wbos/**'
       - 'mcp/braink_process_adapter/signal_bridge.py'
       - 'skills/window-signal-runtime/**'
       - 'scripts/kex-ci/test_signal_fabric_r33.py'
+      - 'scripts/kex-ci/test_estate_signal_handlers_r33.py'
       - 'deployment/kex-signal-fabric.service'
       - 'deployments/R33_WINDOW_SIGNAL_FABRIC_BUNDLE.json'
   workflow_dispatch:
@@ -20,18 +24,23 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Install resident runtime dependencies
+        run: python -m pip install 'openpyxl==3.1.5'
       - name: Compile runtime
-        run: python -m py_compile runtime/signal_fabric.py runtime/signal_service.py mcp/braink_process_adapter/signal_bridge.py
-      - name: Run R33 signal fabric tests
-        run: python scripts/kex-ci/test_signal_fabric_r33.py
-      - name: Smoke HTTP service
+        run: python -m py_compile runtime/signal_fabric.py runtime/signal_service.py runtime/estate_signal_handlers.py mcp/braink_process_adapter/signal_bridge.py
+      - name: Run signal fabric tests
+        run: |
+          python scripts/kex-ci/test_signal_fabric_r33.py
+          python scripts/kex-ci/test_estate_signal_handlers_r33.py
+      - name: Smoke HTTP service and operation registry
         shell: bash
         run: |
           python -m runtime.signal_service >/tmp/kex-signal-r33.log 2>&1 &
           pid=$!
           trap 'kill "$pid" || true' EXIT
           for i in {1..20}; do
-            if curl -fsS http://127.0.0.1:18033/healthz | grep -q 'kex.signal/1'; then
+            body="$(curl -fsS http://127.0.0.1:18033/healthz || true)"
+            if printf '%s' "$body" | grep -q 'kex.signal/1' && printf '%s' "$body" | grep -q 'CASEPATH_DISPATCH' && printf '%s' "$body" | grep -q 'RUNTIME_REGISTER'; then
               exit 0
             fi
             sleep 0.25
