@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>BRAINK OS · Augmented Intelligence Mesh</title>
+<meta name="description" content="BRAINK OS process-centric augmented intelligence runtime front surface." />
+<style>
+:root{--bg:#05060a;--soft:#0b1120;--panel:#0f172a;--fg:#e5e7eb;--muted:#9ca3af;--accent:#4fd1c5;--border:#1f2937;--danger:#f97373}*{box-sizing:border-box}html,body{margin:0;height:100%;background:radial-gradient(circle at top,#111827 0,#05060a 55%);color:var(--fg);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}.app{display:grid;grid-template-columns:minmax(280px,360px) minmax(0,1fr);height:100vh}.sidebar{padding:1.25rem;border-right:1px solid var(--border);background:linear-gradient(180deg,var(--soft),var(--bg));overflow:auto}.logo{font-weight:700;letter-spacing:.16em;text-transform:uppercase;font-size:.85rem;color:var(--muted)}.logo span,.value{color:var(--accent)}.pill,.btn,.status{border:1px solid var(--border);background:#020617;border-radius:999px;color:var(--fg);padding:.4rem .7rem}.title{margin-top:1.2rem;font-size:1.35rem;font-weight:600}.subtitle,.hint{color:var(--muted);font-size:.8rem;line-height:1.5}.section{margin-top:1.2rem;font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}.row{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.55rem}.btn{cursor:pointer}.btn.primary{background:var(--accent);color:#07111c;border-color:var(--accent);font-weight:600}.input{width:100%;border:1px solid var(--border);background:#020617;color:var(--fg);padding:.55rem .7rem;border-radius:10px}.main{padding:1.1rem;display:grid;grid-template-rows:minmax(280px,1.3fr) minmax(250px,1fr);gap:.9rem;min-height:0}.panel{border:1px solid var(--border);background:var(--panel);border-radius:14px;padding:.9rem;display:flex;flex-direction:column;min-height:0}.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem}.header h2{margin:0;font-size:.78rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}.chat,.log{flex:1;overflow:auto;border:1px solid var(--border);background:#020617;border-radius:10px;padding:.6rem;min-height:0}.msg{margin:.35rem 0;padding:.45rem .55rem;border-left:2px solid var(--border);white-space:pre-wrap}.msg.user{border-color:var(--accent)}.chatrow{display:flex;gap:.5rem;margin-top:.6rem}.chatrow .input{flex:1}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.55rem;min-height:0}.card{border:1px solid var(--border);background:#020617;border-radius:10px;padding:.65rem;overflow:auto}.label{font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}ul{padding-left:1rem;margin:.45rem 0;color:var(--muted);font-size:.75rem}.error{color:var(--danger);font-size:.76rem;margin-top:.7rem}.online{color:var(--accent)}@media(max-width:900px){.app{grid-template-columns:1fr;grid-template-rows:auto 1fr;height:auto;min-height:100vh}.sidebar{border-right:0;border-bottom:1px solid var(--border)}.grid{grid-template-columns:1fr}.main{grid-template-rows:auto auto}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+  <div class="logo">BRAINK<span>OS</span> <span class="pill" id="env">ENV: DEV</span></div>
+  <div class="title">Augmented Intelligence Runtime</div>
+  <p class="subtitle">Process-centric front surface over the KEX signal fabric. Domain semantics remain local; committed machine state advances only from receipts.</p>
+  <div class="section">Runtime controls</div>
+  <div class="row"><button class="btn primary" id="boot">Boot BRAINK</button><button class="btn" id="ping">Ping Mesh</button><button class="btn" id="refresh">Refresh</button></div>
+  <p class="status">Runtime: <span id="status">offline</span></p>
+  <div class="section">Deployment profile</div>
+  <div class="row"><button class="btn env" data-env="DEV">Dev</button><button class="btn env" data-env="STAGE">Stage</button><button class="btn env" data-env="PROD">Prod</button></div>
+  <div class="section">Runtime credential</div>
+  <input class="input" id="token" type="password" autocomplete="off" placeholder="KEX signal bearer token" />
+  <p class="hint">Stored only in this tab's sessionStorage. It is service authorization, not user identity.</p>
+  <div class="error" id="error"></div>
+</aside>
+<main class="main">
+  <section class="panel">
+    <div class="header"><h2>Chat interface</h2><span class="pill">deterministic process router</span></div>
+    <div class="chat" id="chat"></div>
+    <div class="chatrow"><input class="input" id="chatInput" placeholder="show mesh status · show operations · set state mode=ACTIVE"/><button class="btn primary" id="send">Send</button></div>
+  </section>
+  <section class="panel">
+    <div class="header"><h2>AI dashboards</h2><span class="pill">resident evidence only</span></div>
+    <div class="grid">
+      <div class="card"><div class="label">Mesh nodes</div><div class="value" id="nodeCount">0 nodes</div><ul id="nodes"></ul></div>
+      <div class="card"><div class="label">Skills</div><div class="value" id="skillCount">0 skills</div><ul id="skills"></ul></div>
+      <div class="card"><div class="label">Modules</div><div class="value" id="moduleCount">0 modules</div><ul id="modules"></ul></div>
+    </div>
+    <div class="section">Runtime log</div><div class="log" id="log"></div>
+  </section>
+</main>
+</div>
+<script>
+const $=id=>document.getElementById(id);let env="DEV";const token=$('token');token.value=sessionStorage.getItem('kexSignalToken')||'';token.addEventListener('input',()=>sessionStorage.setItem('kexSignalToken',token.value));
+function headers(json=false){const h={Authorization:`Bearer ${token.value}`};if(json)h['Content-Type']='application/json';return h}function log(tag,text){const d=document.createElement('div');d.className='msg';d.textContent=`[${new Date().toISOString().slice(11,19)}] ${tag}: ${text}`;$('log').appendChild(d);$('log').scrollTop=$('log').scrollHeight}function err(e){$('error').textContent=e?.message||String(e);log('error',$('error').textContent)}function add(role,text){const d=document.createElement('div');d.className='msg '+role;d.textContent=`${role==='user'?'You':'BRAINK'}: ${text}`;$('chat').appendChild(d);$('chat').scrollTop=$('chat').scrollHeight}
+async function request(path,options={}){const r=await fetch(path,options);const data=await r.json().catch(()=>({}));if(!r.ok)throw new Error(`${path} HTTP ${r.status}: ${data.detail||data.error||'request failed'}`);return data}
+async function boot(){try{$('error').textContent='';const d=await request('/braink/boot',{method:'POST',headers:headers(true),body:'{}'});$('status').textContent=d.status;$('status').className='online';log('boot',`receipt ${d.receipt?.receipt_hash||'none'}`)}catch(e){err(e)}}
+async function ping(){try{const d=await request('/mesh/ping',{headers:headers()});log('mesh',`${d.registered} registered runtime node(s)`)}catch(e){err(e)}}
+function list(id,items,fmt){const el=$(id);el.innerHTML='';for(const x of items){const li=document.createElement('li');li.textContent=fmt(x);el.appendChild(li)}}
+async function refresh(){try{const d=await request('/dashboards/summary',{headers:headers()});$('nodeCount').textContent=`${d.nodes.length} nodes`;$('skillCount').textContent=`${d.skills.length} skills`;$('moduleCount').textContent=`${d.modules.length} modules`;list('nodes',d.nodes,x=>`${x.id} · ${x.status} · ${x.role}`);list('skills',d.skills,x=>`${x.id} · ${x.type}`);list('modules',d.modules,x=>`${x.id} · ${x.state}`);log('dashboard',`signal ${d.signal.abi}, next sequence ${d.signal.target.next_sequence}`)}catch(e){err(e)}}
+async function send(){const text=$('chatInput').value.trim();if(!text)return;add('user',text);$('chatInput').value='';try{const d=await request('/chat/execute',{method:'POST',headers:headers(true),body:JSON.stringify({task:text,context:{client_hint:'front-end-html5',env}})});add('assistant',d.reply);log('chat',d.route)}catch(e){err(e)}}
+$('boot').onclick=boot;$('ping').onclick=ping;$('refresh').onclick=refresh;$('send').onclick=send;$('chatInput').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();send()}});document.querySelectorAll('.env').forEach(b=>b.onclick=()=>{env=b.dataset.env;$('env').textContent=`ENV: ${env}`;log('env',env)});log('init','BRAINK Copilot front surface loaded');
+</script>
+</body>
+</html>
