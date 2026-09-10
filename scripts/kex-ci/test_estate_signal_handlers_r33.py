@@ -1,30 +1,30 @@
-import json
 import tempfile
 import unittest
 from pathlib import Path
 
 from runtime.estate_signal_handlers import register_estate_handlers
-from runtime.signal_fabric import SignalRequest, SignalRuntime
+from runtime.signal_fabric import GENESIS, SignalRequest, SignalRuntime
 
 
 class EstateSignalHandlerTests(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
         root = Path(self.tmp.name)
-        self.state_path = root / "state.json"
-        self.receipt_path = root / "receipt.json"
         self.registry_path = root / "registry.sqlite"
-        self.state_path.write_text("{}", encoding="utf-8")
-        self.runtime = SignalRuntime(self.state_path, self.receipt_path)
+        self.runtime = SignalRuntime(root / "state.json", root / "receipt.json")
         register_estate_handlers(self.runtime)
 
     def tearDown(self):
         self.tmp.cleanup()
 
     def compile(self, operation, payload):
-        state = json.loads(self.state_path.read_text(encoding="utf-8"))
+        state = self.runtime._read_state()
         previous = self.runtime._previous_receipt()
-        seq = 1 if previous.startswith("GENESIS") else json.loads(self.receipt_path.read_text(encoding="utf-8"))["sequence"] + 1
+        if previous == GENESIS:
+            seq = 1
+        else:
+            journal = self.runtime._read_journal()
+            seq = max(int(item["sequence"]) for item in journal["receipts"].values()) + 1
         return SignalRequest.compile(
             source="app://braink/workbook",
             target="runtime://kex/virtual-infrastructure",
@@ -69,6 +69,7 @@ class EstateSignalHandlerTests(unittest.TestCase):
         })
         second = self.runtime.execute(desired)
         self.assertEqual(second.result["last_result"]["desired_state"], "RUNNING")
+        self.assertEqual(second.previous_receipt, first.receipt_hash)
 
     def test_kex_action_route_reaches_existing_executor(self):
         req = self.compile("KEX_ACTION", {
