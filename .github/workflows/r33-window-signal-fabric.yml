@@ -16,6 +16,11 @@ on:
       - 'deployments/R33_WINDOW_SIGNAL_FABRIC_BUNDLE.json'
   workflow_dispatch:
 
+env:
+  PYTHONPATH: .
+  KEX_SIGNAL_AUTH_TOKEN: ci-r33-test-token
+  KEX_SIGNAL_AUTHORITY: KEDDEH_SYSTEMS
+
 jobs:
   qualify:
     runs-on: ubuntu-latest
@@ -41,6 +46,7 @@ jobs:
           for i in {1..20}; do
             body="$(curl -fsS http://127.0.0.1:18033/healthz || true)"
             if printf '%s' "$body" | grep -q 'kex.signal/1' && printf '%s' "$body" | grep -q 'CASEPATH_DISPATCH' && printf '%s' "$body" | grep -q 'RUNTIME_REGISTER'; then
+              curl -fsS -H "Authorization: Bearer $KEX_SIGNAL_AUTH_TOKEN" "http://127.0.0.1:18033/v1/state?target=runtime%3A%2F%2Fkex%2Fvirtual-infrastructure" | grep -q 'head_receipt'
               exit 0
             fi
             sleep 0.25
