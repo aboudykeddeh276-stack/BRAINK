@@ -25,6 +25,13 @@ def _auth_token() -> str:
     return token
 
 
+def _expected_authority() -> str:
+    authority = os.getenv("KEX_SIGNAL_AUTHORITY", "")
+    if not authority:
+        raise RuntimeError("KEX_SIGNAL_AUTHORITY must be configured")
+    return authority
+
+
 def _target_key(target: str) -> str:
     if not target:
         raise ValueError("target required")
@@ -50,7 +57,7 @@ def operation_manifest() -> list[str]:
 
 
 class Handler(BaseHTTPRequestHandler):
-    server_version = "KEXSignal/1.2"
+    server_version = "KEXSignal/1.3"
 
     def _send(self, code: int, payload: dict) -> None:
         body = json.dumps(payload, sort_keys=True).encode("utf-8")
@@ -80,7 +87,7 @@ class Handler(BaseHTTPRequestHandler):
                 "grammar": ["VERIFY", "ADDRESS", "PROPAGATE", "EXECUTE", "COMMIT", "RECEIPT"],
                 "operations": operation_manifest(),
                 "target_partitioning": "sha256(target)",
-                "authority_boundary": "bearer-authenticated local ingress",
+                "authority_boundary": "bearer-authenticated ingress bound to configured authority",
             })
             return
         if parsed.path not in {"/v1/state", "/v1/receipt"}:
@@ -122,6 +129,9 @@ class Handler(BaseHTTPRequestHandler):
                 invariants=tuple(raw.get("invariants", [])), authority=raw["authority"], sequence=int(raw["sequence"]),
                 proof_root=raw["proof_root"], abi=raw.get("abi", "kex.signal/1"),
             )
+            if not hmac.compare_digest(req.authority, _expected_authority()):
+                self._send(403, {"error": "authority_mismatch"})
+                return
             receipt = runtime_for_target(req.target).execute(req)
             self._send(200, asdict(receipt))
         except (KeyError, ValueError, TypeError, RuntimeError, json.JSONDecodeError) as exc:
@@ -134,6 +144,7 @@ class Handler(BaseHTTPRequestHandler):
 
 def main() -> None:
     _auth_token()
+    _expected_authority()
     host = os.getenv("KEX_SIGNAL_HOST", "127.0.0.1")
     port = int(os.getenv("KEX_SIGNAL_PORT", "18033"))
     STATE_DIR.mkdir(parents=True, exist_ok=True)
