@@ -14,7 +14,10 @@
       "runtime/estate_signal_handlers.py"
     ],
     "skill": ["skills/window-signal-runtime/SKILL.md"],
-    "plugin_adapter": ["mcp/braink_process_adapter/signal_bridge.py"],
+    "plugin_adapter": [
+      "mcp/braink_process_adapter/signal_bridge.py",
+      "mcp/braink_process_adapter/main.py"
+    ],
     "server_service": ["deployment/kex-signal-fabric.service"],
     "verification": [
       "scripts/kex-ci/test_signal_fabric_r33.py",
@@ -29,6 +32,19 @@
     "RUNTIME_REGISTER": "existing SQLite RuntimeRegistry upsert",
     "RUNTIME_DESIRED_STATE": "existing SQLite RuntimeRegistry desired-state transition"
   },
+  "mcp_tools": [
+    "braink_compile_window_signal",
+    "braink_signal_operation_manifest"
+  ],
+  "hardening": {
+    "transaction": "state and receipt head commit in one atomic journal write",
+    "concurrency": "serialized per-target runtime transition lock",
+    "recovery": "signal-id receipt cache supports idempotent committed-request recovery",
+    "partitioning": "state and receipt chains are partitioned by sha256(target)",
+    "ingress_auth": "bearer token required and request authority must match configured trusted authority",
+    "invariants": "unknown invariants rejected before commit",
+    "service_state": "systemd StateDirectory creates writable durable path before process start"
+  },
   "identity_rule": "BRAINK, KEX, CasePath, ClaimPath, workbook, site, carrier, projection and host remain distinct identities. They converge only on the canonical propagation ABI.",
   "state_rule": "visible state does not become authoritative until a COMMITTED RECEIPT is returned",
   "proof_rule": "hash chaining establishes consistency and lineage; it is not described as externally immutable without an independent witness",
@@ -37,6 +53,6 @@
     "host_service_installed": false,
     "host_service_started": false,
     "public_network_exposure": false,
-    "reason": "repository/runtime integration is implemented and CI-qualified where GitHub executes it; physical owner-host activation still requires direct host service-manager authority"
+    "reason": "repository/runtime integration is implemented; physical owner-host activation still requires direct host service-manager authority"
   }
 }
