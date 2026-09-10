@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "desktop-commander": {
+      "command": "npx",
+      "args": ["-y", "@wonderwhy-er/desktop-commander@latest"]
+    }
+  },
+  "braink": {
+    "integration_id": "BRAINK-DESKTOP-COMMANDER-R1",
+    "route": "HOST_CONTROL",
+    "authority_required": true,
+    "proof_required": true,
+    "remote_device_command": "npx -y @wonderwhy-er/desktop-commander@latest remote"
+  }
+}
