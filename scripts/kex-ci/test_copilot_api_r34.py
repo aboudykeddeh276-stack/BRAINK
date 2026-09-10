@@ -1,10 +1,13 @@
 import os
 import tempfile
+import threading
 import unittest
+from http.server import ThreadingHTTPServer
 from pathlib import Path
 
 os.environ.setdefault("KEX_SIGNAL_AUTH_TOKEN", "test-token")
 os.environ.setdefault("KEX_SIGNAL_AUTHORITY", "KEDDEH_SYSTEMS")
+os.environ.setdefault("KEX_SIGNAL_QUIET", "1")
 
 import runtime.signal_service as signal_service
 import runtime.copilot_api as copilot
@@ -16,14 +19,21 @@ class CopilotApiTests(unittest.TestCase):
         root = Path(self.tmp.name)
         signal_service.STATE_DIR = root / "signal"
         signal_service._RUNTIMES.clear()
-        copilot.STATE_DIR = signal_service.STATE_DIR
         copilot.REGISTRY_PATH = root / "runtime_registry.sqlite"
+        self.server = ThreadingHTTPServer(("127.0.0.1", 0), signal_service.Handler)
+        self.thread = threading.Thread(target=self.server.serve_forever, daemon=True)
+        self.thread.start()
+        host, port = self.server.server_address
+        copilot.SIGNAL_BASE = f"http://{host}:{port}"
 
     def tearDown(self):
+        self.server.shutdown()
+        self.server.server_close()
+        self.thread.join(timeout=2)
         signal_service._RUNTIMES.clear()
         self.tmp.cleanup()
 
-    def test_boot_commits_receipted_control_plane_state(self):
+    def test_boot_commits_through_signal_service(self):
         result = copilot.boot_runtime()
         self.assertEqual(result["status"], "online")
         self.assertEqual(result["receipt"]["status"], "COMMITTED")
@@ -38,7 +48,7 @@ class CopilotApiTests(unittest.TestCase):
         self.assertEqual(result["registered"], 0)
         self.assertEqual(result["nodes"], [])
 
-    def test_operation_chat_routes_to_resident_manifest(self):
+    def test_operation_chat_routes_to_signal_manifest(self):
         result = copilot.chat_execute("show operations")
         self.assertEqual(result["route"], "OPERATION_MANIFEST")
         self.assertIn("STATE_PATCH", result["result"]["operations"])
@@ -49,7 +59,7 @@ class CopilotApiTests(unittest.TestCase):
         self.assertEqual(result["route"], "UNBOUND_CHAT_SEMANTICS")
         self.assertIn("not currently bound", result["reply"])
 
-    def test_state_patch_chat_commits_through_signal_fabric(self):
+    def test_state_patch_chat_commits_through_signal_service(self):
         result = copilot.chat_execute("set state mode=ACTIVE")
         self.assertEqual(result["route"], "STATE_PATCH")
         self.assertEqual(result["result"]["status"], "COMMITTED")
