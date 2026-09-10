@@ -9,6 +9,9 @@ Environment=PYTHONUNBUFFERED=1
 Environment=KEX_SIGNAL_HOST=127.0.0.1
 Environment=KEX_SIGNAL_PORT=18033
 Environment=KEX_SIGNAL_STATE_DIR=/var/lib/braink/signal-fabric
+EnvironmentFile=-/etc/braink/signal-fabric.env
+StateDirectory=braink/signal-fabric
+StateDirectoryMode=0750
 ExecStart=/usr/bin/python3 -m runtime.signal_service
 Restart=on-failure
 RestartSec=2
