@@ -25,10 +25,27 @@ jobs:
           python -m py_compile runtime/host_control/braink_desktop_commander_runtime.py
           python -m py_compile runtime/host_control/braink_host_fabric.py
           python -m py_compile runtime/host_control/braink_host_activation.py
-      - name: Deterministic host fabric tests
+          python -m py_compile runtime/host_control/braink_dc_remote_probe.py
+      - name: Deterministic host-control tests
         run: |
           python -m runtime.host_control.braink_host_fabric --self-test
           python -m runtime.host_control.braink_host_activation --self-test
+          python -m runtime.host_control.braink_dc_remote_probe --self-test
+      - name: Validate external carrier proof boundary
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          activation=Path('runtime/host_control/braink_host_activation.py').read_text()
+          installer=Path('deploy/install_braink_host_control.sh').read_text()
+          probe=Path('runtime/host_control/braink_dc_remote_probe.py').read_text()
+          assert 'def prove_carrier(' not in activation
+          assert '--prove-carrier' not in installer
+          assert 'braink_dc_remote_probe.py' in installer
+          assert 'OPERATIONAL_CORRELATION' in activation
+          assert 'OPERATIONAL_CORRELATION' in probe
+          assert 'transport_claim' in activation
+          print('EXTERNAL_CARRIER_PROOF_BOUNDARY_PASS')
+          PY
       - name: Validate control documents
         run: |
           python - <<'PY'
