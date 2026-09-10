@@ -27,8 +27,8 @@ jobs:
           python -m py_compile runtime/host_control/braink_host_activation.py
       - name: Deterministic host fabric tests
         run: |
-          python runtime/host_control/braink_host_fabric.py --self-test
-          python runtime/host_control/braink_host_activation.py --self-test
+          python -m runtime.host_control.braink_host_fabric --self-test
+          python -m runtime.host_control.braink_host_activation --self-test
       - name: Validate control documents
         run: |
           python - <<'PY'
