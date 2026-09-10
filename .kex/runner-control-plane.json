@@ -1,8 +1,9 @@
 {
-  "schema": "kex.github-runner-control-plane.v6",
+  "schema": "kex.github-runner-control-plane.v7",
   "cascade_order": [
     "MOUNT",
     "VERIFY_ALL",
+    "VERIFY_FILE_GOVERNANCE",
     "HYDRATE_INDEXEDDB",
     "RESOLVE_KEX_URI",
     "PROJECT_UI",
@@ -21,10 +22,13 @@
     "RECONCILE_NETWORK_STATE",
     "WRITEBACK",
     "PROOF_COMMIT",
+    "PROJECT_PUBLIC_SURFACE",
     "REHYDRATE_ON_FAILURE"
   ],
   "warm_boot_order": [
     "VERIFY_SEED",
+    "MOUNT_FILE_GOVERNANCE",
+    "VERIFY_FILE_IDENTITY_GRAMMAR",
     "MOUNT_WORKBOOK_SUBSTRATE",
     "OPEN_INDEXEDDB_NAMESPACE",
     "HYDRATE_PULSES",
@@ -37,6 +41,7 @@
     "MOUNT_IL_LLM_NETWORK_COMPILER",
     "LOAD_NETWORK_FUNCTION_REGISTRY",
     "MOUNT_KEDDEH_FABRIC_ACTUATOR",
+    "MOUNT_PUBLIC_GATEWAY",
     "ISSUE_HOST_CHALLENGE",
     "WAIT_EXTERNAL_CARRIER_PROBE",
     "VERIFY_HOST_RESPONSE",
@@ -54,17 +59,40 @@
     "MUTATION_WRITES_BACK",
     "WRITEBACK_APPENDS_PROOF",
     "PROOF_SUPPORTS_REHYDRATION",
+    "FILE_DECLARATION_DOES_NOT_EQUAL_EXECUTION",
+    "FILE_TRUST_CANNOT_SILENTLY_INCREASE",
+    "ADAPTER_CANNOT_REDEFINE_PRODUCER_TRUTH_OR_AUTHORITY",
     "HOST_STATE_EXPIRES_WHEN_HEARTBEAT_STALE",
     "EXTERNAL_MUTATIONS_REQUIRE_ONLINE_HOST",
     "HOST_READY_REQUIRES_EXTERNAL_CARRIER_PROBE",
     "CARRIER_PROCESS_LIVENESS_IS_NOT_CARRIER_USABILITY",
     "NETWORK_INTENT_NORMALIZED_ONCE",
     "NETWORK_PROJECTIONS_PRESERVE_CAUSAL_ID",
-    "ADAPTER_CANNOT_REDEFINE_AUTHORITY",
     "NETWORK_PROMOTION_REQUIRES_OBSERVED_EVIDENCE",
     "HOST_LOCAL_NETWORK_PROOF_IS_NOT_EXTERNAL_REACHABILITY_PROOF",
-    "GLOBAL_EDGE_REQUIRES_STANDARDS_QUALIFICATION"
+    "GLOBAL_EDGE_REQUIRES_STANDARDS_QUALIFICATION",
+    "PUBLIC_UI_CANNOT_PROMOTE_RUNTIME_STATE",
+    "PUBLIC_UI_READS_OBSERVED_STATE_ONLY"
   ],
+  "file_governance": {
+    "manifest": "governance/file/BRAINK_FILE_GOVERNANCE_R1.json",
+    "role": "GENETIC_SUBSTRATE_GOVERNANCE",
+    "required_before_artifact_execution": true,
+    "identity_law": "type + sector + role + version + trust + lifecycle + compatibility + bindings + proof",
+    "execution_law": "artifact declaration is metadata; execution requires runner, capability, authority, readback and proof"
+  },
+  "public_surface": {
+    "runtime": "runtime/public_gateway.py",
+    "role": "PROJECTION_AND_BOUNDED_CONTROL",
+    "routes": {
+      "POST /braink/boot": "observed boot/readiness gate",
+      "GET /mesh/ping": "backbone freshness projection",
+      "GET /dashboards/summary": "host/runtime observed-state dashboard",
+      "POST /chat/execute": "process-intent ingress with explicit actuator boundary"
+    },
+    "promotion_law": "HTTP success or UI button state never establishes HOST_READY, NETWORK_STACK_PROVEN_LIVE or GLOBAL_EDGE_READY",
+    "human_identity_is_runtime_identity": false
+  },
   "host_control": {
     "integration_id": "BRAINK-DESKTOP-COMMANDER-R1",
     "route": "HOST_CONTROL",
@@ -114,9 +142,9 @@
     "fail_closed": true
   },
   "teams": {
-    "substrate": ["self-hosted", "kex", "substrate", "workbook", "python"],
+    "substrate": ["self-hosted", "kex", "substrate", "workbook", "python", "file-governance"],
     "cascade": ["self-hosted", "kex", "cascade", "hyperk0", "warmboot"],
-    "api": ["self-hosted", "kex", "api", "fastapi", "openapi"],
+    "api": ["self-hosted", "kex", "api", "http", "projection", "readback"],
     "object-runtime": ["self-hosted", "kex", "object-runtime", "ui-reflection", "telemetry"],
     "proof": ["self-hosted", "kex", "proof", "ledger", "rehydrate"],
     "stress": ["self-hosted", "kex", "stress", "telemetry", "performance"],
