@@ -16,7 +16,7 @@ import sqlite3
 import time
 import uuid
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Optional
+from typing import Any, Dict, List
 
 from runtime.runtime_registry import RuntimeRegistry
 
@@ -26,6 +26,8 @@ DB_PATH = STATE_DIR / "hosts.sqlite"
 RUNTIME_DB = STATE_DIR / "runtimes.sqlite"
 RECEIPTS = STATE_DIR / "host_receipts.jsonl"
 DEFAULT_STALE_SEC = int(os.getenv("BRAINK_HOST_STALE_SEC", "30"))
+OBSERVED_MODES = {"ONLINE", "OFFLINE_LOCAL"}
+DESIRED_MODES = {"ONLINE", "OFFLINE_LOCAL"}
 
 
 def canon(v: Any) -> str:
@@ -181,9 +183,13 @@ class HostFabric:
         return [self.refresh_state(self.get_host(i)) for i in ids]
 
     def heartbeat(self, host_id: str, observed_mode: str = "ONLINE") -> Dict[str, Any]:
+        if observed_mode not in OBSERVED_MODES:
+            raise ValueError("BAD_OBSERVED_HOST_MODE")
         h = self.get_host(host_id)
         if h["authority_root"] == "UNBOUND":
             raise PermissionError("HOST_AUTHORITY_UNBOUND")
+        if observed_mode == "OFFLINE_LOCAL" and h["admission_state"] != "HOST_READY":
+            raise RuntimeError("ONLINE_ADMISSION_REQUIRED_BEFORE_OFFLINE_LOCAL")
         t = now_ns()
         admission = "HOST_READY"
         with self.db() as d:
@@ -204,7 +210,7 @@ class HostFabric:
         return h
 
     def set_mode(self, host_id: str, mode: str) -> Dict[str, Any]:
-        if mode not in {"ONLINE", "OFFLINE_LOCAL"}:
+        if mode not in DESIRED_MODES:
             raise ValueError("BAD_HOST_MODE")
         h = self.get_host(host_id)
         if mode == "OFFLINE_LOCAL" and h["admission_state"] != "HOST_READY":
@@ -263,10 +269,16 @@ def self_test() -> Dict[str, Any]:
                      "capabilities":["host.shell.execute","host.filesystem.read"],"carrier":"desktop-commander",
                      "authority_root":"proof:test","addresses":["127.0.0.1"],"desired_mode":"ONLINE","observed_mode":"DISCOVERED","stale_after_sec":30})
         assert h["admission_state"] == "AUTHORITY_VERIFIED"
-        h = f.heartbeat("host:test")
+        h = f.heartbeat("host:test", "ONLINE")
         assert h["admission_state"] == "HOST_READY" and h["observed_mode"] == "ONLINE"
         assert f.select_host("host.shell.execute")["host_id"] == "host:test"
-        f.set_mode("host:test", "OFFLINE_LOCAL")
+
+        desired = f.set_mode("host:test", "OFFLINE_LOCAL")
+        assert desired["desired_mode"] == "OFFLINE_LOCAL"
+        assert desired["observed_mode"] == "ONLINE", "desired mode must not rewrite observed mode"
+
+        h = f.heartbeat("host:test", "OFFLINE_LOCAL")
+        assert h["observed_mode"] == "OFFLINE_LOCAL"
         work = f.queue_work("host.filesystem.read", {"path":"/tmp/x"}, "proof:test", external_mutation=False)
         assert work["state"] == "QUEUED"
         try:
@@ -274,7 +286,14 @@ def self_test() -> Dict[str, Any]:
             raise AssertionError("external mutation should require observed ONLINE")
         except LookupError:
             pass
-        return {"status":"PASS","checks":["admission","heartbeat","routing","offline_local","external_mutation_gate"]}
+
+        try:
+            f.heartbeat("host:test", "CONNECTED")
+            raise AssertionError("arbitrary observed modes must be rejected")
+        except ValueError:
+            pass
+
+        return {"status":"PASS","checks":["admission","heartbeat","routing","desired_observed_separation","offline_local","external_mutation_gate","observed_mode_validation"]}
 
 
 def main() -> int:
