@@ -1,0 +1,38 @@
+{
+  "release": "R33_WINDOW_SIGNAL_FABRIC",
+  "status": "IMPLEMENTED_ON_BRANCH",
+  "branch": "evolution/window-signal-fabric-r33",
+  "machine_contract": {
+    "abi": "kex.signal/1",
+    "grammar": ["VERIFY", "ADDRESS", "PROPAGATE", "EXECUTE", "COMMIT", "RECEIPT"],
+    "principle": "domain semantics compile inside bounded windows; machine services receive normalized propagation requests"
+  },
+  "bundles": {
+    "app_runtime": [
+      "runtime/signal_fabric.py",
+      "runtime/signal_service.py"
+    ],
+    "skill": [
+      "skills/window-signal-runtime/SKILL.md"
+    ],
+    "plugin_adapter": [
+      "mcp/braink_process_adapter/signal_bridge.py"
+    ],
+    "server_service": [
+      "deployment/kex-signal-fabric.service"
+    ],
+    "verification": [
+      "scripts/kex-ci/test_signal_fabric_r33.py"
+    ]
+  },
+  "identity_rule": "BRAINK, KEX, CasePath, ClaimPath, workbook, site, carrier, projection and host remain distinct identities. They converge only on the canonical propagation ABI.",
+  "state_rule": "visible state does not become authoritative until a COMMITTED RECEIPT is returned",
+  "proof_rule": "hash chaining establishes consistency and lineage; it is not described as externally immutable without an independent witness",
+  "deployment_boundary": {
+    "repository_write": true,
+    "host_service_installed": false,
+    "host_service_started": false,
+    "public_network_exposure": false,
+    "reason": "this environment can write the connected GitHub repository but does not expose the user's physical Linux/macOS hosts or service manager"
+  }
+}
