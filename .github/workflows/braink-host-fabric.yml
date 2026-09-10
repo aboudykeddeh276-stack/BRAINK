@@ -1,0 +1,35 @@
+name: BRAINK Host Fabric
+
+on:
+  push:
+    paths:
+      - 'runtime/host_control/**'
+      - 'integrations/desktop_commander/**'
+      - '.kex/runner-control-plane.json'
+      - '.github/workflows/braink-host-fabric.yml'
+  pull_request:
+    paths:
+      - 'runtime/host_control/**'
+      - 'integrations/desktop_commander/**'
+      - '.kex/runner-control-plane.json'
+
+jobs:
+  validate-host-fabric:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile host-control runtime
+        run: |
+          python -m py_compile runtime/host_control/braink_desktop_commander_runtime.py
+          python -m py_compile runtime/host_control/braink_host_fabric.py
+      - name: Run deterministic host-fabric self-test
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+        run: python runtime/host_control/braink_host_fabric.py --self-test
+      - name: Validate control-plane JSON
+        run: python -m json.tool .kex/runner-control-plane.json >/dev/null
+      - name: Validate Desktop Commander bundle JSON
+        run: python -m json.tool integrations/desktop_commander/BRAINK_DESKTOP_COMMANDER_BUNDLE_R1.json >/dev/null
