@@ -10,20 +10,24 @@
   "bundles": {
     "app_runtime": [
       "runtime/signal_fabric.py",
-      "runtime/signal_service.py"
+      "runtime/signal_service.py",
+      "runtime/estate_signal_handlers.py"
     ],
-    "skill": [
-      "skills/window-signal-runtime/SKILL.md"
-    ],
-    "plugin_adapter": [
-      "mcp/braink_process_adapter/signal_bridge.py"
-    ],
-    "server_service": [
-      "deployment/kex-signal-fabric.service"
-    ],
+    "skill": ["skills/window-signal-runtime/SKILL.md"],
+    "plugin_adapter": ["mcp/braink_process_adapter/signal_bridge.py"],
+    "server_service": ["deployment/kex-signal-fabric.service"],
     "verification": [
-      "scripts/kex-ci/test_signal_fabric_r33.py"
+      "scripts/kex-ci/test_signal_fabric_r33.py",
+      "scripts/kex-ci/test_estate_signal_handlers_r33.py"
     ]
+  },
+  "bound_operations": {
+    "STATE_PATCH": "native canonical state mutation",
+    "KEX_ACTION": "existing modules/kex_wbos/action_runtime.py execute_action",
+    "CASEPATH_DISPATCH": "existing CasePath managed dispatch through KEX/WBOS",
+    "WORKBOOK_READ": "existing resident workbook table readback",
+    "RUNTIME_REGISTER": "existing SQLite RuntimeRegistry upsert",
+    "RUNTIME_DESIRED_STATE": "existing SQLite RuntimeRegistry desired-state transition"
   },
   "identity_rule": "BRAINK, KEX, CasePath, ClaimPath, workbook, site, carrier, projection and host remain distinct identities. They converge only on the canonical propagation ABI.",
   "state_rule": "visible state does not become authoritative until a COMMITTED RECEIPT is returned",
@@ -33,6 +37,6 @@
     "host_service_installed": false,
     "host_service_started": false,
     "public_network_exposure": false,
-    "reason": "this environment can write the connected GitHub repository but does not expose the user's physical Linux/macOS hosts or service manager"
+    "reason": "repository/runtime integration is implemented and CI-qualified where GitHub executes it; physical owner-host activation still requires direct host service-manager authority"
   }
 }
