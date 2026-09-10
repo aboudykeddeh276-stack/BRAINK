@@ -62,19 +62,7 @@ class SignalRequest:
     abi: str = ABI_VERSION
 
     @classmethod
-    def compile(
-        cls,
-        *,
-        source: str,
-        target: str,
-        operation: str,
-        state: Mapping[str, Any],
-        payload: Mapping[str, Any],
-        invariants: Iterable[str],
-        authority: str,
-        sequence: int,
-        previous_receipt: str = GENESIS,
-    ) -> "SignalRequest":
+    def compile(cls, *, source: str, target: str, operation: str, state: Mapping[str, Any], payload: Mapping[str, Any], invariants: Iterable[str], authority: str, sequence: int, previous_receipt: str = GENESIS) -> "SignalRequest":
         if not source or not target or not operation or not authority:
             raise ValueError("source, target, operation and authority are mandatory")
         if sequence < 1:
@@ -85,18 +73,7 @@ class SignalRequest:
             raise ValueError(f"UNKNOWN_INVARIANT:{','.join(unknown)}")
         state_hash = sha256_hex(canonical_json(state))
         compiled = dict(payload)
-        proof_material = {
-            "abi": ABI_VERSION,
-            "source": source,
-            "target": target,
-            "operation": operation,
-            "state_hash_before": state_hash,
-            "compiled_payload": compiled,
-            "invariants": list(invariant_tuple),
-            "authority": authority,
-            "sequence": sequence,
-            "previous_receipt": previous_receipt,
-        }
+        proof_material = {"abi": ABI_VERSION, "source": source, "target": target, "operation": operation, "state_hash_before": state_hash, "compiled_payload": compiled, "invariants": list(invariant_tuple), "authority": authority, "sequence": sequence, "previous_receipt": previous_receipt}
         proof_root = sha256_hex(canonical_json(proof_material))
         signal_id = f"sig_{sequence}_{proof_root[:24]}"
         return cls(signal_id, source, target, operation, state_hash, compiled, invariant_tuple, authority, sequence, proof_root)
@@ -104,18 +81,7 @@ class SignalRequest:
     def verify_integrity(self, *, previous_receipt: str = GENESIS) -> bool:
         if self.abi != ABI_VERSION or set(self.invariants) - KNOWN_INVARIANTS:
             return False
-        material = {
-            "abi": self.abi,
-            "source": self.source,
-            "target": self.target,
-            "operation": self.operation,
-            "state_hash_before": self.state_hash_before,
-            "compiled_payload": self.compiled_payload,
-            "invariants": list(self.invariants),
-            "authority": self.authority,
-            "sequence": self.sequence,
-            "previous_receipt": previous_receipt,
-        }
+        material = {"abi": self.abi, "source": self.source, "target": self.target, "operation": self.operation, "state_hash_before": self.state_hash_before, "compiled_payload": self.compiled_payload, "invariants": list(self.invariants), "authority": self.authority, "sequence": self.sequence, "previous_receipt": previous_receipt}
         root = sha256_hex(canonical_json(material))
         return self.proof_root == root and self.signal_id == f"sig_{self.sequence}_{root[:24]}"
 
@@ -156,12 +122,7 @@ class SignalRuntime:
         data = json.loads(self.journal_path.read_text(encoding="utf-8"))
         if not isinstance(data, dict) or not isinstance(data.get("state"), dict) or not isinstance(data.get("receipts", {}), dict):
             raise ValueError("JOURNAL_CORRUPTION")
-        return {
-            "state": data["state"],
-            "head_receipt": data.get("head_receipt", GENESIS),
-            "head_sequence": int(data.get("head_sequence", 0)),
-            "receipts": data.get("receipts", {}),
-        }
+        return {"state": data["state"], "head_receipt": data.get("head_receipt", GENESIS), "head_sequence": int(data.get("head_sequence", 0)), "receipts": data.get("receipts", {})}
 
     def _read_state(self) -> Dict[str, Any]:
         return dict(self._read_journal()["state"])
@@ -178,7 +139,8 @@ class SignalRuntime:
             journal = self._read_journal()
             cached = journal["receipts"].get(request.signal_id)
             if isinstance(cached, dict):
-                if cached.get("request_proof_root") != request.proof_root:
+                cached_previous = str(cached.get("previous_receipt", GENESIS))
+                if cached.get("request_proof_root") != request.proof_root or not request.verify_integrity(previous_receipt=cached_previous):
                     raise ValueError("DUPLICATE_SIGNAL_MISMATCH")
                 return SignalReceipt(**cached)
 
@@ -210,17 +172,7 @@ class SignalRuntime:
                     raise ValueError("INVARIANT_FAILED:no_null_state")
 
             after_hash = sha256_hex(canonical_json(next_state))
-            material = {
-                "signal_id": request.signal_id,
-                "sequence": request.sequence,
-                "status": "COMMITTED",
-                "phase": "RECEIPT",
-                "state_hash_before": current_hash,
-                "state_hash_after": after_hash,
-                "result": next_state,
-                "previous_receipt": previous_receipt,
-                "request_proof_root": request.proof_root,
-            }
+            material = {"signal_id": request.signal_id, "sequence": request.sequence, "status": "COMMITTED", "phase": "RECEIPT", "state_hash_before": current_hash, "state_hash_after": after_hash, "result": next_state, "previous_receipt": previous_receipt, "request_proof_root": request.proof_root}
             receipt_hash = sha256_hex(canonical_json(material))
             receipt = SignalReceipt(**material, receipt_hash=receipt_hash, committed_at_ns=time.time_ns())
 
@@ -231,12 +183,7 @@ class SignalRuntime:
                 for item in oldest:
                     receipts.pop(str(item["signal_id"]), None)
 
-            atomic_write_json(self.journal_path, {
-                "state": next_state,
-                "head_receipt": receipt.receipt_hash,
-                "head_sequence": receipt.sequence,
-                "receipts": receipts,
-            })
+            atomic_write_json(self.journal_path, {"state": next_state, "head_receipt": receipt.receipt_hash, "head_sequence": receipt.sequence, "receipts": receipts})
             return receipt
 
 
