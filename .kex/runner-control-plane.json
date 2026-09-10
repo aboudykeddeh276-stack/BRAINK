@@ -1,5 +1,5 @@
 {
-  "schema": "kex.github-runner-control-plane.v7",
+  "schema": "kex.github-runner-control-plane.v8",
   "cascade_order": [
     "MOUNT",
     "VERIFY_ALL",
@@ -14,6 +14,8 @@
     "ADMIT_HOSTS",
     "NORMALIZE_NETWORK_INTENT",
     "PROJECT_NETWORK_LEDGERS",
+    "NORMALIZE_LINGUISTIC_STATE",
+    "PROJECT_LINGUISTIC_LEDGER",
     "SCHEDULE_CAPABILITY",
     "DISPATCH_TRIGGER",
     "MUTATE_STATE",
@@ -40,6 +42,10 @@
     "MOUNT_HOST_FABRIC",
     "MOUNT_IL_LLM_NETWORK_COMPILER",
     "LOAD_NETWORK_FUNCTION_REGISTRY",
+    "MOUNT_BRAINK_LINGUISTIC_ENGINE",
+    "VERIFY_LINGUISTIC_POLICY",
+    "LOAD_PERIODIC_ELEMENT_ANCHORS",
+    "LOAD_MEMORY_ARRAY_MODIFIERS",
     "MOUNT_KEDDEH_FABRIC_ACTUATOR",
     "MOUNT_PUBLIC_GATEWAY",
     "ISSUE_HOST_CHALLENGE",
@@ -72,7 +78,11 @@
     "HOST_LOCAL_NETWORK_PROOF_IS_NOT_EXTERNAL_REACHABILITY_PROOF",
     "GLOBAL_EDGE_REQUIRES_STANDARDS_QUALIFICATION",
     "PUBLIC_UI_CANNOT_PROMOTE_RUNTIME_STATE",
-    "PUBLIC_UI_READS_OBSERVED_STATE_ONLY"
+    "PUBLIC_UI_READS_OBSERVED_STATE_ONLY",
+    "LINGUISTIC_PROJECTION_CANNOT_MUTATE_NUMERIC_SOURCE",
+    "ELEMENT_IDENTITY_IS_SEPARATE_FROM_PROPERTY_POLICY",
+    "MEMORY_MODIFIER_CANNOT_REDEFINE_ELEMENT_IDENTITY",
+    "UNREGISTERED_LINGUISTIC_RELATIONS_FAIL_CLOSED"
   ],
   "file_governance": {
     "manifest": "governance/file/BRAINK_FILE_GOVERNANCE_R1.json",
@@ -80,6 +90,19 @@
     "required_before_artifact_execution": true,
     "identity_law": "type + sector + role + version + trust + lifecycle + compatibility + bindings + proof",
     "execution_law": "artifact declaration is metadata; execution requires runner, capability, authority, readback and proof"
+  },
+  "linguistic_engine": {
+    "runtime": "runtime/linguistics/braink_linguistic_engine.py",
+    "specification": "governance/linguistics/BRAINK_LINGUISTIC_ENGINE_V1.md",
+    "role": "IL_LLM_BOUNDED_LINGUISTIC_PROJECTION",
+    "pipeline": "numeric state -> canonical atomic anchor -> typed property relation -> memory-array modifier -> English projection -> semantic root",
+    "anchor_domain": "atomic numbers 1..118",
+    "zero_policy": "FAIL_CLOSED_NO_ELEMENT",
+    "property_policy": "VERSIONED_EXPLICIT_RELATION",
+    "modifier_policy": "VERSIONED_MEMORY_ARRAY_RELATION",
+    "source_mutation_allowed": false,
+    "human_identity_required": false,
+    "promotion_law": "English projection is derived observer state and never replaces producer numeric truth"
   },
   "public_surface": {
     "runtime": "runtime/public_gateway.py",
@@ -151,7 +174,8 @@
     "security": ["self-hosted", "kex", "security", "boundary", "audit", "rpki", "dnssec"],
     "deploy": ["self-hosted", "kex", "deploy", "docker", "release", "systemd"],
     "host-control": ["self-hosted", "kex", "host-control", "mcp", "desktop-commander", "remote", "linux", "macos", "scheduler", "reconciler", "external-proof"],
-    "network": ["self-hosted", "kex", "il-llm", "network", "dns", "da", "registrar", "mesh", "bgp", "isp", "iot", "proof"]
+    "network": ["self-hosted", "kex", "il-llm", "network", "dns", "da", "registrar", "mesh", "bgp", "isp", "iot", "proof"],
+    "linguistics": ["self-hosted", "kex", "il-llm", "linguistics", "periodic-table", "memory-array", "semantic-root", "projection"]
   },
   "required_workflows": [
     ".github/workflows/kex-runtime-health.yml",
