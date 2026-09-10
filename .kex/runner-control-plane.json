@@ -1,8 +1,21 @@
 {
-  "schema": "kex.github-runner-control-plane.v1",
-  "cascade_order": ["MOUNT", "VERIFY_ALL", "HYDRATE_INDEXEDDB", "RESOLVE_KEX_URI", "PROJECT_UI", "DISPATCH_TRIGGER", "MUTATE_STATE", "WRITEBACK", "PROOF_COMMIT", "REHYDRATE_ON_FAILURE"],
-  "warm_boot_order": ["VERIFY_SEED", "MOUNT_WORKBOOK_SUBSTRATE", "OPEN_INDEXEDDB_NAMESPACE", "HYDRATE_PULSES", "VERIFY_PROOFS", "MOUNT_OBJECTS", "SUBSCRIBE_UI_COMPONENTS", "START_HEARTBEAT", "ENTER_REHYDRATE_LOOP"],
-  "acceptance_rule": ["VISIBLE_ACTION_HAS_TRIGGER", "TRIGGER_MUTATES_STATE", "MUTATION_WRITES_BACK", "WRITEBACK_APPENDS_PROOF", "PROOF_SUPPORTS_REHYDRATION"],
+  "schema": "kex.github-runner-control-plane.v2",
+  "cascade_order": ["MOUNT", "VERIFY_ALL", "HYDRATE_INDEXEDDB", "RESOLVE_KEX_URI", "PROJECT_UI", "RESOLVE_HOST_CONTROL", "DISPATCH_TRIGGER", "MUTATE_STATE", "READBACK", "WRITEBACK", "PROOF_COMMIT", "REHYDRATE_ON_FAILURE"],
+  "warm_boot_order": ["VERIFY_SEED", "MOUNT_WORKBOOK_SUBSTRATE", "OPEN_INDEXEDDB_NAMESPACE", "HYDRATE_PULSES", "VERIFY_PROOFS", "MOUNT_OBJECTS", "SUBSCRIBE_UI_COMPONENTS", "MOUNT_HOST_CONTROL", "VERIFY_HOST_CONTROL_POLICY", "START_HOST_CONTROL_HEARTBEAT", "START_HEARTBEAT", "ENTER_REHYDRATE_LOOP"],
+  "acceptance_rule": ["VISIBLE_ACTION_HAS_TRIGGER", "TRIGGER_MUTATES_STATE", "MUTATION_READS_BACK", "MUTATION_WRITES_BACK", "WRITEBACK_APPENDS_PROOF", "PROOF_SUPPORTS_REHYDRATION"],
+  "host_control": {
+    "integration_id": "BRAINK-DESKTOP-COMMANDER-R1",
+    "route": "HOST_CONTROL",
+    "bundle_manifest": "integrations/desktop_commander/BRAINK_DESKTOP_COMMANDER_BUNDLE_R1.json",
+    "runtime": "runtime/host_control/braink_desktop_commander_runtime.py",
+    "native_plugin": "NativeChatBot/Sources/BRAINKDesktopCommanderPlugin.swift",
+    "mcp_config": "integrations/desktop_commander/MCP_CONFIG.example.json",
+    "authority_required": true,
+    "readback_required": true,
+    "proof_required": true,
+    "carrier_is_identity": false,
+    "carrier_is_authority": false
+  },
   "teams": {
     "substrate": ["self-hosted", "kex", "substrate", "workbook", "python"],
     "cascade": ["self-hosted", "kex", "cascade", "hyperk0", "warmboot"],
@@ -11,7 +24,8 @@
     "proof": ["self-hosted", "kex", "proof", "ledger", "rehydrate"],
     "stress": ["self-hosted", "kex", "stress", "telemetry", "performance"],
     "security": ["self-hosted", "kex", "security", "boundary", "audit"],
-    "deploy": ["self-hosted", "kex", "deploy", "docker", "release"]
+    "deploy": ["self-hosted", "kex", "deploy", "docker", "release"],
+    "host-control": ["self-hosted", "kex", "host-control", "mcp", "desktop-commander", "remote", "linux", "macos"]
   },
   "required_workflows": [
     ".github/workflows/kex-runtime-health.yml",
