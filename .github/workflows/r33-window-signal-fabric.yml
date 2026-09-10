@@ -8,11 +8,13 @@ on:
       - 'runtime/estate_signal_handlers.py'
       - 'runtime/runtime_registry.py'
       - 'modules/kex_wbos/**'
-      - 'mcp/braink_process_adapter/signal_bridge.py'
+      - 'mcp/braink_process_adapter/**'
       - 'skills/window-signal-runtime/**'
+      - 'scripts/kex-signal-client.py'
       - 'scripts/kex-ci/test_signal_fabric_r33.py'
       - 'scripts/kex-ci/test_estate_signal_handlers_r33.py'
       - 'deployment/kex-signal-fabric.service'
+      - 'deployment/install-kex-signal-fabric.sh'
       - 'deployments/R33_WINDOW_SIGNAL_FABRIC_BUNDLE.json'
   workflow_dispatch:
 
@@ -31,8 +33,10 @@ jobs:
           python-version: '3.12'
       - name: Install resident runtime dependencies
         run: python -m pip install 'openpyxl==3.1.5'
-      - name: Compile runtime
-        run: python -m py_compile runtime/signal_fabric.py runtime/signal_service.py runtime/estate_signal_handlers.py mcp/braink_process_adapter/signal_bridge.py
+      - name: Compile runtime and client
+        run: python -m py_compile runtime/signal_fabric.py runtime/signal_service.py runtime/estate_signal_handlers.py mcp/braink_process_adapter/signal_bridge.py mcp/braink_process_adapter/main.py scripts/kex-signal-client.py
+      - name: Validate host installer shell
+        run: bash -n deployment/install-kex-signal-fabric.sh
       - name: Run signal fabric tests
         run: |
           python scripts/kex-ci/test_signal_fabric_r33.py
@@ -46,7 +50,10 @@ jobs:
           for i in {1..20}; do
             body="$(curl -fsS http://127.0.0.1:18033/healthz || true)"
             if printf '%s' "$body" | grep -q 'kex.signal/1' && printf '%s' "$body" | grep -q 'CASEPATH_DISPATCH' && printf '%s' "$body" | grep -q 'RUNTIME_REGISTER'; then
-              curl -fsS -H "Authorization: Bearer $KEX_SIGNAL_AUTH_TOKEN" "http://127.0.0.1:18033/v1/state?target=runtime%3A%2F%2Fkex%2Fvirtual-infrastructure" | grep -q 'head_receipt'
+              state="$(curl -fsS -H "Authorization: Bearer $KEX_SIGNAL_AUTH_TOKEN" "http://127.0.0.1:18033/v1/state?target=runtime%3A%2F%2Fkex%2Fvirtual-infrastructure")"
+              printf '%s' "$state" | grep -q 'head_receipt'
+              printf '%s' "$state" | grep -q 'next_sequence'
+              PYTHONPATH=. python scripts/kex-signal-client.py state runtime://kex/virtual-infrastructure | grep -q 'next_sequence'
               exit 0
             fi
             sleep 0.25
