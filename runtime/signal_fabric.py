@@ -4,14 +4,16 @@ import hashlib
 import json
 import os
 import tempfile
+import threading
 import time
-from dataclasses import asdict, dataclass, field
+from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Any, Callable, Dict, Iterable, Mapping, Optional
+from typing import Any, Callable, Dict, Iterable, Mapping
 
 ABI_VERSION = "kex.signal/1"
 GENESIS = "GENESIS_0000000000000000"
 ALLOWED_PHASES = ("VERIFY", "ADDRESS", "PROPAGATE", "EXECUTE", "COMMIT", "RECEIPT")
+KNOWN_INVARIANTS = {"state_must_be_object", "no_null_state"}
 
 
 def canonical_json(value: Any) -> str:
@@ -77,6 +79,10 @@ class SignalRequest:
             raise ValueError("source, target, operation and authority are mandatory")
         if sequence < 1:
             raise ValueError("sequence must be >= 1")
+        invariant_tuple = tuple(invariants)
+        unknown = sorted(set(invariant_tuple) - KNOWN_INVARIANTS)
+        if unknown:
+            raise ValueError(f"UNKNOWN_INVARIANT:{','.join(unknown)}")
         state_hash = sha256_hex(canonical_json(state))
         compiled = dict(payload)
         proof_material = {
@@ -86,7 +92,7 @@ class SignalRequest:
             "operation": operation,
             "state_hash_before": state_hash,
             "compiled_payload": compiled,
-            "invariants": list(invariants),
+            "invariants": list(invariant_tuple),
             "authority": authority,
             "sequence": sequence,
             "previous_receipt": previous_receipt,
@@ -100,25 +106,17 @@ class SignalRequest:
             operation=operation,
             state_hash_before=state_hash,
             compiled_payload=compiled,
-            invariants=tuple(proof_material["invariants"]),
+            invariants=invariant_tuple,
             authority=authority,
             sequence=sequence,
             proof_root=proof_root,
         )
 
     def verify_integrity(self, *, previous_receipt: str = GENESIS) -> bool:
-        expected = SignalRequest.compile(
-            source=self.source,
-            target=self.target,
-            operation=self.operation,
-            state={"__state_hash__": self.state_hash_before},
-            payload=self.compiled_payload,
-            invariants=self.invariants,
-            authority=self.authority,
-            sequence=self.sequence,
-            previous_receipt=previous_receipt,
-        )
-        # compile() hashes state, so integrity reconstruction is done directly below.
+        if self.abi != ABI_VERSION:
+            return False
+        if set(self.invariants) - KNOWN_INVARIANTS:
+            return False
         material = {
             "abi": self.abi,
             "source": self.source,
@@ -132,7 +130,7 @@ class SignalRequest:
             "previous_receipt": previous_receipt,
         }
         root = sha256_hex(canonical_json(material))
-        return self.abi == ABI_VERSION and self.proof_root == root and self.signal_id == f"sig_{self.sequence}_{root[:24]}"
+        return self.proof_root == root and self.signal_id == f"sig_{self.sequence}_{root[:24]}"
 
 
 @dataclass(frozen=True)
@@ -150,72 +148,109 @@ class SignalReceipt:
 
 
 class SignalRuntime:
-    """Machine-side execution grammar: VERIFY→ADDRESS→PROPAGATE→EXECUTE→COMMIT→RECEIPT."""
+    """Serialized per-target machine grammar with atomic state+receipt journaling."""
 
     def __init__(self, state_path: str | Path, receipt_path: str | Path):
         self.state_path = Path(state_path)
         self.receipt_path = Path(receipt_path)
+        self.journal_path = self.state_path.parent / "signal_transaction.json"
         self.handlers: Dict[str, Callable[[Dict[str, Any], Dict[str, Any]], Dict[str, Any]]] = {}
+        self._lock = threading.RLock()
 
     def register(self, operation: str, handler: Callable[[Dict[str, Any], Dict[str, Any]], Dict[str, Any]]) -> None:
         if not operation:
             raise ValueError("operation required")
         self.handlers[operation] = handler
 
+    def _read_journal(self) -> Dict[str, Any]:
+        if not self.journal_path.exists():
+            return {"state": {}, "head_receipt": GENESIS, "receipts": {}}
+        data = json.loads(self.journal_path.read_text(encoding="utf-8"))
+        if not isinstance(data, dict) or not isinstance(data.get("state"), dict):
+            raise ValueError("JOURNAL_CORRUPTION")
+        if not isinstance(data.get("receipts", {}), dict):
+            raise ValueError("JOURNAL_CORRUPTION")
+        return {
+            "state": data["state"],
+            "head_receipt": data.get("head_receipt", GENESIS),
+            "receipts": data.get("receipts", {}),
+        }
+
     def _read_state(self) -> Dict[str, Any]:
-        if not self.state_path.exists():
-            return {}
-        return json.loads(self.state_path.read_text(encoding="utf-8"))
+        return dict(self._read_journal()["state"])
 
     def _previous_receipt(self) -> str:
-        if not self.receipt_path.exists():
-            return GENESIS
-        return sha256_hex(self.receipt_path.read_bytes())
+        return str(self._read_journal()["head_receipt"])
+
+    def get_receipt(self, signal_id: str) -> SignalReceipt | None:
+        raw = self._read_journal()["receipts"].get(signal_id)
+        if not isinstance(raw, dict):
+            return None
+        return SignalReceipt(**raw)
 
     def execute(self, request: SignalRequest) -> SignalReceipt:
-        previous_receipt = self._previous_receipt()
-        if not request.verify_integrity(previous_receipt=previous_receipt):
-            raise ValueError("SIGNAL_INTEGRITY_FAILURE")
+        with self._lock:
+            journal = self._read_journal()
+            cached = journal["receipts"].get(request.signal_id)
+            if isinstance(cached, dict):
+                return SignalReceipt(**cached)
 
-        current = self._read_state()
-        current_hash = sha256_hex(canonical_json(current))
-        if request.state_hash_before != current_hash:
-            raise ValueError(f"STATE_PRECONDITION_FAILED expected={request.state_hash_before} actual={current_hash}")
+            previous_receipt = str(journal["head_receipt"])
+            if not request.verify_integrity(previous_receipt=previous_receipt):
+                raise ValueError("SIGNAL_INTEGRITY_FAILURE")
 
-        handler = self.handlers.get(request.operation)
-        if handler is None:
-            raise KeyError(f"UNBOUND_OPERATION:{request.operation}")
+            current = dict(journal["state"])
+            current_hash = sha256_hex(canonical_json(current))
+            if request.state_hash_before != current_hash:
+                raise ValueError(f"STATE_PRECONDITION_FAILED expected={request.state_hash_before} actual={current_hash}")
 
-        next_state = handler(dict(current), dict(request.compiled_payload))
-        if not isinstance(next_state, dict):
-            raise TypeError("handler must return a dict state")
+            handler = self.handlers.get(request.operation)
+            if handler is None:
+                raise KeyError(f"UNBOUND_OPERATION:{request.operation}")
 
-        for invariant in request.invariants:
-            if invariant == "state_must_be_object" and not isinstance(next_state, dict):
-                raise ValueError("INVARIANT_FAILED:state_must_be_object")
-            if invariant == "no_null_state" and next_state is None:
-                raise ValueError("INVARIANT_FAILED:no_null_state")
+            next_state = handler(dict(current), dict(request.compiled_payload))
+            if not isinstance(next_state, dict):
+                raise TypeError("handler must return a dict state")
 
-        atomic_write_json(self.state_path, next_state)
-        after_hash = sha256_hex(canonical_json(next_state))
-        material = {
-            "signal_id": request.signal_id,
-            "sequence": request.sequence,
-            "status": "COMMITTED",
-            "phase": "RECEIPT",
-            "state_hash_before": current_hash,
-            "state_hash_after": after_hash,
-            "result": next_state,
-            "previous_receipt": previous_receipt,
-        }
-        receipt_hash = sha256_hex(canonical_json(material))
-        receipt = SignalReceipt(
-            **material,
-            receipt_hash=receipt_hash,
-            committed_at_ns=time.time_ns(),
-        )
-        atomic_write_json(self.receipt_path, asdict(receipt))
-        return receipt
+            for invariant in request.invariants:
+                if invariant not in KNOWN_INVARIANTS:
+                    raise ValueError(f"UNKNOWN_INVARIANT:{invariant}")
+                if invariant == "state_must_be_object" and not isinstance(next_state, dict):
+                    raise ValueError("INVARIANT_FAILED:state_must_be_object")
+                if invariant == "no_null_state" and next_state is None:
+                    raise ValueError("INVARIANT_FAILED:no_null_state")
+
+            after_hash = sha256_hex(canonical_json(next_state))
+            material = {
+                "signal_id": request.signal_id,
+                "sequence": request.sequence,
+                "status": "COMMITTED",
+                "phase": "RECEIPT",
+                "state_hash_before": current_hash,
+                "state_hash_after": after_hash,
+                "result": next_state,
+                "previous_receipt": previous_receipt,
+            }
+            receipt_hash = sha256_hex(canonical_json(material))
+            receipt = SignalReceipt(
+                **material,
+                receipt_hash=receipt_hash,
+                committed_at_ns=time.time_ns(),
+            )
+
+            receipts = dict(journal["receipts"])
+            receipts[request.signal_id] = asdict(receipt)
+            if len(receipts) > 256:
+                oldest = sorted(receipts.values(), key=lambda item: int(item.get("committed_at_ns", 0)))[:-256]
+                for item in oldest:
+                    receipts.pop(str(item["signal_id"]), None)
+
+            atomic_write_json(self.journal_path, {
+                "state": next_state,
+                "head_receipt": receipt.receipt_hash,
+                "receipts": receipts,
+            })
+            return receipt
 
 
 def default_mutation_handler(state: Dict[str, Any], payload: Dict[str, Any]) -> Dict[str, Any]:
