@@ -1,5 +1,5 @@
 {
-  "schema": "braink.desktop-commander.bundle.v1",
+  "schema": "braink.desktop-commander.bundle.v1.1",
   "bundle_id": "BRAINK-DESKTOP-COMMANDER-R1",
   "title": "BRAINK Host-Control / Desktop Commander Integration",
   "authority": {
@@ -14,7 +14,10 @@
     "remote_command": ["npx", "-y", "@wonderwhy-er/desktop-commander@latest", "remote"],
     "mcp_command": ["npx", "-y", "@wonderwhy-er/desktop-commander@latest"],
     "supervision": ["BRAINK runtime", "systemd/launchd where available"],
-    "health_model": "continuously expiring observed state"
+    "health_model": "continuously expiring observed state",
+    "activation_probe": "runtime/host_control/braink_dc_remote_probe.py",
+    "activation_gate": "runtime/host_control/braink_host_activation.py",
+    "attestation_class": "OPERATIONAL_CORRELATION"
   },
   "capabilities": [
     "host.discover",
@@ -31,25 +34,34 @@
     "host.receipt.writeback"
   ],
   "policy": {
-    "required_stages": ["IDENTITY", "CAPABILITY", "AUTHORITY", "HOST_ROUTE", "EXECUTE", "READBACK", "PROOF_COMMIT"],
-    "deny": ["silent privilege elevation", "unbounded command execution", "secret persistence in repository", "carrier-as-authority", "proofless success promotion"],
-    "offline_rule": "local-only operations may continue within cached authority; external mutations queue or fail closed until connectivity is revalidated"
+    "required_stages": ["IDENTITY", "CAPABILITY", "AUTHORITY", "HOST_ROUTE", "EXTERNAL_CARRIER_PROBE", "EXECUTE", "READBACK", "PROOF_COMMIT"],
+    "deny": ["silent privilege elevation", "unbounded command execution", "secret persistence in repository", "carrier-as-authority", "proofless success promotion", "self-issued carrier proof"],
+    "offline_rule": "local-only operations may continue within cached authority; external mutations queue or fail closed until connectivity is revalidated",
+    "proof_rule": "HOST_READY requires a fresh challenge response produced by a separate bounded probe executed through the Desktop Commander remote path; process liveness alone is insufficient",
+    "attestation_limit": "the challenge response is operational correlation evidence and is not cryptographic hardware or third-party carrier attestation"
   },
   "artifacts": [
     "runtime/host_control/braink_desktop_commander_runtime.py",
+    "runtime/host_control/braink_host_fabric.py",
+    "runtime/host_control/braink_host_activation.py",
+    "runtime/host_control/braink_dc_remote_probe.py",
+    "deploy/install_braink_host_control.sh",
+    "deploy/systemd/braink-desktop-commander@.service",
     "NativeChatBot/Sources/BRAINKDesktopCommanderPlugin.swift",
     "integrations/desktop_commander/MCP_CONFIG.example.json",
     "integrations/desktop_commander/ARCHITECTURE.md",
     "integrations/desktop_commander/GOVERNANCE.md",
+    "integrations/desktop_commander/SPECIFICATION.md",
     "integrations/desktop_commander/AUTHORSHIP.json"
   ],
   "acceptance": [
-    "carrier process starts",
-    "host identity observed",
-    "heartbeat fresh",
-    "approved operation executes",
-    "mutation read back",
-    "receipt proof committed",
+    "carrier supervisor process starts",
+    "carrier state heartbeat is fresh",
+    "host identity is observed",
+    "BRAINK authority root is bound",
+    "external Desktop Commander probe answers the current challenge",
+    "bounded capability readback succeeds",
+    "HOST_READY receipt is committed",
     "host state expires when heartbeat goes stale"
   ]
 }
