@@ -9,6 +9,8 @@ WorkingDirectory=/opt/braink
 Environment=PYTHONUNBUFFERED=1
 Environment=BRAINK_COPILOT_HOST=127.0.0.1
 Environment=BRAINK_COPILOT_PORT=8080
+Environment=KEX_SIGNAL_BASE=http://127.0.0.1:18033
+Environment=KEX_RUNTIME_REGISTRY_PATH=/var/lib/braink/signal-fabric/runtime_registry.sqlite
 EnvironmentFile=-/etc/braink/signal-fabric.env
 ExecStart=/usr/bin/python3 -m runtime.copilot_api
 Restart=on-failure
@@ -17,7 +19,7 @@ NoNewPrivileges=true
 PrivateTmp=true
 ProtectSystem=strict
 ProtectHome=true
-ReadWritePaths=/var/lib/braink/signal-fabric /opt/braink/runtime
+ReadWritePaths=/var/lib/braink/signal-fabric
 
 [Install]
 WantedBy=multi-user.target
