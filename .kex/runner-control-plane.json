@@ -1,5 +1,5 @@
 {
-  "schema": "kex.github-runner-control-plane.v5",
+  "schema": "kex.github-runner-control-plane.v6",
   "cascade_order": [
     "MOUNT",
     "VERIFY_ALL",
@@ -36,6 +36,7 @@
     "MOUNT_HOST_FABRIC",
     "MOUNT_IL_LLM_NETWORK_COMPILER",
     "LOAD_NETWORK_FUNCTION_REGISTRY",
+    "MOUNT_KEDDEH_FABRIC_ACTUATOR",
     "ISSUE_HOST_CHALLENGE",
     "WAIT_EXTERNAL_CARRIER_PROBE",
     "VERIFY_HOST_RESPONSE",
@@ -60,7 +61,9 @@
     "NETWORK_INTENT_NORMALIZED_ONCE",
     "NETWORK_PROJECTIONS_PRESERVE_CAUSAL_ID",
     "ADAPTER_CANNOT_REDEFINE_AUTHORITY",
-    "NETWORK_PROMOTION_REQUIRES_OBSERVED_EVIDENCE"
+    "NETWORK_PROMOTION_REQUIRES_OBSERVED_EVIDENCE",
+    "HOST_LOCAL_NETWORK_PROOF_IS_NOT_EXTERNAL_REACHABILITY_PROOF",
+    "GLOBAL_EDGE_REQUIRES_STANDARDS_QUALIFICATION"
   ],
   "host_control": {
     "integration_id": "BRAINK-DESKTOP-COMMANDER-R1",
@@ -93,6 +96,22 @@
     "authority_law": "external network mutations fail closed when authority_root is UNBOUND",
     "transport_law": "Desktop Commander, DNS, registrar, FRR/BGP, mesh and future device adapters are carriers/executors and do not define semantic identity",
     "offline_law": "read/local operations may be compiled for ONLINE_OR_OFFLINE_LOCAL; outward mutations compile to ONLINE only"
+  },
+  "fabric_activation": {
+    "actuator": "deploy/activate_keddeh_fabric.py",
+    "transaction_order": [
+      "REQUIRE_HOST_READY",
+      "NORMALIZE_NETWORK_INTENT",
+      "RESIDENT_NETWORK_VALIDATION",
+      "HOST_NETWORK_ACTIVATION",
+      "REQUIRE_DISTINCT_EXTERNAL_OBSERVER",
+      "NETWORK_STACK_PROVEN_LIVE",
+      "GLOBAL_EDGE_QUALIFICATION"
+    ],
+    "host_local_ceiling": "HOST_NETWORK_PROVEN",
+    "external_promotion": "NETWORK_STACK_PROVEN_LIVE",
+    "global_edge_promotion": "GLOBAL_EDGE_READY",
+    "fail_closed": true
   },
   "teams": {
     "substrate": ["self-hosted", "kex", "substrate", "workbook", "python"],
