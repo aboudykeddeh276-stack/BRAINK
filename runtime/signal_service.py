@@ -7,14 +7,16 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
 from runtime.signal_fabric import SignalRequest, SignalRuntime, default_mutation_handler
+from runtime.estate_signal_handlers import register_estate_handlers
 
 STATE_DIR = Path(os.getenv("KEX_SIGNAL_STATE_DIR", "/tmp/kex-signal-fabric"))
 RUNTIME = SignalRuntime(STATE_DIR / "state.json", STATE_DIR / "last_receipt.json")
 RUNTIME.register("STATE_PATCH", default_mutation_handler)
+register_estate_handlers(RUNTIME)
 
 
 class Handler(BaseHTTPRequestHandler):
-    server_version = "KEXSignal/1.0"
+    server_version = "KEXSignal/1.1"
 
     def _send(self, code: int, payload: dict) -> None:
         body = json.dumps(payload, sort_keys=True).encode("utf-8")
@@ -26,7 +28,12 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_GET(self) -> None:  # noqa: N802
         if self.path == "/healthz":
-            self._send(200, {"status": "ok", "abi": "kex.signal/1", "grammar": ["VERIFY", "ADDRESS", "PROPAGATE", "EXECUTE", "COMMIT", "RECEIPT"]})
+            self._send(200, {
+                "status": "ok",
+                "abi": "kex.signal/1",
+                "grammar": ["VERIFY", "ADDRESS", "PROPAGATE", "EXECUTE", "COMMIT", "RECEIPT"],
+                "operations": sorted(RUNTIME.handlers),
+            })
             return
         self._send(404, {"error": "not_found"})
 
