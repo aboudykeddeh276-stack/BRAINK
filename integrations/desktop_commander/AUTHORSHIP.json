@@ -1,0 +1,24 @@
+{
+  "schema": "keddeh.authorship.record.v1",
+  "artifact_family": "BRAINK Desktop Commander Host-Control Integration",
+  "version": "R1",
+  "author": "Aboudy Keddeh",
+  "organization": "Keddeh Systems",
+  "system_lineage": ["Keddeh Systems", "BRAINK", "KEX"],
+  "third_party_carrier": {
+    "name": "@wonderwhy-er/desktop-commander",
+    "role": "execution carrier / MCP remote-control substrate",
+    "ownership_claimed_by_keddeh_systems": false
+  },
+  "authorship_scope": [
+    "BRAINK integration architecture",
+    "KEX authority and proof binding",
+    "host-control runtime composition",
+    "NativeChatBot plugin integration",
+    "control-plane placement",
+    "governance and completion law",
+    "Keddeh Systems host/network/runtime application"
+  ],
+  "authority_statement": "Third-party carrier capability is incorporated as a bounded transport/execution dependency. Keddeh Systems authorship applies to the BRAINK/KEX integration, orchestration, governance, architecture, runtime composition and resulting Keddeh-specific control plane, not to third-party package source code.",
+  "proof_rule": "Authorship metadata never substitutes for execution proof or external infrastructure authority."
+}
