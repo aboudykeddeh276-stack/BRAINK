@@ -1,0 +1,50 @@
+name: BRAINK Host Activation
+
+on:
+  push:
+    paths:
+      - 'runtime/host_control/**'
+      - 'deploy/systemd/braink-desktop-commander@.service'
+      - 'deploy/install_braink_host_control.sh'
+      - 'integrations/desktop_commander/**'
+      - '.kex/runner-control-plane.json'
+      - '.github/workflows/braink-host-activation.yml'
+  workflow_dispatch:
+
+jobs:
+  validate-host-activation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile host-control runtime
+        run: |
+          python -m py_compile runtime/runtime_registry.py
+          python -m py_compile runtime/host_control/braink_desktop_commander_runtime.py
+          python -m py_compile runtime/host_control/braink_host_fabric.py
+          python -m py_compile runtime/host_control/braink_host_activation.py
+      - name: Deterministic host fabric tests
+        run: |
+          python runtime/host_control/braink_host_fabric.py --self-test
+          python runtime/host_control/braink_host_activation.py --self-test
+      - name: Validate control documents
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          cp=json.loads(Path('.kex/runner-control-plane.json').read_text())
+          bundle=json.loads(Path('integrations/desktop_commander/BRAINK_DESKTOP_COMMANDER_BUNDLE_R1.json').read_text())
+          assert cp['host_control']['integration_id']=='BRAINK-DESKTOP-COMMANDER-R1'
+          assert cp['host_fabric']['admission_requires_authority'] is True
+          assert cp['host_fabric']['fresh_heartbeat_required'] is True
+          assert bundle['authority']['carrier_is_identity'] is False
+          assert bundle['authority']['carrier_is_authority'] is False
+          print('CONTROL_CONTRACT_PASS')
+          PY
+      - name: Validate shell and systemd assets
+        run: |
+          bash -n deploy/install_braink_host_control.sh
+          grep -q '^User=%i$' deploy/systemd/braink-desktop-commander@.service
+          grep -q 'Restart=always' deploy/systemd/braink-desktop-commander@.service
