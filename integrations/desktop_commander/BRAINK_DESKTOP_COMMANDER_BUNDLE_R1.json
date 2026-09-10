@@ -1,0 +1,55 @@
+{
+  "schema": "braink.desktop-commander.bundle.v1",
+  "bundle_id": "BRAINK-DESKTOP-COMMANDER-R1",
+  "title": "BRAINK Host-Control / Desktop Commander Integration",
+  "authority": {
+    "system": "Keddeh Systems / BRAINK / KEX",
+    "author": "Aboudy Keddeh",
+    "carrier": "@wonderwhy-er/desktop-commander",
+    "carrier_is_identity": false,
+    "carrier_is_authority": false
+  },
+  "runtime": {
+    "package": "@wonderwhy-er/desktop-commander@latest",
+    "remote_command": ["npx", "-y", "@wonderwhy-er/desktop-commander@latest", "remote"],
+    "mcp_command": ["npx", "-y", "@wonderwhy-er/desktop-commander@latest"],
+    "supervision": ["BRAINK runtime", "systemd/launchd where available"],
+    "health_model": "continuously expiring observed state"
+  },
+  "capabilities": [
+    "host.discover",
+    "host.identity.read",
+    "host.process.list",
+    "host.process.spawn",
+    "host.process.stop",
+    "host.filesystem.read",
+    "host.filesystem.write",
+    "host.shell.execute",
+    "host.network.inspect",
+    "host.service.inspect",
+    "host.service.control",
+    "host.receipt.writeback"
+  ],
+  "policy": {
+    "required_stages": ["IDENTITY", "CAPABILITY", "AUTHORITY", "HOST_ROUTE", "EXECUTE", "READBACK", "PROOF_COMMIT"],
+    "deny": ["silent privilege elevation", "unbounded command execution", "secret persistence in repository", "carrier-as-authority", "proofless success promotion"],
+    "offline_rule": "local-only operations may continue within cached authority; external mutations queue or fail closed until connectivity is revalidated"
+  },
+  "artifacts": [
+    "runtime/host_control/braink_desktop_commander_runtime.py",
+    "NativeChatBot/Sources/BRAINKDesktopCommanderPlugin.swift",
+    "integrations/desktop_commander/MCP_CONFIG.example.json",
+    "integrations/desktop_commander/ARCHITECTURE.md",
+    "integrations/desktop_commander/GOVERNANCE.md",
+    "integrations/desktop_commander/AUTHORSHIP.json"
+  ],
+  "acceptance": [
+    "carrier process starts",
+    "host identity observed",
+    "heartbeat fresh",
+    "approved operation executes",
+    "mutation read back",
+    "receipt proof committed",
+    "host state expires when heartbeat goes stale"
+  ]
+}
