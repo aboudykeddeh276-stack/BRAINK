@@ -21,17 +21,38 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Compile host-control runtime
+      - name: Deterministic validation with captured diagnostics
+        id: validation
+        shell: bash
         run: |
-          python -m py_compile runtime/runtime_registry.py
-          python -m py_compile runtime/host_control/braink_desktop_commander_runtime.py
-          python -m py_compile runtime/host_control/braink_host_fabric.py
-          python -m py_compile runtime/host_control/braink_host_activation.py
-      - name: Run deterministic host-fabric self-test
-        run: python -m runtime.host_control.braink_host_fabric --self-test
-      - name: Run deterministic host-activation contract test
-        run: python -m runtime.host_control.braink_host_activation --self-test
-      - name: Validate control-plane JSON
-        run: python -m json.tool .kex/runner-control-plane.json >/dev/null
-      - name: Validate Desktop Commander bundle JSON
-        run: python -m json.tool integrations/desktop_commander/BRAINK_DESKTOP_COMMANDER_BUNDLE_R1.json >/dev/null
+          set +e
+          : > host-fabric-diagnostics.txt
+          run_check() {
+            name="$1"; shift
+            echo "===== ${name} =====" | tee -a host-fabric-diagnostics.txt
+            "$@" 2>&1 | tee -a host-fabric-diagnostics.txt
+            rc=${PIPESTATUS[0]}
+            echo "RC=${rc}" | tee -a host-fabric-diagnostics.txt
+            if [ "$rc" -ne 0 ]; then
+              echo "FAILED_CHECK=${name}" | tee -a host-fabric-diagnostics.txt
+              return "$rc"
+            fi
+          }
+          rc=0
+          run_check compile_registry python -m py_compile runtime/runtime_registry.py || rc=$?
+          [ "$rc" -eq 0 ] && run_check compile_dc python -m py_compile runtime/host_control/braink_desktop_commander_runtime.py || rc=$?
+          [ "$rc" -eq 0 ] && run_check compile_fabric python -m py_compile runtime/host_control/braink_host_fabric.py || rc=$?
+          [ "$rc" -eq 0 ] && run_check compile_activation python -m py_compile runtime/host_control/braink_host_activation.py || rc=$?
+          [ "$rc" -eq 0 ] && run_check fabric_self_test python -m runtime.host_control.braink_host_fabric --self-test || rc=$?
+          [ "$rc" -eq 0 ] && run_check activation_self_test python -m runtime.host_control.braink_host_activation --self-test || rc=$?
+          [ "$rc" -eq 0 ] && run_check control_plane_json python -m json.tool .kex/runner-control-plane.json || rc=$?
+          [ "$rc" -eq 0 ] && run_check dc_bundle_json python -m json.tool integrations/desktop_commander/BRAINK_DESKTOP_COMMANDER_BUNDLE_R1.json || rc=$?
+          echo "FINAL_RC=${rc}" | tee -a host-fabric-diagnostics.txt
+          exit "$rc"
+      - name: Upload host-fabric diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: host-fabric-diagnostics
+          path: host-fabric-diagnostics.txt
+          if-no-files-found: error
