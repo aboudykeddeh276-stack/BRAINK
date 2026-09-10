@@ -57,7 +57,7 @@ def operation_manifest() -> list[str]:
 
 
 class Handler(BaseHTTPRequestHandler):
-    server_version = "KEXSignal/1.3"
+    server_version = "KEXSignal/1.4"
 
     def _send(self, code: int, payload: dict) -> None:
         body = json.dumps(payload, sort_keys=True).encode("utf-8")
@@ -100,7 +100,14 @@ class Handler(BaseHTTPRequestHandler):
         try:
             runtime = runtime_for_target(target)
             if parsed.path == "/v1/state":
-                self._send(200, {"target": target, "state": runtime._read_state(), "head_receipt": runtime._previous_receipt()})
+                journal = runtime._read_journal()
+                self._send(200, {
+                    "target": target,
+                    "state": journal["state"],
+                    "head_receipt": journal["head_receipt"],
+                    "head_sequence": journal["head_sequence"],
+                    "next_sequence": int(journal["head_sequence"]) + 1,
+                })
                 return
             signal_id = query.get("signal_id", [""])[0]
             if not signal_id:
