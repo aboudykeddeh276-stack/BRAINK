@@ -1,0 +1,23 @@
+[Unit]
+Description=BRAINK Desktop Commander Remote Host-Control Carrier
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=%i
+WorkingDirectory=/opt/braink
+Environment=BRAINK_HOST_CONTROL_STATE=/var/lib/braink/host-control
+ExecStart=/usr/bin/python3 /opt/braink/runtime/host_control/braink_desktop_commander_runtime.py run --mode remote
+Restart=always
+RestartSec=3
+TimeoutStopSec=15
+KillMode=mixed
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/var/lib/braink /opt/braink
+
+[Install]
+WantedBy=multi-user.target
