@@ -1,6 +1,6 @@
 {
   "release": "R33_WINDOW_SIGNAL_FABRIC",
-  "status": "IMPLEMENTED_ON_BRANCH",
+  "status": "IMPLEMENTED_ON_BRANCH_AWAITING_EXTERNAL_RUNNER_QUALIFICATION",
   "branch": "evolution/window-signal-fabric-r33",
   "machine_contract": {
     "abi": "kex.signal/1",
@@ -8,21 +8,12 @@
     "principle": "domain semantics compile inside bounded windows; machine services receive normalized propagation requests"
   },
   "bundles": {
-    "app_runtime": [
-      "runtime/signal_fabric.py",
-      "runtime/signal_service.py",
-      "runtime/estate_signal_handlers.py"
-    ],
+    "app_runtime": ["runtime/signal_fabric.py", "runtime/signal_service.py", "runtime/estate_signal_handlers.py"],
+    "operator_client": ["scripts/kex-signal-client.py"],
     "skill": ["skills/window-signal-runtime/SKILL.md"],
-    "plugin_adapter": [
-      "mcp/braink_process_adapter/signal_bridge.py",
-      "mcp/braink_process_adapter/main.py"
-    ],
-    "server_service": ["deployment/kex-signal-fabric.service"],
-    "verification": [
-      "scripts/kex-ci/test_signal_fabric_r33.py",
-      "scripts/kex-ci/test_estate_signal_handlers_r33.py"
-    ]
+    "plugin_adapter": ["mcp/braink_process_adapter/signal_bridge.py", "mcp/braink_process_adapter/main.py"],
+    "server_service": ["deployment/kex-signal-fabric.service", "deployment/install-kex-signal-fabric.sh"],
+    "verification": ["scripts/kex-ci/test_signal_fabric_r33.py", "scripts/kex-ci/test_estate_signal_handlers_r33.py", ".github/workflows/r33-window-signal-fabric.yml"]
   },
   "bound_operations": {
     "STATE_PATCH": "native canonical state mutation",
@@ -32,27 +23,33 @@
     "RUNTIME_REGISTER": "existing SQLite RuntimeRegistry upsert",
     "RUNTIME_DESIRED_STATE": "existing SQLite RuntimeRegistry desired-state transition"
   },
-  "mcp_tools": [
-    "braink_compile_window_signal",
-    "braink_signal_operation_manifest"
-  ],
+  "mcp_tools": ["braink_compile_window_signal", "braink_signal_operation_manifest"],
+  "window_readback": ["state", "head_receipt", "head_sequence", "next_sequence"],
   "hardening": {
-    "transaction": "state and receipt head commit in one atomic journal write",
+    "transaction": "state, receipt head, sequence head and recovery receipts commit in one atomic journal write",
     "concurrency": "serialized per-target runtime transition lock",
-    "recovery": "signal-id receipt cache supports idempotent committed-request recovery",
+    "sequence": "exact head_sequence + 1 required",
+    "recovery": "signal-id receipt cache verifies the complete replayed request against the original previous receipt",
     "partitioning": "state and receipt chains are partitioned by sha256(target)",
     "ingress_auth": "bearer token required and request authority must match configured trusted authority",
     "invariants": "unknown invariants rejected before commit",
     "service_state": "systemd StateDirectory creates writable durable path before process start"
   },
   "identity_rule": "BRAINK, KEX, CasePath, ClaimPath, workbook, site, carrier, projection and host remain distinct identities. They converge only on the canonical propagation ABI.",
-  "state_rule": "visible state does not become authoritative until a COMMITTED RECEIPT is returned",
+  "state_rule": "visible state does not become authoritative until a COMMITTED receipt is returned or recovered for the exact same signal",
   "proof_rule": "hash chaining establishes consistency and lineage; it is not described as externally immutable without an independent witness",
+  "qualification_state": {
+    "source_mutations_committed": true,
+    "pull_request_open": 78,
+    "github_actions_observation": "multiple repository workflows have failed before exposing executable step logs; exact runner/infrastructure cause is not observable from this connection",
+    "external_ci_pass_observed": false
+  },
   "deployment_boundary": {
     "repository_write": true,
+    "host_installer_present": true,
     "host_service_installed": false,
     "host_service_started": false,
     "public_network_exposure": false,
-    "reason": "repository/runtime integration is implemented; physical owner-host activation still requires direct host service-manager authority"
+    "reason": "physical owner-host activation requires direct host service-manager authority; the installer now performs that activation and readback when executed there"
   }
 }
