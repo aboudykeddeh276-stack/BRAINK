@@ -1,0 +1,40 @@
+name: R33 Window Signal Fabric
+
+on:
+  pull_request:
+    paths:
+      - 'runtime/signal_fabric.py'
+      - 'runtime/signal_service.py'
+      - 'mcp/braink_process_adapter/signal_bridge.py'
+      - 'skills/window-signal-runtime/**'
+      - 'scripts/kex-ci/test_signal_fabric_r33.py'
+      - 'deployment/kex-signal-fabric.service'
+      - 'deployments/R33_WINDOW_SIGNAL_FABRIC_BUNDLE.json'
+  workflow_dispatch:
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile runtime
+        run: python -m py_compile runtime/signal_fabric.py runtime/signal_service.py mcp/braink_process_adapter/signal_bridge.py
+      - name: Run R33 signal fabric tests
+        run: python scripts/kex-ci/test_signal_fabric_r33.py
+      - name: Smoke HTTP service
+        shell: bash
+        run: |
+          python -m runtime.signal_service >/tmp/kex-signal-r33.log 2>&1 &
+          pid=$!
+          trap 'kill "$pid" || true' EXIT
+          for i in {1..20}; do
+            if curl -fsS http://127.0.0.1:18033/healthz | grep -q 'kex.signal/1'; then
+              exit 0
+            fi
+            sleep 0.25
+          done
+          cat /tmp/kex-signal-r33.log
+          exit 1
