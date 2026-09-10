@@ -1,0 +1,106 @@
+{
+  "schema": "braink.file-governance.r1",
+  "purpose": "Make files first-class governed mesh artifacts with explicit identity, capability, lifecycle, trust and adapter contracts.",
+  "artifact_classes": [
+    "NODE_DEFINITION",
+    "SKILL_MODULE",
+    "ADAPTER",
+    "POLICY_ARTIFACT",
+    "KNOWLEDGE_PACKET",
+    "TRACE_AUDIT_RECORD",
+    "RUNTIME",
+    "PLUGIN",
+    "APP",
+    "CONFIGURATION"
+  ],
+  "identity": {
+    "required_fields": [
+      "artifact_id",
+      "type",
+      "sector",
+      "role",
+      "version",
+      "trust_level",
+      "lifecycle",
+      "compatibility",
+      "capabilities",
+      "dependencies",
+      "policy_bindings",
+      "adapter_bindings",
+      "authorship",
+      "proof_root"
+    ],
+    "canonical_name_grammar": "<type>.<sector>.<role>.v<major>.<trust>.<lifecycle>",
+    "trust_levels": ["UNTRUSTED", "OBSERVED", "VALIDATED", "TRUSTED", "PRIVILEGED"],
+    "lifecycles": ["EPHEMERAL", "SESSION", "PERSISTENT", "IMMUTABLE", "REVOCABLE"]
+  },
+  "function_contract": {
+    "required": [
+      "typed_inputs",
+      "typed_outputs",
+      "preconditions",
+      "postconditions",
+      "failure_modes",
+      "sector_alignment",
+      "allowed_downstream_nodes",
+      "authority_requirement",
+      "readback_requirement",
+      "proof_requirement"
+    ]
+  },
+  "adapter_contract": {
+    "required": [
+      "source_type",
+      "target_type",
+      "schema_mapping",
+      "lossiness_rule",
+      "trust_transition_rule",
+      "validation_hooks",
+      "failure_modes"
+    ],
+    "law": "Adapters translate representation but cannot redefine producer truth, semantic identity or authority."
+  },
+  "node_identity_sentence": {
+    "fields": [
+      "type",
+      "sector",
+      "knowledge_domain",
+      "policies",
+      "adapters",
+      "schema",
+      "lifecycle",
+      "trust_level",
+      "traced_task",
+      "version"
+    ],
+    "law": "A node identity is a structured sentence of governed primitives, not an untyped object label."
+  },
+  "layer_enforcement": {
+    "OS": ["permissions", "isolation", "storage_boundaries"],
+    "RUNTIME": ["schema_validation", "message_typing", "adapter_rules"],
+    "KERNEL": ["immutability", "trust_boundaries", "privilege_constraints"],
+    "RUNNER": ["load_valid_artifacts_only", "reject_malformed_or_unqualified_artifacts"],
+    "HOST": ["local_environment", "configuration_boundary", "execution_residency"],
+    "SUBSTRATE": ["naming", "classification", "lifecycle", "identity", "capability", "evolution_rules"]
+  },
+  "mesh_laws": [
+    "FILES_CAN_DECLARE_NODE_SKILL_CAPABILITY_POLICY_MEMORY_ADAPTER_OR_CLASSIFICATION_ROLES",
+    "DECLARATION_DOES_NOT_EQUAL_EXECUTION",
+    "EXECUTION_REQUIRES_RUNNER_AND_AUTHORITY",
+    "TRUST_CANNOT_INCREASE_SILENTLY_ACROSS_ADAPTERS",
+    "MUTATION_REQUIRES_VERSION_AND_PROOF_UPDATE",
+    "READBACK_REQUIRED_FOR_PROMOTION",
+    "TRANSPORT_IS_NOT_SEMANTIC_IDENTITY",
+    "HUMAN_IDENTITY_IS_NOT_A_PROCESS_ID"
+  ],
+  "process_identity": {
+    "local_fields": ["ProcessID", "FrameID", "artifact_bindings", "numeric_state"],
+    "mesh_propagation_allowed": ["ProcessID", "FrameID", "skill_id", "module_id", "artifact_id", "numeric_state"],
+    "mesh_propagation_forbidden": ["human_identity", "human_preference_narrative", "per_runtime_narrative_state"]
+  },
+  "authorship": {
+    "integration_authority": "Keddeh Systems",
+    "source_basis": "User-supplied BRAINK/KEX architecture and file-governance requirements",
+    "third_party_components_remain_separately_attributed": true
+  }
+}
