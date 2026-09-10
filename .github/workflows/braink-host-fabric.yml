@@ -23,12 +23,14 @@ jobs:
           python-version: '3.12'
       - name: Compile host-control runtime
         run: |
+          python -m py_compile runtime/runtime_registry.py
           python -m py_compile runtime/host_control/braink_desktop_commander_runtime.py
           python -m py_compile runtime/host_control/braink_host_fabric.py
+          python -m py_compile runtime/host_control/braink_host_activation.py
       - name: Run deterministic host-fabric self-test
-        env:
-          PYTHONPATH: ${{ github.workspace }}
-        run: python runtime/host_control/braink_host_fabric.py --self-test
+        run: python -m runtime.host_control.braink_host_fabric --self-test
+      - name: Run deterministic host-activation contract test
+        run: python -m runtime.host_control.braink_host_activation --self-test
       - name: Validate control-plane JSON
         run: python -m json.tool .kex/runner-control-plane.json >/dev/null
       - name: Validate Desktop Commander bundle JSON
