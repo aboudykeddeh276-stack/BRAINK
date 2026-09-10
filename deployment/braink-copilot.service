@@ -1,0 +1,23 @@
+[Unit]
+Description=BRAINK Copilot HTML5 Runtime Surface
+After=network.target kex-signal-fabric.service
+Requires=kex-signal-fabric.service
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/braink
+Environment=PYTHONUNBUFFERED=1
+Environment=BRAINK_COPILOT_HOST=127.0.0.1
+Environment=BRAINK_COPILOT_PORT=8080
+EnvironmentFile=-/etc/braink/signal-fabric.env
+ExecStart=/usr/bin/python3 -m runtime.copilot_api
+Restart=on-failure
+RestartSec=2
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/braink/signal-fabric /opt/braink/runtime
+
+[Install]
+WantedBy=multi-user.target
