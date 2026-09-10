@@ -1,20 +1,25 @@
 {
-  "schema": "kex.github-runner-control-plane.v2",
-  "cascade_order": ["MOUNT", "VERIFY_ALL", "HYDRATE_INDEXEDDB", "RESOLVE_KEX_URI", "PROJECT_UI", "RESOLVE_HOST_CONTROL", "DISPATCH_TRIGGER", "MUTATE_STATE", "READBACK", "WRITEBACK", "PROOF_COMMIT", "REHYDRATE_ON_FAILURE"],
-  "warm_boot_order": ["VERIFY_SEED", "MOUNT_WORKBOOK_SUBSTRATE", "OPEN_INDEXEDDB_NAMESPACE", "HYDRATE_PULSES", "VERIFY_PROOFS", "MOUNT_OBJECTS", "SUBSCRIBE_UI_COMPONENTS", "MOUNT_HOST_CONTROL", "VERIFY_HOST_CONTROL_POLICY", "START_HOST_CONTROL_HEARTBEAT", "START_HEARTBEAT", "ENTER_REHYDRATE_LOOP"],
-  "acceptance_rule": ["VISIBLE_ACTION_HAS_TRIGGER", "TRIGGER_MUTATES_STATE", "MUTATION_READS_BACK", "MUTATION_WRITES_BACK", "WRITEBACK_APPENDS_PROOF", "PROOF_SUPPORTS_REHYDRATION"],
+  "schema": "kex.github-runner-control-plane.v3",
+  "cascade_order": ["MOUNT", "VERIFY_ALL", "HYDRATE_INDEXEDDB", "RESOLVE_KEX_URI", "PROJECT_UI", "RESOLVE_HOST_CONTROL", "ADMIT_HOSTS", "SCHEDULE_CAPABILITY", "DISPATCH_TRIGGER", "MUTATE_STATE", "READBACK", "RECONCILE_HOST_STATE", "WRITEBACK", "PROOF_COMMIT", "REHYDRATE_ON_FAILURE"],
+  "warm_boot_order": ["VERIFY_SEED", "MOUNT_WORKBOOK_SUBSTRATE", "OPEN_INDEXEDDB_NAMESPACE", "HYDRATE_PULSES", "VERIFY_PROOFS", "MOUNT_OBJECTS", "SUBSCRIBE_UI_COMPONENTS", "MOUNT_HOST_CONTROL", "VERIFY_HOST_CONTROL_POLICY", "MOUNT_HOST_FABRIC", "ADMIT_LOCAL_HOST", "START_HOST_CONTROL_HEARTBEAT", "START_HOST_RECONCILER", "START_HEARTBEAT", "ENTER_REHYDRATE_LOOP"],
+  "acceptance_rule": ["VISIBLE_ACTION_HAS_TRIGGER", "TRIGGER_MUTATES_STATE", "MUTATION_READS_BACK", "MUTATION_WRITES_BACK", "WRITEBACK_APPENDS_PROOF", "PROOF_SUPPORTS_REHYDRATION", "HOST_STATE_EXPIRES_WHEN_HEARTBEAT_STALE", "EXTERNAL_MUTATIONS_REQUIRE_ONLINE_HOST"],
   "host_control": {
     "integration_id": "BRAINK-DESKTOP-COMMANDER-R1",
     "route": "HOST_CONTROL",
     "bundle_manifest": "integrations/desktop_commander/BRAINK_DESKTOP_COMMANDER_BUNDLE_R1.json",
     "runtime": "runtime/host_control/braink_desktop_commander_runtime.py",
+    "host_fabric": "runtime/host_control/braink_host_fabric.py",
     "native_plugin": "NativeChatBot/Sources/BRAINKDesktopCommanderPlugin.swift",
     "mcp_config": "integrations/desktop_commander/MCP_CONFIG.example.json",
     "authority_required": true,
     "readback_required": true,
     "proof_required": true,
     "carrier_is_identity": false,
-    "carrier_is_authority": false
+    "carrier_is_authority": false,
+    "host_states": ["DISCOVERED", "IDENTIFIED", "AUTHORITY_VERIFIED", "HOST_READY", "STALE"],
+    "host_modes": ["ONLINE", "OFFLINE_LOCAL"],
+    "routing_law": "capability + authority + fresh observed host state",
+    "offline_law": "local-only operations may continue; external mutations require ONLINE and fresh authority"
   },
   "teams": {
     "substrate": ["self-hosted", "kex", "substrate", "workbook", "python"],
@@ -25,7 +30,7 @@
     "stress": ["self-hosted", "kex", "stress", "telemetry", "performance"],
     "security": ["self-hosted", "kex", "security", "boundary", "audit"],
     "deploy": ["self-hosted", "kex", "deploy", "docker", "release"],
-    "host-control": ["self-hosted", "kex", "host-control", "mcp", "desktop-commander", "remote", "linux", "macos"]
+    "host-control": ["self-hosted", "kex", "host-control", "mcp", "desktop-commander", "remote", "linux", "macos", "scheduler", "reconciler"]
   },
   "required_workflows": [
     ".github/workflows/kex-runtime-health.yml",
@@ -36,6 +41,7 @@
     ".github/workflows/kex-object-runtime.yml",
     ".github/workflows/kex-stress-test.yml",
     ".github/workflows/kex-security-boundary.yml",
-    ".github/workflows/kex-deploy.yml"
+    ".github/workflows/kex-deploy.yml",
+    ".github/workflows/braink-host-fabric.yml"
   ]
 }
