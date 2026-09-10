@@ -3,6 +3,9 @@ from __future__ import annotations
 import json
 import os
 import re
+import urllib.error
+import urllib.parse
+import urllib.request
 from dataclasses import asdict
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -10,14 +13,14 @@ from typing import Any
 from urllib.parse import urlparse
 
 from runtime.signal_fabric import SignalRequest
-from runtime.signal_service import STATE_DIR, operation_manifest, runtime_for_target
 from runtime.runtime_registry import RuntimeRegistry
 from modules.kex_wbos.workbook_api import dataset_response
 
 BASE = Path(__file__).resolve().parents[1]
 WEB_ROOT = BASE / "web" / "braink-copilot"
 DEFAULT_TARGET = "app://braink/os"
-REGISTRY_PATH = Path(os.getenv("KEX_RUNTIME_REGISTRY_PATH", str(BASE / "runtime" / "runtime_registry.sqlite")))
+REGISTRY_PATH = Path(os.getenv("KEX_RUNTIME_REGISTRY_PATH", "/var/lib/braink/signal-fabric/runtime_registry.sqlite"))
+SIGNAL_BASE = os.getenv("KEX_SIGNAL_BASE", "http://127.0.0.1:18033").rstrip("/")
 
 
 def _token() -> str:
@@ -34,52 +37,64 @@ def _authority() -> str:
     return authority
 
 
+def _signal_json(method: str, path: str, payload: dict[str, Any] | None = None, *, auth: bool = True) -> dict[str, Any]:
+    body = None if payload is None else json.dumps(payload, sort_keys=True).encode("utf-8")
+    headers = {"Accept": "application/json"}
+    if body is not None:
+        headers["Content-Type"] = "application/json"
+    if auth:
+        headers["Authorization"] = f"Bearer {_token()}"
+    req = urllib.request.Request(SIGNAL_BASE + path, data=body, headers=headers, method=method)
+    try:
+        with urllib.request.urlopen(req, timeout=10) as response:
+            value = json.loads(response.read().decode("utf-8"))
+    except urllib.error.HTTPError as exc:
+        detail = exc.read().decode("utf-8", errors="replace")
+        raise RuntimeError(f"signal_service_http_{exc.code}:{detail}") from exc
+    except urllib.error.URLError as exc:
+        raise RuntimeError(f"signal_service_unreachable:{exc.reason}") from exc
+    if not isinstance(value, dict):
+        raise RuntimeError("signal_service_invalid_json")
+    return value
+
+
 def _target_snapshot(target: str) -> dict[str, Any]:
-    runtime = runtime_for_target(target)
-    journal = runtime._read_journal()
-    return {
-        "target": target,
-        "state": journal["state"],
-        "head_receipt": journal["head_receipt"],
-        "head_sequence": int(journal["head_sequence"]),
-        "next_sequence": int(journal["head_sequence"]) + 1,
-    }
+    return _signal_json("GET", "/v1/state?target=" + urllib.parse.quote(target, safe=""))
+
+
+def _operations() -> list[str]:
+    health = _signal_json("GET", "/healthz", auth=False)
+    return [str(item) for item in health.get("operations", [])]
 
 
 def _compile_and_execute(target: str, operation: str, payload: dict[str, Any], *, source: str = "app://braink/copilot") -> dict[str, Any]:
-    runtime = runtime_for_target(target)
-    journal = runtime._read_journal()
+    snapshot = _target_snapshot(target)
     request = SignalRequest.compile(
         source=source,
         target=target,
         operation=operation,
-        state=journal["state"],
+        state=snapshot.get("state", {}),
         payload=payload,
         invariants=("state_must_be_object", "no_null_state"),
         authority=_authority(),
-        sequence=int(journal["head_sequence"]) + 1,
-        previous_receipt=str(journal["head_receipt"]),
+        sequence=int(snapshot["next_sequence"]),
+        previous_receipt=str(snapshot["head_receipt"]),
     )
-    return asdict(runtime.execute(request))
+    return _signal_json("POST", "/v1/propagate", asdict(request))
 
 
 def boot_runtime() -> dict[str, Any]:
-    receipt = _compile_and_execute(
-        DEFAULT_TARGET,
-        "STATE_PATCH",
-        {"patch": {"runtime_status": "ONLINE", "runtime_mode": "COPILOT_FRONT_SURFACE"}},
-    )
+    receipt = _compile_and_execute(DEFAULT_TARGET, "STATE_PATCH", {"patch": {"runtime_status": "ONLINE", "runtime_mode": "COPILOT_FRONT_SURFACE"}})
     return {
         "status": "online",
         "target": DEFAULT_TARGET,
         "receipt": receipt,
-        "claim_boundary": "This proves the BRAINK copilot control-plane target committed ONLINE state. It does not by itself prove a separate physical host process, VM, or external service was started.",
+        "claim_boundary": "This proves the BRAINK copilot control-plane target committed ONLINE state through the authenticated KEX signal service. It does not by itself prove a separate VM or external service started.",
     }
 
 
 def ping_mesh() -> dict[str, Any]:
-    registry = RuntimeRegistry(REGISTRY_PATH)
-    runtimes = registry.list()
+    runtimes = RuntimeRegistry(REGISTRY_PATH).list()
     nodes = [{
         "id": row["runtime_id"],
         "status": row.get("observed_state") or "UNKNOWN",
@@ -91,51 +106,37 @@ def ping_mesh() -> dict[str, Any]:
         "status": "ok",
         "nodes": nodes,
         "registered": len(nodes),
-        "signal_state_dir": str(STATE_DIR),
-        "signal_state_dir_present": STATE_DIR.exists(),
-        "claim_boundary": "Mesh status is derived from the resident runtime registry and local signal-fabric state. No unobserved remote node is reported as reachable.",
+        "signal_service": SIGNAL_BASE,
+        "claim_boundary": "Mesh status is derived from the resident runtime registry. No unobserved remote node is reported as reachable.",
     }
 
 
 def _skills() -> list[dict[str, Any]]:
     root = BASE / "skills"
-    if not root.exists():
-        return []
-    return [{"id": path.parent.name, "type": "skill", "path": path.relative_to(BASE).as_posix()} for path in sorted(root.rglob("SKILL.md"))]
+    return [] if not root.exists() else [{"id": p.parent.name, "type": "skill", "path": p.relative_to(BASE).as_posix()} for p in sorted(root.rglob("SKILL.md"))]
 
 
 def _modules() -> list[dict[str, Any]]:
     result: list[dict[str, Any]] = []
     for root in (BASE / "modules", BASE / "mcp"):
-        if not root.exists():
-            continue
-        for child in sorted(root.iterdir()):
-            if child.is_dir() and not child.name.startswith("."):
-                result.append({"id": child.name, "state": "RESIDENT", "path": child.relative_to(BASE).as_posix()})
+        if root.exists():
+            for child in sorted(root.iterdir()):
+                if child.is_dir() and not child.name.startswith("."):
+                    result.append({"id": child.name, "state": "RESIDENT", "path": child.relative_to(BASE).as_posix()})
     return result
 
 
 def dashboard_summary() -> dict[str, Any]:
     rows = RuntimeRegistry(REGISTRY_PATH).list()
-    nodes = [{"id": row["runtime_id"], "status": row.get("observed_state") or "UNKNOWN", "role": row.get("runtime_class") or "RUNTIME"} for row in rows]
-    skills = _skills()
-    modules = _modules()
-    active = sum(1 for row in rows if str(row.get("observed_state", "")).upper() in {"RUNNING", "ACTIVE", "ONLINE", "VERIFIED"})
+    nodes = [{"id": r["runtime_id"], "status": r.get("observed_state") or "UNKNOWN", "role": r.get("runtime_class") or "RUNTIME"} for r in rows]
+    skills, modules = _skills(), _modules()
+    active = sum(1 for r in rows if str(r.get("observed_state", "")).upper() in {"RUNNING", "ACTIVE", "ONLINE", "VERIFIED"})
     return {
         "nodes": nodes,
         "skills": skills,
         "modules": modules,
-        "metrics": {
-            "processActive": active,
-            "processMax": max(len(rows), 1),
-            "skillOpsPerMin": 0,
-            "skillMaxOpsPerMin": max(len(skills), 1),
-        },
-        "signal": {
-            "abi": "kex.signal/1",
-            "operations": operation_manifest(),
-            "target": _target_snapshot(DEFAULT_TARGET),
-        },
+        "metrics": {"processActive": active, "processMax": max(len(rows), 1), "skillOpsPerMin": 0, "skillMaxOpsPerMin": max(len(skills), 1)},
+        "signal": {"abi": "kex.signal/1", "operations": _operations(), "target": _target_snapshot(DEFAULT_TARGET)},
         "workbook": {
             "hyper_cores": dataset_response("hyper-cores"),
             "servers": dataset_response("servers"),
@@ -146,22 +147,21 @@ def dashboard_summary() -> dict[str, Any]:
 
 
 def chat_execute(task: str, context: dict[str, Any] | None = None) -> dict[str, Any]:
-    text = task.strip()
-    lower = text.lower()
+    text, lower = task.strip(), task.strip().lower()
     if not text:
         raise ValueError("task_required")
     if any(term in lower for term in ("mesh status", "show mesh", "ping mesh", "nodes")):
         mesh = ping_mesh()
         return {"reply": f"Mesh registry: {mesh['registered']} runtime node(s) are resident. No remote reachability is inferred beyond observed registry state.", "route": "MESH_STATUS", "result": mesh}
     if any(term in lower for term in ("operation", "capabilit", "what can", "signal")):
-        ops = operation_manifest()
+        ops = _operations()
         return {"reply": "Bound machine operations: " + ", ".join(ops), "route": "OPERATION_MANIFEST", "result": {"operations": ops}}
     if "dashboard" in lower or "status" in lower:
         summary = dashboard_summary()
         return {"reply": f"Resident summary: {len(summary['nodes'])} runtimes, {len(summary['skills'])} skills, {len(summary['modules'])} modules.", "route": "DASHBOARD_SUMMARY", "result": summary}
-    patch_match = re.match(r"^\s*set\s+state\s+([A-Za-z0-9_.-]+)\s*=\s*(.+?)\s*$", text, re.IGNORECASE)
-    if patch_match:
-        key, value = patch_match.groups()
+    match = re.match(r"^\s*set\s+state\s+([A-Za-z0-9_.-]+)\s*=\s*(.+?)\s*$", text, re.IGNORECASE)
+    if match:
+        key, value = match.groups()
         receipt = _compile_and_execute(DEFAULT_TARGET, "STATE_PATCH", {"patch": {key: value}})
         return {"reply": f"Committed {key} to the BRAINK copilot target. Receipt {receipt['receipt_hash'][:16]}…", "route": "STATE_PATCH", "result": receipt}
     return {
@@ -172,7 +172,7 @@ def chat_execute(task: str, context: dict[str, Any] | None = None) -> dict[str, 
 
 
 class Handler(BaseHTTPRequestHandler):
-    server_version = "BRAINKCopilot/1.0"
+    server_version = "BRAINKCopilot/1.1"
 
     def _send_json(self, code: int, payload: dict[str, Any]) -> None:
         body = json.dumps(payload, sort_keys=True, default=str).encode("utf-8")
@@ -216,15 +216,23 @@ class Handler(BaseHTTPRequestHandler):
             self.wfile.write(body)
             return
         if parsed.path == "/healthz":
-            self._send_json(200, {"status": "ok", "surface": "BRAINK_COPILOT", "abi": "kex.signal/1"})
+            try:
+                signal_health = _signal_json("GET", "/healthz", auth=False)
+                self._send_json(200, {"status": "ok", "surface": "BRAINK_COPILOT", "signal": signal_health})
+            except RuntimeError as exc:
+                self._send_json(503, {"status": "degraded", "surface": "BRAINK_COPILOT", "detail": str(exc)})
             return
         if parsed.path == "/mesh/ping":
             if self._require_auth():
                 self._send_json(200, ping_mesh())
             return
         if parsed.path == "/dashboards/summary":
-            if self._require_auth():
+            if not self._require_auth():
+                return
+            try:
                 self._send_json(200, dashboard_summary())
+            except RuntimeError as exc:
+                self._send_json(503, {"error": "signal_service_dependency", "detail": str(exc)})
             return
         self._send_json(404, {"error": "not_found"})
 
@@ -236,7 +244,8 @@ class Handler(BaseHTTPRequestHandler):
             return
         try:
             payload = self._read_json()
-            self._send_json(200, boot_runtime() if self.path == "/braink/boot" else chat_execute(str(payload.get("task", "")), payload.get("context")))
+            result = boot_runtime() if self.path == "/braink/boot" else chat_execute(str(payload.get("task", "")), payload.get("context"))
+            self._send_json(200, result)
         except (KeyError, ValueError, TypeError, RuntimeError, json.JSONDecodeError) as exc:
             self._send_json(409, {"error": type(exc).__name__, "detail": str(exc)})
 
@@ -246,8 +255,7 @@ class Handler(BaseHTTPRequestHandler):
 
 
 def main() -> None:
-    _token()
-    _authority()
+    _token(); _authority()
     host = os.getenv("BRAINK_COPILOT_HOST", "127.0.0.1")
     port = int(os.getenv("BRAINK_COPILOT_PORT", "8080"))
     WEB_ROOT.mkdir(parents=True, exist_ok=True)
