@@ -1,0 +1,58 @@
+name: KEX Capability Runner Deploy
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "modules/kex_wbos/capability_runner.py"
+      - "runtime/stripe_payment_rail.py"
+      - "deploy/install_kex_capability_runner.sh"
+      - "deploy/systemd/kex-capability-runner.service"
+      - "scripts/kex-ci/test_kex_capability_runner.py"
+      - ".github/workflows/kex-capability-runner-deploy.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  qualify-and-deploy:
+    runs-on: [self-hosted, kex, tl2]
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Qualify capability boundary
+        run: python3 scripts/kex-ci/test_kex_capability_runner.py
+      - name: Install KEX capability runner
+        shell: bash
+        run: |
+          mkdir -p reports/kex-ci
+          set +e
+          OUTPUT="$(BRAINK_ROOT="$GITHUB_WORKSPACE" bash deploy/install_kex_capability_runner.sh 2>&1)"
+          RC=$?
+          set -e
+          printf '%s\n' "$OUTPUT" | tee reports/kex-ci/kex-capability-runner-deploy.json
+          exit "$RC"
+      - name: Verify resident socket
+        if: success()
+        run: |
+          python3 - <<'PY'
+          import json, os, socket
+          path=os.environ.get('KEX_RUNNER_SOCKET','/run/keddeh/kex-runner.sock')
+          s=socket.socket(socket.AF_UNIX,socket.SOCK_STREAM); s.settimeout(3); s.connect(path)
+          s.sendall(b'{"op":"PROBE"}\n'); raw=s.recv(65536); s.close()
+          result=json.loads(raw.decode())
+          assert result.get('status')=='REJECTED', result
+          assert result.get('error')=='UNKNOWN_OPERATION', result
+          print(json.dumps({'status':'VERIFIED','socket':path,'fail_closed_probe':result},indent=2))
+          PY
+      - name: Upload deployment receipt
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kex-capability-runner-${{ github.run_id }}
+          path: reports/kex-ci/kex-capability-runner-deploy.json
+          if-no-files-found: warn
