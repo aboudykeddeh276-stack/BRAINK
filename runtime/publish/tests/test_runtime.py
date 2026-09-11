@@ -17,6 +17,7 @@ def test_health_routes_and_cascade():
         routes=c.get('/api/routes').json()['routes']
         assert '/connector/execute-action' in routes
         assert '/workbooks/append' in routes
+        assert '/saas/provision' in routes
 
 def test_mutation_idempotency_and_ledger():
     with tempfile.TemporaryDirectory() as d:
@@ -45,3 +46,29 @@ def test_workbook_read_append():
         rr=c.post('/workbooks/read',json={'path':str(path),'sheet':'Runtime'},headers=h)
         assert rr.status_code==200
         assert rr.json()['rows'][-1]==['state','active']
+
+def test_saas_node_cross_system_control_plane():
+    with tempfile.TemporaryDirectory() as d:
+        c=client(d); h={'x-braink-token':'test-token'}
+        systems=[
+            ('braink','BRAINK','adapter://braink','runtime://braink/core'),
+            ('kex','KEX','adapter://kex','runtime://kex/core'),
+            ('casepath','CasePath','adapter://casepath','app://casepath'),
+            ('claimpath','ClaimPath','adapter://claimpath','app://claimpath'),
+        ]
+        for sid,name,adapter,runtime in systems:
+            r=c.put(f'/saas/systems/{sid}',json={'system_id':sid,'name':name,'adapter_uri':adapter,'runtime_uri':runtime},headers=h)
+            assert r.status_code==200
+        assert len(c.get('/saas/systems').json()['systems'])==4
+        r=c.put('/saas/tenants/acme',json={'tenant_id':'acme','display_name':'ACME'},headers=h)
+        assert r.status_code==200
+        ent={'tenant_id':'acme','system_id':'braink','service_id':'agent','plan':'pro','limits':{'requests_per_day':1000}}
+        assert c.put('/saas/entitlements',json=ent,headers=h).status_code==200
+        resolved=c.get('/saas/resolve',params={'tenant_id':'acme','system_id':'braink','service_id':'agent'}).json()
+        assert resolved['adapter_uri']=='adapter://braink'
+        p={'tenant_id':'acme','system_id':'braink','service_id':'agent','plan':'pro','requested_by':'admin'}
+        pr=c.post('/saas/provision',json=p,headers=h)
+        assert pr.status_code==200
+        assert pr.json()['status']=='PENDING_ACTUATION'
+        audit=c.get('/saas/audit',headers=h).json()['events']
+        assert any(e['event_type']=='PROVISIONING_REQUESTED' for e in audit)
