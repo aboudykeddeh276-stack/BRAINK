@@ -4,7 +4,6 @@ from __future__ import annotations
 import hashlib
 import json
 import os
-import signal
 import socket
 import sqlite3
 import subprocess
@@ -28,11 +27,7 @@ WORKER_ID = os.environ.get("BRAINK_SAAS_WORKER_ID", f"saas-worker:{socket.gethos
 AUTHORITY = os.environ.get("BRAINK_SAAS_PROVISION_AUTHORITY", "kex://authority/saas-provisioning")
 POLL_SEC = float(os.environ.get("BRAINK_SAAS_PROVISION_POLL_SEC", "1.0"))
 HEALTH_TIMEOUT = float(os.environ.get("BRAINK_SAAS_HEALTH_TIMEOUT_SEC", "10"))
-ALLOWED_ROOTS = [
-    Path(x).expanduser().resolve()
-    for x in os.environ.get("BRAINK_EXEC_ALLOWED_ROOTS", f"{ROOT}:/opt/keddeh:/usr/local/libexec").split(":")
-    if x.strip()
-]
+ALLOWED_ROOTS = [Path(x).expanduser().resolve() for x in os.environ.get("BRAINK_EXEC_ALLOWED_ROOTS", f"{ROOT}:/opt/keddeh:/usr/local/libexec").split(":") if x.strip()]
 
 
 def canon(value: Any) -> bytes:
@@ -75,10 +70,7 @@ def init_db() -> None:
 def transition(intent_id: str, from_status: str | None, to_status: str, detail: dict[str, Any], receipt_hash: str | None = None) -> None:
     with db() as con:
         if from_status is not None:
-            cur = con.execute(
-                "UPDATE provisioning_intents SET status=? WHERE intent_id=? AND status=?",
-                (to_status, intent_id, from_status),
-            )
+            cur = con.execute("UPDATE provisioning_intents SET status=? WHERE intent_id=? AND status=?", (to_status, intent_id, from_status))
             if cur.rowcount != 1:
                 raise RuntimeError(f"PROVISION_STATUS_CONFLICT:{intent_id}:{from_status}->{to_status}")
         else:
@@ -94,19 +86,12 @@ def claim_next() -> dict[str, Any] | None:
     con = db()
     try:
         con.execute("BEGIN IMMEDIATE")
-        row = con.execute(
-            "SELECT * FROM provisioning_intents WHERE status='PENDING_ACTUATION' ORDER BY created_at, intent_id LIMIT 1"
-        ).fetchone()
+        row = con.execute("SELECT * FROM provisioning_intents WHERE status='PENDING_ACTUATION' ORDER BY created_at, intent_id LIMIT 1").fetchone()
         if not row:
-            con.commit()
-            return None
-        cur = con.execute(
-            "UPDATE provisioning_intents SET status='ACTUATING' WHERE intent_id=? AND status='PENDING_ACTUATION'",
-            (row["intent_id"],),
-        )
+            con.commit(); return None
+        cur = con.execute("UPDATE provisioning_intents SET status='ACTUATING' WHERE intent_id=? AND status='PENDING_ACTUATION'", (row["intent_id"],))
         if cur.rowcount != 1:
-            con.rollback()
-            return None
+            con.rollback(); return None
         detail = {"worker_id": WORKER_ID, "claimed_ns": time.time_ns()}
         con.execute(
             """INSERT INTO provisioning_transitions(intent_id,from_status,to_status,worker_id,receipt_hash,detail_json,created_ns)
@@ -114,22 +99,39 @@ def claim_next() -> dict[str, Any] | None:
             (row["intent_id"], "PENDING_ACTUATION", "ACTUATING", WORKER_ID, None, json.dumps(detail, sort_keys=True), time.time_ns()),
         )
         con.commit()
-        out = dict(row)
-        out["status"] = "ACTUATING"
-        out["payload"] = json.loads(out["payload_json"])
+        out = dict(row); out["status"] = "ACTUATING"; out["payload"] = json.loads(out["payload_json"])
         return out
     finally:
         con.close()
 
 
+def resolve_runtime(intent: dict[str, Any]) -> tuple[str, str]:
+    with db() as con:
+        try:
+            row = con.execute(
+                "SELECT runtime_uri,active FROM service_catalog WHERE system_id=? AND service_id=?",
+                (intent["system_id"], intent["service_id"]),
+            ).fetchone()
+        except sqlite3.OperationalError:
+            row = None
+    if row:
+        if not bool(row["active"]):
+            raise RuntimeError("SERVICE_CATALOG_INACTIVE")
+        runtime_uri = str(row["runtime_uri"] or "").strip()
+        if not runtime_uri:
+            raise RuntimeError("SERVICE_RUNTIME_URI_UNBOUND")
+        return runtime_uri, "SERVICE_CATALOG"
+    route = intent["payload"].get("route") or {}
+    runtime_uri = str(route.get("runtime_uri") or "").strip()
+    if not runtime_uri:
+        raise RuntimeError("RUNTIME_URI_UNBOUND")
+    return runtime_uri, "SYSTEM_ROUTE_FALLBACK"
+
+
 def pid_alive(pid: int | None) -> bool:
-    if not pid:
-        return False
-    try:
-        os.kill(pid, 0)
-        return True
-    except OSError:
-        return False
+    if not pid: return False
+    try: os.kill(pid, 0); return True
+    except OSError: return False
 
 
 def allowed_command(path: Path) -> bool:
@@ -140,27 +142,15 @@ def allowed_command(path: Path) -> bool:
 def health_readback(endpoint: str | None, pid: int) -> dict[str, Any]:
     if not endpoint:
         time.sleep(0.25)
-        return {
-            "status": "STARTED_UNVERIFIED" if pid_alive(pid) else "FAILED",
-            "reason": "HEALTH_ENDPOINT_UNBOUND" if pid_alive(pid) else "PROCESS_EXITED",
-            "pid": pid,
-        }
-    deadline = time.time() + HEALTH_TIMEOUT
-    last_error = "UNOBSERVED"
+        return {"status": "STARTED_UNVERIFIED" if pid_alive(pid) else "FAILED", "reason": "HEALTH_ENDPOINT_UNBOUND" if pid_alive(pid) else "PROCESS_EXITED", "pid": pid}
+    deadline = time.time() + HEALTH_TIMEOUT; last_error = "UNOBSERVED"
     while time.time() < deadline:
-        if not pid_alive(pid):
-            return {"status": "FAILED", "reason": "PROCESS_EXITED", "pid": pid}
+        if not pid_alive(pid): return {"status": "FAILED", "reason": "PROCESS_EXITED", "pid": pid}
         try:
             with urllib.request.urlopen(endpoint, timeout=2) as response:
                 raw = response.read(65536)
                 if 200 <= response.status < 300:
-                    return {
-                        "status": "VERIFIED",
-                        "pid": pid,
-                        "health_endpoint": endpoint,
-                        "http_status": response.status,
-                        "body_hash": hashlib.sha256(raw).hexdigest(),
-                    }
+                    return {"status": "VERIFIED", "pid": pid, "health_endpoint": endpoint, "http_status": response.status, "body_hash": hashlib.sha256(raw).hexdigest()}
                 last_error = f"HTTP_{response.status}"
         except Exception as exc:
             last_error = f"{type(exc).__name__}:{exc}"
@@ -173,123 +163,63 @@ def runtime_actuator(registry: RuntimeRegistry, runtime_id: str):
         row = registry.get(runtime_id)
         if not row:
             return {"status": "BLOCKED", "reason": "RUNTIME_NOT_REGISTERED", "runtime_id": runtime_id}
-        spec = registry.inflate(row)
-        current_pid = spec.get("pid")
+        spec = registry.inflate(row); current_pid = spec.get("pid")
         if pid_alive(current_pid):
             readback = health_readback(spec.get("health_endpoint"), int(current_pid))
             registry.observe(runtime_id, desired_state="RUNNING", observed_state="RUNNING" if readback["status"] == "VERIFIED" else "STARTED_UNVERIFIED", last_readback=readback)
             return {"status": readback["status"], "runtime_id": runtime_id, "idempotent": True, "readback": readback}
-
-        command = Path(str(spec.get("command_route") or ""))
-        argv = spec.get("argv") or []
+        command = Path(str(spec.get("command_route") or "")); argv = spec.get("argv") or []
         if not command.is_file() or not allowed_command(command):
             return {"status": "BLOCKED", "reason": "COMMAND_ROUTE_NOT_ALLOWED", "runtime_id": runtime_id, "command_route": str(command)}
         if not isinstance(argv, list) or any(not isinstance(v, (str, int, float)) for v in argv):
             return {"status": "BLOCKED", "reason": "ARGV_INVALID", "runtime_id": runtime_id}
-
-        proc = subprocess.Popen(
-            [str(command), *[str(v) for v in argv]],
-            cwd=str(ROOT),
-            env=os.environ.copy(),
-            stdin=subprocess.DEVNULL,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-            start_new_session=True,
-        )
+        proc = subprocess.Popen([str(command), *[str(v) for v in argv]], cwd=str(ROOT), env=os.environ.copy(), stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True)
         readback = health_readback(spec.get("health_endpoint"), proc.pid)
         observed_state = "RUNNING" if readback["status"] == "VERIFIED" else ("STARTED_UNVERIFIED" if readback["status"] == "STARTED_UNVERIFIED" else "FAILED")
-        registry.observe(
-            runtime_id,
-            pid=proc.pid if pid_alive(proc.pid) else None,
-            desired_state="RUNNING",
-            observed_state=observed_state,
-            last_readback=readback,
-            last_failure=None if observed_state != "FAILED" else json.dumps(readback, sort_keys=True),
-        )
+        registry.observe(runtime_id, pid=proc.pid if pid_alive(proc.pid) else None, desired_state="RUNNING", observed_state=observed_state, last_readback=readback, last_failure=None if observed_state != "FAILED" else json.dumps(readback, sort_keys=True))
         return {"status": readback["status"], "runtime_id": runtime_id, "pid": proc.pid, "readback": readback}
     return actuate
 
 
 def process_intent(intent: dict[str, Any]) -> dict[str, Any]:
-    payload = intent["payload"]
-    route = payload.get("route") or {}
-    runtime_id = str(route.get("runtime_uri") or "").strip()
-    if not runtime_id:
-        detail = {"status": "BLOCKED", "reason": "RUNTIME_URI_UNBOUND"}
+    try:
+        runtime_id, route_source = resolve_runtime(intent)
+    except Exception as exc:
+        detail = {"status": "BLOCKED", "reason": f"{type(exc).__name__}:{exc}"}
         transition(intent["intent_id"], "ACTUATING", "BLOCKED", detail)
         return detail
-
     registry = RuntimeRegistry(RUNTIME_DB)
     node = SignalNode(authority_check=lambda s: s.authority == AUTHORITY)
     node.register(runtime_id, runtime_actuator(registry, runtime_id))
-    signal = Signal(
-        kind=SignalKind.TRIGGER,
-        target=runtime_id,
-        opcode="PROVISION",
-        payload={
-            "intent_id": intent["intent_id"],
-            "tenant_id": intent["tenant_id"],
-            "system_id": intent["system_id"],
-            "service_id": intent["service_id"],
-            "plan": intent["plan"],
-        },
-        authority=AUTHORITY,
-        correlation_id=intent["intent_id"],
-    )
+    signal = Signal(kind=SignalKind.TRIGGER, target=runtime_id, opcode="PROVISION", payload={"intent_id": intent["intent_id"], "tenant_id": intent["tenant_id"], "system_id": intent["system_id"], "service_id": intent["service_id"], "plan": intent["plan"], "route_source": route_source}, authority=AUTHORITY, correlation_id=intent["intent_id"])
     receipt = node.dispatch(signal)
-    receipt_body = {
-        "signal_id": receipt.signal_id,
-        "target": receipt.target,
-        "kind": receipt.kind,
-        "opcode": receipt.opcode,
-        "status": receipt.status,
-        "observed": dict(receipt.observed),
-        "previous_receipt_hash": receipt.previous_receipt_hash,
-        "timestamp_ns": receipt.timestamp_ns,
-        "receipt_hash": receipt.receipt_hash,
-    }
+    receipt_body = {"signal_id": receipt.signal_id, "target": receipt.target, "kind": receipt.kind, "opcode": receipt.opcode, "status": receipt.status, "observed": dict(receipt.observed), "previous_receipt_hash": receipt.previous_receipt_hash, "timestamp_ns": receipt.timestamp_ns, "receipt_hash": receipt.receipt_hash, "route_source": route_source}
     observed_status = str(receipt.observed.get("status") or "")
-    if receipt.status != "EXECUTED":
-        final = "BLOCKED"
-    elif observed_status == "VERIFIED":
-        final = "VERIFIED"
-    elif observed_status == "STARTED_UNVERIFIED":
-        final = "ACTUATED_UNVERIFIED"
-    else:
-        final = "BLOCKED"
+    final = "BLOCKED" if receipt.status != "EXECUTED" else "VERIFIED" if observed_status == "VERIFIED" else "ACTUATED_UNVERIFIED" if observed_status == "STARTED_UNVERIFIED" else "BLOCKED"
     transition(intent["intent_id"], "ACTUATING", final, receipt_body, receipt.receipt_hash)
     return {"intent_id": intent["intent_id"], "status": final, "receipt": receipt_body}
 
 
 def run_once() -> dict[str, Any]:
-    init_db()
-    intent = claim_next()
-    if not intent:
-        return {"status": "IDLE", "worker_id": WORKER_ID}
-    try:
-        return process_intent(intent)
+    init_db(); intent = claim_next()
+    if not intent: return {"status": "IDLE", "worker_id": WORKER_ID}
+    try: return process_intent(intent)
     except Exception as exc:
         detail = {"status": "BLOCKED", "reason": f"{type(exc).__name__}:{exc}"}
-        try:
-            transition(intent["intent_id"], "ACTUATING", "BLOCKED", detail)
-        except Exception:
-            pass
+        try: transition(intent["intent_id"], "ACTUATING", "BLOCKED", detail)
+        except Exception: pass
         return {"intent_id": intent["intent_id"], **detail}
 
 
 def main() -> int:
     import argparse
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--once", action="store_true")
-    args = parser.parse_args()
+    parser = argparse.ArgumentParser(); parser.add_argument("--once", action="store_true"); args = parser.parse_args()
     if args.once:
-        print(json.dumps(run_once(), sort_keys=True, indent=2))
-        return 0
+        print(json.dumps(run_once(), sort_keys=True, indent=2)); return 0
     init_db()
     while True:
         result = run_once()
-        if result.get("status") != "IDLE":
-            print(json.dumps(result, sort_keys=True), flush=True)
+        if result.get("status") != "IDLE": print(json.dumps(result, sort_keys=True), flush=True)
         time.sleep(POLL_SEC)
 
 
