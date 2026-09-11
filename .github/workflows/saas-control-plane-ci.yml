@@ -1,0 +1,20 @@
+name: SaaS Control Plane CI
+on:
+  push:
+    paths: ["services/keddeh-saas-control-plane/**"]
+  pull_request:
+    paths: ["services/keddeh-saas-control-plane/**"]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: services/keddeh-saas-control-plane
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.13"}
+      - run: python -m pip install --upgrade pip
+      - run: pip install -e '.[test]'
+      - run: python -m compileall -q src tests
+      - run: pytest -q
