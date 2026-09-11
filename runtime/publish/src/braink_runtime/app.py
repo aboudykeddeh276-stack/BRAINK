@@ -7,6 +7,7 @@ from .storage import Store
 from .cascade import Cascade
 from .workbook import WorkbookService
 from .saas import SaaSNode, ProvisioningIntent
+from .catalog import SaaSCatalog
 from .estate_bindings import EstateBindings
 
 DATA=os.getenv('BRAINK_DATA_DIR','./data')
@@ -15,8 +16,9 @@ store=Store(DATA)
 cascade=Cascade(store)
 workbooks=WorkbookService()
 saas=SaaSNode(DATA)
+catalog=SaaSCatalog(DATA)
 estate=EstateBindings()
-app=FastAPI(title='BRAINK/KEX Runtime',version='0.2.2')
+app=FastAPI(title='BRAINK/KEX Runtime',version='0.2.3')
 
 def auth(x_braink_token:str|None=Header(default=None)):
     if TOKEN and x_braink_token != TOKEN:
@@ -71,13 +73,27 @@ class SaaSPaymentEventRequest(BaseModel):
     payment_status: str
     payload: dict = Field(default_factory=dict)
 
+class SaaSServiceCatalogRequest(BaseModel):
+    system_id: str
+    service_id: str
+    display_name: str
+    runtime_uri: str
+    plans: dict[str,dict] = Field(default_factory=dict)
+    metadata: dict = Field(default_factory=dict)
+
+class SaaSCheckoutAdmissionRequest(BaseModel):
+    tenant_id: str
+    system_id: str
+    service_id: str
+    plan: str
+
 @app.get('/api/health')
 def health():
-    return {'status':'ok','runtime':'braink-kex','version':'0.2.2'}
+    return {'status':'ok','runtime':'braink-kex','version':'0.2.3'}
 
 @app.get('/api/services')
 def services():
-    return {'services':['action-runtime','workbook-data','connector','runtime-registry','proof-ledger','object-registry','cascade','mesh-status','route-registry','uri-resolver','saas-node','saas-estate-bindings','payment-entitlement-provisioning']}
+    return {'services':['action-runtime','workbook-data','connector','runtime-registry','proof-ledger','object-registry','cascade','mesh-status','route-registry','uri-resolver','saas-node','saas-service-catalog','saas-estate-bindings','payment-entitlement-provisioning']}
 
 @app.get('/api/routes')
 def routes():
@@ -166,7 +182,7 @@ def connector_mesh():
 
 @app.get('/saas/health')
 def saas_health():
-    return {'status':'ok','node':'saas','version':'0.2.2','systems':len(saas.list_systems())}
+    return {'status':'ok','node':'saas','version':'0.2.3','systems':len(saas.list_systems()),'services':len(catalog.list_services())}
 
 @app.put('/saas/systems/{system_id}')
 def saas_register_system(system_id:str,req:SaaSSystemRequest,x_braink_token:str|None=Header(default=None)):
@@ -185,6 +201,27 @@ def saas_upsert_tenant(tenant_id:str,req:SaaSTenantRequest,x_braink_token:str|No
     if tenant_id != req.tenant_id:
         raise HTTPException(400,'tenant_id mismatch')
     return saas.upsert_tenant(req.tenant_id,req.display_name,req.metadata)
+
+@app.put('/saas/catalog/services')
+def saas_catalog_upsert(req:SaaSServiceCatalogRequest,x_braink_token:str|None=Header(default=None)):
+    auth(x_braink_token)
+    try:
+        return catalog.upsert_service(**req.model_dump())
+    except ValueError as e:
+        raise HTTPException(409,str(e))
+
+@app.get('/saas/catalog/services')
+def saas_catalog_list(x_braink_token:str|None=Header(default=None)):
+    auth(x_braink_token)
+    return {'services':catalog.list_services()}
+
+@app.post('/saas/checkout-admission')
+def saas_checkout_admission(req:SaaSCheckoutAdmissionRequest,x_braink_token:str|None=Header(default=None)):
+    auth(x_braink_token)
+    try:
+        return catalog.admit_checkout(**req.model_dump())
+    except ValueError as e:
+        raise HTTPException(409,str(e))
 
 @app.put('/saas/entitlements')
 def saas_entitle(req:SaaSEntitlementRequest,x_braink_token:str|None=Header(default=None)):
