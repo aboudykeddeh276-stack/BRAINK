@@ -37,7 +37,7 @@ jobs:
           context: runtime/publish
           push: true
           tags: |
-            ghcr.io/${{ github.repository_owner }}/braink-runtime:0.2.2
+            ghcr.io/${{ github.repository_owner }}/braink-runtime:0.2.3
             ghcr.io/${{ github.repository_owner }}/braink-runtime:latest
 
 # This workflow is an optional publication carrier only.
