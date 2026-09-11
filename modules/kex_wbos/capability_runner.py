@@ -80,21 +80,40 @@ def _stripe_request(secret_key: str, path: str, form: dict[str, Any]) -> dict[st
     return payload
 
 
+def _plan_reference(plan: dict[str, Any], original: Any) -> str:
+    for key in ("plan_id", "id", "slug", "name", "stripe_price_id", "price_id"):
+        value = plan.get(key)
+        if value is not None and str(value).strip():
+            return str(value).strip()[:500]
+    if isinstance(original, str) and original.strip():
+        return original.strip()[:500]
+    raise CapabilityError("STRIPE_PLAN_REFERENCE_REQUIRED")
+
+
 def _checkout_form(payload: dict[str, Any]) -> dict[str, Any]:
     domain = str(payload.get("domain") or "braink.com.au").strip()
     product = str(payload.get("product") or "BRAINK").strip()
-    plan = payload.get("plan") or {}
+    original_plan = payload.get("plan")
+    plan = original_plan or {}
     if isinstance(plan, str):
         plan = {"stripe_price_id": plan}
     if not isinstance(plan, dict):
         raise CapabilityError("STRIPE_PLAN_INVALID")
+    tenant_id = str(payload.get("tenant_id") or "").strip()
+    system_id = str(payload.get("system_id") or "").strip()
+    service_id = str(payload.get("service_id") or "").strip()
+    if not tenant_id or not system_id or not service_id:
+        raise CapabilityError("STRIPE_SAAS_ROUTE_REQUIRED")
+    plan_ref = _plan_reference(plan, original_plan)
     form: dict[str, Any] = {
         "mode": str(plan.get("mode") or "subscription"),
         "success_url": str(plan.get("success_url") or f"https://{domain}/billing/success?session_id={{CHECKOUT_SESSION_ID}}"),
         "cancel_url": str(plan.get("cancel_url") or f"https://{domain}/billing/cancel"),
-        "client_reference_id": str(payload.get("tenant_id") or "")[:200],
-        "metadata[tenant_id]": str(payload.get("tenant_id") or "")[:500],
-        "metadata[service_id]": str(payload.get("service_id") or "")[:500],
+        "client_reference_id": tenant_id[:200],
+        "metadata[tenant_id]": tenant_id[:500],
+        "metadata[system_id]": system_id[:500],
+        "metadata[service_id]": service_id[:500],
+        "metadata[plan]": plan_ref,
         "metadata[product]": product[:500],
     }
     price_id = str(plan.get("stripe_price_id") or plan.get("price_id") or "").strip()
