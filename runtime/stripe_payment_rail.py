@@ -5,11 +5,20 @@ import base64
 import json
 import os
 import socket
+import urllib.error
+import urllib.request
 
 SOCKET = os.environ.get("BRAINK_STRIPE_SOCKET", "/tmp/braink-stripe.sock")
 KEX_RUNNER_SOCKET = os.environ.get("KEX_RUNNER_SOCKET", "/run/keddeh/kex-runner.sock")
 KEX_PAYMENT_CAPABILITY = os.environ.get("KEX_PAYMENT_CAPABILITY", "kex://secrets/stripe/payment-rail")
 KEX_CALLER_ID = os.environ.get("KEX_PAYMENT_CALLER_ID", "service://braink/stripe-payment-rail")
+BRAINK_SAAS_ENDPOINT = os.environ.get("BRAINK_SAAS_ENDPOINT", "http://127.0.0.1:8000").rstrip("/")
+BRAINK_SAAS_AUTH_TOKEN = os.environ.get("BRAINK_SAAS_AUTH_TOKEN") or os.environ.get("BRAINK_AUTH_TOKEN", "")
+SUPPORTED_SAAS_EVENTS = {
+    "checkout.session.completed",
+    "checkout.session.async_payment_succeeded",
+    "checkout.session.async_payment_failed",
+}
 
 
 def reply(c: socket.socket, obj: dict) -> None:
@@ -59,6 +68,7 @@ def create_checkout(req: dict) -> dict:
             "domain": domain,
             "product": product,
             "tenant_id": req.get("tenant_id"),
+            "system_id": req.get("system_id"),
             "service_id": req.get("service_id"),
             "plan": req.get("plan"),
         },
@@ -87,6 +97,68 @@ def verify_webhook(payload: bytes, sig_header: str) -> dict:
     return event
 
 
+def _saas_payload_from_event(event: dict) -> dict | None:
+    event_type = str(event.get("type", ""))
+    if event_type not in SUPPORTED_SAAS_EVENTS:
+        return None
+    obj = ((event.get("data") or {}).get("object") or {})
+    metadata = obj.get("metadata") or {}
+    required = ("tenant_id", "system_id", "service_id", "plan")
+    missing = [key for key in required if not str(metadata.get(key, "")).strip()]
+    if missing:
+        raise ValueError("SAAS_PAYMENT_METADATA_MISSING:" + ",".join(missing))
+    payment_status = str(obj.get("payment_status") or obj.get("status") or "").lower()
+    if not payment_status:
+        if event_type == "checkout.session.async_payment_succeeded":
+            payment_status = "succeeded"
+        elif event_type == "checkout.session.async_payment_failed":
+            payment_status = "failed"
+        else:
+            raise ValueError("SAAS_PAYMENT_STATUS_MISSING")
+    return {
+        "provider": "stripe",
+        "event_id": str(event["id"]),
+        "event_type": event_type,
+        "tenant_id": str(metadata["tenant_id"]),
+        "system_id": str(metadata["system_id"]),
+        "service_id": str(metadata["service_id"]),
+        "plan": str(metadata["plan"]),
+        "payment_status": payment_status,
+        "payload": {
+            "checkout_session_id": obj.get("id"),
+            "customer": obj.get("customer"),
+            "subscription": obj.get("subscription"),
+        },
+    }
+
+
+def activate_saas(event: dict) -> dict:
+    payload = _saas_payload_from_event(event)
+    if payload is None:
+        return {"processing_status": "IGNORED_EVENT_TYPE", "event_type": event.get("type")}
+    if not BRAINK_SAAS_AUTH_TOKEN:
+        raise RuntimeError("BRAINK_SAAS_AUTH_TOKEN_NOT_CONFIGURED")
+    body = json.dumps(payload, separators=(",", ":")).encode()
+    request = urllib.request.Request(
+        BRAINK_SAAS_ENDPOINT + "/saas/payments/verified-event",
+        data=body,
+        method="POST",
+        headers={
+            "Content-Type": "application/json",
+            "x-braink-token": BRAINK_SAAS_AUTH_TOKEN,
+        },
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=10) as response:
+            result = json.loads(response.read().decode())
+    except urllib.error.HTTPError as exc:
+        detail = exc.read().decode(errors="replace")[:4096]
+        raise RuntimeError(f"SAAS_ACTIVATION_HTTP_{exc.code}:{detail}") from exc
+    if result.get("processing_status") not in {"ENTITLED_PENDING_ACTUATION", "IGNORED_NOT_PAID"}:
+        raise RuntimeError("SAAS_ACTIVATION_RESULT_INVALID")
+    return result
+
+
 def handle(c: socket.socket) -> None:
     line = _recv_line(c)
     if not line:
@@ -98,7 +170,8 @@ def handle(c: socket.socket) -> None:
     if op == "WEBHOOK":
         payload = base64.b64decode(req.get("payload_b64", ""), validate=True)
         event = verify_webhook(payload, req.get("stripe_signature", ""))
-        return reply(c, {"status": "PASS", "event": event})
+        activation = activate_saas(event)
+        return reply(c, {"status": "PASS", "event": event, "saas_activation": activation})
     return reply(c, {"status": "REJECTED", "error": "UNKNOWN_OPERATION"})
 
 
