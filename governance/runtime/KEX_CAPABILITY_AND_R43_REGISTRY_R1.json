@@ -1,0 +1,78 @@
+{
+  "schema": "kex.runtime-capability-registry.v1",
+  "authority": "A.KEDDEH / KEDDEH_SYSTEMS / BRAINK / KEX",
+  "addressing": {
+    "singularity": 1,
+    "data_coordinate_minimum": {"x": 2, "y": 2},
+    "law": "carrier coordinates and BRAINK logical coordinates are distinct namespaces"
+  },
+  "capabilities": [
+    {
+      "id": "kex://secrets/stripe/payment-rail",
+      "owner": "runtime://kex/capability-runner",
+      "caller": "service://braink/stripe-payment-rail",
+      "operations": ["STRIPE_CREATE_CHECKOUT", "STRIPE_VERIFY_WEBHOOK"],
+      "secret_custody": "KEX_ONLY",
+      "result_policy": "SANITIZED_NO_SECRET_MATERIAL",
+      "runner_socket": "/run/keddeh/kex-runner.sock",
+      "proof": "ledger://kex/capability-execution",
+      "promotion_rule": "provider success is not SaaS entitlement until webhook/readback reconciliation succeeds"
+    }
+  ],
+  "runtime_surfaces": [
+    {
+      "id": "runtime://braink/chemical-language/r43",
+      "class": "SPECIALIZATION_RUNTIME",
+      "canonical_identity_domain": "CHEMICAL_IDENTITY",
+      "declared_pipeline": [
+        "NUMERIC_STATE",
+        "ATOMIC_NUMBER",
+        "ELEMENT_SYMBOL",
+        "CANONICAL_CHEMICAL_IDENTITY",
+        "SPECIES_FORMULA",
+        "MOLECULAR_GRAPH",
+        "TYPED_BONDS",
+        "REACTION_ALGEBRA",
+        "BRAINK_MEMORY_OPERATOR",
+        "LANGUAGE_PROJECTION",
+        "OBSERVER2_VERIFICATION"
+      ],
+      "boundary_laws": [
+        "ENGLISH_PROJECTION_DOES_NOT_REPLACE_CHEMICAL_IDENTITY",
+        "BRAINK_MEMORY_OPERATOR_IS_NOT_CHEMICAL_ENTAILMENT",
+        "FORMULA_AND_STRUCTURE_ARE_DISTINCT_OBJECTS",
+        "STRUCTURE_ATOM_INVENTORY_MUST_MATCH_FORMULA",
+        "REACTION_BALANCE_REQUIRES_ELEMENT_AND_FORMAL_CHARGE_CONSERVATION",
+        "OBSERVER2_TAMPER_FAILURE_BLOCKS_PROMOTION"
+      ],
+      "integration_targets": [
+        "vfs://braink/chemistry/r43",
+        "ledger://braink/proof/chemistry",
+        "registry://kex/runtime",
+        "service://braink/chemical-language"
+      ],
+      "observed_qualification_claims": [
+        "registry_118",
+        "numeric_to_oxygen",
+        "numeric_to_iron",
+        "canonical_identity",
+        "multilingual_projection",
+        "memory_boundary",
+        "formula_water",
+        "formula_co2",
+        "explicit_graph",
+        "formula_structure_separation",
+        "balanced_reaction",
+        "unbalanced_detected",
+        "observer2_numeric",
+        "observer2_species",
+        "tamper_detected",
+        "unknown_element_rejected",
+        "unsupported_formula_explicit"
+      ],
+      "resident_package": "UNRESOLVED_IN_CURRENT_REPOSITORY",
+      "promotion_state": "DECLARED_NOT_PROMOTED",
+      "promotion_rule": "R43 becomes executable here only after package bytes are resident, hashes are recorded, qualification is rerun, and VFS/proof readback succeeds"
+    }
+  ]
+}
