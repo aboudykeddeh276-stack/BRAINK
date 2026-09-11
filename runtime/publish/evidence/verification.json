@@ -1,9 +1,14 @@
 {
   "artifact": "braink-runtime-publish",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "verification": {
-    "pytest": {"passed": 3, "failed": 0},
+    "pytest": {"passed": 4, "failed": 0},
     "runtime_seed_objects": 7,
+    "connector_routes_verified": true,
+    "workbook_read_append_verified": true,
+    "idempotent_mutation_verified": true,
+    "version_conflict_verified": true,
+    "proof_ledger_verified": true,
     "docker_available_in_build_environment": false,
     "google_sdk_available_in_build_environment": false,
     "external_credentials_used": false,
