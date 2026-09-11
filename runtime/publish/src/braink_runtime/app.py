@@ -16,7 +16,7 @@ cascade=Cascade(store)
 workbooks=WorkbookService()
 saas=SaaSNode(DATA)
 estate=EstateBindings()
-app=FastAPI(title='BRAINK/KEX Runtime',version='0.2.1')
+app=FastAPI(title='BRAINK/KEX Runtime',version='0.2.2')
 
 def auth(x_braink_token:str|None=Header(default=None)):
     if TOKEN and x_braink_token != TOKEN:
@@ -58,14 +58,26 @@ class SaaSProvisionRequest(BaseModel):
     service_id: str
     plan: str = 'standard'
     requested_by: str
+    idempotency_key: str | None = None
+
+class SaaSPaymentEventRequest(BaseModel):
+    provider: str
+    event_id: str
+    event_type: str
+    tenant_id: str
+    system_id: str
+    service_id: str
+    plan: str = 'standard'
+    payment_status: str
+    payload: dict = Field(default_factory=dict)
 
 @app.get('/api/health')
 def health():
-    return {'status':'ok','runtime':'braink-kex','version':'0.2.1'}
+    return {'status':'ok','runtime':'braink-kex','version':'0.2.2'}
 
 @app.get('/api/services')
 def services():
-    return {'services':['action-runtime','workbook-data','connector','runtime-registry','proof-ledger','object-registry','cascade','mesh-status','route-registry','uri-resolver','saas-node','saas-estate-bindings']}
+    return {'services':['action-runtime','workbook-data','connector','runtime-registry','proof-ledger','object-registry','cascade','mesh-status','route-registry','uri-resolver','saas-node','saas-estate-bindings','payment-entitlement-provisioning']}
 
 @app.get('/api/routes')
 def routes():
@@ -154,7 +166,7 @@ def connector_mesh():
 
 @app.get('/saas/health')
 def saas_health():
-    return {'status':'ok','node':'saas','version':'0.2.1','systems':len(saas.list_systems())}
+    return {'status':'ok','node':'saas','version':'0.2.2','systems':len(saas.list_systems())}
 
 @app.put('/saas/systems/{system_id}')
 def saas_register_system(system_id:str,req:SaaSSystemRequest,x_braink_token:str|None=Header(default=None)):
@@ -196,6 +208,16 @@ def saas_provision(req:SaaSProvisionRequest,x_braink_token:str|None=Header(defau
     auth(x_braink_token)
     try:
         return saas.request_provisioning(ProvisioningIntent(**req.model_dump()))
+    except PermissionError as e:
+        raise HTTPException(403,str(e))
+    except ValueError as e:
+        raise HTTPException(404,str(e))
+
+@app.post('/saas/payments/verified-event')
+def saas_payment_event(req:SaaSPaymentEventRequest,x_braink_token:str|None=Header(default=None)):
+    auth(x_braink_token)
+    try:
+        return saas.process_verified_payment_event(**req.model_dump())
     except PermissionError as e:
         raise HTTPException(403,str(e))
     except ValueError as e:
