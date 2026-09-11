@@ -9,7 +9,7 @@ spec:
     spec:
       containers:
       - name: runtime
-        image: ghcr.io/REPLACE_OWNER/braink-runtime:0.1.0
+        image: ghcr.io/REPLACE_OWNER/braink-runtime:0.1.1
         ports: [{containerPort: 8000}]
         env:
         - {name: BRAINK_DATA_DIR, value: /data}

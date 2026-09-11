@@ -47,5 +47,5 @@ jobs:
           context: runtime/publish
           push: true
           tags: |
-            ghcr.io/${{ github.repository_owner }}/braink-runtime:0.1.0
+            ghcr.io/${{ github.repository_owner }}/braink-runtime:0.1.1
             ghcr.io/${{ github.repository_owner }}/braink-runtime:latest
