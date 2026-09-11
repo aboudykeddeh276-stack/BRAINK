@@ -1,0 +1,12 @@
+services:
+  braink-runtime:
+    build: .
+    environment:
+      BRAINK_DATA_DIR: /data
+      BRAINK_AUTH_TOKEN: ${BRAINK_AUTH_TOKEN:-change-me}
+      BRAINK_TIMEZONE: ${BRAINK_TIMEZONE:-Australia/Adelaide}
+    ports: ["8000:8000"]
+    volumes: ["braink-data:/data"]
+    restart: unless-stopped
+volumes:
+  braink-data: {}
