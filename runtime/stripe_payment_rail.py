@@ -37,6 +37,27 @@ def _recv_line(c: socket.socket) -> bytes:
     return data
 
 
+def _saas_post(path: str, payload: dict) -> dict:
+    if not BRAINK_SAAS_AUTH_TOKEN:
+        raise RuntimeError("BRAINK_SAAS_AUTH_TOKEN_NOT_CONFIGURED")
+    body = json.dumps(payload, separators=(",", ":")).encode()
+    request = urllib.request.Request(
+        BRAINK_SAAS_ENDPOINT + path,
+        data=body,
+        method="POST",
+        headers={"Content-Type": "application/json", "x-braink-token": BRAINK_SAAS_AUTH_TOKEN},
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=10) as response:
+            result = json.loads(response.read().decode())
+    except urllib.error.HTTPError as exc:
+        detail = exc.read().decode(errors="replace")[:4096]
+        raise RuntimeError(f"SAAS_HTTP_{exc.code}:{detail}") from exc
+    if not isinstance(result, dict):
+        raise RuntimeError("SAAS_RESPONSE_INVALID")
+    return result
+
+
 def kex_execute(operation: str, payload: dict) -> dict:
     request = {
         "op": "EXECUTE_CAPABILITY",
@@ -60,17 +81,32 @@ def kex_execute(operation: str, payload: dict) -> dict:
 
 
 def create_checkout(req: dict) -> dict:
+    tenant_id = str(req.get("tenant_id") or "").strip()
+    system_id = str(req.get("system_id") or "").strip()
+    service_id = str(req.get("service_id") or "").strip()
+    plan_id = str(req.get("plan") or "").strip()
+    if not tenant_id or not system_id or not service_id or not plan_id:
+        raise ValueError("SAAS_CHECKOUT_ROUTE_REQUIRED")
+    admission = _saas_post(
+        "/saas/checkout-admission",
+        {"tenant_id": tenant_id, "system_id": system_id, "service_id": service_id, "plan": plan_id},
+    )
+    if admission.get("status") != "ADMITTED":
+        raise PermissionError("SAAS_CHECKOUT_NOT_ADMITTED")
+    provider_plan = admission.get("provider_plan")
+    if not isinstance(provider_plan, dict) or provider_plan.get("plan_id") != plan_id:
+        raise RuntimeError("SAAS_PROVIDER_PLAN_INVALID")
     domain = req.get("domain", "braink.com.au")
-    product = req.get("product", "BRAINK")
+    product = req.get("product", admission.get("service_id") or "BRAINK")
     result = kex_execute(
         "STRIPE_CREATE_CHECKOUT",
         {
             "domain": domain,
             "product": product,
-            "tenant_id": req.get("tenant_id"),
-            "system_id": req.get("system_id"),
-            "service_id": req.get("service_id"),
-            "plan": req.get("plan"),
+            "tenant_id": tenant_id,
+            "system_id": system_id,
+            "service_id": service_id,
+            "plan": provider_plan,
         },
     )
     out = result.get("result") or {}
@@ -80,16 +116,14 @@ def create_checkout(req: dict) -> dict:
         "checkout_url": out["checkout_url"],
         "session_id": out["session_id"],
         "kex_receipt_id": result.get("receipt_id"),
+        "admitted": {"tenant_id": tenant_id, "system_id": system_id, "service_id": service_id, "plan": plan_id},
     }
 
 
 def verify_webhook(payload: bytes, sig_header: str) -> dict:
     result = kex_execute(
         "STRIPE_VERIFY_WEBHOOK",
-        {
-            "payload_b64": base64.b64encode(payload).decode(),
-            "stripe_signature": sig_header,
-        },
+        {"payload_b64": base64.b64encode(payload).decode(), "stripe_signature": sig_header},
     )
     event = (result.get("result") or {}).get("event")
     if not isinstance(event, dict) or not event.get("id") or not event.get("type"):
@@ -124,11 +158,7 @@ def _saas_payload_from_event(event: dict) -> dict | None:
         "service_id": str(metadata["service_id"]),
         "plan": str(metadata["plan"]),
         "payment_status": payment_status,
-        "payload": {
-            "checkout_session_id": obj.get("id"),
-            "customer": obj.get("customer"),
-            "subscription": obj.get("subscription"),
-        },
+        "payload": {"checkout_session_id": obj.get("id"), "customer": obj.get("customer"), "subscription": obj.get("subscription")},
     }
 
 
@@ -136,24 +166,7 @@ def activate_saas(event: dict) -> dict:
     payload = _saas_payload_from_event(event)
     if payload is None:
         return {"processing_status": "IGNORED_EVENT_TYPE", "event_type": event.get("type")}
-    if not BRAINK_SAAS_AUTH_TOKEN:
-        raise RuntimeError("BRAINK_SAAS_AUTH_TOKEN_NOT_CONFIGURED")
-    body = json.dumps(payload, separators=(",", ":")).encode()
-    request = urllib.request.Request(
-        BRAINK_SAAS_ENDPOINT + "/saas/payments/verified-event",
-        data=body,
-        method="POST",
-        headers={
-            "Content-Type": "application/json",
-            "x-braink-token": BRAINK_SAAS_AUTH_TOKEN,
-        },
-    )
-    try:
-        with urllib.request.urlopen(request, timeout=10) as response:
-            result = json.loads(response.read().decode())
-    except urllib.error.HTTPError as exc:
-        detail = exc.read().decode(errors="replace")[:4096]
-        raise RuntimeError(f"SAAS_ACTIVATION_HTTP_{exc.code}:{detail}") from exc
+    result = _saas_post("/saas/payments/verified-event", payload)
     if result.get("processing_status") not in {"ENTITLED_PENDING_ACTUATION", "IGNORED_NOT_PAID"}:
         raise RuntimeError("SAAS_ACTIVATION_RESULT_INVALID")
     return result
@@ -180,6 +193,8 @@ def main() -> None:
         os.unlink(SOCKET)
     except FileNotFoundError:
         pass
+    Path = __import__('pathlib').Path
+    Path(SOCKET).parent.mkdir(parents=True, exist_ok=True)
     s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
     s.bind(SOCKET)
     os.chmod(SOCKET, 0o660)
