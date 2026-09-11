@@ -1,0 +1,14 @@
+{
+  "artifact": "braink-runtime-publish",
+  "version": "0.1.0",
+  "verification": {
+    "pytest": {"passed": 3, "failed": 0},
+    "runtime_seed_objects": 7,
+    "docker_available_in_build_environment": false,
+    "google_sdk_available_in_build_environment": false,
+    "external_credentials_used": false,
+    "public_deployment_claimed": false,
+    "secondary_listener_smoke_test": "blocked_by_execution_container_listener_policy"
+  },
+  "evidence_state": "VERIFIED_LOCAL_SOURCE_RUNTIME"
+}

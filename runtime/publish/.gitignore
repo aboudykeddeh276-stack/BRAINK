@@ -1,0 +1,8 @@
+__pycache__/
+.pytest_cache/
+*.pyc
+.env
+secrets/
+data/*.sqlite3
+data/*.jsonl
+evidence/*.json

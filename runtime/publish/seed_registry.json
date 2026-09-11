@@ -1,0 +1,9 @@
+[
+ {"object_id":"singularity","object_class":"ROOT","logical_address":null,"evidence_state":"SPECIFIED","metadata":{"identity":1,"rule":"one singularity; not a grid coordinate"}},
+ {"object_id":"workbook-substrate","object_class":"SUBSTRATE","logical_address":"X2/Y2+","evidence_state":"SPECIFIED","dependencies":[]},
+ {"object_id":"action-runtime","object_class":"RUNTIME","evidence_state":"IMPLEMENTED","interfaces":["POST /actions/execute"],"dependencies":["proof-ledger","runtime-registry"]},
+ {"object_id":"cascade-runtime","object_class":"RUNTIME","evidence_state":"IMPLEMENTED","interfaces":["GET /cascade"],"dependencies":["proof-ledger"]},
+ {"object_id":"runtime-registry","object_class":"REGISTRY","evidence_state":"IMPLEMENTED","interfaces":["GET /runtime/{target}","GET/PUT /registry/objects"]},
+ {"object_id":"proof-ledger","object_class":"LEDGER","evidence_state":"IMPLEMENTED","interfaces":["GET /api/proof-ledger"]},
+ {"object_id":"spreadsheet-projection","object_class":"PROJECTION","logical_address":"X2/Y2","carrier":{"type":"spreadsheet","cell":"B2"},"evidence_state":"SPECIFIED"}
+]

@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: braink-runtime}
+spec:
+  replicas: 2
+  selector: {matchLabels: {app: braink-runtime}}
+  template:
+    metadata: {labels: {app: braink-runtime}}
+    spec:
+      containers:
+      - name: runtime
+        image: ghcr.io/REPLACE_OWNER/braink-runtime:0.1.0
+        ports: [{containerPort: 8000}]
+        env:
+        - {name: BRAINK_DATA_DIR, value: /data}
+        - name: BRAINK_AUTH_TOKEN
+          valueFrom: {secretKeyRef: {name: braink-runtime-secret, key: token}}
+        readinessProbe: {httpGet: {path: /api/health, port: 8000}, initialDelaySeconds: 2, periodSeconds: 5}
+        volumeMounts: [{name: data, mountPath: /data}]
+      volumes: [{name: data, emptyDir: {}}]
+---
+apiVersion: v1
+kind: Service
+metadata: {name: braink-runtime}
+spec:
+  selector: {app: braink-runtime}
+  ports: [{port: 80, targetPort: 8000}]
