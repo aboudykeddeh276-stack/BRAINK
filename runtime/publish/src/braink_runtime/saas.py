@@ -16,6 +16,7 @@ class ProvisioningIntent:
     service_id: str
     plan: str
     requested_by: str
+    idempotency_key: str | None = None
 
 
 class SaaSNode:
@@ -24,7 +25,13 @@ class SaaSNode:
     This node does not replace a product runtime. It binds tenants and
     entitlements to registered system/service adapters and emits durable
     provisioning/audit records that downstream actuators may execute.
+
+    Payment events accepted here are assumed to have been authenticated and
+    verified by the upstream payment rail. This class deliberately does not
+    handle provider secrets or webhook signature verification.
     """
+
+    PAID_STATUSES = {"paid", "succeeded", "complete", "completed"}
 
     def __init__(self, data_dir: str):
         self.data_dir = Path(data_dir)
@@ -72,6 +79,20 @@ class SaaSNode:
                     plan TEXT NOT NULL,
                     requested_by TEXT NOT NULL,
                     status TEXT NOT NULL,
+                    payload_json TEXT NOT NULL,
+                    created_at TEXT NOT NULL
+                );
+                CREATE TABLE IF NOT EXISTS payment_events (
+                    event_id TEXT PRIMARY KEY,
+                    provider TEXT NOT NULL,
+                    event_type TEXT NOT NULL,
+                    tenant_id TEXT NOT NULL,
+                    system_id TEXT NOT NULL,
+                    service_id TEXT NOT NULL,
+                    plan TEXT NOT NULL,
+                    payment_status TEXT NOT NULL,
+                    processing_status TEXT NOT NULL,
+                    provisioning_intent_id TEXT,
                     payload_json TEXT NOT NULL,
                     created_at TEXT NOT NULL
                 );
@@ -187,9 +208,25 @@ class SaaSNode:
 
     def request_provisioning(self, intent: ProvisioningIntent) -> dict[str, Any]:
         route = self.resolve(intent.tenant_id, intent.system_id, intent.service_id)
-        created_at = datetime.now(timezone.utc).isoformat()
         payload = {**intent.__dict__, "route": route}
-        intent_id = self._canonical_hash({"payload": payload, "created_at": created_at})
+        if intent.idempotency_key:
+            intent_id = self._canonical_hash({"idempotency_key": intent.idempotency_key, "payload": payload})
+            with self._connect() as con:
+                existing = con.execute("SELECT * FROM provisioning_intents WHERE intent_id=?", (intent_id,)).fetchone()
+            if existing:
+                existing_payload = json.loads(existing["payload_json"])
+                return {
+                    "intent_id": intent_id,
+                    "status": existing["status"],
+                    "created_at": existing["created_at"],
+                    "duplicate": True,
+                    **existing_payload,
+                }
+        else:
+            created_at_seed = datetime.now(timezone.utc).isoformat()
+            intent_id = self._canonical_hash({"payload": payload, "created_at": created_at_seed})
+
+        created_at = datetime.now(timezone.utc).isoformat()
         with self._connect() as con:
             con.execute(
                 """INSERT INTO provisioning_intents(intent_id,tenant_id,system_id,service_id,plan,requested_by,status,payload_json,created_at)
@@ -198,7 +235,103 @@ class SaaSNode:
                  intent.requested_by, json.dumps(payload, sort_keys=True), created_at),
             )
         self._audit("PROVISIONING_REQUESTED", intent_id, payload)
-        return {"intent_id": intent_id, "status": "PENDING_ACTUATION", "created_at": created_at, **payload}
+        return {"intent_id": intent_id, "status": "PENDING_ACTUATION", "created_at": created_at, "duplicate": False, **payload}
+
+    def process_verified_payment_event(
+        self,
+        *,
+        provider: str,
+        event_id: str,
+        event_type: str,
+        tenant_id: str,
+        system_id: str,
+        service_id: str,
+        plan: str,
+        payment_status: str,
+        payload: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        """Convert one already-verified provider event into SaaS state exactly once.
+
+        The provider webhook signature must be verified before this method is
+        called. Replays of the same provider/event ID return the original
+        result and do not mint a second provisioning intent.
+        """
+        provider = provider.strip().lower()
+        event_id = event_id.strip()
+        payment_status = payment_status.strip().lower()
+        if not provider or not event_id:
+            raise ValueError("provider and event_id are required")
+
+        canonical_event_id = f"{provider}:{event_id}"
+        with self._connect() as con:
+            existing = con.execute("SELECT * FROM payment_events WHERE event_id=?", (canonical_event_id,)).fetchone()
+        if existing:
+            return {
+                "event_id": canonical_event_id,
+                "provider": existing["provider"],
+                "event_type": existing["event_type"],
+                "payment_status": existing["payment_status"],
+                "processing_status": existing["processing_status"],
+                "provisioning_intent_id": existing["provisioning_intent_id"],
+                "duplicate": True,
+            }
+
+        event_payload = payload or {}
+        created_at = datetime.now(timezone.utc).isoformat()
+        if payment_status not in self.PAID_STATUSES:
+            with self._connect() as con:
+                con.execute(
+                    """INSERT INTO payment_events(event_id,provider,event_type,tenant_id,system_id,service_id,plan,
+                       payment_status,processing_status,provisioning_intent_id,payload_json,created_at)
+                       VALUES(?,?,?,?,?,?,?,?, 'IGNORED_NOT_PAID', NULL, ?,?)""",
+                    (canonical_event_id, provider, event_type, tenant_id, system_id, service_id, plan,
+                     payment_status, json.dumps(event_payload, sort_keys=True), created_at),
+                )
+            self._audit("PAYMENT_EVENT_IGNORED", canonical_event_id, {"payment_status": payment_status})
+            return {
+                "event_id": canonical_event_id,
+                "provider": provider,
+                "event_type": event_type,
+                "payment_status": payment_status,
+                "processing_status": "IGNORED_NOT_PAID",
+                "provisioning_intent_id": None,
+                "duplicate": False,
+            }
+
+        entitlement = self.grant_entitlement(tenant_id, system_id, service_id, plan)
+        provisioning = self.request_provisioning(
+            ProvisioningIntent(
+                tenant_id=tenant_id,
+                system_id=system_id,
+                service_id=service_id,
+                plan=plan,
+                requested_by=f"payment:{canonical_event_id}",
+                idempotency_key=canonical_event_id,
+            )
+        )
+        with self._connect() as con:
+            con.execute(
+                """INSERT INTO payment_events(event_id,provider,event_type,tenant_id,system_id,service_id,plan,
+                   payment_status,processing_status,provisioning_intent_id,payload_json,created_at)
+                   VALUES(?,?,?,?,?,?,?,?, 'ENTITLED_PENDING_ACTUATION', ?,?,?)""",
+                (canonical_event_id, provider, event_type, tenant_id, system_id, service_id, plan,
+                 payment_status, provisioning["intent_id"], json.dumps(event_payload, sort_keys=True), created_at),
+            )
+        self._audit(
+            "PAYMENT_ACTIVATED",
+            canonical_event_id,
+            {"entitlement": entitlement, "provisioning_intent_id": provisioning["intent_id"]},
+        )
+        return {
+            "event_id": canonical_event_id,
+            "provider": provider,
+            "event_type": event_type,
+            "payment_status": payment_status,
+            "processing_status": "ENTITLED_PENDING_ACTUATION",
+            "entitlement": entitlement,
+            "provisioning_intent_id": provisioning["intent_id"],
+            "duplicate": False,
+        }
 
     def audit_events(self, limit: int = 100) -> list[dict[str, Any]]:
         with self._connect() as con:
