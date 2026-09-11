@@ -1,0 +1,64 @@
+{
+  "schema": "braink.sheet-compute-substrate.r2",
+  "coordinate_standard": {
+    "singularity": 1,
+    "singularity_in_grid": false,
+    "function_space": "A1:A(n)",
+    "logical_data_origin": "X2/Y2",
+    "carrier_data_origin": "B2",
+    "rule": "logical address is distinct from physical carrier address"
+  },
+  "execution_contract": [
+    "FORMULA_STATE",
+    "DERIVED_READY",
+    "TRIGGER_ARMED",
+    "POWER_OR_SUB_POWER",
+    "RUNNER_PULSE",
+    "SIGNALLED",
+    "READBACK",
+    "PROOF",
+    "COMMIT"
+  ],
+  "runner_semantics": {
+    "role": "activation_signal_only",
+    "executes_workload": false,
+    "retrigger": "NO_ACK -> RETRIGGER",
+    "reset": "POWER_RESET_ON_FAULT"
+  },
+  "verified_processes": {
+    "cpu": {"result": {"opcode": "ADD", "r0": 12, "r1": 30, "alu_out": 42, "flags": "NONZERO", "pc_next": 8}},
+    "gpu": {"result": {"a": [1,2,3,4], "b": [10,20,30,40], "out": [11,22,33,44], "sum": 110}},
+    "mux": {"result": {"selector": 2, "inputs": [100,200,300,400], "output": 300}},
+    "router": {"result": {"destination_prefix": "10.0.0.0/24", "next_hop": "mesh0", "action": "FORWARD", "metric": 10}},
+    "bridge": {"result": {"destination_mac": "AA:BB:CC:DD:EE:02", "output_port": "port2", "action": "FORWARD"}},
+    "connector": {"result": {"selected_call": "call:cpu:2", "runner": "runner.cpu.pulse", "state": "PULSE_READY"}},
+    "binder": {"result": {"runtime": "runtime://network/router", "process_sheet": "P_ROUTER", "state": "BOUND"}},
+    "registry": {"result": {"process_sheet": "P_GPU", "runtime": "runtime://gpu/vector", "state": "RESOLVED"}},
+    "dee": {"result": {"opcode": "ROUTE", "class": "NETWORK", "semantic": "derive next hop"}},
+    "memory_fabric": {"result": {"logical": "X4/Y2", "carrier": "D2", "state": "MAPPED"}},
+    "mesh": {"result": {"owner_scope": "KEDDEH_SYSTEMS", "shard": "shard://keddeh/core", "state": "MESH_LOCAL_READY"}},
+    "saas": {"result": {"runtime": "runtime://cpu/core", "exists": true, "state": "PROVISIONABLE"}},
+    "cascade": {"result": {"committed_workers": 12, "expected_workers": 12, "state": "CASCADE_STABLE"}},
+    "workbook_cpu": {"result": {"ready_calls": 14, "committed_other_processes": 13, "state": "QUIESCENT"}}
+  },
+  "evidence": {
+    "readback_required": true,
+    "proof_required": true,
+    "proof_algorithm": "SHA-256 over canonical JSON assembled from observed results",
+    "committed_process_count": 14,
+    "local_shard_root": "7ab37271ce716d857c17fb5b659031d9539337b30f72961603bcbc5a5f0c610c",
+    "local_federation_state": "LOCAL_SEALED",
+    "external_authority_state": "UNBOUND_UNTIL_RUNTIME_AUTHORITY"
+  },
+  "dependency_order": [
+    "worker_processes",
+    "cascade_seal",
+    "workbook_cpu_quiescence",
+    "local_shard_seal"
+  ],
+  "claims_boundary": {
+    "formula_native_compute": "observed_and_proven",
+    "external_host_side_effects": "not_claimed_by_this_receipt",
+    "external_network_authority": "not_claimed_by_this_receipt"
+  }
+}
