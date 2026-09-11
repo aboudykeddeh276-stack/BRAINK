@@ -6,13 +6,15 @@ from .models import ActionExecutionRequest, RegistryObject
 from .storage import Store
 from .cascade import Cascade
 from .workbook import WorkbookService
+from .saas import SaaSNode, ProvisioningIntent
 
 DATA=os.getenv('BRAINK_DATA_DIR','./data')
 TOKEN=os.getenv('BRAINK_AUTH_TOKEN','change-me-before-network-exposure')
 store=Store(DATA)
 cascade=Cascade(store)
 workbooks=WorkbookService()
-app=FastAPI(title='BRAINK/KEX Runtime',version='0.1.1')
+saas=SaaSNode(DATA)
+app=FastAPI(title='BRAINK/KEX Runtime',version='0.2.0')
 
 def auth(x_braink_token:str|None=Header(default=None)):
     if TOKEN and x_braink_token != TOKEN:
@@ -29,13 +31,39 @@ class WorkbookAppendRequest(BaseModel):
     sheet: str
     values: list = Field(default_factory=list)
 
+class SaaSSystemRequest(BaseModel):
+    system_id: str
+    name: str
+    adapter_uri: str
+    runtime_uri: str | None = None
+    metadata: dict = Field(default_factory=dict)
+
+class SaaSTenantRequest(BaseModel):
+    tenant_id: str
+    display_name: str
+    metadata: dict = Field(default_factory=dict)
+
+class SaaSEntitlementRequest(BaseModel):
+    tenant_id: str
+    system_id: str
+    service_id: str
+    plan: str = 'standard'
+    limits: dict = Field(default_factory=dict)
+
+class SaaSProvisionRequest(BaseModel):
+    tenant_id: str
+    system_id: str
+    service_id: str
+    plan: str = 'standard'
+    requested_by: str
+
 @app.get('/api/health')
 def health():
-    return {'status':'ok','runtime':'braink-kex','version':'0.1.1'}
+    return {'status':'ok','runtime':'braink-kex','version':'0.2.0'}
 
 @app.get('/api/services')
 def services():
-    return {'services':['action-runtime','workbook-data','connector','runtime-registry','proof-ledger','object-registry','cascade','mesh-status','route-registry','uri-resolver']}
+    return {'services':['action-runtime','workbook-data','connector','runtime-registry','proof-ledger','object-registry','cascade','mesh-status','route-registry','uri-resolver','saas-node']}
 
 @app.get('/api/routes')
 def routes():
@@ -121,3 +149,57 @@ def connector_health():
 @app.get('/connector/mesh-status')
 def connector_mesh():
     return mesh()
+
+@app.get('/saas/health')
+def saas_health():
+    return {'status':'ok','node':'saas','version':'0.2.0','systems':len(saas.list_systems())}
+
+@app.put('/saas/systems/{system_id}')
+def saas_register_system(system_id:str,req:SaaSSystemRequest,x_braink_token:str|None=Header(default=None)):
+    auth(x_braink_token)
+    if system_id != req.system_id:
+        raise HTTPException(400,'system_id mismatch')
+    return saas.register_system(req.system_id,req.name,req.adapter_uri,req.runtime_uri,req.metadata)
+
+@app.get('/saas/systems')
+def saas_systems():
+    return {'systems':saas.list_systems()}
+
+@app.put('/saas/tenants/{tenant_id}')
+def saas_upsert_tenant(tenant_id:str,req:SaaSTenantRequest,x_braink_token:str|None=Header(default=None)):
+    auth(x_braink_token)
+    if tenant_id != req.tenant_id:
+        raise HTTPException(400,'tenant_id mismatch')
+    return saas.upsert_tenant(req.tenant_id,req.display_name,req.metadata)
+
+@app.put('/saas/entitlements')
+def saas_entitle(req:SaaSEntitlementRequest,x_braink_token:str|None=Header(default=None)):
+    auth(x_braink_token)
+    try:
+        return saas.grant_entitlement(req.tenant_id,req.system_id,req.service_id,req.plan,req.limits)
+    except ValueError as e:
+        raise HTTPException(404,str(e))
+
+@app.get('/saas/resolve')
+def saas_resolve(tenant_id:str,system_id:str,service_id:str):
+    try:
+        return saas.resolve(tenant_id,system_id,service_id)
+    except PermissionError as e:
+        raise HTTPException(403,str(e))
+    except ValueError as e:
+        raise HTTPException(404,str(e))
+
+@app.post('/saas/provision')
+def saas_provision(req:SaaSProvisionRequest,x_braink_token:str|None=Header(default=None)):
+    auth(x_braink_token)
+    try:
+        return saas.request_provisioning(ProvisioningIntent(**req.model_dump()))
+    except PermissionError as e:
+        raise HTTPException(403,str(e))
+    except ValueError as e:
+        raise HTTPException(404,str(e))
+
+@app.get('/saas/audit')
+def saas_audit(limit:int=100,x_braink_token:str|None=Header(default=None)):
+    auth(x_braink_token)
+    return {'events':saas.audit_events(limit)}
