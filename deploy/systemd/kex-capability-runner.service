@@ -1,0 +1,30 @@
+[Unit]
+Description=KEX Capability Runner
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=braink
+Group=braink
+WorkingDirectory=/opt/braink
+RuntimeDirectory=keddeh
+RuntimeDirectoryMode=0750
+StateDirectory=braink/kex
+Environment=KEX_RUNNER_SOCKET=/run/keddeh/kex-runner.sock
+Environment=KEX_CAPABILITY_LEDGER=/var/lib/braink/kex/capability-ledger.jsonl
+Environment=KEX_CAPABILITY_CALLERS=service://braink/stripe-payment-rail
+Environment=KEX_SECRET_RESOLVER=/usr/local/libexec/kex-secret-resolver
+ExecStart=/usr/bin/python3 /opt/braink/modules/kex_wbos/capability_runner.py
+Restart=on-failure
+RestartSec=2
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/run/keddeh /var/lib/braink/kex
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+UMask=0007
+
+[Install]
+WantedBy=multi-user.target
