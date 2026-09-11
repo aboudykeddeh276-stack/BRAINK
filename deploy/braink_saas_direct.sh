@@ -2,6 +2,31 @@
 set -euo pipefail
 
 ROOT="${BRAINK_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
+CARRIER="${BRAINK_DEPLOY_CARRIER:-portable}"
+
+case "$CARRIER" in
+  portable)
+    exec python3 "$ROOT/deploy/braink_saas_supervisor.py" start
+    ;;
+  status)
+    exec python3 "$ROOT/deploy/braink_saas_supervisor.py" status
+    ;;
+  stop)
+    exec python3 "$ROOT/deploy/braink_saas_supervisor.py" stop
+    ;;
+  restart)
+    exec python3 "$ROOT/deploy/braink_saas_supervisor.py" restart
+    ;;
+  systemd)
+    ;;
+  *)
+    printf '{"status":"BLOCKED","reason":"UNKNOWN_DEPLOY_CARRIER","carrier":"%s","allowed":["portable","systemd","status","stop","restart"]}\n' "$CARRIER"
+    exit 2
+    ;;
+esac
+
+# Optional Linux/systemd carrier. KEX/BRAINK authority is unchanged; systemd is
+# only the resident process carrier when explicitly selected.
 REPORT_DIR="${BRAINK_REPORT_DIR:-$ROOT/reports/direct-deploy}"
 mkdir -p "$REPORT_DIR"
 TS="$(date -u +%Y%m%dT%H%M%SZ)"
@@ -13,16 +38,16 @@ STRIPE_SOCKET="${BRAINK_STRIPE_SOCKET:-/run/keddeh/braink-stripe.sock}"
 
 fail() {
   local reason="$1"
-  printf '{"status":"BLOCKED","reason":"%s","report":"%s"}\n' "$reason" "$REPORT" | tee "$REPORT"
+  printf '{"status":"BLOCKED","reason":"%s","carrier":"systemd","report":"%s"}\n' "$reason" "$REPORT" | tee "$REPORT"
   exit 1
 }
 
+command -v systemctl >/dev/null 2>&1 || fail "SYSTEMD_NOT_AVAILABLE"
 [[ -f "$ROOT/modules/kex_wbos/capability_runner.py" ]] || fail "KEX_CAPABILITY_RUNNER_MISSING"
 [[ -f "$ROOT/runtime/stripe_payment_rail.py" ]] || fail "STRIPE_PAYMENT_RAIL_MISSING"
 [[ -f "$STRIPE_SERVICE_SRC" ]] || fail "STRIPE_SERVICE_DEFINITION_MISSING"
 [[ -f "$ROOT/deploy/install_kex_capability_runner.sh" ]] || fail "KEX_INSTALLER_MISSING"
 
-# Qualification is local and authoritative. GitHub is not required.
 python3 "$ROOT/scripts/kex-ci/test_kex_capability_runner.py"
 
 if [[ -d "$ROOT/runtime/publish/src" ]]; then
@@ -66,6 +91,7 @@ path,kex,stripe=sys.argv[1:]
 body={
   'status':'VERIFIED',
   'deployment':'DIRECT_KEX_FIRST',
+  'carrier':'systemd',
   'github_required':False,
   'host':socket.gethostname(),
   'timestamp_ns':time.time_ns(),
