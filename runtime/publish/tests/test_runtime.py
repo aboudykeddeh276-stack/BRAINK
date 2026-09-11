@@ -5,6 +5,7 @@ from openpyxl import Workbook
 
 def client(tmp):
     os.environ['BRAINK_DATA_DIR']=tmp; os.environ['BRAINK_AUTH_TOKEN']='test-token'
+    os.environ['BRAINK_SAAS_ALLOW_HOST_ACTUATION']='0'
     import importlib, braink_runtime.app as m
     importlib.reload(m)
     return TestClient(m.app)
@@ -18,6 +19,8 @@ def test_health_routes_and_cascade():
         assert '/connector/execute-action' in routes
         assert '/workbooks/append' in routes
         assert '/saas/provision' in routes
+        assert '/saas/bindings' in routes
+        assert '/saas/actuate-fabric' in routes
 
 def test_mutation_idempotency_and_ledger():
     with tempfile.TemporaryDirectory() as d:
@@ -70,5 +73,21 @@ def test_saas_node_cross_system_control_plane():
         pr=c.post('/saas/provision',json=p,headers=h)
         assert pr.status_code==200
         assert pr.json()['status']=='PENDING_ACTUATION'
+        plan=c.post('/saas/provision-plan',json=p,headers=h)
+        assert plan.status_code==200
+        assert 'RESOLVE_HOST_CONTROL' in plan.json()['stages']
         audit=c.get('/saas/audit',headers=h).json()['events']
         assert any(e['event_type']=='PROVISIONING_REQUESTED' for e in audit)
+
+def test_saas_estate_bindings_and_fail_closed_actuation():
+    with tempfile.TemporaryDirectory() as d:
+        c=client(d); h={'x-braink-token':'test-token'}
+        bindings=c.get('/saas/bindings',headers=h)
+        assert bindings.status_code==200
+        body=bindings.json()
+        assert body['host_actuation']['runtime_gate']=='HOST_READY + ONLINE + external carrier proof'
+        assert body['payments']['public_checkout_route']=='/payments/checkout'
+        assert body['public_ingress']['promotion_rule']=='public projection cannot promote resident runtime state'
+        r=c.post('/saas/actuate-fabric',headers=h)
+        assert r.status_code==409
+        assert r.json()['detail']['reason']=='BRAINK_SAAS_ALLOW_HOST_ACTUATION_NOT_ENABLED'

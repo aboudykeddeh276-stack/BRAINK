@@ -7,6 +7,7 @@ from .storage import Store
 from .cascade import Cascade
 from .workbook import WorkbookService
 from .saas import SaaSNode, ProvisioningIntent
+from .estate_bindings import EstateBindings
 
 DATA=os.getenv('BRAINK_DATA_DIR','./data')
 TOKEN=os.getenv('BRAINK_AUTH_TOKEN','change-me-before-network-exposure')
@@ -14,7 +15,8 @@ store=Store(DATA)
 cascade=Cascade(store)
 workbooks=WorkbookService()
 saas=SaaSNode(DATA)
-app=FastAPI(title='BRAINK/KEX Runtime',version='0.2.0')
+estate=EstateBindings()
+app=FastAPI(title='BRAINK/KEX Runtime',version='0.2.1')
 
 def auth(x_braink_token:str|None=Header(default=None)):
     if TOKEN and x_braink_token != TOKEN:
@@ -59,11 +61,11 @@ class SaaSProvisionRequest(BaseModel):
 
 @app.get('/api/health')
 def health():
-    return {'status':'ok','runtime':'braink-kex','version':'0.2.0'}
+    return {'status':'ok','runtime':'braink-kex','version':'0.2.1'}
 
 @app.get('/api/services')
 def services():
-    return {'services':['action-runtime','workbook-data','connector','runtime-registry','proof-ledger','object-registry','cascade','mesh-status','route-registry','uri-resolver','saas-node']}
+    return {'services':['action-runtime','workbook-data','connector','runtime-registry','proof-ledger','object-registry','cascade','mesh-status','route-registry','uri-resolver','saas-node','saas-estate-bindings']}
 
 @app.get('/api/routes')
 def routes():
@@ -152,7 +154,7 @@ def connector_mesh():
 
 @app.get('/saas/health')
 def saas_health():
-    return {'status':'ok','node':'saas','version':'0.2.0','systems':len(saas.list_systems())}
+    return {'status':'ok','node':'saas','version':'0.2.1','systems':len(saas.list_systems())}
 
 @app.put('/saas/systems/{system_id}')
 def saas_register_system(system_id:str,req:SaaSSystemRequest,x_braink_token:str|None=Header(default=None)):
@@ -203,3 +205,27 @@ def saas_provision(req:SaaSProvisionRequest,x_braink_token:str|None=Header(defau
 def saas_audit(limit:int=100,x_braink_token:str|None=Header(default=None)):
     auth(x_braink_token)
     return {'events':saas.audit_events(limit)}
+
+@app.get('/saas/bindings')
+def saas_bindings(x_braink_token:str|None=Header(default=None)):
+    auth(x_braink_token)
+    return estate.status()
+
+@app.post('/saas/provision-plan')
+def saas_provision_plan(req:SaaSProvisionRequest,x_braink_token:str|None=Header(default=None)):
+    auth(x_braink_token)
+    try:
+        saas.resolve(req.tenant_id,req.system_id,req.service_id)
+    except PermissionError as e:
+        raise HTTPException(403,str(e))
+    except ValueError as e:
+        raise HTTPException(404,str(e))
+    return estate.provisioning_plan(tenant_id=req.tenant_id,system_id=req.system_id,service_id=req.service_id,plan=req.plan)
+
+@app.post('/saas/actuate-fabric')
+def saas_actuate_fabric(x_braink_token:str|None=Header(default=None)):
+    auth(x_braink_token)
+    result=estate.actuate_fabric()
+    if result.get('status') != 'PASS':
+        raise HTTPException(409,result)
+    return result
