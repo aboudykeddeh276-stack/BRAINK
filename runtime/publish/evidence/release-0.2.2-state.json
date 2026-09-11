@@ -1,0 +1,35 @@
+{
+  "schema": "braink.runtime.release-state.v1",
+  "release": "0.2.2",
+  "source_state": "COMMITTED_MAIN",
+  "implemented": [
+    "verified payment event ingestion",
+    "payment event replay protection",
+    "entitlement activation for paid states",
+    "deterministic provisioning intent creation",
+    "KEX Stripe rail to SaaS verified-event handoff",
+    "release version alignment"
+  ],
+  "execution_boundaries": {
+    "github_hosted_runtime_publish": {
+      "run_id": 34573859460,
+      "state": "FAILED_BEFORE_RECORDED_STEPS",
+      "container_job": "SKIPPED",
+      "claim": "NOT_DEPLOYED_BY_THIS_RUN"
+    },
+    "kex_self_hosted_capability_runner": {
+      "run_id": 34574069400,
+      "state": "QUEUED_AT_LAST_READBACK",
+      "required_labels": ["self-hosted", "kex", "tl2"],
+      "claim": "DEPLOYMENT_NOT_YET_OBSERVED"
+    }
+  },
+  "promotion_rule": "source commit != CI execution != container publication != resident host deployment != customer service activation",
+  "next_required_proof": [
+    "successful runtime publish verification",
+    "container publication receipt",
+    "self-hosted KEX runner execution receipt",
+    "live payment webhook readback",
+    "host actuation readback for provisioned service"
+  ]
+}
