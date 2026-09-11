@@ -1,0 +1,126 @@
+{
+  "schema": "braink.sheet-compute-substrate.r1",
+  "status": "IMPLEMENTED_CONTROL_CONTRACT",
+  "coordinate_standard": {
+    "singularity": {
+      "value": 1,
+      "location": "OUTSIDE_GRID",
+      "law": "There is one logical 1 only. It is not X1, Y1, A1 or a cell coordinate."
+    },
+    "function_space": {
+      "carrier": "A1:A(n)",
+      "role": "DEFINITION_FUNCTION_METADATA_ONLY",
+      "runtime_data_allowed": false
+    },
+    "data_origin": {
+      "logical": "X2/Y2",
+      "carrier": "B2",
+      "law": "logical address and carrier address are separate; X2/Y2 projects to B2"
+    }
+  },
+  "execution_frame": [
+    "frame_id",
+    "causal_id",
+    "operation",
+    "target",
+    "input_state",
+    "formula_outcome",
+    "trigger_state",
+    "power_state",
+    "runner_pulse",
+    "execution_state",
+    "result",
+    "readback",
+    "proof",
+    "next_state"
+  ],
+  "runner_semantics": {
+    "role": "ACTIVATION_SIGNAL_ONLY",
+    "does_not_own_workload_execution": true,
+    "activation_edge": "ARMED_TO_PULSE",
+    "ack_source": "READBACK_LEDGER",
+    "retrigger_law": "NO_ACK_OR_FAULT_REARMS_TRIGGER",
+    "reset_law": "POWER_RESET_CLEARS_AND_REARMS_EXECUTION_STATE"
+  },
+  "power_model": {
+    "POWER": "root activation state",
+    "SUB_POWER": "process/domain activation state",
+    "POWER_RESET": "clear and re-arm path"
+  },
+  "machine_cycle": [
+    "FORMULA_STATE",
+    "TRIGGER_ARMED",
+    "RUNNER_PULSE",
+    "POWER_OR_SUB_POWER_GATE",
+    "RESIDENT_MECHANISM_TRANSITION",
+    "READBACK",
+    "PROOF",
+    "COMMIT_OR_RETRIGGER"
+  ],
+  "promotion_laws": [
+    "FORMULA_OUTPUT_MAY_ARM_TRIGGER",
+    "PULSE_IS_NOT_EXECUTION_PROOF",
+    "READBACK_IS_REQUIRED_FOR_OBSERVED_COMPLETION",
+    "PROOF_IS_REQUIRED_FOR_COMMIT",
+    "FALSE_OR_MISSING_READBACK_CANNOT_PROMOTE_COMMIT",
+    "PROCESS_STATE_REMAINS_LEDGER_ADDRESSABLE",
+    "TELEMETRY_IS_DERIVED_FROM_EXECUTION_LEDGER_NOT_SEPARATE_TRUTH"
+  ],
+  "process_families": {
+    "device": ["CPU", "GPU", "MUX", "ROUTER", "BRIDGE"],
+    "braink": [
+      "ACTION_RUNTIME",
+      "WORKBOOK_DATA",
+      "CASCADE_OS",
+      "CONNECTOR",
+      "BINDER",
+      "REGISTRY",
+      "DEE",
+      "MEMORY_FABRIC",
+      "VOLUME_MACHINE",
+      "MESH",
+      "PROOF_LEDGER",
+      "WORKBOOK_CPU",
+      "HOST_CONTROL",
+      "KEDDEH_FABRIC",
+      "PUBLIC_GATEWAY",
+      "SAAS_NODE"
+    ]
+  },
+  "sheet_services": [
+    "RUNTIMES",
+    "RUNNERS",
+    "PROCESS_NODES",
+    "CALL_QUEUE",
+    "STATE_BUS",
+    "DEPENDENCIES",
+    "PROOF_LEDGER",
+    "SCHEDULER",
+    "READBACK",
+    "SIGNAL_BUS",
+    "TRIGGER_CONTROL",
+    "POWER_CONTROL",
+    "SHARDS",
+    "FEDERATION",
+    "BCS_STANDARD",
+    "INSTRUCTION_SET",
+    "ADDRESS_TRANSLATION"
+  ],
+  "shard_model": {
+    "role": "USER_HOSTED_SHEET_COMPUTE_SHARD",
+    "local_authority": true,
+    "federation_payloads": ["promoted_intent", "state_root", "receipt", "proof_root"],
+    "law": "A shard may host local process ledgers and formula computation while external carriers remain explicit."
+  },
+  "evidence_boundary": {
+    "sheet_formula_state": "OBSERVED_IN_GOOGLE_SHEETS",
+    "pulse_state": "OBSERVED_IN_GOOGLE_SHEETS",
+    "external_side_effect": "UNPROVEN_UNTIL_CARRIER_READBACK",
+    "commit": "REQUIRES_READBACK_AND_PROOF"
+  },
+  "configuration": {
+    "spreadsheet_id_env": "BRAINK_SHEET_SUBSTRATE_ID",
+    "spreadsheet_url_env": "BRAINK_SHEET_SUBSTRATE_URL",
+    "do_not_embed_public_sheet_identifier": true
+  }
+}
