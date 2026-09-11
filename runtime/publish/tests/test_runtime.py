@@ -19,6 +19,7 @@ def test_health_routes_and_cascade():
         assert '/connector/execute-action' in routes
         assert '/workbooks/append' in routes
         assert '/saas/provision' in routes
+        assert '/saas/payments/verified-event' in routes
         assert '/saas/bindings' in routes
         assert '/saas/actuate-fabric' in routes
 
@@ -78,6 +79,54 @@ def test_saas_node_cross_system_control_plane():
         assert 'RESOLVE_HOST_CONTROL' in plan.json()['stages']
         audit=c.get('/saas/audit',headers=h).json()['events']
         assert any(e['event_type']=='PROVISIONING_REQUESTED' for e in audit)
+
+def test_verified_payment_event_entitles_and_provisions_exactly_once():
+    with tempfile.TemporaryDirectory() as d:
+        c=client(d); h={'x-braink-token':'test-token'}
+        assert c.put('/saas/systems/braink',json={
+            'system_id':'braink','name':'BRAINK','adapter_uri':'adapter://braink','runtime_uri':'runtime://braink/core'
+        },headers=h).status_code==200
+        assert c.put('/saas/tenants/acme',json={'tenant_id':'acme','display_name':'ACME'},headers=h).status_code==200
+        event={
+            'provider':'stripe','event_id':'evt_001','event_type':'checkout.session.completed',
+            'tenant_id':'acme','system_id':'braink','service_id':'agent','plan':'pro',
+            'payment_status':'paid','payload':{'session_id':'cs_test_001'}
+        }
+        first=c.post('/saas/payments/verified-event',json=event,headers=h)
+        assert first.status_code==200
+        body=first.json()
+        assert body['processing_status']=='ENTITLED_PENDING_ACTUATION'
+        assert body['duplicate'] is False
+        assert body['provisioning_intent_id']
+        resolved=c.get('/saas/resolve',params={'tenant_id':'acme','system_id':'braink','service_id':'agent'}).json()
+        assert resolved['plan']=='pro'
+
+        replay=c.post('/saas/payments/verified-event',json=event,headers=h)
+        assert replay.status_code==200
+        replay_body=replay.json()
+        assert replay_body['duplicate'] is True
+        assert replay_body['provisioning_intent_id']==body['provisioning_intent_id']
+        audit=c.get('/saas/audit',headers=h).json()['events']
+        assert sum(1 for e in audit if e['event_type']=='PAYMENT_ACTIVATED')==1
+        assert sum(1 for e in audit if e['event_type']=='PROVISIONING_REQUESTED')==1
+
+def test_unpaid_payment_event_does_not_grant_access():
+    with tempfile.TemporaryDirectory() as d:
+        c=client(d); h={'x-braink-token':'test-token'}
+        assert c.put('/saas/systems/braink',json={
+            'system_id':'braink','name':'BRAINK','adapter_uri':'adapter://braink','runtime_uri':'runtime://braink/core'
+        },headers=h).status_code==200
+        assert c.put('/saas/tenants/acme',json={'tenant_id':'acme','display_name':'ACME'},headers=h).status_code==200
+        event={
+            'provider':'stripe','event_id':'evt_002','event_type':'checkout.session.async_payment_failed',
+            'tenant_id':'acme','system_id':'braink','service_id':'agent','plan':'pro',
+            'payment_status':'failed','payload':{}
+        }
+        r=c.post('/saas/payments/verified-event',json=event,headers=h)
+        assert r.status_code==200
+        assert r.json()['processing_status']=='IGNORED_NOT_PAID'
+        denied=c.get('/saas/resolve',params={'tenant_id':'acme','system_id':'braink','service_id':'agent'})
+        assert denied.status_code==403
 
 def test_saas_estate_bindings_and_fail_closed_actuation():
     with tempfile.TemporaryDirectory() as d:
