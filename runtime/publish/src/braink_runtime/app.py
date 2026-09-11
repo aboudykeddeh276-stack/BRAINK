@@ -25,266 +25,155 @@ def auth(x_braink_token:str|None=Header(default=None)):
         raise HTTPException(401,'invalid token')
 
 class WorkbookReadRequest(BaseModel):
-    path: str
-    sheet: str
-    min_row: int = 1
-    max_row: int | None = None
-
+    path: str; sheet: str; min_row: int = 1; max_row: int | None = None
 class WorkbookAppendRequest(BaseModel):
-    path: str
-    sheet: str
-    values: list = Field(default_factory=list)
-
+    path: str; sheet: str; values: list = Field(default_factory=list)
 class SaaSSystemRequest(BaseModel):
-    system_id: str
-    name: str
-    adapter_uri: str
-    runtime_uri: str | None = None
-    metadata: dict = Field(default_factory=dict)
-
+    system_id: str; name: str; adapter_uri: str; runtime_uri: str | None = None; metadata: dict = Field(default_factory=dict)
 class SaaSTenantRequest(BaseModel):
-    tenant_id: str
-    display_name: str
-    metadata: dict = Field(default_factory=dict)
-
+    tenant_id: str; display_name: str; metadata: dict = Field(default_factory=dict)
 class SaaSEntitlementRequest(BaseModel):
-    tenant_id: str
-    system_id: str
-    service_id: str
-    plan: str = 'standard'
-    limits: dict = Field(default_factory=dict)
-
+    tenant_id: str; system_id: str; service_id: str; plan: str = 'standard'; limits: dict = Field(default_factory=dict)
 class SaaSProvisionRequest(BaseModel):
-    tenant_id: str
-    system_id: str
-    service_id: str
-    plan: str = 'standard'
-    requested_by: str
-    idempotency_key: str | None = None
-
+    tenant_id: str; system_id: str; service_id: str; plan: str = 'standard'; requested_by: str; idempotency_key: str | None = None
 class SaaSPaymentEventRequest(BaseModel):
-    provider: str
-    event_id: str
-    event_type: str
-    tenant_id: str
-    system_id: str
-    service_id: str
-    plan: str = 'standard'
-    payment_status: str
-    payload: dict = Field(default_factory=dict)
-
+    provider: str; event_id: str; event_type: str; tenant_id: str; system_id: str; service_id: str; plan: str = 'standard'; payment_status: str; payload: dict = Field(default_factory=dict)
 class SaaSServiceCatalogRequest(BaseModel):
-    system_id: str
-    service_id: str
-    display_name: str
-    runtime_uri: str
-    plans: dict[str,dict] = Field(default_factory=dict)
-    metadata: dict = Field(default_factory=dict)
-
+    system_id: str; service_id: str; display_name: str; runtime_uri: str; plans: dict[str,dict] = Field(default_factory=dict); metadata: dict = Field(default_factory=dict)
 class SaaSCheckoutAdmissionRequest(BaseModel):
-    tenant_id: str
-    system_id: str
-    service_id: str
-    plan: str
+    tenant_id: str; system_id: str; service_id: str; plan: str
+class SaaSCheckoutBindRequest(BaseModel):
+    admission_id: str; provider: str; provider_session_id: str; kex_receipt_id: str | None = None
+class SaaSCheckoutVerifyRequest(BaseModel):
+    admission_id: str; provider: str; provider_session_id: str; tenant_id: str; system_id: str; service_id: str; plan: str
 
 @app.get('/api/health')
-def health():
-    return {'status':'ok','runtime':'braink-kex','version':'0.2.3'}
-
+def health(): return {'status':'ok','runtime':'braink-kex','version':'0.2.3'}
 @app.get('/api/services')
-def services():
-    return {'services':['action-runtime','workbook-data','connector','runtime-registry','proof-ledger','object-registry','cascade','mesh-status','route-registry','uri-resolver','saas-node','saas-service-catalog','saas-estate-bindings','payment-entitlement-provisioning']}
-
+def services(): return {'services':['action-runtime','workbook-data','connector','runtime-registry','proof-ledger','object-registry','cascade','mesh-status','route-registry','uri-resolver','saas-node','saas-service-catalog','saas-estate-bindings','payment-entitlement-provisioning']}
 @app.get('/api/routes')
-def routes():
-    return {'routes':[r.path for r in app.routes if hasattr(r,'path')]}
-
+def routes(): return {'routes':[r.path for r in app.routes if hasattr(r,'path')]}
 @app.get('/api/resolve')
 def resolve(uri:str):
     obj=store.get_object(uri)
-    if obj:
-        return {'uri':uri,'resolved':True,'object':obj}
-    state,version=store.get_state(uri)
-    return {'uri':uri,'resolved':bool(version),'version':version,'state':state}
-
+    if obj: return {'uri':uri,'resolved':True,'object':obj}
+    state,version=store.get_state(uri); return {'uri':uri,'resolved':bool(version),'version':version,'state':state}
 @app.get('/mesh')
-def mesh():
-    return {'status':'local-single-node','nodes':[{'id':'local','state':'active'}]}
-
+def mesh(): return {'status':'local-single-node','nodes':[{'id':'local','state':'active'}]}
 @app.get('/cascade')
-def stages():
-    return {'stages':['MOUNT','VERIFY','HYDRATE','RESOLVE','MUTATE','WRITE_BACK','PROOF']}
-
+def stages(): return {'stages':['MOUNT','VERIFY','HYDRATE','RESOLVE','MUTATE','WRITE_BACK','PROOF']}
 @app.post('/actions/execute')
 def execute(req:ActionExecutionRequest,x_braink_token:str|None=Header(default=None)):
     auth(x_braink_token)
-    try:
-        return cascade.execute(req)
-    except ValueError as e:
-        raise HTTPException(409,str(e))
-
+    try: return cascade.execute(req)
+    except ValueError as e: raise HTTPException(409,str(e))
 @app.get('/runtime/{target:path}')
 def runtime(target:str):
-    v,version=store.get_state(target)
-    return {'target':target,'version':version,'state':v}
-
+    v,version=store.get_state(target); return {'target':target,'version':version,'state':v}
 @app.get('/api/proof-ledger')
-def ledger():
-    return {'entries':store.read_ledger()}
-
+def ledger(): return {'entries':store.read_ledger()}
 @app.put('/registry/objects/{object_id}')
 def put_object(object_id:str,obj:RegistryObject,x_braink_token:str|None=Header(default=None)):
     auth(x_braink_token)
-    if obj.object_id != object_id:
-        raise HTTPException(400,'object_id mismatch')
-    store.put_object(object_id,obj.model_dump(mode='json'))
-    return obj
-
+    if obj.object_id != object_id: raise HTTPException(400,'object_id mismatch')
+    store.put_object(object_id,obj.model_dump(mode='json')); return obj
 @app.get('/registry/objects/{object_id}')
 def get_object(object_id:str):
     obj=store.get_object(object_id)
-    if not obj:
-        raise HTTPException(404,'not found')
+    if not obj: raise HTTPException(404,'not found')
     return obj
-
 @app.get('/registry/objects')
-def list_objects():
-    return {'objects':store.list_objects()}
-
+def list_objects(): return {'objects':store.list_objects()}
 @app.post('/workbooks/read')
 def workbook_read(req:WorkbookReadRequest,x_braink_token:str|None=Header(default=None)):
     auth(x_braink_token)
-    try:
-        rows=workbooks.read_rows(req.path,req.sheet,req.min_row,req.max_row)
-        return {'rows':rows}
-    except Exception as e:
-        raise HTTPException(400,f'workbook_read_failed: {e}')
-
+    try: return {'rows':workbooks.read_rows(req.path,req.sheet,req.min_row,req.max_row)}
+    except Exception as e: raise HTTPException(400,f'workbook_read_failed: {e}')
 @app.post('/workbooks/append')
 def workbook_append(req:WorkbookAppendRequest,x_braink_token:str|None=Header(default=None)):
     auth(x_braink_token)
-    try:
-        return workbooks.append_row(req.path,req.sheet,req.values)
-    except Exception as e:
-        raise HTTPException(400,f'workbook_append_failed: {e}')
-
+    try: return workbooks.append_row(req.path,req.sheet,req.values)
+    except Exception as e: raise HTTPException(400,f'workbook_append_failed: {e}')
 @app.post('/connector/execute-action')
-def connector_execute(req:ActionExecutionRequest,x_braink_token:str|None=Header(default=None)):
-    return execute(req,x_braink_token)
-
+def connector_execute(req:ActionExecutionRequest,x_braink_token:str|None=Header(default=None)): return execute(req,x_braink_token)
 @app.get('/connector/system-health')
-def connector_health():
-    return health()
-
+def connector_health(): return health()
 @app.get('/connector/mesh-status')
-def connector_mesh():
-    return mesh()
-
+def connector_mesh(): return mesh()
 @app.get('/saas/health')
-def saas_health():
-    return {'status':'ok','node':'saas','version':'0.2.3','systems':len(saas.list_systems()),'services':len(catalog.list_services())}
-
+def saas_health(): return {'status':'ok','node':'saas','version':'0.2.3','systems':len(saas.list_systems()),'services':len(catalog.list_services())}
 @app.put('/saas/systems/{system_id}')
 def saas_register_system(system_id:str,req:SaaSSystemRequest,x_braink_token:str|None=Header(default=None)):
     auth(x_braink_token)
-    if system_id != req.system_id:
-        raise HTTPException(400,'system_id mismatch')
+    if system_id != req.system_id: raise HTTPException(400,'system_id mismatch')
     return saas.register_system(req.system_id,req.name,req.adapter_uri,req.runtime_uri,req.metadata)
-
 @app.get('/saas/systems')
-def saas_systems():
-    return {'systems':saas.list_systems()}
-
+def saas_systems(): return {'systems':saas.list_systems()}
 @app.put('/saas/tenants/{tenant_id}')
 def saas_upsert_tenant(tenant_id:str,req:SaaSTenantRequest,x_braink_token:str|None=Header(default=None)):
     auth(x_braink_token)
-    if tenant_id != req.tenant_id:
-        raise HTTPException(400,'tenant_id mismatch')
+    if tenant_id != req.tenant_id: raise HTTPException(400,'tenant_id mismatch')
     return saas.upsert_tenant(req.tenant_id,req.display_name,req.metadata)
-
 @app.put('/saas/catalog/services')
 def saas_catalog_upsert(req:SaaSServiceCatalogRequest,x_braink_token:str|None=Header(default=None)):
     auth(x_braink_token)
-    try:
-        return catalog.upsert_service(**req.model_dump())
-    except ValueError as e:
-        raise HTTPException(409,str(e))
-
+    try: return catalog.upsert_service(**req.model_dump())
+    except ValueError as e: raise HTTPException(409,str(e))
 @app.get('/saas/catalog/services')
 def saas_catalog_list(x_braink_token:str|None=Header(default=None)):
-    auth(x_braink_token)
-    return {'services':catalog.list_services()}
-
+    auth(x_braink_token); return {'services':catalog.list_services()}
 @app.post('/saas/checkout-admission')
 def saas_checkout_admission(req:SaaSCheckoutAdmissionRequest,x_braink_token:str|None=Header(default=None)):
     auth(x_braink_token)
-    try:
-        return catalog.admit_checkout(**req.model_dump())
-    except ValueError as e:
-        raise HTTPException(409,str(e))
-
+    try: return catalog.admit_checkout(**req.model_dump())
+    except ValueError as e: raise HTTPException(409,str(e))
+@app.post('/saas/checkout-bind')
+def saas_checkout_bind(req:SaaSCheckoutBindRequest,x_braink_token:str|None=Header(default=None)):
+    auth(x_braink_token)
+    try: return catalog.bind_checkout(**req.model_dump())
+    except ValueError as e: raise HTTPException(409,str(e))
+@app.post('/saas/checkout-verify')
+def saas_checkout_verify(req:SaaSCheckoutVerifyRequest,x_braink_token:str|None=Header(default=None)):
+    auth(x_braink_token)
+    try: return catalog.verify_provider_event(**req.model_dump())
+    except ValueError as e: raise HTTPException(409,str(e))
 @app.put('/saas/entitlements')
 def saas_entitle(req:SaaSEntitlementRequest,x_braink_token:str|None=Header(default=None)):
     auth(x_braink_token)
-    try:
-        return saas.grant_entitlement(req.tenant_id,req.system_id,req.service_id,req.plan,req.limits)
-    except ValueError as e:
-        raise HTTPException(404,str(e))
-
+    try: return saas.grant_entitlement(req.tenant_id,req.system_id,req.service_id,req.plan,req.limits)
+    except ValueError as e: raise HTTPException(404,str(e))
 @app.get('/saas/resolve')
 def saas_resolve(tenant_id:str,system_id:str,service_id:str):
-    try:
-        return saas.resolve(tenant_id,system_id,service_id)
-    except PermissionError as e:
-        raise HTTPException(403,str(e))
-    except ValueError as e:
-        raise HTTPException(404,str(e))
-
+    try: return saas.resolve(tenant_id,system_id,service_id)
+    except PermissionError as e: raise HTTPException(403,str(e))
+    except ValueError as e: raise HTTPException(404,str(e))
 @app.post('/saas/provision')
 def saas_provision(req:SaaSProvisionRequest,x_braink_token:str|None=Header(default=None)):
     auth(x_braink_token)
-    try:
-        return saas.request_provisioning(ProvisioningIntent(**req.model_dump()))
-    except PermissionError as e:
-        raise HTTPException(403,str(e))
-    except ValueError as e:
-        raise HTTPException(404,str(e))
-
+    try: return saas.request_provisioning(ProvisioningIntent(**req.model_dump()))
+    except PermissionError as e: raise HTTPException(403,str(e))
+    except ValueError as e: raise HTTPException(404,str(e))
 @app.post('/saas/payments/verified-event')
 def saas_payment_event(req:SaaSPaymentEventRequest,x_braink_token:str|None=Header(default=None)):
     auth(x_braink_token)
-    try:
-        return saas.process_verified_payment_event(**req.model_dump())
-    except PermissionError as e:
-        raise HTTPException(403,str(e))
-    except ValueError as e:
-        raise HTTPException(404,str(e))
-
+    try: return saas.process_verified_payment_event(**req.model_dump())
+    except PermissionError as e: raise HTTPException(403,str(e))
+    except ValueError as e: raise HTTPException(404,str(e))
 @app.get('/saas/audit')
 def saas_audit(limit:int=100,x_braink_token:str|None=Header(default=None)):
-    auth(x_braink_token)
-    return {'events':saas.audit_events(limit)}
-
+    auth(x_braink_token); return {'events':saas.audit_events(limit)}
 @app.get('/saas/bindings')
 def saas_bindings(x_braink_token:str|None=Header(default=None)):
-    auth(x_braink_token)
-    return estate.status()
-
+    auth(x_braink_token); return estate.status()
 @app.post('/saas/provision-plan')
 def saas_provision_plan(req:SaaSProvisionRequest,x_braink_token:str|None=Header(default=None)):
     auth(x_braink_token)
-    try:
-        saas.resolve(req.tenant_id,req.system_id,req.service_id)
-    except PermissionError as e:
-        raise HTTPException(403,str(e))
-    except ValueError as e:
-        raise HTTPException(404,str(e))
+    try: saas.resolve(req.tenant_id,req.system_id,req.service_id)
+    except PermissionError as e: raise HTTPException(403,str(e))
+    except ValueError as e: raise HTTPException(404,str(e))
     return estate.provisioning_plan(tenant_id=req.tenant_id,system_id=req.system_id,service_id=req.service_id,plan=req.plan)
-
 @app.post('/saas/actuate-fabric')
 def saas_actuate_fabric(x_braink_token:str|None=Header(default=None)):
-    auth(x_braink_token)
-    result=estate.actuate_fabric()
-    if result.get('status') != 'PASS':
-        raise HTTPException(409,result)
+    auth(x_braink_token); result=estate.actuate_fabric()
+    if result.get('status') != 'PASS': raise HTTPException(409,result)
     return result
