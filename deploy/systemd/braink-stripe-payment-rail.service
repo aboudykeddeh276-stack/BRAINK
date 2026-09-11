@@ -1,0 +1,25 @@
+[Unit]
+Description=BRAINK Stripe Payment Rail via KEX
+After=network.target kex-capability-runner.service
+Requires=kex-capability-runner.service
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/braink
+Environment=BRAINK_STRIPE_SOCKET=/run/keddeh/braink-stripe.sock
+Environment=KEX_RUNNER_SOCKET=/run/keddeh/kex-runner.sock
+Environment=KEX_PAYMENT_CAPABILITY=kex://secrets/stripe/payment-rail
+Environment=KEX_PAYMENT_CALLER_ID=service://braink/stripe-payment-rail
+ExecStart=/usr/bin/python3 /opt/braink/runtime/stripe_payment_rail.py
+Restart=on-failure
+RestartSec=2
+RuntimeDirectory=keddeh
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/run/keddeh
+RestrictAddressFamilies=AF_UNIX
+
+[Install]
+WantedBy=multi-user.target
