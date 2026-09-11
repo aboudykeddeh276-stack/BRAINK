@@ -9,6 +9,7 @@ import socket
 SOCKET = os.environ.get("BRAINK_STRIPE_SOCKET", "/tmp/braink-stripe.sock")
 KEX_RUNNER_SOCKET = os.environ.get("KEX_RUNNER_SOCKET", "/run/keddeh/kex-runner.sock")
 KEX_PAYMENT_CAPABILITY = os.environ.get("KEX_PAYMENT_CAPABILITY", "kex://secrets/stripe/payment-rail")
+KEX_CALLER_ID = os.environ.get("KEX_PAYMENT_CALLER_ID", "service://braink/stripe-payment-rail")
 
 
 def reply(c: socket.socket, obj: dict) -> None:
@@ -28,27 +29,19 @@ def _recv_line(c: socket.socket) -> bytes:
 
 
 def kex_execute(operation: str, payload: dict) -> dict:
-    """Execute a payment operation inside the KEX authority boundary.
-
-    This process never reads, receives, logs, serializes, or persists Stripe
-    secret material. The KEX runner/auth layer owns secret resolution and
-    performs the provider operation. Only a sanitized operation result may
-    cross back into the SaaS/payment projection.
-    """
     request = {
         "op": "EXECUTE_CAPABILITY",
+        "caller": KEX_CALLER_ID,
         "capability": KEX_PAYMENT_CAPABILITY,
         "operation": operation,
         "payload": payload,
         "result_policy": "SANITIZED_NO_SECRET_MATERIAL",
     }
-
     with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as s:
         s.settimeout(25)
         s.connect(KEX_RUNNER_SOCKET)
         s.sendall((json.dumps(request, separators=(",", ":")) + "\n").encode())
         raw = _recv_line(s)
-
     if not raw:
         raise RuntimeError("KEX_RUNNER_EMPTY_RESPONSE")
     result = json.loads(raw.decode())
@@ -73,7 +66,11 @@ def create_checkout(req: dict) -> dict:
     out = result.get("result") or {}
     if not out.get("checkout_url") or not out.get("session_id"):
         raise RuntimeError("KEX_STRIPE_CHECKOUT_RESULT_INCOMPLETE")
-    return {"checkout_url": out["checkout_url"], "session_id": out["session_id"]}
+    return {
+        "checkout_url": out["checkout_url"],
+        "session_id": out["session_id"],
+        "kex_receipt_id": result.get("receipt_id"),
+    }
 
 
 def verify_webhook(payload: bytes, sig_header: str) -> dict:
@@ -94,18 +91,14 @@ def handle(c: socket.socket) -> None:
     line = _recv_line(c)
     if not line:
         return reply(c, {"status": "REJECTED", "error": "EMPTY_REQUEST"})
-
     req = json.loads(line.decode())
     op = req.get("op")
-
     if op == "CREATE_CHECKOUT":
         return reply(c, {"status": "PASS", **create_checkout(req.get("request") or {})})
-
     if op == "WEBHOOK":
         payload = base64.b64decode(req.get("payload_b64", ""), validate=True)
         event = verify_webhook(payload, req.get("stripe_signature", ""))
         return reply(c, {"status": "PASS", "event": event})
-
     return reply(c, {"status": "REJECTED", "error": "UNKNOWN_OPERATION"})
 
 
@@ -114,18 +107,15 @@ def main() -> None:
         os.unlink(SOCKET)
     except FileNotFoundError:
         pass
-
     s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
     s.bind(SOCKET)
     os.chmod(SOCKET, 0o660)
     s.listen(32)
-
     while True:
         c, _ = s.accept()
         try:
             handle(c)
         except Exception as e:
-            # Never include provider credentials or KEX-resolved secret material.
             reply(c, {"status": "REJECTED", "error": type(e).__name__ + ":" + str(e)})
         finally:
             c.close()
