@@ -25,6 +25,9 @@ def transport(secret, path, form):
     assert secret == "sk_test_INTERNAL_ONLY"
     assert path == "/v1/checkout/sessions"
     assert form["metadata[tenant_id]"] == "TENANT-1"
+    assert form["metadata[system_id]"] == "braink"
+    assert form["metadata[service_id]"] == "svc"
+    assert form["metadata[plan]"] == "pro"
     return {"id": "cs_test_123", "url": "https://checkout.stripe.com/c/pay/cs_test_123"}
 
 
@@ -44,14 +47,28 @@ with tempfile.TemporaryDirectory() as td:
     denied = runner.execute({**base, "caller": "service://evil", "operation": "STRIPE_CREATE_CHECKOUT", "payload": {}})
     assert denied["status"] == "REJECTED"
 
+    incomplete = runner.execute({
+        **base,
+        "operation": "STRIPE_CREATE_CHECKOUT",
+        "payload": {"tenant_id": "TENANT-1", "service_id": "svc", "plan": "price_missing_system"},
+    })
+    assert incomplete["status"] == "REJECTED"
+    assert incomplete["error"] == "STRIPE_SAAS_ROUTE_REQUIRED"
+
     checkout = runner.execute({
         **base,
         "operation": "STRIPE_CREATE_CHECKOUT",
         "payload": {
             "domain": "braink.com.au",
             "tenant_id": "TENANT-1",
+            "system_id": "braink",
             "service_id": "svc",
-            "plan": {"unit_amount": 1000, "currency": "aud", "mode": "payment"},
+            "plan": {
+                "plan_id": "pro",
+                "unit_amount": 1000,
+                "currency": "aud",
+                "mode": "payment",
+            },
         },
     })
     assert checkout["status"] == "PASS"
@@ -66,7 +83,12 @@ with tempfile.TemporaryDirectory() as td:
             "id": "cs_test_123",
             "customer": "cus_1",
             "payment_status": "paid",
-            "metadata": {"tenant_id": "TENANT-1"},
+            "metadata": {
+                "tenant_id": "TENANT-1",
+                "system_id": "braink",
+                "service_id": "svc",
+                "plan": "pro",
+            },
             "secret": "MUST_NOT_ESCAPE",
         }},
     }, separators=(",", ":")).encode()
@@ -84,6 +106,13 @@ with tempfile.TemporaryDirectory() as td:
     rendered = json.dumps(webhook)
     assert "INTERNAL_ONLY" not in rendered
     assert "MUST_NOT_ESCAPE" not in rendered
+    metadata = webhook["result"]["event"]["data"]["object"]["metadata"]
+    assert metadata == {
+        "tenant_id": "TENANT-1",
+        "system_id": "braink",
+        "service_id": "svc",
+        "plan": "pro",
+    }
     assert webhook["result"]["event"]["data"]["object"]["payment_status"] == "paid"
     ledger = (Path(td) / "ledger.jsonl").read_text()
     assert "INTERNAL_ONLY" not in ledger
