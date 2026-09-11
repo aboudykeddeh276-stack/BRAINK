@@ -1,0 +1,14 @@
+{
+  "release": "KEDDEH_QUARANTINED_SAAS_INTEGRATION_R2",
+  "qualification": {
+    "pytest": "4 passed in 0.27s",
+    "compileall": "PASS",
+    "local_http_probe": "PASS",
+    "receipt_chain": true,
+    "payment_idempotency": "PASS",
+    "restart_persistence": "PASS",
+    "dntg_to_saas_mutation": "DENIED_AS_REQUIRED",
+    "fresh_dependency_install": "BLOCKED_IN_LOCAL_EXECUTION_ENVIRONMENT_NO_PACKAGE_REGISTRY_NETWORK"
+  },
+  "boundary": "No public/provider deployment is inferred from local qualification. GitHub CI is responsible for fresh dependency installation and repository-side regression verification."
+}
