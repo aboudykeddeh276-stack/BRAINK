@@ -72,14 +72,21 @@ BLADES: tuple[BladePorts, ...] = tuple(
 )
 
 PROVIDERS: dict[str, ProviderProfile] = {
-    "VIABTC": ProviderProfile(
-        name="VIABTC",
+    "VIABTC_BTC": ProviderProfile(
+        name="VIABTC_BTC",
         algorithm="SHA-256",
         endpoints=(
             ProviderEndpoint("primary", "btc.viabtc.io", 3333),
             ProviderEndpoint("failover", "btc.viabtc.io", 443),
             ProviderEndpoint("regional", "btc.viabtc.top", 3333),
         ),
+        worker_template="{account}.blade{index:02d}",
+        password_env="BRAINK_POOL_PASSWORD",
+    ),
+    "CUSTOM_STRATUM": ProviderProfile(
+        name="CUSTOM_STRATUM",
+        algorithm="SHA-256",
+        endpoints=(),
         worker_template="{account}.blade{index:02d}",
         password_env="BRAINK_POOL_PASSWORD",
     ),
@@ -92,6 +99,16 @@ PROVIDERS: dict[str, ProviderProfile] = {
         session_extranonce_owner="LOCAL_SOLO_MINER_RUNTIME",
     ),
 }
+
+PROVIDER_ALIASES = {
+    "VIABTC": "VIABTC_BTC",
+    "BTC_AUTO": "VIABTC_BTC",
+}
+
+
+def normalize_provider(provider_name: str) -> str:
+    key = provider_name.strip().upper()
+    return PROVIDER_ALIASES.get(key, key)
 
 
 def validate_port_matrix(blades: Iterable[BladePorts] = BLADES) -> dict:
@@ -137,25 +154,43 @@ def validate_port_matrix(blades: Iterable[BladePorts] = BLADES) -> dict:
     }
 
 
+def _provider_endpoints(provider: ProviderProfile) -> list[dict]:
+    if provider.name != "CUSTOM_STRATUM":
+        return [asdict(e) for e in provider.endpoints]
+    host = os.getenv("BRAINK_POOL_HOST", "").strip()
+    if not host:
+        return []
+    try:
+        port = int(os.getenv("BRAINK_POOL_PORT", "3333"))
+    except ValueError:
+        port = 3333
+    tls = os.getenv("BRAINK_POOL_TLS", "false").strip().lower() in {"1", "true", "yes", "on"}
+    return [{"name": "operator", "host": host, "port": port, "tls": tls}]
+
+
 def render_operator_manifest(provider_name: str, account: str) -> dict:
-    key = provider_name.strip().upper()
+    key = normalize_provider(provider_name)
     provider = PROVIDERS.get(key)
     if provider is None:
         raise KeyError(f"UNKNOWN_PROVIDER:{key}")
-    password_state = "BOUND_FROM_ENV" if os.getenv(provider.password_env) else "UNBOUND_SECRET"
+    password_state = "BOUND_FROM_ENV" if (
+        os.getenv("BRAINK_STRATUM_PASSWORD", "").strip()
+        or os.getenv(provider.password_env, "").strip()
+    ) else "UNBOUND_SECRET"
+    endpoints = _provider_endpoints(provider)
     workers = []
     for index, blade in enumerate(BLADES, start=1):
         workers.append({
             **asdict(blade),
             "worker": provider.worker_template.format(account=account, index=index),
             "provider": key,
-            "provider_endpoints": [asdict(e) for e in provider.endpoints],
+            "provider_endpoints": endpoints,
             "provider_password": password_state,
             "local_nonce_partition": blade.local_nonce_slice,
             "stratum_session_extranonce": provider.session_extranonce_owner,
         })
     return {
-        "schema": "braink.kex.mining-orchestration.v1",
+        "schema": "braink.kex.mining-orchestration.v2",
         "authority": os.getenv("BRAINK_OPERATOR_AUTHORITY", "USER_OPERATOR"),
         "provider_role": "EXTERNAL_PROFILE",
         "provider": key,
@@ -174,7 +209,7 @@ def render_operator_manifest(provider_name: str, account: str) -> dict:
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--provider", default=os.getenv("BRAINK_MINING_PROVIDER", "VIABTC"))
+    parser.add_argument("--provider", default=os.getenv("BRAINK_MINING_PROVIDER", "VIABTC_BTC"))
     parser.add_argument("--account", default=os.getenv("BRAINK_MINING_ACCOUNT", "aboudykeddeh276"))
     parser.add_argument("--out", default=os.getenv("BRAINK_MINING_MANIFEST", "./data/mining_orchestration_manifest.json"))
     args = parser.parse_args()
