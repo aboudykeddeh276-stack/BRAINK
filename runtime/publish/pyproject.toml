@@ -4,14 +4,15 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "braink-runtime"
-version = "0.2.3"
-description = "Typed BRAINK/KEX runtime, cascade, ledger, registry and connector control plane"
+version = "0.2.4"
+description = "Typed BRAINK/KEX runtime, cascade, ledger, registry, connector control plane and CasePath payment projection"
 requires-python = ">=3.11"
 dependencies = [
   "fastapi>=0.115",
   "uvicorn>=0.30",
   "pydantic>=2.8",
   "openpyxl>=3.1.5",
+  "stripe>=13.0",
 ]
 
 [project.optional-dependencies]
