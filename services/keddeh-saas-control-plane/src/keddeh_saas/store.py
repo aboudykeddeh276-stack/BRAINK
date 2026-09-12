@@ -32,6 +32,13 @@ CREATE TABLE IF NOT EXISTS receipts (
   payload_hash TEXT NOT NULL, previous_hash TEXT NOT NULL, receipt_hash TEXT NOT NULL UNIQUE,
   observed_at_ns INTEGER NOT NULL
 );
+CREATE TABLE IF NOT EXISTS braink_evidence_sync (
+  receipt_hash TEXT PRIMARY KEY REFERENCES receipts(receipt_hash),
+  state TEXT NOT NULL,
+  event_root TEXT,
+  last_error TEXT,
+  updated_at_ns INTEGER NOT NULL
+);
 """
 
 class ControlPlaneStore:
@@ -56,7 +63,39 @@ class ControlPlaneStore:
         body = {"seq":next_seq,"event":event,"subject":subject,"payload_hash":payload_hash,"previous_hash":previous,"observed_at_ns":observed}
         receipt_hash = hashlib.sha256(self._canonical(body)).hexdigest()
         self.conn.execute("INSERT INTO receipts(seq,event,subject,payload_hash,previous_hash,receipt_hash,observed_at_ns) VALUES(?,?,?,?,?,?,?)", (next_seq,event,subject,payload_hash,previous,receipt_hash,observed))
+        self.conn.execute(
+            "INSERT OR IGNORE INTO braink_evidence_sync(receipt_hash,state,event_root,last_error,updated_at_ns) VALUES(?,?,?,?,?)",
+            (receipt_hash,"PENDING",None,None,time.time_ns()),
+        )
         return {**body,"receipt_hash":receipt_hash}
+
+    def mark_braink_evidence_synced(self, receipt_hash: str, event_root: str) -> dict[str, Any]:
+        with self.lock:
+            self.conn.execute(
+                "UPDATE braink_evidence_sync SET state='SYNCED',event_root=?,last_error=NULL,updated_at_ns=? WHERE receipt_hash=?",
+                (event_root,time.time_ns(),receipt_hash),
+            )
+            row=self.conn.execute("SELECT * FROM braink_evidence_sync WHERE receipt_hash=?",(receipt_hash,)).fetchone()
+            if not row: raise KeyError("LOCAL_RECEIPT_NOT_FOUND")
+            return dict(row)
+
+    def mark_braink_evidence_failed(self, receipt_hash: str, error: str) -> dict[str, Any]:
+        with self.lock:
+            self.conn.execute(
+                "UPDATE braink_evidence_sync SET state='FAILED',last_error=?,updated_at_ns=? WHERE receipt_hash=?",
+                (error,time.time_ns(),receipt_hash),
+            )
+            row=self.conn.execute("SELECT * FROM braink_evidence_sync WHERE receipt_hash=?",(receipt_hash,)).fetchone()
+            if not row: raise KeyError("LOCAL_RECEIPT_NOT_FOUND")
+            return dict(row)
+
+    def pending_braink_evidence(self) -> list[dict[str, Any]]:
+        rows=self.conn.execute(
+            """SELECT r.*,s.state AS braink_state,s.event_root,s.last_error,s.updated_at_ns AS braink_updated_at_ns
+               FROM receipts r JOIN braink_evidence_sync s ON s.receipt_hash=r.receipt_hash
+               WHERE s.state!='SYNCED' ORDER BY r.seq"""
+        ).fetchall()
+        return [dict(r) for r in rows]
 
     def create_tenant(self, product: str, display_name: str) -> tuple[dict, dict]:
         with self.lock:
@@ -115,8 +154,11 @@ class ControlPlaneStore:
         return True
 
     def snapshot(self) -> dict[str, Any]:
+        sync_counts={r["state"]:r["count"] for r in self.conn.execute("SELECT state,COUNT(*) AS count FROM braink_evidence_sync GROUP BY state")}
         return {
           "counts": {"tenants":self.conn.execute("SELECT COUNT(*) FROM tenants").fetchone()[0],"identities":self.conn.execute("SELECT COUNT(*) FROM identities").fetchone()[0],"entitlements":self.conn.execute("SELECT COUNT(*) FROM entitlements").fetchone()[0],"jobs":self.conn.execute("SELECT COUNT(*) FROM jobs").fetchone()[0],"receipts":self.conn.execute("SELECT COUNT(*) FROM receipts").fetchone()[0]},
           "receipts":[dict(r) for r in self.conn.execute("SELECT * FROM receipts ORDER BY seq")],
-          "chain_valid":self.verify_chain()
+          "chain_valid":self.verify_chain(),
+          "braink_evidence_sync_counts":sync_counts,
+          "braink_evidence_pending":self.pending_braink_evidence(),
         }
