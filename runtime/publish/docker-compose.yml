@@ -3,6 +3,7 @@ services:
     build: .
     environment:
       BRAINK_DATA_DIR: /data
+      BRAINK_OPERATOR_AUTHORITY: ${BRAINK_OPERATOR_AUTHORITY:-USER_OPERATOR}
       BRAINK_AUTH_TOKEN: ${BRAINK_AUTH_TOKEN:-change-me}
       BRAINK_TIMEZONE: ${BRAINK_TIMEZONE:-Australia/Adelaide}
       BRAINK_GOOGLE_CREDENTIALS: ${BRAINK_GOOGLE_CREDENTIALS:-/secrets/credentials.json}
@@ -30,6 +31,7 @@ services:
         condition: service_healthy
     environment:
       BRAINK_DATA_DIR: /data
+      BRAINK_OPERATOR_AUTHORITY: ${BRAINK_OPERATOR_AUTHORITY:-USER_OPERATOR}
       BRAINK_LOCAL_URL: http://braink-runtime:8000
       BRAINK_AUTH_TOKEN: ${BRAINK_AUTH_TOKEN:-change-me}
     volumes:
