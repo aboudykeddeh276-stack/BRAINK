@@ -16,15 +16,37 @@ class StratumEndpoint:
     port: int
     tls: bool = False
     purpose: str = "BTC"
+    authority: str = "VIABTC_OFFICIAL"
 
 
+# ViaBTC-published BTC endpoint set. Canonical identity stays in BRAINK/KEX;
+# these are provider projections and may change independently.
 VIABTC_ENDPOINTS: dict[str, StratumEndpoint] = {
-    "BTC_PRIMARY": StratumEndpoint("BTC_PRIMARY", "btc.viabtc.io", 3333, False, "BTC"),
-    "BTC_FAILOVER": StratumEndpoint("BTC_FAILOVER", "btc.viabtc.io", 443, False, "BTC"),
-    "BTC_SSL": StratumEndpoint("BTC_SSL", "btc-ssl.viabtc.io", 551, True, "BTC"),
+    "BTC_GLOBAL_IO": StratumEndpoint("BTC_GLOBAL_IO", "btc.viabtc.io", 3333),
+    "BTC_GLOBAL_IO_FAILOVER": StratumEndpoint("BTC_GLOBAL_IO_FAILOVER", "btc.viabtc.io", 443),
+    "BTC_GLOBAL_CC": StratumEndpoint("BTC_GLOBAL_CC", "btc.viabtc.cc", 3333),
+    "BTC_GLOBAL_CC_FAILOVER": StratumEndpoint("BTC_GLOBAL_CC_FAILOVER", "btc.viabtc.cc", 443),
+    "BTC_GLOBAL_TOP": StratumEndpoint("BTC_GLOBAL_TOP", "btc.viabtc.top", 3333),
+    "BTC_GLOBAL_TOP_FAILOVER": StratumEndpoint("BTC_GLOBAL_TOP_FAILOVER", "btc.viabtc.top", 443),
+    "BTC_EU": StratumEndpoint("BTC_EU", "btc.powhashing.com", 3333),
+    "BTC_EU_FAILOVER": StratumEndpoint("BTC_EU_FAILOVER", "btc.powhashing.com", 443),
+    "BTC_SSL_IO": StratumEndpoint("BTC_SSL_IO", "btc-ssl.viabtc.io", 551, True),
+    "BTC_SSL_EU": StratumEndpoint("BTC_SSL_EU", "btc-ssl.powhashing.com", 3333, True),
+    # Preserve the workbook's Smart Mining target as a distinct provider profile.
     "SMART_PRIMARY": StratumEndpoint("SMART_PRIMARY", "bitcoin.viabtc.io", 3333, False, "SMART_MINING"),
     "SMART_FAILOVER": StratumEndpoint("SMART_FAILOVER", "bitcoin.viabtc.io", 443, False, "SMART_MINING"),
 }
+
+BTC_FAILOVER_ORDER = (
+    "BTC_GLOBAL_IO",
+    "BTC_GLOBAL_IO_FAILOVER",
+    "BTC_GLOBAL_CC",
+    "BTC_GLOBAL_CC_FAILOVER",
+    "BTC_GLOBAL_TOP",
+    "BTC_GLOBAL_TOP_FAILOVER",
+    "BTC_EU",
+    "BTC_EU_FAILOVER",
+)
 
 
 class StratumProtocolError(RuntimeError):
@@ -60,10 +82,13 @@ async def probe_stratum(
     """
     started_ns = time.time_ns()
     ssl_ctx = ssl.create_default_context() if endpoint.tls else None
-    reader: asyncio.StreamReader
-    writer: asyncio.StreamWriter
     reader, writer = await asyncio.wait_for(
-        asyncio.open_connection(endpoint.host, endpoint.port, ssl=ssl_ctx, server_hostname=endpoint.host if endpoint.tls else None),
+        asyncio.open_connection(
+            endpoint.host,
+            endpoint.port,
+            ssl=ssl_ctx,
+            server_hostname=endpoint.host if endpoint.tls else None,
+        ),
         timeout=timeout_s,
     )
     sock = writer.get_extra_info("socket")
@@ -73,8 +98,7 @@ async def probe_stratum(
 
     events: list[dict[str, Any]] = []
     subscribe_id = 1
-    subscribe = {"id": subscribe_id, "method": "mining.subscribe", "params": [user_agent]}
-    writer.write((json.dumps(subscribe, separators=(",", ":")) + "\n").encode("utf-8"))
+    writer.write((json.dumps({"id": subscribe_id, "method": "mining.subscribe", "params": [user_agent]}, separators=(",", ":")) + "\n").encode("utf-8"))
     await writer.drain()
 
     subscription_result: Any = None
@@ -100,9 +124,7 @@ async def probe_stratum(
                 extranonce2_size = None
 
         if worker_name:
-            authorize_id = 2
-            authorize = {"id": authorize_id, "method": "mining.authorize", "params": [worker_name, password]}
-            writer.write((json.dumps(authorize, separators=(",", ":")) + "\n").encode("utf-8"))
+            writer.write((json.dumps({"id": 2, "method": "mining.authorize", "params": [worker_name, password]}, separators=(",", ":")) + "\n").encode("utf-8"))
             await writer.drain()
 
         deadline = asyncio.get_running_loop().time() + max(0.0, observe_s)
@@ -132,7 +154,7 @@ async def probe_stratum(
             pass
 
     return {
-        "schema": "braink.kex.stratum.session-receipt.v1",
+        "schema": "braink.kex.stratum.session-receipt.v2",
         "status": "SESSION_ESTABLISHED",
         "endpoint": asdict(endpoint),
         "transport": "TLS" if endpoint.tls else "TCP",
@@ -152,3 +174,33 @@ async def probe_stratum(
         "started_ns": started_ns,
         "completed_ns": time.time_ns(),
     }
+
+
+async def probe_btc_with_failover(
+    *,
+    worker_name: str | None = None,
+    password: str = "x",
+    timeout_s: float = 4.0,
+    observe_s: float = 2.0,
+) -> dict[str, Any]:
+    """Try ViaBTC's published BTC endpoints in deterministic failover order."""
+    failures: list[dict[str, str]] = []
+    for profile in BTC_FAILOVER_ORDER:
+        endpoint = VIABTC_ENDPOINTS[profile]
+        try:
+            receipt = await probe_stratum(
+                endpoint,
+                worker_name=worker_name,
+                password=password,
+                timeout_s=timeout_s,
+                observe_s=observe_s,
+            )
+            receipt["failover"] = {
+                "selected_profile": profile,
+                "attempted_profiles": [f["profile"] for f in failures] + [profile],
+                "prior_failures": failures,
+            }
+            return receipt
+        except Exception as exc:
+            failures.append({"profile": profile, "error": f"{type(exc).__name__}:{exc}"})
+    raise ConnectionError(json.dumps({"status": "ALL_VIABTC_BTC_ENDPOINTS_FAILED", "failures": failures}, separators=(",", ":")))
