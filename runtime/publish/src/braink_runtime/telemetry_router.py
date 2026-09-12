@@ -6,7 +6,7 @@ from pydantic import BaseModel
 
 from .telemetry import TelemetryFabric
 from .telemetry_google_projection import SheetProjectionConfig, project_snapshot
-from .stratum_carrier import VIABTC_ENDPOINTS, probe_stratum
+from .stratum_carrier import VIABTC_ENDPOINTS, probe_btc_with_failover, probe_stratum
 
 
 class TelemetryIngestRequest(BaseModel):
@@ -23,7 +23,7 @@ class TelemetryIngestRequest(BaseModel):
 
 
 class StratumProbeRequest(BaseModel):
-    endpoint_profile: str = "BTC_PRIMARY"
+    endpoint_profile: str = "BTC_AUTO"
     observe_s: float = 2.0
     timeout_s: float = 4.0
 
@@ -55,27 +55,41 @@ def build_telemetry_router(*, data_dir: str, auth_token: str) -> APIRouter:
 
     @router.post("/stratum-probe")
     async def stratum_probe(req: StratumProbeRequest, x_braink_token: str | None = Header(default=None)):
-        """Open a read-only Stratum session against an approved ViaBTC profile.
+        """Open a read-only Stratum session against ViaBTC.
 
-        The endpoint profile is selected from a fixed registry to prevent arbitrary
-        network targets. Worker credentials are host-owned environment bindings.
-        No mining.submit call is made by this actuator.
+        BTC_AUTO follows the deterministic failover order derived from ViaBTC's
+        published BTC pool addresses. Explicit profiles remain available for
+        diagnostics. Worker credentials are host-owned. No mining.submit occurs.
         """
         require_auth(x_braink_token)
         profile = req.endpoint_profile.strip().upper()
-        endpoint = VIABTC_ENDPOINTS.get(profile)
-        if endpoint is None:
-            raise HTTPException(400, {"status": "UNKNOWN_STRATUM_PROFILE", "allowed": sorted(VIABTC_ENDPOINTS)})
         worker_name = os.getenv("BRAINK_STRATUM_WORKER", "").strip() or None
         password = os.getenv("BRAINK_STRATUM_PASSWORD", "x")
+        observe_s = max(0.1, min(req.observe_s, 10.0))
+        timeout_s = max(0.5, min(req.timeout_s, 10.0))
         try:
+            if profile == "BTC_AUTO":
+                return await probe_btc_with_failover(
+                    worker_name=worker_name,
+                    password=password,
+                    observe_s=observe_s,
+                    timeout_s=timeout_s,
+                )
+            endpoint = VIABTC_ENDPOINTS.get(profile)
+            if endpoint is None:
+                raise HTTPException(400, {
+                    "status": "UNKNOWN_STRATUM_PROFILE",
+                    "allowed": ["BTC_AUTO", *sorted(VIABTC_ENDPOINTS)],
+                })
             return await probe_stratum(
                 endpoint,
                 worker_name=worker_name,
                 password=password,
-                observe_s=max(0.1, min(req.observe_s, 10.0)),
-                timeout_s=max(0.5, min(req.timeout_s, 10.0)),
+                observe_s=observe_s,
+                timeout_s=timeout_s,
             )
+        except HTTPException:
+            raise
         except Exception as exc:
             raise HTTPException(502, {
                 "status": "STRATUM_SESSION_FAILED",
@@ -85,11 +99,6 @@ def build_telemetry_router(*, data_dir: str, auth_token: str) -> APIRouter:
 
     @router.post("/google-project")
     def google_project(x_braink_token: str | None = Header(default=None)):
-        """Push canonical BRAINK telemetry into the configured Google Sheet.
-
-        Google credentials remain host-owned. Successful projection proves only a
-        Sheets mutation/readback; it does not promote transport or mining claims.
-        """
         require_auth(x_braink_token)
         credentials_file = (
             os.getenv("BRAINK_GOOGLE_CREDENTIALS", "").strip()
