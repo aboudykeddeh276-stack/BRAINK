@@ -6,6 +6,11 @@ on:
       - 'runtime/host_control/**'
       - 'deploy/systemd/braink-desktop-commander@.service'
       - 'deploy/install_braink_host_control.sh'
+      - 'deploy/braink_saas_supervisor.py'
+      - 'runtime/publish/src/braink_runtime/casepath_app.py'
+      - 'runtime/publish/src/braink_runtime/telemetry.py'
+      - 'runtime/publish/src/braink_runtime/telemetry_router.py'
+      - 'runtime/publish/src/braink_runtime/casepath_stripe.py'
       - 'integrations/desktop_commander/**'
       - '.kex/runner-control-plane.json'
       - '.github/workflows/braink-host-activation.yml'
@@ -26,11 +31,24 @@ jobs:
           python -m py_compile runtime/host_control/braink_host_fabric.py
           python -m py_compile runtime/host_control/braink_host_activation.py
           python -m py_compile runtime/host_control/braink_dc_remote_probe.py
+          python -m py_compile deploy/braink_saas_supervisor.py
       - name: Deterministic host-control tests
         run: |
           python -m runtime.host_control.braink_host_fabric --self-test
           python -m runtime.host_control.braink_host_activation --self-test
           python -m runtime.host_control.braink_dc_remote_probe --self-test
+      - name: Validate resident runtime entrypoint
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          supervisor=Path('deploy/braink_saas_supervisor.py').read_text()
+          casepath=Path('runtime/publish/src/braink_runtime/casepath_app.py').read_text()
+          assert 'braink_runtime.casepath_app:app' in supervisor
+          assert 'braink_runtime.app:app' not in supervisor
+          assert 'build_telemetry_router' in casepath
+          assert 'build_router(saas=saas, catalog=catalog)' in casepath
+          print('RESIDENT_RUNTIME_ENTRYPOINT_PASS')
+          PY
       - name: Validate external carrier proof boundary
         run: |
           python - <<'PY'
