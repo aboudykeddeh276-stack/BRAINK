@@ -1,0 +1,28 @@
+[Unit]
+Description=KEX Stripe Payment Rail Capability Runner
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=braink
+Group=braink
+WorkingDirectory=/opt/braink/runtime/publish
+Environment=PYTHONUNBUFFERED=1
+Environment=KEX_STRIPE_SOCKET=/run/keddeh/kex-runner.sock
+Environment=KEX_STRIPE_LEDGER=/var/lib/braink/kex/stripe-capability-ledger.jsonl
+EnvironmentFile=-/etc/braink/kex-stripe.env
+ExecStart=/opt/braink/runtime/publish/.venv/bin/python -m braink_runtime.kex_stripe_runner
+Restart=on-failure
+RestartSec=2
+RuntimeDirectory=keddeh
+RuntimeDirectoryMode=0770
+StateDirectory=braink/kex
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/run/keddeh /var/lib/braink/kex
+
+[Install]
+WantedBy=multi-user.target
