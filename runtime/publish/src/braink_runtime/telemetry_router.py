@@ -6,6 +6,7 @@ from pydantic import BaseModel
 
 from .telemetry import TelemetryFabric
 from .telemetry_google_projection import SheetProjectionConfig, project_snapshot
+from .stratum_carrier import VIABTC_ENDPOINTS, probe_stratum
 
 
 class TelemetryIngestRequest(BaseModel):
@@ -19,6 +20,12 @@ class TelemetryIngestRequest(BaseModel):
     carrier_uri: str = "carrier://tl2"
     source_kind: str = "CARRIER_READBACK"
     observed_ns: int | None = None
+
+
+class StratumProbeRequest(BaseModel):
+    endpoint_profile: str = "BTC_PRIMARY"
+    observe_s: float = 2.0
+    timeout_s: float = 4.0
 
 
 def build_telemetry_router(*, data_dir: str, auth_token: str) -> APIRouter:
@@ -45,6 +52,36 @@ def build_telemetry_router(*, data_dir: str, auth_token: str) -> APIRouter:
     def sheet_projection(x_braink_token: str | None = Header(default=None)):
         require_auth(x_braink_token)
         return {"rows": fabric.sheet_projection()}
+
+    @router.post("/stratum-probe")
+    async def stratum_probe(req: StratumProbeRequest, x_braink_token: str | None = Header(default=None)):
+        """Open a read-only Stratum session against an approved ViaBTC profile.
+
+        The endpoint profile is selected from a fixed registry to prevent arbitrary
+        network targets. Worker credentials are host-owned environment bindings.
+        No mining.submit call is made by this actuator.
+        """
+        require_auth(x_braink_token)
+        profile = req.endpoint_profile.strip().upper()
+        endpoint = VIABTC_ENDPOINTS.get(profile)
+        if endpoint is None:
+            raise HTTPException(400, {"status": "UNKNOWN_STRATUM_PROFILE", "allowed": sorted(VIABTC_ENDPOINTS)})
+        worker_name = os.getenv("BRAINK_STRATUM_WORKER", "").strip() or None
+        password = os.getenv("BRAINK_STRATUM_PASSWORD", "x")
+        try:
+            return await probe_stratum(
+                endpoint,
+                worker_name=worker_name,
+                password=password,
+                observe_s=max(0.1, min(req.observe_s, 10.0)),
+                timeout_s=max(0.5, min(req.timeout_s, 10.0)),
+            )
+        except Exception as exc:
+            raise HTTPException(502, {
+                "status": "STRATUM_SESSION_FAILED",
+                "endpoint_profile": profile,
+                "error": f"{type(exc).__name__}:{exc}",
+            }) from exc
 
     @router.post("/google-project")
     def google_project(x_braink_token: str | None = Header(default=None)):
