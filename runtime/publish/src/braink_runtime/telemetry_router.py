@@ -6,7 +6,7 @@ from pydantic import BaseModel
 
 from .telemetry import TelemetryFabric
 from .telemetry_google_projection import SheetProjectionConfig, project_snapshot
-from .stratum_carrier import VIABTC_ENDPOINTS, probe_btc_with_failover, probe_stratum
+from .pool_carrier import PoolProfileError, available_pool_profiles, probe_provider
 
 
 class TelemetryIngestRequest(BaseModel):
@@ -23,7 +23,7 @@ class TelemetryIngestRequest(BaseModel):
 
 
 class StratumProbeRequest(BaseModel):
-    endpoint_profile: str = "BTC_AUTO"
+    endpoint_profile: str = "VIABTC_BTC"
     observe_s: float = 2.0
     timeout_s: float = 4.0
 
@@ -53,43 +53,38 @@ def build_telemetry_router(*, data_dir: str, auth_token: str) -> APIRouter:
         require_auth(x_braink_token)
         return {"rows": fabric.sheet_projection()}
 
+    @router.get("/pool-profiles")
+    def pool_profiles():
+        return {"profiles": available_pool_profiles(), "default": os.getenv("BRAINK_MINING_PROVIDER", "VIABTC_BTC")}
+
     @router.post("/stratum-probe")
     async def stratum_probe(req: StratumProbeRequest, x_braink_token: str | None = Header(default=None)):
-        """Open a read-only Stratum session against ViaBTC.
+        """Open a read-only Stratum session through a named external provider profile.
 
-        BTC_AUTO follows the deterministic failover order derived from ViaBTC's
-        published BTC pool addresses. Explicit profiles remain available for
-        diagnostics. Worker credentials are host-owned. No mining.submit occurs.
+        Provider identity is a projection. BRAINK/KEX remains canonical authority.
+        The probe may subscribe/authorize but never calls mining.submit.
         """
         require_auth(x_braink_token)
-        profile = req.endpoint_profile.strip().upper()
+        profile = req.endpoint_profile.strip().upper() or os.getenv("BRAINK_MINING_PROVIDER", "VIABTC_BTC")
         worker_name = os.getenv("BRAINK_STRATUM_WORKER", "").strip() or None
-        password = os.getenv("BRAINK_STRATUM_PASSWORD", "x")
+        password = os.getenv("BRAINK_STRATUM_PASSWORD", os.getenv("BRAINK_POOL_PASSWORD", "x"))
         observe_s = max(0.1, min(req.observe_s, 10.0))
         timeout_s = max(0.5, min(req.timeout_s, 10.0))
         try:
-            if profile == "BTC_AUTO":
-                return await probe_btc_with_failover(
-                    worker_name=worker_name,
-                    password=password,
-                    observe_s=observe_s,
-                    timeout_s=timeout_s,
-                )
-            endpoint = VIABTC_ENDPOINTS.get(profile)
-            if endpoint is None:
-                raise HTTPException(400, {
-                    "status": "UNKNOWN_STRATUM_PROFILE",
-                    "allowed": ["BTC_AUTO", *sorted(VIABTC_ENDPOINTS)],
-                })
-            return await probe_stratum(
-                endpoint,
+            return await probe_provider(
+                profile,
                 worker_name=worker_name,
                 password=password,
                 observe_s=observe_s,
                 timeout_s=timeout_s,
             )
-        except HTTPException:
-            raise
+        except PoolProfileError as exc:
+            raise HTTPException(400, {
+                "status": "UNKNOWN_POOL_PROFILE",
+                "requested": profile,
+                "allowed": available_pool_profiles(),
+                "error": str(exc),
+            }) from exc
         except Exception as exc:
             raise HTTPException(502, {
                 "status": "STRATUM_SESSION_FAILED",
