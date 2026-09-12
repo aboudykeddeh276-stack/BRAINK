@@ -48,26 +48,29 @@ def build_telemetry_router(*, data_dir: str, auth_token: str) -> APIRouter:
 
     @router.post("/google-project")
     def google_project(x_braink_token: str | None = Header(default=None)):
-        """Push canonical resident telemetry into the configured Google Sheet.
+        """Push canonical BRAINK telemetry into the configured Google Sheet.
 
-        This endpoint is deliberately fail-closed. The Google OAuth credential and
-        token files remain host-owned. A successful write proves only spreadsheet
-        projection/readback; it does not prove socket or mining authority.
+        Google credentials remain host-owned. Successful projection proves only a
+        Sheets mutation/readback; it does not promote transport or mining claims.
         """
         require_auth(x_braink_token)
-        credentials_file = os.getenv("BRAINK_GOOGLE_OAUTH_CLIENT_FILE", "").strip()
-        token_file = os.getenv("BRAINK_GOOGLE_OAUTH_TOKEN_FILE", "").strip()
+        credentials_file = (
+            os.getenv("BRAINK_GOOGLE_CREDENTIALS", "").strip()
+            or os.getenv("BRAINK_GOOGLE_OAUTH_CLIENT_FILE", "").strip()
+        )
+        token_file = (
+            os.getenv("BRAINK_GOOGLE_TOKEN", "").strip()
+            or os.getenv("BRAINK_GOOGLE_OAUTH_TOKEN_FILE", "").strip()
+        )
         spreadsheet_id = os.getenv("BRAINK_TELEMETRY_SPREADSHEET_ID", "").strip()
         target_range = os.getenv("BRAINK_TELEMETRY_RANGE", "TCP_SOCKET_TELEMETRY!B11:N17").strip()
-        missing = [
-            name
-            for name, value in (
-                ("BRAINK_GOOGLE_OAUTH_CLIENT_FILE", credentials_file),
-                ("BRAINK_GOOGLE_OAUTH_TOKEN_FILE", token_file),
-                ("BRAINK_TELEMETRY_SPREADSHEET_ID", spreadsheet_id),
-            )
-            if not value
-        ]
+        missing = []
+        if not credentials_file:
+            missing.append("BRAINK_GOOGLE_CREDENTIALS")
+        if not token_file:
+            missing.append("BRAINK_GOOGLE_TOKEN")
+        if not spreadsheet_id:
+            missing.append("BRAINK_TELEMETRY_SPREADSHEET_ID")
         if missing:
             raise HTTPException(503, {"status": "GOOGLE_PROJECTION_UNBOUND", "missing": missing})
         snap = fabric.snapshot()
