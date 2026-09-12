@@ -6,8 +6,11 @@ cd "$ROOT"
 
 export BRAINK_OPERATOR_AUTHORITY="${BRAINK_OPERATOR_AUTHORITY:-USER_OPERATOR}"
 export BRAINK_AUTH_TOKEN="${BRAINK_AUTH_TOKEN:-change-me}"
-export BRAINK_TELEMETRY_SPREADSHEET_ID="${BRAINK_TELEMETRY_SPREADSHEET_ID:-1nGeP43FHviLsVzM58Tp4RIMXG1MYs_51Wda8gtbfOVo}"
+export BRAINK_SOURCE_WORKBOOK_ID="${BRAINK_SOURCE_WORKBOOK_ID:-1nGeP43FHviLsVzM58Tp4RIMXG1MYs_51Wda8gtbfOVo}"
+export BRAINK_OPERATOR_WORKBOOK_ID="${BRAINK_OPERATOR_WORKBOOK_ID:-1CNKJvZonCk8MB4YRwSivTFKCcBe4v1sTgu92dDqnpWk}"
+export BRAINK_TELEMETRY_SPREADSHEET_ID="${BRAINK_TELEMETRY_SPREADSHEET_ID:-$BRAINK_OPERATOR_WORKBOOK_ID}"
 export BRAINK_TELEMETRY_RANGE="${BRAINK_TELEMETRY_RANGE:-TCP_SOCKET_TELEMETRY!B11:N17}"
+export BRAINK_NODE_STACK_PROFILE="${BRAINK_NODE_STACK_PROFILE:-SOFTWARE_CREATION_NODE}"
 export BRAINK_MINING_PROVIDER="${BRAINK_MINING_PROVIDER:-VIABTC_BTC}"
 export BRAINK_MINING_ACCOUNT="${BRAINK_MINING_ACCOUNT:-aboudykeddeh276}"
 export BRAINK_MINING_MANIFEST="${BRAINK_MINING_MANIFEST:-$ROOT/data/mining_orchestration_manifest.json}"
@@ -15,12 +18,18 @@ export BRAINK_HOST_NETWORK_MODE="${BRAINK_HOST_NETWORK_MODE:-validate}"
 
 printf 'BRAINK operator authority: %s\n' "$BRAINK_OPERATOR_AUTHORITY"
 printf 'Host: %s\n' "$(hostname)"
+printf 'Operator workbook: %s\n' "$BRAINK_OPERATOR_WORKBOOK_ID"
+printf 'Node stack profile: %s\n' "$BRAINK_NODE_STACK_PROFILE"
 printf 'Mining provider profile: %s\n' "$BRAINK_MINING_PROVIDER"
 printf 'Host network mode: %s\n' "$BRAINK_HOST_NETWORK_MODE"
 
-# Host-level validation/mutation must run on the operator host, never inside the
-# application container. PYTHONPATH points at the resident package without
-# requiring a prior installation.
+PYTHONPATH="$ROOT/src${PYTHONPATH:+:$PYTHONPATH}" \
+  python - <<'PY'
+import json, os
+from braink_runtime.node_stack import describe_profile
+print(json.dumps(describe_profile(os.environ["BRAINK_NODE_STACK_PROFILE"]), indent=2))
+PY
+
 PYTHONPATH="$ROOT/src${PYTHONPATH:+:$PYTHONPATH}" \
   bash "$ROOT/scripts/apply_host_network_profile.sh"
 
@@ -80,10 +89,13 @@ root = Path.cwd()
 manifest_path = Path(os.environ["BRAINK_MINING_MANIFEST"])
 qual_path = root / "data" / "live_telemetry_qualification.json"
 receipt = {
-    "schema": "braink.operator.deployment.receipt.v1",
+    "schema": "braink.operator.deployment.receipt.v2",
     "timestamp_ns": time.time_ns(),
     "authority": os.environ.get("BRAINK_OPERATOR_AUTHORITY", "USER_OPERATOR"),
     "host": {"hostname": socket.gethostname(), "platform": platform.platform()},
+    "source_workbook_id": os.environ.get("BRAINK_SOURCE_WORKBOOK_ID"),
+    "operator_workbook_id": os.environ.get("BRAINK_OPERATOR_WORKBOOK_ID"),
+    "node_stack_profile": os.environ.get("BRAINK_NODE_STACK_PROFILE", "SOFTWARE_CREATION_NODE"),
     "provider": os.environ.get("BRAINK_MINING_PROVIDER", "VIABTC_BTC"),
     "host_network_mode": os.environ.get("BRAINK_HOST_NETWORK_MODE", "validate"),
     "orchestration_manifest": json.loads(manifest_path.read_text()) if manifest_path.exists() else None,
@@ -96,6 +108,7 @@ print(f"Operator deployment receipt: {out}")
 print(f"SHA256: {hashlib.sha256(out.read_bytes()).hexdigest()}")
 PY
 
-printf '\nOrchestration manifest: %s\n' "$BRAINK_MINING_MANIFEST"
+printf '\nOperator workbook: %s\n' "$BRAINK_OPERATOR_WORKBOOK_ID"
+printf 'Orchestration manifest: %s\n' "$BRAINK_MINING_MANIFEST"
 printf 'Qualification receipt: %s\n' "$ROOT/data/live_telemetry_qualification.json"
 printf 'Operator deployment receipt: %s\n' "$ROOT/data/operator_deployment_receipt.json"
