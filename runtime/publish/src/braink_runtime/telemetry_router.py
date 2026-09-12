@@ -55,7 +55,10 @@ def build_telemetry_router(*, data_dir: str, auth_token: str) -> APIRouter:
 
     @router.get("/pool-profiles")
     def pool_profiles():
-        return {"profiles": available_pool_profiles(), "default": os.getenv("BRAINK_MINING_PROVIDER", "VIABTC_BTC")}
+        return {
+            "profiles": available_pool_profiles(),
+            "default": os.getenv("BRAINK_MINING_PROVIDER", "VIABTC_BTC").strip().upper() or "VIABTC_BTC",
+        }
 
     @router.post("/stratum-probe")
     async def stratum_probe(req: StratumProbeRequest, x_braink_token: str | None = Header(default=None)):
@@ -65,9 +68,15 @@ def build_telemetry_router(*, data_dir: str, auth_token: str) -> APIRouter:
         The probe may subscribe/authorize but never calls mining.submit.
         """
         require_auth(x_braink_token)
-        profile = req.endpoint_profile.strip().upper() or os.getenv("BRAINK_MINING_PROVIDER", "VIABTC_BTC")
+        profile = req.endpoint_profile.strip().upper() or (
+            os.getenv("BRAINK_MINING_PROVIDER", "VIABTC_BTC").strip().upper() or "VIABTC_BTC"
+        )
         worker_name = os.getenv("BRAINK_STRATUM_WORKER", "").strip() or None
-        password = os.getenv("BRAINK_STRATUM_PASSWORD", os.getenv("BRAINK_POOL_PASSWORD", "x"))
+        password = (
+            os.getenv("BRAINK_STRATUM_PASSWORD", "").strip()
+            or os.getenv("BRAINK_POOL_PASSWORD", "").strip()
+            or "x"
+        )
         observe_s = max(0.1, min(req.observe_s, 10.0))
         timeout_s = max(0.5, min(req.timeout_s, 10.0))
         try:
