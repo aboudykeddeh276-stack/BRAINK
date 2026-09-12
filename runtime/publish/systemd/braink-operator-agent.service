@@ -1,0 +1,26 @@
+[Unit]
+Description=BRAINK Operator Agentic Deployment Supervisor
+After=network-online.target docker.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/braink/runtime/publish
+Environment=BRAINK_OPERATOR_AUTHORITY=USER_OPERATOR
+Environment=BRAINK_AGENT_MAX_ATTEMPTS=3
+Environment=BRAINK_AGENT_BACKOFF_S=2
+ExecStart=/opt/braink/runtime/publish/operator_auto.sh
+Restart=on-failure
+RestartSec=15
+StartLimitIntervalSec=300
+StartLimitBurst=5
+
+# Preserve operator authority: do not grant this service arbitrary privilege escalation.
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=read-only
+ReadWritePaths=/opt/braink/runtime/publish/data /tmp
+
+[Install]
+WantedBy=multi-user.target
