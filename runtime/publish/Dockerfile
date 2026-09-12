@@ -2,6 +2,7 @@ FROM python:3.13-slim
 WORKDIR /app
 COPY pyproject.toml ./
 COPY src ./src
+COPY scripts ./scripts
 RUN pip install --no-cache-dir .
 COPY seed_registry.json ./
 RUN mkdir -p /data
