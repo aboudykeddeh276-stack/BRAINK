@@ -1,0 +1,30 @@
+{
+  "schema": "braink.accountability-bridge.qualification.r33.v1",
+  "branch": "repair/node-transition-edge-r33",
+  "authority_preserved": true,
+  "repository_sources": {
+    "bridge": {"path": "runtime/accountability_receipt_bridge.py", "git_blob_sha1": "5c65b992c4081c3b617fadeb9709c5ed8dda44e5"},
+    "bridge_test": {"path": "runtime/test_accountability_receipt_bridge.py", "git_blob_sha1": "d91f200a5644e7c049546164a073365476d07f78"},
+    "canonical_illlm_ledger": {"path": "runtime/illlm_ledger.py", "git_blob_sha1": "71123a8885673e23b6941a1fc0a494e3c9aea81f"},
+    "resident_runtime_registry": {"path": "runtime/runtime_registry.py", "git_blob_sha1": "a97205d7c4e655f0db4137b39a05e33b1a0f6c1d"}
+  },
+  "execution": {
+    "exact_blob_match_before_test": true,
+    "python_compile": "PASS",
+    "unittest": "PASS",
+    "tests_run": 4,
+    "tests_failed": 0,
+    "ledger_append_readback": "PASS",
+    "ledger_chain_verification": "PASS",
+    "existing_runtime_before_after_equal": true,
+    "unknown_runtime_created": false
+  },
+  "qualified_state": "BRAINK_ILLLM_BRIDGE_LOCALLY_EXECUTED",
+  "not_claimed": [
+    "governance authority transferred to BRAINK",
+    "runtime authority transferred to governance",
+    "host deployment",
+    "public deployment",
+    "production qualification"
+  ]
+}
