@@ -1,33 +1,58 @@
-# Deployment Report — KEDDEH Quarantined SaaS Control Plane R2
+# Deployment / Qualification Report — KEDDEH SaaS Control Plane R2.1
 
-## Release identity
-- Release: `KEDDEH_QUARANTINED_SAAS_INTEGRATION_R2`
-- Repository: `aboudykeddeh276-stack/BRAINK`
-- Deployment branch: `deploy/keddeh-saas-control-plane-r2`
-- Pull request: `#86`
-- Base commit: `48967c7819f540ceeacb13094a62ddd0d59915df`
-- Qualified branch head at PR creation: `1558aa5c7a7238703e3dec2db37b09d2d440a390`
+## What was amended
+R2 had completion inflation in its own surface: the catalogue advertised capabilities broader than the executable implementation, CasePath/ClaimPath descriptor endpoints were described too strongly as adapters, and the candidate did not consume BRAINK's resident IL-LLM ledger/runtime registry.
 
-## Local qualification
-- pytest: `4 passed in 0.27s`
-- Python compileall: `PASS`
-- local FastAPI mutation/readback probe: `PASS`
-- SQLite restart persistence: `PASS`
-- payment idempotency: `PASS`
-- receipt hash chain: `PASS`
-- DNTG → SaaS mutation: `DENIED_AS_REQUIRED`
+R2.1 corrects those defects without replacing the working BRAINK mechanisms.
 
-## Fresh dependency install boundary
-The local execution environment has no package-registry network access. A fresh PEP 517 build attempted to resolve `setuptools>=75` and failed before package installation. This is an environment/network failure, not a runtime-test failure. Installed FastAPI/Uvicorn/Pydantic/pytest dependencies were used for direct qualification.
+## Authority preserved
+- BRAINK resident runtime/evidence code on `main` remains the upstream implementation.
+- `runtime/illlm_ledger.py` is consumed directly.
+- `runtime/runtime_registry.py` is consumed directly.
+- a pre-existing runtime record is never overwritten by the candidate admission path;
+- Linux/server execution carrier remains owned by `SERVERS-KEDDEHSYSTEMS`.
 
-## GitHub deployment state
-The service and documentation were committed to an isolated deployment branch and PR #86 was opened against `main`. GitHub Actions created workflow run `34660062310`, job `103460525947`, but assigned no runner (`runner_id=0`) and executed zero steps. Repository-side fresh-install qualification therefore remains **UNOBSERVED**.
+## Local observed qualification
+Executed against a local reconstruction of the exact amended branch files and resident BRAINK runtime modules:
 
-## Promotion decision
-`main` merge is intentionally withheld until a GitHub-hosted or self-hosted runner executes the path-scoped workflow successfully, or an equivalent independent CI receipt is produced.
+- pytest: `5 passed in 0.32s`;
+- Python compileall: `PASS`;
+- BRAINK IL-LLM evidence mirroring: `PASS`;
+- local SQLite restart persistence: `PASS`;
+- payment idempotency: `PASS`;
+- DNTG -> SaaS mutation denial: `PASS`;
+- existing RUNNING runtime preservation: `PASS`;
+- Docker image build: `UNOBSERVED` because Docker CLI is absent in the current execution environment.
 
-## External provider boundary
-No live Stripe, PayPal, Afterpay, Google Pay, Supabase, DNS, TLS, or public ingress execution is claimed. Provider adapters require independent credential custody, signature verification, replay protection, mapping, and readback evidence.
+## Linux/server carrier
+Canonical server-carrier implementation is staged separately in `aboudykeddeh276-stack/SERVERS-KEDDEHSYSTEMS` PR #3.
 
-## Current classification
-`LOCALLY_QUALIFIED / REPOSITORY_STAGED / CI_RUNNER_BLOCKED / PRODUCTION_NOT_PROMOTED`
+Observed static qualification for that carrier:
+
+- full installer `bash -n`: `PASS`;
+- validator Python compile: `PASS`.
+
+Not observed:
+
+- authorised target-host install;
+- systemd process-active state on the target host;
+- local host HTTP readback from that target host;
+- restart/rehydration on that host;
+- public ingress;
+- production promotion.
+
+## GitHub Actions boundary
+The amended BRAINK workflow continues to fail before execution. For branch head `b17c3fd65929557c722fe636d0f056c155da2621`, workflow run `34661609404`, job `103465094801` received `runner_id=0`, an empty runner name, and zero steps. Therefore GitHub-hosted CI execution remains `UNOBSERVED`; this is not an application-test failure.
+
+## Completion corrections
+The live catalogue now separates:
+
+- `implemented`;
+- `descriptor_only`;
+- `declared_unbound`.
+
+The machine-readable `evidence/COMPLETION_LEDGER_R2_1.json` records each property's actual state. `fully populated`, `production deployed`, `CasePath adapter implemented`, `ClaimPath adapter implemented`, and `CI passed` are explicitly prohibited summary claims for the current evidence state.
+
+## Current state
+
+`BRAINK_INTEGRATED_LOCALLY / AUTHORITY_PRESERVATION_TESTED / SERVER_CARRIER_STAGED / HOST_EXECUTION_UNOBSERVED / PUBLIC_INGRESS_UNBOUND / PRODUCTION_NOT_PROMOTED`
