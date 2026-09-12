@@ -6,9 +6,11 @@ cd "$ROOT"
 
 export BRAINK_OPERATOR_AUTHORITY="${BRAINK_OPERATOR_AUTHORITY:-USER_OPERATOR}"
 export BRAINK_AUTH_TOKEN="${BRAINK_AUTH_TOKEN:-change-me}"
-export BRAINK_SOURCE_WORKBOOK_ID="${BRAINK_SOURCE_WORKBOOK_ID:-1nGeP43FHviLsVzM58Tp4RIMXG1MYs_51Wda8gtbfOVo}"
-export BRAINK_OPERATOR_WORKBOOK_ID="${BRAINK_OPERATOR_WORKBOOK_ID:-1CNKJvZonCk8MB4YRwSivTFKCcBe4v1sTgu92dDqnpWk}"
-export BRAINK_TELEMETRY_SPREADSHEET_ID="${BRAINK_TELEMETRY_SPREADSHEET_ID:-$BRAINK_OPERATOR_WORKBOOK_ID}"
+# Workbook/Google surfaces are optional projections only. They are deliberately
+# unset by default so canonical host execution has no Google/Sheets dependency.
+export BRAINK_SOURCE_WORKBOOK_ID="${BRAINK_SOURCE_WORKBOOK_ID:-}"
+export BRAINK_OPERATOR_WORKBOOK_ID="${BRAINK_OPERATOR_WORKBOOK_ID:-}"
+export BRAINK_TELEMETRY_SPREADSHEET_ID="${BRAINK_TELEMETRY_SPREADSHEET_ID:-}"
 export BRAINK_TELEMETRY_RANGE="${BRAINK_TELEMETRY_RANGE:-TCP_SOCKET_TELEMETRY!B11:N17}"
 export BRAINK_NODE_STACK_PROFILE="${BRAINK_NODE_STACK_PROFILE:-SOFTWARE_CREATION_NODE}"
 export BRAINK_MINING_PROVIDER="${BRAINK_MINING_PROVIDER:-VIABTC_BTC}"
@@ -18,7 +20,11 @@ export BRAINK_HOST_NETWORK_MODE="${BRAINK_HOST_NETWORK_MODE:-validate}"
 
 printf 'BRAINK operator authority: %s\n' "$BRAINK_OPERATOR_AUTHORITY"
 printf 'Host: %s\n' "$(hostname)"
-printf 'Operator workbook: %s\n' "$BRAINK_OPERATOR_WORKBOOK_ID"
+if [ -n "$BRAINK_OPERATOR_WORKBOOK_ID" ]; then
+  printf 'Optional operator workbook projection: %s\n' "$BRAINK_OPERATOR_WORKBOOK_ID"
+else
+  printf 'Optional operator workbook projection: DISABLED\n'
+fi
 printf 'Node stack profile: %s\n' "$BRAINK_NODE_STACK_PROFILE"
 printf 'Mining provider profile: %s\n' "$BRAINK_MINING_PROVIDER"
 printf 'Host network mode: %s\n' "$BRAINK_HOST_NETWORK_MODE"
@@ -89,17 +95,21 @@ root = Path.cwd()
 manifest_path = Path(os.environ["BRAINK_MINING_MANIFEST"])
 qual_path = root / "data" / "live_telemetry_qualification.json"
 receipt = {
-    "schema": "braink.operator.deployment.receipt.v2",
+    "schema": "braink.operator.deployment.receipt.v3",
     "timestamp_ns": time.time_ns(),
     "authority": os.environ.get("BRAINK_OPERATOR_AUTHORITY", "USER_OPERATOR"),
     "host": {"hostname": socket.gethostname(), "platform": platform.platform()},
-    "source_workbook_id": os.environ.get("BRAINK_SOURCE_WORKBOOK_ID"),
-    "operator_workbook_id": os.environ.get("BRAINK_OPERATOR_WORKBOOK_ID"),
     "node_stack_profile": os.environ.get("BRAINK_NODE_STACK_PROFILE", "SOFTWARE_CREATION_NODE"),
     "provider": os.environ.get("BRAINK_MINING_PROVIDER", "VIABTC_BTC"),
     "host_network_mode": os.environ.get("BRAINK_HOST_NETWORK_MODE", "validate"),
     "orchestration_manifest": json.loads(manifest_path.read_text()) if manifest_path.exists() else None,
     "live_qualification": json.loads(qual_path.read_text()) if qual_path.exists() else None,
+    "projection": {
+        "google_required_for_execution": False,
+        "source_workbook_id": os.environ.get("BRAINK_SOURCE_WORKBOOK_ID") or None,
+        "operator_workbook_id": os.environ.get("BRAINK_OPERATOR_WORKBOOK_ID") or None,
+        "telemetry_spreadsheet_id": os.environ.get("BRAINK_TELEMETRY_SPREADSHEET_ID") or None,
+    },
 }
 out = root / "data" / "operator_deployment_receipt.json"
 out.parent.mkdir(parents=True, exist_ok=True)
@@ -108,7 +118,9 @@ print(f"Operator deployment receipt: {out}")
 print(f"SHA256: {hashlib.sha256(out.read_bytes()).hexdigest()}")
 PY
 
-printf '\nOperator workbook: %s\n' "$BRAINK_OPERATOR_WORKBOOK_ID"
+if [ -n "$BRAINK_OPERATOR_WORKBOOK_ID" ]; then
+  printf '\nOptional operator workbook projection: %s\n' "$BRAINK_OPERATOR_WORKBOOK_ID"
+fi
 printf 'Orchestration manifest: %s\n' "$BRAINK_MINING_MANIFEST"
 printf 'Qualification receipt: %s\n' "$ROOT/data/live_telemetry_qualification.json"
 printf 'Operator deployment receipt: %s\n' "$ROOT/data/operator_deployment_receipt.json"
