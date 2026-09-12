@@ -13,6 +13,7 @@ from pathlib import Path
 BASE = os.getenv("BRAINK_LOCAL_URL", "http://127.0.0.1:8000").rstrip("/")
 TOKEN = os.getenv("BRAINK_AUTH_TOKEN", "")
 OPERATOR = os.getenv("BRAINK_OPERATOR_AUTHORITY", "USER_OPERATOR").strip()
+POOL_PROFILE = os.getenv("BRAINK_MINING_PROVIDER", "VIABTC_BTC").strip().upper()
 OUT = Path(os.getenv("BRAINK_DATA_DIR", "./data")) / "live_telemetry_qualification.json"
 
 
@@ -45,10 +46,13 @@ def host_identity() -> dict:
 def main() -> int:
     if not OPERATOR:
         raise SystemExit("BRAINK_OPERATOR_AUTHORITY_REQUIRED")
+    if not POOL_PROFILE:
+        raise SystemExit("BRAINK_MINING_PROVIDER_REQUIRED")
 
     result: dict = {
-        "schema": "braink.kex.live-telemetry-qualification.v2",
+        "schema": "braink.kex.live-telemetry-qualification.v3",
         "authority": OPERATOR,
+        "pool_profile": POOL_PROFILE,
         "host": host_identity(),
         "runtime": None,
         "stratum": None,
@@ -64,7 +68,7 @@ def main() -> int:
         result["stratum"] = request_json(
             "POST",
             "/telemetry/stratum-probe",
-            {"endpoint_profile": "BTC_AUTO", "observe_s": 3.0, "timeout_s": 4.0},
+            {"endpoint_profile": POOL_PROFILE, "observe_s": 3.0, "timeout_s": 4.0},
         )
         if result["stratum"].get("status") != "SESSION_ESTABLISHED":
             raise RuntimeError("STRATUM_SESSION_NOT_ESTABLISHED")
@@ -77,6 +81,7 @@ def main() -> int:
         result["status"] = "OPERATOR_HOST_LIVE_CARRIER_BOUND"
         result["claim_boundary"] = {
             "host_execution": "OBSERVED_ON_OPERATOR_HOST",
+            "provider_profile": POOL_PROFILE,
             "stratum_transport": "OBSERVED",
             "share_submission": "NOT_PERFORMED",
             "pool_share_acceptance": "NOT_PROVEN_BY_PROBE",
