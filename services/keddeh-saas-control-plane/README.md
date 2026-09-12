@@ -1,25 +1,37 @@
-# KEDDEH Quarantined SaaS Control Plane R2
+# KEDDEH Quarantined SaaS Control Plane R2.1
 
-Production-oriented FastAPI service implementing the recovered KEDDEH SaaS dependency node while preserving strict authority boundaries between SaaS, CasePath, ClaimPath, BRAINK/KEX, EPIC, DNTG, evidence, and public projections.
+This branch is a candidate SaaS dependency implementation inside the BRAINK estate. It does not supersede BRAINK's resident runtime/evidence mechanisms, CasePath or ClaimPath business authority, or the SERVERS-KEDDEHSYSTEMS execution-carrier authority.
 
-## Implemented
-- durable SQLite/WAL state for tenants, identities, entitlements, jobs, and receipts;
+## Implemented in this candidate
+- durable local SQLite/WAL state for tenants, identity bindings, entitlements, jobs, receipts, and BRAINK-evidence synchronization state;
 - mutation authentication hook using `KEDDEH_CONTROL_API_KEY`;
 - payment-event idempotency;
-- append-only SHA-256 receipt chain with readback verification;
-- explicit CasePath/ClaimPath SaaS adapters;
-- authority/quarantine probes;
-- health/readiness endpoints;
-- Docker/Compose deployment;
-- GitHub Actions CI;
-- regression and restart-persistence tests.
+- append-only local SHA-256 receipt chain with readback verification;
+- direct consumption of BRAINK's resident `runtime/illlm_ledger.py` and `runtime/runtime_registry.py`;
+- IL-LLM evidence mirroring for committed local receipts, with persisted `SYNCED` / `FAILED` state;
+- runtime-registry admission that refuses to overwrite an existing BRAINK runtime record;
+- authority/quarantine probe;
+- health/readiness endpoints that separate local readiness, BRAINK-evidence readiness, and qualification readiness;
+- Linux container packaging that copies the resident BRAINK `runtime/` implementation from repository context;
+- regression tests, including preservation of an existing working runtime definition.
 
-## Non-claims
-No provider-network execution is inferred. Stripe, PayPal, Afterpay, Google Pay, Supabase, public DNS, and TLS require separately authenticated provider adapters and receipts.
+## Descriptor-only surfaces
+`/v1/adapters/casepath` and `/v1/adapters/claimpath` are descriptions of allowed SaaS relations. They are **not** executable CasePath/ClaimPath adapters and are marked `DESCRIPTOR_ONLY` in their responses.
 
-## Local qualification
+## Declared but unbound
+The candidate does not currently establish external database providers, external identity providers, payment-provider networks, external job workers, public ingress, or production deployment. The live catalogue exposes these as `declared_unbound`, not implemented services.
+
+## Execution carrier
+Linux/systemd carrier mechanics belong to `aboudykeddeh276-stack/SERVERS-KEDDEHSYSTEMS`. A matching carrier candidate is staged on branch `deploy/keddeh-saas-control-plane-r2-carrier`; repository staging is not host execution.
+
+## Qualification command
+From `services/keddeh-saas-control-plane` inside the BRAINK repository:
+
 ```bash
-PYTHONPATH=src pytest -q
+pytest -q
 ```
 
-See `docs/ARCHITECTURE.md`, `docs/DEPLOYMENT_RUNBOOK.md`, `docs/OPERATIONS_AND_SLO.md`, and `docs/PROVIDER_INTEGRATION_BOUNDARIES.md`.
+The test configuration includes the BRAINK repository root so the candidate is qualified against the resident runtime modules rather than a copied test double.
+
+## Promotion rule
+Do not call this production-deployed until an authorised server host executes the canonical carrier, the service is read back from that host, BRAINK evidence readiness is observed, restart/rehydration is verified, and any claimed public ingress is independently read back from the relevant external vantage.
