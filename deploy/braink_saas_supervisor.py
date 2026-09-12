@@ -207,7 +207,7 @@ def start(root: Path) -> dict[str, Any]:
             deps = subprocess.run([sys.executable,"-c","import fastapi,uvicorn,pydantic"], cwd=str(root), env=env, text=True, capture_output=True, timeout=15)
             if deps.returncode != 0: raise RuntimeError("BRAINK_SAAS_RUNTIME_DEPENDENCIES_MISSING")
             host, port = local_endpoint_parts(url_base)
-            saas_proc = subprocess.Popen([sys.executable,"-m","uvicorn","braink_runtime.app:app","--host",host,"--port",str(port)], cwd=str(root / "runtime/publish"), env=env, stdin=subprocess.DEVNULL, stdout=logs["saas"], stderr=logs["saas"], start_new_session=True)
+            saas_proc = subprocess.Popen([sys.executable,"-m","uvicorn","braink_runtime.casepath_app:app","--host",host,"--port",str(port)], cwd=str(root / "runtime/publish"), env=env, stdin=subprocess.DEVNULL, stdout=logs["saas"], stderr=logs["saas"], start_new_session=True)
         ap = wait(lambda: http_probe(url_base), 10)
         if ap.get("status") != "RESPONDED":
             if saas_proc: saas_proc.terminate()
