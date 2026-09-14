@@ -1,0 +1,73 @@
+name: R33 Window Signal Fabric
+
+on:
+  pull_request:
+    paths:
+      - 'runtime/signal_fabric.py'
+      - 'runtime/signal_service.py'
+      - 'runtime/estate_signal_handlers.py'
+      - 'runtime/runtime_registry.py'
+      - 'runtime/copilot_api.py'
+      - 'modules/kex_wbos/**'
+      - 'mcp/braink_process_adapter/**'
+      - 'skills/window-signal-runtime/**'
+      - 'web/braink-copilot/**'
+      - 'scripts/kex-signal-client.py'
+      - 'scripts/kex-ci/test_signal_fabric_r33.py'
+      - 'scripts/kex-ci/test_estate_signal_handlers_r33.py'
+      - 'scripts/kex-ci/test_copilot_api_r34.py'
+      - 'deployment/kex-signal-fabric.service'
+      - 'deployment/braink-copilot.service'
+      - 'deployment/install-kex-signal-fabric.sh'
+      - 'deployments/R33_WINDOW_SIGNAL_FABRIC_BUNDLE.json'
+      - 'deployments/R34_BRAINK_COPILOT_BUNDLE.json'
+  workflow_dispatch:
+
+env:
+  PYTHONPATH: .
+  KEX_SIGNAL_AUTH_TOKEN: ci-r33-test-token
+  KEX_SIGNAL_AUTHORITY: KEDDEH_SYSTEMS
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install resident runtime dependencies
+        run: python -m pip install 'openpyxl==3.1.5'
+      - name: Compile runtime clients and copilot surface
+        run: python -m py_compile runtime/signal_fabric.py runtime/signal_service.py runtime/estate_signal_handlers.py runtime/copilot_api.py mcp/braink_process_adapter/signal_bridge.py mcp/braink_process_adapter/main.py scripts/kex-signal-client.py
+      - name: Validate host installer shell
+        run: bash -n deployment/install-kex-signal-fabric.sh
+      - name: Run signal fabric and copilot tests
+        run: |
+          python scripts/kex-ci/test_signal_fabric_r33.py
+          python scripts/kex-ci/test_estate_signal_handlers_r33.py
+          python scripts/kex-ci/test_copilot_api_r34.py
+      - name: Smoke HTTP signal and copilot services
+        shell: bash
+        run: |
+          python -m runtime.signal_service >/tmp/kex-signal-r33.log 2>&1 &
+          signal_pid=$!
+          python -m runtime.copilot_api >/tmp/braink-copilot-r34.log 2>&1 &
+          copilot_pid=$!
+          trap 'kill "$signal_pid" "$copilot_pid" || true' EXIT
+          for i in {1..30}; do
+            signal="$(curl -fsS http://127.0.0.1:18033/healthz || true)"
+            copilot="$(curl -fsS http://127.0.0.1:8080/healthz || true)"
+            if printf '%s' "$signal" | grep -q 'kex.signal/1' && printf '%s' "$copilot" | grep -q 'BRAINK_COPILOT'; then
+              state="$(curl -fsS -H "Authorization: Bearer $KEX_SIGNAL_AUTH_TOKEN" "http://127.0.0.1:18033/v1/state?target=app%3A%2F%2Fbraink%2Fos")"
+              printf '%s' "$state" | grep -q 'next_sequence'
+              curl -fsS -H "Authorization: Bearer $KEX_SIGNAL_AUTH_TOKEN" http://127.0.0.1:8080/mesh/ping | grep -q 'registered'
+              curl -fsS -H "Authorization: Bearer $KEX_SIGNAL_AUTH_TOKEN" -H 'Content-Type: application/json' -d '{}' http://127.0.0.1:8080/braink/boot | grep -q 'COMMITTED'
+              curl -fsS http://127.0.0.1:8080/ | grep -q 'BRAINK OS'
+              exit 0
+            fi
+            sleep 0.25
+          done
+          cat /tmp/kex-signal-r33.log
+          cat /tmp/braink-copilot-r34.log
+          exit 1
