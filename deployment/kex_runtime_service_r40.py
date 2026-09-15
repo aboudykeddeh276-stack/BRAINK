@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import argparse
 import os
-from http.server import ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -72,7 +71,8 @@ class CanonicalRuntimeHost(GovernedRuntimeHost):
                 "capabilities": ["CANONICAL_EXECUTION", "IL_LLM", "OBSERVER2", "READBACK"],
                 "health": "READY" if self.ready().get("status") == "READY" else "NOT_READY",
             }
-        return self.canonical.execute(command)
+        with self._tree_lock:
+            return self.canonical.execute(command)
 
 
 class Handler(R35Handler):
