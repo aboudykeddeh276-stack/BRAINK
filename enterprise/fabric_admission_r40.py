@@ -54,29 +54,85 @@ class FabricAdmissionR40:
             if str(body.get(key)) != value:
                 raise ValueError(f"IDENTITY_PROOF_MISMATCH:{key}")
 
+    @staticmethod
+    def verify_local_identity(*, node_id: str, lineage: list[str], state_root: str, network_id: str,
+                              vfs_root: str, identity_proof: dict[str, Any]) -> None:
+        if not isinstance(identity_proof, dict):
+            raise ValueError("IDENTITY_PROOF_REQUIRED")
+        body = identity_proof.get("body")
+        if not isinstance(body, dict) or _proof_hash(body) != identity_proof.get("proof"):
+            raise ValueError("IDENTITY_PROOF_INVALID")
+        expected = {
+            "node_id": str(node_id),
+            "lineage": list(lineage),
+            "state_root": str(state_root),
+            "network_id": str(network_id),
+            "vfs_root": str(vfs_root),
+        }
+        for key, value in expected.items():
+            if body.get(key) != value:
+                raise ValueError(f"IDENTITY_PROOF_MISMATCH:{key}")
+        if not body.get("ledger_reference"):
+            raise ValueError("IDENTITY_PROOF_LEDGER_REFERENCE_REQUIRED")
+
     def register_local_node(self, *, node_id: str, lineage: list[str], state_root: str,
                             capabilities: list[str], authority: str, network_id: str,
-                            vfs_root: str) -> dict[str, Any]:
+                            vfs_root: str, local_verified: bool, reachable: bool,
+                            identity_proof: dict[str, Any]) -> dict[str, Any]:
+        if not local_verified:
+            return {"status": "BLOCKED:LOCAL_VERIFICATION_REQUIRED", "node_id": str(node_id)}
         if not capabilities:
             return {"status": "BLOCKED:CAPABILITY_MANIFEST_REQUIRED", "node_id": str(node_id)}
         if not str(authority).startswith("authority://"):
             return {"status": "BLOCKED:INVALID_NODE_AUTHORITY", "node_id": str(node_id)}
-        entries = dict(self.node.computer.readback().get("memory", {}).get("fabric_local_nodes", {}))
-        entries[str(node_id)] = {
+        if not reachable:
+            return {"status": "BLOCKED:REACHABILITY_UNVERIFIED", "node_id": str(node_id)}
+        try:
+            self.verify_local_identity(
+                node_id=node_id, lineage=lineage, state_root=state_root, network_id=network_id,
+                vfs_root=vfs_root, identity_proof=identity_proof,
+            )
+        except ValueError as exc:
+            return {"status": "BLOCKED:" + str(exc), "node_id": str(node_id)}
+
+        memory = self.node.computer.readback().get("memory", {})
+        entries = dict(memory.get("fabric_local_nodes", {}))
+        routes = dict(memory.get("fabric_routes", {}))
+        registration = {
             "lineage": list(lineage),
             "state_root": str(state_root),
             "capabilities": sorted(set(map(str, capabilities))),
             "authority": str(authority),
             "network_id": str(network_id),
             "vfs_root": str(vfs_root),
-            "admission": "LOCAL_VERIFIED",
+            "identity_proof": str(identity_proof["proof"]),
+            "local_verified": True,
+            "reachable": True,
+            "admission": "ADMITTED",
+            "acknowledged": True,
         }
+        route = {
+            "node_id": str(node_id), "network_id": str(network_id), "vfs_root": str(vfs_root),
+            "authority": str(authority), "discovery": "REGISTERED", "acknowledged": True,
+        }
+        entries[str(node_id)] = registration
+        routes[str(node_id)] = route
         self.node.computer.write_memory("fabric_local_nodes", entries)
-        readback = self.node.computer.readback().get("memory", {}).get("fabric_local_nodes", {})
-        if str(node_id) not in readback:
+        self.node.computer.write_memory("fabric_routes", routes)
+
+        readback_memory = self.node.computer.readback().get("memory", {})
+        node_readback = readback_memory.get("fabric_local_nodes", {}).get(str(node_id))
+        route_readback = readback_memory.get("fabric_routes", {}).get(str(node_id))
+        if node_readback != registration:
             raise RuntimeError("LOCAL_NODE_REGISTRATION_READBACK_FAILED")
-        return {"status": "MESH_REGISTERED", "node_id": str(node_id), "readback": readback[str(node_id)],
-                "ledger_verified": self.node.computer.ledger.verify()}
+        if route_readback != route:
+            raise RuntimeError("DISCOVERY_ROUTE_REGISTRATION_READBACK_FAILED")
+        if not self.node.computer.ledger.verify():
+            raise RuntimeError("MESH_REGISTRATION_LEDGER_VERIFICATION_FAILED")
+        return {
+            "status": "MESH_REGISTERED", "node_id": str(node_id), "readback": node_readback,
+            "route_readback": route_readback, "ledger_verified": True,
+        }
 
     def admit(self, peer: dict[str, Any], reachability_probe: Callable[[str], bool] = http_reachability) -> dict[str, Any]:
         self.verify_peer_manifest(peer)
@@ -104,6 +160,8 @@ class FabricAdmissionR40:
         missing = sorted(required.difference(server))
         if missing:
             raise ValueError("MISSING_SERVER_FIELDS:" + ",".join(missing))
+        if not isinstance(server["capabilities"], list) or not server["capabilities"]:
+            return {"status": "BLOCKED:SERVER_CAPABILITY_MANIFEST_REQUIRED", "server_id": str(server["server_id"])}
         if server["health"] not in {"READY", "LIVE"}:
             return {"status": "BLOCKED:SERVER_NOT_READY", "server_id": str(server["server_id"])}
         bindings = dict(self.node.computer.readback().get("memory", {}).get("server_bindings", {}))
@@ -114,12 +172,14 @@ class FabricAdmissionR40:
         }
         self.node.computer.write_memory("server_bindings", bindings)
         check = self.node.computer.readback().get("memory", {}).get("server_bindings", {})
-        if str(server["server_id"]) not in check:
+        if check.get(str(server["server_id"])) != bindings[str(server["server_id"])]:
             raise RuntimeError("SERVER_REGISTRATION_READBACK_FAILED")
         return {"status": "SERVER_REGISTERED", "server_id": str(server["server_id"]), "readback": check[str(server["server_id"])]}
 
     def subscribe_node(self, node_id: str, topics: list[str]) -> dict[str, Any]:
         normalized = sorted(set(map(str, topics)))
+        if not normalized:
+            return {"status": "BLOCKED:SUBSCRIPTION_TOPICS_REQUIRED", "node_id": str(node_id)}
         subscriptions = dict(self.node.computer.readback().get("memory", {}).get("node_subscriptions", {}))
         subscriptions[str(node_id)] = normalized
         self.node.computer.write_memory("node_subscriptions", subscriptions)
