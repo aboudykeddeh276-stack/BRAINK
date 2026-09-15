@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "braink-kex-runtime"
+version = "0.40.0"
+description = "BRAINK/KEX canonical execution runtime"
+requires-python = ">=3.11"
+license = {file = "LICENSE"}
+authors = [{name = "A.KEDDEH / KEDDEH_SYSTEMS"}]
+
+[project.scripts]
+braink-kex-runtime-r40 = "deployment.kex_runtime_service_r40:main"
+braink-canonical-r40 = "deployment.kex_canonical_cli_r40:main"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["enterprise*", "deployment*", "runtime*", "control*"]
+namespaces = true
+
+[tool.setuptools.package-data]
+enterprise = ["*.json", "**/*.json"]
+control = ["*.json", "**/*.json"]
+deployment = ["*.json", "**/*.json"]
+runtime = ["*.json", "**/*.json"]
