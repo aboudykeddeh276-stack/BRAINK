@@ -26,64 +26,84 @@ permissions:
   contents: read
 
 jobs:
-  r40-verify-build:
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
+  resident-r40-verify-build-deploy:
+    runs-on: [self-hosted, kex, cascade, hyperk0, warmboot]
+    timeout-minutes: 30
     steps:
-      - name: Checkout branch state
+      - name: Checkout canonical branch state
         uses: actions/checkout@v4
-
-      - name: Python 3.13
-        uses: actions/setup-python@v5
         with:
-          python-version: '3.13'
+          clean: true
+          fetch-depth: 1
 
-      - name: Install verification/build tooling
-        run: python -m pip install --disable-pip-version-check pytest build
+      - name: Read back resident verification tooling
+        run: |
+          python3 --version
+          python3 - <<'PY'
+          import importlib.util, json
+          required = ['pytest', 'build', 'setuptools', 'wheel']
+          missing = [name for name in required if importlib.util.find_spec(name) is None]
+          print(json.dumps({'required': required, 'missing': missing}, sort_keys=True))
+          if missing:
+              raise SystemExit('BLOCKED:RESIDENT_BUILD_TEST_TOOLING:' + ','.join(missing))
+          PY
 
-      - name: Compile R40 execution path
+      - name: Compile canonical and inherited execution surface
         run: >-
-          python -m compileall -q
-          enterprise/canonical_execution_r40.py
-          enterprise/data_class_registry_r40.py
-          enterprise/node_vfs_r40.py
-          enterprise/global_illlm_r40.py
-          enterprise/fabric_admission_r40.py
-          enterprise/runtime/resource_scheduler_r40.py
-          enterprise/capability_deployment_runtime.py
-          deployment/kex_runtime_service_r40.py
-          deployment/kex_canonical_cli_r40.py
-          tests/R40
+          python3 -m compileall -q
+          enterprise deployment runtime
+          tests/R26 tests/R40
+          tests/R39/test_resident_root_projection_r39.py
           scripts/kex-ci/benchmark_canonical_execution_r40.py
           scripts/kex-ci/test_r40_process_restart.py
 
       - name: R40 unit falsification integration tests
-        run: pytest -q tests/R40
+        run: python3 -m pytest -q tests/R40
 
       - name: Inherited R26 R30 R39 regression tests
-        run: pytest -q tests/R26 tests/R39/test_resident_root_projection_r39.py
+        run: python3 -m pytest -q tests/R26 tests/R39/test_resident_root_projection_r39.py
 
       - name: Process termination restart recovery
-        run: python scripts/kex-ci/test_r40_process_restart.py | tee R40_PROCESS_RESTART_RECEIPT.json
+        run: python3 scripts/kex-ci/test_r40_process_restart.py | tee R40_PROCESS_RESTART_RECEIPT.json
 
       - name: Measurement-only benchmark
-        run: python scripts/kex-ci/benchmark_canonical_execution_r40.py | tee R40_BENCHMARK.json
+        run: python3 scripts/kex-ci/benchmark_canonical_execution_r40.py | tee R40_BENCHMARK.json
 
       - name: Build resident setuptools wheel and source distribution
-        run: python -m build
+        run: python3 -m build
 
-      - name: Verify installed wheel entry points outside source tree
+      - name: Verify installed wheel outside source tree without network dependencies
         run: |
-          python -m pip install --force-reinstall dist/*.whl
+          rm -rf .r40-wheel-venv
+          python3 -m venv .r40-wheel-venv
+          .r40-wheel-venv/bin/python -m pip install --no-deps --force-reinstall dist/*.whl
           cd /tmp
-          braink-canonical-r40 --help
-          braink-kex-runtime-r40 --help
+          "$GITHUB_WORKSPACE/.r40-wheel-venv/bin/braink-canonical-r40" --help
+          "$GITHUB_WORKSPACE/.r40-wheel-venv/bin/braink-kex-runtime-r40" --help
 
       - name: Checksums and release bundle
         run: |
-          sha256sum dist/* > R40_SHA256SUMS.txt
-          tar -czf BRAINK_KEX_R40_RELEASE.tar.gz dist R40_SHA256SUMS.txt R40_PROCESS_RESTART_RECEIPT.json R40_BENCHMARK.json
-          sha256sum BRAINK_KEX_R40_RELEASE.tar.gz > BRAINK_KEX_R40_RELEASE.tar.gz.sha256
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib, tarfile
+          files = sorted(p for p in Path('dist').iterdir() if p.is_file())
+          sums = []
+          for path in files:
+              sums.append(f"{hashlib.sha256(path.read_bytes()).hexdigest()}  {path}")
+          Path('R40_SHA256SUMS.txt').write_text('\n'.join(sums) + '\n')
+          bundle = Path('BRAINK_KEX_R40_RELEASE.tar.gz')
+          with tarfile.open(bundle, 'w:gz') as tf:
+              tf.add('dist')
+              for name in ['R40_SHA256SUMS.txt', 'R40_PROCESS_RESTART_RECEIPT.json', 'R40_BENCHMARK.json']:
+                  tf.add(name)
+          Path(str(bundle)+'.sha256').write_text(hashlib.sha256(bundle.read_bytes()).hexdigest() + '  ' + str(bundle) + '\n')
+          PY
+
+      - name: Resident deployment mechanism
+        run: python3 deployment/full_epic_deploy_r27.py
+
+      - name: Deployed runtime readback
+        run: python3 deployment/full_epic_deploy_r27.py --verify-only
 
       - name: Upload qualified R40 build evidence
         uses: actions/upload-artifact@v4
@@ -96,26 +116,3 @@ jobs:
             R40_BENCHMARK.json
             BRAINK_KEX_R40_RELEASE.tar.gz
             BRAINK_KEX_R40_RELEASE.tar.gz.sha256
-
-  resident-r26-regression-deploy:
-    needs: r40-verify-build
-    runs-on: [self-hosted, kex, cascade, hyperk0, warmboot]
-    timeout-minutes: 20
-    steps:
-      - name: Checkout qualified branch state
-        uses: actions/checkout@v4
-        with:
-          clean: true
-          fetch-depth: 1
-
-      - name: Compile resident execution surface
-        run: python3 -m compileall -q enterprise deployment runtime tests/R26 tests/R40
-
-      - name: Full inherited recursive runtime regression
-        run: python3 -m pytest -q tests/R26 tests/R40 tests/R39/test_resident_root_projection_r39.py
-
-      - name: Resident deployment mechanism
-        run: python3 deployment/full_epic_deploy_r27.py
-
-      - name: Deployed runtime readback
-        run: python3 deployment/full_epic_deploy_r27.py --verify-only
