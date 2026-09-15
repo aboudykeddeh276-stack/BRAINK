@@ -13,6 +13,7 @@ authors = [{name = "A.KEDDEH / KEDDEH_SYSTEMS"}]
 [project.scripts]
 braink-kex-runtime-r40 = "deployment.kex_runtime_service_r40:main"
 braink-canonical-r40 = "deployment.kex_canonical_cli_r40:main"
+braink-canonical-stream-r40 = "deployment.kex_canonical_stream_r40:main"
 
 [tool.setuptools]
 include-package-data = true
