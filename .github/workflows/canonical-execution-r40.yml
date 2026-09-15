@@ -15,8 +15,11 @@ on:
       - 'enterprise/addressability_fabric.py'
       - 'deployment/kex_runtime_service_r40.py'
       - 'deployment/kex_canonical_cli_r40.py'
+      - 'deployment/kex_canonical_stream_r40.py'
+      - 'runtime/framed_json_r40.py'
       - 'control/AUTHORITY_CONTROL_R34.json'
       - 'control/CANONICAL_EXECUTION_REQUIREMENT_EVIDENCE_R40.json'
+      - 'control/RING_APERTURE_LEASE_EVIDENCE_R40.json'
       - 'control/__init__.py'
       - 'pyproject.toml'
       - 'tests/R40/**'
@@ -83,6 +86,7 @@ jobs:
           cd /tmp
           "$GITHUB_WORKSPACE/.r40-wheel-venv/bin/braink-canonical-r40" --help
           "$GITHUB_WORKSPACE/.r40-wheel-venv/bin/braink-kex-runtime-r40" --help
+          "$GITHUB_WORKSPACE/.r40-wheel-venv/bin/braink-canonical-stream-r40" --help
 
       - name: Checksums and release bundle
         run: |
