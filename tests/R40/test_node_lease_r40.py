@@ -72,6 +72,15 @@ def child_correction(value=1):
     }
 
 
+def advance_parent_to_sequence(host, sequence):
+    owner = host.resolve("A")
+    counter = 0
+    while len(owner.ledger.events) < int(sequence):
+        counter += 1
+        host.write_memory("A", "lease_test_clock", counter)
+    return len(owner.ledger.events)
+
+
 def test_lease_acquire_is_cas_backed_and_duplicate_is_blocked(tmp_path):
     host = CanonicalRuntimeHost(tmp_path / "state", "A")
     owner, registry = manager(host)
@@ -116,13 +125,32 @@ def test_active_readers_hold_quiescing_lease_before_tombstone(tmp_path):
     host = CanonicalRuntimeHost(tmp_path / "state", "A")
     _, registry = manager(host)
     live = acquire(registry, current_sequence=0, ttl_events=1)["lease"]
-    readers = registry.change_readers("node://A/B", delta=1, expected_generation=live["generation"])
+    readers = registry.change_readers(
+        "node://A/B",
+        delta=1,
+        expected_generation=live["generation"],
+        current_sequence=0,
+    )
     assert readers["lease"]["active_readers"] == 1
     assert registry.gc(current_sequence=1, max_scan=1)[0]["status"] == "LEASE_QUIESCING"
     assert registry.gc(current_sequence=1, max_scan=1) == []
     released = registry.change_readers("node://A/B", delta=-1, expected_generation=live["generation"])
     assert released["lease"]["active_readers"] == 0
     assert registry.gc(current_sequence=1, max_scan=1)[0]["status"] == "LEASE_TOMBSTONED"
+
+
+def test_expired_live_label_cannot_admit_new_reader_without_gc(tmp_path):
+    host = CanonicalRuntimeHost(tmp_path / "state", "A")
+    _, registry = manager(host)
+    live = acquire(registry, current_sequence=5, ttl_events=2)["lease"]
+    blocked = registry.change_readers(
+        "node://A/B",
+        delta=1,
+        expected_generation=live["generation"],
+        current_sequence=7,
+    )
+    assert blocked["status"] == "BLOCKED:LEASE_EXPIRED"
+    assert registry.read("node://A/B")["active_readers"] == 0
 
 
 def test_stale_generation_cannot_mutate_reacquired_lease(tmp_path):
@@ -134,8 +162,18 @@ def test_stale_generation_cannot_mutate_reacquired_lease(tmp_path):
     registry.gc(current_sequence=1, max_scan=1)
     second = acquire(registry, current_sequence=2, ttl_events=1)["lease"]
     assert second["generation"] == first["generation"] + 1
-    stale = registry.change_readers("node://A/B", delta=1, expected_generation=first["generation"])
+    stale = registry.change_readers("node://A/B", delta=1, expected_generation=first["generation"], current_sequence=2)
     assert stale["status"] == "BLOCKED:LEASE_STALE_GENERATION"
+
+
+def test_index_failure_reclaims_allocated_record_instead_of_stranding_it(tmp_path, monkeypatch):
+    host = CanonicalRuntimeHost(tmp_path / "state", "A")
+    _, registry = manager(host)
+    monkeypatch.setattr(registry, "_index_add", lambda _record: (_ for _ in ()).throw(RuntimeError("INJECTED_INDEX_FAILURE")))
+    out = acquire(registry, current_sequence=0, ttl_events=4)
+    assert out["status"] == "FAILED:LEASE_INDEX_BIND"
+    assert out["rollback"]["status"] == "LEASE_RECLAIMED"
+    assert registry.read("node://A/B")["lifecycle_state"] == "RECLAIMED"
 
 
 def test_lease_survives_host_restart(tmp_path):
@@ -156,11 +194,21 @@ def test_canonical_materialization_binds_lease_to_parent_and_child(tmp_path):
     assert out["status"] == "ACTIVE"
     assert out["lease_state"]["status"] == "LEASE_LIVE"
     assert "RING1_LEASE_ALLOCATED" in out["stages"]
+    assert "RING1_LEASE_FINAL_VERIFIED" in out["stages"]
     parent_memory = host.snapshot(host.resolve("A"))["memory"]
     lease = out["lease_state"]["lease"]
     assert parent_memory["canonical_node_leases"][lease["lease_id"]]["semantic_root"] == lease["semantic_root"]
     child_memory = host.snapshot(host.resolve("A/B"))["memory"]
     assert child_memory["allocation_lease"]["lease_id"] == lease["lease_id"]
+
+
+def test_too_short_lease_cannot_promote_node_active(tmp_path):
+    host = CanonicalRuntimeHost(tmp_path / "state", "A")
+    out = host.canonical_execute(workload_command("B", 0, ttl_events=1))
+    assert out["status"] == "BLOCKED:LEASE_EXPIRED_BEFORE_ACTIVE"
+    assert "ACTIVE" not in out["promotion"]
+    _, registry = manager(host)
+    assert registry.read("node://A/B")["lifecycle_state"] == "QUIESCING"
 
 
 def test_scheduler_failure_retires_pre_materialization_lease(tmp_path):
@@ -184,11 +232,23 @@ def test_runtime_failure_retires_lease_and_returns_failed_mechanic(tmp_path, mon
     assert registry.read("node://A/B")["lifecycle_state"] == "RECLAIMED"
 
 
+def test_expired_parent_lease_blocks_existing_node_mutation_before_execution(tmp_path):
+    host = CanonicalRuntimeHost(tmp_path / "state", "A")
+    out = host.canonical_execute(workload_command("B", 0, ttl_events=2))
+    assert out["status"] == "ACTIVE"
+    lease = out["lease_state"]["lease"]
+    advance_parent_to_sequence(host, lease["expires_sequence"])
+    blocked = host.canonical_execute(child_correction(7))
+    assert blocked["status"] == "BLOCKED:LEASE_EXPIRED"
+    assert host.snapshot(host.resolve("A/B"))["state"].get("lease_guard_value") is None
+
+
 def test_reclaimed_lease_blocks_existing_node_mutation_without_deleting_node(tmp_path):
     host = CanonicalRuntimeHost(tmp_path / "state", "A")
-    out = host.canonical_execute(workload_command("B", 0, ttl_events=1))
+    out = host.canonical_execute(workload_command("B", 0, ttl_events=2))
     assert out["status"] == "ACTIVE"
-    # Parent ledger advanced after acquisition, so the bounded lease is eligible for incremental GC.
+    lease = out["lease_state"]["lease"]
+    advance_parent_to_sequence(host, lease["expires_sequence"])
     for _ in range(3):
         host.canonical.run_lease_gc("A", max_scan=1)
     _, registry = manager(host)
