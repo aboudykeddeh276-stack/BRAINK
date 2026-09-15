@@ -364,8 +364,10 @@ class CanonicalExecutionR40:
             except Exception as exc:
                 return self._fail("LEASE_ACQUISITION", stages, str(exc), promotion)
             if lease_result.get("status") != "LEASE_LIVE":
-                reason = str(lease_result.get("status", "BLOCKED:LEASE_ACQUISITION")).removeprefix("BLOCKED:")
-                return self._block(reason, stages, lease_result, promotion)
+                status = str(lease_result.get("status", "BLOCKED:LEASE_ACQUISITION"))
+                if status.startswith("FAILED:"):
+                    return self._fail(status.removeprefix("FAILED:"), stages, lease_result, promotion)
+                return self._block(status.removeprefix("BLOCKED:"), stages, lease_result, promotion)
             lease_generation = int(lease_result["lease"]["generation"])
             try:
                 self._mirror_lease(lease_owner, lease_result["lease"])
@@ -446,17 +448,40 @@ class CanonicalExecutionR40:
                 return self._fail("LEASE_READBACK", stages, str(exc), promotion)
             if existing_lease is not None:
                 state = existing_lease["lifecycle_state"]
+                current_sequence = self._ledger_sequence(parent)
+                if state == "LIVE" and existing_registry.expired(existing_lease, current_sequence):
+                    expired = existing_registry.transition(
+                        existing_identity,
+                        to_state="QUIESCING",
+                        current_sequence=current_sequence,
+                        expected_generation=existing_lease["generation"],
+                    )
+                    if expired.get("lease"):
+                        try:
+                            self._mirror_lease(parent, expired["lease"])
+                        except Exception as exc:
+                            return self._fail("LEASE_LEDGER_BIND", stages, str(exc), promotion)
+                    return self._block("LEASE_EXPIRED", stages, expired, promotion)
                 if state != "LIVE":
                     return self._block("LEASE_LOCKED_" + state, stages, existing_lease, promotion)
                 reader = existing_registry.change_readers(
                     existing_identity,
                     delta=1,
                     expected_generation=existing_lease["generation"],
+                    current_sequence=current_sequence,
                 )
                 if reader.get("status") != "LEASE_READERS_UPDATED":
                     return self._block(str(reader.get("status", "LEASE_READER_ACQUIRE")).removeprefix("BLOCKED:"), stages, reader, promotion)
                 reader_lease = (parent, existing_registry, existing_identity, int(existing_lease["generation"]))
-                self._mirror_lease(parent, reader["lease"])
+                try:
+                    self._mirror_lease(parent, reader["lease"])
+                except Exception as exc:
+                    released = existing_registry.change_readers(
+                        existing_identity,
+                        delta=-1,
+                        expected_generation=existing_lease["generation"],
+                    )
+                    return self._fail("LEASE_LEDGER_BIND", stages, {"error": str(exc), "cleanup": released}, promotion)
                 stages.append("RING1_LEASE_READER_BOUND")
 
             try:
@@ -465,8 +490,22 @@ class CanonicalExecutionR40:
                 if reader_lease is not None:
                     parent, existing_registry, existing_identity, generation = reader_lease
                     released = existing_registry.change_readers(existing_identity, delta=-1, expected_generation=generation)
-                    if released.get("lease"):
+                    if released.get("status") != "LEASE_READERS_UPDATED":
+                        return self._fail(
+                            "LEASE_READER_RELEASE",
+                            stages,
+                            {"runtime_error": type(exc).__name__ + ":" + str(exc), "cleanup": released},
+                            promotion,
+                        )
+                    try:
                         self._mirror_lease(parent, released["lease"])
+                    except Exception as mirror_exc:
+                        return self._fail(
+                            "LEASE_LEDGER_BIND",
+                            stages,
+                            {"runtime_error": type(exc).__name__ + ":" + str(exc), "mirror_error": str(mirror_exc)},
+                            promotion,
+                        )
                 return self._fail("RUNTIME_EXECUTION", stages, str(exc), promotion)
 
             if reader_lease is not None:
@@ -474,7 +513,10 @@ class CanonicalExecutionR40:
                 released = existing_registry.change_readers(existing_identity, delta=-1, expected_generation=generation)
                 if released.get("status") != "LEASE_READERS_UPDATED":
                     return self._fail("LEASE_READER_RELEASE", stages, released, promotion)
-                self._mirror_lease(parent, released["lease"])
+                try:
+                    self._mirror_lease(parent, released["lease"])
+                except Exception as exc:
+                    return self._fail("LEASE_LEDGER_BIND", stages, str(exc), promotion)
                 stages.append("RING1_LEASE_READER_RELEASED")
             stages += ["EXISTING_NODE_RESOLVED", "RUNTIME_EXECUTED"]
 
@@ -604,6 +646,28 @@ class CanonicalExecutionR40:
                     promotion,
                 )
             stages.append("MESH_STATE_RECONCILED")
+
+        if node_created and lease_registry is not None and lease_owner is not None and lease_identity is not None:
+            final_lease = lease_registry.read(lease_identity)
+            if final_lease is None:
+                return self._fail("LEASE_FINAL_READBACK", stages, promotion=promotion)
+            owner_sequence = self._ledger_sequence(lease_owner)
+            if final_lease.get("lifecycle_state") != "LIVE":
+                return self._block("LEASE_LOCKED_" + str(final_lease.get("lifecycle_state")), stages, final_lease, promotion)
+            if lease_registry.expired(final_lease, owner_sequence):
+                expired = lease_registry.transition(
+                    lease_identity,
+                    to_state="QUIESCING",
+                    current_sequence=owner_sequence,
+                    expected_generation=final_lease["generation"],
+                )
+                if expired.get("lease"):
+                    try:
+                        self._mirror_lease(lease_owner, expired["lease"])
+                    except Exception as exc:
+                        return self._fail("LEASE_LEDGER_BIND", stages, str(exc), promotion)
+                return self._block("LEASE_EXPIRED_BEFORE_ACTIVE", stages, expired, promotion)
+            stages.append("RING1_LEASE_FINAL_VERIFIED")
 
         active = node_created and tuple(promotion) == self.REQUIRED_ACTIVE_PROMOTION
         if active:
