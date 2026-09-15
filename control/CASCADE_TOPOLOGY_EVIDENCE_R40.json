@@ -1,0 +1,28 @@
+{
+  "schema": "braink.cascade-topology.evidence.r40/v1",
+  "branching_factor": 3,
+  "depth": 3,
+  "node_count_formula": "sum(3^L, L=0..3)=40",
+  "layer_distribution": {"0": 1, "1": 3, "2": 9, "3": 27},
+  "logical_link_role_formula": "sum(2*3^L, L=1..3)=78",
+  "logical_link_roles": 78,
+  "unique_undirected_edges": 75,
+  "unique_edge_note": "Layer-1 parent and root-anchor roles terminate at the same root endpoint, so three logical role pairs collapse to three unique edges.",
+  "directed_adjacency_entries": 150,
+  "activation_policy": "PLAN_BY_LAYER_THEN_SUBMIT_TO_RESIDENT_RESOURCE_SCHEDULER_AND_FABRIC_ADMISSION",
+  "process_spawn_claim": false,
+  "socket_link_claim": false,
+  "consensus_claim": false,
+  "self_sustaining_claim": false,
+  "frame_contract": {
+    "resident_r40_fixed_wire_frame_bytes": 176,
+    "claimed_external_live_log_frame_bytes": 168,
+    "status": "CONFLICT_REQUIRES_EXECUTABLE_ARTIFACT_OR_CAPTURE",
+    "note": "A 168-byte live log cannot verify the current R40 wire codec, whose authenticated frame is derived as 176 bytes."
+  },
+  "verification": {
+    "local_falsification_tests": 8,
+    "local_falsification_status": "PASS",
+    "resident_ci_status": "PENDING_SELF_HOSTED_RUNNER"
+  }
+}
