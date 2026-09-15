@@ -1,0 +1,113 @@
+{
+  "schema": "braink.ring-aperture-lease.evidence.r40/v1",
+  "branch": "kex/canonical-execution-r40",
+  "purpose": "Record observed Ring/Aperture mechanics, reconcile the proposed EvolvedCorrectiveEngine with resident authority, and bound claims before execution evidence exists.",
+  "discovery_correction": {
+    "earlier_incomplete_conclusion": "No code-level Ring/Aperture substrate was initially found by filename/keyword search.",
+    "corrected_observation": "enterprise/addressability_fabric.py contains Ring1AddressSpace, Ring2BackingArray, AddressabilityFabric and aperture bindings. The R40 canonical execution path does not import AddressabilityFabric directly; its executable VFS path uses SelfAddressingRuntime -> AutoBinder -> resident adapters, where AutoBinder also materializes aperture://auto/<digest> bindings.",
+    "evidence_paths": [
+      "enterprise/addressability_fabric.py",
+      "scripts/kex-ci/test_addressability_fabric.py",
+      "enterprise/self_addressing_runtime.py",
+      "enterprise/auto_binder.py",
+      "enterprise/substrate_adapters.py",
+      "enterprise/node_vfs_r40.py"
+    ]
+  },
+  "resident_mapping": [
+    {
+      "proposed_responsibility": "Bilateral HMAC capability authority",
+      "resident_owner": "R18 CapabilityDeploymentRuntime + MarketServiceBroker.agent_control + R34 authority control",
+      "status": "PROPOSED_PARALLEL_AUTHORITY_REJECTED",
+      "reason": "bilateral_auth.HMACCapabilityGating was not discovered in the connected BRAINK repository; introducing a new in-memory HMAC registry would duplicate resident authority and capability mechanics."
+    },
+    {
+      "proposed_responsibility": "Ring 1 virtual address allocation",
+      "resident_owner": "Ring1AddressSpace reference model; executable path SelfAddressingRuntime/AutoBinder",
+      "status": "RESIDENT_MECHANIC_DISCOVERED",
+      "reason": "Aperture identity already exists in AutoBinder bindings. R40 lease authority is layered onto that resident VFS path rather than replacing it."
+    },
+    {
+      "proposed_responsibility": "Ring 2 storage matrix",
+      "resident_owner": "Ring2BackingArray reference model; executable path FileJsonAdapter/SQLiteJsonAdapter/MemoryAdapter through NodeVFS",
+      "status": "RESIDENT_MECHANIC_DISCOVERED_WITH_BOUNDARY",
+      "reason": "Ring2BackingArray itself is an in-memory reference backing. Durable R40 execution uses the resident adapters and NodeVFS."
+    },
+    {
+      "proposed_responsibility": "Hardened append-only ledger",
+      "resident_owner": "RecursiveComputer/R25-R26 resident ledger mechanics",
+      "status": "PROPOSED_PARALLEL_LEDGER_REJECTED",
+      "reason": "An additional in-memory HMAC ledger would split canonical proof authority and its wall-clock timestamp would contaminate deterministic replay identity if hashed."
+    },
+    {
+      "proposed_responsibility": "Node registry/materialization",
+      "resident_owner": "RecursiveComputer instantiated only through IL-LLM/KEX runtime authority",
+      "status": "PROPOSED_PARALLEL_NODE_REGISTRY_REJECTED",
+      "reason": "R40 continues to resolve existing nodes first and materializes only node-eligible DATA through the resident constructor."
+    },
+    {
+      "proposed_responsibility": "Two-phase/epoch lease lifecycle",
+      "resident_owner": "enterprise/node_lease_r40.py layered on NodeVFS",
+      "status": "MISSING_EDGE_IMPLEMENTED_NOT_EXECUTION_VERIFIED",
+      "reason": "No resident lease lifecycle was discovered. R40 now implements ALLOCATED -> LIVE -> QUIESCING -> TOMBSTONED -> RECLAIMED using CAS-backed VFS records, generation fencing and reader counts."
+    }
+  ],
+  "lease_contract": {
+    "lifecycle": ["ALLOCATED", "LIVE", "QUIESCING", "TOMBSTONED", "RECLAIMED"],
+    "allocation_authority": "parent node resident VFS",
+    "logical_namespace": "vfs://node/<PARENT_NODE_ID>/leases/<SHA256(LOGICAL_NODE_IDENTITY)>.json",
+    "target_namespace": "vfs://node/<TARGET_NODE_ID>/",
+    "concurrency": "FileJsonAdapter CAS_WRITE under flock",
+    "generation_fencing": true,
+    "reader_quiescence": true,
+    "bounded_gc": true,
+    "restart_persistence": "source implemented; execution test committed; not yet observed on runner",
+    "semantic_time": "ledger/event sequence",
+    "operational_observation_time": "observed_at_ns, explicitly excluded from semantic_root",
+    "microsecond_enforcement_claim": false,
+    "secure_erasure_claim": false,
+    "reclaimed_semantics": "allocation authority may be reacquired by a later generation; tombstone/audit backing is retained"
+  },
+  "corrective_path": [
+    "INGRESS",
+    "MEMORY_IN_MOMENT",
+    "DATA_CLASS",
+    "SCHEMA_VALIDATION",
+    "AUTHORITY",
+    "IL_LLM_RESOLUTION",
+    "LOGICAL_IDENTITY",
+    "EXISTING_NODE_RESOLUTION",
+    "BRAINK_OPERATOR",
+    "CAPABILITY_RESOLUTION",
+    "RING1_LEASE",
+    "RESOURCE_ENVELOPE",
+    "RESIDENT_NODE_MATERIALIZATION_OR_EXISTING_NODE_ROUTE",
+    "NODE_VFS",
+    "NETWORK_IDENTITY",
+    "RUNTIME",
+    "READBACK",
+    "LOCAL_LEDGER_VERIFICATION",
+    "MESH_REGISTRATION",
+    "SERVER_REGISTRATION",
+    "SUBSCRIPTIONS",
+    "GLOBAL_IL_LLM_DELTA",
+    "FINAL_FABRIC_STATE_ROOT_RECONCILIATION",
+    "PROMOTION_DECISION"
+  ],
+  "tests_committed": [
+    "tests/R40/test_node_lease_r40.py",
+    "tests/R40/test_canonical_execution_r40.py",
+    "tests/R40/test_canonical_http_r40.py",
+    "scripts/kex-ci/test_r40_process_restart.py"
+  ],
+  "claim_state": {
+    "source_integration": "IMPLEMENTED",
+    "unit_test_execution": "UNVERIFIED",
+    "falsification_execution": "UNVERIFIED",
+    "restart_execution": "UNVERIFIED",
+    "build": "UNVERIFIED",
+    "deployment": "UNVERIFIED",
+    "production": "NOT_CLAIMED",
+    "external_boundary": "BLOCKED:RESIDENT_KEX_RUNNER_UNASSIGNED"
+  }
+}
