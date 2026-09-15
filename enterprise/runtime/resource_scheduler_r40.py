@@ -3,8 +3,10 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any
+import json
 import os
 import shutil
+import tempfile
 import threading
 
 
@@ -52,12 +54,26 @@ class ResourceEnvelope:
     def to_dict(self) -> dict[str, Any]:
         body = asdict(self); body["granted"] = asdict(self.granted); return body
 
+    @classmethod
+    def from_dict(cls, body: dict[str, Any]) -> "ResourceEnvelope":
+        return cls(
+            node_id=str(body["node_id"]), granted=ResourceVector(**body["granted"]),
+            priority=int(body["priority"]), latency_class=str(body["latency_class"]),
+            persistence_required=bool(body["persistence_required"]), enforcement=str(body["enforcement"]),
+        )
+
 
 class PhysicalResourceScheduler:
-    """Admission/accounting scheduler. It does not falsely claim OS/GPU hard quotas."""
+    """Persistent admission/accounting scheduler. Hard host quotas remain adapter-owned and are not claimed here."""
 
-    def __init__(self, pool: ResourceVector):
-        pool.validate(); self.pool = pool; self.allocations: dict[str, ResourceEnvelope] = {}; self._lock = threading.RLock()
+    SCHEMA = "braink.resource-scheduler.r40/v1"
+
+    def __init__(self, pool: ResourceVector, state_path: str | Path | None = None):
+        pool.validate(); self.pool = pool; self.state_path = None if state_path is None else Path(state_path)
+        self.allocations: dict[str, ResourceEnvelope] = {}; self._lock = threading.RLock()
+        if self.state_path is not None:
+            self.state_path.parent.mkdir(parents=True, exist_ok=True)
+            self._restore()
 
     @classmethod
     def probe_host(cls, state_root: str | Path) -> "PhysicalResourceScheduler":
@@ -69,7 +85,34 @@ class PhysicalResourceScheduler:
         storage = shutil.disk_usage(Path(state_root)).free
         gpu = int(os.environ.get("BRAINK_GPU_UNITS", "0"))
         network = int(os.environ.get("BRAINK_NETWORK_MBPS", "0"))
-        return cls(ResourceVector(cpu, memory, storage, gpu, network))
+        return cls(ResourceVector(cpu, memory, storage, gpu, network), Path(state_root) / "control" / "resource-scheduler-r40.json")
+
+    def _restore(self) -> None:
+        if self.state_path is None or not self.state_path.exists(): return
+        body = json.loads(self.state_path.read_text(encoding="utf-8"))
+        if body.get("schema") != self.SCHEMA: raise RuntimeError("RESOURCE_SCHEDULER_SCHEMA_MISMATCH")
+        allocations = body.get("allocations", {})
+        if not isinstance(allocations, dict): raise RuntimeError("RESOURCE_SCHEDULER_STATE_INVALID")
+        restored = {str(node_id): ResourceEnvelope.from_dict(value) for node_id, value in allocations.items()}
+        for node_id, envelope in restored.items():
+            if envelope.node_id != node_id: raise RuntimeError("RESOURCE_SCHEDULER_NODE_ID_MISMATCH")
+            envelope.granted.validate()
+        self.allocations = restored
+
+    def _persist(self) -> None:
+        if self.state_path is None: return
+        body = {"schema": self.SCHEMA, "allocations": {k: v.to_dict() for k, v in sorted(self.allocations.items())}}
+        raw = (json.dumps(body, indent=2, sort_keys=True) + "\n").encode("utf-8")
+        fd, tmp_name = tempfile.mkstemp(prefix=self.state_path.name + ".", dir=self.state_path.parent)
+        try:
+            with os.fdopen(fd, "wb") as fh:
+                fh.write(raw); fh.flush(); os.fsync(fh.fileno())
+            os.replace(tmp_name, self.state_path)
+            dir_fd = os.open(self.state_path.parent, os.O_RDONLY)
+            try: os.fsync(dir_fd)
+            finally: os.close(dir_fd)
+        finally:
+            if os.path.exists(tmp_name): os.unlink(tmp_name)
 
     def _used(self) -> ResourceVector:
         values = {field: 0 for field in ResourceVector.__dataclass_fields__}
@@ -93,16 +136,27 @@ class PhysicalResourceScheduler:
                 grant[field] = min(target, free)
             envelope = ResourceEnvelope(node_id, ResourceVector(**grant), requirement.priority, requirement.latency_class, requirement.persistence_required, "ACCOUNTING_ENVELOPE")
             self.allocations[node_id] = envelope
+            try: self._persist()
+            except Exception:
+                self.allocations.pop(node_id, None)
+                raise
             return envelope
 
     def release(self, node_id: str) -> bool:
-        with self._lock: return self.allocations.pop(node_id, None) is not None
+        with self._lock:
+            previous = self.allocations.pop(node_id, None)
+            if previous is None: return False
+            try: self._persist()
+            except Exception:
+                self.allocations[node_id] = previous
+                raise
+            return True
 
     def snapshot(self) -> dict[str, Any]:
         with self._lock:
             return {
-                "pool": asdict(self.pool),
-                "available": asdict(self.available()),
+                "pool": asdict(self.pool), "available": asdict(self.available()),
                 "allocations": {node_id: envelope.to_dict() for node_id, envelope in sorted(self.allocations.items())},
+                "state_path": None if self.state_path is None else str(self.state_path),
                 "enforcement_boundary": "ACCOUNTING_ENVELOPE_ONLY; host-specific hard quota enforcement requires an adapter and is not claimed here.",
             }
