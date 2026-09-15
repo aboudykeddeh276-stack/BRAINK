@@ -89,6 +89,11 @@ class NodeLeaseRegistryR40:
     def _lease_id(owner_node_id: str, logical_identity: str) -> str:
         return "LEASE-" + digest({"owner_node_id": owner_node_id, "logical_identity": str(logical_identity)})[:24]
 
+    @staticmethod
+    def expired(record: dict[str, Any], current_sequence: int) -> bool:
+        expiry = record.get("expires_sequence")
+        return expiry is not None and int(current_sequence) >= int(expiry)
+
     def _read_cell(self, logical_path: str) -> tuple[dict[str, Any] | None, str | None]:
         cell = self.vfs.read(self.owner_node_id, logical_path)
         result = cell["result"]
@@ -201,7 +206,19 @@ class NodeLeaseRegistryR40:
         committed = self._commit(logical_identity, allocated, expected_hash)
         if committed["status"] != "COMMITTED":
             return committed
-        self._index_add(committed["lease"])
+        try:
+            self._index_add(committed["lease"])
+        except Exception as exc:
+            rollback = self.retire(
+                logical_identity,
+                current_sequence=current_sequence,
+                expected_generation=generation,
+            )
+            return {
+                "status": "FAILED:LEASE_INDEX_BIND",
+                "error": type(exc).__name__ + ":" + str(exc),
+                "rollback": rollback,
+            }
         return self.transition(
             logical_identity,
             to_state="LIVE",
@@ -261,23 +278,38 @@ class NodeLeaseRegistryR40:
         state = current["lifecycle_state"]
         if state == "RECLAIMED":
             return {"status": "LEASE_RECLAIMED", "lease": current}
+        if state == "ALLOCATED":
+            step = self.transition(logical_identity, to_state="LIVE", current_sequence=current_sequence, expected_generation=generation)
+            if step.get("status") != "LEASE_LIVE":
+                return step
+            current = step["lease"]
+            state = "LIVE"
         if state == "LIVE":
             step = self.transition(logical_identity, to_state="QUIESCING", current_sequence=current_sequence, expected_generation=generation, force=True)
             if step.get("status") != "LEASE_QUIESCING":
                 return step
-            current = step["lease"]; state = "QUIESCING"
+            current = step["lease"]
+            state = "QUIESCING"
         if state == "QUIESCING":
             if int(current.get("active_readers", 0)) != 0:
                 return {"status": "BLOCKED:LEASE_READERS_ACTIVE", "lease": current}
             step = self.transition(logical_identity, to_state="TOMBSTONED", current_sequence=current_sequence, expected_generation=generation)
             if step.get("status") != "LEASE_TOMBSTONED":
                 return step
-            current = step["lease"]; state = "TOMBSTONED"
+            current = step["lease"]
+            state = "TOMBSTONED"
         if state == "TOMBSTONED":
             return self.transition(logical_identity, to_state="RECLAIMED", current_sequence=current_sequence, expected_generation=generation)
         return {"status": "BLOCKED:LEASE_RETIRE_STATE_INVALID", "lease": current}
 
-    def change_readers(self, logical_identity: str, *, delta: int, expected_generation: int | None = None) -> dict[str, Any]:
+    def change_readers(
+        self,
+        logical_identity: str,
+        *,
+        delta: int,
+        expected_generation: int | None = None,
+        current_sequence: int | None = None,
+    ) -> dict[str, Any]:
         for _ in range(8):
             current, expected_hash = self._read_cell(self._record_path(logical_identity))
             if current is None:
@@ -287,6 +319,13 @@ class NodeLeaseRegistryR40:
                 return {"status": "BLOCKED:LEASE_STALE_GENERATION", "lease": current}
             if current["lifecycle_state"] not in {"LIVE", "QUIESCING"}:
                 return {"status": "BLOCKED:LEASE_NOT_READER_ELIGIBLE", "lease": current}
+            if int(delta) > 0 and current["lifecycle_state"] != "LIVE":
+                return {"status": "BLOCKED:LEASE_NOT_READER_ELIGIBLE", "lease": current}
+            if int(delta) > 0 and current.get("expires_sequence") is not None:
+                if current_sequence is None:
+                    return {"status": "BLOCKED:LEASE_CLOCK_REQUIRED", "lease": current}
+                if self.expired(current, int(current_sequence)):
+                    return {"status": "BLOCKED:LEASE_EXPIRED", "lease": current}
             readers = int(current["active_readers"]) + int(delta)
             if readers < 0:
                 return {"status": "BLOCKED:LEASE_READER_UNDERFLOW", "lease": current}
@@ -316,7 +355,7 @@ class NodeLeaseRegistryR40:
                 events.append({"logical_identity": logical_identity, "status": "FAILED:LEASE_INDEX_DANGLING"})
                 continue
             state = record["lifecycle_state"]
-            if state == "LIVE" and record.get("expires_sequence") is not None and int(current_sequence) >= int(record["expires_sequence"]):
+            if state == "LIVE" and self.expired(record, int(current_sequence)):
                 events.append({"logical_identity": logical_identity, **self.transition(logical_identity, to_state="QUIESCING", current_sequence=current_sequence, expected_generation=record["generation"])})
             elif state == "QUIESCING" and int(record.get("active_readers", 0)) == 0:
                 events.append({"logical_identity": logical_identity, **self.transition(logical_identity, to_state="TOMBSTONED", current_sequence=current_sequence, expected_generation=record["generation"])})
