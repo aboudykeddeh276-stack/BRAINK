@@ -9,6 +9,7 @@ def root(v:Any)->str:
     return hashlib.sha256(json.dumps(v,sort_keys=True,separators=(",",":"),default=str).encode()).hexdigest()
 
 FAMILY_OWNER={"identity":"GENERAL_GOVERNANCE","hr":"GENERAL_GOVERNANCE","agentic_ai":"ENTERPRISE_AUTOMATION","mail":"COMMERCE_CUSTOMER_OPERATIONS","calendar":"COMMERCE_CUSTOMER_OPERATIONS","documents":"DATA_INFORMATION_GOVERNANCE","vfs":"DATA_INFORMATION_GOVERNANCE","research":"AI_CLOUD_INFRA","proof":"CYBERSECURITY","payments":"FINTECH_PAYMENTS","billing":"FINTECH_PAYMENTS","search":"DATA_INFORMATION_GOVERNANCE","case":"LEGAL_REGTECH","crm":"COMMERCE_CUSTOMER_OPERATIONS","runtime":"AI_CLOUD_INFRA","observer":"CYBERSECURITY","api":"AI_CLOUD_INFRA","analytics":"ENTERPRISE_AUTOMATION"}
+EXECUTABLE_STATES={"BOUND","EXECUTABLE","VERIFIED"}
 
 @dataclass(frozen=True)
 class Capability:
@@ -31,13 +32,29 @@ class CapabilityDeploymentRuntime:
             node=self.bind(capability,spec["implementation_ref"],spec.get("evidence_ref") or spec.get("evidence_class"),spec.get("state","VERIFIED"))
             if node:loaded.append(capability)
         return tuple(sorted(loaded))
+    def resolve(self,capability:str):
+        name=str(capability).strip()
+        node=self.capabilities.get(name)
+        if node is None:return {"status":"UNKNOWN_CAPABILITY","capability":name}
+        body=asdict(node)
+        if not node.implementation_ref:return {"status":"CAPABILITY_UNBOUND",**body}
+        if node.state not in EXECUTABLE_STATES:return {"status":"CAPABILITY_UNQUALIFIED",**body}
+        return {"status":"RESOLVED",**body}
+    def resolve_many(self,capabilities):
+        names=tuple(sorted(set(str(x).strip() for x in capabilities if str(x).strip())))
+        if not names:return {"status":"CAPABILITY_MANIFEST_REQUIRED","resolved":[],"blocked":[]}
+        resolved=[];blocked=[]
+        for name in names:
+            item=self.resolve(name)
+            (resolved if item["status"]=="RESOLVED" else blocked).append(item)
+        return {"status":"RESOLVED" if not blocked else "BLOCKED","resolved":resolved,"blocked":blocked}
     def compile(self,undertaking:str,scale="SMALL"):
         genome=self.genomes.genome(undertaking);room=self.rooms.compose(genome,scale);required=[]
         genes=set(genome.genes)
         for cap in sorted(self.capabilities):
             n=self.capabilities[cap]
             if n.gene not in genes:continue
-            if n.implementation_ref and n.state in {"BOUND","EXECUTABLE","VERIFIED"}:decision="REUSE"
+            if n.implementation_ref and n.state in EXECUTABLE_STATES:decision="REUSE"
             elif n.implementation_ref:decision="QUALIFY"
             else:decision="CREATE_OR_BIND"
             gap={"REUSE":"CAPABILITY_RESIDENT","QUALIFY":"QUALIFICATION_REQUIRED","CREATE_OR_BIND":"ADAPTER_OR_FUNCTION_REQUIRED"}[decision]
