@@ -1,0 +1,44 @@
+{
+  "schema": "braink.metacircular-vfs-evidence.r40/v1",
+  "classification": "SOURCE_IMPLEMENTED_LOCAL_FALSIFICATION_PASS",
+  "resident_owners": {
+    "logical_vfs": "enterprise/node_vfs_r40.py",
+    "address_resolution": "enterprise/self_addressing_runtime.py",
+    "capability_authority": "enterprise/capability_deployment_runtime.py",
+    "executor": "enterprise/metacircular_vfs_executor_r40.py"
+  },
+  "accepted_mechanics": [
+    "source stored and read back through vfs://node/<NODE_ID>/...",
+    "source SHA-256 pin required before compilation",
+    "AST/source policy required before compilation",
+    "already-RESOLVED resident capability receipt required",
+    "nested proof is recomputed independently by host and compared",
+    "source and execution receipt are persisted through resident NodeVFS",
+    "generation identity contributes to nested proof root"
+  ],
+  "rejected_or_bounded_claims": {
+    "100TB": "logical address capacity metadata only; no physical or RAM allocation claim",
+    "sandbox": "restricted Python namespace plus AST policy is not an OS isolation boundary",
+    "self_replication": "not claimed; the executor validates a bounded nested function and does not autonomously spawn another runtime",
+    "self_compiling_OS": "not claimed",
+    "arbitrary_wire_code_execution": "forbidden by architecture; executable source must be hash-pinned, policy-validated, capability-authorized, VFS-staged and read back",
+    "production_deployment": "not established until resident CI/build/deployment/readback succeeds"
+  },
+  "local_falsification": {
+    "tests": 9,
+    "passed": 9,
+    "coverage": [
+      "embedded source policy acceptance",
+      "forbidden import rejection",
+      "eval rejection",
+      "open rejection",
+      "VFS write/readback and receipt persistence",
+      "distinct generation proof roots",
+      "source hash mismatch blocks before VFS mutation",
+      "unresolved capability blocks before VFS mutation",
+      "post-write source tamper detection"
+    ]
+  },
+  "epistemic_state": "VALIDATED_BOUNDED_LOCAL",
+  "resident_ci_state": "PENDING_RUNNER_EXECUTION"
+}
