@@ -70,7 +70,7 @@ class NodeLeaseRegistryR40:
     The lease owns allocation/routing authority only. It does not create nodes,
     mutate BRAINK state directly, replace capability/authority systems, or claim
     secure physical erasure. `RECLAIMED` means the logical allocation may be
-    acquired by a later generation; the tombstone evidence remains persisted.
+    acquired by a later generation; tombstone evidence remains persisted.
 
     Correctness uses deterministic ledger/event sequence values supplied by the
     caller. `observed_at_ns` is operational telemetry and is excluded from the
@@ -216,6 +216,7 @@ class NodeLeaseRegistryR40:
         to_state: str,
         current_sequence: int,
         expected_generation: int | None = None,
+        force: bool = False,
     ) -> dict[str, Any]:
         current, expected_hash = self._read_cell(self._record_path(logical_identity))
         if current is None:
@@ -226,7 +227,7 @@ class NodeLeaseRegistryR40:
         from_state = current["lifecycle_state"]
         if to_state not in _ALLOWED_TRANSITIONS.get(from_state, set()):
             return {"status": f"BLOCKED:LEASE_INVALID_TRANSITION:{from_state}->{to_state}", "lease": current}
-        if from_state == "LIVE" and to_state == "QUIESCING":
+        if from_state == "LIVE" and to_state == "QUIESCING" and not force:
             expiry = current.get("expires_sequence")
             if expiry is None:
                 return {"status": "BLOCKED:LEASE_NOT_EXPIRING", "lease": current}
@@ -244,6 +245,37 @@ class NodeLeaseRegistryR40:
         if committed["status"] != "COMMITTED":
             return committed
         return {"status": "LEASE_" + to_state, "lease": committed["lease"]}
+
+    def retire(self, logical_identity: str, *, current_sequence: int, expected_generation: int | None = None) -> dict[str, Any]:
+        """Rollback/release allocation authority without pretending the lease expired.
+
+        A forced LIVE->QUIESCING transition is an explicit cancellation action,
+        not a fabricated clock event. Tombstone evidence remains persisted.
+        """
+        current = self.read(logical_identity)
+        if current is None:
+            return {"status": "BLOCKED:LEASE_NOT_FOUND"}
+        generation = int(current["generation"])
+        if expected_generation is not None and generation != int(expected_generation):
+            return {"status": "BLOCKED:LEASE_STALE_GENERATION", "lease": current}
+        state = current["lifecycle_state"]
+        if state == "RECLAIMED":
+            return {"status": "LEASE_RECLAIMED", "lease": current}
+        if state == "LIVE":
+            step = self.transition(logical_identity, to_state="QUIESCING", current_sequence=current_sequence, expected_generation=generation, force=True)
+            if step.get("status") != "LEASE_QUIESCING":
+                return step
+            current = step["lease"]; state = "QUIESCING"
+        if state == "QUIESCING":
+            if int(current.get("active_readers", 0)) != 0:
+                return {"status": "BLOCKED:LEASE_READERS_ACTIVE", "lease": current}
+            step = self.transition(logical_identity, to_state="TOMBSTONED", current_sequence=current_sequence, expected_generation=generation)
+            if step.get("status") != "LEASE_TOMBSTONED":
+                return step
+            current = step["lease"]; state = "TOMBSTONED"
+        if state == "TOMBSTONED":
+            return self.transition(logical_identity, to_state="RECLAIMED", current_sequence=current_sequence, expected_generation=generation)
+        return {"status": "BLOCKED:LEASE_RETIRE_STATE_INVALID", "lease": current}
 
     def change_readers(self, logical_identity: str, *, delta: int, expected_generation: int | None = None) -> dict[str, Any]:
         for _ in range(8):
