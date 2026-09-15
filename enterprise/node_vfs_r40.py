@@ -67,6 +67,26 @@ class NodeVFS:
             raise RuntimeError(f"VFS_WRITE_FAILED:{logical}:{result.get('status')}")
         return {"logical": logical, "backing": backing, "result": result}
 
+    def cas_write(self, node_id: str, logical_path: str, value: Any, expected_hash: str | None) -> dict[str, Any]:
+        """Compare-and-swap through the resident file adapter.
+
+        `expected_hash=None` means the logical cell must not yet have a committed
+        value. Conflict is returned to the caller so higher-level authority code
+        can classify it rather than silently overwriting another writer.
+        """
+        logical = self.logical_uri(node_id, logical_path)
+        backing = self._backing_uri(node_id, logical_path)
+        self._ensure_binding(logical, backing, "CAS_WRITE")
+        result = self.runtime.route(
+            logical,
+            backing,
+            "CAS_WRITE",
+            {"expected_hash": expected_hash, "value": value},
+        )
+        if result.get("status") not in {"COMMITTED", "CONFLICT"}:
+            raise RuntimeError(f"VFS_CAS_WRITE_FAILED:{logical}:{result.get('status')}")
+        return {"logical": logical, "backing": backing, "result": result}
+
     def read(self, node_id: str, logical_path: str) -> dict[str, Any]:
         logical = self.logical_uri(node_id, logical_path)
         backing = self._backing_uri(node_id, logical_path)
