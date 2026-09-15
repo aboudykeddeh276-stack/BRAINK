@@ -1,0 +1,43 @@
+{
+  "schema": "braink.gcs-failover-evidence.r40/v1",
+  "role": "REPLICA_FAILOVER_TARGET",
+  "canonical_vfs_authority": false,
+  "canonical_ledger_authority": false,
+  "implementation": {
+    "replica_target": "enterprise/gcs_content_replica_r40.py",
+    "colab_bootstrap": "deployment/colab_gcsfuse_bootstrap_r40.py",
+    "tests": "tests/R40/test_gcs_content_replica_r40.py"
+  },
+  "source_claim_corrections": {
+    "fixed_100tb_volume": "REJECTED; Cloud Storage is scalable object storage and a FUSE mount does not establish a fixed 100TB filesystem volume.",
+    "gcsfuse_posix_equivalence": "REJECTED; Cloud Storage FUSE is not POSIX compliant and lacks file locking/file patching semantics required by the canonical ledger substrate.",
+    "df_capacity_as_authority": "REJECTED; df output on a FUSE mount is not used as canonical cloud capacity evidence.",
+    "hardcoded_bionic_repository": "SUPERSEDED; bootstrap derives the current Debian/Ubuntu codename and uses a signed-by keyring.",
+    "apt_key_primary_path": "SUPERSEDED; current signed-by repository configuration is used."
+  },
+  "replication_semantics": {
+    "mode": "WRITE_ONCE_CONTENT_ADDRESSED",
+    "key": "sha256(payload)",
+    "same_payload": "IDEMPOTENT",
+    "existing_hash_mismatch": "FAILED",
+    "post_write_readback": "REQUIRED",
+    "canonical_state_order": "LOCAL_CANONICAL_COMMIT_THEN_REMOTE_REPLICA"
+  },
+  "local_verification": {
+    "status": "PASS",
+    "tests": 10,
+    "environment": "isolated temporary filesystem; not a live GCS mount"
+  },
+  "external_boundary": {
+    "gcp_project": "NOT_CONFIGURED_IN_REPOSITORY",
+    "gcs_bucket": "NOT_CONFIGURED_IN_REPOSITORY",
+    "live_colab_authentication": "NOT_EXECUTED",
+    "live_gcsfuse_mount": "NOT_EXECUTED",
+    "live_gcs_write_readback": "NOT_EXECUTED"
+  },
+  "references": [
+    "https://cloud.google.com/storage/docs/cloud-storage-fuse/overview",
+    "https://cloud.google.com/storage/docs/cloud-storage-fuse/install",
+    "https://cloud.google.com/storage/docs/cloud-storage-fuse/mount-bucket"
+  ]
+}
