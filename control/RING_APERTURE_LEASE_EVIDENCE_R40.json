@@ -1,7 +1,7 @@
 {
-  "schema": "braink.ring-aperture-lease.evidence.r40/v1",
+  "schema": "braink.ring-aperture-lease.evidence.r40/v2",
   "branch": "kex/canonical-execution-r40",
-  "purpose": "Record observed Ring/Aperture mechanics, reconcile the proposed EvolvedCorrectiveEngine with resident authority, and bound claims before execution evidence exists.",
+  "purpose": "Record observed Ring/Aperture and ingress mechanics, reconcile the proposed EvolvedCorrectiveEngine with resident authority, and bound claims before execution evidence exists.",
   "discovery_correction": {
     "earlier_incomplete_conclusion": "No code-level Ring/Aperture substrate was initially found by filename/keyword search.",
     "corrected_observation": "enterprise/addressability_fabric.py contains Ring1AddressSpace, Ring2BackingArray, AddressabilityFabric and aperture bindings. The R40 canonical execution path does not import AddressabilityFabric directly; its executable VFS path uses SelfAddressingRuntime -> AutoBinder -> resident adapters, where AutoBinder also materializes aperture://auto/<digest> bindings.",
@@ -13,6 +13,23 @@
       "enterprise/substrate_adapters.py",
       "enterprise/node_vfs_r40.py"
     ]
+  },
+  "ingress_discovery": {
+    "canonical_http": "deployment/kex_runtime_service_r40.py uses the resident HTTP projection over CanonicalRuntimeHost",
+    "runtime_http": "enterprise/runtime/http_ingress.py uses ThreadingHTTPServer for health/metrics only",
+    "fabric_http": "deployment/independent_fabric_node_r38.py exposes HTTP health/readiness/identity/proof/join",
+    "resident_stream_framing": "runtime/public_gateway.py, runtime/google_oauth_rail.py and runtime/stripe_payment_rail.py use newline-delimited JSON over Unix stream sockets",
+    "async_canonical_transport_before_r40_delta": "NOT_DISCOVERED",
+    "implemented_delta": [
+      "runtime/framed_json_r40.py",
+      "deployment/kex_canonical_stream_r40.py",
+      "tests/R40/test_framed_transport_r40.py"
+    ],
+    "transport_boundary": "The async stream layer is a projection only. It authenticates the carrier envelope, bounds/parses frames, and delegates canonical.execute to CanonicalRuntimeHost. DATA classing, BRAINK operator authority, capability resolution, IL-LLM and mutation authority remain in the canonical graph.",
+    "frame_convention": "newline-delimited canonical JSON, preserving the resident rail convention",
+    "default_frame_ceiling": "1048576 bytes; configurable safety ceiling, not a latency/performance requirement",
+    "non_loopback_rule": "auth token required",
+    "execution_state": "SOURCE_IMPLEMENTED_NOT_EXECUTION_VERIFIED"
   },
   "resident_mapping": [
     {
@@ -49,7 +66,13 @@
       "proposed_responsibility": "Two-phase/epoch lease lifecycle",
       "resident_owner": "enterprise/node_lease_r40.py layered on NodeVFS",
       "status": "MISSING_EDGE_IMPLEMENTED_NOT_EXECUTION_VERIFIED",
-      "reason": "No resident lease lifecycle was discovered. R40 now implements ALLOCATED -> LIVE -> QUIESCING -> TOMBSTONED -> RECLAIMED using CAS-backed VFS records, generation fencing and reader counts."
+      "reason": "No resident lease lifecycle was discovered. R40 implements ALLOCATED -> LIVE -> QUIESCING -> TOMBSTONED -> RECLAIMED using CAS-backed VFS records, generation fencing, reader counts, deterministic sequence expiry, rollback reclamation and final pre-ACTIVE verification."
+    },
+    {
+      "proposed_responsibility": "Async framed network transport",
+      "resident_owner": "resident newline JSON rail convention + new R40 projection",
+      "status": "MISSING_PROJECTION_IMPLEMENTED_NOT_EXECUTION_VERIFIED",
+      "reason": "Synchronous newline framing already existed on local Unix rails, while no async canonical framed transport was discovered. R40 extends the resident framing convention without moving execution authority into transport."
     }
   ],
   "lease_contract": {
@@ -61,8 +84,11 @@
     "generation_fencing": true,
     "reader_quiescence": true,
     "bounded_gc": true,
+    "expired_live_reader_admission": "BLOCKED",
+    "pre_active_expiry_check": true,
+    "partial_index_failure": "FAILED:LEASE_INDEX_BIND followed by rollback through the normal lifecycle to RECLAIMED",
     "restart_persistence": "source implemented; execution test committed; not yet observed on runner",
-    "semantic_time": "ledger/event sequence",
+    "semantic_time": "parent resident ledger/event sequence",
     "operational_observation_time": "observed_at_ns, explicitly excluded from semantic_root",
     "microsecond_enforcement_claim": false,
     "secure_erasure_claim": false,
@@ -70,6 +96,8 @@
   },
   "corrective_path": [
     "INGRESS",
+    "FRAME_BOUNDARY_IF_STREAM_PROJECTION",
+    "TRANSPORT_AUTHENTICATION",
     "MEMORY_IN_MOMENT",
     "DATA_CLASS",
     "SCHEMA_VALIDATION",
@@ -92,10 +120,12 @@
     "SUBSCRIPTIONS",
     "GLOBAL_IL_LLM_DELTA",
     "FINAL_FABRIC_STATE_ROOT_RECONCILIATION",
+    "FINAL_LEASE_VALIDATION",
     "PROMOTION_DECISION"
   ],
   "tests_committed": [
     "tests/R40/test_node_lease_r40.py",
+    "tests/R40/test_framed_transport_r40.py",
     "tests/R40/test_canonical_execution_r40.py",
     "tests/R40/test_canonical_http_r40.py",
     "scripts/kex-ci/test_r40_process_restart.py"
