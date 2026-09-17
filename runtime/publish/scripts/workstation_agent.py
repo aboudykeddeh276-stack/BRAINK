@@ -19,6 +19,7 @@ from braink_runtime.process_engine import ExecutionContract, ProcessEngine, make
 ROOT = Path(__file__).resolve().parents[1]
 DATA = Path(os.getenv("BRAINK_DATA_DIR", str(ROOT / "data")))
 AUTHORITY = os.getenv("BRAINK_OPERATOR_AUTHORITY", "USER_OPERATOR")
+ACTIVE_SERVERS: list[ThreadingHTTPServer] = []
 
 
 def sha256_file(path: Path) -> str:
@@ -122,6 +123,7 @@ def _boot_capability(contract: ExecutionContract):
         status = "BLOCKED" if text.startswith("BLOCKED:") else "FAIL"
         return make_receipt(contract, status=status, started_ns=started, observed={"status": text})
 
+    ACTIVE_SERVERS.append(server)
     thread = threading.Thread(target=server.serve_forever, name="braink-workstation", daemon=True)
     thread.start()
 
@@ -143,9 +145,7 @@ def _boot_capability(contract: ExecutionContract):
     receipt_path.write_text(json.dumps({"schema": "braink.workstation.service.receipt.v1", **observed}, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     if contract.payload.get("open_browser", False):
         webbrowser.open(url)
-    receipt = make_receipt(contract, status="PASS", started_ns=started, observed=observed)
-    receipt._server = server  # type: ignore[attr-defined]
-    return receipt
+    return make_receipt(contract, status="PASS", started_ns=started, observed=observed)
 
 
 def build_transition(open_browser: bool = False):
@@ -160,6 +160,13 @@ def build_transition(open_browser: bool = False):
         payload={"open_browser": open_browser},
     )
     return engine.execute(contract)
+
+
+def shutdown_servers() -> None:
+    while ACTIVE_SERVERS:
+        server = ACTIVE_SERVERS.pop()
+        server.shutdown()
+        server.server_close()
 
 
 def main() -> int:
@@ -191,6 +198,7 @@ def main() -> int:
         while True:
             time.sleep(3600)
     except KeyboardInterrupt:
+        shutdown_servers()
         return 0
 
 
