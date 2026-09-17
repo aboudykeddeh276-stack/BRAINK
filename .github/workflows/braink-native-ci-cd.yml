@@ -1,0 +1,147 @@
+name: BRAINK Native CI/CD
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - "copilot/**"
+    paths:
+      - ".github/workflows/braink-native-ci-cd.yml"
+      - ".github/scripts/braink-error-context.swift"
+      - "NativeChatBot/**"
+      - "scripts/**"
+      - "tools/**"
+      - "docs/**"
+
+permissions:
+  contents: read
+
+jobs:
+  braink-native-orchestration:
+    name: BRAINK Native Orchestration
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Initialize outputs directory
+        run: mkdir -p reports
+
+      - name: Governance validation
+        run: python3 scripts/validate-governance.py
+
+      - name: Ethics validation
+        run: python3 tools/kex_ethics_check.py --root . --output reports/kex_ethics_check.json
+
+      - name: Multi-engine orchestration smoke (self_sustained_coder + kex_hyperdrive + proof)
+        run: |
+          chmod +x NativeChatBot/run-runtime-smoke.command
+          NativeChatBot/run-runtime-smoke.command | tee reports/braink_runtime_smoke.log
+
+      - name: Build known failure log context (job 84541143511)
+        run: |
+          cat > reports/job_84541143511.log <<'EOF'
+          2026-07-01T13:09:48.9638734Z [agent] CRITICAL EXCEPTION: Cartesian zero detected in cell alignment.
+          2026-07-01T13:09:52.5746584Z InjectInitiatorHeaderProxy: request #1 → POST /v1/messages?beta=true | initiator=user | integrationId=claude-code-cloud
+          2026-07-01T13:09:53.5406598Z [Claude Code] MCP server 'runtime-tools': connected (runtime-tools-server v0.0.1)
+          2026-07-01T13:09:54.0839848Z copilot: API Error: 403 Access to this endpoint is forbidden.
+          2026-07-01T13:09:54.2780367Z ClaudeError Claude Code process exited with code 1
+          EOF
+
+      - name: Error context analysis for known failure
+        run: |
+          chmod +x .github/scripts/braink-error-context.swift
+          swift .github/scripts/braink-error-context.swift \
+            --input-log reports/job_84541143511.log \
+            --job-id 84541143511 \
+            --workflow-name "Running Claude" \
+            --output reports/braink_failure_analysis_job_84541143511.json
+
+      - name: Error context analysis for current runtime log
+        run: |
+          swift .github/scripts/braink-error-context.swift \
+            --input-log reports/braink_runtime_smoke.log \
+            --job-id "${{ github.run_id }}" \
+            --workflow-name "BRAINK Native CI/CD" \
+            --output reports/braink_failure_analysis_current_run.json
+
+      - name: Generate failure analysis markdown
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          src = Path("reports/braink_failure_analysis_job_84541143511.json")
+          data = json.loads(src.read_text(encoding="utf-8"))
+          lines = [
+              "# BRAINK Failure Analysis Report",
+              "",
+              f"- Job ID: `{data['jobId']}`",
+              f"- Workflow: `{data['workflowName']}`",
+              f"- Occurrence rate: `{data['occurrenceRate']:.2f}%`",
+              f"- Dominant sector: `{data['dominantSector']}`",
+              f"- Dominant cause: `{data['dominantCause']}`",
+              "",
+              "## Error contexts",
+              "",
+          ]
+          for idx, error in enumerate(data.get("errors", []), start=1):
+              lines.extend(
+                  [
+                      f"{idx}. Sector `{error['sector']}`, Cause `{error['cause']}`, Severity `{error['severity']}`",
+                      f"   - Message: {error['message']}",
+                      f"   - Dead route: {error.get('deadRoute') or 'n/a'}",
+                      f"   - Recovery path: {error.get('recoveryPath') or 'n/a'}",
+                      f"   - Recoverable: {error['isRecoverable']}",
+                  ]
+              )
+          lines.extend(["", "## Recommended actions", ""])
+          for action in data.get("recommendedActions", []):
+              lines.append(f"- {action}")
+
+          Path("reports/braink_failure_analysis_job_84541143511.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
+          PY
+
+      - name: Generate proof packet artifacts
+        run: |
+          sha256sum reports/braink_failure_analysis_job_84541143511.json > reports/braink_failure_analysis_job_84541143511.sha256
+          sha256sum reports/braink_failure_analysis_current_run.json > reports/braink_failure_analysis_current_run.sha256
+          python3 - <<'PY'
+          import hashlib
+          import json
+          from pathlib import Path
+
+          targets = [
+              "reports/braink_failure_analysis_job_84541143511.json",
+              "reports/braink_failure_analysis_current_run.json",
+              "reports/braink_runtime_smoke.log",
+          ]
+          proof = {
+              "status": "DONE",
+              "artifact_hashes": {
+                  path: hashlib.sha256(Path(path).read_bytes()).hexdigest()
+                  for path in targets
+                  if Path(path).exists()
+              },
+          }
+          Path("reports/braink_delivery_evidence.json").write_text(
+              json.dumps(proof, indent=2, sort_keys=True) + "\n",
+              encoding="utf-8",
+          )
+          PY
+
+      - name: Upload BRAINK artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: braink-native-ci-cd-artifacts
+          path: |
+            reports/braink_runtime_smoke.log
+            reports/braink_failure_analysis_job_84541143511.json
+            reports/braink_failure_analysis_job_84541143511.md
+            reports/braink_failure_analysis_job_84541143511.sha256
+            reports/braink_failure_analysis_current_run.json
+            reports/braink_failure_analysis_current_run.sha256
+            reports/braink_delivery_evidence.json
+            reports/kex_ethics_check.json
