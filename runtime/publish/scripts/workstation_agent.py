@@ -94,34 +94,39 @@ class Handler(BaseHTTPRequestHandler):
         return
 
 
+def start_server(path: Path, digest: str) -> tuple[ThreadingHTTPServer, str, str]:
+    host = os.getenv("BRAINK_WORKSTATION_BIND", "127.0.0.1")
+    raw_port = os.getenv("BRAINK_WORKSTATION_PORT", "0").strip() or "0"
+    try:
+        port = int(raw_port)
+    except ValueError as exc:
+        raise RuntimeError(f"FAILED:INVALID_PORT:{raw_port}") from exc
+    if not 0 <= port <= 65535:
+        raise RuntimeError(f"FAILED:INVALID_PORT:{port}")
+
+    server = ThreadingHTTPServer((host, port), Handler)
+    server.workstation_state = WorkstationState(path, digest)  # type: ignore[attr-defined]
+    actual_host, actual_port = server.server_address[:2]
+    url = f"http://{actual_host}:{actual_port}/"
+    health = f"http://{actual_host}:{actual_port}/healthz"
+    return server, url, health
+
+
 def _boot_capability(contract: ExecutionContract):
     started = time.time_ns()
     try:
         path, digest = resolve_workstation()
+        server, url, health = start_server(path, digest)
     except RuntimeError as exc:
         text = str(exc)
         status = "BLOCKED" if text.startswith("BLOCKED:") else "FAIL"
         return make_receipt(contract, status=status, started_ns=started, observed={"status": text})
 
-    host = os.getenv("BRAINK_WORKSTATION_BIND", "127.0.0.1")
-    raw_port = os.getenv("BRAINK_WORKSTATION_PORT", "0").strip() or "0"
-    try:
-        port = int(raw_port)
-    except ValueError:
-        return make_receipt(contract, status="FAIL", started_ns=started, observed={"status": f"FAILED:INVALID_PORT:{raw_port}"})
-    if not 0 <= port <= 65535:
-        return make_receipt(contract, status="FAIL", started_ns=started, observed={"status": f"FAILED:INVALID_PORT:{port}"})
-
-    server = ThreadingHTTPServer((host, port), Handler)
-    state = WorkstationState(path, digest)
-    server.workstation_state = state  # type: ignore[attr-defined]
-    actual_host, actual_port = server.server_address[:2]
-    thread = threading.Thread(target=server.serve_forever, name="braink-workstation", daemon=False)
+    thread = threading.Thread(target=server.serve_forever, name="braink-workstation", daemon=True)
     thread.start()
 
-    url = f"http://{actual_host}:{actual_port}/"
+    actual_host, actual_port = server.server_address[:2]
     DATA.mkdir(parents=True, exist_ok=True)
-    receipt_path = DATA / "workstation_service_receipt.json"
     observed = {
         "status": "WORKSTATION_SERVICE_RUNNING",
         "authority": AUTHORITY,
@@ -131,21 +136,19 @@ def _boot_capability(contract: ExecutionContract):
         "bind": actual_host,
         "port": actual_port,
         "url": url,
-        "health": f"http://{actual_host}:{actual_port}/healthz",
+        "health": health,
         "pid": os.getpid(),
     }
+    receipt_path = DATA / "workstation_service_receipt.json"
     receipt_path.write_text(json.dumps({"schema": "braink.workstation.service.receipt.v1", **observed}, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     if contract.payload.get("open_browser", False):
         webbrowser.open(url)
-    return make_receipt(contract, status="PASS", started_ns=started, observed=observed)
+    receipt = make_receipt(contract, status="PASS", started_ns=started, observed=observed)
+    receipt._server = server  # type: ignore[attr-defined]
+    return receipt
 
 
-def main() -> int:
-    parser = argparse.ArgumentParser(description="BRAINK resident workstation service")
-    parser.add_argument("--open", action="store_true", dest="open_browser", help="open the workstation URL in the default browser")
-    parser.add_argument("--no-wait", action="store_true", help="emit the receipt and exit; service lifetime then follows process lifetime")
-    args = parser.parse_args()
-
+def build_transition(open_browser: bool = False):
     engine = ProcessEngine()
     engine.register_capability("BOOT_RESIDENT_WORKSTATION", _boot_capability)
     contract = ExecutionContract(
@@ -154,14 +157,36 @@ def main() -> int:
         authority=AUTHORITY,
         target="BRAINK_RESIDENT_HTML_WORKSTATION",
         capability="BOOT_RESIDENT_WORKSTATION",
-        payload={"open_browser": args.open_browser},
+        payload={"open_browser": open_browser},
     )
-    transition = engine.execute(contract)
+    return engine.execute(contract)
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description="BRAINK resident workstation service")
+    parser.add_argument("--open", action="store_true", dest="open_browser", help="open the workstation URL in the default browser")
+    parser.add_argument("--probe", action="store_true", help="validate workstation binding/hash without keeping a service alive")
+    args = parser.parse_args()
+
+    if args.probe:
+        try:
+            path, digest = resolve_workstation()
+        except RuntimeError as exc:
+            print(json.dumps({"schema": "braink.workstation.probe.v1", "status": str(exc)}, indent=2, sort_keys=True))
+            return 1
+        print(json.dumps({
+            "schema": "braink.workstation.probe.v1",
+            "status": "PASS",
+            "authority": AUTHORITY,
+            "html": str(path),
+            "sha256": digest,
+        }, indent=2, sort_keys=True))
+        return 0
+
+    transition = build_transition(open_browser=args.open_browser)
     print(json.dumps(transition, indent=2, sort_keys=True))
     if transition["receipt"]["status"] != "PASS":
         return 1
-    if args.no_wait:
-        return 0
     try:
         while True:
             time.sleep(3600)
