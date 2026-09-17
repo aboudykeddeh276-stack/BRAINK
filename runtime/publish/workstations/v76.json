@@ -1,0 +1,23 @@
+{
+  "schema": "braink.workstation.binding.v1",
+  "workstation_id": "BRAINK_WORKSTATION_V76",
+  "artifact": "KEDDEH_BRAINK_WORKSTATION_v76_RESIDENT_BOOT.html",
+  "sha256": "95937b9f005572e8d6baa53dbd1ec9942ee31bb5bd7146e5f8efc385d90b8f98",
+  "authority": "USER_OPERATOR",
+  "target": "BRAINK_RESIDENT_HTML_WORKSTATION",
+  "capability": "BOOT_RESIDENT_WORKSTATION",
+  "service": "runtime/publish/scripts/workstation_agent.py",
+  "health_path": "/healthz",
+  "port_policy": "HOST_ASSIGNED_UNLESS_OPERATOR_BINDS",
+  "primary_runtime": "RESIDENT_HTML_VFS",
+  "guest_runtime_policy": "OPTIONAL",
+  "google_required_for_execution": false,
+  "github_required_for_execution": false,
+  "observed_execution": {
+    "status": "PASS",
+    "next_state": "WORKSTATION_BOOT:QUALIFIED",
+    "served_bytes_match_source": true,
+    "health_sha256_matches_source": true,
+    "response_header_sha256_matches_source": true
+  }
+}
