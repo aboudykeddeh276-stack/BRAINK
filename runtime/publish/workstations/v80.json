@@ -1,0 +1,31 @@
+{
+  "schema": "braink.workstation.binding.v80",
+  "version": "v80",
+  "authority": "USER_OPERATOR",
+  "package": "BRAINK_WORKSTATION_v80_MAC_APP.zip",
+  "payload": {
+    "version": "v79-dom-qualified",
+    "html": "workstation.html",
+    "sha256": "032206ad004bbdc05c310626deff66f197d8c10bd48c8ff46444f1313be14b78",
+    "dom_qualification": "PASS"
+  },
+  "package_qualification": {
+    "mac_app_bundle_structure": "PASS",
+    "info_plist_parse": "PASS",
+    "shell_syntax": "PASS",
+    "embedded_service_compile": "PASS",
+    "payload_hash_verify": "PASS",
+    "service_start": "PASS",
+    "health_readback": "PASS",
+    "served_bytes_equal_payload": "PASS"
+  },
+  "execution": {
+    "repo_dependency": false,
+    "google_dependency": false,
+    "github_dependency": false,
+    "core_boot_network_dependency": false,
+    "host_requirement": "python3-or-python"
+  },
+  "bundle_sha256": "963c640aeb95e59dda38c2b6d92a3fb89bffa9f273a31817ad8e17f9f3848e9b",
+  "library_path": "/KEX/BRAINK_WORKSTATION/v80/BRAINK_WORKSTATION_v80_MAC_APP.zip"
+}
