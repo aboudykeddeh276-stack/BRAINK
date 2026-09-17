@@ -392,6 +392,22 @@ enum BRAINKDeliveryAudit {
             requiredTokens: ["struct BrainkNativeChatbotView", "ChatInputBar", "TraceRow", "onDrop"],
             weight: 1.2
         ),
+        StackModuleContract(
+            moduleName: "zero_less_spectrum_validation",
+            runningFile: "\(sourceRoot)/BRAINKZeroLessSpectrum.swift",
+            logicalLink: "ZeroLessSpectrum.runtimeSlots + SpectrumIndex.make",
+            verification: "Spectrum ∈ [1,2,3,...]: SpectrumIndex rejects 0 and negatives; ZeroLessSpectrum.assertNoDimensionalCollapse proves no slot collapses to determinant=0; observer boundary never stored as integer constant.",
+            requiredTokens: [
+                "struct ZeroLessSpectrum",
+                "enum SpectrumIndex",
+                "static let runtimeSlots",
+                "static func make(_ raw: Int) -> SpectrumIndex?",
+                "guard isValid(raw) else { return nil }",
+                "assertNoDimensionalCollapse",
+                "static var minimum",
+            ],
+            weight: 1.3
+        ),
     ]
 
     static func moduleDefinitions() -> [ModuleDefinition] {

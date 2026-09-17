@@ -5,11 +5,18 @@ struct BRAINKInnerRuntimeState: Codable {
     var emotionalConstraints: [String: Double]
     var perceptionConstraints: [String: Double]
     var governanceConstraints: [String: Double]
+    // Spectrum slot index ∈ [1, 2, 3, ...] — never 0 (KEX zero-less principle).
+    // Tracks the current ZeroLessSpectrum allocation slot for this runtime state.
+    var spectrumSlotIndex: Int
     var updatedAt: String
 }
 
 enum BRAINKInnerRuntime {
     static func bootstrap() -> BRAINKInnerRuntimeState {
+        // One-time proof gate: verify the static runtime spectrum contains no
+        // zero-determinant slots (NoDimensionalCollapseTheorem).
+        ZeroLessSpectrum.assertNoDimensionalCollapse(slots: ZeroLessSpectrum.runtimeSlots)
+
         if let existing = readState() {
             return existing
         }
@@ -33,6 +40,7 @@ enum BRAINKInnerRuntime {
                 "illlm_update_only_mode": 1.0,
                 "runtime_mutation_allowed": 0.0
             ],
+            spectrumSlotIndex: ZeroLessSpectrum.minimum.value,
             updatedAt: ISO8601DateFormatter().string(from: Date())
         )
         try? writeState(initial)
@@ -71,6 +79,12 @@ enum BRAINKInnerRuntime {
         next.governanceConstraints["frontier_seal_priority"] = sealed ? 1.0 : 0.0
         next.governanceConstraints["illlm_update_only_mode"] = sealed ? 1.0 : 0.6
         next.governanceConstraints["runtime_mutation_allowed"] = sealed ? 0.0 : 1.0
+
+        // Advance spectrum slot using ZeroLessSpectrum (slot ∈ [1,2,3,...], never 0).
+        // If the stored slot index is somehow invalid, reset to minimum (invariant recovery).
+        let currentSlot = SpectrumIndex.make(next.spectrumSlotIndex) ?? ZeroLessSpectrum.minimum
+        next.spectrumSlotIndex = ZeroLessSpectrum.next(after: currentSlot).value
+
         next.updatedAt = ISO8601DateFormatter().string(from: Date())
 
         try? writeState(next)
@@ -96,6 +110,7 @@ enum BRAINKInnerRuntime {
         INNER RUNTIME CONSTRAINT CORE
         state_path: \(BRAINKConstants.innerRuntimeStatePath)
         updated_at: \(state.updatedAt)
+        spectrum_slot: \(state.spectrumSlotIndex) (zero-less; ∈ [1,2,3,...])
         thoughts:
         - \(thoughtPreview.isEmpty ? "none" : thoughtPreview)
         emotions: \(emotions)
