@@ -21,6 +21,7 @@ struct BRAINKSmokeRunner {
         await engine.send(userInput: "State OF transition + Transition OF state / Definition OF transition + Transition OF definitions / Definition OF state + State OF definitions / X OF X OF X OF X")
         await engine.send(userInput: "software that can code using my software and task it to each repo using my self existence design")
         await engine.send(userInput: "learn every last file and code and skill")
+        await engine.send(userInput: "skill registry il-llm circular path 1>2>3")
 
         let total = engine.messages.count
         let users = engine.messages.filter { $0.role == .user }.count
@@ -64,6 +65,8 @@ swiftc \
   "$ROOT/Sources/BRAINKScraperTool.swift" \
   "$ROOT/Sources/BRAINKChromePlugin.swift" \
   "$ROOT/Sources/ModuleManifest.swift" \
+  "$ROOT/Sources/BRAINKSkillProtocol.swift" \
+  "$ROOT/Sources/BRAINKSkillRegistry.swift" \
   -o "$TMP_BIN"
 
 "$TMP_BIN"

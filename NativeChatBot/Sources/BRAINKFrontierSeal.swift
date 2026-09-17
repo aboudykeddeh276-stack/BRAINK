@@ -1,7 +1,4 @@
 import Foundation
-#if canImport(CryptoKit)
-import CryptoKit
-#endif
 
 struct FrontierSealState: Codable {
     let architect: String
@@ -111,27 +108,13 @@ enum BRAINKFrontierSeal {
         var joined = ""
         for path in paths {
             let content = (try? String(contentsOfFile: path, encoding: .utf8)) ?? ""
-            let text = stableHexDigest(Data(content.utf8))
+            let text = BRAINKConstants.stableHexDigest(Data(content.utf8))
             joined.append(path)
             joined.append(":")
             joined.append(text)
             joined.append("\n")
         }
-        return stableHexDigest(Data(joined.utf8))
-    }
-
-    private static func stableHexDigest(_ data: Data) -> String {
-        #if canImport(CryptoKit)
-        let digest = SHA256.hash(data: data)
-        return digest.compactMap { String(format: "%02x", $0) }.joined()
-        #else
-        var hash: UInt64 = 0xcbf29ce484222325
-        for byte in data {
-            hash ^= UInt64(byte)
-            hash = hash &* 0x100000001b3
-        }
-        return String(format: "%016llx", hash)
-        #endif
+        return BRAINKConstants.stableHexDigest(Data(joined.utf8))
     }
 
     private static func writeJSON<T: Codable>(_ value: T, to path: String) throws {
