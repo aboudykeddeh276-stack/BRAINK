@@ -62,9 +62,8 @@ class CommitReceipt:
 class ToTSafetyKernel:
     """Crash-fault/non-Byzantine quorum safety kernel.
 
-    Safety supplied here is deliberately narrower than Byzantine consensus:
-    fixed membership, majority quorum, deterministic log chaining, and a
-    per-voter equivocation lock for each (epoch, index).
+    Fixed membership, majority quorum, deterministic log chaining, per-voter
+    equivocation lock. This intentionally does NOT claim Byzantine fault tolerance.
     """
     GENESIS = sha256(b'KEX-TOT-GENESIS').hexdigest()
 
@@ -114,21 +113,13 @@ class ToTSafetyKernel:
 
     def certificate(self, transition: Transition, votes: Iterable[Vote]) -> QuorumCertificate:
         digest = transition.digest()
-        valid = sorted({
-            v.voter for v in votes
-            if v.voter in self.members
-            and v.epoch == self.epoch
-            and v.index == transition.index
-            and v.transition_digest == digest
-            and v.membership_hash == self.membership_hash
-        })
+        valid = sorted({v.voter for v in votes if v.voter in self.members and v.epoch == self.epoch
+                        and v.index == transition.index and v.transition_digest == digest
+                        and v.membership_hash == self.membership_hash})
         if len(valid) < self.quorum:
             raise SafetyViolation('QUORUM_NOT_REACHED')
-        body = {
-            'epoch': self.epoch, 'index': transition.index,
-            'transition_digest': digest, 'membership_hash': self.membership_hash,
-            'voters': valid,
-        }
+        body = {'epoch': self.epoch, 'index': transition.index, 'transition_digest': digest,
+                'membership_hash': self.membership_hash, 'voters': valid}
         return QuorumCertificate(certificate_hash=_hash(body), **{**body, 'voters': tuple(valid)})
 
     def commit(self, t: Transition, votes: Iterable[Vote]) -> CommitReceipt:
@@ -140,21 +131,13 @@ class ToTSafetyKernel:
             raise SafetyViolation('PREVIOUS_ROOT_MISMATCH')
         qc = self.certificate(t, votes)
         new_root = sha256((self.root + t.digest() + qc.certificate_hash).encode()).hexdigest()
-        body = {
-            'index': t.index, 'epoch': t.epoch, 'transition_digest': t.digest(),
-            'previous_root': self.root, 'committed_root': new_root,
-            'membership_hash': self.membership_hash,
-            'quorum_certificate': asdict(qc),
-        }
-        receipt = CommitReceipt(
-            index=t.index, epoch=t.epoch, transition_digest=t.digest(),
-            previous_root=self.root, committed_root=new_root,
-            membership_hash=self.membership_hash, quorum_certificate=qc,
-            receipt_hash=_hash(body),
-        )
-        self.log.append(t)
-        self.receipts.append(receipt)
-        self.root = new_root
+        body = {'index': t.index, 'epoch': t.epoch, 'transition_digest': t.digest(),
+                'previous_root': self.root, 'committed_root': new_root,
+                'membership_hash': self.membership_hash, 'quorum_certificate': asdict(qc)}
+        receipt = CommitReceipt(index=t.index, epoch=t.epoch, transition_digest=t.digest(),
+            previous_root=self.root, committed_root=new_root, membership_hash=self.membership_hash,
+            quorum_certificate=qc, receipt_hash=_hash(body))
+        self.log.append(t); self.receipts.append(receipt); self.root = new_root
         return receipt
 
     @classmethod
@@ -179,35 +162,44 @@ class ToTSafetyKernel:
         expected_root = sha256((receipt.previous_root + t.digest() + qc.certificate_hash).encode()).hexdigest()
         if expected_root != receipt.committed_root:
             raise SafetyViolation('COMMITTED_ROOT_MISMATCH')
-        receipt_body = {
-            'index': receipt.index, 'epoch': receipt.epoch, 'transition_digest': receipt.transition_digest,
-            'previous_root': receipt.previous_root, 'committed_root': receipt.committed_root,
-            'membership_hash': receipt.membership_hash, 'quorum_certificate': asdict(qc),
-        }
+        receipt_body = {'index': receipt.index, 'epoch': receipt.epoch,
+            'transition_digest': receipt.transition_digest, 'previous_root': receipt.previous_root,
+            'committed_root': receipt.committed_root, 'membership_hash': receipt.membership_hash,
+            'quorum_certificate': asdict(qc)}
         if _hash(receipt_body) != receipt.receipt_hash:
             raise SafetyViolation('RECEIPT_HASH_MISMATCH')
         return True
 
     @classmethod
-    def recover(cls, members: Sequence[str], transitions: Sequence[Transition], receipts: Sequence[CommitReceipt]) -> 'ToTSafetyKernel':
+    def verify_chain(cls, members: Sequence[str], transitions: Sequence[Transition], receipts: Sequence[CommitReceipt]) -> str:
+        """Verify the whole ordered chain, anchored at GENESIS, and return final root."""
         if len(transitions) != len(receipts):
-            raise SafetyViolation('RECOVERY_LENGTH_MISMATCH')
-        k = cls(members, epoch=transitions[0].epoch if transitions else 1)
+            raise SafetyViolation('CHAIN_LENGTH_MISMATCH')
+        root = cls.GENESIS
+        epoch = transitions[0].epoch if transitions else 1
         for expected_index, (t, r) in enumerate(zip(transitions, receipts), start=1):
             if t.index != expected_index or r.index != expected_index:
-                raise SafetyViolation('RECOVERY_GAP')
-            if t.previous_root != k.root or r.previous_root != k.root:
-                raise SafetyViolation('RECOVERY_ROOT_DIVERGENCE')
+                raise SafetyViolation('CHAIN_INDEX_GAP')
+            if t.epoch != epoch or r.epoch != epoch:
+                raise SafetyViolation('CHAIN_EPOCH_CHANGE_UNSUPPORTED')
+            if t.previous_root != root or r.previous_root != root:
+                raise SafetyViolation('CHAIN_ROOT_DIVERGENCE')
             cls.verify_receipt(t, r, members)
+            root = r.committed_root
+        return root
+
+    @classmethod
+    def recover(cls, members: Sequence[str], transitions: Sequence[Transition], receipts: Sequence[CommitReceipt]) -> 'ToTSafetyKernel':
+        cls.verify_chain(members, transitions, receipts)
+        k = cls(members, epoch=transitions[0].epoch if transitions else 1)
+        for t, r in zip(transitions, receipts):
             k.log.append(t); k.receipts.append(r); k.root = r.committed_root
         return k
 
     def advance_epoch(self, new_epoch: int, votes: Iterable[str]):
-        if new_epoch <= self.epoch:
-            raise SafetyViolation('EPOCH_NOT_ADVANCING')
+        if new_epoch <= self.epoch: raise SafetyViolation('EPOCH_NOT_ADVANCING')
         valid = set(votes) & set(self.members)
-        if len(valid) < self.quorum:
-            raise SafetyViolation('QUORUM_NOT_REACHED')
+        if len(valid) < self.quorum: raise SafetyViolation('QUORUM_NOT_REACHED')
         self.epoch = new_epoch
         self.membership_hash = _hash({'members': self.members, 'epoch': new_epoch})
         self._vote_locks.clear()
@@ -216,10 +208,4 @@ class ToTSafetyKernel:
         raise SafetyViolation('MEMBERSHIP_CHANGE_PROTOCOL_NOT_IMPLEMENTED')
 
     def replay_root(self) -> str:
-        root = self.GENESIS
-        for t, r in zip(self.log, self.receipts):
-            if t.previous_root != root or r.previous_root != root:
-                raise SafetyViolation('REPLAY_ROOT_DIVERGENCE')
-            self.verify_receipt(t, r, self.members)
-            root = r.committed_root
-        return root
+        return self.verify_chain(self.members, self.log, self.receipts)
