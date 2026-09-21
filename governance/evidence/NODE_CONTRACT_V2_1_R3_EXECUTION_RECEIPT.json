@@ -1,0 +1,85 @@
+{
+  "receipt_id": "KEX_NODE_CONTRACT_CONVERGENCE_R3",
+  "date": "2026-09-21",
+  "seed_id": "KEX-NODE-SIP-02-E31D2783AA9B404DAFB4DBD39EDCCEC6",
+  "supersedes": "KEX_NODE_CONTRACT_CONVERGENCE_R2",
+  "provenance_repair": {
+    "prior_library_v2_observed_sha256": "ed357aa0b6832f73526486ebca37e89b6a0bd3e840c5414fc84b475470d280d5",
+    "prior_recorded_hashes_superseded": [
+      "f86b80c2a567f0549de8eda43d67ed9b12f0dc02e109d147fb5117e1d6c79856",
+      "96433da1902f74ebe6dd1807c5b74ad0cba7b5d75848549f1e4ce309d44ede06",
+      "1224ff29ec09378e87c481ab8ca454504a270816684ada32a045a70d460a7aa9"
+    ],
+    "reason": "Persisted v2 archive bytes and embedded receipts disagreed; v2.1 rebuilt from source with non-circular archive hash policy."
+  },
+  "artifact_v2_1": {
+    "library_path": "/KEX Node Identity Instantiation/KEX_NODE_IDENTITY_INSTANTIATION_SKILLSET_v2_1.zip",
+    "sha256": "681ba389d4b74aefca97cb32448338bbb8bb02c03d788a3fa4cc4fb6105c1367",
+    "source_tree_root_sha256": "f49d8442c985620b5386e87815c8a67491db934236dc23a1bf06afef8f4deea8",
+    "clean_extract_tests": "9 passed in 0.06s",
+    "schema_parse": "PASS",
+    "python_compile": "PASS",
+    "cli_instantiation": "PASS",
+    "library_upload": "SUCCEEDED"
+  },
+  "authority": {
+    "contract_id": "KEX_NODE_TEMPLATE_AUTHORITY_V2_1",
+    "contract_hash": "06365c5d62025d4c53c9a64f8cad433783375040f52743d1e1b90d7b7fb493e3",
+    "braink_file": "observer2_runtime/node_contract_authority_v2_1.json",
+    "braink_commit": "0c8fa52a09e632ac1b83ec1b1bb6e09db46010cd",
+    "app_authority_commit": "0884882939bc095daa3579e7f534b419d2ae0cf5"
+  },
+  "app_convergence": {
+    "mirror_binding_commit": "59dbb940052a5b357193b6524459da3301aa8d7a",
+    "contract_commit": "f9d71a6efa055c6d2e2b9d5a36eb9397cf4e0197",
+    "definition_commit": "8cc68ef760c5c12915bd255b8720abcf18452fd8",
+    "template_commit": "659fac19f77fb5af9e1d8891ae1d4d861ad95112",
+    "runtime_commit": "1276b34eacbd30152798f14587b421800241fcea",
+    "regression_test_commit": "67a3e23759333ad1db0d404bdc5807a38843b9e7",
+    "validation_commit": "7e9f4d03c762d8dc86ad857418f796fc43eb7fff",
+    "definition_content_hash": "969a449f564e0d42fa071773d3d3cdfa6855134999c7a25ec505c24deb4cd483",
+    "template_identity_hash": "8cee1067c5e60d40837f600c91b87b20f2ae41b479f5d93cd7cb104b6051d968",
+    "added_mechanics": [
+      "typed integration source-port admission",
+      "runtime evidence root",
+      "proof-checked instance mutation",
+      "authority/definition/template tamper rejection",
+      "wall-clock excluded from lineage and proof identity"
+    ]
+  },
+  "braink_convergence": {
+    "evidence_root_commit": "0295bb51bc5aa2d68cf561ba7d0f8939457720bf",
+    "evidence_tests_commit": "be4f6ba5650d5623c17b1afef7ea4627cb422a0a",
+    "ci_workflow_commit": "e9b33ee624306d83caba82178f81c1daffb37c5c",
+    "runtime_evidence_root_refreshes_on": [
+      "instantiation",
+      "integration graph mutation"
+    ]
+  },
+  "remote_ci_observation": {
+    "app_run": {
+      "run_id": 35576762650,
+      "conclusion": "startup_failure",
+      "jobs_observed": 0
+    },
+    "braink_node_run": {
+      "run_id": 35576897402,
+      "conclusion": "failure",
+      "job_id": 106260659194,
+      "steps_observed": 0
+    },
+    "braink_runner_probe": {
+      "run_id": 35577028781,
+      "conclusion": "failure",
+      "job_id": 106261063718,
+      "steps_observed": 0
+    },
+    "concurrent_enterprise_control": {
+      "run_id": 35577028707,
+      "conclusion": "failure"
+    },
+    "classification": "REMOTE_RUNNER_EXECUTION_NOT_OBSERVED",
+    "prohibited_claim": "Do not promote GitHub CI to PASS from these runs."
+  },
+  "state": "BYTE_PROVENANCE_REPAIRED_LOCAL_ARTIFACT_QUALIFIED_LIVE_REPOS_EVOLVED_REMOTE_RUNNER_BOUNDARY_OBSERVED"
+}
