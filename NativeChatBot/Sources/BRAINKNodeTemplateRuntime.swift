@@ -105,3 +105,38 @@ enum BRAINKNodeTemplateLaw {
         return errors
     }
 }
+
+
+@MainActor
+final class BRAINKNodeTemplateStore: ObservableObject {
+    @Published private(set) var nativeDashboard: BRAINKNodeInstanceIdentity?
+    @Published private(set) var nativeDashboardError: String = ""
+
+    static var nativeDashboardURL: URL {
+        FileManager.default.homeDirectoryForCurrentUser
+            .appendingPathComponent(".braink/node-instances/node_hci_native-dashboard.json")
+    }
+
+    func reload() {
+        do {
+            let node = try BRAINKNodeInstanceIdentity.load(from: Self.nativeDashboardURL)
+            let errors = BRAINKNodeTemplateLaw.validate(node)
+            guard errors.isEmpty else {
+                nativeDashboard = nil
+                nativeDashboardError = errors.joined(separator: ",")
+                return
+            }
+            guard node.templateID == "TPL_HCI_STATUS_CARD_V1",
+                  node.definitionID == "HCI_PRIMITIVE_STATUS_CARD" else {
+                nativeDashboard = nil
+                nativeDashboardError = "NATIVE_DASHBOARD_TEMPLATE_IDENTITY_MISMATCH"
+                return
+            }
+            nativeDashboard = node
+            nativeDashboardError = ""
+        } catch {
+            nativeDashboard = nil
+            nativeDashboardError = "NODE_TEMPLATE_INSTANCE_UNBOUND: \(error.localizedDescription)"
+        }
+    }
+}
