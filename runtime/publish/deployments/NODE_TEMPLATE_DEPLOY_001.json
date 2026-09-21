@@ -1,0 +1,35 @@
+{
+  "schema": "braink.node.template.deployment.v1",
+  "deployment_id": "NODE-TEMPLATE-DEPLOY-001",
+  "authority": "USER_OPERATOR",
+  "target": "BRAINK_RUNTIME",
+  "capability": "DEPLOY_REUSABLE_NODE_IDENTITY",
+  "workbook_contract": {
+    "spreadsheet_id": "1CNKJvZonCk8MB4YRwSivTFKCcBe4v1sTgu92dDqnpWk",
+    "registry": "NODE_IDENTITY_TEMPLATE_REGISTRY",
+    "process_template": "FRACTAL_PROCESS_TEMPLATE"
+  },
+  "runtime": {
+    "node_identity": "runtime/publish/src/braink_runtime/node_identity.py",
+    "node_stack": "runtime/publish/src/braink_runtime/node_stack.py",
+    "tests": "runtime/publish/tests/test_node_identity.py"
+  },
+  "commits": {
+    "node_stack": "c4d0f95ed788ff7660f214e90c13d507804f91f9",
+    "node_identity": "da64fffa7f413c1c3dc987d5d8a2a5cc582326dc",
+    "tests": "0389e3216693e37cd324ba465a13c7db79b77883"
+  },
+  "qualification": {
+    "status": "PASS",
+    "tests_passed": 3,
+    "tests_failed": 0,
+    "assertions": [
+      "template_contract_preserved",
+      "instance_state_observer_edges_attribution_independent",
+      "lineage_is_provenance_not_authority",
+      "contextual_authority_binding",
+      "contextual_validator_binding"
+    ]
+  },
+  "state_out": "DEPLOYED_AND_QUALIFIED"
+}
