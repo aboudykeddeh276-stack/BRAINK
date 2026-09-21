@@ -1,0 +1,37 @@
+{
+  "schema": "braink.report03.benchmark/v1",
+  "host": "artifact-container",
+  "runtime": "3.13.5 (main, Jul 15 2026, 20:25:40) [GCC 14.2.0]",
+  "cold_warm": "warm loop after initial persisted bootstrap",
+  "workload": {
+    "directory_entries": 2,
+    "directory_updates": 100,
+    "tot_authorizations": 100
+  },
+  "directory_update": {
+    "n": 100,
+    "median_ms": 3.1021669999999997,
+    "p95_ms": 6.415441,
+    "p99_ms": 8.011223,
+    "min_ms": 0.749277,
+    "max_ms": 8.612065
+  },
+  "tot_authorize": {
+    "n": 100,
+    "median_ms": 0.777263,
+    "p95_ms": 1.322222,
+    "p99_ms": 1.930857,
+    "min_ms": 0.317439,
+    "max_ms": 3.837929
+  },
+  "cpu_user_seconds": 1.251534,
+  "cpu_system_seconds": 0.068428,
+  "max_rss_kb": 95704,
+  "io_files": {
+    "directory_bytes": 76711,
+    "tot_bytes": 29484,
+    "ledger_bytes": 266240
+  },
+  "error_rate": 0,
+  "claim_boundary": "Single-process local artifact benchmark with fsync/SQLite; not a multi-host or production latency claim."
+}
