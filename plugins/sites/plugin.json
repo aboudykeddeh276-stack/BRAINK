@@ -1,0 +1,34 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "sites",
+  "version": "1.0.0",
+  "description": "Owner-controlled website and Sites estate management through BRAINK × KEX.",
+  "author": {
+    "name": "KEDDEH SYSTEMS"
+  },
+  "repository": "https://github.com/aboudykeddeh276-stack/BRAINK",
+  "keywords": [
+    "sites",
+    "websites",
+    "deployment",
+    "domains",
+    "BRAINK",
+    "KEX"
+  ],
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "@Sites",
+        "shortDescription": "Build, version, deploy and verify owner-controlled websites.",
+        "longDescription": "Persistent owner-controlled Sites control plane with immutable source versions, domain identities, deployments, public readback and proof ledger.",
+        "developerName": "KEDDEH SYSTEMS",
+        "category": "Developer Tools",
+        "capabilities": [
+          "Read",
+          "Write"
+        ],
+        "defaultPrompt": "Use @Sites to inspect my site estate and continue work from the persistent Site identity."
+      }
+    }
+  }
+}
