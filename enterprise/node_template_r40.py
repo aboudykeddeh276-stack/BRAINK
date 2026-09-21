@@ -266,3 +266,156 @@ def legacy_recursive_template() -> dict[str, Any]:
             "state_policy": "Each instance owns independent state, Observer2 relation, integration-edge ids and attribution root.",
         },
     }
+
+
+class NodeTemplateRegistry:
+    """Persistent template-definition registry through the resident NodeVFS.
+
+    This registry stores definitions only. It does not own node execution,
+    Observer2, IL-LLM, capabilities, or runtime mutation authority.
+    """
+
+    def __init__(self, vfs: Any, registry_node_id: str):
+        self.vfs = vfs
+        self.registry_node_id = str(registry_node_id).strip()
+        if not _SEGMENT.fullmatch(self.registry_node_id):
+            raise ValueError("TEMPLATE_REGISTRY_NODE_ID_INVALID")
+
+    @staticmethod
+    def _path(template_id: str, version: str) -> str:
+        tid = str(template_id).strip()
+        ver = str(version).strip()
+        if not _NAME.fullmatch(tid):
+            raise ValueError("TEMPLATE_ID_INVALID")
+        if not _SEGMENT.fullmatch(ver):
+            raise ValueError("TEMPLATE_VERSION_INVALID")
+        return f"templates/{tid}/{ver}.json"
+
+    def register(self, template: Mapping[str, Any]) -> dict[str, Any]:
+        body = validate_template(template)
+        template_id = body["template_contract"]["template_id"]
+        version = body["definition"]["version"]
+        logical_path = self._path(template_id, version)
+        wr = self.vfs.cas_write(self.registry_node_id, logical_path, body, None)
+        result = wr["result"]
+        if result.get("status") == "COMMITTED":
+            rb = self.vfs.read(self.registry_node_id, logical_path)
+            if rb["result"].get("status") != "READ" or rb["result"].get("value") != body:
+                raise RuntimeError("TEMPLATE_REGISTRY_READBACK_MISMATCH")
+            return {"status": "REGISTERED", "logical": wr["logical"], "template_root": root(body)}
+        if result.get("status") == "CONFLICT":
+            existing = self.resolve(template_id, version)
+            if root(existing) != root(body):
+                raise RuntimeError("TEMPLATE_VERSION_CONFLICT")
+            return {"status": "EXISTING", "logical": wr["logical"], "template_root": root(existing)}
+        raise RuntimeError("TEMPLATE_REGISTER_FAILED:" + str(result.get("status")))
+
+    def resolve(self, template_id: str, version: str) -> dict[str, Any]:
+        logical_path = self._path(template_id, version)
+        rb = self.vfs.read(self.registry_node_id, logical_path)
+        if rb["result"].get("status") == "HOLE":
+            raise KeyError("NODE_TEMPLATE_NOT_FOUND")
+        if rb["result"].get("status") != "READ":
+            raise RuntimeError("TEMPLATE_READ_FAILED")
+        body = validate_template(rb["result"]["value"])
+        if body["template_contract"]["template_id"] != template_id:
+            raise RuntimeError("TEMPLATE_IDENTITY_READBACK_MISMATCH")
+        if body["definition"]["version"] != str(version):
+            raise RuntimeError("TEMPLATE_VERSION_READBACK_MISMATCH")
+        return body
+
+
+def derive_runtime_template(
+    *,
+    data_class: str,
+    sector: str,
+    function_id: str,
+    process_id: str,
+    runtime_action: str,
+    mutating: bool,
+    capabilities: Sequence[str],
+) -> dict[str, Any]:
+    """Derive a reusable node template from already-resolved IL-LLM mechanics.
+
+    Generality lives here: function/process/capability dependencies become a
+    stable template definition. Concrete node instances retain their own state,
+    Observer2 relation, attribution graph and integration-edge identities.
+    """
+    caps = tuple(sorted(set(str(x).strip() for x in capabilities if str(x).strip())))
+    stable_seed = {
+        "data_class": str(data_class),
+        "sector": str(sector),
+        "function_id": str(function_id),
+        "process_id": str(process_id),
+        "runtime_action": str(runtime_action),
+        "mutating": bool(mutating),
+        "capabilities": list(caps),
+    }
+    seed_root = root(stable_seed)
+    node_id = "RUNTIME_" + re.sub(r"[^A-Za-z0-9._-]+", "_", str(function_id).split("/")[-1]).upper()
+    node_id = (node_id or "RUNTIME_OPERATION")[:128]
+    template_id = "TPL_RUNTIME_" + seed_root[:20].upper()
+    definition = {
+        "authority": "A.KEDDEH",
+        "description": "Reusable runtime node derived from resolved IL-LLM function/process/capability contracts.",
+        "name": "BRAINK Runtime " + str(function_id).split("/")[-1],
+        "node_id": node_id,
+        "version": "1",
+        "data_class": str(data_class),
+        "sector": str(sector),
+        "function_id": str(function_id),
+        "process_id": str(process_id),
+        "runtime_action": str(runtime_action),
+    }
+    definition["definition_hash"] = root(definition)
+    outbound = [
+        {"from": "result", "to": "LEDGER", "type": "proof_edge"},
+        {"from": "runtime", "to": "runtime-action://" + str(runtime_action), "type": "runtime_edge"},
+    ]
+    outbound.extend(
+        {"from": "runtime", "to": "capability://" + cap, "type": "capability_edge"}
+        for cap in caps
+    )
+    return {
+        "definition": definition,
+        "typed_io": {
+            "inputs": [{"name": "payload", "type": "object", "required": True}],
+            "outputs": [{"name": "result", "type": "object", "required": True}],
+            "contracts": [
+                "Inputs and outputs are typed before runtime dispatch.",
+                "Dependency contracts are provider-agnostic references.",
+            ],
+        },
+        "attributes": {
+            "runtime": {"stateful": bool(mutating), "runtime_action": str(runtime_action)},
+            "proof": {"ledger_required": True},
+            "security": {"observer2_governed": True},
+            "semantic": {"data_class": str(data_class), "sector": str(sector)},
+        },
+        "capability_class": {
+            "class": "SMART_NODE" if bool(mutating) or caps else "DUMB_NODE",
+            "allowed_actions": sorted(set([str(runtime_action), *caps])),
+            "blocked_actions": ["copy_markup_as_identity"],
+        },
+        "attribution_graph": {
+            "author": "A.KEDDEH",
+            "source_template": template_id,
+            "derived_from": [str(function_id), str(process_id)],
+            "credit_edges": [
+                {"from": str(function_id), "to": template_id, "relation": "FUNCTION_DERIVES_TEMPLATE"},
+                {"from": str(process_id), "to": template_id, "relation": "PROCESS_DERIVES_TEMPLATE"},
+            ],
+        },
+        "integration_edges": {
+            "inbound": [{"from": "IL_LLM", "to": "payload", "type": "semantic_input_edge"}],
+            "outbound": outbound,
+            "event_edges": [{"event": "NODE_INSTANTIATED", "route": "template->instance->ledger"}],
+        },
+        "template_contract": {
+            "template_id": template_id,
+            "instantiation_policy": "Instantiate through the resident recursive-computer constructor.",
+            "lineage_policy": "Preserve template definition and recursive parent lineage.",
+            "non_copy_policy": "Rendered markup and projection fragments never define node identity.",
+            "state_policy": "Each instance owns state, Observer2 relation, attribution and integration-edge identities.",
+        },
+    }
