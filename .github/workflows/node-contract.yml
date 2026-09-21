@@ -1,0 +1,28 @@
+name: BRAINK Node Contract
+
+on:
+  push:
+    paths:
+      - 'observer2_runtime/nodes.py'
+      - 'observer2_runtime/node_contract_authority_v2_1.json'
+      - 'tests/test_nodes.py'
+      - '.github/workflows/node-contract.yml'
+  pull_request:
+    paths:
+      - 'observer2_runtime/nodes.py'
+      - 'observer2_runtime/node_contract_authority_v2_1.json'
+      - 'tests/test_nodes.py'
+      - 'governance/evidence/**'
+      - '.github/workflows/node-contract.yml'
+  workflow_dispatch:
+
+jobs:
+  node-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run canonical node contract suite
+        run: python -m unittest discover -s tests -p 'test_nodes.py' -v
