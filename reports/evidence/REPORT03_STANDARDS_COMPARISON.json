@@ -1,0 +1,136 @@
+{
+  "schema": "braink.report03.standards-comparison/v1",
+  "as_of": "2026-09-21",
+  "comparisons": [
+    {
+      "reference": "NIST SP 800-207 / SP 800-207A",
+      "alignment": "PARTIAL",
+      "matches": [
+        "No implicit trust from coordinate/network location",
+        "Explicit authority and capability checks before ToT propagation"
+      ],
+      "gaps": [
+        "No deployed workload identity issuer",
+        "No credential rotation/revocation",
+        "No production policy decision point"
+      ],
+      "sources": [
+        "https://csrc.nist.gov/pubs/sp/800/207/final",
+        "https://csrc.nist.gov/pubs/sp/800/207/a/final"
+      ]
+    },
+    {
+      "reference": "NIST SP 800-53 Rev.5 current release line",
+      "alignment": "PARTIAL",
+      "matches": [
+        "Separate source/target capability checks",
+        "Evidence packets for privileged reconciliation decisions"
+      ],
+      "gaps": [
+        "Not a complete 800-53 implementation or assessment"
+      ],
+      "sources": [
+        "https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final"
+      ]
+    },
+    {
+      "reference": "RFC 8785 JSON Canonicalization Scheme",
+      "alignment": "CONCEPTUAL_ONLY",
+      "matches": [
+        "Deterministic sorted compact JSON for tested values"
+      ],
+      "gaps": [
+        "No I-JSON enforcement",
+        "No proof of JCS number/string serialization conformance"
+      ],
+      "sources": [
+        "https://www.rfc-editor.org/rfc/rfc8785.html"
+      ]
+    },
+    {
+      "reference": "RFC 8949 deterministic CBOR",
+      "alignment": "NOT_IMPLEMENTED",
+      "matches": [],
+      "gaps": [
+        "No CBOR codec"
+      ],
+      "sources": [
+        "https://www.rfc-editor.org/rfc/rfc8949.html"
+      ]
+    },
+    {
+      "reference": "RFC 9846 TLS 1.3",
+      "alignment": "NOT_IMPLEMENTED_IN_REPORT03",
+      "matches": [],
+      "gaps": [
+        "No remote TLS session exercised",
+        "Remote peer/channel security unproven"
+      ],
+      "sources": [
+        "https://www.rfc-editor.org/info/rfc9846/"
+      ]
+    },
+    {
+      "reference": "IEEE Std 1003.1-2024 / The Open Group Issue 8",
+      "alignment": "PARTIAL",
+      "matches": [
+        "file fsync + replace + parent-directory fsync"
+      ],
+      "gaps": [
+        "No physical power-cut test",
+        "Durability remains filesystem/storage dependent"
+      ],
+      "sources": [
+        "https://pubs.opengroup.org/onlinepubs/9799919799/",
+        "https://pubs.opengroup.org/onlinepubs/9799919799/xrat/V4_xbd_chap01.html"
+      ]
+    },
+    {
+      "reference": "Kubernetes controller/resourceVersion pattern",
+      "alignment": "STRONG_PATTERN_ALIGNMENT",
+      "matches": [
+        "desired vs observed loop",
+        "fixed point",
+        "expected-root stale-write rejection"
+      ],
+      "gaps": [
+        "No watch API",
+        "No HA API server",
+        "No leader election"
+      ],
+      "sources": [
+        "https://kubernetes.io/docs/concepts/architecture/controller/",
+        "https://kubernetes.io/docs/reference/using-api/api-concepts"
+      ]
+    },
+    {
+      "reference": "etcd/Raft consistency",
+      "alignment": "EXPLICITLY_BELOW",
+      "matches": [
+        "stale CAS rejection",
+        "fork detection"
+      ],
+      "gaps": [
+        "No quorum",
+        "No replicated consensus log",
+        "No linearizability"
+      ],
+      "sources": [
+        "https://etcd.io/docs/v3.7/dev-guide/api_reference_v3/"
+      ]
+    },
+    {
+      "reference": "RFC 9562 UUID",
+      "alignment": "ALTERNATE_SCHEME",
+      "matches": [
+        "Decentralized identifiers are possible without a central registration table"
+      ],
+      "gaps": [
+        "BRAINK uses node IDs and SHA-256 roots, not UUID schema interoperability"
+      ],
+      "sources": [
+        "https://www.rfc-editor.org/rfc/rfc9562.html"
+      ]
+    }
+  ]
+}

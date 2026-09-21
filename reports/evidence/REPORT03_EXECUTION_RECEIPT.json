@@ -1,0 +1,81 @@
+{
+  "schema": "braink.report03.execution-receipt/v1",
+  "executed_at_utc": "2026-09-21T09:36:39Z",
+  "python": "3.13.5 (main, Jul 15 2026, 20:25:40) [GCC 14.2.0]",
+  "events": [
+    {
+      "case": "bootstrap_proposer",
+      "status": "COMMITTED"
+    },
+    {
+      "case": "layer2_bootstrap",
+      "status": "REGISTERED"
+    },
+    {
+      "case": "fixed_point",
+      "status": "FIXED_POINT"
+    },
+    {
+      "case": "authorized_drift",
+      "status": "RECONCILED"
+    },
+    {
+      "case": "bad_attestation",
+      "state_unchanged": true,
+      "status": "FAILED:TOT_ATTESTATION_INVALID"
+    },
+    {
+      "case": "replica_initial_merge",
+      "status": "MERGED"
+    },
+    {
+      "case": "concurrent_fork",
+      "status": "CONFLICT",
+      "conflicts": [
+        {
+          "node_id": "B",
+          "reason": "CONCURRENT_FORK_SAME_SEQUENCE",
+          "local_root": "fb413f312a5f15db9af9891f0f9de302d436037bcf3f7329f69e42ebdc501f01",
+          "remote_root": "dcf24bff4f02b904bafbdc3d1df17b57bc4af69e924a090c1f29cc419d8bb776"
+        }
+      ]
+    },
+    {
+      "case": "coordinate_collision_stress",
+      "committed": 1,
+      "blocked": 31
+    },
+    {
+      "case": "restart_readback",
+      "directory_head_equal": true,
+      "tot_head_equal": true
+    },
+    {
+      "case": "directory_tamper",
+      "detected": true,
+      "error": "RuntimeError:DIRECTORY_HEAD_MISMATCH"
+    }
+  ],
+  "ledger_chain": {
+    "ok": true,
+    "packet_count": 14,
+    "failures": []
+  },
+  "packet_count": 14,
+  "primary_directory": {
+    "entries": 3,
+    "version": 5,
+    "head_root": "c9012940a53ba86d1860b757c114e83980827fde57ae4478d86c07eef7dc3f83"
+  },
+  "replica_directory": {
+    "entries": 2,
+    "version": 4,
+    "head_root": "395e65c3b7931752bfbdb1c49e4684ddb9f89b4e22f1b9fa99c07b6c9c22d9b9"
+  },
+  "tot_kernel": {
+    "accepted_transitions": 1,
+    "head": "bb6681084e21989f22c4728f482b9e960d4b50368c7750d1db2de746fa5bd135"
+  },
+  "receipt_root": "65b449db4287472bec35d539cf9a8f67fc8122edfa3ff8f7f2f092a210dd4d03",
+  "claim_boundary": "Observed on the local artifact execution environment. Does not prove R40 deployment, multi-host consensus, production identity, or remote transport."
+}

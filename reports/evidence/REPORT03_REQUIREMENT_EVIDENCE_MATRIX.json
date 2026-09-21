@@ -1,0 +1,72 @@
+{
+  "schema": "braink.report03.requirement-evidence/v1",
+  "deliverables": [
+    {
+      "deliverable": "ToT safety kernel",
+      "source": "enterprise/report03_engineering_r40.py::ToTSafetyKernel",
+      "observed_local": "PASS",
+      "evidence": [
+        "24-test local suite",
+        "bad attestation state unchanged",
+        "replay/cycle/hop/state-root checks"
+      ]
+    },
+    {
+      "deliverable": "Distributed coordinate directory",
+      "source": "enterprise/report03_engineering_r40.py::DistributedCoordinateDirectory",
+      "observed_local": "PASS_AFTER_DEFECT_PATCH",
+      "evidence": [
+        "same-sequence fork bug found and fixed",
+        "32-way collision 1 commit/31 blocked",
+        "restart/tamper/persistence tests"
+      ]
+    },
+    {
+      "deliverable": "Layer-2 reconciler",
+      "source": "enterprise/report03_engineering_r40.py::Layer2Reconciler",
+      "observed_local": "PASS",
+      "evidence": [
+        "bootstrap",
+        "fixed point",
+        "identity drift",
+        "ToT-gated mutable reconcile",
+        "readback"
+      ]
+    },
+    {
+      "deliverable": "Tests/fault injection",
+      "source": "tests/R40/test_report03_engineering_r40.py",
+      "observed_local": "LOCAL EXECUTED SUITE 24/24; repository mirror committed",
+      "evidence": [
+        "reports/evidence/REPORT03_EXECUTION_RECEIPT.json"
+      ]
+    },
+    {
+      "deliverable": "Evidence receipts",
+      "source": "reports/evidence/REPORT03_EXECUTION_RECEIPT.json",
+      "observed_local": "PASS",
+      "evidence": [
+        "14 packets",
+        "ledger chain verified",
+        "receipt root 65b449db4287472bec35d539cf9a8f67fc8122edfa3ff8f7f2f092a210dd4d03"
+      ]
+    },
+    {
+      "deliverable": "Current standards comparison",
+      "source": "reports/evidence/REPORT03_STANDARDS_COMPARISON.json",
+      "observed_local": "COMPLETE"
+    },
+    {
+      "deliverable": "Report 03",
+      "source": "reports/REPORT_03_MISSING_ENGINEERING_LAYER.md",
+      "observed_local": "COMPLETE"
+    }
+  ],
+  "boundary": {
+    "source_branch": "kex/report03-engineering-layer",
+    "base_branch": "kex/canonical-execution-r40",
+    "local_artifact_execution": true,
+    "resident_r40_ci_execution": false,
+    "production_deployment": false
+  }
+}
