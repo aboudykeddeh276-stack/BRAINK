@@ -80,7 +80,9 @@ def describe_profile(profile_name: str) -> dict[str, object]:
         "capabilities": list(p.capabilities),
         "state_store": p.state_store,
         "receipt_surface": p.receipt_surface,
-        "authority": "BRAINK_CORE",
+        "authority": "CONTEXTUAL_BY_CAPABILITY",
         "execution_role": "BOUNDED_NODE_SUBSTRATE",
-        "promotion_authority": "BRAINK_CORE_ONLY",
+        "promotion_authority": "BOUND_BY_CONTEXTUAL_AUTHORITY_AND_VALID_RECEIPT",
+        "lineage_authority_rule": "LINEAGE_IS_PROVENANCE_NOT_AUTOMATIC_AUTHORITY",
+        "validator_binding": "CONTEXTUAL_BY_VALIDATOR_ROLE",
     }
