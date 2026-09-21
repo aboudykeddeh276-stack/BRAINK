@@ -1,0 +1,444 @@
+{
+  "schema": "braink.core-node-templates.r1",
+  "purpose": "Canonical reusable node-template definitions for core BRAINK/KEX runtime surfaces. Definitions reference implementation artifacts; executable bodies are not copied into template identity.",
+  "templates": [
+    {
+      "template_id": "TPL_HCI_COMMAND_CARD_V1_1",
+      "definition_id": "HCI_PRIMITIVE_COMMAND_CARD",
+      "type": "NODE_TEMPLATE",
+      "sector": "HCI",
+      "role": "COMMAND_CARD",
+      "version": "1.1.0",
+      "capability_class": "SMART_NODE",
+      "typed_inputs": {
+        "user_intent": "string",
+        "context_seed": "KEXSeed",
+        "observer_context": "ObserverRelation"
+      },
+      "typed_outputs": {
+        "command_packet": "KEXCommandPacket",
+        "proof_event": "LedgerEvent"
+      },
+      "attributes": [
+        {
+          "name": "surface",
+          "value_type": "string",
+          "value": "card",
+          "source": "HCI_PRIMITIVE_COMMAND_CARD",
+          "source_version": "1.1.0"
+        }
+      ],
+      "attribution_graph": [
+        {
+          "type": "AUTHORED_BY",
+          "target": "A.KEDDEH"
+        },
+        {
+          "type": "IMPLEMENTS",
+          "target": "KEX_NODE_TEMPLATE_CONTRACT_V2"
+        }
+      ],
+      "integration_contract": {
+        "interfaces": [
+          "intent.ingress",
+          "command.emit",
+          "proof.write"
+        ],
+        "implementation_refs": [
+          "NativeChatBot/Sources/BRAINKNodeTemplateRuntime.swift"
+        ]
+      },
+      "policy_bindings": [
+        "policy:hci.typed-intent",
+        "policy:proof.required"
+      ],
+      "compatibility": {
+        "braink_control_plane": ">=10"
+      },
+      "lifecycle": "IMMUTABLE",
+      "authorship": {
+        "authority": "A.KEDDEH",
+        "organization": "Keddeh Systems"
+      }
+    },
+    {
+      "template_id": "TPL_HCI_STATUS_CARD_V1",
+      "definition_id": "HCI_PRIMITIVE_STATUS_CARD",
+      "type": "NODE_TEMPLATE",
+      "sector": "HCI",
+      "role": "STATUS_CARD",
+      "version": "1.0.0",
+      "capability_class": "DUMB_NODE",
+      "typed_inputs": {
+        "label": "string",
+        "observed_state": "enum",
+        "freshness_age_sec": "number"
+      },
+      "typed_outputs": {
+        "render_model": "object"
+      },
+      "attributes": [
+        {
+          "name": "truth_source",
+          "value_type": "string",
+          "value": "observed_state_only",
+          "source": "HCI_PRIMITIVE_STATUS_CARD",
+          "source_version": "1.0.0"
+        }
+      ],
+      "attribution_graph": [
+        {
+          "type": "AUTHORED_BY",
+          "target": "A.KEDDEH"
+        }
+      ],
+      "integration_contract": {
+        "interfaces": [
+          "status.read"
+        ],
+        "implementation_refs": [
+          "NativeChatBot/Sources/BRAINKUIContainers.swift"
+        ]
+      },
+      "policy_bindings": [
+        "policy:ui.no-self-promotion"
+      ],
+      "compatibility": {
+        "braink_control_plane": ">=10"
+      },
+      "lifecycle": "IMMUTABLE",
+      "authorship": {
+        "authority": "A.KEDDEH",
+        "organization": "Keddeh Systems"
+      }
+    },
+    {
+      "template_id": "TPL_PLUGIN_DESKTOP_COMMANDER_V1",
+      "definition_id": "PLUGIN_DESKTOP_COMMANDER_HOST_CONTROL",
+      "type": "NODE_TEMPLATE",
+      "sector": "HOST_CONTROL",
+      "role": "REMOTE_CARRIER_PLUGIN",
+      "version": "1.0.0",
+      "capability_class": "SYSTEM_NODE",
+      "typed_inputs": {
+        "host_control_request": "HostControlRequest"
+      },
+      "typed_outputs": {
+        "carrier_result": "CarrierResult",
+        "readback": "ObservedState"
+      },
+      "attributes": [
+        {
+          "name": "carrier_is_authority",
+          "value_type": "boolean",
+          "value": false,
+          "source": "PLUGIN_DESKTOP_COMMANDER_HOST_CONTROL",
+          "source_version": "1.0.0"
+        }
+      ],
+      "attribution_graph": [
+        {
+          "type": "AUTHORED_BY",
+          "target": "A.KEDDEH"
+        },
+        {
+          "type": "ADAPTS",
+          "target": "@wonderwhy-er/desktop-commander"
+        }
+      ],
+      "integration_contract": {
+        "interfaces": [
+          "host.inspect",
+          "host.execute",
+          "host.readback"
+        ],
+        "implementation_refs": [
+          "NativeChatBot/Sources/BRAINKDesktopCommanderPlugin.swift",
+          "runtime/host_control/braink_desktop_commander_runtime.py"
+        ]
+      },
+      "policy_bindings": [
+        "policy:host-control.authority",
+        "policy:external-carrier-proof"
+      ],
+      "compatibility": {
+        "braink_control_plane": ">=10"
+      },
+      "lifecycle": "PERSISTENT",
+      "authorship": {
+        "authority": "A.KEDDEH",
+        "organization": "Keddeh Systems",
+        "third_party_carrier_claimed": false
+      }
+    },
+    {
+      "template_id": "TPL_RUNTIME_HOST_FABRIC_V1",
+      "definition_id": "RUNTIME_BRAINK_HOST_FABRIC",
+      "type": "NODE_TEMPLATE",
+      "sector": "HOST_CONTROL",
+      "role": "HOST_FABRIC",
+      "version": "1.0.0",
+      "capability_class": "SYSTEM_NODE",
+      "typed_inputs": {
+        "host_observation": "HostObservation",
+        "work_request": "CapabilityRequest"
+      },
+      "typed_outputs": {
+        "host_state": "HostState",
+        "route": "HostRoute",
+        "proof": "LedgerEvent"
+      },
+      "attributes": [
+        {
+          "name": "scheduler_law",
+          "value_type": "string",
+          "value": "capability+authority+freshness",
+          "source": "RUNTIME_BRAINK_HOST_FABRIC",
+          "source_version": "1.0.0"
+        }
+      ],
+      "attribution_graph": [
+        {
+          "type": "AUTHORED_BY",
+          "target": "A.KEDDEH"
+        }
+      ],
+      "integration_contract": {
+        "interfaces": [
+          "host.admit",
+          "host.route",
+          "host.reconcile"
+        ],
+        "implementation_refs": [
+          "runtime/host_control/braink_host_fabric.py"
+        ]
+      },
+      "policy_bindings": [
+        "policy:host-ready.proof",
+        "policy:offline-local"
+      ],
+      "compatibility": {
+        "braink_control_plane": ">=10"
+      },
+      "lifecycle": "PERSISTENT",
+      "authorship": {
+        "authority": "A.KEDDEH",
+        "organization": "Keddeh Systems"
+      }
+    },
+    {
+      "template_id": "TPL_RUNTIME_NETWORK_INTENT_V1",
+      "definition_id": "RUNTIME_IL_LLM_NETWORK_INTENT",
+      "type": "NODE_TEMPLATE",
+      "sector": "IL_LLM",
+      "role": "NETWORK_INTENT_COMPILER",
+      "version": "1.0.0",
+      "capability_class": "DUMB_NODE",
+      "typed_inputs": {
+        "producer_request": "NetworkIntent"
+      },
+      "typed_outputs": {
+        "semantic_root": "hash",
+        "ledger_projections": "array"
+      },
+      "attributes": [
+        {
+          "name": "projection_law",
+          "value_type": "string",
+          "value": "one causal identity many bounded observers",
+          "source": "RUNTIME_IL_LLM_NETWORK_INTENT",
+          "source_version": "1.0.0"
+        }
+      ],
+      "attribution_graph": [
+        {
+          "type": "AUTHORED_BY",
+          "target": "A.KEDDEH"
+        },
+        {
+          "type": "IMPLEMENTS",
+          "target": "IL-LLM"
+        }
+      ],
+      "integration_contract": {
+        "interfaces": [
+          "intent.normalize",
+          "ledger.project"
+        ],
+        "implementation_refs": [
+          "runtime/network/braink_network_intent.py"
+        ]
+      },
+      "policy_bindings": [
+        "policy:producer-truth",
+        "policy:authority-preservation"
+      ],
+      "compatibility": {
+        "braink_control_plane": ">=10"
+      },
+      "lifecycle": "IMMUTABLE",
+      "authorship": {
+        "authority": "A.KEDDEH",
+        "organization": "Keddeh Systems"
+      }
+    },
+    {
+      "template_id": "TPL_RUNTIME_LINGUISTICS_V1",
+      "definition_id": "RUNTIME_BRAINK_LINGUISTIC_ENGINE",
+      "type": "NODE_TEMPLATE",
+      "sector": "IL_LLM",
+      "role": "LINGUISTIC_PROJECTION",
+      "version": "1.0.0",
+      "capability_class": "DUMB_NODE",
+      "typed_inputs": {
+        "numeric_state": "integer",
+        "property_relation": "registered_relation",
+        "memory_modifier": "MemoryArray"
+      },
+      "typed_outputs": {
+        "english_projection": "string",
+        "semantic_root": "hash"
+      },
+      "attributes": [
+        {
+          "name": "anchor_ontology",
+          "value_type": "string",
+          "value": "periodic_table",
+          "source": "RUNTIME_BRAINK_LINGUISTIC_ENGINE",
+          "source_version": "1.0.0"
+        }
+      ],
+      "attribution_graph": [
+        {
+          "type": "AUTHORED_BY",
+          "target": "A.KEDDEH"
+        }
+      ],
+      "integration_contract": {
+        "interfaces": [
+          "linguistic.project"
+        ],
+        "implementation_refs": [
+          "runtime/linguistics/braink_linguistic_engine.py"
+        ]
+      },
+      "policy_bindings": [
+        "policy:linguistic.no-source-mutation"
+      ],
+      "compatibility": {
+        "braink_control_plane": ">=10"
+      },
+      "lifecycle": "IMMUTABLE",
+      "authorship": {
+        "authority": "A.KEDDEH",
+        "organization": "Keddeh Systems"
+      }
+    },
+    {
+      "template_id": "TPL_RUNTIME_PUBLIC_GATEWAY_V1",
+      "definition_id": "RUNTIME_BRAINK_PUBLIC_GATEWAY",
+      "type": "NODE_TEMPLATE",
+      "sector": "API",
+      "role": "PUBLIC_PROJECTION_GATEWAY",
+      "version": "1.0.0",
+      "capability_class": "SYSTEM_NODE",
+      "typed_inputs": {
+        "http_request": "HTTPRequest"
+      },
+      "typed_outputs": {
+        "bounded_projection": "HTTPResponse"
+      },
+      "attributes": [
+        {
+          "name": "carrier_role",
+          "value_type": "string",
+          "value": "PROJECTION_ONLY",
+          "source": "RUNTIME_BRAINK_PUBLIC_GATEWAY",
+          "source_version": "1.0.0"
+        }
+      ],
+      "attribution_graph": [
+        {
+          "type": "AUTHORED_BY",
+          "target": "A.KEDDEH"
+        }
+      ],
+      "integration_contract": {
+        "interfaces": [
+          "public.read",
+          "node-template.read",
+          "node-template.instantiate",
+          "node-template.mutate"
+        ],
+        "implementation_refs": [
+          "runtime/public_gateway.py"
+        ]
+      },
+      "policy_bindings": [
+        "policy:ui.no-self-promotion",
+        "policy:proof.required"
+      ],
+      "compatibility": {
+        "braink_control_plane": ">=10"
+      },
+      "lifecycle": "PERSISTENT",
+      "authorship": {
+        "authority": "A.KEDDEH",
+        "organization": "Keddeh Systems"
+      }
+    },
+    {
+      "template_id": "TPL_RUNTIME_FABRIC_ACTUATOR_V1",
+      "definition_id": "RUNTIME_KEDDEH_FABRIC_ACTUATOR",
+      "type": "NODE_TEMPLATE",
+      "sector": "NETWORK",
+      "role": "FABRIC_ACTIVATION",
+      "version": "1.0.0",
+      "capability_class": "SYSTEM_NODE",
+      "typed_inputs": {
+        "host_ready_receipt": "ProofReceipt",
+        "network_intent": "NetworkIntent"
+      },
+      "typed_outputs": {
+        "activation_receipt": "ProofReceipt"
+      },
+      "attributes": [
+        {
+          "name": "promotion_law",
+          "value_type": "string",
+          "value": "evidence-before-promotion",
+          "source": "RUNTIME_KEDDEH_FABRIC_ACTUATOR",
+          "source_version": "1.0.0"
+        }
+      ],
+      "attribution_graph": [
+        {
+          "type": "AUTHORED_BY",
+          "target": "A.KEDDEH"
+        }
+      ],
+      "integration_contract": {
+        "interfaces": [
+          "fabric.validate",
+          "fabric.activate",
+          "fabric.observe"
+        ],
+        "implementation_refs": [
+          "deploy/activate_keddeh_fabric.py"
+        ]
+      },
+      "policy_bindings": [
+        "policy:network.external-observer",
+        "policy:global-edge-qualification"
+      ],
+      "compatibility": {
+        "braink_control_plane": ">=10"
+      },
+      "lifecycle": "PERSISTENT",
+      "authorship": {
+        "authority": "A.KEDDEH",
+        "organization": "Keddeh Systems"
+      }
+    }
+  ]
+}
