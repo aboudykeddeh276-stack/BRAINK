@@ -1,0 +1,1 @@
+{"seed":"KEX-BND-R03-20260921-7F2A91C4","purpose":"symbolic-to-binary boundary engineering report 03","runtime_dependency_on_github":false,"local_test_command":"python3 -m unittest discover -s tests -v","observed_tests":9}
