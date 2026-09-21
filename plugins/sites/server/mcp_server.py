@@ -60,6 +60,25 @@ def public_readback(site_id_or_slug:str,url:str,timeout:float=10) -> dict:
     return S.readback(site_id_or_slug,{"url":url,"timeout":timeout})
 
 @mcp.tool()
+def capability_index() -> dict:
+    """Return recovered BRAINK/KEX runtimes, native actuators, agent fleet and execution invariants."""
+    return json.loads(CAPS.read_text())
+
+@mcp.tool()
+def native_casepath(action:str, origin:str|None=None, apply:bool=False, expected_marker:str|None=None) -> dict:
+    """Invoke recovered native CasePath publication mechanics. action: discover, publish, readback."""
+    import importlib.util
+    p=NATIVE/"casepath_cp_pub_bridge_v50.py"
+    spec=importlib.util.spec_from_file_location("casepath_cp_pub_bridge_v50",p)
+    mod=importlib.util.module_from_spec(spec); spec.loader.exec_module(mod)
+    mapping={"discover":"CP-PUB-001","publish":"CP-PUB-002","readback":"CP-PUB-003"}
+    if action not in mapping:return {"state":"FAIL_CLOSED_ACTION_NOT_ALLOWLISTED","action":action}
+    result=mod.handle(mapping[action],apply=apply,origin=origin,expected_marker=expected_marker)
+    site=S.site("casepath-legal")
+    S.event("NATIVE_CASEPATH_"+action.upper(),result.get("state","UNKNOWN"),result,site["id"] if site else None)
+    return result
+
+@mcp.tool()
 def ledger_verify() -> dict:
     """Verify the hash-chained @Sites event ledger."""
     return S.verify()
