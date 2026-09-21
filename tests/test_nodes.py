@@ -117,3 +117,88 @@ class NodeContractTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class NodeInstantiationV2Tests(unittest.TestCase):
+    def test_capability_escalation_is_rejected(self):
+        definition = NodeDefinition(
+            node_type="SECURE_NODE",
+            version="2.0.0",
+            capability_class=CapabilityClass.SMART,
+            inputs=(),
+            outputs=(),
+            attributes=(),
+            attribution_graph=(AttributionEdge("SECURE_NODE", "AUTHORED_BY", "a.keddeh"),),
+            integration_contracts=(),
+            template_contract=TemplateContract("secure", "2", ()),
+            implementation_ref="secure",
+            definition_revision=2,
+            sector_id="SECURITY",
+            sector_class="runtime",
+            target_constraints=("LOCAL",),
+            capability_requirements=("read:state",),
+            evidence_requirements=("unit-test",),
+        )
+        registry = NodeTemplateRegistry()
+        registry.register(definition)
+        with self.assertRaises(ValueError):
+            registry.instantiate(
+                definition.definition_id,
+                target_profile="LOCAL",
+                capability_grant=("read:state", "write:host"),
+            )
+
+    def test_unadmitted_target_is_rejected(self):
+        definition = NodeDefinition(
+            node_type="TARGETED_NODE",
+            version="2.0.0",
+            capability_class=CapabilityClass.SYSTEM,
+            inputs=(),
+            outputs=(),
+            attributes=(),
+            attribution_graph=(AttributionEdge("TARGETED_NODE", "AUTHORED_BY", "a.keddeh"),),
+            integration_contracts=(),
+            template_contract=TemplateContract("targeted", "2", ()),
+            implementation_ref="targeted",
+            definition_revision=2,
+            sector_id="CLOUD",
+            sector_class="infrastructure",
+            target_constraints=("PUBLIC_HOST",),
+            capability_requirements=(),
+            evidence_requirements=("external-readback",),
+        )
+        registry = NodeTemplateRegistry()
+        registry.register(definition)
+        with self.assertRaises(ValueError):
+            registry.instantiate(definition.definition_id, target_profile="LOCAL")
+
+    def test_instance_carries_revision_target_and_grant(self):
+        definition = NodeDefinition(
+            node_type="PROFILED_NODE",
+            version="2.0.0",
+            capability_class=CapabilityClass.AGENTIC,
+            inputs=(),
+            outputs=(),
+            attributes=(),
+            attribution_graph=(AttributionEdge("PROFILED_NODE", "AUTHORED_BY", "a.keddeh"),),
+            integration_contracts=(),
+            template_contract=TemplateContract("profiled", "2", ()),
+            implementation_ref="profiled",
+            definition_revision=3,
+            sector_id="AGENTS",
+            sector_class="application",
+            target_constraints=("LOCAL",),
+            capability_requirements=("observe",),
+            evidence_requirements=("unit-test",),
+        )
+        registry = NodeTemplateRegistry()
+        registry.register(definition)
+        instance = registry.instantiate(
+            definition.definition_id,
+            target_profile="LOCAL",
+            capability_grant=("observe",),
+            instance_id="profiled-1",
+        )
+        self.assertEqual(instance.definition_revision, 3)
+        self.assertEqual(instance.target_profile, "LOCAL")
+        self.assertEqual(instance.capability_grant, ("observe",))
