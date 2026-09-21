@@ -1,11 +1,13 @@
 {
-  "schema": "braink.owner.complete-site-estate-index.v2",
+  "schema": "braink.owner.complete-site-estate-index.v3",
   "purpose": "Comprehensive recovered index of known ChatGPT Sites, domain projections, logical application/site identities, workspaces, VFS/runtime/server lineage, deployment/version evidence, and explicit uncertainty. This registry does not infer repository-to-Site backing relationships.",
   "generated_from": "recovered historical records plus current authenticated estate work",
   "completeness_policy": {
-    "rule": "Include every recovered website/site/domain identity even where the relationship is historical, alternate, pending, failed, or unverified.",
+    "meaning_of_complete": "Exhaustive recovered estate, including current, historical, alternate, nested, planned, failed, pending, conflicting and ephemeral identities. Nothing is discarded merely because it is not currently live.",
     "no_silent_inference": true,
-    "repository_site_relation": "UNPROVEN unless explicitly evidenced"
+    "no_silent_reconciliation": true,
+    "repository_site_relation": "UNPROVEN unless direct evidence exists",
+    "status_rule": "Historical PASS/readback is historical evidence only and is not promoted to current-live state without fresh readback."
   },
   "chatgpt_sites": [
     {
@@ -291,10 +293,437 @@
     }
   ],
   "unresolved": [
-    "A historical record states seven Sites projects were inventoried; seven ChatGPT Site URLs are recovered here. Only CasePath currently has a recovered appgprj project ID.",
-    "Current native OpenAI Sites read/write/publish actuator is not exposed to this execution.",
-    "Do not infer a one-to-one ChatGPT Site ↔ GitHub repository relationship without direct evidence.",
-    "Some historical custom-domain states conflict across snapshots; those conflicts are preserved rather than silently reconciled.",
-    "Current live DNS/TLS/public serving state is not asserted by this historical index."
+    "Native Sites estate historically counted seven projects; seven native chatgpt.site URLs are recovered.",
+    "CasePath has two different recovered appgprj identifiers in historical records. Both are preserved until native Sites metadata resolves which object/version each identifier denotes.",
+    "Native OpenAI Sites read/write/publish actuator is not exposed to this execution.",
+    "A GitHub repository relationship is not a ChatGPT Site backing-store relationship unless directly evidenced.",
+    "Historical domain PASS snapshots and later CI/readback failures coexist; neither is silently discarded.",
+    "Current live DNS/TLS/hosting state requires fresh outside-in readback and is not asserted by this historical registry.",
+    "Some historical domain associations changed over time, particularly ClaimPath/CasePath; temporal states are preserved.",
+    "Any older Site/project identifier not present in the recoverable records remains an explicit recovery gap rather than being treated as nonexistent."
+  ],
+  "recovered_native_site_inventory": {
+    "count_recorded_historically": 7,
+    "sites": [
+      {
+        "slug": "kex-geometric-address",
+        "url": "https://kex-geometric-address.aboudykeddeh276.chatgpt.site",
+        "logical_id": "site://kex/geometric-address"
+      },
+      {
+        "slug": "claimpath-local",
+        "url": "https://claimpath-local.aboudykeddeh276.chatgpt.site",
+        "logical_id": "app://claimpath"
+      },
+      {
+        "slug": "casepath-legal",
+        "url": "https://casepath-legal.aboudykeddeh276.chatgpt.site",
+        "logical_id": "app://casepath",
+        "project_ids_conflicting_historical": [
+          "appgprj_6a714946ab5c819187d5a9cbb22406d4",
+          "appgprj_6a5e0e6d2bd08191948bfd94fcf1804b"
+        ]
+      },
+      {
+        "slug": "braink-keddeh-systems",
+        "url": "https://braink-keddeh-systems.aboudykeddeh276.chatgpt.site",
+        "logical_id": "site://braink/keddeh-systems"
+      },
+      {
+        "slug": "keddeh-mining-btc",
+        "url": "https://keddeh-mining-btc.aboudykeddeh276.chatgpt.site"
+      },
+      {
+        "slug": "braink-systems",
+        "url": "https://braink-systems.aboudykeddeh276.chatgpt.site",
+        "logical_id": "site://braink/systems"
+      },
+      {
+        "slug": "kex-sovereign-capacity-fabric",
+        "url": "https://kex-sovereign-capacity-fabric.aboudykeddeh276.chatgpt.site"
+      }
+    ]
+  },
+  "domain_environment_fabric": {
+    "schema": "kex.keddeh.all-domain-environments.launch-readback.v2",
+    "executed_at": "2026-08-30T20:56:45.688106+00:00",
+    "layer2": "KEX://LAYER/2/MASTER-CORE",
+    "mesh": "KEX://MESH/KEDDEH/DOMAIN-FABRIC/TOT",
+    "service": "KEDDEH_WEBSPACE_V3",
+    "historical_result": {
+      "environment_count": 8,
+      "passed": 8,
+      "status": "PASS",
+      "dns_answer_types": [
+        "A",
+        "RRSIG"
+      ],
+      "dns_authoritative": true
+    },
+    "environments": [
+      {
+        "slug": "kex-geometric-address",
+        "domain": "kex.keddeh.com",
+        "workspace": "workspace://keddeh/domain/kex-geometric-address",
+        "vfs": "vfs://keddeh/domain-environments/kex-geometric-address",
+        "runtime": "runtime://kex/virtual-infrastructure",
+        "server_connection": "server://keddeh/global-presence",
+        "ai_server_room": "KEX://SERVER-ROOM/KEDDEH/TRIAD_ALPHA/A",
+        "linux_headless": "projection://linux/headless",
+        "linux_hci": "projection://linux/emulated-hci/kex-geometric-address",
+        "historical_https_health": 200,
+        "historical_dns": {
+          "rcode": 0,
+          "authoritative": true,
+          "answer_types": [
+            "A",
+            "RRSIG"
+          ],
+          "pass": true
+        },
+        "historical_status": "PASS"
+      },
+      {
+        "slug": "braink-systems",
+        "domain": "braink.com.au",
+        "workspace": "workspace://keddeh/domain/braink-systems",
+        "vfs": "vfs://keddeh/domain-environments/braink-systems",
+        "runtime": "runtime://braink/systems",
+        "server_connection": "server://keddeh/global-presence",
+        "ai_server_room": "KEX://SERVER-ROOM/KEDDEH/TRIAD_ALPHA/B",
+        "linux_headless": "projection://linux/headless",
+        "linux_hci": "projection://linux/emulated-hci/braink-systems",
+        "historical_https_health": 200,
+        "historical_dns": {
+          "rcode": 0,
+          "authoritative": true,
+          "answer_types": [
+            "A",
+            "RRSIG"
+          ],
+          "pass": true
+        },
+        "historical_status": "PASS"
+      },
+      {
+        "slug": "braink-keddeh-systems",
+        "domain": "braink.keddeh.com",
+        "workspace": "workspace://keddeh/domain/braink-keddeh-systems",
+        "vfs": "vfs://keddeh/domain-environments/braink-keddeh-systems",
+        "runtime": "runtime://braink/keddeh-systems",
+        "server_connection": "server://keddeh/global-presence",
+        "ai_server_room": "KEX://SERVER-ROOM/KEDDEH/TRIAD_ALPHA/C",
+        "linux_headless": "projection://linux/headless",
+        "linux_hci": "projection://linux/emulated-hci/braink-keddeh-systems",
+        "historical_https_health": 200,
+        "historical_dns": {
+          "rcode": 0,
+          "authoritative": true,
+          "answer_types": [
+            "A",
+            "RRSIG"
+          ],
+          "pass": true
+        },
+        "historical_status": "PASS"
+      },
+      {
+        "slug": "casepath-legal",
+        "domain": "casepath.com.au",
+        "workspace": "workspace://keddeh/domain/casepath-legal",
+        "vfs": "vfs://keddeh/domain-environments/casepath-legal",
+        "runtime": "server://casepath/intake",
+        "server_connection": "server://casepath/intake",
+        "ai_server_room": "KEX://SERVER-ROOM/KEDDEH/TRIAD_BETA/A",
+        "linux_headless": "projection://linux/headless",
+        "linux_hci": "projection://linux/emulated-hci/casepath-legal",
+        "historical_https_health": 200,
+        "historical_dns": {
+          "rcode": 0,
+          "authoritative": true,
+          "answer_types": [
+            "A",
+            "RRSIG"
+          ],
+          "pass": true
+        },
+        "historical_status": "PASS"
+      },
+      {
+        "slug": "claimpath",
+        "domain": "claimpath.org",
+        "workspace": "workspace://keddeh/domain/claimpath",
+        "vfs": "vfs://keddeh/domain-environments/claimpath",
+        "runtime": "app://claimpath",
+        "server_connection": "server://keddeh/global-presence",
+        "ai_server_room": "KEX://SERVER-ROOM/KEDDEH/TRIAD_BETA/B",
+        "linux_headless": "projection://linux/headless",
+        "linux_hci": "projection://linux/emulated-hci/claimpath",
+        "historical_https_health": 200,
+        "historical_dns": {
+          "rcode": 0,
+          "authoritative": true,
+          "answer_types": [
+            "A",
+            "RRSIG"
+          ],
+          "pass": true
+        },
+        "historical_status": "PASS"
+      },
+      {
+        "slug": "braink-store",
+        "domain": "braink.store",
+        "workspace": "workspace://keddeh/domain/braink-store",
+        "vfs": "vfs://keddeh/domain-environments/braink-store",
+        "runtime": "runtime://braink/store",
+        "server_connection": "server://keddeh/global-presence",
+        "ai_server_room": "KEX://SERVER-ROOM/KEDDEH/TRIAD_BETA/C",
+        "linux_headless": "projection://linux/headless",
+        "linux_hci": "projection://linux/emulated-hci/braink-store",
+        "historical_https_health": 200,
+        "historical_dns": {
+          "rcode": 0,
+          "authoritative": true,
+          "answer_types": [
+            "A",
+            "RRSIG"
+          ],
+          "pass": true
+        },
+        "historical_status": "PASS"
+      },
+      {
+        "slug": "braink-studio",
+        "domain": "braink.studio",
+        "workspace": "workspace://keddeh/domain/braink-studio",
+        "vfs": "vfs://keddeh/domain-environments/braink-studio",
+        "runtime": "runtime://braink/studio",
+        "server_connection": "server://keddeh/global-presence",
+        "ai_server_room": "KEX://SERVER-ROOM/KEDDEH/TRIAD_GAMMA/A",
+        "linux_headless": "projection://linux/headless",
+        "linux_hci": "projection://linux/emulated-hci/braink-studio",
+        "historical_https_health": 200,
+        "historical_dns": {
+          "rcode": 0,
+          "authoritative": true,
+          "answer_types": [
+            "A",
+            "RRSIG"
+          ],
+          "pass": true
+        },
+        "historical_status": "PASS"
+      },
+      {
+        "slug": "keddeh-root",
+        "domain": "keddeh.com",
+        "workspace": "workspace://keddeh/domain/keddeh-root",
+        "vfs": "vfs://keddeh/domain-environments/keddeh-root",
+        "runtime": "server://keddeh/global-presence",
+        "server_connection": "server://keddeh/global-presence",
+        "ai_server_room": "KEX://SERVER-ROOM/KEDDEH/TRIAD_GAMMA/B",
+        "linux_headless": "projection://linux/headless",
+        "linux_hci": "projection://linux/emulated-hci/keddeh-root",
+        "historical_https_health": 200,
+        "historical_dns": {
+          "rcode": 0,
+          "authoritative": true,
+          "answer_types": [
+            "A",
+            "RRSIG"
+          ],
+          "pass": true
+        },
+        "historical_status": "PASS"
+      }
+    ]
+  },
+  "claimpath_full_lineage": {
+    "identities": [
+      "app://claimpath",
+      "carrier://html/claimpath",
+      "projection://target/app/claimpath"
+    ],
+    "residences": [
+      "volume://keddeh/braink/root"
+    ],
+    "native_site": "https://claimpath-local.aboudykeddeh276.chatgpt.site",
+    "domains": [
+      "claimpath.org",
+      "claimpath.com.au"
+    ],
+    "workspace": "workspace://keddeh/domain/claimpath",
+    "vfs": "vfs://keddeh/domain-environments/claimpath",
+    "runtime": "app://claimpath",
+    "server": "server://keddeh/global-presence",
+    "binding": "KEX://DOMAIN-SPACE/claimpath",
+    "role": "claimpath-root",
+    "historical_notes": [
+      "ClaimPath predates public launch as app://claimpath and is distinct from app://casepath.",
+      "Historical model also treated ClaimPath as nested/resident workload inside the CasePath/BRAINK host-container lineage.",
+      "claimpath.com.au was recorded detached from casepath-legal and attached to claimpath-local on 2026-08-30; TLS was recorded pending_validation in that snapshot.",
+      "claimpath.org was recorded in the domain-environment readback as HTTP 200/PASS with authoritative A/RRSIG evidence on 2026-08-30.",
+      "Earlier acquisition record: LOCAL_ACQUISITION_RECORDED; registry/nameserver/DS/host details were unobserved in that snapshot."
+    ]
+  },
+  "casepath_full_lineage": {
+    "identities": [
+      "app://casepath",
+      "site://casepath.com.au",
+      "app://casepath/analytical-matter-mesh/v18",
+      "volume://casepath/v19",
+      "os://casepath/v2",
+      "materialisation://v45/casepath_public",
+      "carrier://html/casepath_public"
+    ],
+    "native_site": "https://casepath-legal.aboudykeddeh276.chatgpt.site",
+    "project_ids_conflicting_historical": [
+      "appgprj_6a714946ab5c819187d5a9cbb22406d4",
+      "appgprj_6a5e0e6d2bd08191948bfd94fcf1804b"
+    ],
+    "domains": [
+      "casepath.com.au",
+      "casepath.keddeh.com"
+    ],
+    "workspace": "workspace://keddeh/domain/casepath-legal",
+    "vfs": "vfs://keddeh/domain-environments/casepath-legal",
+    "runtime_server": "server://casepath/intake",
+    "ingress": "ingress://keddeh/unified",
+    "versions": [
+      48,
+      51,
+      52,
+      68,
+      70,
+      71
+    ],
+    "graph_version": "app-route-graph:4uhn5s1wvoptc",
+    "deployment_version": "12b423a5-c213-4c37-89dd-d6957cf20222",
+    "public_root_sha256": "33741f68b10e3f8ffee014237d151bc956dd35cc5265f16244fc9ae194356208",
+    "resident_html_path": "/mnt/data/KEX_DISTINCT_SOFTWARE_ROOTS_20260825/resident_html_roots/casepath_public.html",
+    "resident_html_bytes": 259234,
+    "historical_state": "EXECUTED_RESIDENT_ROOT",
+    "historical_notes": [
+      "One historical record identifies launch 2026-08-04 and version 68.",
+      "Version 71 was recorded public on 2026-09-12.",
+      "casepath.com.au was asserted through Cloudflare nameservers angelina.ns.cloudflare.com and carter.ns.cloudflare.com to LiteSpeed/cPanel public_html and Supabase; origin/account/project identifiers were not recovered in that snapshot.",
+      "Production readback workflows later failed repeatedly on 2026-09-12 through 2026-09-14; do not collapse those failures into the earlier PASS snapshot."
+    ]
+  },
+  "control_plane_and_mesh": {
+    "server": "server://keddeh/global-presence",
+    "mesh": "mesh://braink/infrastructure",
+    "ingress": "ingress://keddeh/unified",
+    "adapter": "adapter://host/provider",
+    "deployment_chain": [
+      "SOURCE_BIND",
+      "SITE_PROJECT",
+      "HOSTING_LINK",
+      "DEPLOY",
+      "CUSTOM_DOMAIN",
+      "DNS_APPLY",
+      "TLS_BIND",
+      "HTTPS_READBACK",
+      "ROLLBACK_ROUTE"
+    ],
+    "site_projection_contract": [
+      "existing executable capability",
+      "service/runtime binding",
+      "logical/IL-LLM address",
+      "Site source project",
+      ".openai/hosting.json linkage",
+      "reviewable Site version",
+      "deploy selected version",
+      "optional custom-domain connection",
+      "apply Sites-supplied DNS",
+      "verify domain status/readback"
+    ],
+    "invariant": "domain != runtime"
+  },
+  "related_volumes": [
+    "volume://keddeh/braink/root",
+    "volume://casepath/v19",
+    "volume://braink/workbook-hci/v3",
+    "volume://braink/il-llm/sovereign-v1"
+  ],
+  "agent_and_skill_lineage": {
+    "agents": [
+      "ADK Domain & Server Agent",
+      "Deployment Agent",
+      "Verifier",
+      "Recovery Agent"
+    ],
+    "skills": [
+      "plugin:sites:sites-building:sites-building",
+      "personal:kex-domain-hosting-handoff",
+      "personal:kex-self-host-domain-runtime-suite",
+      "personal:kex-outbound-self-host-lease-loop"
+    ]
+  },
+  "historical_workflow_failures": {
+    "date_range": "2026-09-12..2026-09-14",
+    "casepath_production_readback_commits": [
+      "880633d",
+      "d0a95d3",
+      "e80915d",
+      "e793e23",
+      "27bf0b7",
+      "991ac19",
+      "39df1a8"
+    ],
+    "braink_control_plane_or_host_commits": [
+      "b17c3fd",
+      "6a86d2a",
+      "1d51a64",
+      "fe90e94",
+      "d765d99",
+      "72a72ba",
+      "6bbd226",
+      "1cdaf5e",
+      "3b57b3f",
+      "ceed4bc",
+      "b7572ec",
+      "fa4e45d",
+      "71b9205",
+      "9d05ffe",
+      "426da89",
+      "2de1584",
+      "18d2bd8"
+    ],
+    "note": "Recorded workflow failures are retained as evidence and not overwritten by earlier successful domain-environment readbacks."
+  },
+  "estate_terms": [
+    "KERA",
+    "Workbook OS",
+    "KDRIVE",
+    "Web4",
+    "BENNAI",
+    "LAYNA_CO",
+    "BOUD/K-DRIVE",
+    "K^OIN"
+  ],
+  "source_evidence_register": [
+    {
+      "source": "KEDDEH_ALL_DOMAIN_ENVIRONMENTS_LAUNCH_READBACK_V2.json",
+      "scope": "8 domain environments, workspace/VFS/runtime/server/AI-room/Linux HCI/DNS/HTTPS readback",
+      "executed_at": "2026-08-30T20:56:45.688106+00:00"
+    },
+    {
+      "source": "BRAINK_ALL_SITES_OUTCOME_DRIVEN_100_ROUNDS_RECEIPT(1).json",
+      "scope": "site outcome/action maturity and readback evidence"
+    },
+    {
+      "source": "BRAINK_ALL_SITES_ADK_AGENT_FLEET_100_ACTION_RECEIPT.json",
+      "scope": "ADK/BRAINK fleet and skill lineage"
+    },
+    {
+      "source": "SITES_PROJECTION_AND_CUSTOM_DOMAIN_INTEGRATION.md",
+      "scope": "Site projection/deployment/domain contract"
+    },
+    {
+      "source": "historical conversation lineage",
+      "scope": "native ChatGPT Site URLs, project IDs, versions, domain moves, repository/workflow lineage"
+    }
   ]
 }
