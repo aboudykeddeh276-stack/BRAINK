@@ -1,0 +1,131 @@
+{
+  "schema": "braink.theorem-graph.campaign.v1",
+  "registered_objects": 4,
+  "relations": 3,
+  "sector_applications": 7,
+  "sectors": [
+    "cosmology",
+    "governance",
+    "linguistics",
+    "motif",
+    "observer",
+    "proof",
+    "runtime"
+  ],
+  "positive_events": [
+    {
+      "source_id": "INV-ZL-001",
+      "target_id": "TH-RUNTIME-ZL",
+      "relation": "depends_on",
+      "outcome": "STRENGTHENED",
+      "prior_state": "SPECIFIED",
+      "next_state": "OBSERVED",
+      "reason": "VERIFIED_UPSTREAM_SUPPORT"
+    },
+    {
+      "source_id": "TH-RUNTIME-ZL",
+      "target_id": "TH-PROOF-ZL",
+      "relation": "depends_on",
+      "outcome": "COMPATIBLE",
+      "prior_state": "SPECIFIED",
+      "next_state": "SPECIFIED",
+      "reason": "TYPE_SAFE_RELATION_NO_STATE_PROMOTION"
+    },
+    {
+      "source_id": "TH-PROOF-ZL",
+      "target_id": "TH-PAGE-ZL",
+      "relation": "depends_on",
+      "outcome": "COMPATIBLE",
+      "prior_state": "SPECIFIED",
+      "next_state": "SPECIFIED",
+      "reason": "TYPE_SAFE_RELATION_NO_STATE_PROMOTION"
+    }
+  ],
+  "resolved_runtime_operators": [
+    "propagate_proof",
+    "reject_zero",
+    "render_runtime"
+  ],
+  "compression": {
+    "theorem_id": "INV-ZL-001",
+    "eliminated": [
+      "repeat:cosmology",
+      "repeat:linguistics",
+      "repeat:governance",
+      "repeat:runtime",
+      "repeat:proof",
+      "repeat:observer",
+      "repeat:motif"
+    ],
+    "retained": [
+      {
+        "fragment_id": "runtime:delta",
+        "context_delta": "runtime address/state enforcement",
+        "unique_evidence": [
+          "test://runtime-zero"
+        ]
+      }
+    ]
+  },
+  "recursive_density_before": 1.5,
+  "recursive_density_after": 4.8,
+  "marginal_value_after_factoring": 2,
+  "falsification_events": [
+    {
+      "source_id": "INV-ZL-001",
+      "target_id": "TH-RUNTIME-ZL",
+      "relation": "depends_on",
+      "outcome": "INVALIDATED",
+      "prior_state": "OBSERVED",
+      "next_state": "REVIEW_REQUIRED",
+      "reason": "UPSTREAM_FALSIFIED"
+    },
+    {
+      "source_id": "TH-RUNTIME-ZL",
+      "target_id": "TH-PROOF-ZL",
+      "relation": "depends_on",
+      "outcome": "REVIEW_REQUIRED",
+      "prior_state": "SPECIFIED",
+      "next_state": "REVIEW_REQUIRED",
+      "reason": "UPSTREAM_NOT_STABLE"
+    },
+    {
+      "source_id": "TH-PROOF-ZL",
+      "target_id": "TH-PAGE-ZL",
+      "relation": "depends_on",
+      "outcome": "REVIEW_REQUIRED",
+      "prior_state": "SPECIFIED",
+      "next_state": "REVIEW_REQUIRED",
+      "reason": "UPSTREAM_NOT_STABLE"
+    }
+  ],
+  "final_claim_states": {
+    "INV-ZL-001": "FALSIFIED",
+    "TH-PAGE-ZL": "REVIEW_REQUIRED",
+    "TH-PROOF-ZL": "REVIEW_REQUIRED",
+    "TH-RUNTIME-ZL": "REVIEW_REQUIRED"
+  },
+  "projection_roots": {
+    "runtime_before": "1606fd0c4b369fecc86df9e903fa30a8183d92fe3bf23dacbf655791e0fced3b",
+    "runtime_after": "bf6eb2fa2e268303c6627137e6064c55114cd2bb90cdfaa83e24410221348482",
+    "proof_before": "667a4dadb18ab4cd374d45d4ab68b96c29992d86eb7b8acea47014b2942076f2",
+    "proof_after": "9cc51fbe81e9ae3936cda3ac74414df8363c9c1682abc013f935e0de9ab1ec66"
+  },
+  "projection_changed": {
+    "runtime": true,
+    "proof": true
+  },
+  "campaign_pass": true,
+  "unit_suite": {
+    "tests": 12,
+    "passed": 12,
+    "failed": 0,
+    "elapsed_seconds": 0.05
+  },
+  "local_sha256": {
+    "runtime/publish/src/braink_runtime/theorem_graph.py": "e3aa7aa2db975d037400ccf32173d64d183aaa3ee148e6411c67850b8bae71d4",
+    "runtime/publish/tests/test_theorem_graph.py": "936990ef6a7de286675a9dc449757e74d213b0b7fa24e3803f97928d2e1f88b1",
+    "runtime/publish/tools/run_theorem_graph_campaign.py": "32881234df1fea4bffc4cfacdbdf7acf5a3f6001a8f324ab8485e75380b86e4c"
+  },
+  "evidence_boundary": "Deterministic in-process theorem graph execution. Does not prove automatic semantic equivalence over arbitrary prose, distributed multi-writer graph consistency, durable database storage, large-scale incremental rendering, or longitudinal superlinear growth."
+}
