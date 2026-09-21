@@ -13,7 +13,7 @@ from enterprise.illlm_authority import ILLLMAuthority
 from enterprise.market_services.service_broker import MarketServiceBroker
 from enterprise.node_lease_r40 import NodeLeaseRegistryR40
 from enterprise.node_vfs_r40 import NodeVFS
-from enterprise.node_template_r40 import legacy_recursive_template, materialize_template
+from enterprise.node_template_r40 import derive_runtime_template, materialize_template
 from enterprise.runtime.resource_scheduler_r40 import PhysicalResourceScheduler, ResourceRequirement, ResourceVector
 
 
@@ -335,7 +335,15 @@ class CanonicalExecutionR40:
             child_lineage = normalized["lineage"].rstrip("/") + "/" + child_id
             template_spec = command.get("node_template")
             if template_spec is None:
-                template_spec = legacy_recursive_template()
+                template_spec = derive_runtime_template(
+                    data_class=classified.data_class,
+                    sector=classified.sector,
+                    function_id=binding.function_id,
+                    process_id=binding.process_id,
+                    runtime_action=binding.runtime_action,
+                    mutating=binding.mutating,
+                    capabilities=capabilities or [],
+                )
             try:
                 template_materialization = materialize_template(
                     template_spec,
