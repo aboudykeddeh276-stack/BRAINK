@@ -136,7 +136,7 @@ def test_complete_node_promotion_has_no_state_jump(host):
     out = host.canonical_execute(workload_command("B", 0))
     assert out["status"] == "ACTIVE"
     assert out["promotion"] == [
-        "CLASSIFIED", "VALIDATED", "MATERIALIZED", "AGENT_BOUND", "VFS_BOUND", "NETWORK_BOUND",
+        "CLASSIFIED", "VALIDATED", "MATERIALIZED", "TEMPLATE_BOUND", "AGENT_BOUND", "VFS_BOUND", "NETWORK_BOUND",
         "RUNTIME_CONSTRUCTED", "RUNTIME_RUNNING", "LOCAL_VERIFIED", "MESH_REGISTERED",
         "SERVER_REGISTERED", "SUBSCRIBED", "IL_LLM_REGISTERED", "ACTIVE",
     ]
@@ -145,6 +145,10 @@ def test_complete_node_promotion_has_no_state_jump(host):
     assert out["server_state"]["status"] == "SERVER_REGISTERED"
     assert out["subscription_state"]["status"] == "SUBSCRIBED"
     assert out["global_delta"]["status"] == "COMMITTED"
+    template_identity = out["readback"]["identity"]["template_identity"]
+    assert template_identity["template_id"] == "TPL_KEX_RECURSIVE_COMPUTER_R26"
+    assert template_identity["observer_relation_id"] == "OBSERVER2://BRAINK/R26/A/B"
+    assert out["node_template"]["identity"] == template_identity
 
 
 def test_final_mesh_readback_matches_final_runtime_state_root(host):
