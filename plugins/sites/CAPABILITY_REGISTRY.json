@@ -1,0 +1,142 @@
+{
+  "schema": "braink.sites.capability-registry.v1",
+  "recovered_from_library": true,
+  "runtimes": [
+    {
+      "id": "resident://r4/continuation-kex",
+      "class": "BRAINK_KEX_RESIDENT",
+      "evidence": "BRAINK_ALL_SITES_ADK_AGENT_FLEET_100_ACTION_RECEIPT.json",
+      "state": "HISTORICAL_EXECUTION_EVIDENCE"
+    },
+    {
+      "id": "resident://s29/quantum-research",
+      "class": "BRAINK_RESIDENT",
+      "evidence": "BRAINK_ALL_SITES_ADK_AGENT_FLEET_100_ACTION_RECEIPT.json",
+      "state": "HISTORICAL_EXECUTION_EVIDENCE"
+    },
+    {
+      "id": "server://braink/sdos/systemd",
+      "class": "PROCESS_SUPERVISOR",
+      "state": "REGISTERED"
+    },
+    {
+      "id": "server://keddeh/global-presence",
+      "class": "PUBLIC_SERVER",
+      "state": "HISTORICAL_READBACK"
+    },
+    {
+      "id": "mesh://braink/infrastructure",
+      "class": "MESH",
+      "state": "REGISTERED"
+    },
+    {
+      "id": "runtime://abi/v4",
+      "class": "ABI",
+      "state": "REGISTERED"
+    },
+    {
+      "id": "runtime://registry/v4",
+      "class": "REGISTRY",
+      "state": "REGISTERED"
+    },
+    {
+      "id": "runtime://contract/v2",
+      "class": "CONTRACT",
+      "state": "REGISTERED"
+    },
+    {
+      "id": "runtime://kex/virtual-infrastructure",
+      "class": "SITE_RUNTIME",
+      "state": "HISTORICAL_READBACK"
+    },
+    {
+      "id": "skill://runtime/control-plane-api",
+      "class": "CONTROL_PLANE_API",
+      "state": "VERIFIED_SOURCE_AND_LOCAL_EXECUTION"
+    },
+    {
+      "id": "skill://runtime/service-mesh-router",
+      "class": "SERVICE_MESH_ROUTER",
+      "state": "VERIFIED_LOCAL_NETWORK_BIND"
+    }
+  ],
+  "actuators": [
+    {
+      "id": "actuator://casepath/production/v50",
+      "source": "library:casepath_cp_pub_bridge_v50.py",
+      "actions": [
+        "CP-PUB-001",
+        "CP-PUB-002",
+        "CP-PUB-003"
+      ],
+      "mechanics": [
+        "origin-discovery",
+        "publish-apply",
+        "public-readback"
+      ],
+      "actuator_names": [
+        "casepath_production_actuator_v50.py",
+        "casepath_production_actuator.py",
+        "KEX-SEED-CASEPATH-PROD-ACTUATOR-20260826T233107Z-5804B67605__casepath_production_actuator.py"
+      ],
+      "state": "SOURCE_RECOVERED"
+    },
+    {
+      "id": "personal:kex-outbound-self-host-lease-loop",
+      "role": "REMOTE_EXECUTION",
+      "state": "ADDRESSABLE_HISTORICAL"
+    },
+    {
+      "id": "personal:kex-domain-hosting-handoff",
+      "role": "PUBLIC_NAME_AUTHORITY_DNS_TLS",
+      "state": "ADDRESSABLE_HISTORICAL"
+    },
+    {
+      "id": "personal:kex-self-host-domain-runtime-suite",
+      "role": "PUBLIC_INGRESS_RUNTIME",
+      "state": "ADDRESSABLE_HISTORICAL"
+    }
+  ],
+  "site_fleet": {
+    "agents": [
+      "ADK Coordinator",
+      "ADK Site Operator",
+      "ADK Domain & Server Agent",
+      "ADK Mail Agent",
+      "ADK Deployment Agent",
+      "ADK Research & Market Agent",
+      "ADK Verifier",
+      "ADK Recovery & Continuation Agent"
+    ],
+    "braink_agents": [
+      "BRAINK_OPERATOR",
+      "BRAINK_VERIFIER",
+      "BRAINK_COORDINATOR",
+      "BRAINK_MIRROR",
+      "Supervisor Agent",
+      "Workflow Agent",
+      "Cognition Agent",
+      "Architecture Agent",
+      "Coding Agent",
+      "Research Falsifier",
+      "Verifier Agent",
+      "Provenance Agent",
+      "Composition Agent",
+      "Adaptation Agent"
+    ],
+    "rule": "ONE_SITE_ONE_AGENT_FLEET_ONE_CONTINUATION_FRAME_ONE_FAILURE_LEDGER",
+    "historical_receipt": {
+      "actions_total": 100,
+      "passed": 100,
+      "failed": 0
+    }
+  },
+  "invariants": [
+    "MECHANISM_PRESENT_IS_NOT_THE_SAME_AS_CURRENT_PUBLIC_READBACK",
+    "PUBLIC_READBACK_IS_OBSERVER_EDGE_NOT_PROCESS_EXISTENCE_PREREQUISITE",
+    "DOMAIN_NE_RUNTIME",
+    "NO_IMPLICIT_AUTHORITY_AMPLIFICATION",
+    "CLAIM_MATURITY_CANNOT_EXCEED_READBACK",
+    "PRESERVE_PARENT_REJECTED_DELTA_FAILURE_AND_CONTRADICTION"
+  ]
+}
