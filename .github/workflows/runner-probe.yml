@@ -1,0 +1,15 @@
+name: Runner Probe
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Probe runner
+        run: |
+          echo RUNNER_OK
+          python --version || true
+          node --version || true
