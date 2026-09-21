@@ -93,6 +93,17 @@ class MasterTheoremGraphRegistry:
         except KeyError as exc:
             raise GraphValidationError(f"Unregistered theorem: {theorem_id}") from exc
 
+    def theorem_ids(self) -> tuple[str, ...]:
+        return tuple(self._nodes.keys())
+
+    def children_of(self, theorem_id: str) -> tuple[str, ...]:
+        self.get(theorem_id)
+        return tuple(
+            node.theorem_id
+            for node in self._nodes.values()
+            if theorem_id in node.parent_ids
+        )
+
     def __contains__(self, theorem_id: object) -> bool:
         return theorem_id in self._nodes
 
