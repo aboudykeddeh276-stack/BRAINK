@@ -3,7 +3,6 @@ from __future__ import annotations
 import copy
 import hashlib
 import json
-import uuid
 from dataclasses import dataclass, field
 from enum import Enum
 from types import MappingProxyType
@@ -274,6 +273,7 @@ class NodeTemplateRegistry:
         target_profile: str = "LOCAL",
         capability_grant: Sequence[str] = (),
         instance_id: str | None = None,
+        instance_key: str | None = None,
         lineage_parent_instance_id: str | None = None,
         attribution: Sequence[AttributionEdge] = (),
     ) -> NodeInstance:
@@ -299,7 +299,9 @@ class NodeTemplateRegistry:
                 raise ValueError(f"Missing required attribute parameter: {spec.name}")
             attributes[spec.name] = value
 
-        new_instance_id = instance_id or f"node-{uuid.uuid4()}"
+        if instance_id is None and not instance_key:
+            raise ValueError("instance_id or deterministic instance_key is required")
+        new_instance_id = instance_id or f"node-{sha256_hex({'template_identity': self.template_identity(definition), 'instance_key': instance_key, 'target_profile': target_profile})[:32]}"
         if new_instance_id in self._instances:
             raise ValueError(f"Duplicate node instance id: {new_instance_id}")
 
@@ -384,6 +386,45 @@ class NodeTemplateRegistry:
         source.refresh_evidence_root()
         destination.refresh_evidence_root()
         return edge
+
+    def mutate_instance(
+        self,
+        instance_id: str,
+        *,
+        expected_state_hash: str,
+        state: Mapping[str, Any] | None = None,
+        observer_id: str | None = None,
+        lifecycle_state: str | None = None,
+        capability_grant: Sequence[str] | None = None,
+    ) -> Mapping[str, Any]:
+        instance = self._instances[instance_id]
+        definition = self._definitions[instance.definition_id]
+        previous_hash = instance.state_hash()
+        if previous_hash != expected_state_hash:
+            raise ValueError("INSTANCE_PROOF_CONFLICT")
+        if state is not None:
+            instance.state = copy.deepcopy(dict(state))
+        if observer_id is not None:
+            instance.observer_relation = ObserverRelation(observer_id)
+        if lifecycle_state is not None:
+            if lifecycle_state not in definition.lifecycle:
+                raise ValueError("LIFECYCLE_STATE_NOT_ADMITTED")
+            instance.lifecycle_state = lifecycle_state
+        if capability_grant is not None:
+            requested = set(capability_grant)
+            allowed = set(definition.capability_requirements)
+            if not requested.issubset(allowed):
+                raise ValueError("CAPABILITY_ESCALATION_REJECTED")
+            instance.capability_grant = tuple(sorted(requested))
+        current_hash = instance.state_hash()
+        return MappingProxyType({
+            "event": "NODE_INSTANCE_MUTATED",
+            "instance_id": instance_id,
+            "definition_id": instance.definition_id,
+            "template_identity": instance.template_identity,
+            "previous_state_hash": previous_hash,
+            "state_hash": current_hash,
+        })
 
     def definition(self, definition_id: str) -> NodeDefinition:
         return self._definitions[definition_id]
