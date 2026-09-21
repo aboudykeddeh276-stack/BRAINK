@@ -1,0 +1,42 @@
+{
+  "schema": "kex.node.sector-deployment.v1",
+  "deployment_id": "KEX-NODE-SIP-02-SECTOR-DEPLOY-001",
+  "template_id": "KEX-NODE-SIP-02-SECTOR",
+  "definition_version": "2",
+  "template_fingerprint": "da7a63efc0b93d4f5c7a800b8a55565898fd46cf903b19a84c12b91ce99aeaed",
+  "sectors": [
+    "CASEPATH",
+    "MATHEMATICS_SCIENCE",
+    "LAW",
+    "GOOGLE_PLATFORM_SERVICES",
+    "MESH_INFRASTRUCTURE",
+    "HCI",
+    "STORAGE",
+    "NETWORKING",
+    "RUNTIME"
+  ],
+  "qualification": {
+    "status": "PASS",
+    "tests_passed": 5,
+    "tests_failed": 0,
+    "instance_count": 9,
+    "unique_instance_ids": 9,
+    "unique_observers": 9,
+    "unique_sectors": 9,
+    "same_template_definition": true,
+    "no_instance_identity_collision": true,
+    "no_observer_collision": true,
+    "receipt_sha256": "8a78a5aba2edc9b320121a6381083baa499e029c1763bd37b131dac189dd65e2"
+  },
+  "commits": {
+    "node_identity_v2": "e41525320b72db4c56c4d1dd73a9defb52c0df00",
+    "sector_instances": "62ebf8ed7cca2b57842723c279d6b481f148820f",
+    "tests": "c84ceb10b5946815f81cff500fbca7431ea4c343"
+  },
+  "workbook": {
+    "spreadsheet_id": "1CNKJvZonCk8MB4YRwSivTFKCcBe4v1sTgu92dDqnpWk",
+    "registry": "NODE_IDENTITY_TEMPLATE_REGISTRY",
+    "receipt": "KEX-NODE-SIP-02-SECTOR-R1"
+  },
+  "state_out": "DEPLOYED_AND_QUALIFIED"
+}
