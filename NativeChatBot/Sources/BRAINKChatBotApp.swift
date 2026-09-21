@@ -204,9 +204,6 @@ struct ChatInputBar: View {
                 ProgressView().scaleEffect(0.7)
             }
         }
-        .task {
-            nodeTemplates.reload()
-        }
     }
 }
 
@@ -404,6 +401,9 @@ struct BrainkNativeChatbotView: View {
             }
             .frame(minWidth: 320)
         }
+        }
+        .task {
+            nodeTemplates.reload()
         }
     }
 }
