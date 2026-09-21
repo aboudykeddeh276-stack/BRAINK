@@ -1,0 +1,41 @@
+{
+  "schema": "braink.node-template-deployment-binding.v2",
+  "authority": "A.KEDDEH",
+  "definition_id": "node:def:hci-action-control",
+  "template_id": "node:template:hci-action-control",
+  "identity_governance": "governance/BRAINK_NODE_TEMPLATE_IDENTITY_R1.json",
+  "app_deployment": {
+    "repository": "aboudykeddeh276-stack/app",
+    "ref": "main",
+    "commit_sha": "07653ad854000da6ff3cb30f3af8a11b86e31658",
+    "package_path": "docs/kex-node-template-contract/",
+    "runtime_path": "docs/kex-node-template-contract/kex_node_template_runtime.js",
+    "runtime_blob_sha": "3eff0f1edc15a3d9aac0bf329c50b98e2e7b60a5",
+    "validation_path": "docs/kex-node-template-contract/validation_report.json",
+    "validation_blob_sha": "65edc2c6cf88045466d24ff9160260b4d63999be"
+  },
+  "sheet_projection": {
+    "deployment_id": "deployment://app/kex-node-template-v2",
+    "surfaces": [
+      "NODE_DEFINITIONS",
+      "NODE_TEMPLATES",
+      "NODE_INSTANCES",
+      "NODE_EDGES",
+      "NODE_ATTRIBUTION",
+      "OBSERVER_RELATIONS",
+      "NODE_DEPLOYMENTS"
+    ],
+    "logical_origin": "X2/Y2",
+    "carrier_origin": "B2"
+  },
+  "invariants": [
+    "definition and template identity remain immutable",
+    "instance identity preserves definition_id and template_id",
+    "instance owns mutable state, observer relation, integration edges and attribution",
+    "created_at and mutable state do not participate in lineage identity",
+    "markup is render output and never node identity",
+    "repository deployment is distinct from public serving",
+    "pending CI evidence must not be promoted to PASS without readback"
+  ],
+  "evidence_state": "DEPLOYED_REPO_VALIDATION_PENDING_CI"
+}
