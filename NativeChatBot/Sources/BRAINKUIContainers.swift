@@ -31,3 +31,27 @@ struct ThemedPanel<Content: View>: View {
             .background(panelColor)
     }
 }
+
+
+struct TemplateBackedPanel<Content: View>: View {
+    let node: BRAINKNodeInstanceIdentity
+    let content: () -> Content
+    var panelColor: Color = Color(NSColor.windowBackgroundColor).opacity(0.85)
+
+    init(
+        node: BRAINKNodeInstanceIdentity,
+        panelColor: Color = Color(NSColor.windowBackgroundColor).opacity(0.85),
+        @ViewBuilder content: @escaping () -> Content
+    ) {
+        self.node = node
+        self.panelColor = panelColor
+        self.content = content
+    }
+
+    var body: some View {
+        BRAINKTemplateBackedView(node: node) {
+            content()
+                .background(panelColor)
+        }
+    }
+}
