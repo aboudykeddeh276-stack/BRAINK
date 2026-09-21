@@ -3,10 +3,7 @@ from __future__ import annotations
 import hashlib
 import json
 from dataclasses import dataclass, field
-from typing import Iterable, Sequence, Tuple
-
-DOMAIN_C_TO_Z: Tuple[str, ...] = tuple(chr(code) for code in range(ord("C"), ord("Z") + 1))
-BODMAS_AUTHORITY_CHAIN: Tuple[str, ...] = ("B", "O", "D", "M", "A", "S")
+from typing import Iterable, Tuple
 
 
 def _canon(value) -> bytes:
@@ -17,131 +14,72 @@ def _sha(value) -> str:
     return hashlib.sha256(_canon(value)).hexdigest()
 
 
-def _select(domain: Sequence[str], x: int) -> str:
-    if not domain:
-        raise ValueError("AB_POSITIONAL_DOMAIN_EMPTY")
-    if not isinstance(x, int) or x < 1:
-        raise ValueError("AB_POSITION_X_INVALID")
-    return domain[(x - 1) % len(domain)]
-
-
 @dataclass(frozen=True)
-class ABAuthorityPolicy:
-    """Authority-controlled positional symbol policy.
+class ABLine:
+    """Minimal line-to-line A/B positional proof primitive.
 
-    The base positional domain is C..Z. A selects from the full domain.
-    B selects from the same domain after excluding the authority symbol
-    resolved for the current line. Authority semantics are data, not hidden
-    control flow, so the chain can be replaced without changing strand identity.
+    This is intentionally not a full grammar, authority engine, or execution
+    model. It records only the properties currently justified:
+    - A(x) and B(x) coexist as a pair on a line;
+    - each line has row/position identity;
+    - each line can reference the immediately preceding line;
+    - line order and position are preserved for linear or row projection.
     """
 
-    chain: Tuple[str, ...] = BODMAS_AUTHORITY_CHAIN
-    base_domain: Tuple[str, ...] = DOMAIN_C_TO_Z
-
-    def __post_init__(self) -> None:
-        if not self.chain:
-            raise ValueError("AB_AUTHORITY_CHAIN_EMPTY")
-        if len(set(self.base_domain)) != len(self.base_domain):
-            raise ValueError("AB_BASE_DOMAIN_DUPLICATE")
-        if any(len(symbol) != 1 for symbol in self.base_domain):
-            raise ValueError("AB_BASE_DOMAIN_SYMBOL_INVALID")
-
-    def authority_for_line(self, line_number: int) -> str:
-        if not isinstance(line_number, int) or line_number < 1:
-            raise ValueError("AB_LINE_NUMBER_INVALID")
-        return self.chain[(line_number - 1) % len(self.chain)]
-
-    def a_domain(self, line_number: int) -> Tuple[str, ...]:
-        _ = self.authority_for_line(line_number)
-        return self.base_domain
-
-    def b_domain(self, line_number: int) -> Tuple[str, ...]:
-        authority = self.authority_for_line(line_number)
-        return tuple(symbol for symbol in self.base_domain if symbol != authority)
-
-
-@dataclass(frozen=True)
-class ABPosition:
     line_number: int
     row: int
     position: int
-    x: int
+    a_x: int
+    b_x: int
+    previous_line_hash: str = "0" * 64
+    line_hash: str = field(init=False)
 
     def __post_init__(self) -> None:
         for name, value in (
             ("line_number", self.line_number),
             ("row", self.row),
             ("position", self.position),
-            ("x", self.x),
+            ("a_x", self.a_x),
+            ("b_x", self.b_x),
         ):
             if not isinstance(value, int) or value < 1:
                 raise ValueError(f"AB_{name.upper()}_INVALID")
-
-    def canonical(self) -> dict:
-        return {
-            "line_number": self.line_number,
-            "row": self.row,
-            "position": self.position,
-            "x": self.x,
-        }
-
-
-@dataclass(frozen=True)
-class ABPair:
-    position: ABPosition
-    a_symbol: str
-    b_symbol: str
-    authority_symbol: str
-    authority_chain: Tuple[str, ...]
-    previous_line_hash: str
-    dynamic: str = "POSITIONAL_STRAND"
-    line_hash: str = field(init=False)
-
-    def __post_init__(self) -> None:
-        if self.a_symbol not in DOMAIN_C_TO_Z:
-            raise ValueError("AB_A_SYMBOL_OUT_OF_DOMAIN")
-        if self.b_symbol not in DOMAIN_C_TO_Z:
-            raise ValueError("AB_B_SYMBOL_OUT_OF_DOMAIN")
-        if self.b_symbol == self.authority_symbol:
-            raise ValueError("AB_B_AUTHORITY_EXCLUSION_VIOLATION")
-        body = self.canonical(include_hash=False)
-        object.__setattr__(self, "line_hash", _sha(body))
+        object.__setattr__(self, "line_hash", _sha(self.canonical(include_hash=False)))
 
     @property
     def token(self) -> str:
-        return f"A({self.a_symbol}{self.position.x})B({self.b_symbol}{self.position.x})"
+        return f"A({self.a_x}) B({self.b_x})"
 
     def canonical(self, *, include_hash: bool = True) -> dict:
-        out = {
-            "dynamic": self.dynamic,
-            "position": self.position.canonical(),
-            "a_symbol": self.a_symbol,
-            "b_symbol": self.b_symbol,
-            "authority_symbol": self.authority_symbol,
-            "authority_chain": list(self.authority_chain),
+        value = {
+            "line_number": self.line_number,
+            "row": self.row,
+            "position": self.position,
+            "A": self.a_x,
+            "B": self.b_x,
             "previous_line_hash": self.previous_line_hash,
         }
         if include_hash and hasattr(self, "line_hash"):
-            out["line_hash"] = self.line_hash
-        return out
+            value["line_hash"] = self.line_hash
+        return value
 
 
 @dataclass(frozen=True)
-class ABStrand:
+class ABLineStrand:
     strand_id: str
-    lines: Tuple[ABPair, ...]
+    lines: Tuple[ABLine, ...]
     strand_hash: str = field(init=False)
 
     def __post_init__(self) -> None:
         if not self.strand_id:
             raise ValueError("AB_STRAND_ID_REQUIRED")
         previous = "0" * 64
-        for expected_line, pair in enumerate(self.lines, start=1):
-            if pair.position.line_number != expected_line:
-                raise ValueError("AB_STRAND_LINE_SEQUENCE_INVALID")
-            if pair.previous_line_hash != previous:
-                raise ValueError("AB_STRAND_LINEAGE_INVALID")
-            previous = pair.line_hash
+        for expected, line in enumerate(self.lines, start=1):
+            if line.line_number != expected:
+                raise ValueError("AB_LINE_SEQUENCE_INVALID")
+            if line.previous_line_hash != previous:
+                raise ValueError("AB_LINEAGE_INVALID")
+            previous = line.line_hash
         object.__setattr__(
             self,
             "strand_hash",
@@ -151,97 +89,49 @@ class ABStrand:
             }),
         )
 
-    def row(self, row: int) -> Tuple[ABPair, ...]:
-        return tuple(line for line in self.lines if line.position.row == row)
-
-    def line(self, line_number: int) -> ABPair:
-        return self.lines[line_number - 1]
+    def row(self, row: int) -> Tuple[ABLine, ...]:
+        return tuple(sorted(
+            (line for line in self.lines if line.row == row),
+            key=lambda line: (line.position, line.line_number),
+        ))
 
     def canonical(self) -> dict:
         return {
-            "schema": "kex.ab-positional-strand.v1",
+            "schema": "kex.ab-line-strand-proof.v1",
+            "status": "PROOF_OF_POSSIBILITY",
             "strand_id": self.strand_id,
             "strand_hash": self.strand_hash,
             "lines": [line.canonical() for line in self.lines],
         }
 
 
-def build_pair(
-    *,
-    line_number: int,
-    row: int,
-    position: int,
-    x: int,
-    previous_line_hash: str = "0" * 64,
-    policy: ABAuthorityPolicy | None = None,
-) -> ABPair:
-    policy = policy or ABAuthorityPolicy()
-    authority = policy.authority_for_line(line_number)
-    a_symbol = _select(policy.a_domain(line_number), x)
-    b_symbol = _select(policy.b_domain(line_number), x)
-    return ABPair(
-        position=ABPosition(line_number=line_number, row=row, position=position, x=x),
-        a_symbol=a_symbol,
-        b_symbol=b_symbol,
-        authority_symbol=authority,
-        authority_chain=policy.chain,
-        previous_line_hash=previous_line_hash,
-    )
-
-
-def build_strand(
-    positions: Iterable[tuple[int, int, int]],
+def build_line_strand(
+    pairs: Iterable[tuple[int, int, int, int]],
     *,
     strand_id: str,
-    policy: ABAuthorityPolicy | None = None,
-) -> ABStrand:
-    """Build a linear strand from (row, position, x) tuples."""
-    policy = policy or ABAuthorityPolicy()
+) -> ABLineStrand:
+    """Build a proof strand from (row, position, A_x, B_x) tuples."""
     previous = "0" * 64
     lines = []
-    for line_number, (row, position, x) in enumerate(positions, start=1):
-        pair = build_pair(
+    for line_number, (row, position, a_x, b_x) in enumerate(pairs, start=1):
+        line = ABLine(
             line_number=line_number,
             row=row,
             position=position,
-            x=x,
+            a_x=a_x,
+            b_x=b_x,
             previous_line_hash=previous,
-            policy=policy,
         )
-        lines.append(pair)
-        previous = pair.line_hash
-    return ABStrand(strand_id=strand_id, lines=tuple(lines))
+        lines.append(line)
+        previous = line.line_hash
+    return ABLineStrand(strand_id=strand_id, lines=tuple(lines))
 
 
-def matrix_projection(strand: ABStrand) -> dict[int, list[dict]]:
-    rows: dict[int, list[dict]] = {}
-    for line in strand.lines:
-        rows.setdefault(line.position.row, []).append({
-            "line_number": line.position.line_number,
-            "position": line.position.position,
-            "x": line.position.x,
-            "A": line.a_symbol,
-            "B": line.b_symbol,
-            "authority": line.authority_symbol,
-            "line_hash": line.line_hash,
-        })
-    for values in rows.values():
-        values.sort(key=lambda item: (item["position"], item["line_number"]))
-    return rows
+def c_to_z_minus_authority_example(authority: str) -> Tuple[str, ...]:
+    """Proof-of-possibility helper only.
 
-
-def dna_projection(strand: ABStrand) -> list[dict]:
-    """Linear projection preserving pair order, position and lineage."""
-    return [
-        {
-            "index": line.position.line_number,
-            "pair": [line.a_symbol, line.b_symbol],
-            "x": line.position.x,
-            "row": line.position.row,
-            "position": line.position.position,
-            "authority": line.authority_symbol,
-            "previous": line.previous_line_hash,
-            "hash": line.line_hash,
-        }
-        for line in strand.lines
-    ]
+    Demonstrates the proposed C..Z minus one authority symbol construction.
+    It is NOT part of the canonical A/B line rule and is NOT used automatically.
+    """
+    domain = tuple(chr(code) for code in range(ord("C"), ord("Z") + 1))
+    return tuple(symbol for symbol in domain if symbol != authority)
