@@ -1,0 +1,147 @@
+{
+  "schema": "braink.node-template.r1",
+  "purpose": "Make reusability and templating intrinsic to node identity while preserving definition lineage and per-instance state.",
+  "capability_classes": [
+    "DUMB",
+    "SMART"
+  ],
+  "template_identity": {
+    "required": [
+      "template_id",
+      "definition_id",
+      "type",
+      "sector",
+      "role",
+      "version",
+      "capability_class",
+      "typed_inputs",
+      "typed_outputs",
+      "attributes",
+      "attribution_graph",
+      "integration_contract",
+      "policy_bindings",
+      "compatibility",
+      "lifecycle",
+      "authorship",
+      "proof_root"
+    ],
+    "law": "A template is a governed node definition, never copied opaque markup."
+  },
+  "instance_identity": {
+    "required": [
+      "instance_id",
+      "template_id",
+      "definition_id",
+      "template_version",
+      "lineage_root",
+      "instance_state",
+      "observer_relations",
+      "integration_edges",
+      "attribution",
+      "created_ns",
+      "proof_root"
+    ],
+    "law": "Instantiation preserves template/definition lineage while creating independent mutable instance state and edges."
+  },
+  "capability_class": {
+    "DUMB": {
+      "definition": "Deterministic bounded node with no autonomous planning authority.",
+      "may": [
+        "transform_typed_input",
+        "render",
+        "validate",
+        "route_declared_edges"
+      ],
+      "may_not": [
+        "invent_policy",
+        "expand_authority",
+        "self_rewire_unapproved_edges"
+      ]
+    },
+    "SMART": {
+      "definition": "Reasoning-capable node whose proposals remain bounded by policy, validation and actuation authority.",
+      "may": [
+        "reason",
+        "plan",
+        "select_registered_skills",
+        "propose_integrations"
+      ],
+      "may_not": [
+        "self_grant_authority",
+        "bypass_validation",
+        "erase_attribution"
+      ]
+    }
+  },
+  "attributes": {
+    "law": "Attributes describe governed characteristics; every attribute carries source attribution and version provenance.",
+    "required_per_attribute": [
+      "name",
+      "value_type",
+      "value",
+      "source",
+      "source_version"
+    ]
+  },
+  "attribution_graph": {
+    "edge_types": [
+      "DERIVED_FROM",
+      "AUTHORED_BY",
+      "IMPLEMENTS",
+      "ADAPTS",
+      "OBSERVED_BY",
+      "INSTANTIATED_FROM",
+      "INTEGRATES_WITH"
+    ],
+    "law": "Attribution is graph data, not decorative metadata; derivation and authorship must remain traversable."
+  },
+  "integration_contract": {
+    "edge_fields": [
+      "edge_id",
+      "source",
+      "target",
+      "interface",
+      "direction",
+      "schema",
+      "authority_requirement",
+      "policy_bindings",
+      "state"
+    ],
+    "law": "Integration edges are explicit instance data and cannot be inferred from copied DOM/markup adjacency."
+  },
+  "template_contract": {
+    "instantiate_requires": [
+      "valid_template_proof",
+      "compatible_runtime",
+      "authority_if_required",
+      "unique_instance_id",
+      "initial_state_schema",
+      "observer_binding_policy"
+    ],
+    "immutable_from_template": [
+      "template_id",
+      "definition_id",
+      "template_version",
+      "authorship_lineage"
+    ],
+    "instance_specific": [
+      "instance_state",
+      "observer_relations",
+      "integration_edges",
+      "runtime_bindings",
+      "attribution_extensions"
+    ],
+    "forbidden": [
+      "copy_opaque_markup_as_identity",
+      "erase_template_lineage",
+      "share_mutable_instance_state_by_default",
+      "silently_inherit_privilege",
+      "silently_rewrite_attribution"
+    ]
+  },
+  "hci_reuse_law": "An HCI primitive is instantiated from a node template. Rendering may differ per instance, but semantic definition, typed contract and lineage remain stable.",
+  "authorship": {
+    "integration_authority": "Keddeh Systems",
+    "source_basis": "User-directed BRAINK node reuse, template, attribution and HCI governance requirements"
+  }
+}
