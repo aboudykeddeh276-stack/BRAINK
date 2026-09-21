@@ -115,11 +115,20 @@ class NodeDefinition:
     integration_contracts: Tuple[IntegrationContract, ...]
     template_contract: TemplateContract
     implementation_ref: str
+    definition_revision: int = 1
+    sector_id: str = "unscoped"
+    sector_class: str = "runtime"
+    lifecycle: Tuple[str, ...] = ("DEFINED", "READY", "RUNNING", "STOPPED")
+    target_constraints: Tuple[str, ...] = ()
+    capability_requirements: Tuple[str, ...] = ()
+    evidence_requirements: Tuple[str, ...] = ()
     definition_id: str = field(init=False)
 
     def __post_init__(self) -> None:
         if not self.node_type or not self.version or not self.implementation_ref:
             raise ValueError("node_type, version and implementation_ref are required")
+        if self.definition_revision < 1:
+            raise ValueError("definition_revision must be >= 1")
         self._validate_unique_names(self.inputs, "input")
         self._validate_unique_names(self.outputs, "output")
         self._validate_unique_names(self.attributes, "attribute")
@@ -143,6 +152,13 @@ class NodeDefinition:
             "integration_contracts": [x.canonical() for x in self.integration_contracts],
             "template_contract": self.template_contract.canonical(),
             "implementation_ref": self.implementation_ref,
+            "definition_revision": self.definition_revision,
+            "sector_id": self.sector_id,
+            "sector_class": self.sector_class,
+            "lifecycle": list(self.lifecycle),
+            "target_constraints": list(self.target_constraints),
+            "capability_requirements": list(self.capability_requirements),
+            "evidence_requirements": list(self.evidence_requirements),
         }
 
 
@@ -187,6 +203,10 @@ class NodeInstance:
     observer_relation: ObserverRelation
     integration_edges: list[IntegrationEdge]
     attribution_graph: list[AttributionEdge]
+    definition_revision: int
+    target_profile: str
+    capability_grant: Tuple[str, ...]
+    lifecycle_state: str = "DEFINED"
     lineage_parent_instance_id: str | None = None
 
     def snapshot(self) -> Dict[str, Any]:
@@ -199,6 +219,10 @@ class NodeInstance:
             "observer_relation": self.observer_relation.canonical(),
             "integration_edges": [x.canonical() for x in self.integration_edges],
             "attribution_graph": [x.canonical() for x in self.attribution_graph],
+            "definition_revision": self.definition_revision,
+            "target_profile": self.target_profile,
+            "capability_grant": list(self.capability_grant),
+            "lifecycle_state": self.lifecycle_state,
             "lineage_parent_instance_id": self.lineage_parent_instance_id,
         }
 
@@ -235,6 +259,8 @@ class NodeTemplateRegistry:
         parameters: Mapping[str, Any] | None = None,
         initial_state: Mapping[str, Any] | None = None,
         observer_id: str = "OBSERVER2",
+        target_profile: str = "LOCAL",
+        capability_grant: Sequence[str] = (),
         instance_id: str | None = None,
         lineage_parent_instance_id: str | None = None,
         attribution: Sequence[AttributionEdge] = (),
@@ -242,6 +268,12 @@ class NodeTemplateRegistry:
         definition = self._definitions.get(definition_id)
         if definition is None:
             raise KeyError(f"Unknown node definition: {definition_id}")
+        if definition.target_constraints and target_profile not in definition.target_constraints:
+            raise ValueError(f"Target profile not permitted: {target_profile}")
+        requested_grants = set(capability_grant)
+        allowed_grants = set(definition.capability_requirements)
+        if not requested_grants.issubset(allowed_grants):
+            raise ValueError("Instance capability grant exceeds definition capability envelope")
         params = dict(parameters or {})
         allowed = set(definition.template_contract.parameter_names)
         unknown = set(params) - allowed
@@ -274,6 +306,10 @@ class NodeTemplateRegistry:
             observer_relation=ObserverRelation(observer_id),
             integration_edges=[],
             attribution_graph=lineage,
+            definition_revision=definition.definition_revision,
+            target_profile=target_profile,
+            capability_grant=tuple(sorted(requested_grants)),
+            lifecycle_state=definition.lifecycle[0] if definition.lifecycle else "DEFINED",
             lineage_parent_instance_id=lineage_parent_instance_id,
         )
         self._instances[new_instance_id] = instance
