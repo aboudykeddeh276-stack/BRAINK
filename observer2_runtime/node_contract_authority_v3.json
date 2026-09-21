@@ -1,6 +1,6 @@
 {
   "contract_id": "KEX_NODE_TEMPLATE_AUTHORITY_V3",
-  "contract_hash": "fc1aa5c9909de7206eef68e9bf5b73ed8094b623ef2735b9554401062aa3ab0d",
+  "contract_hash": "bfdd684b55f27986a209e823fb19dab3114b5e32366c11ae1857e43c669361ab",
   "seed_id": "KEX-NODE-SIP-02-E31D2783AA9B404DAFB4DBD39EDCCEC6",
   "package_version": "2.2.0",
   "source_package_sha256": "b78c7b09c11421548178c4cb2ca94e1a9a0aa87f58f2c6c6cacf3c66f6f599e0",
@@ -26,12 +26,19 @@
     "capability_grant_must_be_subset": true,
     "target_profile_must_be_admitted": true,
     "mutation_requires_expected_state_hash": true,
-    "opaque_fragment_copy_allowed": false
+    "opaque_fragment_copy_allowed": false,
+    "typed_integration_binding_must_be_admitted": true,
+    "runtime_evidence_root_required": true,
+    "definition_revision_bound": true,
+    "sector_identity_bound": true
   },
   "evidence": {
     "package_clean_tests": "12/12 PASS",
     "zero_install_validator": "PASS",
     "zero_install_cli": "PASS"
   },
-  "supersedes": "KEX_NODE_TEMPLATE_AUTHORITY_V2"
+  "supersedes": [
+    "KEX_NODE_TEMPLATE_AUTHORITY_V2",
+    "KEX_NODE_TEMPLATE_AUTHORITY_V2_1"
+  ]
 }
