@@ -19,6 +19,7 @@ from pathlib import Path
 
 from runtime.host_control.braink_host_fabric import HostFabric
 from runtime.resident_root_projection_r28 import ResidentRootResolver, carrier_projection
+from runtime.node.braink_node_templates import NodeTemplateRegistry
 from runtime.runtime_registry import RuntimeRegistry
 
 OAUTH_SOCKET = os.environ.get("BRAINK_OAUTH_SOCKET", "/tmp/braink-oauth.sock")
@@ -27,6 +28,7 @@ REPO_ROOT = Path(os.environ.get("BRAINK_REPO_ROOT", ".")).resolve()
 CARRIER_ENDPOINT = os.environ.get("BRAINK_CARRIER_ENDPOINT", "")
 CARRIER_KIND = os.environ.get("BRAINK_CARRIER_KIND", "HTTP")
 HOST_ID = os.environ.get("BRAINK_HOST_ID", socket.gethostname())
+NODE_TEMPLATE_REGISTRY = NodeTemplateRegistry()
 HOST_STATE = Path(os.environ.get("BRAINK_HOST_FABRIC_STATE", REPO_ROOT / ".kex" / "state" / "host_fabric"))
 RUNTIME_DB = Path(os.environ.get("BRAINK_RUNTIME_DB", HOST_STATE / "runtimes.sqlite"))
 BACKBONE_RECEIPTS = Path(os.environ.get("KEDDEH_BACKBONE_RECEIPTS", "/var/lib/keddeh/backbone/backbone_receipts.jsonl"))
