@@ -1,0 +1,13 @@
+#!/bin/sh
+set -eu
+HERE="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
+cmd="${1:-serve}"; shift || true
+case "$cmd" in
+  serve) exec python3 "$HERE/app.py" "$@" ;;
+  bootstrap) exec python3 "$HERE/bootstrap_estate.py" "$@" ;;
+  selftest) exec python3 "$HERE/selftest.py" "$@" ;;
+  verify)
+    exec python3 -c 'import sys;sys.path.insert(0,sys.argv[1]);from app import S;import json;print(json.dumps(S.verify(),indent=2))' "$HERE"
+    ;;
+  *) echo "usage: $0 {serve|bootstrap|selftest|verify}" >&2; exit 2 ;;
+esac
