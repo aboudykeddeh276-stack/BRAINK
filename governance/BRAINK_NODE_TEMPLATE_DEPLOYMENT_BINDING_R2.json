@@ -15,7 +15,7 @@
   "app_deployment": {
     "repository": "aboudykeddeh276-stack/app",
     "ref": "main",
-    "commit_sha": "c0b07133a9c0e12208f70e554e03165af3859fbf",
+    "commit_sha": "34993c21635d908f1fe144e01c51e9cabdc49968",
     "package_path": "docs/kex-node-template-contract/",
     "runtime_path": "docs/kex-node-template-contract/kex_node_template_runtime.js",
     "runtime_blob_sha": "718be8b93a0ccaf1780bb4b485930f84112d9ddf",
@@ -23,7 +23,7 @@
     "template_blob_sha": "94cbd5f90c9fd0fc7f9b2c567611a73d6b290bc6",
     "authority_blob_sha": "0aa0e16a487a2219b8743c04f73d39673726b15d",
     "validation_path": "docs/kex-node-template-contract/validation_report.json",
-    "validation_blob_sha": "69b347ebeb028e2555d953ff5d3823850928e96a",
+    "validation_blob_sha": "4851e36d1c749456a4392b81b72a1782f486b96f",
     "runtime_version": "2.1.0"
   },
   "sheet_projection": {
@@ -53,6 +53,12 @@
     "pending CI evidence must not be promoted to PASS without readback"
   ],
   "local_validation_state": "PASS",
-  "ci_state": "PENDING_EXECUTION_READBACK",
-  "evidence_state": "DEPLOYED_REPO_LOCAL_VALIDATION_PASS_CI_PENDING"
+  "ci_state": "STARTUP_FAILURE_NO_JOBS:35576272701",
+  "evidence_state": "DEPLOYED_REPO_LOCAL_VALIDATION_PASS_CI_BLOCKED_STARTUP_FAILURE",
+  "ci_evidence": {
+    "run_id": 35576272701,
+    "run_url": "https://github.com/aboudykeddeh276-stack/app/actions/runs/35576272701",
+    "conclusion": "startup_failure",
+    "jobs_observed": 0
+  }
 }
