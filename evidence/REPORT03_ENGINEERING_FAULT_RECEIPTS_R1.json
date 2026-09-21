@@ -1,0 +1,25 @@
+{
+  "seed": 297,
+  "scenarios": 8,
+  "passed": 8,
+  "failed": 0,
+  "unit_suite": {"tests": 10, "passed": 10, "elapsed_seconds": 0.14},
+  "receipts": [
+    {"scenario":"random_conflicting_quorums","status":"PASS","detail":{"trials":498,"equivocation_blocks":498}},
+    {"scenario":"tampered_receipt_hash","status":"PASS","detail":{"expected":"RECEIPT_HASH_MISMATCH","observed":"RECEIPT_HASH_MISMATCH"}},
+    {"scenario":"recovery_length_mismatch","status":"PASS","detail":{"expected":"RECOVERY_LENGTH_MISMATCH","observed":"RECOVERY_LENGTH_MISMATCH"}},
+    {"scenario":"directory_replica_divergence","status":"PASS","detail":{"expected":"DIRECTORY_REPLICA_DIVERGENCE","observed":"DIRECTORY_REPLICA_DIVERGENCE"}},
+    {"scenario":"directory_stale_generation","status":"PASS","detail":{"expected":"STALE_GENERATION","observed":"STALE_GENERATION"}},
+    {"scenario":"l2_transient_fault_convergence","status":"PASS","detail":{"runs":100,"converged":100,"exhausted":0,"partial_failure_receipts":158}},
+    {"scenario":"l2_persistent_fault_fail_closed","status":"PASS","detail":{"status":"PARTIAL_FAILURE","converged":false,"error":"RuntimeError:persistent fault"}},
+    {"scenario":"membership_change_not_implemented","status":"PASS","detail":{"expected":"MEMBERSHIP_CHANGE_PROTOCOL_NOT_IMPLEMENTED","observed":"MEMBERSHIP_CHANGE_PROTOCOL_NOT_IMPLEMENTED"}}
+  ],
+  "tested_sha256": {
+    "tot_safety.py":"6b4ca578ea8598bf494a5adb7aecb109f395901b7f35700b75f574ee1de1965b",
+    "coordinate_directory.py":"ecaf5a6e2462dd82a53f4e3dd64076741b7fd91b977d2cf29888f3d5a7d6647d",
+    "layer2_reconciler.py":"b39201bcdcd62c88fd8d626cf7ecae6249a18e2f809865f4e565a4e55ebd22de",
+    "test_report03_engineering.py":"d4d91590f4d13837fe03c6ab0e618931ab8f80d09071e71bd67bfafc080cc811",
+    "run_report03_fault_campaign.py":"bbdca6e90a27ec862a3d4e456e1577991a37bd3af830a5adbf6c45b299fbc087"
+  },
+  "evidence_boundary":"Local Python execution only. No multi-host transport, durable WAL/fsync, real network actuator, Byzantine tolerance, or production linearizability claimed."
+}
