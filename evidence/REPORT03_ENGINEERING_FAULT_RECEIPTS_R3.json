@@ -1,0 +1,138 @@
+{
+  "schema": "kex.braink.report03.evidence.r3",
+  "date": "2026-09-21",
+  "repository_projection": "aboudykeddeh276-stack/BRAINK",
+  "predecessor": {
+    "tot_safety_blob_sha": "65ad73aa02b1088fa385eb8a3da83270158e472f",
+    "coordinate_directory_blob_sha": "c721d6571ae07075c7408172bf70a4c8dc8d691e",
+    "layer2_reconciler_blob_sha": "cd7cd47efd15fe413e6734baccbf86e59449d664"
+  },
+  "new_layer_hashes": {
+    "report03_mesh.py": "7f9cc97ad16e874fe26c8ba0507c42b30f2c5d2f496ba0a8f1b919d1ac091a63",
+    "test_report03_mesh.py": "a1c15852503dcd58dfd04f65f57ced4560a9795e527c8aa80b769c54ce2e4b53",
+    "run_multiprocess_fault_campaign.py": "ef1d124caa283994fff793dbdce0e55214735edd014a26aca591762731152e5a",
+    "node_runner.py": "4235e79c4ce86b37af91d2dd1f322a1ca325e39ac29983d3ac02e1523f04fb78"
+  },
+  "unit_tests": {
+    "result": "6 passed, 1 skipped",
+    "scope": "focused ballot/WAL/directory/membership/auth/L2 boundary tests"
+  },
+  "multiprocess_campaign": {
+    "schema": "kex.report03.multiprocess.r3",
+    "scenarios": [
+      {
+        "scenario": "multiprocess_initial_commit",
+        "status": "PASS",
+        "index": 1,
+        "committers": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ]
+      },
+      {
+        "scenario": "multiprocess_barrier_read",
+        "status": "PASS",
+        "proof": {
+          "index": 3,
+          "root": "ba6355442a55bde1f1fb428f27fbe04cf75353bf4a4fcf6cd62f2a8cf7a36178",
+          "responders": 4
+        }
+      },
+      {
+        "scenario": "process_crash_quorum_progress",
+        "status": "PASS",
+        "index": 4,
+        "committers": [
+          "A",
+          "B",
+          "D"
+        ]
+      },
+      {
+        "scenario": "process_restart_wal_suffix_catchup",
+        "status": "PASS",
+        "entries": 1,
+        "same_root": true
+      },
+      {
+        "scenario": "quorum_loss_fail_closed",
+        "status": "PASS",
+        "error": "SafetyViolation:PREPARE_OLD_QUORUM_NOT_REACHED"
+      },
+      {
+        "scenario": "higher_ballot_after_quorum_loss",
+        "status": "PASS",
+        "index": 5,
+        "ballot": 2,
+        "committers": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ]
+      },
+      {
+        "scenario": "orphan_acceptance_recovery",
+        "status": "PASS",
+        "requested_index": 7,
+        "ballot": 1
+      },
+      {
+        "scenario": "joint_membership_transition",
+        "status": "PASS",
+        "committers": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ]
+      },
+      {
+        "scenario": "new_config_progress_without_removed_member",
+        "status": "PASS",
+        "epoch": 2,
+        "committers": [
+          "A",
+          "B",
+          "D"
+        ]
+      },
+      {
+        "scenario": "hmac_auth_negative_control",
+        "status": "PASS",
+        "response": {
+          "error": "SafetyViolation:AUTHENTICATION_FAILED",
+          "ok": false
+        }
+      },
+      {
+        "scenario": "linux_bridge_actuator",
+        "status": "AWAITING_NONDESTRUCTIVE_TARGET",
+        "capability": {
+          "iproute2": true,
+          "euid": 0,
+          "ready": true
+        }
+      }
+    ],
+    "passed": 10,
+    "awaiting": 1,
+    "failed": 0
+  },
+  "qualification": {
+    "durable_ballot_tot": "QUALIFIED_WITHIN_SCOPE",
+    "independent_process_loopback_transport": "QUALIFIED_WITHIN_SCOPE",
+    "crash_restart_wal_recovery": "QUALIFIED_WITHIN_SCOPE",
+    "committed_suffix_catchup": "QUALIFIED_WITHIN_SCOPE",
+    "joint_membership_transition": "QUALIFIED_WITHIN_SCOPE",
+    "coordinate_barrier_read": "QUALIFIED_WITHIN_SCOPE",
+    "shared_secret_hmac_authentication": "QUALIFIED_WITHIN_SCOPE",
+    "physical_linux_bridge_mutation": "AWAITING_ISOLATED_TARGET_TESTING",
+    "multi_host_lan_or_wan": "AWAITING_EXTERNAL_VERIFICATION",
+    "byzantine_fault_tolerance": "CANNOT_BE_DEVELOPED_WITHIN_CURRENT_NON_BYZANTINE_TRUST_MODEL",
+    "formal_model_checking": "IN_DEVELOPMENT_REQUIRED_FOR_STRONGER_SAFETY_CLAIM",
+    "production_scale_slo": "AWAITING_WORKLOAD_AND_SLO_BINDING"
+  }
+}
