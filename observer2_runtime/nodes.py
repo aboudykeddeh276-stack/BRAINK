@@ -206,10 +206,12 @@ class NodeInstance:
     definition_revision: int
     target_profile: str
     capability_grant: Tuple[str, ...]
+    evidence_requirements: Tuple[str, ...] = ()
+    runtime_evidence_root: str = ""
     lifecycle_state: str = "DEFINED"
     lineage_parent_instance_id: str | None = None
 
-    def snapshot(self) -> Dict[str, Any]:
+    def evidence_payload(self) -> Dict[str, Any]:
         return {
             "definition_id": self.definition_id,
             "template_identity": self.template_identity,
@@ -222,9 +224,19 @@ class NodeInstance:
             "definition_revision": self.definition_revision,
             "target_profile": self.target_profile,
             "capability_grant": list(self.capability_grant),
+            "evidence_requirements": list(self.evidence_requirements),
             "lifecycle_state": self.lifecycle_state,
             "lineage_parent_instance_id": self.lineage_parent_instance_id,
         }
+
+    def refresh_evidence_root(self) -> str:
+        self.runtime_evidence_root = sha256_hex(self.evidence_payload())
+        return self.runtime_evidence_root
+
+    def snapshot(self) -> Dict[str, Any]:
+        payload = self.evidence_payload()
+        payload["runtime_evidence_root"] = self.runtime_evidence_root
+        return payload
 
     def state_hash(self) -> str:
         return sha256_hex(self.snapshot())
@@ -309,9 +321,11 @@ class NodeTemplateRegistry:
             definition_revision=definition.definition_revision,
             target_profile=target_profile,
             capability_grant=tuple(sorted(requested_grants)),
+            evidence_requirements=tuple(definition.evidence_requirements),
             lifecycle_state=definition.lifecycle[0] if definition.lifecycle else "DEFINED",
             lineage_parent_instance_id=lineage_parent_instance_id,
         )
+        instance.refresh_evidence_root()
         self._instances[new_instance_id] = instance
         return instance
 
@@ -367,6 +381,8 @@ class NodeTemplateRegistry:
         )
         source.integration_edges.append(edge)
         destination.integration_edges.append(edge)
+        source.refresh_evidence_root()
+        destination.refresh_evidence_root()
         return edge
 
     def definition(self, definition_id: str) -> NodeDefinition:
