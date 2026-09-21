@@ -6,6 +6,8 @@ import time
 import pytest
 
 from enterprise.node_template_r40 import (
+    NodeTemplateRegistry,
+    derive_runtime_template,
     legacy_recursive_template,
     materialize_template,
     validate_template,
@@ -131,3 +133,70 @@ def test_explicit_template_identity_is_bound_at_construction(tmp_path):
     child = root.instantiate("HCI1", template_identity=materialized.identity.to_dict())
     assert child.identity.template_identity == materialized.identity.to_dict()
     assert child.readback()["identity"]["template_identity"] == materialized.identity.to_dict()
+
+
+class MemVFS:
+    def __init__(self):
+        self.cells = {}
+
+    def cas_write(self, node_id, path, value, expected_hash):
+        key = (node_id, path)
+        if key in self.cells:
+            return {"logical": f"vfs://node/{node_id}/{path}", "result": {"status": "CONFLICT"}}
+        self.cells[key] = copy.deepcopy(value)
+        return {"logical": f"vfs://node/{node_id}/{path}", "result": {"status": "COMMITTED"}}
+
+    def read(self, node_id, path):
+        key = (node_id, path)
+        if key not in self.cells:
+            return {"logical": f"vfs://node/{node_id}/{path}", "result": {"status": "HOLE"}}
+        return {"logical": f"vfs://node/{node_id}/{path}", "result": {"status": "READ", "value": copy.deepcopy(self.cells[key])}}
+
+
+def test_template_registry_is_idempotent_and_conflict_detecting():
+    vfs = MemVFS()
+    registry = NodeTemplateRegistry(vfs, "A")
+    template = hci_template()
+    first = registry.register(template)
+    second = registry.register(template)
+    assert first["status"] == "REGISTERED"
+    assert second["status"] == "EXISTING"
+    resolved = registry.resolve(template["template_contract"]["template_id"], template["definition"]["version"])
+    assert resolved == validate_template(template)
+
+    changed = copy.deepcopy(template)
+    changed["attributes"]["visual"]["surface"] = "different"
+    with pytest.raises(RuntimeError, match="TEMPLATE_VERSION_CONFLICT"):
+        registry.register(changed)
+
+
+def test_runtime_template_generalises_resolved_dependencies():
+    template = derive_runtime_template(
+        data_class="WORKLOAD",
+        sector="developer_ops",
+        function_id="function://illlm/kex/instantiate",
+        process_id="process://illlm/kex/instantiate",
+        runtime_action="instantiate",
+        mutating=True,
+        capabilities=["process", "readback", "process"],
+    )
+    validated = validate_template(template)
+    assert validated["capability_class"]["class"] == "SMART_NODE"
+    assert validated["definition"]["data_class"] == "WORKLOAD"
+    assert validated["definition"]["sector"] == "developer_ops"
+    targets = [e["to"] for e in validated["integration_edges"]["outbound"]]
+    assert "capability://process" in targets
+    assert "capability://readback" in targets
+    assert "runtime-action://instantiate" in targets
+
+    same = derive_runtime_template(
+        data_class="WORKLOAD",
+        sector="developer_ops",
+        function_id="function://illlm/kex/instantiate",
+        process_id="process://illlm/kex/instantiate",
+        runtime_action="instantiate",
+        mutating=True,
+        capabilities=["readback", "process"],
+    )
+    assert same["template_contract"]["template_id"] == template["template_contract"]["template_id"]
+    assert same["definition"]["definition_hash"] == template["definition"]["definition_hash"]
