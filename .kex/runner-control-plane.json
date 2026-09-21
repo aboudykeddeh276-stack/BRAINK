@@ -1,5 +1,5 @@
 {
-  "schema": "kex.github-runner-control-plane.v10",
+  "schema": "kex.github-runner-control-plane.v11",
   "cascade_order": [
     "MOUNT",
     "VERIFY_ALL",
@@ -35,6 +35,7 @@
     "VERIFY_FILE_IDENTITY_GRAMMAR",
     "MOUNT_NODE_TEMPLATE_REGISTRY",
     "VERIFY_NODE_TEMPLATE_CONTRACTS",
+    "BOOTSTRAP_CORE_NODE_TEMPLATES",
     "MOUNT_WORKBOOK_SUBSTRATE",
     "OPEN_INDEXEDDB_NAMESPACE",
     "HYDRATE_PULSES",
@@ -94,7 +95,8 @@
     "TEMPLATE_VERSION_CONFLICT_FAILS_CLOSED",
     "INSTANCE_IDENTITY_CANNOT_DERIVE_FROM_TIME_OR_RANDOMNESS",
     "INSTANCE_MUTATION_REQUIRES_EXPECTED_PROOF_ROOT",
-    "NATIVE_HCI_IDENTITY_MUST_REFERENCE_NODE_TEMPLATE_INSTANCE"
+    "NATIVE_HCI_IDENTITY_MUST_REFERENCE_NODE_TEMPLATE_INSTANCE",
+    "CORE_NODE_TEMPLATE_CATALOG_MUST_BOOTSTRAP_BEFORE_INSTANCE_CREATION"
   ],
   "file_governance": {
     "manifest": "governance/file/BRAINK_FILE_GOVERNANCE_R1.json",
@@ -334,6 +336,9 @@
       "GET /nodes/instance",
       "POST /nodes/instantiate",
       "POST /nodes/mutate"
-    ]
+    ],
+    "catalog": "governance/node/BRAINK_CORE_NODE_TEMPLATES_R1.json",
+    "bootstrap": "deploy/bootstrap_node_templates.py",
+    "bootstrap_law": "core definitions are registered by reference metadata and implementation refs; executable bodies and rendered markup are not copied into template identity"
   }
 }
