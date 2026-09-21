@@ -1,0 +1,300 @@
+{
+  "schema": "braink.owner.complete-site-estate-index.v2",
+  "purpose": "Comprehensive recovered index of known ChatGPT Sites, domain projections, logical application/site identities, workspaces, VFS/runtime/server lineage, deployment/version evidence, and explicit uncertainty. This registry does not infer repository-to-Site backing relationships.",
+  "generated_from": "recovered historical records plus current authenticated estate work",
+  "completeness_policy": {
+    "rule": "Include every recovered website/site/domain identity even where the relationship is historical, alternate, pending, failed, or unverified.",
+    "no_silent_inference": true,
+    "repository_site_relation": "UNPROVEN unless explicitly evidenced"
+  },
+  "chatgpt_sites": [
+    {
+      "slug": "kex-geometric-address",
+      "url": "https://kex-geometric-address.aboudykeddeh276.chatgpt.site",
+      "logical_ids": [
+        "site://kex/geometric-address"
+      ],
+      "custom_domains": [],
+      "notes": [
+        "BRAINK/KEDDEH Systems Fabric was also described at this carrier; local routes named BRAINK, ClaimPath, CasePath, KOS-BOS, KEX Computer, KEX Active State, KEX-One."
+      ]
+    },
+    {
+      "slug": "claimpath-local",
+      "url": "https://claimpath-local.aboudykeddeh276.chatgpt.site",
+      "logical_ids": [
+        "app://claimpath"
+      ],
+      "custom_domains": [
+        "claimpath.com.au"
+      ],
+      "historical_domains": [
+        "claimpath.org"
+      ],
+      "notes": [
+        "claimpath.com.au was recorded as detached from casepath-legal and attached to claimpath-local on 2026-08-30.",
+        "Earlier records also model ClaimPath as carrier://html/claimpath and resident in volume://keddeh/braink/root."
+      ]
+    },
+    {
+      "slug": "casepath-legal",
+      "url": "https://casepath-legal.aboudykeddeh276.chatgpt.site",
+      "project_ids": [
+        "appgprj_6a5e0e6d2bd08191948bfd94fcf1804b"
+      ],
+      "logical_ids": [
+        "app://casepath",
+        "site://casepath.com.au"
+      ],
+      "custom_domains": [
+        "casepath.com.au"
+      ],
+      "secondary_domains": [
+        "casepath.keddeh.com"
+      ],
+      "workspace": "workspace://keddeh/domain/casepath-legal",
+      "vfs": "vfs://keddeh/domain-environments/casepath-legal",
+      "runtime_server": "server://casepath/intake",
+      "versions": [
+        48,
+        51,
+        52,
+        70,
+        71
+      ],
+      "published_commits": [
+        "2311ade",
+        "7ef31c4"
+      ],
+      "graph_version": "app-route-graph:4uhn5s1wvoptc",
+      "deployment_version": "12b423a5-c213-4c37-89dd-d6957cf20222",
+      "lineage": [
+        "app://casepath/analytical-matter-mesh/v18",
+        "volume://casepath/v19",
+        "os://casepath/v2"
+      ],
+      "notes": [
+        "Version 71 recorded public on 2026-09-12.",
+        "Version 70 record involved claimpath.com.au on existing CasePath host before later separation.",
+        "Earlier public endpoint was observed returning 401; historical observation only."
+      ]
+    },
+    {
+      "slug": "braink-keddeh-systems",
+      "url": "https://braink-keddeh-systems.aboudykeddeh276.chatgpt.site",
+      "logical_ids": [
+        "site://braink/keddeh-systems"
+      ],
+      "domains": [
+        "braink.keddeh.com"
+      ],
+      "runtime": "runtime://braink/keddeh-systems"
+    },
+    {
+      "slug": "keddeh-mining-btc",
+      "url": "https://keddeh-mining-btc.aboudykeddeh276.chatgpt.site",
+      "custom_domains": [
+        "mining.keddeh.systems"
+      ]
+    },
+    {
+      "slug": "braink-systems",
+      "url": "https://braink-systems.aboudykeddeh276.chatgpt.site",
+      "logical_ids": [
+        "site://braink/systems"
+      ],
+      "domains": [
+        "braink.com.au"
+      ],
+      "runtime": "runtime://braink/systems",
+      "notes": [
+        "BRAINK Systems Staff Council was reported live at this carrier on 2026-07-21."
+      ]
+    },
+    {
+      "slug": "kex-sovereign-capacity-fabric",
+      "url": "https://kex-sovereign-capacity-fabric.aboudykeddeh276.chatgpt.site",
+      "historical_domain_association": [
+        "keddehsystems.com"
+      ],
+      "notes": [
+        "Earlier authority record listed no custom domain; later recovered lineage associated keddehsystems.com. Preserve as historical association, not asserted current binding."
+      ]
+    }
+  ],
+  "additional_site_domain_objects": [
+    {
+      "key": "claimpath",
+      "logical_id": "app://claimpath",
+      "domains": [
+        "claimpath.org"
+      ],
+      "workspace": "workspace://keddeh/domain/claimpath",
+      "vfs": "vfs://keddeh/domain-environments/claimpath",
+      "runtime": "app://claimpath",
+      "carrier": "carrier://html/claimpath"
+    },
+    {
+      "key": "braink-store",
+      "logical_id": "site://braink/store",
+      "domains": [
+        "braink.store"
+      ],
+      "vfs": "vfs://keddeh/domain-environments/braink-store",
+      "runtime": "runtime://braink/store"
+    },
+    {
+      "key": "braink-studio",
+      "logical_id": "site://braink/studio",
+      "domains": [
+        "braink.studio"
+      ],
+      "runtime": "runtime://braink/studio"
+    },
+    {
+      "key": "keddeh-root",
+      "logical_id": "site://keddeh/root",
+      "domains": [
+        "keddeh.com",
+        "keddeh.admi.co.au"
+      ],
+      "runtime_server": "server://keddeh/global-presence"
+    },
+    {
+      "key": "keddeh-australia",
+      "domains": [
+        "keddeh.com.au"
+      ],
+      "notes": [
+        "Recorded as sibling projection; public launch not proven."
+      ]
+    },
+    {
+      "key": "keddeh-systems",
+      "logical_id": "site://keddeh.systems",
+      "domains": [
+        "keddeh.systems"
+      ]
+    },
+    {
+      "key": "api-keddeh-systems",
+      "domains": [
+        "api.keddeh.systems"
+      ],
+      "related_runtime": [
+        "runtime://kex/unified-action-runtime"
+      ]
+    },
+    {
+      "key": "wbos-keddeh-systems",
+      "domains": [
+        "wbos.keddeh.systems"
+      ]
+    },
+    {
+      "key": "os-keddeh-systems",
+      "domains": [
+        "os.keddeh.systems"
+      ]
+    },
+    {
+      "key": "wb-keddeh-systems",
+      "domains": [
+        "wb.keddeh.systems"
+      ]
+    },
+    {
+      "key": "ipfs-keddeh-systems",
+      "domains": [
+        "ipfs.keddeh.systems"
+      ]
+    },
+    {
+      "key": "braink-ai",
+      "domains": [
+        "braink.ai"
+      ]
+    },
+    {
+      "key": "kex-keddeh",
+      "domains": [
+        "kex.keddeh.com"
+      ]
+    },
+    {
+      "key": "claimpath-com-au",
+      "domains": [
+        "claimpath.com.au"
+      ],
+      "logical_id": "app://claimpath"
+    },
+    {
+      "key": "casepath-com-au",
+      "domains": [
+        "casepath.com.au"
+      ],
+      "logical_id": "site://casepath.com.au"
+    }
+  ],
+  "related_runtime_service_identifiers": [
+    "runtime://kex/unified-action-runtime",
+    "runtime://braink/orchestrator",
+    "service://casepath/dispatch",
+    "KEX Unified Action Runtime API v6.0.0",
+    "CASEPATH_BRAINK_NEXT_DISPATCH_R3",
+    "braink://may-operator/site-commerce/r2",
+    "S29 live webspace",
+    "launchpad",
+    "hosting projection",
+    "deployment lifecycle",
+    "recovery/rehydration",
+    "public readback"
+  ],
+  "explicit_repository_evidence": [
+    {
+      "repository": "aboudykeddeh276-stack/BRAINK",
+      "relation": "fleet/public deployment source lineage",
+      "paths": [
+        "deploy/braink-public/",
+        "sources/casepath.com.au/index.html",
+        "claimpath.org/index.html",
+        "keddeh.com/index.html",
+        "keddeh.com.au/index.html"
+      ],
+      "warning": "This is explicit repository lineage for fleet/public sources, not proof that any particular ChatGPT Site object is backed by this repository."
+    },
+    {
+      "repository": "aboudykeddeh276-stack/MINING",
+      "relation": "ChatGPT/Codex work tied to repository PR #74",
+      "warning": "No ChatGPT Site URL/project/deployment identifier established from that evidence."
+    },
+    {
+      "repository": "aboudykeddeh276-stack/GENERAL-GOVERNANCE-",
+      "relation": "KEX Standards Iteration Engine PR #12 / commit 8fb71cc",
+      "warning": "Governance/runtime relation; not a Site backing-store claim."
+    }
+  ],
+  "known_fleet_source_commits": [
+    "5d3c083c19487dfef555af88f51bead4ca1b9a75",
+    "25db9df34d5da1eb0db266784c4ae85a55a83544",
+    "112b9919b53f09a6495a1ea741e319b1189c1fcb",
+    "418538ce28014209c53ccb57e48c5851690dbef4",
+    "4209848b783133b758b3376f3b57a9448a54da39",
+    "928d19aa82501a7ea43b94016d151e6251a71385"
+  ],
+  "historical_external_or_ephemeral_web_surfaces": [
+    {
+      "url": "https://9bbefbde269c86.lhr.life",
+      "type": "localhost.run ephemeral tunnel",
+      "date": "2026-04-26",
+      "site_lineage": "NOT_ESTABLISHED"
+    }
+  ],
+  "unresolved": [
+    "A historical record states seven Sites projects were inventoried; seven ChatGPT Site URLs are recovered here. Only CasePath currently has a recovered appgprj project ID.",
+    "Current native OpenAI Sites read/write/publish actuator is not exposed to this execution.",
+    "Do not infer a one-to-one ChatGPT Site ↔ GitHub repository relationship without direct evidence.",
+    "Some historical custom-domain states conflict across snapshots; those conflicts are preserved rather than silently reconciled.",
+    "Current live DNS/TLS/public serving state is not asserted by this historical index."
+  ]
+}
