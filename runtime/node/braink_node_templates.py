@@ -137,9 +137,13 @@ class NodeTemplateRegistry:
             row = db.execute("SELECT * FROM instances WHERE instance_id=?",(instance_id,)).fetchone()
         if not row:
             raise KeyError("INSTANCE_NOT_FOUND:" + instance_id)
+        template=self.get_template(row["template_id"],row["template_version"])
         return {
             "instance_id":row["instance_id"],"template_id":row["template_id"],"template_version":row["template_version"],
             "definition_id":row["definition_id"],"lineage_root":row["lineage_root"],
+            "capability_class":template["capability_class"],
+            "typed_inputs":template["typed_inputs"],"typed_outputs":template["typed_outputs"],
+            "attributes":template["attributes"],
             "instance_state":json.loads(row["instance_state_json"]),
             "observer_relations":json.loads(row["observer_relations_json"]),
             "integration_edges":json.loads(row["integration_edges_json"]),
@@ -178,6 +182,8 @@ class NodeTemplateRegistry:
         base = {
             "instance_id":instance_id,"template_id":template["template_id"],"definition_id":template["definition_id"],
             "template_version":template["version"],"lineage_root":lineage_root,
+            "capability_class":template["capability_class"],"typed_inputs":template["typed_inputs"],
+            "typed_outputs":template["typed_outputs"],"attributes":template["attributes"],
             "instance_state":initial_state or {},"observer_relations":observer_relations or [],
             "integration_edges":edges,
             "attribution":{"template_attribution_graph":template["attribution_graph"],"instance_extensions":attribution_extensions or []},
