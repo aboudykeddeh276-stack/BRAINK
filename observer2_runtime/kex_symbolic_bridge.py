@@ -7,7 +7,7 @@ import json
 import struct
 from typing import Any, Mapping
 
-from .ab_binary_codec import decode_blocks, encode_tokens, pack_18_symbol, parse_tokens, unpack_18_symbol
+from .ab_binary_codec import decode_blocks, encode_bits, encode_tokens, pack_18_symbol, parse_tokens, unpack_18_symbol
 
 SCHEMA = "kex.symbolic-envelope.v1"
 HTML_SCHEMA = "kex.html-concept-projection.v1"
@@ -40,7 +40,6 @@ class ILLLMSemanticDictionary:
     IL-LLM owns meaning and grammar. KEX consumes the registered semantic entry
     but does not mutate its meaning while changing representation.
     """
-
     def __init__(self, entries: tuple[SemanticEntry, ...] = ()) -> None:
         self._entries: dict[str, SemanticEntry] = {}
         for entry in entries:
@@ -145,16 +144,7 @@ def project_html(envelope: SymbolicEnvelope) -> str:
 
     The AB stream stays textual/symbolic here. No packed bytes are emitted.
     """
-
-    attrs = escape(
-        json.dumps(
-            dict(envelope.attributes),
-            sort_keys=True,
-            separators=(",", ":"),
-            ensure_ascii=False,
-        ),
-        quote=True,
-    )
+    attrs = escape(json.dumps(dict(envelope.attributes), sort_keys=True, separators=(",", ":"), ensure_ascii=False), quote=True)
     return (
         f'<article data-kex-schema="{HTML_SCHEMA}" '
         f'data-kex-concept-id="{escape(envelope.concept_id, quote=True)}" '
@@ -197,15 +187,7 @@ class BinaryBoundaryAdapter:
     def restore_symbolic_payload(cls, wire: bytes) -> tuple[dict[str, Any], str]:
         if len(wire) < cls.HEADER.size:
             raise ValueError("KEX_BINARY_BOUNDARY_TRUNCATED")
-        (
-            magic,
-            version,
-            mode,
-            raw_bit_count,
-            packed_bit_count,
-            expected_root,
-            expected_packed_hash,
-        ) = cls.HEADER.unpack(wire[: cls.HEADER.size])
+        magic, version, mode, raw_bit_count, packed_bit_count, expected_root, expected_packed_hash = cls.HEADER.unpack(wire[: cls.HEADER.size])
         if magic != WIRE_MAGIC or version != WIRE_VERSION or mode != WIRE_MODE_PACKED18:
             raise ValueError("KEX_BINARY_BOUNDARY_HEADER_INVALID")
         packed = wire[cls.HEADER.size :]
