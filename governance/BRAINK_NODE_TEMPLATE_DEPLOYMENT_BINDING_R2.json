@@ -1,18 +1,30 @@
 {
-  "schema": "braink.node-template-deployment-binding.v2",
+  "schema": "braink.node-template-deployment-binding.v2.1",
   "authority": "A.KEDDEH",
   "definition_id": "node:def:hci-action-control",
+  "definition_content_hash": "b70d9865d85ed70760f934d525d5b5fd4086afa876af7c7ff5c819b9463fcc22",
   "template_id": "node:template:hci-action-control",
+  "template_identity_hash": "e2716a72b5599bcefc5631b50476e05489481eb6648c81b6310b828d1c8fac53",
+  "authority_contract": {
+    "contract_id": "KEX_NODE_TEMPLATE_AUTHORITY_V2",
+    "contract_hash": "dde17d407dc7effa1c9c32f1789fb4049e9206790bc692fc4aba329b0622b207",
+    "source_path": "observer2_runtime/node_contract_authority_v2.json",
+    "source_blob_sha": "445a820400ada014b3fad833628bbe0921a807a0"
+  },
   "identity_governance": "governance/BRAINK_NODE_TEMPLATE_IDENTITY_R1.json",
   "app_deployment": {
     "repository": "aboudykeddeh276-stack/app",
     "ref": "main",
-    "commit_sha": "07653ad854000da6ff3cb30f3af8a11b86e31658",
+    "commit_sha": "c0b07133a9c0e12208f70e554e03165af3859fbf",
     "package_path": "docs/kex-node-template-contract/",
     "runtime_path": "docs/kex-node-template-contract/kex_node_template_runtime.js",
-    "runtime_blob_sha": "3eff0f1edc15a3d9aac0bf329c50b98e2e7b60a5",
+    "runtime_blob_sha": "718be8b93a0ccaf1780bb4b485930f84112d9ddf",
+    "definition_blob_sha": "de9cbe69d0f52422b76b869cdd8976632a38d0a3",
+    "template_blob_sha": "94cbd5f90c9fd0fc7f9b2c567611a73d6b290bc6",
+    "authority_blob_sha": "0aa0e16a487a2219b8743c04f73d39673726b15d",
     "validation_path": "docs/kex-node-template-contract/validation_report.json",
-    "validation_blob_sha": "65edc2c6cf88045466d24ff9160260b4d63999be"
+    "validation_blob_sha": "69b347ebeb028e2555d953ff5d3823850928e96a",
+    "runtime_version": "2.1.0"
   },
   "sheet_projection": {
     "deployment_id": "deployment://app/kex-node-template-v2",
@@ -29,13 +41,18 @@
     "carrier_origin": "B2"
   },
   "invariants": [
-    "definition and template identity remain immutable",
-    "instance identity preserves definition_id and template_id",
+    "stable semantic definition/template IDs are preserved across deployments",
+    "definition content hash proves the deployed definition revision",
+    "template identity hash binds template content to definition content",
     "instance owns mutable state, observer relation, integration edges and attribution",
+    "target profile must be admitted by definition constraints",
+    "capability grant must be a subset of the definition capability envelope",
     "created_at and mutable state do not participate in lineage identity",
     "markup is render output and never node identity",
     "repository deployment is distinct from public serving",
     "pending CI evidence must not be promoted to PASS without readback"
   ],
-  "evidence_state": "DEPLOYED_REPO_VALIDATION_PENDING_CI"
+  "local_validation_state": "PASS",
+  "ci_state": "PENDING_EXECUTION_READBACK",
+  "evidence_state": "DEPLOYED_REPO_LOCAL_VALIDATION_PASS_CI_PENDING"
 }
