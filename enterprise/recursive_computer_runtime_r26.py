@@ -9,6 +9,7 @@ import os
 import fcntl
 import re
 from enterprise.self_addressing_runtime import SelfAddressingRuntime
+from enterprise.node_template_r40 import legacy_recursive_template, materialize_template
 from runtime.R25.system_evolution_runtime import AppendOnlyLedger, TransactionReceipt, canonical_json, sha256_json
 
 def _copy(v: Any) -> Any:
@@ -21,6 +22,7 @@ class ComputerIdentity:
     generation: int
     lineage: tuple[str, ...]
     constructor_id: str
+    template_identity: dict[str, Any]
 
 class RecursiveComputer:
     CONSTRUCTOR_ID = 'constructor://kex/recursive-computer/r26'
@@ -32,14 +34,35 @@ class RecursiveComputer:
         if value in {'.', '..'} or not cls.ID_RE.fullmatch(value):
             raise ValueError(f'INVALID_{field.upper()}')
         return value
-    def __init__(self, *, computer_id: str, state_root: str|Path, parent_id=None, generation=0, lineage=None, state=None, memory=None, bootstrap=True):
+    def __init__(self, *, computer_id: str, state_root: str|Path, parent_id=None, generation=0, lineage=None, state=None, memory=None, template_identity=None, bootstrap=True):
         computer_id = self._validate_id(computer_id)
         lineage = tuple(lineage or (computer_id,))
         if not lineage or lineage[-1] != computer_id:
             raise ValueError('LINEAGE_IDENTITY_MISMATCH')
         for component in lineage:
             self._validate_id(component, field='lineage_component')
-        self.identity = ComputerIdentity(computer_id, parent_id, generation, tuple(lineage), self.CONSTRUCTOR_ID)
+        if template_identity is None:
+            materialized = materialize_template(
+                legacy_recursive_template(),
+                parent_lineage=lineage[:-1] or ('ROOT',),
+                instance_key=computer_id,
+                initial_state={'state':dict(state or {}),'memory':dict(memory or {})},
+                observer_context='OBSERVER2://BRAINK/R26/' + '/'.join(lineage),
+            )
+            template_identity = materialized.identity.to_dict()
+        elif not isinstance(template_identity, dict):
+            raise ValueError('TEMPLATE_IDENTITY_OBJECT_REQUIRED')
+        required_template_identity = {
+            'schema','template_id','stable_definition_id','definition_hash','template_root',
+            'capability_class','typed_io_root','attributes_root','instance_lineage_id',
+            'observer_relation_id','attribution_root','integration_root',
+        }
+        missing_template_identity = sorted(required_template_identity - set(template_identity))
+        if missing_template_identity:
+            raise ValueError('TEMPLATE_IDENTITY_FIELDS_MISSING:' + ','.join(missing_template_identity))
+        self.identity = ComputerIdentity(
+            computer_id, parent_id, generation, tuple(lineage), self.CONSTRUCTOR_ID, _copy(template_identity)
+        )
         self.state_root = Path(state_root); self.state_root.mkdir(parents=True, exist_ok=True)
         self.runtime = SelfAddressingRuntime(self.state_root/'runtime-checkpoint.json')
         self.ledger = AppendOnlyLedger(); self.state = _copy(dict(state or {})); self.memory = _copy(dict(memory or {})); self.children = {}; self._committed_child_ids = set(); self._lock = threading.RLock(); self._expected_state_hash = None; self._expected_ledger_hash = None; self.runtime.register_reconciler(self._reconcile_runtime)
@@ -102,7 +125,12 @@ class RecursiveComputer:
         if not sp.exists(): raise FileNotFoundError(sp)
         snap=json.loads(sp.read_text()); ident=snap['identity']
         if snap.get('constructor')!=cls.CONSTRUCTOR_ID: raise RuntimeError('CONSTRUCTOR_ID_MISMATCH')
-        c=cls(computer_id=ident['computer_id'],state_root=state_root,parent_id=ident.get('parent_id'),generation=int(ident['generation']),lineage=tuple(ident['lineage']),state=snap.get('state',{}),memory=snap.get('memory',{}),bootstrap=False)
+        c=cls(
+            computer_id=ident['computer_id'],state_root=state_root,parent_id=ident.get('parent_id'),
+            generation=int(ident['generation']),lineage=tuple(ident['lineage']),
+            state=snap.get('state',{}),memory=snap.get('memory',{}),
+            template_identity=ident.get('template_identity'),bootstrap=False,
+        )
         if lp.exists(): c.ledger,c._expected_ledger_hash=c._load_committed_ledger()
         rb=c.runtime.route(f'computer://{c.identity.computer_id}/state',c.state_backing,'READ')
         if rb.get('status')!='READ' or rb.get('value')!=snap: raise RuntimeError('RESTORE_STATE_READBACK_MISMATCH')
@@ -167,7 +195,7 @@ class RecursiveComputer:
         if rr.get('status')!='COMMITTED': raise RuntimeError(f'ORPHAN_RECEIPT_PERSIST_FAILED:{rr}')
         self.runtime.observe('runtime://computer',f'computer://{self.identity.computer_id}/descendants/{child.identity.computer_id}','CONTRADICTION',receipt)
         return {'status':'QUARANTINED','path':str(target),'child_state_root':child_root,'receipt_hash':rr['value_hash']}
-    def instantiate(self,child_id):
+    def instantiate(self,child_id,template_identity=None):
         child_id=self._validate_id(child_id, field='child_id')
         with self._lock:
             with self._constructor_lock() as lock_fh:
@@ -175,7 +203,12 @@ class RecursiveComputer:
                 try:
                     self._refresh_constructor_view()
                     if child_id in self._committed_child_ids or child_id in self.children: raise ValueError('CHILD_ALREADY_EXISTS')
-                    c=RecursiveComputer(computer_id=child_id,state_root=self.state_root/'descendants'/child_id,parent_id=self.identity.computer_id,generation=self.identity.generation+1,lineage=self.identity.lineage+(child_id,),state=self.state,memory=self.memory)
+                    c=RecursiveComputer(
+                        computer_id=child_id,state_root=self.state_root/'descendants'/child_id,
+                        parent_id=self.identity.computer_id,generation=self.identity.generation+1,
+                        lineage=self.identity.lineage+(child_id,),state=self.state,memory=self.memory,
+                        template_identity=template_identity,
+                    )
                     self.children[child_id]=c; self._committed_child_ids.add(child_id)
                     try: self._persist('SUCCESSOR_CREATED')
                     except Exception as exc:
