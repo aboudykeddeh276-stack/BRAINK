@@ -1,0 +1,39 @@
+{
+  "artifacts": {
+    "coordinate_directory.py": {"bytes": 5315, "sha256": "13981696b791c3a877ad21238a429f0250581287fba00aec4efa2f556e4247b6"},
+    "evidence_journal.py": {"bytes": 2699, "sha256": "345fa1c616339fb56cfed62d60c6f2c4200ff35573b0b2e8d0a888ead69f4314"},
+    "layer2_reconciler.py": {"bytes": 4266, "sha256": "bde0124a7832aabb84adaa646665874dad46d9236d6723d7085c1a3af3b21a52"},
+    "tot_safety.py": {"bytes": 9729, "sha256": "9662762be6b0e397b2564fec62750880ca97873300d5237b59c2401584dd5f4f"}
+  },
+  "claim_boundary": {
+    "not_proven": [
+      "multi-host consensus", "network partition tolerance", "leader election", "dynamic membership",
+      "Byzantine resistance", "cryptographic voter identity", "linearizable distributed reads",
+      "durable replicated storage across machines", "real external actuator recovery",
+      "RFC 8785 canonicalization compliance", "SLSA/in-toto authenticated provenance"
+    ],
+    "qualified": "local deterministic execution and fault injection on one process/filesystem"
+  },
+  "environment": {"platform": "Linux-6.18.44-x86_64-with-glibc2.41", "python": "3.13.5"},
+  "falsifiers_executed": [
+    "reordered commit receipts", "insufficient quorum", "voter equivocation", "unsupported membership change",
+    "journal payload tampering", "torn final journal record", "directory snapshot tampering", "directory replay gap",
+    "stale generation", "zero address", "actuator future generation", "actuator endpoint mismatch",
+    "partial actuator failure", "response lost after side effect"
+  ],
+  "generated_at": "2026-09-21T19:16:00+09:30",
+  "observed_advances": [
+    "whole-chain ToT verification anchored at GENESIS",
+    "fsync append-only hash-chained evidence journal",
+    "partial-tail detection and bounded truncation recovery",
+    "directory snapshot root verification and restore",
+    "replica divergence/gap/stale-generation rejection",
+    "Layer-2 actuator result validation",
+    "idempotent retry after ambiguous apply-then-timeout",
+    "zero rejected as address/state while remaining available as computed assessment elsewhere"
+  ],
+  "schema": "braink.report03.engineering.evidence.v1",
+  "scope": "local executed fault-injection qualification of ToT safety, evidence journal, distributed coordinate directory, and Layer-2 reconciler",
+  "test_artifact": {"bytes": 8408, "sha256": "14ad56d15332d13eda1c272c3c90b36168a5f910533b8c5f53bf8c78be124f4a"},
+  "tests": {"failed": 0, "file": "tests/test_report03_v2.py", "output": "................                                                         [100%]\n16 passed in 0.04s", "passed": 16}
+}
