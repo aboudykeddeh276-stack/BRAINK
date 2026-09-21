@@ -1,0 +1,90 @@
+{
+  "schema": "braink.node-template-identity.v1",
+  "law": {
+    "singularity": "1",
+    "definition_identity_is_stable": true,
+    "template_is_identity_bearing_contract": true,
+    "template_is_not_copied_markup": true,
+    "instances_preserve_lineage": true,
+    "instances_own_state": true,
+    "instances_own_observer_relations": true,
+    "instances_own_integration_edges": true,
+    "instances_own_attribution": true
+  },
+  "node_definition": {
+    "required": [
+      "definition_id",
+      "definition_version",
+      "canonical_name",
+      "node_kind",
+      "capability_class",
+      "typed_inputs",
+      "typed_outputs",
+      "attributes_contract",
+      "integration_contract",
+      "attribution_contract",
+      "observer_contract",
+      "state_contract",
+      "runtime_contract",
+      "identity_root"
+    ],
+    "capability_class": ["DUMB", "SMART"]
+  },
+  "template_contract": {
+    "required": [
+      "template_id",
+      "template_version",
+      "definition_id",
+      "instantiate_as",
+      "input_binding",
+      "output_binding",
+      "default_attributes",
+      "required_edges",
+      "observer_policy",
+      "attribution_policy",
+      "state_initial",
+      "mutation_policy",
+      "lineage_policy",
+      "render_contract"
+    ],
+    "mutation_rule": "definition/template immutable; instance state mutable",
+    "render_rule": "render from typed attributes and bindings; never clone opaque markup"
+  },
+  "instance_contract": {
+    "required": [
+      "instance_id",
+      "definition_id",
+      "template_id",
+      "parent_instance_id",
+      "instance_name",
+      "capability_class",
+      "bound_inputs",
+      "bound_outputs",
+      "instance_attributes",
+      "runtime_target",
+      "state",
+      "activation_state",
+      "observer_relation_ref",
+      "edge_set_ref",
+      "attribution_ref",
+      "readback_state",
+      "proof_state",
+      "lineage_root"
+    ]
+  },
+  "graph_surfaces": {
+    "definitions": "NODE_DEFINITIONS",
+    "templates": "NODE_TEMPLATES",
+    "instances": "NODE_INSTANCES",
+    "edges": "NODE_EDGES",
+    "attribution": "NODE_ATTRIBUTION",
+    "observer_relations": "OBSERVER_RELATIONS"
+  },
+  "bcs": {
+    "function_space": "A1:A(n)",
+    "first_literal_data_coordinate": "X2/Y2",
+    "google_sheets_carrier": "B2"
+  },
+  "execution_binding": "formula→trigger→pulse→resident mechanism→readback→proof",
+  "reuse_invariant": "same definition/template may instantiate repeatedly without copying implementation body; each instance receives independent state, observers, edges and attribution while retaining definition/template lineage"
+}
