@@ -127,5 +127,11 @@
     "runtime/publish/tests/test_theorem_graph.py": "936990ef6a7de286675a9dc449757e74d213b0b7fa24e3803f97928d2e1f88b1",
     "runtime/publish/tools/run_theorem_graph_campaign.py": "32881234df1fea4bffc4cfacdbdf7acf5a3f6001a8f324ab8485e75380b86e4c"
   },
-  "evidence_boundary": "Deterministic in-process theorem graph execution. Does not prove automatic semantic equivalence over arbitrary prose, distributed multi-writer graph consistency, durable database storage, large-scale incremental rendering, or longitudinal superlinear growth."
+  "evidence_boundary": "Deterministic in-process theorem graph execution. Does not prove automatic semantic equivalence over arbitrary prose, distributed multi-writer graph consistency, durable database storage, large-scale incremental rendering, or longitudinal superlinear growth.",
+  "deployed_git_blob": {
+    "runtime/publish/src/braink_runtime/theorem_graph.py": "dfedc4c072588725695a48a91caabe25c6a06365",
+    "runtime/publish/tests/test_theorem_graph.py": "45ba68a520f93efa7ecd2522d52ae4a456ecdd59",
+    "runtime/publish/tools/run_theorem_graph_campaign.py": "dcb2e3c6fb5b821b198e4789ed387f932a637435",
+    "docs/THEOREM_GRAPH_ARCHITECTURE_R1.md": "dfcc420dbd895f0334594e8f9cf3543313c7cbdc"
+  }
 }
