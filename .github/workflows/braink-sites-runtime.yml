@@ -1,0 +1,20 @@
+name: BRAINK Sites Runtime Selftest
+on:
+  push:
+    paths:
+      - 'owner-control/sites-runtime/**'
+      - '.github/workflows/braink-sites-runtime.yml'
+  workflow_dispatch:
+jobs:
+  selftest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile
+        run: python -m py_compile owner-control/sites-runtime/app.py owner-control/sites-runtime/selftest.py
+      - name: Selftest
+        run: python owner-control/sites-runtime/selftest.py
