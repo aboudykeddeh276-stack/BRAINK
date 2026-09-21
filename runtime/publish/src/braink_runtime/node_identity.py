@@ -7,6 +7,19 @@ from typing import Any, Literal
 
 CapabilityClass = Literal["DUMB", "SMART", "DUMB_OR_SMART_BY_BOUND_CAPABILITY"]
 
+ZERO_ASSESSMENT_RULE = "ZERO_IS_COMPUTED_ASSESSMENT_ONLY_NOT_ADDRESS_OR_STATE"
+
+
+def _reject_standalone_zero(value: str, field_name: str) -> None:
+    token = value.strip().upper()
+    if token in {"0", "ZERO"}:
+        raise ValueError(f"ZERO_NOT_PERMITTED_AS_{field_name}")
+
+
+def assess_opposing_polarities(positive: int | float, negative: int | float) -> int | float:
+    """Return the computed assessment balance. Zero is valid only here as a result."""
+    return positive + negative
+
 
 def _canonical(value: Any) -> bytes:
     return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
@@ -84,6 +97,8 @@ class NodeTemplate:
     ) -> "NodeInstance":
         if not instance_id.strip():
             raise ValueError("INSTANCE_ID_REQUIRED")
+        _reject_standalone_zero(instance_id, "ADDRESS")
+        _reject_standalone_zero(local_state, "STATE")
         if not observer_relation.strip():
             raise ValueError("OBSERVER_RELATION_REQUIRED")
         return NodeInstance(
@@ -131,6 +146,7 @@ class NodeInstance:
             **asdict(self),
             "lineage_authority_rule": "LINEAGE_IS_PROVENANCE_NOT_AUTOMATIC_AUTHORITY",
             "instance_policy": "PRESERVE_TEMPLATE_LINEAGE_WITH_INDEPENDENT_INSTANCE_STATE_OBSERVER_EDGES_ATTRIBUTION_TARGET",
+            "zero_assessment_rule": ZERO_ASSESSMENT_RULE,
         }
 
 
@@ -151,3 +167,5 @@ def validate_instance(template: NodeTemplate, instance: NodeInstance) -> None:
         raise ValueError("AUTHORITY_BINDING_REQUIRED")
     if not instance.validator_binding:
         raise ValueError("VALIDATOR_BINDING_REQUIRED")
+    _reject_standalone_zero(instance.instance_id, "ADDRESS")
+    _reject_standalone_zero(instance.local_state, "STATE")
