@@ -4,6 +4,7 @@ from braink_runtime.node_identity import (
     NodeTemplate,
     TypedPort,
     validate_instance,
+    assess_opposing_polarities,
 )
 from braink_runtime.node_stack import describe_profile
 
@@ -75,3 +76,42 @@ def test_stack_profile_exposes_contextual_authority():
     assert profile["promotion_authority"] == "BOUND_BY_CONTEXTUAL_AUTHORITY_AND_VALID_RECEIPT"
     assert profile["lineage_authority_rule"] == "LINEAGE_IS_PROVENANCE_NOT_AUTOMATIC_AUTHORITY"
     assert profile["validator_binding"] == "CONTEXTUAL_BY_VALIDATOR_ROLE"
+
+
+def test_zero_is_computed_assessment_only():
+    assert assess_opposing_polarities(3, -3) == 0
+    assert assess_opposing_polarities(2, -1) == 1
+
+
+def test_zero_cannot_be_instance_address_or_state():
+    template = NodeTemplate(
+        template_id="TPL-ZEROLESS",
+        definition_version="1",
+        stable_definition="Zeroless address/state contract",
+        capability_class="SMART",
+        inputs=(),
+        outputs=(),
+    )
+    try:
+        template.instantiate(
+            instance_id="0",
+            local_state="READY",
+            observer_relation="OBSERVER-Z",
+            attribution=Attribution(),
+        )
+    except ValueError as exc:
+        assert str(exc) == "ZERO_NOT_PERMITTED_AS_ADDRESS"
+    else:
+        raise AssertionError("zero address was not rejected")
+
+    try:
+        template.instantiate(
+            instance_id="NODE-Z",
+            local_state="0",
+            observer_relation="OBSERVER-Z",
+            attribution=Attribution(),
+        )
+    except ValueError as exc:
+        assert str(exc) == "ZERO_NOT_PERMITTED_AS_STATE"
+    else:
+        raise AssertionError("zero state was not rejected")
