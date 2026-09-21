@@ -202,3 +202,79 @@ class NodeInstantiationV2Tests(unittest.TestCase):
         self.assertEqual(instance.definition_revision, 3)
         self.assertEqual(instance.target_profile, "LOCAL")
         self.assertEqual(instance.capability_grant, ("observe",))
+
+
+class NodeEvidenceRootTests(unittest.TestCase):
+    def test_instance_has_runtime_evidence_root(self):
+        definition = NodeDefinition(
+            node_type="EVIDENCE_NODE",
+            version="2.1.0",
+            capability_class=CapabilityClass.SMART,
+            inputs=(PortSpec("in", "signal"),),
+            outputs=(PortSpec("out", "signal"),),
+            attributes=(),
+            attribution_graph=(AttributionEdge("EVIDENCE_NODE", "AUTHORED_BY", "a.keddeh"),),
+            integration_contracts=(IntegrationContract("SIGNAL", "out", "in", ("SMART",)),),
+            template_contract=TemplateContract("evidence", "2.1", ()),
+            implementation_ref="evidence",
+            definition_revision=2,
+            sector_id="EVIDENCE",
+            sector_class="runtime",
+            target_constraints=("LOCAL",),
+            capability_requirements=("observe",),
+            evidence_requirements=("unit-test", "runtime-readback"),
+        )
+        registry = NodeTemplateRegistry()
+        registry.register(definition)
+        instance = registry.instantiate(
+            definition.definition_id,
+            target_profile="LOCAL",
+            capability_grant=("observe",),
+            instance_id="evidence-1",
+        )
+        self.assertTrue(instance.runtime_evidence_root)
+        self.assertEqual(instance.evidence_requirements, ("unit-test", "runtime-readback"))
+
+    def test_integration_mutation_refreshes_evidence_roots(self):
+        source = NodeDefinition(
+            node_type="SOURCE_EVIDENCE",
+            version="2.1.0",
+            capability_class=CapabilityClass.SMART,
+            inputs=(PortSpec("in", "signal"),),
+            outputs=(PortSpec("out", "signal"),),
+            attributes=(),
+            attribution_graph=(AttributionEdge("SOURCE_EVIDENCE", "AUTHORED_BY", "a.keddeh"),),
+            integration_contracts=(IntegrationContract("SIGNAL", "out", "in", ("SMART",)),),
+            template_contract=TemplateContract("source-evidence", "2.1", ()),
+            implementation_ref="source-evidence",
+        )
+        target = NodeDefinition(
+            node_type="TARGET_EVIDENCE",
+            version="2.1.0",
+            capability_class=CapabilityClass.SMART,
+            inputs=(PortSpec("in", "signal"),),
+            outputs=(),
+            attributes=(),
+            attribution_graph=(AttributionEdge("TARGET_EVIDENCE", "AUTHORED_BY", "a.keddeh"),),
+            integration_contracts=(),
+            template_contract=TemplateContract("target-evidence", "2.1", ()),
+            implementation_ref="target-evidence",
+        )
+        registry = NodeTemplateRegistry()
+        registry.register(source)
+        registry.register(target)
+        s = registry.instantiate(source.definition_id, instance_id="source-evidence-1")
+        t = registry.instantiate(target.definition_id, instance_id="target-evidence-1")
+        s_before = s.runtime_evidence_root
+        t_before = t.runtime_evidence_root
+        registry.connect(
+            s.instance_id,
+            t.instance_id,
+            edge_type="SIGNAL",
+            source_port="out",
+            destination_port="in",
+        )
+        self.assertNotEqual(s.runtime_evidence_root, s_before)
+        self.assertNotEqual(t.runtime_evidence_root, t_before)
+        self.assertTrue(s.runtime_evidence_root)
+        self.assertTrue(t.runtime_evidence_root)
