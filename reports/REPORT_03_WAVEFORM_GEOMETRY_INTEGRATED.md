@@ -357,7 +357,7 @@ and a dedicated hosted workflow at:
 
 `.github/workflows/report03-waveform-geometry.yml`.
 
-Until that clean run completes, source-level geometry→ToT→Layer-2 integration remains implemented but not promoted beyond the isolated executed boundaries above.
+The clean hosted run was attempted as GitHub Actions run `35590761525`, but the job completed with failure before executing any steps. GitHub returned `steps=[]`, and the job log blob was unavailable (404). That is classified as an infrastructure pre-step failure, not as geometry source/test failure. Therefore source-level geometry→ToT→Layer-2 integration remains implemented but not promoted as clean-run evidence.
 
 ---
 
@@ -661,10 +661,12 @@ None of those become solved because geometry is present.
 - distortion/non-finite/reorder rejection;
 - geometry-to-Layer-2 observation bridge.
 
-### Source implemented, clean hosted verification pending
+### Source implemented, clean hosted verification attempted but externally blocked
 
 - geometry observation → ToT → Layer-2 directory reconciliation in the repository verifier;
 - combined original Report 03 regression plus geometry tests.
+
+Hosted verification attempt: run `35590761525`; job `106304374178`; no steps executed; logs unavailable. This does not falsify the source and does not prove it either.
 
 ### Absent
 
@@ -703,7 +705,7 @@ FREQUENCY_DISTORTION_DETECTION       = PASS
 NONFINITE/ORDER/TAMPER_REJECTION     = PASS
 GEOMETRY_LAYER2_OBSERVATION_BRIDGE   = PASS
 
-GEOMETRY_TO_TOT_LAYER2_RECONCILE     = IMPLEMENTED / CLEAN CI PENDING
+GEOMETRY_TO_TOT_LAYER2_RECONCILE     = IMPLEMENTED / HOSTED CI PRE-STEP FAILURE
 ANALOG_TRANSMISSION                  = NOT PROVEN
 ZERO_FREE_PHYSICAL_SIGNAL            = NOT PROVEN
 JITTER_MITIGATION                    = NOT PROVEN
