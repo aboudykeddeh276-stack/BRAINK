@@ -351,6 +351,7 @@ class TheoremRegistry:
         theorem.retained_context_deltas.extend(str(x["context_delta"]) for x in retained if x.get("context_delta") and str(x["context_delta"]) not in theorem.retained_context_deltas)
         return {"theorem_id": theorem_id, "eliminated": tuple(eliminated), "retained": tuple(retained)}
 
+
     def resolved_operators(self, theorem_id: str) -> tuple[str, ...]:
         if theorem_id not in self.objects:
             raise GraphViolation("THEOREM_UNKNOWN")
