@@ -204,11 +204,15 @@ struct ChatInputBar: View {
                 ProgressView().scaleEffect(0.7)
             }
         }
+        .task {
+            nodeTemplates.reload()
+        }
     }
 }
 
 struct BrainkNativeChatbotView: View {
     @StateObject private var engine = BRAINKChatEngine()
+    @StateObject private var nodeTemplates = BRAINKNodeTemplateStore()
     @State private var input = ""
     @State private var isDraggingILLLMTarget = false
 
@@ -303,7 +307,7 @@ struct BrainkNativeChatbotView: View {
 
             Divider()
 
-            ThemedPanel {
+            GovernedTemplatePanel(node: nodeTemplates.nativeDashboard, unboundReason: nodeTemplates.nativeDashboardError) {
                 VStack(alignment: .leading, spacing: 8) {
                     HStack {
                         Text("Module Trace")
