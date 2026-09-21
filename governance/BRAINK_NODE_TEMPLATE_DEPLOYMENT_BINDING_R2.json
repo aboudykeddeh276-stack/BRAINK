@@ -1,30 +1,32 @@
 {
-  "schema": "braink.node-template-deployment-binding.v2.1",
+  "schema": "braink.node-template-deployment-binding.v2.1.1",
   "authority": "A.KEDDEH",
   "definition_id": "node:def:hci-action-control",
-  "definition_content_hash": "b70d9865d85ed70760f934d525d5b5fd4086afa876af7c7ff5c819b9463fcc22",
+  "definition_content_hash": "969a449f564e0d42fa071773d3d3cdfa6855134999c7a25ec505c24deb4cd483",
   "template_id": "node:template:hci-action-control",
-  "template_identity_hash": "e2716a72b5599bcefc5631b50476e05489481eb6648c81b6310b828d1c8fac53",
+  "template_identity_hash": "8cee1067c5e60d40837f600c91b87b20f2ae41b479f5d93cd7cb104b6051d968",
   "authority_contract": {
-    "contract_id": "KEX_NODE_TEMPLATE_AUTHORITY_V2",
-    "contract_hash": "dde17d407dc7effa1c9c32f1789fb4049e9206790bc692fc4aba329b0622b207",
-    "source_path": "observer2_runtime/node_contract_authority_v2.json",
-    "source_blob_sha": "445a820400ada014b3fad833628bbe0921a807a0"
+    "contract_id": "KEX_NODE_TEMPLATE_AUTHORITY_V2_1",
+    "contract_hash": "06365c5d62025d4c53c9a64f8cad433783375040f52743d1e1b90d7b7fb493e3",
+    "source_path": "observer2_runtime/node_contract_authority_v2_1.json",
+    "source_blob_sha": "f2529a7dfce98204eac2a12db288c11096efcf12"
   },
   "identity_governance": "governance/BRAINK_NODE_TEMPLATE_IDENTITY_R1.json",
   "app_deployment": {
     "repository": "aboudykeddeh276-stack/app",
     "ref": "main",
-    "commit_sha": "34993c21635d908f1fe144e01c51e9cabdc49968",
+    "commit_sha": "95e58565677c9fd959c8b51fffc3731eab5b7cd2",
     "package_path": "docs/kex-node-template-contract/",
     "runtime_path": "docs/kex-node-template-contract/kex_node_template_runtime.js",
-    "runtime_blob_sha": "718be8b93a0ccaf1780bb4b485930f84112d9ddf",
-    "definition_blob_sha": "de9cbe69d0f52422b76b869cdd8976632a38d0a3",
-    "template_blob_sha": "94cbd5f90c9fd0fc7f9b2c567611a73d6b290bc6",
-    "authority_blob_sha": "0aa0e16a487a2219b8743c04f73d39673726b15d",
+    "runtime_blob_sha": "3505591d970404f709f360f23ce11a60c9f4c8b7",
+    "definition_blob_sha": "6264a0b38f0b101428dd57c047a55e142819cbb1",
+    "template_blob_sha": "fd41b0a68b7550c9a5ca0e99ab090e01c68fac4e",
+    "authority_blob_sha": "f2529a7dfce98204eac2a12db288c11096efcf12",
     "validation_path": "docs/kex-node-template-contract/validation_report.json",
-    "validation_blob_sha": "4851e36d1c749456a4392b81b72a1782f486b96f",
-    "runtime_version": "2.1.0"
+    "validation_blob_sha": "1c1d1f72be3b919fe8aac55d6d08067e6a80441c",
+    "generated_validation_blob_sha": "84b3156aa11d15b1a8d586ee0544a5fdbcff49d0",
+    "runtime_test_blob_sha": "98fef91aca1d54fb82e48b694c39595da5088c35",
+    "runtime_version": "2.1.1"
   },
   "sheet_projection": {
     "deployment_id": "deployment://app/kex-node-template-v2",
@@ -53,12 +55,22 @@
     "pending CI evidence must not be promoted to PASS without readback"
   ],
   "local_validation_state": "PASS",
-  "ci_state": "STARTUP_FAILURE_NO_JOBS:35576272701",
-  "evidence_state": "DEPLOYED_REPO_LOCAL_VALIDATION_PASS_CI_BLOCKED_STARTUP_FAILURE",
+  "ci_state": "STARTUP_FAILURE_NO_JOBS:35576459378",
+  "evidence_state": "DEPLOYED_REPO_IDENTITY_BINDING_PASS_RUNTIME_CI_BLOCKED_STARTUP_FAILURE",
   "ci_evidence": {
-    "run_id": 35576272701,
-    "run_url": "https://github.com/aboudykeddeh276-stack/app/actions/runs/35576272701",
+    "run_id": 35576459378,
+    "run_url": "https://github.com/aboudykeddeh276-stack/app/actions/runs/35576459378",
     "conclusion": "startup_failure",
-    "jobs_observed": 0
-  }
+    "jobs_observed": 0,
+    "head_sha": "659fac19f77fb5af9e1d8891ae1d4d861ad95112"
+  },
+  "generated_identity_validation": {
+    "status": "PASS",
+    "nodes": 13,
+    "templates": 5,
+    "instances": 13,
+    "audit_rows": 13,
+    "issues": 0
+  },
+  "runtime_regression_state": "PRESENT_15_ASSERTIONS_NOT_EXECUTED_BY_GITHUB_RUNNER"
 }
