@@ -1,0 +1,59 @@
+{
+  "schema": "braink.report03.waveform-geometry-local-evidence/v1",
+  "observed_date": "2026-09-21",
+  "execution_environment": "ChatGPT artifact container / Python 3.13.5",
+  "isolated_test_run": {
+    "status": "PASS",
+    "test_count": 15,
+    "source": "tests/test_waveform_geometry_report03.py",
+    "observed_output": "............... [100%]",
+    "checks": [
+      "A/B exhaustive roundtrip",
+      "A/B malformed input rejection",
+      "byte 0/255 phase alias correction",
+      "all 256 byte values geometry/modulation roundtrip",
+      "4096-byte seeded random roundtrip",
+      "R>r radial magnitude lower bound",
+      "invalid torus radii rejection",
+      "coordinate distortion rejection",
+      "amplitude distortion rejection",
+      "frequency distortion rejection",
+      "phase distortion rejection",
+      "sample reorder/non-finite rejection",
+      "empty payload determinism",
+      "frame metadata tamper rejection",
+      "geometry receiver to Layer-2 observed-state bridge"
+    ]
+  },
+  "direct_execution": {
+    "case": "256-byte exhaustive direct pipeline",
+    "status": "VERIFIED",
+    "recovered_bytes": 256,
+    "minimum_radial_magnitude": 7.000322698965479,
+    "theoretical_lower_bound": 7
+  },
+  "falsification_findings": [
+    {
+      "finding": "Original phi=(byte/255)*2*pi maps byte 0 and 255 to physically equivalent phase endpoints modulo 2*pi.",
+      "correction": "Use 256 phase-bin centres: 2*pi*(byte+0.5)/256.",
+      "state": "PATCHED"
+    },
+    {
+      "finding": "R>r does not make every coordinate non-zero; it only bounds radial magnitude away from zero.",
+      "correction": "Claim and test radial magnitude only. Individual x/y/z zero crossings remain admissible.",
+      "state": "PATCHED_CLAIM"
+    },
+    {
+      "finding": "Curvature alone cannot detect arbitrary transport warping when demodulation reads only phase.",
+      "correction": "Bind payload, geometry samples, and modulation descriptors to hash commitments and verify amplitude/phase/frequency against reconstructed expected geometry.",
+      "state": "PATCHED"
+    }
+  ],
+  "execution_boundary": {
+    "combined_original_report03_plus_geometry_pytest": "NOT_REOBSERVED after artifact-tool runtime failures",
+    "geometry_to_tot_full_reconcile": "CODED_IN_REPOSITORY_VERIFIER; awaiting clean hosted CI",
+    "analog_or_rf_transmission": "NOT_EXECUTED",
+    "wasm_execution": "NOT_EXECUTED",
+    "multi_host_geometry_transport": "NOT_EXECUTED"
+  }
+}
