@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 import hashlib,json
-from dataclasses import dataclass,field
+from dataclasses import dataclass,field,asdict
 from typing import List,Tuple
 MAGIC=b'KEXB'; VERSION=1
 class CodecError(ValueError): pass
@@ -84,3 +84,83 @@ def boundary_encode(bits):
     b=encode_ab(bits);return {'bytes':b,'sha256':hashlib.sha256(b).hexdigest(),'length':len(b)}
 def boundary_decode(blob):
     b=decode_ab(blob);return {'bits':b,'sha256':hashlib.sha256(b).hexdigest(),'length':len(b)}
+
+
+# Waveform Geometry Manifold adapter (R03-WG)
+import math,zlib
+TAU=2*math.pi
+class GeometryViolation(RuntimeError): pass
+@dataclass(frozen=True)
+class GeometrySample:
+    index:int;byte:int;theta:float;phi:float;x:float;y:float;z:float;norm:float;gaussian_curvature:float
+@dataclass(frozen=True)
+class WaveSymbol:
+    index:int;amplitude:float;phase:float;frequency:float;sample_digest:str
+@dataclass(frozen=True)
+class GeometryFrame:
+    generation:int;coordinate:str;payload_sha256:str;crc32:int;geometry_root:str;jitter_limit:float
+def _gcanon(v):return json.dumps(v,sort_keys=True,separators=(',',':')).encode()
+class WaveformGeometryEngine:
+    def __init__(self,major_radius=10.0,minor_radius=3.0):
+        if not major_radius>minor_radius>0:raise GeometryViolation('REQUIRE_R_GT_r_GT_0')
+        self.R=float(major_radius);self.r=float(minor_radius)
+    @property
+    def norm_floor(self):return self.R-self.r
+    def generate(self,data:bytes):
+        n=max(1,len(data));out=[]
+        for i,b in enumerate(data):
+            theta=TAU*((i+0.5)/n)
+            # 256 half-bin phase centres remove the original byte 0/255 endpoint alias at 0 == 2pi.
+            phi=TAU*((b+0.5)/256.0)
+            cp,sp,ct,st=math.cos(phi),math.sin(phi),math.cos(theta),math.sin(theta)
+            x=(self.R+self.r*cp)*ct;y=(self.R+self.r*cp)*st;z=self.r*sp
+            norm=math.sqrt(x*x+y*y+z*z)
+            K=cp/(self.r*(self.R+self.r*cp))
+            out.append(GeometrySample(i,b,theta,phi,x,y,z,norm,K))
+        return tuple(out)
+    def verify(self,samples,tol=1e-9):
+        for s in samples:
+            tube=(math.sqrt(s.x*s.x+s.y*s.y)-self.R)**2+s.z*s.z
+            if abs(tube-self.r*self.r)>tol:raise GeometryViolation('TORUS_CONSTRAINT_VIOLATION')
+            if s.norm<self.norm_floor-tol:raise GeometryViolation('NORM_FLOOR_VIOLATION')
+        return True
+class GeometricSignalModulator:
+    def __init__(self,base_frequency=432.0):self.base=float(base_frequency)
+    def modulate(self,samples):
+        return tuple(WaveSymbol(s.index,s.norm,s.phi,self.base*(1+0.1*s.gaussian_curvature),hashlib.sha256(_gcanon(asdict(s))).hexdigest()) for s in samples)
+class GeometricDemodulator:
+    def demodulate(self,signal):
+        out=bytearray()
+        for w in signal:
+            q=((w.phase%TAU)/TAU)*256.0-0.5
+            out.append(int(round(q))%256)
+        return bytes(out)
+class GeometryBoundaryAdapter:
+    def __init__(self,engine=None,jitter_limit=0.297):
+        self.engine=engine or WaveformGeometryEngine();self.jitter_limit=float(jitter_limit);self.mod=GeometricSignalModulator();self.demod=GeometricDemodulator()
+    def encode(self,data,coordinate,generation):
+        if not coordinate or str(coordinate).strip().upper() in {'0','ZERO'}:raise GeometryViolation('ZERO_NOT_PERMITTED_AS_ADDRESS')
+        if generation<=0:raise GeometryViolation('GENERATION_MUST_BE_POSITIVE')
+        geom=self.engine.generate(data);self.engine.verify(geom);signal=self.mod.modulate(geom)
+        root=hashlib.sha256(_gcanon([asdict(x) for x in geom])).hexdigest()
+        frame=GeometryFrame(generation,coordinate,hashlib.sha256(data).hexdigest(),zlib.crc32(data)&0xffffffff,root,self.jitter_limit)
+        return frame,signal,geom
+    def decode(self,frame,signal,observed_jitter=0.0):
+        if abs(observed_jitter)>frame.jitter_limit:raise GeometryViolation('JITTER_BOUND_EXCEEDED')
+        data=self.demod.demodulate(signal)
+        if hashlib.sha256(data).hexdigest()!=frame.payload_sha256 or (zlib.crc32(data)&0xffffffff)!=frame.crc32:raise GeometryViolation('PAYLOAD_INTEGRITY_FAILURE')
+        return data
+class WaveformCoordinateDirectory:
+    def __init__(self):self.records={}
+    def commit(self,frame):
+        old=self.records.get(frame.coordinate)
+        if old and frame.generation<=old.generation:raise GeometryViolation('STALE_OR_DUPLICATE_GENERATION')
+        self.records[frame.coordinate]=frame
+        return hashlib.sha256(_gcanon({k:asdict(v) for k,v in sorted(self.records.items())})).hexdigest()
+class WaveformLayer2Reconciler:
+    def reconcile(self,expected,observed):
+        if observed is None:return 'MATERIALISE'
+        if observed.coordinate!=expected.coordinate:raise GeometryViolation('COORDINATE_MISMATCH')
+        if observed.generation>expected.generation:raise GeometryViolation('OBSERVED_GENERATION_AHEAD')
+        if observed.generation<expected.generation or observed.payload_sha256!=expected.payload_sha256 or observed.geometry_root!=expected.geometry_root:return 'REPLACE'
+        return 'NOOP'
