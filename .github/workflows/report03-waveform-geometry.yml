@@ -11,6 +11,8 @@ on:
       - 'reports/REPORT_03_WAVEFORM_GEOMETRY_INTEGRATED.md'
       - 'reports/evidence/REPORT03_WAVEFORM_GEOMETRY_*'
       - '.github/workflows/report03-waveform-geometry.yml'
+  pull_request:
+    branches: ['kex/canonical-execution-r40']
   workflow_dispatch:
 
 permissions:
