@@ -2,8 +2,10 @@
   "schema": "braink.node-template.r1",
   "purpose": "Make reusability and templating intrinsic to node identity while preserving definition lineage and per-instance state.",
   "capability_classes": [
-    "DUMB",
-    "SMART"
+    "DUMB_NODE",
+    "SMART_NODE",
+    "AGENTIC_NODE",
+    "SYSTEM_NODE"
   ],
   "template_identity": {
     "required": [
@@ -44,7 +46,7 @@
     "law": "Instantiation preserves template/definition lineage while creating independent mutable instance state and edges."
   },
   "capability_class": {
-    "DUMB": {
+    "DUMB_NODE": {
       "definition": "Deterministic bounded node with no autonomous planning authority.",
       "may": [
         "transform_typed_input",
@@ -58,11 +60,10 @@
         "self_rewire_unapproved_edges"
       ]
     },
-    "SMART": {
-      "definition": "Reasoning-capable node whose proposals remain bounded by policy, validation and actuation authority.",
+    "SMART_NODE": {
+      "definition": "Reasoning-capable node whose proposals remain bounded by validation and actuation authority.",
       "may": [
         "reason",
-        "plan",
         "select_registered_skills",
         "propose_integrations"
       ],
@@ -70,6 +71,34 @@
         "self_grant_authority",
         "bypass_validation",
         "erase_attribution"
+      ]
+    },
+    "AGENTIC_NODE": {
+      "definition": "Goal-directed node permitted to plan and sequence registered capabilities inside explicit authority and policy envelopes.",
+      "may": [
+        "plan",
+        "sequence_registered_actions",
+        "request_capabilities",
+        "delegate_to_declared_edges"
+      ],
+      "may_not": [
+        "self_expand_scope",
+        "bypass_proof",
+        "silently_create_privileged_edges"
+      ]
+    },
+    "SYSTEM_NODE": {
+      "definition": "Infrastructure/control-plane node with explicitly granted system responsibilities; privilege is declared, bounded and auditable.",
+      "may": [
+        "supervise",
+        "reconcile",
+        "route",
+        "persist_governed_state"
+      ],
+      "may_not": [
+        "infer_user_authority",
+        "erase_lineage",
+        "promote_unobserved_state"
       ]
     }
   },
@@ -116,7 +145,9 @@
       "authority_if_required",
       "unique_instance_id",
       "initial_state_schema",
-      "observer_binding_policy"
+      "observer_binding_policy",
+      "instance_id_or_deterministic_instance_key",
+      "optimistic_proof_for_subsequent_mutation"
     ],
     "immutable_from_template": [
       "template_id",
@@ -136,7 +167,9 @@
       "erase_template_lineage",
       "share_mutable_instance_state_by_default",
       "silently_inherit_privilege",
-      "silently_rewrite_attribution"
+      "silently_rewrite_attribution",
+      "time_or_randomness_as_lineage_identity",
+      "overwrite_immutable_template_version_with_new_definition"
     ]
   },
   "hci_reuse_law": "An HCI primitive is instantiated from a node template. Rendering may differ per instance, but semantic definition, typed contract and lineage remain stable.",
