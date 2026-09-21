@@ -22,13 +22,13 @@ def test_template_instantiation_preserves_contract_but_not_instance_state():
         integration_edges=(IntegrationEdge("EDGE-TEMPLATE", "ROUTES_TO", "NODE-X"),),
     )
     a = template.instantiate(
-        node_id="NODE-A",
+        instance_id="NODE-A",
         local_state="READY",
         observer_relation="OBSERVER-A",
         attribution=Attribution(executed_by="agent-a", validated_by="validator-a"),
     )
     b = template.instantiate(
-        node_id="NODE-B",
+        instance_id="NODE-B",
         local_state="BUSY",
         observer_relation="OBSERVER-B",
         attribution=Attribution(executed_by="agent-b", validated_by="validator-b"),
@@ -40,7 +40,7 @@ def test_template_instantiation_preserves_contract_but_not_instance_state():
     assert a.template_id == b.template_id == template.template_id
     assert a.inputs == b.inputs == template.inputs
     assert a.outputs == b.outputs == template.outputs
-    assert a.node_id != b.node_id
+    assert a.instance_id != b.instance_id
     assert a.local_state != b.local_state
     assert a.observer_relation != b.observer_relation
     assert a.attribution.executed_by != b.attribution.executed_by
@@ -57,7 +57,7 @@ def test_lineage_does_not_assign_authority():
         outputs=(),
     )
     node = template.instantiate(
-        node_id="NODE-CONTEXT",
+        instance_id="NODE-CONTEXT",
         local_state="READY",
         observer_relation="OBSERVER-CONTEXT",
         attribution=Attribution(),
