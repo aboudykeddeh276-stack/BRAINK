@@ -1,0 +1,78 @@
+{
+  "schema": "braink.report03.waveform-geometry-standards/v1",
+  "observed_date": "2026-09-21",
+  "comparisons": [
+    {
+      "reference": "W3C WebAssembly Core Specification 3.0, Candidate Recommendation Draft 2026-09-08",
+      "alignment": "BOUNDARY_ONLY",
+      "observed_alignment": [
+        "Report03 keeps geometry decoding separate from the binary execution substrate.",
+        "A future Wasm adapter can consume verified bytes/state through an explicit ABI."
+      ],
+      "gap": [
+        "No WebAssembly module, linear-memory ABI, validator invocation, host import policy, or Wasm execution receipt was exercised.",
+        "Geometry verification is not itself a Wasm safety proof."
+      ]
+    },
+    {
+      "reference": "IEEE 754-2019, Floating-Point Arithmetic",
+      "alignment": "PARTIAL",
+      "observed_alignment": [
+        "The executable implementation uses finite binary floating-point values and rejects NaN/non-finite modulation values."
+      ],
+      "gap": [
+        "Cross-runtime bit-identical sin/cos results are not proven.",
+        "No fixed-point or correctly-rounded transcendental profile exists for cross-language geometry roots."
+      ]
+    },
+    {
+      "reference": "RFC 8785, JSON Canonicalization Scheme",
+      "alignment": "NOT_CONFORMANT",
+      "observed_alignment": [
+        "Semantic receipts use deterministic sorted compact JSON within the Python implementation."
+      ],
+      "gap": [
+        "I-JSON restrictions and exact JCS number/string serialization rules are not implemented.",
+        "Floating geometry roots are therefore local-runtime evidence, not RFC 8785 interoperability evidence."
+      ]
+    },
+    {
+      "reference": "RFC 8949, CBOR / deterministic encoding",
+      "alignment": "NOT_IMPLEMENTED",
+      "observed_alignment": [],
+      "gap": [
+        "No deterministic CBOR geometry frame is implemented.",
+        "The computational modulation descriptor has no standards-wire encoding."
+      ]
+    },
+    {
+      "reference": "NIST SP 800-207, Zero Trust Architecture",
+      "alignment": "PARTIAL_AT_CONTROL_BOUNDARY",
+      "observed_alignment": [
+        "A verified geometry frame does not receive mutation authority merely because it arrived from a local/geometry channel.",
+        "Shared directory state remains gated by ToT authority/capability checks and Layer-2 reconciliation."
+      ],
+      "gap": [
+        "Production workload identity, credential issuance, rotation and revocation remain absent."
+      ]
+    },
+    {
+      "reference": "POSIX.1-2024 / The Open Group Issue 8",
+      "alignment": "UNCHANGED_FROM_REPORT03",
+      "observed_alignment": [
+        "Existing Report03 state persistence uses atomic replacement and fsync-based readback paths."
+      ],
+      "gap": [
+        "The geometry module itself does not add physical power-loss verification."
+      ]
+    }
+  ],
+  "claim_boundary": {
+    "waveform_geometry": "Computational representation and integrity codec only.",
+    "analog_carrier": "Not implemented.",
+    "zero_crossing_elimination": "Not proven. R>r proves a non-zero radial magnitude lower bound, not non-zero coordinates or electrical signal amplitude.",
+    "jitter_mitigation": "Not implemented or measured.",
+    "higher_dimensional_manifold": "Not implemented.",
+    "wasm_bridge": "Not implemented."
+  }
+}

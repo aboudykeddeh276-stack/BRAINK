@@ -1,0 +1,45 @@
+name: Report03 Waveform Geometry Verification
+
+on:
+  push:
+    branches: ['kex/report03-waveform-geometry']
+    paths:
+      - 'enterprise/waveform_geometry_r40.py'
+      - 'enterprise/report03_engineering_r40.py'
+      - 'tests/R40/test_waveform_geometry_r40.py'
+      - 'scripts/kex-ci/verify_waveform_geometry_report03.py'
+      - 'reports/REPORT_03_WAVEFORM_GEOMETRY_INTEGRATED.md'
+      - 'reports/evidence/REPORT03_WAVEFORM_GEOMETRY_*'
+      - '.github/workflows/report03-waveform-geometry.yml'
+  pull_request:
+    branches: ['kex/canonical-execution-r40']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Python
+        run: python3 --version
+      - name: Compile engineering layer
+        run: python3 -m compileall -q enterprise scripts/kex-ci/verify_waveform_geometry_report03.py tests/R40/test_waveform_geometry_r40.py
+      - name: Pure stdlib execution and fault injection
+        run: python3 scripts/kex-ci/verify_waveform_geometry_report03.py | tee REPORT03_WAVEFORM_GEOMETRY_CI_RECEIPT.json
+      - name: Pytest geometry regression when pytest is resident
+        run: |
+          python3 - <<'PY'
+          import importlib.util, subprocess, sys
+          if importlib.util.find_spec("pytest") is None:
+              print("pytest not resident; stdlib verifier already executed")
+          else:
+              raise SystemExit(subprocess.call([sys.executable, "-m", "pytest", "-q", "tests/R40/test_waveform_geometry_r40.py", "tests/R40/test_report03_engineering_r40.py"]))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: report03-waveform-geometry-evidence
+          path: REPORT03_WAVEFORM_GEOMETRY_CI_RECEIPT.json
