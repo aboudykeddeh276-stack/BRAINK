@@ -1,0 +1,20 @@
+name: @Sites Plugin Validation
+on:
+  push:
+    paths:
+      - 'plugins/sites/**'
+      - 'owner-control/sites-runtime/**'
+  workflow_dispatch:
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+      - run: python -m json.tool plugins/sites/plugin.json >/dev/null
+      - run: python -m json.tool plugins/sites/mcp.json >/dev/null
+      - run: pip install -r plugins/sites/server/requirements.txt
+      - run: python -m py_compile plugins/sites/server/mcp_server.py owner-control/sites-runtime/app.py
+      - run: python owner-control/sites-runtime/selftest.py
