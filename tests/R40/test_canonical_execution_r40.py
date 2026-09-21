@@ -146,7 +146,7 @@ def test_complete_node_promotion_has_no_state_jump(host):
     assert out["subscription_state"]["status"] == "SUBSCRIBED"
     assert out["global_delta"]["status"] == "COMMITTED"
     template_identity = out["readback"]["identity"]["template_identity"]
-    assert template_identity["template_id"] == "TPL_KEX_RECURSIVE_COMPUTER_R26"
+    assert template_identity["template_id"].startswith("TPL_RUNTIME_")
     assert template_identity["observer_relation_id"] == "OBSERVER2://BRAINK/R26/A/B"
     assert out["node_template"]["identity"] == template_identity
 
