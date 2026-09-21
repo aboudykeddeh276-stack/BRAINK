@@ -1,5 +1,5 @@
 {
-  "schema": "kex.github-runner-control-plane.v9",
+  "schema": "kex.github-runner-control-plane.v10",
   "cascade_order": [
     "MOUNT",
     "VERIFY_ALL",
@@ -90,7 +90,11 @@
     "NODE_REUSE_REQUIRES_TEMPLATE_LINEAGE",
     "NODE_INSTANCE_STATE_IS_INDEPENDENT_FROM_TEMPLATE",
     "OPAQUE_MARKUP_COPY_CANNOT_CREATE_NODE_IDENTITY",
-    "ATTRIBUTION_AND_INTEGRATION_EDGES_MUST_SURVIVE_INSTANTIATION"
+    "ATTRIBUTION_AND_INTEGRATION_EDGES_MUST_SURVIVE_INSTANTIATION",
+    "TEMPLATE_VERSION_CONFLICT_FAILS_CLOSED",
+    "INSTANCE_IDENTITY_CANNOT_DERIVE_FROM_TIME_OR_RANDOMNESS",
+    "INSTANCE_MUTATION_REQUIRES_EXPECTED_PROOF_ROOT",
+    "NATIVE_HCI_IDENTITY_MUST_REFERENCE_NODE_TEMPLATE_INSTANCE"
   ],
   "file_governance": {
     "manifest": "governance/file/BRAINK_FILE_GOVERNANCE_R1.json",
@@ -310,13 +314,26 @@
   ],
   "node_templates": {
     "governance": "governance/node/BRAINK_NODE_TEMPLATE_R1.json",
+    "file_governance": "governance/file/BRAINK_FILE_GOVERNANCE_R1.json",
     "runtime": "runtime/node/braink_node_templates.py",
+    "native_runtime": "NativeChatBot/Sources/BRAINKNodeTemplateRuntime.swift",
+    "native_container": "NativeChatBot/Sources/BRAINKUIContainers.swift",
     "capability_classes": [
-      "DUMB",
-      "SMART"
+      "DUMB_NODE",
+      "SMART_NODE",
+      "AGENTIC_NODE",
+      "SYSTEM_NODE"
     ],
-    "identity_law": "stable definition + typed contracts + attributes + attribution graph + capability class + integration contract + template lineage",
-    "instantiation_law": "instance preserves definition/template lineage while owning independent state, observers, integration edges and attribution extensions",
-    "hci_law": "HCI primitives are instantiated node templates, never copied opaque fragments"
+    "identity_law": "stable definition + typed contracts + attributes + attribution graph + capability class + explicit integration contract + template lineage",
+    "instantiation_law": "instance_id or deterministic instance_key; lineage excludes wall-clock/randomness; instance owns state, observers, edges and attribution extensions",
+    "mutation_law": "expected prior proof_root required; mutation creates new proof_root",
+    "hci_law": "HCI primitives are template-backed nodes; rendered SwiftUI/HTML/DOM is output, never identity",
+    "public_routes": [
+      "GET /nodes/templates",
+      "GET /nodes/instances",
+      "GET /nodes/instance",
+      "POST /nodes/instantiate",
+      "POST /nodes/mutate"
+    ]
   }
 }
