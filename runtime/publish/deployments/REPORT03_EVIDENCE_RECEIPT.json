@@ -1,27 +1,46 @@
 {
-  "artifacts": {
-    "coordinate_directory.py": {"bytes": 5315, "sha256": "13981696b791c3a877ad21238a429f0250581287fba00aec4efa2f556e4247b6"},
-    "evidence_journal.py": {"bytes": 2699, "sha256": "345fa1c616339fb56cfed62d60c6f2c4200ff35573b0b2e8d0a888ead69f4314"},
-    "layer2_reconciler.py": {"bytes": 4266, "sha256": "bde0124a7832aabb84adaa646665874dad46d9236d6723d7085c1a3af3b21a52"},
-    "tot_safety.py": {"bytes": 9729, "sha256": "9662762be6b0e397b2564fec62750880ca97873300d5237b59c2401584dd5f4f"}
-  },
-  "claim_boundary": {
-    "not_proven": [
-      "multi-host consensus", "network partition tolerance", "leader election", "dynamic membership",
-      "Byzantine resistance", "cryptographic voter identity", "linearizable distributed reads",
-      "durable replicated storage across machines", "real external actuator recovery",
-      "RFC 8785 canonicalization compliance", "SLSA/in-toto authenticated provenance"
-    ],
-    "qualified": "local deterministic execution and fault injection on one process/filesystem"
-  },
-  "environment": {"platform": "Linux-6.18.44-x86_64-with-glibc2.41", "python": "3.13.5"},
-  "falsifiers_executed": [
-    "reordered commit receipts", "insufficient quorum", "voter equivocation", "unsupported membership change",
-    "journal payload tampering", "torn final journal record", "directory snapshot tampering", "directory replay gap",
-    "stale generation", "zero address", "actuator future generation", "actuator endpoint mismatch",
-    "partial actuator failure", "response lost after side effect"
-  ],
+  "schema": "braink.report03.engineering.evidence.v2",
   "generated_at": "2026-09-21T19:16:00+09:30",
+  "scope": "local executed fault-injection qualification plus GitHub post-push readback",
+  "execution_evidence": {
+    "environment": {
+      "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+      "python": "3.13.5"
+    },
+    "tests": {
+      "file": "tests/test_report03_v2.py",
+      "passed": 16,
+      "failed": 0,
+      "output": "................                                                         [100%]\n16 passed in 0.04s"
+    },
+    "qualification_copy_sha256": {
+      "tot_safety.py": "9662762be6b0e397b2564fec62750880ca97873300d5237b59c2401584dd5f4f",
+      "evidence_journal.py": "345fa1c616339fb56cfed62d60c6f2c4200ff35573b0b2e8d0a888ead69f4314",
+      "coordinate_directory.py": "13981696b791c3a877ad21238a429f0250581287fba00aec4efa2f556e4247b6",
+      "layer2_reconciler.py": "bde0124a7832aabb84adaa646665874dad46d9236d6723d7085c1a3af3b21a52",
+      "test_report03_v2.py": "14ad56d15332d13eda1c272c3c90b36168a5f910533b8c5f53bf8c78be124f4a"
+    }
+  },
+  "post_push_readback": {
+    "repository": "aboudykeddeh276-stack/BRAINK",
+    "branch": "main",
+    "files": {
+      "runtime/publish/src/braink_runtime/tot_safety.py": {"git_blob_sha": "388137b86272316106e0a1296b0f963db3097368", "bytes": 9729},
+      "runtime/publish/src/braink_runtime/evidence_journal.py": {"git_blob_sha": "967eac9ca5f24133716d055d08a432b1c3cc672c", "bytes": 2699},
+      "runtime/publish/src/braink_runtime/coordinate_directory.py": {"git_blob_sha": "097e227f3d16bb9d4ebc97b181a5f78eed5a3697", "bytes": 5321},
+      "runtime/publish/src/braink_runtime/layer2_reconciler.py": {"git_blob_sha": "83208fd41a46c0a6560f863e149b5c111132008c", "bytes": 4292},
+      "runtime/publish/tests/test_report03_v2.py": {"git_blob_sha": "becbeca7c445c39531d8f8f41efb3047d8837bbf", "bytes": 8389},
+      "runtime/publish/reports/REPORT_03_ENGINEERING_VALIDATION.md": {"git_blob_sha": "8501c4edd1f4a456948dc97c4384f231cd9e1cde", "bytes": 33575}
+    },
+    "write_commits": [
+      "08a1d1da74225f31055bafd6a6398c1012dd3fcd",
+      "39f15bbcb49aabef85d4ccc4621b822ae65aa09f",
+      "c534cee10b1a9574c18af2832ba400d0cca8c6e8",
+      "60871e9f5946260dc088a6ce08c902cb29550ec9",
+      "3f77bf418ee98824904778b83b0ad4bc4db9f158",
+      "46679ebd9f0b48aaddbcbe904262e4277d9338cd"
+    ]
+  },
   "observed_advances": [
     "whole-chain ToT verification anchored at GENESIS",
     "fsync append-only hash-chained evidence journal",
@@ -32,8 +51,36 @@
     "idempotent retry after ambiguous apply-then-timeout",
     "zero rejected as address/state while remaining available as computed assessment elsewhere"
   ],
-  "schema": "braink.report03.engineering.evidence.v1",
-  "scope": "local executed fault-injection qualification of ToT safety, evidence journal, distributed coordinate directory, and Layer-2 reconciler",
-  "test_artifact": {"bytes": 8408, "sha256": "14ad56d15332d13eda1c272c3c90b36168a5f910533b8c5f53bf8c78be124f4a"},
-  "tests": {"failed": 0, "file": "tests/test_report03_v2.py", "output": "................                                                         [100%]\n16 passed in 0.04s", "passed": 16}
+  "falsifiers_executed": [
+    "reordered commit receipts",
+    "insufficient quorum",
+    "voter equivocation",
+    "unsupported membership change",
+    "journal payload tampering",
+    "torn final journal record",
+    "directory snapshot tampering",
+    "directory replay gap",
+    "stale generation",
+    "zero address",
+    "actuator future generation",
+    "actuator endpoint mismatch",
+    "partial actuator failure",
+    "response lost after side effect"
+  ],
+  "claim_boundary": {
+    "qualified": "local deterministic execution and fault injection on one process/filesystem, with repository post-push readback",
+    "not_proven": [
+      "multi-host consensus",
+      "network partition tolerance",
+      "leader election",
+      "dynamic membership",
+      "Byzantine resistance",
+      "cryptographic voter identity",
+      "linearizable distributed reads",
+      "durable replicated storage across machines",
+      "real external actuator recovery",
+      "RFC 8785 canonicalization compliance",
+      "SLSA/in-toto authenticated provenance"
+    ]
+  }
 }
