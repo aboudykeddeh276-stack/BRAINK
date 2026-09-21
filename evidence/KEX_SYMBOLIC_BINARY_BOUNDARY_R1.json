@@ -1,0 +1,32 @@
+{
+  "schema": "kex.symbolic-boundary.evidence.v1",
+  "tests": {
+    "total": 7,
+    "passed": 7,
+    "failed": 0
+  },
+  "falsification": {
+    "padding_bit_tamper_initially_escaped_semantic_root": true,
+    "repair": "packed_payload_sha256_added",
+    "post_repair_tamper_rejected": true
+  },
+  "fixture": {
+    "concept_id": "concept:cpu.activate",
+    "symbol_id": "illlm:op:activate",
+    "semantic_root": "9c8f8fef26f248f6dc787ab9f2ef63f7ac1733c8140f7213b85b601104390323",
+    "dictionary_root": "f660559d285c27167912d39f9d0b8663371cac20582ac85d6a19991580a3cec1",
+    "envelope_root": "0cfbb027a49feefaa20f2e84b546ff9086e11c821b6c40ae7e82b86e3bac8564",
+    "ab_token_chars": 4172,
+    "raw_bit_count": 3968,
+    "wire_bytes": 1382,
+    "wire_magic": "KAB1",
+    "roundtrip_semantic_root": "9c8f8fef26f248f6dc787ab9f2ef63f7ac1733c8140f7213b85b601104390323",
+    "roundtrip_tokens_match": true
+  },
+  "source_sha256": {
+    "observer2_runtime/kex_symbolic_bridge.py": "3efdf136eb7dc853ab19534d390c4fe4fd9df76f1b0001de74cfdf78cae077b0",
+    "tests/test_kex_symbolic_bridge.py": "aaccf6bd598e0d215b92ab3054b20d8cedcf313b218d195dda78678f909e6f47",
+    "docs/kex-symbolic-boundary/concept_fixture.html": "8cd46d10ea7ccb112905d48b6e3b93e24f5906faf3cb32acc969133c135b97ac"
+  },
+  "boundary": "symbolic HTML projection emits no binary carrier bytes; BinaryBoundaryAdapter is the explicit byte boundary"
+}
