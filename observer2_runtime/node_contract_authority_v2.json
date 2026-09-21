@@ -1,0 +1,53 @@
+{
+  "authority": "A.KEDDEH",
+  "canonical_owners": {
+    "execution_coordinator": "enterprise/canonical_execution_r40.py",
+    "node_identity": "enterprise/recursive_computer_runtime_r26.py::ComputerIdentity.template_identity",
+    "observer_governance": "enterprise/observer2_governed_mutation.py",
+    "semantic_resolution": "enterprise/illlm_authority.py",
+    "template_contract": "enterprise/node_template_r40.py",
+    "vfs": "enterprise/node_vfs_r40.py"
+  },
+  "canonical_path": [
+    "MEMORY_IN_MOMENT",
+    "DATA_CLASS",
+    "IL_LLM_RESOLUTION",
+    "TEMPLATE_RESOLUTION",
+    "LOGICAL_IDENTITY",
+    "NODE_MATERIALIZATION",
+    "OBSERVER2_GOVERNANCE",
+    "VFS_MATERIALIZATION",
+    "LEDGER_PROOF"
+  ],
+  "contract_hash": "0aa287c747ea197b20da0e063a9242aeb8df424af6d995d2cc76a54b514a5e3a",
+  "contract_id": "KEX_NODE_TEMPLATE_AUTHORITY_V2",
+  "hash_rule": "contract_hash is SHA-256 of canonical JSON with contract_hash omitted.",
+  "identity_fields": [
+    "template_id",
+    "stable_definition_id",
+    "definition_hash",
+    "template_root",
+    "capability_class",
+    "typed_io_root",
+    "attributes_root",
+    "instance_lineage_id",
+    "observer_relation_id",
+    "attribution_root",
+    "integration_root"
+  ],
+  "invariants": [
+    "TEMPLATE_VERSION_IS_IMMUTABLE",
+    "INSTANCE_STATE_IS_NOT_TEMPLATE_STATE",
+    "OPAQUE_MARKUP_IS_RENDER_OUTPUT_NOT_IDENTITY",
+    "INSTANCE_IDENTITY_IS_NOT_WALL_CLOCK_TIME",
+    "TEMPLATE_DEFINITION_HASH_MUST_VERIFY",
+    "ATTRIBUTION_LINEAGE_SURVIVES_INSTANTIATION",
+    "INTEGRATION_EDGES_ARE_EXPLICIT_INSTANCE_DATA",
+    "CAPABILITY_DEPENDENCIES_ARE_GENERALIZED_BEFORE_INSTANCE_BINDING",
+    "OBSERVER2_RELATION_IS_PER_INSTANCE",
+    "MUTATION_AUTHORITY_REMAINS_WITH_KEX_RUNTIME"
+  ],
+  "projection_rule": "UI, HTML, JavaScript and rendered markup are projections/consumers of canonical node-template identity and never define runtime authority by themselves.",
+  "schema": "braink.node-template.authority.v2",
+  "version": "2"
+}
