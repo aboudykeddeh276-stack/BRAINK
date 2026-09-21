@@ -1,9 +1,11 @@
 {
-  "schema": "kex.github-runner-control-plane.v8",
+  "schema": "kex.github-runner-control-plane.v9",
   "cascade_order": [
     "MOUNT",
     "VERIFY_ALL",
     "VERIFY_FILE_GOVERNANCE",
+    "RESOLVE_NODE_TEMPLATE",
+    "INSTANTIATE_NODE_WITH_LINEAGE",
     "HYDRATE_INDEXEDDB",
     "RESOLVE_KEX_URI",
     "PROJECT_UI",
@@ -31,6 +33,8 @@
     "VERIFY_SEED",
     "MOUNT_FILE_GOVERNANCE",
     "VERIFY_FILE_IDENTITY_GRAMMAR",
+    "MOUNT_NODE_TEMPLATE_REGISTRY",
+    "VERIFY_NODE_TEMPLATE_CONTRACTS",
     "MOUNT_WORKBOOK_SUBSTRATE",
     "OPEN_INDEXEDDB_NAMESPACE",
     "HYDRATE_PULSES",
@@ -82,7 +86,11 @@
     "LINGUISTIC_PROJECTION_CANNOT_MUTATE_NUMERIC_SOURCE",
     "ELEMENT_IDENTITY_IS_SEPARATE_FROM_PROPERTY_POLICY",
     "MEMORY_MODIFIER_CANNOT_REDEFINE_ELEMENT_IDENTITY",
-    "UNREGISTERED_LINGUISTIC_RELATIONS_FAIL_CLOSED"
+    "UNREGISTERED_LINGUISTIC_RELATIONS_FAIL_CLOSED",
+    "NODE_REUSE_REQUIRES_TEMPLATE_LINEAGE",
+    "NODE_INSTANCE_STATE_IS_INDEPENDENT_FROM_TEMPLATE",
+    "OPAQUE_MARKUP_COPY_CANNOT_CREATE_NODE_IDENTITY",
+    "ATTRIBUTION_AND_INTEGRATION_EDGES_MUST_SURVIVE_INSTANTIATION"
   ],
   "file_governance": {
     "manifest": "governance/file/BRAINK_FILE_GOVERNANCE_R1.json",
@@ -133,8 +141,17 @@
     "carrier_attestation_class": "OPERATIONAL_CORRELATION",
     "carrier_is_identity": false,
     "carrier_is_authority": false,
-    "host_states": ["DISCOVERED", "IDENTIFIED", "AUTHORITY_VERIFIED", "HOST_READY", "STALE"],
-    "host_modes": ["ONLINE", "OFFLINE_LOCAL"],
+    "host_states": [
+      "DISCOVERED",
+      "IDENTIFIED",
+      "AUTHORITY_VERIFIED",
+      "HOST_READY",
+      "STALE"
+    ],
+    "host_modes": [
+      "ONLINE",
+      "OFFLINE_LOCAL"
+    ],
     "routing_law": "capability + authority + fresh observed host state",
     "offline_law": "local-only operations may continue; external mutations require ONLINE and fresh authority",
     "promotion_law": "process liveness cannot promote HOST_READY; a current externally executed carrier challenge response, capability readback, authority root and fresh heartbeat are mandatory"
@@ -143,7 +160,21 @@
     "runtime": "runtime/network/braink_network_intent.py",
     "model": "IL-LLM function-first registry + bounded observer-ledger projection",
     "normalization_law": "one producer request -> one causal_id -> one semantic_root -> many bounded ledger projections",
-    "projection_ledgers": ["host", "network", "dns", "da", "registrar", "routing", "mesh", "uptime", "security", "iot", "identity", "authority", "proof"],
+    "projection_ledgers": [
+      "host",
+      "network",
+      "dns",
+      "da",
+      "registrar",
+      "routing",
+      "mesh",
+      "uptime",
+      "security",
+      "iot",
+      "identity",
+      "authority",
+      "proof"
+    ],
     "authority_law": "external network mutations fail closed when authority_root is UNBOUND",
     "transport_law": "Desktop Commander, DNS, registrar, FRR/BGP, mesh and future device adapters are carriers/executors and do not define semantic identity",
     "offline_law": "read/local operations may be compiled for ONLINE_OR_OFFLINE_LOCAL; outward mutations compile to ONLINE only"
@@ -165,17 +196,104 @@
     "fail_closed": true
   },
   "teams": {
-    "substrate": ["self-hosted", "kex", "substrate", "workbook", "python", "file-governance"],
-    "cascade": ["self-hosted", "kex", "cascade", "hyperk0", "warmboot"],
-    "api": ["self-hosted", "kex", "api", "http", "projection", "readback"],
-    "object-runtime": ["self-hosted", "kex", "object-runtime", "ui-reflection", "telemetry"],
-    "proof": ["self-hosted", "kex", "proof", "ledger", "rehydrate"],
-    "stress": ["self-hosted", "kex", "stress", "telemetry", "performance"],
-    "security": ["self-hosted", "kex", "security", "boundary", "audit", "rpki", "dnssec"],
-    "deploy": ["self-hosted", "kex", "deploy", "docker", "release", "systemd"],
-    "host-control": ["self-hosted", "kex", "host-control", "mcp", "desktop-commander", "remote", "linux", "macos", "scheduler", "reconciler", "external-proof"],
-    "network": ["self-hosted", "kex", "il-llm", "network", "dns", "da", "registrar", "mesh", "bgp", "isp", "iot", "proof"],
-    "linguistics": ["self-hosted", "kex", "il-llm", "linguistics", "periodic-table", "memory-array", "semantic-root", "projection"]
+    "substrate": [
+      "self-hosted",
+      "kex",
+      "substrate",
+      "workbook",
+      "python",
+      "file-governance"
+    ],
+    "cascade": [
+      "self-hosted",
+      "kex",
+      "cascade",
+      "hyperk0",
+      "warmboot"
+    ],
+    "api": [
+      "self-hosted",
+      "kex",
+      "api",
+      "http",
+      "projection",
+      "readback"
+    ],
+    "object-runtime": [
+      "self-hosted",
+      "kex",
+      "object-runtime",
+      "ui-reflection",
+      "telemetry"
+    ],
+    "proof": [
+      "self-hosted",
+      "kex",
+      "proof",
+      "ledger",
+      "rehydrate"
+    ],
+    "stress": [
+      "self-hosted",
+      "kex",
+      "stress",
+      "telemetry",
+      "performance"
+    ],
+    "security": [
+      "self-hosted",
+      "kex",
+      "security",
+      "boundary",
+      "audit",
+      "rpki",
+      "dnssec"
+    ],
+    "deploy": [
+      "self-hosted",
+      "kex",
+      "deploy",
+      "docker",
+      "release",
+      "systemd"
+    ],
+    "host-control": [
+      "self-hosted",
+      "kex",
+      "host-control",
+      "mcp",
+      "desktop-commander",
+      "remote",
+      "linux",
+      "macos",
+      "scheduler",
+      "reconciler",
+      "external-proof"
+    ],
+    "network": [
+      "self-hosted",
+      "kex",
+      "il-llm",
+      "network",
+      "dns",
+      "da",
+      "registrar",
+      "mesh",
+      "bgp",
+      "isp",
+      "iot",
+      "proof"
+    ],
+    "linguistics": [
+      "self-hosted",
+      "kex",
+      "il-llm",
+      "linguistics",
+      "periodic-table",
+      "memory-array",
+      "semantic-root",
+      "projection"
+    ]
   },
   "required_workflows": [
     ".github/workflows/kex-runtime-health.yml",
@@ -189,5 +307,16 @@
     ".github/workflows/kex-deploy.yml",
     ".github/workflows/braink-host-fabric.yml",
     ".github/workflows/braink-host-activation.yml"
-  ]
+  ],
+  "node_templates": {
+    "governance": "governance/node/BRAINK_NODE_TEMPLATE_R1.json",
+    "runtime": "runtime/node/braink_node_templates.py",
+    "capability_classes": [
+      "DUMB",
+      "SMART"
+    ],
+    "identity_law": "stable definition + typed contracts + attributes + attribution graph + capability class + integration contract + template lineage",
+    "instantiation_law": "instance preserves definition/template lineage while owning independent state, observers, integration edges and attribution extensions",
+    "hci_law": "HCI primitives are instantiated node templates, never copied opaque fragments"
+  }
 }
