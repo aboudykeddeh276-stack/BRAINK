@@ -1,0 +1,28 @@
+{
+  "schema": "kex.node.identity.instantiation.skillset.v2",
+  "seed": "KEX-NODE-SIP-02-E31D2783AA9B404DAFB4DBD39EDCCEC6",
+  "package": "KEX_NODE_IDENTITY_INSTANTIATION_SKILLSET_v2.zip",
+  "sha256": "96433da1902f74ebe6dd1807c5b74ad0cba7b5d75848549f1e4ce309d44ede06",
+  "tests": {
+    "passed": 4,
+    "failed": 0,
+    "zip_retest": "PASS"
+  },
+  "extends": "KEX-SIP-01 / kex-sector-instantiation-skillset 1.1.0",
+  "runtime_contract": [
+    "stable_definition_identity",
+    "typed_inputs_outputs",
+    "attributes",
+    "attribution_graph",
+    "capability_class",
+    "integration_edges",
+    "template_lineage",
+    "independent_instance_state",
+    "observer_relation",
+    "target_context",
+    "contextual_authority",
+    "capability_escalation_rejection"
+  ],
+  "evidence_grade": "E3_LOCAL_EXECUTION",
+  "library_path": "/KEX Node Identity Instantiation/KEX_NODE_IDENTITY_INSTANTIATION_SKILLSET_v2.zip"
+}
