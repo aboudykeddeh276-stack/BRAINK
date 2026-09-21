@@ -60,6 +60,10 @@ class ILLLMAuthority:
             normalized["value"] = request["value"]
         if "child_id" in request:
             normalized["child_id"] = str(request["child_id"])
+        if "template_identity" in request:
+            if not isinstance(request["template_identity"], dict):
+                raise ValueError("ILLLM_TEMPLATE_IDENTITY_OBJECT_REQUIRED")
+            normalized["template_identity"] = request["template_identity"]
         return normalized
 
     def resolve(self, request: dict[str, Any]) -> tuple[dict[str, Any], AuthorityBinding]:
@@ -124,7 +128,7 @@ class ILLLMAuthority:
         elif binding.intent == "memory.write":
             result = action(normalized["lineage"], normalized["key"], normalized.get("value"))
         elif binding.intent == "computer.instantiate":
-            result = action(normalized["lineage"], normalized["child_id"])
+            result = action(normalized["lineage"], normalized["child_id"], normalized.get("template_identity"))
         elif binding.intent == "computer.read":
             result = action(runtime_host.resolve(normalized["lineage"]))
         else:
