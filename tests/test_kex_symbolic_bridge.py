@@ -1,5 +1,6 @@
 import json
 import unittest
+from observer2_runtime.ab_binary_codec import encode_bits, pack_18_symbol
 from observer2_runtime.kex_symbolic_bridge import (
     BinaryBoundaryAdapter,
     ILLLMSemanticDictionary,
@@ -71,6 +72,14 @@ class KEXSymbolicBridgeTests(unittest.TestCase):
         projection = {"semantic_root":"abc", "truth_boundary":{"projection_mutates_source":True}}
         with self.assertRaisesRegex(ValueError, "ILLLM_SOURCE_MUTATION_BOUNDARY_INVALID"):
             from_linguistic_projection(dictionary(), projection, concept_id="c", symbol_id="illlm:op:activate")
+
+    def test_ab_codec_is_not_universal_compression(self):
+        long_run = "0" * 4096
+        alternating = "01" * 2048
+        long_payload, _ = pack_18_symbol(encode_bits(long_run))
+        alternating_payload, _ = pack_18_symbol(encode_bits(alternating))
+        self.assertLess(len(long_payload) * 8, len(long_run))
+        self.assertGreater(len(alternating_payload) * 8, len(alternating))
 
 
 if __name__ == "__main__": unittest.main()
