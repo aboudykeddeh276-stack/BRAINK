@@ -13,6 +13,7 @@ from enterprise.illlm_authority import ILLLMAuthority
 from enterprise.market_services.service_broker import MarketServiceBroker
 from enterprise.node_lease_r40 import NodeLeaseRegistryR40
 from enterprise.node_vfs_r40 import NodeVFS
+from enterprise.node_template_r40 import legacy_recursive_template, materialize_template
 from enterprise.runtime.resource_scheduler_r40 import PhysicalResourceScheduler, ResourceRequirement, ResourceVector
 
 
@@ -64,7 +65,7 @@ class CanonicalExecutionR40:
     """Thin coordinator. Resident BRAINK/KEX components retain mutation authority."""
 
     REQUIRED_ACTIVE_PROMOTION = (
-        "CLASSIFIED", "VALIDATED", "MATERIALIZED", "AGENT_BOUND", "VFS_BOUND", "NETWORK_BOUND",
+        "CLASSIFIED", "VALIDATED", "MATERIALIZED", "TEMPLATE_BOUND", "AGENT_BOUND", "VFS_BOUND", "NETWORK_BOUND",
         "RUNTIME_CONSTRUCTED", "RUNTIME_RUNNING", "LOCAL_VERIFIED", "MESH_REGISTERED",
         "SERVER_REGISTERED", "SUBSCRIBED", "IL_LLM_REGISTERED",
     )
@@ -320,6 +321,7 @@ class CanonicalExecutionR40:
         lease_identity: str | None = None
         lease_generation: int | None = None
         reader_lease: tuple[Any, NodeLeaseRegistryR40, str, int] | None = None
+        template_materialization = None
 
         if binding.intent == "computer.instantiate":
             if not classified.node_eligible:
@@ -331,6 +333,21 @@ class CanonicalExecutionR40:
 
             child_id = normalized["child_id"]
             child_lineage = normalized["lineage"].rstrip("/") + "/" + child_id
+            template_spec = command.get("node_template")
+            if template_spec is None:
+                template_spec = legacy_recursive_template()
+            try:
+                template_materialization = materialize_template(
+                    template_spec,
+                    parent_lineage=tuple(p for p in normalized["lineage"].split("/") if p),
+                    instance_key=child_id,
+                    initial_state=command.get("payload", {}),
+                    observer_context="OBSERVER2://BRAINK/R26/" + child_lineage,
+                )
+            except Exception as exc:
+                return self._block("NODE_TEMPLATE_CONTRACT", stages, str(exc), promotion)
+            illlm_request = dict(illlm_request)
+            illlm_request["template_identity"] = template_materialization.identity.to_dict()
             try:
                 existing = self.host.resolve(child_lineage)
                 return {
@@ -394,6 +411,17 @@ class CanonicalExecutionR40:
             target_node = self.host.resolve(child_lineage)
             stages += ["NODE_MATERIALIZED", "RUNTIME_EXECUTED"]
             promotion.append("MATERIALIZED")
+            expected_template_identity = template_materialization.identity.to_dict()
+            observed_template_identity = getattr(target_node.identity, "template_identity", None)
+            if observed_template_identity != expected_template_identity:
+                return self._fail(
+                    "NODE_TEMPLATE_IDENTITY_READBACK",
+                    stages,
+                    {"expected": expected_template_identity, "observed": observed_template_identity},
+                    promotion,
+                )
+            stages.append("NODE_TEMPLATE_IDENTITY_BOUND")
+            promotion.append("TEMPLATE_BOUND")
 
             agent_id = f"agent://braink/{classified.data_class.lower()}/{child_id}"
             self.host.write_memory(child_lineage, "braink_agent", {
@@ -415,6 +443,20 @@ class CanonicalExecutionR40:
                 "resource_envelope": envelope.to_dict(),
                 "lease_id": lease_result["lease"]["lease_id"],
                 "lease_generation": lease_generation,
+                "template_identity": template_materialization.identity.to_dict(),
+            })
+            template_write = vfs.write(child_id, "template/definition.json", template_materialization.template)
+            instance_write = vfs.write(child_id, "template/instance.json", {
+                "identity": template_materialization.identity.to_dict(),
+                "state_seed_root": template_materialization.state_seed_root,
+                "observer_relation_id": template_materialization.identity.observer_relation_id,
+                "instance_attribution_graph": template_materialization.instance_attribution_graph,
+                "instance_integration_edges": template_materialization.instance_integration_edges,
+            })
+            self.host.write_memory(child_lineage, "node_template_identity", template_materialization.identity.to_dict())
+            self.host.write_memory(child_lineage, "node_template_vfs", {
+                "definition": template_write["logical"],
+                "instance": instance_write["logical"],
             })
             vfs_root = identity_write["logical"].rsplit("/", 1)[0]
             stages.append("NODE_VFS_BOUND")
@@ -703,5 +745,9 @@ class CanonicalExecutionR40:
             "subscription_state": subscription_result or {"status": "BLOCKED:SUBSCRIPTIONS_NOT_REQUESTED"},
             "resource_envelope": None if envelope is None else envelope.to_dict(),
             "lease_state": lease_result or {"status": "NOT_APPLICABLE"},
+            "node_template": None if template_materialization is None else {
+                "identity": template_materialization.identity.to_dict(),
+                "state_seed_root": template_materialization.state_seed_root,
+            },
             "fixed_point": not changed,
         }
