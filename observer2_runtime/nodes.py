@@ -21,6 +21,8 @@ def sha256_hex(value: Any) -> str:
 class CapabilityClass(str, Enum):
     DUMB = "DUMB"
     SMART = "SMART"
+    AGENTIC = "AGENTIC"
+    SYSTEM = "SYSTEM"
 
 
 @dataclass(frozen=True)
