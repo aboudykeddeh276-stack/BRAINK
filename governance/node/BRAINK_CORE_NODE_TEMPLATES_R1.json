@@ -439,6 +439,601 @@
         "authority": "A.KEDDEH",
         "organization": "Keddeh Systems"
       }
+    },
+    {
+      "template_id": "TPL_PLUGIN_CHROME_V1",
+      "definition_id": "PLUGIN_BRAINK_CHROME",
+      "type": "NODE_TEMPLATE",
+      "sector": "ADAPTER",
+      "role": "BROWSER_LAUNCH",
+      "version": "1.0.0",
+      "capability_class": "DUMB_NODE",
+      "typed_inputs": {
+        "url": "string"
+      },
+      "typed_outputs": {
+        "result": "string"
+      },
+      "attributes": [
+        {
+          "name": "implementation_ref",
+          "value_type": "string",
+          "value": "NativeChatBot/Sources/BRAINKChromePlugin.swift",
+          "source": "PLUGIN_BRAINK_CHROME",
+          "source_version": "1.0.0"
+        }
+      ],
+      "attribution_graph": [
+        {
+          "type": "AUTHORED_BY",
+          "target": "A.KEDDEH"
+        }
+      ],
+      "integration_contract": {
+        "interfaces": [],
+        "implementation_refs": [
+          "NativeChatBot/Sources/BRAINKChromePlugin.swift"
+        ]
+      },
+      "policy_bindings": [
+        "policy:url.validation"
+      ],
+      "compatibility": {
+        "braink_control_plane": ">=11"
+      },
+      "lifecycle": "PERSISTENT",
+      "authorship": {
+        "authority": "A.KEDDEH",
+        "organization": "Keddeh Systems"
+      }
+    },
+    {
+      "template_id": "TPL_PLUGIN_OAUTH_V1",
+      "definition_id": "PLUGIN_BRAINK_OAUTH",
+      "type": "NODE_TEMPLATE",
+      "sector": "IDENTITY",
+      "role": "OAUTH_ADAPTER",
+      "version": "1.0.0",
+      "capability_class": "SYSTEM_NODE",
+      "typed_inputs": {
+        "oauth_environment": "EnvironmentBinding"
+      },
+      "typed_outputs": {
+        "login_url": "URL",
+        "callback_binding": "OAuthBinding"
+      },
+      "attributes": [
+        {
+          "name": "implementation_ref",
+          "value_type": "string",
+          "value": "NativeChatBot/Sources/BRAINKOAuth.swift",
+          "source": "PLUGIN_BRAINK_OAUTH",
+          "source_version": "1.0.0"
+        }
+      ],
+      "attribution_graph": [
+        {
+          "type": "AUTHORED_BY",
+          "target": "A.KEDDEH"
+        }
+      ],
+      "integration_contract": {
+        "interfaces": [],
+        "implementation_refs": [
+          "NativeChatBot/Sources/BRAINKOAuth.swift"
+        ]
+      },
+      "policy_bindings": [
+        "policy:identity.external-rail"
+      ],
+      "compatibility": {
+        "braink_control_plane": ">=11"
+      },
+      "lifecycle": "PERSISTENT",
+      "authorship": {
+        "authority": "A.KEDDEH",
+        "organization": "Keddeh Systems"
+      }
+    },
+    {
+      "template_id": "TPL_TOOL_SCRAPER_V1",
+      "definition_id": "TOOL_BRAINK_SCRAPER",
+      "type": "NODE_TEMPLATE",
+      "sector": "PERCEPTION",
+      "role": "HTTP_SCRAPER",
+      "version": "1.0.0",
+      "capability_class": "DUMB_NODE",
+      "typed_inputs": {
+        "url": "string",
+        "max_links": "integer",
+        "excerpt_limit": "integer"
+      },
+      "typed_outputs": {
+        "scrape_result": "BRAINKScrapeResult"
+      },
+      "attributes": [
+        {
+          "name": "implementation_ref",
+          "value_type": "string",
+          "value": "NativeChatBot/Sources/BRAINKScraperTool.swift",
+          "source": "TOOL_BRAINK_SCRAPER",
+          "source_version": "1.0.0"
+        }
+      ],
+      "attribution_graph": [
+        {
+          "type": "AUTHORED_BY",
+          "target": "A.KEDDEH"
+        }
+      ],
+      "integration_contract": {
+        "interfaces": [],
+        "implementation_refs": [
+          "NativeChatBot/Sources/BRAINKScraperTool.swift"
+        ]
+      },
+      "policy_bindings": [
+        "policy:http.validation",
+        "policy:bounded-output"
+      ],
+      "compatibility": {
+        "braink_control_plane": ">=11"
+      },
+      "lifecycle": "PERSISTENT",
+      "authorship": {
+        "authority": "A.KEDDEH",
+        "organization": "Keddeh Systems"
+      }
+    },
+    {
+      "template_id": "TPL_ILLLM_WORKFLOW_V1",
+      "definition_id": "RUNTIME_ILLLM_WORKFLOW",
+      "type": "NODE_TEMPLATE",
+      "sector": "IL_LLM",
+      "role": "WORKFLOW_PLANNER",
+      "version": "1.0.0",
+      "capability_class": "SMART_NODE",
+      "typed_inputs": {
+        "skill_name": "string",
+        "objective": "string",
+        "runtime_path": "path"
+      },
+      "typed_outputs": {
+        "workflow_plan": "ILLLMWorkflowPlan"
+      },
+      "attributes": [
+        {
+          "name": "implementation_ref",
+          "value_type": "string",
+          "value": "NativeChatBot/Sources/BRAINKILLLMWorkflow.swift",
+          "source": "RUNTIME_ILLLM_WORKFLOW",
+          "source_version": "1.0.0"
+        }
+      ],
+      "attribution_graph": [
+        {
+          "type": "AUTHORED_BY",
+          "target": "A.KEDDEH"
+        }
+      ],
+      "integration_contract": {
+        "interfaces": [],
+        "implementation_refs": [
+          "NativeChatBot/Sources/BRAINKILLLMWorkflow.swift"
+        ]
+      },
+      "policy_bindings": [
+        "policy:frontier-seal",
+        "policy:evidence-required"
+      ],
+      "compatibility": {
+        "braink_control_plane": ">=11"
+      },
+      "lifecycle": "PERSISTENT",
+      "authorship": {
+        "authority": "A.KEDDEH",
+        "organization": "Keddeh Systems"
+      }
+    },
+    {
+      "template_id": "TPL_ILLLM_KNOWLEDGE_V1",
+      "definition_id": "RUNTIME_ILLLM_KNOWLEDGE_CENTER",
+      "type": "NODE_TEMPLATE",
+      "sector": "IL_LLM",
+      "role": "KNOWLEDGE_INDEX",
+      "version": "1.0.0",
+      "capability_class": "SMART_NODE",
+      "typed_inputs": {
+        "runtime_path": "path",
+        "query": "string"
+      },
+      "typed_outputs": {
+        "knowledge_snapshot": "BRAINKILLLMKnowledgeSnapshot",
+        "context": "BRAINKILLLMKnowledgeContext"
+      },
+      "attributes": [
+        {
+          "name": "implementation_ref",
+          "value_type": "string",
+          "value": "NativeChatBot/Sources/BRAINKILLLMKnowledgeCenter.swift",
+          "source": "RUNTIME_ILLLM_KNOWLEDGE_CENTER",
+          "source_version": "1.0.0"
+        }
+      ],
+      "attribution_graph": [
+        {
+          "type": "AUTHORED_BY",
+          "target": "A.KEDDEH"
+        }
+      ],
+      "integration_contract": {
+        "interfaces": [],
+        "implementation_refs": [
+          "NativeChatBot/Sources/BRAINKILLLMKnowledgeCenter.swift"
+        ]
+      },
+      "policy_bindings": [
+        "policy:memory-budget",
+        "policy:bounded-index"
+      ],
+      "compatibility": {
+        "braink_control_plane": ">=11"
+      },
+      "lifecycle": "PERSISTENT",
+      "authorship": {
+        "authority": "A.KEDDEH",
+        "organization": "Keddeh Systems"
+      }
+    },
+    {
+      "template_id": "TPL_INNER_RUNTIME_V1",
+      "definition_id": "RUNTIME_BRAINK_INNER",
+      "type": "NODE_TEMPLATE",
+      "sector": "COGNITION",
+      "role": "LOCAL_COGNITIVE_STATE",
+      "version": "1.0.0",
+      "capability_class": "SMART_NODE",
+      "typed_inputs": {
+        "user_input": "string",
+        "response_quality": "number",
+        "emotional_state": "map",
+        "reasoning_state": "map"
+      },
+      "typed_outputs": {
+        "runtime_state": "BRAINKInnerRuntimeState"
+      },
+      "attributes": [
+        {
+          "name": "implementation_ref",
+          "value_type": "string",
+          "value": "NativeChatBot/Sources/BRAINKInnerRuntime.swift",
+          "source": "RUNTIME_BRAINK_INNER",
+          "source_version": "1.0.0"
+        }
+      ],
+      "attribution_graph": [
+        {
+          "type": "AUTHORED_BY",
+          "target": "A.KEDDEH"
+        }
+      ],
+      "integration_contract": {
+        "interfaces": [],
+        "implementation_refs": [
+          "NativeChatBot/Sources/BRAINKInnerRuntime.swift"
+        ]
+      },
+      "policy_bindings": [
+        "policy:local-state",
+        "policy:frontier-seal"
+      ],
+      "compatibility": {
+        "braink_control_plane": ">=11"
+      },
+      "lifecycle": "PERSISTENT",
+      "authorship": {
+        "authority": "A.KEDDEH",
+        "organization": "Keddeh Systems"
+      }
+    },
+    {
+      "template_id": "TPL_DELIVERY_AUDIT_V1",
+      "definition_id": "RUNTIME_BRAINK_DELIVERY_AUDIT",
+      "type": "NODE_TEMPLATE",
+      "sector": "AUDIT",
+      "role": "STACK_ALIGNMENT_AUDIT",
+      "version": "1.0.0",
+      "capability_class": "DUMB_NODE",
+      "typed_inputs": {
+        "root_path": "path"
+      },
+      "typed_outputs": {
+        "learning_snapshot": "LearningSnapshot",
+        "alignment_report": "StackAlignmentReport"
+      },
+      "attributes": [
+        {
+          "name": "implementation_ref",
+          "value_type": "string",
+          "value": "NativeChatBot/Sources/BRAINKDeliveryAudit.swift",
+          "source": "RUNTIME_BRAINK_DELIVERY_AUDIT",
+          "source_version": "1.0.0"
+        }
+      ],
+      "attribution_graph": [
+        {
+          "type": "AUTHORED_BY",
+          "target": "A.KEDDEH"
+        }
+      ],
+      "integration_contract": {
+        "interfaces": [],
+        "implementation_refs": [
+          "NativeChatBot/Sources/BRAINKDeliveryAudit.swift"
+        ]
+      },
+      "policy_bindings": [
+        "policy:evidence-before-done"
+      ],
+      "compatibility": {
+        "braink_control_plane": ">=11"
+      },
+      "lifecycle": "PERSISTENT",
+      "authorship": {
+        "authority": "A.KEDDEH",
+        "organization": "Keddeh Systems"
+      }
+    },
+    {
+      "template_id": "TPL_FRONTIER_SEAL_V1",
+      "definition_id": "RUNTIME_BRAINK_FRONTIER_SEAL",
+      "type": "NODE_TEMPLATE",
+      "sector": "GOVERNANCE",
+      "role": "RUNTIME_SEAL",
+      "version": "1.0.0",
+      "capability_class": "SYSTEM_NODE",
+      "typed_inputs": {
+        "core_files": "array"
+      },
+      "typed_outputs": {
+        "seal_state": "FrontierSealState",
+        "line_registry": "RuntimeLineRegistry"
+      },
+      "attributes": [
+        {
+          "name": "implementation_ref",
+          "value_type": "string",
+          "value": "NativeChatBot/Sources/BRAINKFrontierSeal.swift",
+          "source": "RUNTIME_BRAINK_FRONTIER_SEAL",
+          "source_version": "1.0.0"
+        }
+      ],
+      "attribution_graph": [
+        {
+          "type": "AUTHORED_BY",
+          "target": "A.KEDDEH"
+        }
+      ],
+      "integration_contract": {
+        "interfaces": [],
+        "implementation_refs": [
+          "NativeChatBot/Sources/BRAINKFrontierSeal.swift"
+        ]
+      },
+      "policy_bindings": [
+        "policy:runtime-immutability"
+      ],
+      "compatibility": {
+        "braink_control_plane": ">=11"
+      },
+      "lifecycle": "PERSISTENT",
+      "authorship": {
+        "authority": "A.KEDDEH",
+        "organization": "Keddeh Systems"
+      }
+    },
+    {
+      "template_id": "TPL_PLATFORM_API_V1",
+      "definition_id": "RUNTIME_BRAINK_PLATFORM_API",
+      "type": "NODE_TEMPLATE",
+      "sector": "API",
+      "role": "PLATFORM_EXECUTION_POLICY",
+      "version": "1.0.0",
+      "capability_class": "SYSTEM_NODE",
+      "typed_inputs": {
+        "packet": "Packet",
+        "execution_policy": "ExecutionPolicy"
+      },
+      "typed_outputs": {
+        "execution_result": "ExecutionResult",
+        "evidence": "Evidence"
+      },
+      "attributes": [
+        {
+          "name": "implementation_ref",
+          "value_type": "string",
+          "value": "NativeChatBot/Sources/BRAINKPlatformAPI.swift",
+          "source": "RUNTIME_BRAINK_PLATFORM_API",
+          "source_version": "1.0.0"
+        }
+      ],
+      "attribution_graph": [
+        {
+          "type": "AUTHORED_BY",
+          "target": "A.KEDDEH"
+        }
+      ],
+      "integration_contract": {
+        "interfaces": [],
+        "implementation_refs": [
+          "NativeChatBot/Sources/BRAINKPlatformAPI.swift"
+        ]
+      },
+      "policy_bindings": [
+        "policy:allowed-commands",
+        "policy:audit-trail"
+      ],
+      "compatibility": {
+        "braink_control_plane": ">=11"
+      },
+      "lifecycle": "PERSISTENT",
+      "authorship": {
+        "authority": "A.KEDDEH",
+        "organization": "Keddeh Systems"
+      }
+    },
+    {
+      "template_id": "TPL_ILLLM_COMPAT_V1",
+      "definition_id": "RUNTIME_ILLLM_COMPATIBILITY",
+      "type": "NODE_TEMPLATE",
+      "sector": "IL_LLM",
+      "role": "COMPATIBILITY_VALIDATOR",
+      "version": "1.0.0",
+      "capability_class": "DUMB_NODE",
+      "typed_inputs": {
+        "runtime_path": "path"
+      },
+      "typed_outputs": {
+        "compatibility_report": "ILLLMCompatibilityReport"
+      },
+      "attributes": [
+        {
+          "name": "implementation_ref",
+          "value_type": "string",
+          "value": "NativeChatBot/Sources/BRAINKILLLMCompatibility.swift",
+          "source": "RUNTIME_ILLLM_COMPATIBILITY",
+          "source_version": "1.0.0"
+        }
+      ],
+      "attribution_graph": [
+        {
+          "type": "AUTHORED_BY",
+          "target": "A.KEDDEH"
+        }
+      ],
+      "integration_contract": {
+        "interfaces": [],
+        "implementation_refs": [
+          "NativeChatBot/Sources/BRAINKILLLMCompatibility.swift"
+        ]
+      },
+      "policy_bindings": [
+        "policy:compatibility-proof"
+      ],
+      "compatibility": {
+        "braink_control_plane": ">=11"
+      },
+      "lifecycle": "PERSISTENT",
+      "authorship": {
+        "authority": "A.KEDDEH",
+        "organization": "Keddeh Systems"
+      }
+    },
+    {
+      "template_id": "TPL_KEX_HYPERDRIVE_V1",
+      "definition_id": "RUNTIME_KEX_HYPERDRIVE_CONCEPT",
+      "type": "NODE_TEMPLATE",
+      "sector": "KEX",
+      "role": "CONCEPT_CALIBRATION",
+      "version": "1.0.0",
+      "capability_class": "SMART_NODE",
+      "typed_inputs": {
+        "repo_root": "path",
+        "subject_matter": "array"
+      },
+      "typed_outputs": {
+        "concept_report": "KEXHyperdriveConceptReport",
+        "calibration_report": "KEXHyperdriveCalibrationReport"
+      },
+      "attributes": [
+        {
+          "name": "implementation_ref",
+          "value_type": "string",
+          "value": "NativeChatBot/Sources/KEXHyperdriveConceptEngine.swift",
+          "source": "RUNTIME_KEX_HYPERDRIVE_CONCEPT",
+          "source_version": "1.0.0"
+        }
+      ],
+      "attribution_graph": [
+        {
+          "type": "AUTHORED_BY",
+          "target": "A.KEDDEH"
+        }
+      ],
+      "integration_contract": {
+        "interfaces": [],
+        "implementation_refs": [
+          "NativeChatBot/Sources/KEXHyperdriveConceptEngine.swift"
+        ]
+      },
+      "policy_bindings": [
+        "policy:proof-gates",
+        "policy:external-boundaries"
+      ],
+      "compatibility": {
+        "braink_control_plane": ">=11"
+      },
+      "lifecycle": "PERSISTENT",
+      "authorship": {
+        "authority": "A.KEDDEH",
+        "organization": "Keddeh Systems"
+      }
+    },
+    {
+      "template_id": "TPL_KEX_CODING_ENGINE_V1",
+      "definition_id": "RUNTIME_KEX_SELF_SUSTAINED_CODING",
+      "type": "NODE_TEMPLATE",
+      "sector": "KEX",
+      "role": "CODING_TASK_PLANNER",
+      "version": "1.0.0",
+      "capability_class": "SMART_NODE",
+      "typed_inputs": {
+        "user_text": "string",
+        "repo_root": "path"
+      },
+      "typed_outputs": {
+        "coding_report": "KEXSelfSustainedCodingReport",
+        "task_packets": "array"
+      },
+      "attributes": [
+        {
+          "name": "implementation_ref",
+          "value_type": "string",
+          "value": "NativeChatBot/Sources/KEXSelfSustainedCodingEngine.swift",
+          "source": "RUNTIME_KEX_SELF_SUSTAINED_CODING",
+          "source_version": "1.0.0"
+        }
+      ],
+      "attribution_graph": [
+        {
+          "type": "AUTHORED_BY",
+          "target": "A.KEDDEH"
+        }
+      ],
+      "integration_contract": {
+        "interfaces": [],
+        "implementation_refs": [
+          "NativeChatBot/Sources/KEXSelfSustainedCodingEngine.swift"
+        ]
+      },
+      "policy_bindings": [
+        "policy:bounded-write-scope",
+        "policy:proof-gate",
+        "policy:no-destructive-default"
+      ],
+      "compatibility": {
+        "braink_control_plane": ">=11"
+      },
+      "lifecycle": "PERSISTENT",
+      "authorship": {
+        "authority": "A.KEDDEH",
+        "organization": "Keddeh Systems"
+      }
     }
-  ]
+  ],
+  "catalog_law": "Every reusable core surface is represented by a governed template definition that references implementation artifacts without copying executable bodies or rendered markup.",
+  "coverage": {
+    "native_components": 15,
+    "total_templates": 20
+  }
 }
