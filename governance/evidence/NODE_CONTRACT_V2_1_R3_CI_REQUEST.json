@@ -1,0 +1,8 @@
+{
+  "request_id": "BRAINK_NODE_CONTRACT_V2_1_R3_REQUALIFICATION",
+  "authority_contract_id": "KEX_NODE_TEMPLATE_AUTHORITY_V2_1",
+  "authority_contract_hash": "06365c5d62025d4c53c9a64f8cad433783375040f52743d1e1b90d7b7fb493e3",
+  "package_sha256": "681ba389d4b74aefca97cb32448338bbb8bb02c03d788a3fa4cc4fb6105c1367",
+  "expected_suite": "python -m unittest discover -s tests -p 'test_nodes.py' -v",
+  "state": "REQUESTED"
+}
