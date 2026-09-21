@@ -4,10 +4,10 @@ from enterprise.observer2_governed_mutation import Observer2GovernedMutation
 from deployment import recursive_computer_service_r26 as base
 
 class GovernedRuntimeHost(base.RuntimeHost):
-    def instantiate(self,parent_lineage,child_id):
+    def instantiate(self,parent_lineage,child_id,template_identity=None):
         parent=self.resolve(parent_lineage); holder={}
         def actuate():
-            child=parent.instantiate(child_id); holder['child']=child
+            child=parent.instantiate(child_id,template_identity=template_identity); holder['child']=child
             with self._tree_lock: parent.children[child.identity.computer_id]=child
             return {'child_id':child.identity.computer_id}
         governed=Observer2GovernedMutation(parent).execute(
