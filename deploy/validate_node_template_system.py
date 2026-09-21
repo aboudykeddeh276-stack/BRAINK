@@ -30,8 +30,13 @@ def main() -> int:
     require(set(governance["capability_classes"])=={"DUMB_NODE","SMART_NODE","AGENTIC_NODE","SYSTEM_NODE"},"capability classes")
     require("NODE_TEMPLATE" in filegov["artifact_classes"],"NODE_TEMPLATE file class")
     require("template_contract" in filegov,"file template contract")
-    require(control["schema"]=="kex.github-runner-control-plane.v10","control plane v10")
-    checks += ["governance","file_governance","control_plane"]
+    require(control["schema"]=="kex.github-runner-control-plane.v11","control plane v11")
+    catalog=load_json(ROOT/"governance/node/BRAINK_CORE_NODE_TEMPLATES_R1.json")
+    require(catalog["schema"]=="braink.core-node-templates.r1","core template catalog")
+    require(len(catalog.get("templates",[])) >= 20,"core template coverage")
+    ids=[x["template_id"] for x in catalog["templates"]]
+    require(len(ids)==len(set(ids)),"duplicate template ids")
+    checks += ["governance","file_governance","control_plane","core_template_catalog"]
 
     runtime_path=ROOT/"runtime/node/braink_node_templates.py"
     spec=importlib.util.spec_from_file_location("braink_node_templates",runtime_path)
@@ -53,7 +58,11 @@ def main() -> int:
         require(marker in swift,f"missing native identity {marker}")
     require("BRAINKTemplateBackedView" in swift,"native template backed view")
     require("TemplateBackedPanel" in ui,"native template panel")
-    checks += ["native_identity","native_template_backed_hci"]
+    app=(ROOT/"NativeChatBot/Sources/BRAINKChatBotApp.swift").read_text(encoding="utf-8")
+    bootstrap=(ROOT/"deploy/bootstrap_node_templates.py").read_text(encoding="utf-8")
+    require("GovernedTemplatePanel(node: nodeTemplates.nativeDashboard" in app,"native dashboard not template bound")
+    require("node:hci:native-dashboard" in bootstrap,"native dashboard bootstrap instance missing")
+    checks += ["native_identity","native_template_backed_hci","native_dashboard_binding","core_instance_bootstrap"]
 
     forbidden_identity=[
         "copy_opaque_markup_as_identity",
