@@ -55,3 +55,47 @@ struct TemplateBackedPanel<Content: View>: View {
         }
     }
 }
+
+
+struct GovernedTemplatePanel<Content: View>: View {
+    let node: BRAINKNodeInstanceIdentity?
+    let unboundReason: String
+    let content: () -> Content
+
+    init(
+        node: BRAINKNodeInstanceIdentity?,
+        unboundReason: String = "",
+        @ViewBuilder content: @escaping () -> Content
+    ) {
+        self.node = node
+        self.unboundReason = unboundReason
+        self.content = content
+    }
+
+    @ViewBuilder
+    var body: some View {
+        if let node {
+            TemplateBackedPanel(node: node) {
+                content()
+            }
+        } else {
+            VStack(spacing: 0) {
+                HStack {
+                    Text("NODE TEMPLATE UNBOUND")
+                        .font(.caption.bold().monospaced())
+                        .foregroundStyle(.orange)
+                    Spacer()
+                    Text(unboundReason.isEmpty ? "bootstrap required" : unboundReason)
+                        .font(.caption2.monospaced())
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                }
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                ThemedPanel {
+                    content()
+                }
+            }
+        }
+    }
+}
