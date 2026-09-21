@@ -1,0 +1,76 @@
+{
+  "schema": "braink.owner.site-estate.v1",
+  "authority": "OWNER",
+  "relation_policy": "Recorded site identity/domain lineage only. No source-repository or deployment relation is asserted unless independently proven.",
+  "sites": [
+    {
+      "site_key": "kex-geometric-address",
+      "locator": "https://kex-geometric-address.aboudykeddeh276.chatgpt.site",
+      "logical_id": "site://kex/geometric-address",
+      "state": "RECOVERED_RECORDED"
+    },
+    {
+      "site_key": "claimpath-local",
+      "locator": "https://claimpath-local.aboudykeddeh276.chatgpt.site",
+      "logical_id": "app://claimpath",
+      "custom_domains": [
+        "claimpath.com.au"
+      ],
+      "state": "RECOVERED_RECORDED"
+    },
+    {
+      "site_key": "casepath-legal",
+      "locator": "https://casepath-legal.aboudykeddeh276.chatgpt.site",
+      "logical_id": "app://casepath",
+      "custom_domains": [
+        "casepath.com.au"
+      ],
+      "domain_state": "RECORDED_PENDING_OR_UNVERIFIED_IN_EARLIER_AUTHORITY_RECORD",
+      "state": "RECOVERED_RECORDED"
+    },
+    {
+      "site_key": "braink-keddeh-systems",
+      "locator": "https://braink-keddeh-systems.aboudykeddeh276.chatgpt.site",
+      "logical_id": "site://braink/keddeh-systems",
+      "state": "RECOVERED_RECORDED"
+    },
+    {
+      "site_key": "keddeh-mining-btc",
+      "locator": "https://keddeh-mining-btc.aboudykeddeh276.chatgpt.site",
+      "custom_domains": [
+        "mining.keddeh.systems"
+      ],
+      "state": "RECOVERED_RECORDED"
+    },
+    {
+      "site_key": "braink-systems",
+      "locator": "https://braink-systems.aboudykeddeh276.chatgpt.site",
+      "logical_id": "site://braink/systems",
+      "state": "RECOVERED_RECORDED"
+    },
+    {
+      "site_key": "kex-sovereign-capacity-fabric",
+      "locator": "https://kex-sovereign-capacity-fabric.aboudykeddeh276.chatgpt.site",
+      "custom_domains": [
+        "keddehsystems.com"
+      ],
+      "state": "RECOVERED_RECORDED"
+    }
+  ],
+  "additional_domain_lineage": [
+    "braink.com.au",
+    "braink.keddeh.com",
+    "kex.keddeh.com",
+    "braink.store",
+    "braink.studio",
+    "keddeh.com",
+    "keddeh.admi.co.au"
+  ],
+  "recovered_lineage_notes": {
+    "casepath": {
+      "graph_version": "app-route-graph:4uhn5s1wvoptc",
+      "deployment_version": "12b423a5-c213-4c37-89dd-d6957cf20222"
+    },
+    "claimpath_domain_change": "claimpath.com.au detached from casepath-legal and attached to claimpath-local on 2026-08-30"
+  }
+}
