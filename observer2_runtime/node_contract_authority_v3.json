@@ -1,0 +1,37 @@
+{
+  "contract_id": "KEX_NODE_TEMPLATE_AUTHORITY_V3",
+  "contract_hash": "fc1aa5c9909de7206eef68e9bf5b73ed8094b623ef2735b9554401062aa3ab0d",
+  "seed_id": "KEX-NODE-SIP-02-E31D2783AA9B404DAFB4DBD39EDCCEC6",
+  "package_version": "2.2.0",
+  "source_package_sha256": "b78c7b09c11421548178c4cb2ca94e1a9a0aa87f58f2c6c6cacf3c66f6f599e0",
+  "source_core_sha256": "9f1189e6a8234be476e72e5718d29eb3c3eed11fa230700d86574eb2f9af3d02",
+  "library_path": "/KEX Node Identity Instantiation/KEX_NODE_IDENTITY_INSTANTIATION_SKILLSET_v2_2.zip",
+  "authority_repo": "aboudykeddeh276-stack/BRAINK",
+  "authority_path": "observer2_runtime/nodes.py",
+  "authority_runtime_git_blob_sha1": "daadba0b3dd82806acd89078e66bbaaf0e9f7b2d",
+  "capability_classes": [
+    "DUMB",
+    "SMART",
+    "AGENTIC",
+    "SYSTEM"
+  ],
+  "identity_law": {
+    "definition_content_addressed": true,
+    "template_identity_binds_definition": true,
+    "instance_identity_deterministic": true,
+    "instance_state_local": true,
+    "observer_relation_local": true,
+    "integration_edges_local": true,
+    "attribution_lineage_preserved": true,
+    "capability_grant_must_be_subset": true,
+    "target_profile_must_be_admitted": true,
+    "mutation_requires_expected_state_hash": true,
+    "opaque_fragment_copy_allowed": false
+  },
+  "evidence": {
+    "package_clean_tests": "12/12 PASS",
+    "zero_install_validator": "PASS",
+    "zero_install_cli": "PASS"
+  },
+  "supersedes": "KEX_NODE_TEMPLATE_AUTHORITY_V2"
+}
