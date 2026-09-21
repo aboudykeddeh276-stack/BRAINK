@@ -1,4 +1,4 @@
-from braink_runtime.instance_identity import (
+from braink_runtime.node_identity import (
     Attribution,
     IntegrationEdge,
     NodeTemplate,
