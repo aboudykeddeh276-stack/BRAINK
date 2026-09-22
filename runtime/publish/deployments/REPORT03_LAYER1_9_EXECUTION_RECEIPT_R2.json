@@ -1,0 +1,37 @@
+{
+  "schema": "braink.report03.layer1-9.execution-receipt.v2",
+  "generated_at": "2026-09-22T13:55:00+09:30",
+  "scope": "local Layer1-9 full-suite qualification",
+  "unit_tests": {
+    "passed": 16,
+    "failed": 0,
+    "elapsed_seconds": 0.07
+  },
+  "fault_campaign": {
+    "seed": 297,
+    "scenarios": 14,
+    "passed": 14,
+    "failed": 0,
+    "layer_faults_exercised": 9,
+    "transient_layer_retries_converged": "9/9",
+    "same_generation_mutations_rejected": "9/9",
+    "receipt_tamper_blocks": "180/180",
+    "observation_lies_rejected": "2/2",
+    "resident_trials": 100,
+    "resident_committed": 72,
+    "resident_failed": 28,
+    "evidence_boundary_violations": 0
+  },
+  "sha256": {
+    "braink_runtime/layer1_9_reconciler.py": "f55061b7e97120af91898917c72dec6e7d8be4899d416cb61d415a7cd09828b9",
+    "braink_runtime/full_suite_kernel.py": "96bcaf5a7c06540109fed7b8c6a2a8506a51cbb694a693a052525f7c19dc5cfb",
+    "tests/test_layer1_9_full_suite.py": "b5817ba71b3f67d5643424931f120bc4c61379ed9fa6449542041b02fd4cfb59",
+    "tests/test_resident_full_suite.py": "d2c37d6f4abf6585dab9fac6cf23a63a0bc4ecbd965d82baba9cc1fc0ac559c0",
+    "tools/run_layer1_9_fault_campaign.py": "c8385d745126fb0918801bc757d816176f883ac3e9253110a85b01141b206a41"
+  },
+  "qualification_boundary": [
+    "new Layer1-9 engine and composition kernel executed locally",
+    "resident adapter exercised against API-compatible qualification copies of current ToT/directory/L2/journal contracts",
+    "no live multi-host network, physical L2 device, external provider, or GitHub-hosted CI execution claimed by this receipt"
+  ]
+}
