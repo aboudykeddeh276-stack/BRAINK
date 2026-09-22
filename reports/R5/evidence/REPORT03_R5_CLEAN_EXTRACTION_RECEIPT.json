@@ -1,0 +1,48 @@
+{
+  "claim_boundary": "Fresh clean-extraction Python qualification of the packaged R5 tree on this execution host. This does not establish multi-host production deployment, physical power-loss durability, or external-service operation.",
+  "clean_extraction": {
+    "all_suites_passed": true,
+    "compileall": "PASS",
+    "path": "/mnt/data/report03_r5_zip_verify/report03_r5",
+    "suites": [
+      {
+        "expected_tests": 36,
+        "name": "baseline_36",
+        "observed_tests": 36,
+        "passed": true,
+        "seconds": 0.058,
+        "sha256": "4abf910b880587d38a53f5ebdf47d51e8fa7d00ffe99557fdeae22766a665e53"
+      },
+      {
+        "expected_tests": 16,
+        "name": "distributed_16",
+        "observed_tests": 16,
+        "passed": true,
+        "seconds": 3.102,
+        "sha256": "106fff7901a16c68c8a14496e2e733185ef6c4c967acdc5d42a8a6f4f8b067db"
+      },
+      {
+        "expected_tests": 12,
+        "name": "semantic_boundary_12",
+        "observed_tests": 12,
+        "passed": true,
+        "seconds": 1.859,
+        "sha256": "2556b9c666d0a9e33dfcd60d84cf0b3371c97debca7fc4dd8b9a3d5632788be7"
+      }
+    ],
+    "total_expected_tests": 64,
+    "total_observed_tests": 64
+  },
+  "lineage": {
+    "historical_observed_evidence_root": "9b0b4d9299c3ba5355b49d2de12a93828ac14d413b8a7fd19b74402f6d9ff765",
+    "historical_qualification_root": "264c85c12939f3a6ceed23ec976e567e564ece1c08ef6d3d30f6a7326aba2706"
+  },
+  "package": {
+    "bytes": 451049,
+    "manifest_file_count": 67,
+    "manifest_sha256": "46bfb51da7e19f8ca72f4b58bc0120d378153a5c863d150758c054029b6f19a7",
+    "path": "/mnt/data/REPORT03_R5_FINAL_VERIFIED.zip",
+    "sha256": "666c4a07c9a4ae9e43a691993b70caecd4410b6f5d22752d5bc2ab5095762dac"
+  },
+  "schema": "keddeh.report03.r5.clean-extraction-qualification.v1"
+}
