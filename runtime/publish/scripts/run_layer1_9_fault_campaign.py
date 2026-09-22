@@ -24,6 +24,7 @@ def payloads(tag="A"):
         9: {"evidence_root": digest({"e": tag}), "receipt_count": 8, "claim_state": "OBSERVED"},
     }
 
+# Every stage must fail closed and leave no committed suffix after the fault.
 for layer in range(1,10):
     r=Layer1to9Reconciler()
     try:
@@ -37,6 +38,7 @@ for layer in range(1,10):
             {"error":str(exc),"committed_layers":sorted(r.state),"expected_prefix":sorted(expected_prefix)}
         )
 
+# Retry after each transient stage fault must seal if committed prefix is unchanged.
 retry_pass=0
 for layer in range(1,10):
     r=Layer1to9Reconciler()
@@ -48,6 +50,7 @@ for layer in range(1,10):
     except Exception: pass
 record("all_layer_transient_retry",retry_pass==9,{"converged":retry_pass,"trials":9})
 
+# Same-generation mutation is rejected at random layers.
 conflicts=0
 for layer in range(1,10):
     r=Layer1to9Reconciler();p=payloads();r.reconcile_all(run_id=f"conflict:{layer}",generation=1,payloads=p)
@@ -66,6 +69,7 @@ for layer in range(1,10):
         if "SAME_GENERATION_PAYLOAD_CONFLICT" in str(exc): conflicts+=1
 record("same_generation_mutation_fencing",conflicts==9,{"rejected":conflicts,"trials":9})
 
+# Random receipt tampering across all nine receipt positions.
 tamper_blocks=0
 for _ in range(180):
     layer=random.randint(1,9)
@@ -76,6 +80,7 @@ for _ in range(180):
     except LayerViolation:tamper_blocks+=1
 record("random_receipt_tamper",tamper_blocks==180,{"blocked":tamper_blocks,"trials":180})
 
+# Observation-state lies are rejected.
 lies=0
 for changed,before,after in [
     (False,digest({"x":1}),digest({"x":2})),
@@ -95,6 +100,7 @@ class FlakyActuator:
         obs=ObservedManifestation(a.manifestation_id,a.endpoint,a.generation,"ATTACHED")
         self.seen[key]=obs;return obs
 
+# Resident full-suite attempts with independent fresh runs. Failure must never append Layer9 evidence.
 resident_runs=100;committed=0;failed=0;evidence_leaks=0
 for n in range(resident_runs):
     with tempfile.TemporaryDirectory() as td:

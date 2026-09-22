@@ -181,6 +181,7 @@ class Layer1to9Reconciler:
         spec = self.SPECS[layer]
         self._validate_payload(spec, payload)
 
+        # Idempotent replay for an already committed stage at the same generation.
         existing = self._committed.get(layer)
         payload_root = digest(payload)
         if existing and existing.generation == generation:
@@ -191,6 +192,7 @@ class Layer1to9Reconciler:
         if existing and generation <= existing.generation:
             raise LayerViolation("STALE_LAYER_GENERATION")
 
+        # New upstream generation invalidates the entire downstream suffix.
         if layer in self._committed and generation > self._committed[layer].generation:
             for downstream in range(layer, 10):
                 self._committed.pop(downstream, None)
@@ -246,6 +248,7 @@ class Layer1to9Reconciler:
         self._committed[layer] = receipt
         self._payloads[layer] = normalized
 
+        # Any older downstream suffix is causally invalid once this layer commits.
         for downstream in range(layer + 1, 10):
             stale = self._committed.get(downstream)
             if stale and stale.generation <= generation:
