@@ -1,0 +1,36 @@
+{
+  "schema": "kex.braink.report03.durable-peer-execution.v1",
+  "execution_date": "2026-09-22",
+  "baseline_commit": "ea34c8c867aea82c50fb3b2d87caf3676a58e22b",
+  "suite": "test_durable_peer_runtime.py",
+  "observed": {"tests": 9, "passed": 9, "failed": 0, "errors": 0},
+  "faults_exercised": [
+    "single-peer outage",
+    "majority/quorum loss",
+    "process-style restart and WAL replay",
+    "signed-payload tampering",
+    "unknown peer identity",
+    "WAL corruption",
+    "entry reordering/index gap",
+    "duplicate delivery"
+  ],
+  "advanced": [
+    "fsync-backed append-only WAL",
+    "restart recovery",
+    "authenticated message envelope baseline",
+    "majority crash-fault commit",
+    "duplicate and reorder rejection"
+  ],
+  "explicitly_not_proven": [
+    "networked independent-host consensus",
+    "leader election",
+    "linearizable concurrent writers",
+    "safe dynamic membership",
+    "Byzantine fault tolerance",
+    "hardware-rooted identity",
+    "torn-write recovery",
+    "snapshot installation",
+    "Wasm/native differential equivalence"
+  ],
+  "execution_note": "Executed locally from the same source before repository publication; 9/9 unittest cases passed. The local environment emitted an unrelated spreadsheet-runtime warmup timeout before the test process; it did not affect the Python suite, which completed OK."
+}
