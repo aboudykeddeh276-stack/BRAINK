@@ -1,0 +1,23 @@
+{
+  "schema": "braink.report03.layer1-9-fault-campaign.v2",
+  "seed": 297,
+  "scenarios": 14,
+  "passed": 14,
+  "failed": 0,
+  "results": [
+    {"scenario":"layer_1_fault","status":"PASS","detail":{"error":"LAYER_1_EXECUTION_FAILED:RuntimeError:injected stage fault","committed_layers":[],"expected_prefix":[]}},
+    {"scenario":"layer_2_fault","status":"PASS","detail":{"error":"LAYER_2_EXECUTION_FAILED:RuntimeError:injected stage fault","committed_layers":[1],"expected_prefix":[1]}},
+    {"scenario":"layer_3_fault","status":"PASS","detail":{"error":"LAYER_3_EXECUTION_FAILED:RuntimeError:injected stage fault","committed_layers":[1,2],"expected_prefix":[1,2]}},
+    {"scenario":"layer_4_fault","status":"PASS","detail":{"error":"LAYER_4_EXECUTION_FAILED:RuntimeError:injected stage fault","committed_layers":[1,2,3],"expected_prefix":[1,2,3]}},
+    {"scenario":"layer_5_fault","status":"PASS","detail":{"error":"LAYER_5_EXECUTION_FAILED:RuntimeError:injected stage fault","committed_layers":[1,2,3,4],"expected_prefix":[1,2,3,4]}},
+    {"scenario":"layer_6_fault","status":"PASS","detail":{"error":"LAYER_6_EXECUTION_FAILED:RuntimeError:injected stage fault","committed_layers":[1,2,3,4,5],"expected_prefix":[1,2,3,4,5]}},
+    {"scenario":"layer_7_fault","status":"PASS","detail":{"error":"LAYER_7_EXECUTION_FAILED:RuntimeError:injected stage fault","committed_layers":[1,2,3,4,5,6],"expected_prefix":[1,2,3,4,5,6]}},
+    {"scenario":"layer_8_fault","status":"PASS","detail":{"error":"LAYER_8_EXECUTION_FAILED:RuntimeError:injected stage fault","committed_layers":[1,2,3,4,5,6,7],"expected_prefix":[1,2,3,4,5,6,7]}},
+    {"scenario":"layer_9_fault","status":"PASS","detail":{"error":"LAYER_9_EXECUTION_FAILED:RuntimeError:injected stage fault","committed_layers":[1,2,3,4,5,6,7,8],"expected_prefix":[1,2,3,4,5,6,7,8]}},
+    {"scenario":"all_layer_transient_retry","status":"PASS","detail":{"converged":9,"trials":9}},
+    {"scenario":"same_generation_mutation_fencing","status":"PASS","detail":{"rejected":9,"trials":9}},
+    {"scenario":"random_receipt_tamper","status":"PASS","detail":{"blocked":180,"trials":180}},
+    {"scenario":"observation_lie_detection","status":"PASS","detail":{"blocked":2,"trials":2}},
+    {"scenario":"resident_l2_fault_evidence_boundary","status":"PASS","detail":{"runs":100,"committed":72,"failed":28,"evidence_boundary_violations":0}}
+  ]
+}
