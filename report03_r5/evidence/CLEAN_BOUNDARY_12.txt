@@ -1,0 +1,17 @@
+test_08_semantic_digest_survives_tot_directory_and_layer2 (tests.test_semantic_boundary_integration.TestCrossLayerClosure.test_08_semantic_digest_survives_tot_directory_and_layer2) ... ok
+test_09_binary_is_absent_until_explicit_substrate_boundary (tests.test_semantic_boundary_integration.TestCrossLayerClosure.test_09_binary_is_absent_until_explicit_substrate_boundary) ... ok
+test_10_accepted_semantic_digest_tamper_blocks_binary_lowering (tests.test_semantic_boundary_integration.TestCrossLayerClosure.test_10_accepted_semantic_digest_tamper_blocks_binary_lowering) ... ok
+test_11_directory_rejoin_preserves_semantic_authority (tests.test_semantic_boundary_integration.TestCrossLayerClosure.test_11_directory_rejoin_preserves_semantic_authority) ... ok
+test_12_html_drift_repair_does_not_redefine_semantics (tests.test_semantic_boundary_integration.TestCrossLayerClosure.test_12_html_drift_repair_does_not_redefine_semantics) ... ok
+test_01_resident_il_llm_is_actual_semantic_source (tests.test_semantic_boundary_integration.TestResidentSemanticBoundary.test_01_resident_il_llm_is_actual_semantic_source) ... ok
+test_02_semantic_identity_is_symbolic_before_bytes (tests.test_semantic_boundary_integration.TestResidentSemanticBoundary.test_02_semantic_identity_is_symbolic_before_bytes) ... ok
+test_03_projection_can_change_without_changing_semantic_digest (tests.test_semantic_boundary_integration.TestResidentSemanticBoundary.test_03_projection_can_change_without_changing_semantic_digest) ... ok
+test_04_unknown_and_degraded_resident_semantics_fail_closed (tests.test_semantic_boundary_integration.TestResidentSemanticBoundary.test_04_unknown_and_degraded_resident_semantics_fail_closed) ... ok
+test_05_mutated_meaning_with_stale_digest_is_rejected (tests.test_semantic_boundary_integration.TestResidentSemanticBoundary.test_05_mutated_meaning_with_stale_digest_is_rejected) ... ok
+test_06_ab_codec_is_canonical_and_adaptive_modes_are_observed (tests.test_semantic_boundary_integration.TestResidentSemanticBoundary.test_06_ab_codec_is_canonical_and_adaptive_modes_are_observed) ... ok
+test_07_binary_tamper_and_semantic_binding_fail_closed (tests.test_semantic_boundary_integration.TestResidentSemanticBoundary.test_07_binary_tamper_and_semantic_binding_fail_closed) ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 1.859s
+
+OK

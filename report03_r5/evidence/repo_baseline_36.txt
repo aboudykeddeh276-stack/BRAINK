@@ -1,0 +1,41 @@
+test_16_define_requires_commit (tests.test_baseline_progression.TestDirectory.test_16_define_requires_commit) ... ok
+test_17_duplicate_coordinate_rejected (tests.test_baseline_progression.TestDirectory.test_17_duplicate_coordinate_rejected) ... ok
+test_18_desired_state_is_authority_commit (tests.test_baseline_progression.TestDirectory.test_18_desired_state_is_authority_commit) ... ok
+test_19_observation_does_not_change_accepted_state (tests.test_baseline_progression.TestDirectory.test_19_observation_does_not_change_accepted_state) ... ok
+test_20_zero_observations_does_not_delete_coordinate (tests.test_baseline_progression.TestDirectory.test_20_zero_observations_does_not_delete_coordinate) ... ok
+test_21_directory_replay_from_committed_log (tests.test_baseline_progression.TestDirectory.test_21_directory_replay_from_committed_log) ... ok
+test_27_all_global_quorums_intersect (tests.test_baseline_progression.TestExhaustiveTopology.test_27_all_global_quorums_intersect) ... ok
+test_28_any_three_crash_failures_leave_some_global_quorum (tests.test_baseline_progression.TestExhaustiveTopology.test_28_any_three_crash_failures_leave_some_global_quorum) ... ok
+test_29_four_crashes_can_block_progress (tests.test_baseline_progression.TestExhaustiveTopology.test_29_four_crashes_can_block_progress) ... ok
+test_30_nine_independent_journals_exist (tests.test_baseline_progression.TestIndependentReplicaHarness.test_30_nine_independent_journals_exist) ... ok
+test_31_replicated_commit_only_reaches_certificate_voters (tests.test_baseline_progression.TestIndependentReplicaHarness.test_31_replicated_commit_only_reaches_certificate_voters) ... ok
+test_32_stale_candidate_cannot_win_next_term (tests.test_baseline_progression.TestIndependentReplicaHarness.test_32_stale_candidate_cannot_win_next_term) ... ok
+test_33_up_to_date_candidate_can_win_with_other_group (tests.test_baseline_progression.TestIndependentReplicaHarness.test_33_up_to_date_candidate_can_win_with_other_group) ... ok
+test_34_catchup_rehydrates_stale_virtual_voter (tests.test_baseline_progression.TestIndependentReplicaHarness.test_34_catchup_rehydrates_stale_virtual_voter) ... ok
+test_35_single_triad_partition_cannot_commit (tests.test_baseline_progression.TestIndependentReplicaHarness.test_35_single_triad_partition_cannot_commit) ... ok
+test_36_replica_journal_tamper_detected (tests.test_baseline_progression.TestIndependentReplicaHarness.test_36_replica_journal_tamper_detected) ... ok
+test_22_plan_diff (tests.test_baseline_progression.TestReconciler.test_22_plan_diff) ... ok
+test_23_noop_when_converged (tests.test_baseline_progression.TestReconciler.test_23_noop_when_converged) ... ok
+test_24_stale_plan_fenced_after_authority_change (tests.test_baseline_progression.TestReconciler.test_24_stale_plan_fenced_after_authority_change) ... ok
+test_25_apply_actions_do_not_mutate_accepted_state (tests.test_baseline_progression.TestReconciler.test_25_apply_actions_do_not_mutate_accepted_state) ... ok
+test_26_managed_extra_field_detaches (tests.test_baseline_progression.TestReconciler.test_26_managed_extra_field_detaches) ... ok
+test_01_topology_nine_stable_virtual_voters (tests.test_baseline_progression.TestToTSafety.test_01_topology_nine_stable_virtual_voters) ... ok
+test_02_local_quorum (tests.test_baseline_progression.TestToTSafety.test_02_local_quorum) ... ok
+test_03_global_quorum (tests.test_baseline_progression.TestToTSafety.test_03_global_quorum) ... ok
+test_04_single_triad_not_global (tests.test_baseline_progression.TestToTSafety.test_04_single_triad_not_global) ... ok
+test_05_quorum_intersection_theorem_shape (tests.test_baseline_progression.TestToTSafety.test_05_quorum_intersection_theorem_shape) ... ok
+test_06_election_requires_global_quorum (tests.test_baseline_progression.TestToTSafety.test_06_election_requires_global_quorum) ... ok
+test_07_term_monotonic (tests.test_baseline_progression.TestToTSafety.test_07_term_monotonic) ... ok
+test_08_append_commit (tests.test_baseline_progression.TestToTSafety.test_08_append_commit) ... ok
+test_09_stale_term_fenced (tests.test_baseline_progression.TestToTSafety.test_09_stale_term_fenced) ... ok
+test_10_conflicting_vote_same_term_index_rejected (tests.test_baseline_progression.TestToTSafety.test_10_conflicting_vote_same_term_index_rejected) ... ok
+test_11_commit_requires_approved_certificate (tests.test_baseline_progression.TestToTSafety.test_11_commit_requires_approved_certificate) ... ok
+test_12_conflicting_second_proposal_cannot_rewrite_committed_index (tests.test_baseline_progression.TestToTSafety.test_12_conflicting_second_proposal_cannot_rewrite_committed_index) ... ok
+test_13_restart_replays_verified_head (tests.test_baseline_progression.TestToTSafety.test_13_restart_replays_verified_head) ... ok
+test_14_state_tamper_rejected (tests.test_baseline_progression.TestToTSafety.test_14_state_tamper_rejected) ... ok
+test_15_partition_without_global_quorum_cannot_commit (tests.test_baseline_progression.TestToTSafety.test_15_partition_without_global_quorum_cannot_commit) ... ok
+
+----------------------------------------------------------------------
+Ran 36 tests in 0.130s
+
+OK

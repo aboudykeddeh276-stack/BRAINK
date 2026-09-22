@@ -1,0 +1,21 @@
+test_09_three_directory_processes_converge (tests.test_report03_v3.TestDirectoryAndLayer2.test_09_three_directory_processes_converge) ... ok
+test_10_directory_offline_then_catchup_converges (tests.test_report03_v3.TestDirectoryAndLayer2.test_10_directory_offline_then_catchup_converges) ... ok
+test_11_closed_loop_actuator_mutates_then_noops (tests.test_report03_v3.TestDirectoryAndLayer2.test_11_closed_loop_actuator_mutates_then_noops) ... ok
+test_12_external_drift_is_repaired (tests.test_report03_v3.TestDirectoryAndLayer2.test_12_external_drift_is_repaired) ... ok
+test_13_stale_reconcile_plan_is_fenced (tests.test_report03_v3.TestDirectoryAndLayer2.test_13_stale_reconcile_plan_is_fenced) ... ok
+test_14_actuator_idempotency_receipt_prevents_duplicate_effect (tests.test_report03_v3.TestDirectoryAndLayer2.test_14_actuator_idempotency_receipt_prevents_duplicate_effect) ... ok
+test_15_actuator_rejects_escape_path (tests.test_report03_v3.TestDirectoryAndLayer2.test_15_actuator_rejects_escape_path) ... ok
+test_01_nine_real_processes_and_full_wal (tests.test_report03_v3.TestProcessCluster.test_01_nine_real_processes_and_full_wal) ... ok
+test_02_elect_commit_restart_and_verify (tests.test_report03_v3.TestProcessCluster.test_02_elect_commit_restart_and_verify) ... ok
+test_03_stale_candidate_cannot_reform_quorum (tests.test_report03_v3.TestProcessCluster.test_03_stale_candidate_cannot_reform_quorum) ... ok
+test_04_whole_triad_isolation_still_commits_through_other_two (tests.test_report03_v3.TestProcessCluster.test_04_whole_triad_isolation_still_commits_through_other_two) ... ok
+test_05_only_one_triad_cannot_commit (tests.test_report03_v3.TestProcessCluster.test_05_only_one_triad_cannot_commit) ... ok
+test_06_dropped_commit_responses_create_indeterminate_then_recover (tests.test_report03_v3.TestProcessCluster.test_06_dropped_commit_responses_create_indeterminate_then_recover) ... ok
+test_07_process_loss_and_rejoin_catchup (tests.test_report03_v3.TestProcessCluster.test_07_process_loss_and_rejoin_catchup) ... ok
+test_08_sqlite_payload_tamper_is_detected (tests.test_report03_v3.TestProcessCluster.test_08_sqlite_payload_tamper_is_detected) ... ok
+test_08b_failed_minority_prepare_is_superseded_only_in_higher_term (tests.test_report03_v3.TestProcessCluster.test_08b_failed_minority_prepare_is_superseded_only_in_higher_term) ... ok
+
+----------------------------------------------------------------------
+Ran 16 tests in 3.102s
+
+OK

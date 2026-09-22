@@ -1,0 +1,170 @@
+{
+  "schema": "keddeh.report03.r5.architecture-deficiency-matrix.v1",
+  "entries": [
+    {
+      "id": "D-R5-01",
+      "deficiency": "Independent multi-host failure domains",
+      "what_advanced": "Nine ToT voters and three directory replicas execute as independent OS processes with independent SQLite files and TCP sockets.",
+      "what_remains_unproven": "Safety/liveness across separate physical hosts, regions, kernels and failure domains.",
+      "why_it_remains_unproven": "Every final test runs on one host and loopback network; SQLite persistence is local.",
+      "why_the_why_remains_unaddressed": "The work closed process separation first because no authenticated multi-host transport/storage substrate is presently bound to these replicas.",
+      "why_the_unaddressed_condition_remains": "Without a host-to-host transport and deployment plane, moving processes onto separate machines would be an unqualified hosting change rather than a tested architecture.",
+      "missing_architecture_required": "Multi-host peer transport; node discovery; per-host durable store; network-fault harness; clocks/timers policy; deployment topology; host identity; remote restart/rejoin; cross-host evidence collector.",
+      "promotion_evidence_required": "At least 3 independent hosts across >=2 failure domains; real partitions/asymmetric loss/process pause/restart; no incompatible committed roots; recovery receipts from each host."
+    },
+    {
+      "id": "D-R5-02",
+      "deficiency": "Autonomous peer consensus",
+      "what_advanced": "Terms, elections, log append/commit, quorum certificates, conflict fencing, crash/rejoin and higher-term uncommitted supersession execute over nine voter processes.",
+      "what_remains_unproven": "Peers do not autonomously discover/elect/replicate without ProcessCluster acting as the external protocol driver.",
+      "why_it_remains_unproven": "ProcessCluster constructs certificates, schedules RPC phases and decides transitions.",
+      "why_the_why_remains_unaddressed": "Replacing the coordinator requires a peer protocol with timeouts, leader state, replication progress and recovery rules; none of those can be inferred from the current client harness.",
+      "why_the_unaddressed_condition_remains": "The present layer was intentionally bounded to make distributed effects falsifiable before claiming a complete consensus algorithm.",
+      "missing_architecture_required": "Peer-resident election timers; leader/follower state machine; nextIndex/matchIndex or equivalent progress; heartbeats; retransmission/backoff; conflict repair; durable election state; formal safety specification/model checking.",
+      "promotion_evidence_required": "Cluster starts with no external coordinator and reaches one leader; concurrent candidates/partitions/restarts never create incompatible commits; model checking plus destructive tests."
+    },
+    {
+      "id": "D-R5-03",
+      "deficiency": "Dynamic membership and learner admission",
+      "what_advanced": "Known replicas can restart stale, catch up and rejoin while preserving roots.",
+      "what_remains_unproven": "Safe addition/removal/replacement of voting members.",
+      "why_it_remains_unproven": "VOTERS and directory replica IDs are static constants; no membership log exists.",
+      "why_the_why_remains_unaddressed": "Membership changes alter quorum intersection and cannot be safely represented as a normal metadata update.",
+      "why_the_unaddressed_condition_remains": "No joint configuration/learner state has yet been engineered or persisted.",
+      "missing_architecture_required": "Committed membership configuration history; non-voting learner; catch-up threshold; explicit promotion; overlapping/joint quorum transition; removal fence; identity rejoin/replacement law.",
+      "promotion_evidence_required": "Property/model tests over add/remove during partitions plus multi-process destructive runs proving quorum intersection across every configuration transition."
+    },
+    {
+      "id": "D-R5-04",
+      "deficiency": "Cryptographic workload/peer identity",
+      "what_advanced": "Logical voter IDs and semantic authority are explicit and receipts are hash-linked.",
+      "what_remains_unproven": "A received vote/RPC is not cryptographically proven to originate from the named workload.",
+      "why_it_remains_unproven": "Transport is plaintext loopback TCP and voter names are configuration strings.",
+      "why_the_why_remains_unaddressed": "No certificate/trust-domain/key lifecycle is attached to the process identities.",
+      "why_the_unaddressed_condition_remains": "Identity work was deliberately not faked by embedding static secrets or labels into receipts.",
+      "missing_architecture_required": "mTLS TLS 1.3 profile; workload attestation/SPIFFE-like identity plane; trust bundles; short-lived credentials; key rotation/revocation; signed vote/session binding; authorization policy.",
+      "promotion_evidence_required": "Forged peer and replay tests fail; rotated/revoked credentials behave correctly; each commit certificate links to independently verifiable authenticated sessions."
+    },
+    {
+      "id": "D-R5-05",
+      "deficiency": "Cross-language canonical semantic hashing",
+      "what_advanced": "One Python canonical profile deterministically hashes resident semantic records and committed state.",
+      "what_remains_unproven": "The same semantic object produces the same cryptographic identity across compliant non-Python implementations.",
+      "why_it_remains_unproven": "Observed RFC8785 probe differs for 1e-7 between Python profile and ECMAScript serialization.",
+      "why_the_why_remains_unaddressed": "Canonicalization is currently an implementation helper rather than a normative cross-language protocol.",
+      "why_the_unaddressed_condition_remains": "Earlier work optimized deterministic local evidence before defining an interoperable canonical wire identity.",
+      "missing_architecture_required": "Normative JCS implementation or deterministic CBOR profile; language-independent test vectors; numeric/unicode edge cases; versioned canonicalization identifier in hashes/receipts.",
+      "promotion_evidence_required": "Independent Python/JS/Rust/Go implementations produce byte-identical canonical vectors and roots for the complete corpus edge-case suite."
+    },
+    {
+      "id": "D-R5-06",
+      "deficiency": "Unicode semantic normalization",
+      "what_advanced": "Resident lookup uses exact source entities plus casefold; original provenance is preserved.",
+      "what_remains_unproven": "Canonical-equivalent Unicode spellings resolve to one intended semantic identity across languages.",
+      "why_it_remains_unproven": "No Unicode normalization form is applied before lookup or semantic hashing.",
+      "why_the_why_remains_unaddressed": "Normalization can change semantics in some domains, so choosing NFC/NFKC cannot be guessed globally.",
+      "why_the_unaddressed_condition_remains": "The recovered lexicon is predominantly English and does not supply a full multilingual normalization policy.",
+      "missing_architecture_required": "Per-domain normalization policy; UAX #15 implementation; original-form provenance; normalized lookup key; multilingual collision/confusable tests; script-specific exceptions.",
+      "promotion_evidence_required": "NFC/NFD/NFKC vectors across supported languages resolve according to declared policy without unintended identity collapse."
+    },
+    {
+      "id": "D-R5-07",
+      "deficiency": "Resident IL-LLM completeness",
+      "what_advanced": "The integrated translator reads 1084 recovered lexicon entries, 71 router entries, 7 translator domains and 11 runtime registers; KEX-L-TRANS is actually observed.",
+      "what_remains_unproven": "This adapter is not the complete IL-LLM runtime/dictionary/grammar corpus.",
+      "why_it_remains_unproven": "It is a read-only adapter over recovered workbook surfaces and two lexicon entries are degraded.",
+      "why_the_why_remains_unaddressed": "The full authoritative grammar/dictionary execution surface has not been identified as one complete, versioned, executable source.",
+      "why_the_unaddressed_condition_remains": "Merging incomplete workbook fragments would fabricate authority and erase source defects.",
+      "missing_architecture_required": "Versioned IL-LLM corpus manifest; complete grammar/rule tables; multilingual dictionaries/thesauri; source repair workflow; provenance per entry; deterministic compiler from corpus to runtime index; corpus validation.",
+      "promotion_evidence_required": "Complete corpus inventory and hashes; zero unresolved/degraded required entries; grammar test suite; rebuild from corpus to runtime producing identical semantic index."
+    },
+    {
+      "id": "D-R5-08",
+      "deficiency": "Full semantic binding in binary packet",
+      "what_advanced": "KXBD packet binds an 8-byte prefix of semantic_digest and a full payload SHA-256; wrong digest prefix is rejected.",
+      "what_remains_unproven": "The packet itself does not carry or authenticate the full 256-bit semantic digest.",
+      "why_it_remains_unproven": "Header currently stores only the first 8 bytes to keep fixed metadata compact.",
+      "why_the_why_remains_unaddressed": "There is no signed external semantic-reference object that upgrades the prefix into full authenticated identity.",
+      "why_the_unaddressed_condition_remains": "The boundary was designed to prove separation of semantic identity from byte representation, not to define the final security protocol.",
+      "missing_architecture_required": "Full semantic digest or collision-resistant content-address reference in packet; versioned schema; optional signature/MAC bound to full semantic digest + payload digest + codec profile.",
+      "promotion_evidence_required": "Collision/adversarial corpus tests and cryptographic verification prove a packet cannot be rebound to a different accepted semantic object."
+    },
+    {
+      "id": "D-R5-09",
+      "deficiency": "Standardized binary interchange",
+      "what_advanced": "A/B and RAW adaptive binary lowering is reversible, deterministic for tested inputs and integrity checked.",
+      "what_remains_unproven": "Interoperability with standard binary serialization ecosystems.",
+      "why_it_remains_unproven": "KXBD is a private codec and is not CBOR/Protobuf/ASN.1/etc.",
+      "why_the_why_remains_unaddressed": "A/B expresses bit runs, not a general semantic data model with standard schema evolution.",
+      "why_the_unaddressed_condition_remains": "The custom codec is intentionally a KEX boundary experiment, and universal compression was falsified.",
+      "missing_architecture_required": "Formal KXBD specification/test vectors and/or deterministic CBOR profile; schema/version negotiation; extensibility; independent decoder implementation; resource limits.",
+      "promotion_evidence_required": "Independent implementation decodes/encodes all normative vectors; malformed/fuzzed packets fail safely; semantic roots match across implementations."
+    },
+    {
+      "id": "D-R5-10",
+      "deficiency": "HTML semantic interoperability",
+      "what_advanced": "HTML concept projection contains escaped human-readable meaning and private data-* identity metadata; Layer-2 repairs drift.",
+      "what_remains_unproven": "Generic third-party software can interpret KEX semantic metadata without project knowledge.",
+      "why_it_remains_unproven": "WHATWG data-* is application-private metadata, not a generic vocabulary.",
+      "why_the_why_remains_unaddressed": "No public vocabulary/namespace/schema has been standardized for KEX semantic concepts.",
+      "why_the_unaddressed_condition_remains": "Publishing internal data-* names as if they were universal semantics would repeat the exact presentation/authority conflation this work is avoiding.",
+      "missing_architecture_required": "External semantic vocabulary/profile if needed; schema identifiers; version negotiation; mapping from IL-LLM semantic records to standardized machine-readable representation; conformance validator.",
+      "promotion_evidence_required": "Independent consumer correctly interprets semantic objects without KEX source-code knowledge and without relying on visual layout."
+    },
+    {
+      "id": "D-R5-11",
+      "deficiency": "Power-loss durability",
+      "what_advanced": "13 persisted databases pass integrity_check and run WAL + synchronous FULL; atomic file actuator uses fsync + os.replace + directory fsync.",
+      "what_remains_unproven": "Survival of actual machine power loss, filesystem/kernel crash, disk-full/torn-write/controller failure.",
+      "why_it_remains_unproven": "Tests terminate processes and modify databases, not electrical/storage hardware.",
+      "why_the_why_remains_unaddressed": "A process crash cannot reproduce every storage-controller and filesystem failure mode.",
+      "why_the_unaddressed_condition_remains": "No destructive hardware/VM power-cut harness with storage-level telemetry has been connected.",
+      "missing_architecture_required": "Power-cut VM or hardware test rig; filesystem matrix; disk-full/fault injection; WAL/checkpoint policy; backup/restore; torn-write corruption corpus; durability SLA.",
+      "promotion_evidence_required": "Repeated cut-at-every-transition campaigns recover to either prior or committed valid state with no silent accepted-root divergence."
+    },
+    {
+      "id": "D-R5-12",
+      "deficiency": "Autonomous directory replication",
+      "what_advanced": "Three independent directory processes persist and converge from the canonical committed log; one was killed stale, restarted, and caught up.",
+      "what_remains_unproven": "Directory replicas autonomously subscribe to accepted commits and repair gaps without an external sync() call.",
+      "why_it_remains_unproven": "DirectoryCluster explicitly pushes the canonical log to replicas.",
+      "why_the_why_remains_unaddressed": "There is no commit-stream subscription/watch protocol or per-replica replication cursor negotiated between peers.",
+      "why_the_unaddressed_condition_remains": "The current design proved authority projection and rejoin before adding another distributed transport.",
+      "missing_architecture_required": "Authenticated commit stream; durable applied cursor; snapshot bootstrap; gap request/repair; backpressure; stale-replica fencing; root gossip/comparison; automatic resubscription.",
+      "promotion_evidence_required": "Kill/restart/partition replicas without calling sync(); replicas autonomously catch up and converge with bounded recovery evidence."
+    },
+    {
+      "id": "D-R5-13",
+      "deficiency": "Production Layer-2 actuation",
+      "what_advanced": "Closed-loop reconciler performs actual atomic filesystem effects, idempotency receipts, readback, drift detection/repair and stale accepted-state fencing.",
+      "what_remains_unproven": "Real DNS/TLS/compute/container/device/provider manifestations converge under partial external failures.",
+      "why_it_remains_unproven": "Only a local managed filesystem actuator is bound in R5.",
+      "why_the_why_remains_unaddressed": "Each real target has different create/update/delete semantics, idempotency, eventual consistency and rollback constraints.",
+      "why_the_unaddressed_condition_remains": "Inventing one generic actuator would falsely claim control over systems not connected to the test environment.",
+      "missing_architecture_required": "Typed actuator interface; target-specific adapters; observers; retry/backoff; timeout/cancel; idempotency keys; compensation semantics; per-target credentials/policies; status feedback.",
+      "promotion_evidence_required": "Closed-loop destructive staging tests against each real target with induced timeouts/partial failures and verified convergence/readback."
+    },
+    {
+      "id": "D-R5-14",
+      "deficiency": "Semantic policy authorization",
+      "what_advanced": "Semantic owner, KEX route, source locator/status and accepted digest are explicit and fail-closed on mismatch.",
+      "what_remains_unproven": "Who is authorized to create/change a semantic definition or promote a repaired degraded source is not cryptographically enforced.",
+      "why_it_remains_unproven": "Authority is represented as metadata and trusted source files, not an authorization decision with principals and signed policy.",
+      "why_the_why_remains_unaddressed": "The present work verifies consistency of supplied semantics, not governance of who may redefine them.",
+      "why_the_unaddressed_condition_remains": "No capability lease/policy engine/signature chain is connected to IL-LLM mutation or KEX commit admission.",
+      "missing_architecture_required": "Principal identity; signed semantic revisions; capability/policy engine; review/promotion states; revocation; immutable audit chain; quorum policy for semantic schema changes.",
+      "promotion_evidence_required": "Unauthorized mutation/replay/rollback fails; authorized revision creates traceable new semantic version without rewriting prior history."
+    },
+    {
+      "id": "D-R5-15",
+      "deficiency": "Byzantine/malicious replica tolerance",
+      "what_advanced": "Crash, omission, stale state, tamper detection and minority-quorum failures are tested.",
+      "what_remains_unproven": "Safety with arbitrary malicious replicas sending equivocal or forged protocol messages.",
+      "why_it_remains_unproven": "Quorum arithmetic assumes crash/omission behavior and trusted process identities.",
+      "why_the_why_remains_unaddressed": "Byzantine tolerance requires a different threat model, quorum mathematics and authenticated message protocol.",
+      "why_the_unaddressed_condition_remains": "No BFT protocol was requested or honestly implemented; labeling current majority behavior BFT would be false.",
+      "missing_architecture_required": "Explicit BFT decision; authenticated signed messages; 3f+1-style or selected protocol constraints; equivocation evidence; view change; state transfer; formal proof/model; adversarial network tests.",
+      "promotion_evidence_required": "Byzantine test harness with malicious peers cannot create conflicting commits within the stated fault threshold; proof assumptions are documented and checked."
+    }
+  ]
+}

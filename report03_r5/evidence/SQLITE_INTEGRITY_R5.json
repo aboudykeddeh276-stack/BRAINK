@@ -1,0 +1,98 @@
+{
+  "all_ok": true,
+  "database_count": 13,
+  "databases": [
+    {
+      "integrity_check": "ok",
+      "journal_mode": "WAL",
+      "path": "evidence/observed_run_r5/directory/DIR_ALPHA.sqlite3",
+      "sha256": "352a9bb23c329c5a9bf235baf56917358b5b64b03f1a11d261fadae9c3cdb721",
+      "synchronous": 2
+    },
+    {
+      "integrity_check": "ok",
+      "journal_mode": "WAL",
+      "path": "evidence/observed_run_r5/directory/DIR_BETA.sqlite3",
+      "sha256": "352a9bb23c329c5a9bf235baf56917358b5b64b03f1a11d261fadae9c3cdb721",
+      "synchronous": 2
+    },
+    {
+      "integrity_check": "ok",
+      "journal_mode": "WAL",
+      "path": "evidence/observed_run_r5/directory/DIR_GAMMA.sqlite3",
+      "sha256": "352a9bb23c329c5a9bf235baf56917358b5b64b03f1a11d261fadae9c3cdb721",
+      "synchronous": 2
+    },
+    {
+      "integrity_check": "ok",
+      "journal_mode": "WAL",
+      "path": "evidence/observed_run_r5/manifestation.actuator.sqlite3",
+      "sha256": "e811344bb601183768cb775d978ec6cddaf2e7460824a8251272eb3ab32c064c",
+      "synchronous": 2
+    },
+    {
+      "integrity_check": "ok",
+      "journal_mode": "WAL",
+      "path": "evidence/observed_run_r5/tot/voters/TRIAD_ALPHA__A.sqlite3",
+      "sha256": "352a9bb23c329c5a9bf235baf56917358b5b64b03f1a11d261fadae9c3cdb721",
+      "synchronous": 2
+    },
+    {
+      "integrity_check": "ok",
+      "journal_mode": "WAL",
+      "path": "evidence/observed_run_r5/tot/voters/TRIAD_ALPHA__B.sqlite3",
+      "sha256": "352a9bb23c329c5a9bf235baf56917358b5b64b03f1a11d261fadae9c3cdb721",
+      "synchronous": 2
+    },
+    {
+      "integrity_check": "ok",
+      "journal_mode": "WAL",
+      "path": "evidence/observed_run_r5/tot/voters/TRIAD_ALPHA__C.sqlite3",
+      "sha256": "352a9bb23c329c5a9bf235baf56917358b5b64b03f1a11d261fadae9c3cdb721",
+      "synchronous": 2
+    },
+    {
+      "integrity_check": "ok",
+      "journal_mode": "WAL",
+      "path": "evidence/observed_run_r5/tot/voters/TRIAD_BETA__A.sqlite3",
+      "sha256": "352a9bb23c329c5a9bf235baf56917358b5b64b03f1a11d261fadae9c3cdb721",
+      "synchronous": 2
+    },
+    {
+      "integrity_check": "ok",
+      "journal_mode": "WAL",
+      "path": "evidence/observed_run_r5/tot/voters/TRIAD_BETA__B.sqlite3",
+      "sha256": "352a9bb23c329c5a9bf235baf56917358b5b64b03f1a11d261fadae9c3cdb721",
+      "synchronous": 2
+    },
+    {
+      "integrity_check": "ok",
+      "journal_mode": "WAL",
+      "path": "evidence/observed_run_r5/tot/voters/TRIAD_BETA__C.sqlite3",
+      "sha256": "352a9bb23c329c5a9bf235baf56917358b5b64b03f1a11d261fadae9c3cdb721",
+      "synchronous": 2
+    },
+    {
+      "integrity_check": "ok",
+      "journal_mode": "WAL",
+      "path": "evidence/observed_run_r5/tot/voters/TRIAD_GAMMA__A.sqlite3",
+      "sha256": "352a9bb23c329c5a9bf235baf56917358b5b64b03f1a11d261fadae9c3cdb721",
+      "synchronous": 2
+    },
+    {
+      "integrity_check": "ok",
+      "journal_mode": "WAL",
+      "path": "evidence/observed_run_r5/tot/voters/TRIAD_GAMMA__B.sqlite3",
+      "sha256": "352a9bb23c329c5a9bf235baf56917358b5b64b03f1a11d261fadae9c3cdb721",
+      "synchronous": 2
+    },
+    {
+      "integrity_check": "ok",
+      "journal_mode": "WAL",
+      "path": "evidence/observed_run_r5/tot/voters/TRIAD_GAMMA__C.sqlite3",
+      "sha256": "352a9bb23c329c5a9bf235baf56917358b5b64b03f1a11d261fadae9c3cdb721",
+      "synchronous": 2
+    }
+  ],
+  "schema": "keddeh.report03.r5.sqlite-integrity.v1"
+}
