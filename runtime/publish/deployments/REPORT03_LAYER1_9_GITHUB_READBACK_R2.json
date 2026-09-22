@@ -1,0 +1,50 @@
+{
+  "schema": "braink.report03.layer1-9.github-readback.v2",
+  "repository": "aboudykeddeh276-stack/BRAINK",
+  "pull_request": 100,
+  "merge_commit": "31388daaca941aac39d141d8415b361b235c8983",
+  "exact_blob_readback": {
+    "runtime/publish/src/braink_runtime/layer1_9_reconciler.py": "31e073e3f8573c78f002a5f65d7f9e84e738a802",
+    "runtime/publish/src/braink_runtime/full_suite_kernel.py": "f519fffed290ab92bb2a69e4310c1b80b87a8930",
+    "runtime/publish/tests/test_layer1_9_full_suite.py": "80487da39ae0bc228894c2a315b7f3ace7193b4b",
+    "runtime/publish/tests/test_resident_full_suite.py": "6edf800652cd8149bf304305c220852cbd470ec5",
+    "runtime/publish/scripts/run_layer1_9_fault_campaign.py": "8061019791ec3e638898a3ea78bcb4c8a95bc9aa"
+  },
+  "local_execution": {
+    "tests": {
+      "passed": 16,
+      "failed": 0,
+      "elapsed_seconds": 0.07
+    },
+    "fault_campaign": {
+      "scenarios": 14,
+      "passed": 14,
+      "failed": 0,
+      "receipt_tamper_blocks": "180/180",
+      "observation_lies_blocked": "2/2",
+      "resident_runs": 100,
+      "resident_committed": 72,
+      "resident_failed": 28,
+      "evidence_boundary_violations": 0
+    }
+  },
+  "github_actions": {
+    "pull_request_run": {
+      "run_id": 35688230299,
+      "conclusion": "failure",
+      "job_id": 106619520429,
+      "steps_observed": 0,
+      "logs_available": false
+    },
+    "post_merge_run": {
+      "run_id": 35688276808,
+      "conclusion": "failure",
+      "job_id": 106619655605,
+      "steps_observed": 0,
+      "logs_available": false
+    },
+    "classification": "JOB_START_OR_RUNNER_BOUNDARY_NO_TEST_STEPS_OBSERVED"
+  },
+  "evidence_state": "MERGED_EXACT_BYTES_LOCAL_QUALIFICATION_PASS_GITHUB_TEST_EXECUTION_NOT_OBSERVED",
+  "prohibition": "Do not represent either GitHub Actions run as a Python test failure or as CI PASS; no workflow steps were observed."
+}
