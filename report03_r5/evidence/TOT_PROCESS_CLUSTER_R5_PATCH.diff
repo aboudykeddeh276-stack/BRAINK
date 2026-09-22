@@ -1,0 +1,21 @@
+--- /mnt/data/report03_v3/src/tot_process_cluster.py	2026-09-21 09:38:15.932119818 +0000
++++ src/tot_process_cluster.py	2026-09-21 10:47:41.751144366 +0000
+@@ -267,7 +267,17 @@
+             e = self._row_to_entry(existing)
+             if e["proposal_root"] == p["proposal_root"]:
+                 return {"accepted": True, "idempotent": True, "voter": self.voter}
+-            return {"accepted": False, "reason": "CONFLICTING_ENTRY_AT_INDEX"}
++            if e.get("committed"):
++                return {"accepted": False, "reason": "CONFLICTING_COMMITTED_ENTRY_AT_INDEX"}
++            # A failed minority prepare must not poison this index forever.
++            # Only a strictly higher elected term may supersede an uncommitted entry,
++            # and only when it still extends this replica's committed head.
++            if term <= int(e["term"]):
++                return {"accepted": False, "reason": "CONFLICTING_UNCOMMITTED_ENTRY_SAME_OR_OLDER_TERM"}
++            if idx != self.commit_index + 1 or p["previous_root"] != self.committed_root:
++                return {"accepted": False, "reason": "UNCOMMITTED_SUPERSESSION_DOES_NOT_EXTEND_COMMITTED_HEAD"}
++            with self.conn:
++                self.conn.execute("DELETE FROM log WHERE idx>=? AND committed=0", (idx,))
+         last_idx, last_root = self._last()
+         if idx != last_idx + 1:
+             return {"accepted": False, "reason": "APPEND_INDEX_GAP", "last_index": last_idx}

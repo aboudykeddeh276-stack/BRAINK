@@ -1,0 +1,35 @@
+{
+  "all_suites_passed": true,
+  "claim_boundary": "Local qualification of the self-contained mainline-shaped R5 subtree after lossless corpus reconstruction; not external production deployment.",
+  "compileall": "PASS",
+  "corpus": {
+    "bytes": 5585857,
+    "sha256": "25b59aa77b58d3445f08bee2db2a7f72b60705bf87e306db4ac2354a0fe0eed3",
+    "source_form": "lossless gzip+base64 committed payload reconstructed by materialize_corpus.py"
+  },
+  "schema": "keddeh.report03.r5.mainline-candidate-qualification.v1",
+  "suites": [
+    {
+      "expected": 36,
+      "name": "baseline_36",
+      "observed": 36,
+      "passed": true,
+      "sha256": "b5f40b598dffd1123a1d0692c5964d8875b85cba3b00de35b5bb4f5f27d99b3a"
+    },
+    {
+      "expected": 16,
+      "name": "distributed_16",
+      "observed": 16,
+      "passed": true,
+      "sha256": "1f19739c97da39e7063dd1470d8b83f7c13e8ed89b03020f2d85cc97928047bb"
+    },
+    {
+      "expected": 12,
+      "name": "semantic_boundary_12",
+      "observed": 12,
+      "passed": true,
+      "sha256": "99099c4ce730d7e7e449f8d8e7803ce8b99ff1f95fd4cadb15d6908155c0b86a"
+    }
+  ],
+  "total_tests": 64
+}

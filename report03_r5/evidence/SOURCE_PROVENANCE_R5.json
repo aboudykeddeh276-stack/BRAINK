@@ -1,0 +1,24 @@
+{
+  "schema": "keddeh.report03.r5.source-provenance.v1",
+  "verified_package_sha256": "666c4a07c9a4ae9e43a691993b70caecd4410b6f5d22752d5bc2ab5095762dac",
+  "verified_package_name": "REPORT03_R5_FINAL_VERIFIED.zip",
+  "recovered_semantic_corpus": {
+    "path_in_package": "report03_r5/source/il_llm_recovered_cells.json",
+    "sha256": "25b59aa77b58d3445f08bee2db2a7f72b60705bf87e306db4ac2354a0fe0eed3",
+    "bytes": 5585857,
+    "library_path": "/BRAINK Releases/Report03 R5/Source Snapshot/il_llm_recovered_cells.json",
+    "repository_policy": "Referenced by digest in Git history; exact bytes preserved in the verified package and Library snapshot rather than duplicated into the source tree without independent upstream provenance."
+  },
+  "reconstruction": {
+    "base": "KEDDEH_REPORT03_ENGINEERING_V3.zip",
+    "overlays": [
+      "semantic_boundary_integration.py",
+      "test_semantic_boundary_integration.py",
+      "resident IL-LLM adapter from the symbolic-boundary package",
+      "TOT_PROCESS_CLUSTER_R5_PATCH.diff"
+    ],
+    "test_08b_note": "The R5 minority-prepare regression function in test_report03_v3.py was reconstructed from the persisted R5 patch semantics and the persisted 16-test transcript because the standalone final R5 test source was not separately indexed in Library. The reconstructed function passed in both the rebuilt-tree and clean-ZIP qualification runs."
+  },
+  "clean_extraction_receipt": "/BRAINK Releases/Report03 R5/REPORT03_R5_CLEAN_EXTRACTION_RECEIPT.json",
+  "claim_boundary": "This provenance record distinguishes exact recovered bytes, reconstructed test glue, and newly executed clean-extraction evidence."
+}

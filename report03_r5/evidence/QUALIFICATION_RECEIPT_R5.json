@@ -1,0 +1,373 @@
+{
+  "aggregate_test_seconds": 34.858,
+  "all_tests_passed": true,
+  "claim_boundary": "Executed local multi-process / loopback TCP / SQLite WAL evidence with resident IL-LLM recovered semantics; not multi-host production consensus or standardized wire protocol.",
+  "compileall": "PASS",
+  "observed_evidence": {
+    "event_count": 11,
+    "events": [
+      {
+        "adapter": {
+          "claim_boundary": "read-only adapter over recovered workbook surfaces; not the full IL-LLM runtime",
+          "degraded_lexicon_entries": 2,
+          "lexicon_entries": 1084,
+          "recovered_router_entries": 71,
+          "runtime_registers": 11,
+          "schema": "il-llm.recovered-adapter.v1",
+          "source_path": "/mnt/data/report03_r5/source/il_llm_recovered_cells.json",
+          "source_sha256": "25b59aa77b58d3445f08bee2db2a7f72b60705bf87e306db4ac2354a0fe0eed3",
+          "translator_domains": 7
+        },
+        "event": "resident_semantic_resolved",
+        "kex_route": "KEX-L-TRANS",
+        "resident_coordinate": "semantic://il-llm/information/4c45218c93ceae1f",
+        "semantic_digest": "4c45218c93ceae1fd57b88d6f4a80866643096cbd383e7a1eb180472422338fe",
+        "source_locator": "02 - Words (English Lexicon)!row:13",
+        "symbol": "Information"
+      },
+      {
+        "event": "tot_processes_started",
+        "pids": {
+          "TRIAD_ALPHA:A": 8044,
+          "TRIAD_ALPHA:B": 8046,
+          "TRIAD_ALPHA:C": 8048,
+          "TRIAD_BETA:A": 8050,
+          "TRIAD_BETA:B": 8052,
+          "TRIAD_BETA:C": 8054,
+          "TRIAD_GAMMA:A": 8056,
+          "TRIAD_GAMMA:B": 8058,
+          "TRIAD_GAMMA:C": 8060
+        },
+        "sqlite": {
+          "TRIAD_ALPHA:A": {
+            "db_path": "/mnt/data/report03_r5/evidence/observed_run_r5/tot/voters/TRIAD_ALPHA__A.sqlite3",
+            "journal_mode": "WAL",
+            "synchronous": 2
+          },
+          "TRIAD_ALPHA:B": {
+            "db_path": "/mnt/data/report03_r5/evidence/observed_run_r5/tot/voters/TRIAD_ALPHA__B.sqlite3",
+            "journal_mode": "WAL",
+            "synchronous": 2
+          },
+          "TRIAD_ALPHA:C": {
+            "db_path": "/mnt/data/report03_r5/evidence/observed_run_r5/tot/voters/TRIAD_ALPHA__C.sqlite3",
+            "journal_mode": "WAL",
+            "synchronous": 2
+          },
+          "TRIAD_BETA:A": {
+            "db_path": "/mnt/data/report03_r5/evidence/observed_run_r5/tot/voters/TRIAD_BETA__A.sqlite3",
+            "journal_mode": "WAL",
+            "synchronous": 2
+          },
+          "TRIAD_BETA:B": {
+            "db_path": "/mnt/data/report03_r5/evidence/observed_run_r5/tot/voters/TRIAD_BETA__B.sqlite3",
+            "journal_mode": "WAL",
+            "synchronous": 2
+          },
+          "TRIAD_BETA:C": {
+            "db_path": "/mnt/data/report03_r5/evidence/observed_run_r5/tot/voters/TRIAD_BETA__C.sqlite3",
+            "journal_mode": "WAL",
+            "synchronous": 2
+          },
+          "TRIAD_GAMMA:A": {
+            "db_path": "/mnt/data/report03_r5/evidence/observed_run_r5/tot/voters/TRIAD_GAMMA__A.sqlite3",
+            "journal_mode": "WAL",
+            "synchronous": 2
+          },
+          "TRIAD_GAMMA:B": {
+            "db_path": "/mnt/data/report03_r5/evidence/observed_run_r5/tot/voters/TRIAD_GAMMA__B.sqlite3",
+            "journal_mode": "WAL",
+            "synchronous": 2
+          },
+          "TRIAD_GAMMA:C": {
+            "db_path": "/mnt/data/report03_r5/evidence/observed_run_r5/tot/voters/TRIAD_GAMMA__C.sqlite3",
+            "journal_mode": "WAL",
+            "synchronous": 2
+          }
+        }
+      },
+      {
+        "commit_index": 1,
+        "coordinate": "KEX://ILLLM/CONCEPT/INFORMATION/ROW/13",
+        "entry_root": "ba6682556f6cc68055d08f08fc8bd3d19e6a14e92c25f0104f4f11c59f1102a9",
+        "event": "semantic_coordinate_committed",
+        "semantic_digest": "4c45218c93ceae1fd57b88d6f4a80866643096cbd383e7a1eb180472422338fe"
+      },
+      {
+        "converged": true,
+        "event": "directory_converged",
+        "pids": {
+          "DIR_ALPHA": 8062,
+          "DIR_BETA": 8064,
+          "DIR_GAMMA": 8068
+        },
+        "roots": {
+          "DIR_ALPHA": "0e9ab07657e16f0fa665aa250c6b0c7481b587dcd7b38b3a45ac86c4ef6e7b6d",
+          "DIR_BETA": "0e9ab07657e16f0fa665aa250c6b0c7481b587dcd7b38b3a45ac86c4ef6e7b6d",
+          "DIR_GAMMA": "0e9ab07657e16f0fa665aa250c6b0c7481b587dcd7b38b3a45ac86c4ef6e7b6d"
+        }
+      },
+      {
+        "accepted_state_root": "ba6682556f6cc68055d08f08fc8bd3d19e6a14e92c25f0104f4f11c59f1102a9",
+        "directory_root": "0e9ab07657e16f0fa665aa250c6b0c7481b587dcd7b38b3a45ac86c4ef6e7b6d",
+        "event": "accepted_semantic_identity_verified",
+        "semantic_digest": "4c45218c93ceae1fd57b88d6f4a80866643096cbd383e7a1eb180472422338fe"
+      },
+      {
+        "converged": true,
+        "event": "directory_replica_rejoined",
+        "roots": {
+          "DIR_ALPHA": "4cb2afe265b1e20fbe1a06ba04a43c33f8755d0cf2c03cc2adccf7844e358612",
+          "DIR_BETA": "4cb2afe265b1e20fbe1a06ba04a43c33f8755d0cf2c03cc2adccf7844e358612",
+          "DIR_GAMMA": "4cb2afe265b1e20fbe1a06ba04a43c33f8755d0cf2c03cc2adccf7844e358612"
+        }
+      },
+      {
+        "bytes": 1669,
+        "contains_semantic_digest": true,
+        "event": "html_manifestation_applied",
+        "html_sha256": "80991dd3a6132ce4321768c905e4c02477921438e566c3b873d36a098e42d1f2",
+        "state": "CLOSED_LOOP_CONVERGED"
+      },
+      {
+        "contains_semantic_digest": true,
+        "event": "html_drift_repaired",
+        "html_sha256": "80991dd3a6132ce4321768c905e4c02477921438e566c3b873d36a098e42d1f2"
+      },
+      {
+        "binary_exists": false,
+        "event": "symbolic_path_preserved",
+        "state": "SYMBOLIC_PATH_NO_BINARY_MATERIALIZATION"
+      },
+      {
+        "encoding": "RAW_BINARY",
+        "event": "binary_boundary_materialized",
+        "roundtrip_equal": true,
+        "semantic_digest": "4c45218c93ceae1fd57b88d6f4a80866643096cbd383e7a1eb180472422338fe",
+        "wire_bytes": 1727,
+        "wire_sha256": "b22058442c2dde3128467bbd45f7202b8f86f541355055bad88ee76797ddf4fd"
+      },
+      {
+        "alternating": {
+          "ab_token_count": 1024,
+          "encoding": "RAW_BINARY",
+          "roundtrip_equal": true,
+          "schema": "keddeh.report03.semantic-boundary-integration.v1",
+          "semantic_digest": "2222222222222222222222222222222222222222222222222222222222222222",
+          "source_bytes": 128,
+          "source_sha256": "55dbd20dff3ae84c9bc6bcd1546194d272793727ca6c03585a8804178b640342",
+          "wire_bytes": 186,
+          "wire_sha256": "77f98adc27c6a010885cc1b2c6e72f384ccbb273703184847a2669cebba386ef"
+        },
+        "event": "codec_workloads_observed",
+        "uniform": {
+          "ab_token_count": 114,
+          "encoding": "KEX_AB",
+          "roundtrip_equal": true,
+          "schema": "keddeh.report03.semantic-boundary-integration.v1",
+          "semantic_digest": "1111111111111111111111111111111111111111111111111111111111111111",
+          "source_bytes": 128,
+          "source_sha256": "38723a2e5e8a17aa7950dc008209944e898f69a7bd10a23c839d341e935fd5ca",
+          "wire_bytes": 130,
+          "wire_sha256": "a869caf75038c93fa2da3a6748c461b667fd5deefe0bf42f26694c3ef0c1d450"
+        }
+      }
+    ],
+    "evidence_root": "9b0b4d9299c3ba5355b49d2de12a93828ac14d413b8a7fd19b74402f6d9ff765",
+    "fault_count": 8,
+    "faults": [
+      {
+        "event": "one_triad_commit_rejected",
+        "exception": "NoQuorum",
+        "message": "{\"phase\":\"APPEND\",\"prepared\":[\"TRIAD_ALPHA:A\",\"TRIAD_ALPHA:B\"],\"rejections\":{\"TRIAD_ALPHA:C\":\"APPEND_INDEX_GAP\"}}"
+      },
+      {
+        "current_index": 2,
+        "event": "directory_replica_stale_after_restart",
+        "stale_index": 1
+      },
+      {
+        "actions": [
+          "REPLACE"
+        ],
+        "event": "html_drift_detected"
+      },
+      {
+        "event": "binary_payload_tamper_rejected",
+        "exception": "SemanticBoundaryError",
+        "message": "BOUNDARY_PAYLOAD_DIGEST_MISMATCH"
+      },
+      {
+        "event": "wrong_semantic_binding_rejected",
+        "exception": "SemanticBoundaryError",
+        "message": "SEMANTIC_DIGEST_PREFIX_MISMATCH"
+      },
+      {
+        "event": "accepted_semantic_digest_tamper_rejected",
+        "exception": "SemanticBoundaryError",
+        "message": "ACCEPTED_SEMANTIC_METADATA_MISMATCH:semantic_digest"
+      },
+      {
+        "event": "degraded_resident_semantic_rejected",
+        "exception": "SemanticResolutionError",
+        "message": "DEGRADED_SOURCE:One:02 - Words (English Lexicon)!2"
+      },
+      {
+        "event": "unknown_resident_semantic_rejected",
+        "exception": "SemanticResolutionError",
+        "message": "UNRESOLVED_SYMBOL:NO_SUCH_RESIDENT_SYMBOL_9A77"
+      }
+    ],
+    "schema": "keddeh.report03.r5.observed-evidence.v1"
+  },
+  "qualification_root": "264c85c12939f3a6ceed23ec976e567e564ece1c08ef6d3d30f6a7326aba2706",
+  "schema": "keddeh.report03.r5.qualification.v1",
+  "sqlite_integrity": {
+    "all_ok": true,
+    "database_count": 13,
+    "databases": [
+      {
+        "integrity_check": "ok",
+        "journal_mode": "WAL",
+        "path": "evidence/observed_run_r5/directory/DIR_ALPHA.sqlite3",
+        "sha256": "352a9bb23c329c5a9bf235baf56917358b5b64b03f1a11d261fadae9c3cdb721",
+        "synchronous": 2
+      },
+      {
+        "integrity_check": "ok",
+        "journal_mode": "WAL",
+        "path": "evidence/observed_run_r5/directory/DIR_BETA.sqlite3",
+        "sha256": "352a9bb23c329c5a9bf235baf56917358b5b64b03f1a11d261fadae9c3cdb721",
+        "synchronous": 2
+      },
+      {
+        "integrity_check": "ok",
+        "journal_mode": "WAL",
+        "path": "evidence/observed_run_r5/directory/DIR_GAMMA.sqlite3",
+        "sha256": "352a9bb23c329c5a9bf235baf56917358b5b64b03f1a11d261fadae9c3cdb721",
+        "synchronous": 2
+      },
+      {
+        "integrity_check": "ok",
+        "journal_mode": "WAL",
+        "path": "evidence/observed_run_r5/manifestation.actuator.sqlite3",
+        "sha256": "e811344bb601183768cb775d978ec6cddaf2e7460824a8251272eb3ab32c064c",
+        "synchronous": 2
+      },
+      {
+        "integrity_check": "ok",
+        "journal_mode": "WAL",
+        "path": "evidence/observed_run_r5/tot/voters/TRIAD_ALPHA__A.sqlite3",
+        "sha256": "352a9bb23c329c5a9bf235baf56917358b5b64b03f1a11d261fadae9c3cdb721",
+        "synchronous": 2
+      },
+      {
+        "integrity_check": "ok",
+        "journal_mode": "WAL",
+        "path": "evidence/observed_run_r5/tot/voters/TRIAD_ALPHA__B.sqlite3",
+        "sha256": "352a9bb23c329c5a9bf235baf56917358b5b64b03f1a11d261fadae9c3cdb721",
+        "synchronous": 2
+      },
+      {
+        "integrity_check": "ok",
+        "journal_mode": "WAL",
+        "path": "evidence/observed_run_r5/tot/voters/TRIAD_ALPHA__C.sqlite3",
+        "sha256": "352a9bb23c329c5a9bf235baf56917358b5b64b03f1a11d261fadae9c3cdb721",
+        "synchronous": 2
+      },
+      {
+        "integrity_check": "ok",
+        "journal_mode": "WAL",
+        "path": "evidence/observed_run_r5/tot/voters/TRIAD_BETA__A.sqlite3",
+        "sha256": "352a9bb23c329c5a9bf235baf56917358b5b64b03f1a11d261fadae9c3cdb721",
+        "synchronous": 2
+      },
+      {
+        "integrity_check": "ok",
+        "journal_mode": "WAL",
+        "path": "evidence/observed_run_r5/tot/voters/TRIAD_BETA__B.sqlite3",
+        "sha256": "352a9bb23c329c5a9bf235baf56917358b5b64b03f1a11d261fadae9c3cdb721",
+        "synchronous": 2
+      },
+      {
+        "integrity_check": "ok",
+        "journal_mode": "WAL",
+        "path": "evidence/observed_run_r5/tot/voters/TRIAD_BETA__C.sqlite3",
+        "sha256": "352a9bb23c329c5a9bf235baf56917358b5b64b03f1a11d261fadae9c3cdb721",
+        "synchronous": 2
+      },
+      {
+        "integrity_check": "ok",
+        "journal_mode": "WAL",
+        "path": "evidence/observed_run_r5/tot/voters/TRIAD_GAMMA__A.sqlite3",
+        "sha256": "352a9bb23c329c5a9bf235baf56917358b5b64b03f1a11d261fadae9c3cdb721",
+        "synchronous": 2
+      },
+      {
+        "integrity_check": "ok",
+        "journal_mode": "WAL",
+        "path": "evidence/observed_run_r5/tot/voters/TRIAD_GAMMA__B.sqlite3",
+        "sha256": "352a9bb23c329c5a9bf235baf56917358b5b64b03f1a11d261fadae9c3cdb721",
+        "synchronous": 2
+      },
+      {
+        "integrity_check": "ok",
+        "journal_mode": "WAL",
+        "path": "evidence/observed_run_r5/tot/voters/TRIAD_GAMMA__C.sqlite3",
+        "sha256": "352a9bb23c329c5a9bf235baf56917358b5b64b03f1a11d261fadae9c3cdb721",
+        "synchronous": 2
+      }
+    ],
+    "schema": "keddeh.report03.r5.sqlite-integrity.v1"
+  },
+  "standards_probe": {
+    "binary_standard_probe": {
+      "cbor_library_used": false,
+      "custom_kxbd_present": true,
+      "status": "CUSTOM_CODEC_NOT_CBOR"
+    },
+    "jcs_probe": {
+      "byte_equal": false,
+      "ecmascript_json_stringify": "{\"n\":1e-7}",
+      "ecmascript_sha256": "747d6d23b64d1b2d579adb832b44de31c91c875bbef7a8e397f5d183a746b54b",
+      "python_project_local": "{\"n\":1e-07}",
+      "python_sha256": "ff7a1315299260617fe404199e54e6d976a0b03e47da54fccec073c2fa48ff5c",
+      "status": "FAIL_JCS_COMPATIBILITY"
+    },
+    "schema": "keddeh.report03.r5.standards-probe.v1",
+    "transport_probe": {
+      "loopback_tcp_present": true,
+      "status": "PLAINTEXT_LOOPBACK_NOT_TLS",
+      "tls_module_used": false
+    },
+    "unicode_probe": {
+      "casefold_used": true,
+      "status": "NORMALIZATION_POLICY_ABSENT",
+      "unicode_normalization_module_used": false
+    }
+  },
+  "suites": [
+    {
+      "passed": true,
+      "path": "evidence/test_baseline_36.txt",
+      "seconds": 0.119,
+      "sha256": "bde1ad5d4900a517a7a664b9e3137ee6b64d94e3d206cb7b80d4568c206ed7f0",
+      "test_count": 36
+    },
+    {
+      "passed": true,
+      "path": "evidence/test_v3_16.txt",
+      "seconds": 23.893,
+      "sha256": "9a250a13ff326c9001adc94b03c2b113a280b5b61839f1cfb6872e9a1f696ed4",
+      "test_count": 16
+    },
+    {
+      "passed": true,
+      "path": "evidence/test_boundary_12_final.txt",
+      "seconds": 10.846,
+      "sha256": "590adee9ea44ee664aab8e5bbf75bf54532e93f59d8819e2c00c9381ca6dea5d",
+      "test_count": 12
+    }
+  ],
+  "total_tests": 64
+}

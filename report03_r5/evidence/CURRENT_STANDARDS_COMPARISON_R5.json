@@ -1,0 +1,86 @@
+{
+  "schema": "keddeh.report03.r5.standards-comparison.v1",
+  "as_of": "2026-09-21",
+  "entries": [
+    {
+      "standard": "RFC 8785 JSON Canonicalization Scheme (JCS)",
+      "current_comparison": "FAIL / NOT CONFORMANT",
+      "observed": "Python project-local JSON and ECMAScript serialization differ for 1e-7; hashes differ.",
+      "architecture_effect": "Semantic/consensus hashes are deterministic only inside the current Python profile. Cross-language cryptographic identity is not established.",
+      "required": "Adopt and test a standards-conformant JCS implementation or define a different normative canonical format and cross-language vectors.",
+      "source": "https://www.rfc-editor.org/rfc/rfc8785.html"
+    },
+    {
+      "standard": "RFC 8949 CBOR deterministic encoding",
+      "current_comparison": "NOT IMPLEMENTED",
+      "observed": "KXBD is a custom binary packet; no CBOR codec is used.",
+      "architecture_effect": "KEX binary boundary is project-specific and lacks standardized deterministic binary interchange.",
+      "required": "Either retain KXBD as explicitly private protocol with a formal spec/test vectors, or add deterministic CBOR profile and semantic binding.",
+      "source": "https://www.rfc-editor.org/rfc/rfc8949.html#section-4.2"
+    },
+    {
+      "standard": "RFC 9846 TLS 1.3",
+      "current_comparison": "ABSENT ON REPLICA TRANSPORT",
+      "observed": "Process and directory RPC use plaintext loopback TCP; no ssl/TLS layer is instantiated.",
+      "architecture_effect": "Loopback tests prove message mechanics but not authenticated/confidential/integrity-protected multi-host transport.",
+      "required": "TLS 1.3 transport profile plus peer identity verification, certificate/key lifecycle, replay/session policy and fault tests.",
+      "source": "https://www.rfc-editor.org/info/rfc9846/"
+    },
+    {
+      "standard": "SQLite WAL",
+      "current_comparison": "LOCAL-HOST APPROPRIATE / MULTI-HOST LIMIT",
+      "observed": "13 observed databases pass integrity_check and use WAL + synchronous FULL.",
+      "architecture_effect": "Durable local journals are real, but SQLite WAL explicitly requires processes sharing a database to be on the same host.",
+      "required": "For multi-host deployment, each host needs local durable state plus replicated-log protocol; never place a shared WAL database on a network filesystem.",
+      "source": "https://www.sqlite.org/wal.html"
+    },
+    {
+      "standard": "Kubernetes controller pattern",
+      "current_comparison": "CONTROL-LOOP ANALOGUE, NOT COMPATIBILITY",
+      "observed": "Layer-2 separates accepted desired state, observed manifestation, plan, effect, readback and NOOP convergence.",
+      "architecture_effect": "The reconciliation model now matches the desired/current control-loop discipline at a conceptual level.",
+      "required": "Production target-specific actuators/observers, retries, timeouts, compensation policy, status reporting and external-system qualification.",
+      "source": "https://kubernetes.io/docs/concepts/architecture/controller/"
+    },
+    {
+      "standard": "etcd learner / membership safety",
+      "current_comparison": "MISSING DYNAMIC MEMBERSHIP",
+      "observed": "ToT voter and directory replica sets are fixed. Catch-up exists for known replicas; learner admission/promotion does not.",
+      "architecture_effect": "Rejoin of known identities is tested, but adding/removing voting members safely is unproven.",
+      "required": "Non-voting learner state, catch-up thresholds, explicit promotion, overlapping/joint configuration safety, removal fencing and persistent membership history.",
+      "source": "https://etcd.io/docs/v3.8/learning/design-learner/"
+    },
+    {
+      "standard": "SPIFFE workload identity / Workload API",
+      "current_comparison": "NOT IMPLEMENTED",
+      "observed": "Replica identity is a configured logical voter string, not a cryptographically attested workload identity.",
+      "architecture_effect": "Process identity, authorization and vote authenticity are not bound to a workload trust domain.",
+      "required": "Workload identity issuance/attestation, short-lived verifiable identities, trust bundle/key rotation and mTLS binding to vote/commit receipts.",
+      "source": "https://spiffe.io/docs/latest/spiffe/concepts/"
+    },
+    {
+      "standard": "Unicode UAX #15 Normalization Forms 18.0.0",
+      "current_comparison": "NORMALIZATION POLICY ABSENT",
+      "observed": "Resident adapter casefolds lookup keys but does not apply Unicode normalization.",
+      "architecture_effect": "Canonical-equivalent Unicode spellings have not been proven to resolve to one semantic identity.",
+      "required": "Define NFC/NFKC policy per semantic domain, normalize before lookup/hash where intended, preserve original form for provenance, and add multilingual conformance vectors.",
+      "source": "https://www.unicode.org/reports/tr15/"
+    },
+    {
+      "standard": "WHATWG HTML Living Standard data-*",
+      "current_comparison": "VALID PRIVATE PROJECTION METADATA / NOT GENERIC SEMANTIC INTERCHANGE",
+      "observed": "HTML projection stores KEX/IL-LLM identity in data-* attributes.",
+      "architecture_effect": "This is suitable for application-private projection metadata, but WHATWG explicitly does not make data-* a generic cross-tool extension vocabulary.",
+      "required": "If public machine-interoperable semantics are required, define a stable external vocabulary/profile rather than treating data-* as universal authority.",
+      "source": "https://html.spec.whatwg.org/multipage/dom.html#embedding-custom-non-visible-data-with-the-data-*-attributes"
+    },
+    {
+      "standard": "Raft consensus reference",
+      "current_comparison": "PARTIAL SAFETY ANALOGUE, NOT RAFT",
+      "observed": "R5 has terms, majority/quorum gates, committed prefixes, restart/catch-up and higher-term uncommitted conflict supersession. It still uses external ProcessCluster orchestration and fixed membership.",
+      "architecture_effect": "The mechanics are stronger than an in-process model but do not constitute Raft implementation/conformance.",
+      "required": "Autonomous peer timers/elections, replicated progress tracking, formally specified log conflict algorithm, membership changes, snapshots, proof/model checking and multi-host failure-domain tests.",
+      "source": "https://raft.github.io/"
+    }
+  ]
+}
