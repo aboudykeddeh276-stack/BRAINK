@@ -1,0 +1,17 @@
+{
+  "timestamp": "2026-09-22T13:18:00+09:30",
+  "qualification": "local execution of distributed_runtime implementation and falsification suite",
+  "tests": {"distributed_runtime": 12, "failures": 0, "errors": 0},
+  "scenario": {
+    "coordinate": "2,2",
+    "committed_generation": 2,
+    "consistent_after_reconcile": true,
+    "actions": {"n1": "NOOP", "n2": "NOOP", "n3": "REPAIRED"}
+  },
+  "receipt_root": "9fbabea8c6bb3c9e1228df6507c9e6ccb2b8445c45cffac4142e023357574d45",
+  "executed_source_sha256": "790cd61e8d30e89f5910cdc43789601e9bc0d2c258f07bb2586d825c365b5eb6",
+  "claim_boundary": {
+    "proven_in_this_run": ["evidence-required ToT gate", "three-replica majority commit", "single crash/offline replica tolerance", "majority-loss fail-closed behavior", "generation fencing", "stale replica repair", "deterministic evidence root"],
+    "not_proven": ["Byzantine fault tolerance", "network transport", "cryptographic peer identity", "linearizability under concurrent independent proposers", "durable disk recovery", "multi-host timing behavior", "WebAssembly equivalence"]
+  }
+}
