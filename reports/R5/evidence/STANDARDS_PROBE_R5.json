@@ -1,0 +1,26 @@
+{
+  "binary_standard_probe": {
+    "cbor_library_used": false,
+    "custom_kxbd_present": true,
+    "status": "CUSTOM_CODEC_NOT_CBOR"
+  },
+  "jcs_probe": {
+    "byte_equal": false,
+    "ecmascript_json_stringify": "{\"n\":1e-7}",
+    "ecmascript_sha256": "747d6d23b64d1b2d579adb832b44de31c91c875bbef7a8e397f5d183a746b54b",
+    "python_project_local": "{\"n\":1e-07}",
+    "python_sha256": "ff7a1315299260617fe404199e54e6d976a0b03e47da54fccec073c2fa48ff5c",
+    "status": "FAIL_JCS_COMPATIBILITY"
+  },
+  "schema": "keddeh.report03.r5.standards-probe.v1",
+  "transport_probe": {
+    "loopback_tcp_present": true,
+    "status": "PLAINTEXT_LOOPBACK_NOT_TLS",
+    "tls_module_used": false
+  },
+  "unicode_probe": {
+    "casefold_used": true,
+    "status": "NORMALIZATION_POLICY_ABSENT",
+    "unicode_normalization_module_used": false
+  }
+}

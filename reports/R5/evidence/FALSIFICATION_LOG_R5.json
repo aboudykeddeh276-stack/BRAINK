@@ -1,0 +1,71 @@
+{
+  "schema": "keddeh.report03.r5.falsification-log.v1",
+  "entries": [
+    {
+      "id": "F-R5-01",
+      "observation": "The symbolic/binary boundary had already been partially engineered in resident artifacts before this run.",
+      "effect": "Work was treated as recovered baseline, not claimed as new implementation.",
+      "rectification": "Integrated resident IL-LLM semantics and newer independent-process Report 03 V3 instead of duplicating the earlier package."
+    },
+    {
+      "id": "F-R5-02",
+      "observation": "R4 combined clean execution exceeded the command execution window, while isolated distributed tests completed.",
+      "effect": "Stored R4 PASS receipt was not used as proof of this rerun.",
+      "rectification": "Qualified current R5 using separately exiting suites and current source."
+    },
+    {
+      "id": "F-R5-03",
+      "observation": "A monolithic 63-test invocation printed successful assertions but failed to exit cleanly after repeated multiprocessing teardown.",
+      "effect": "The invocation was not counted as a completed PASS.",
+      "rectification": "Qualification is three independent exit-code-checked suites; aggregate passes only if each process exits 0."
+    },
+    {
+      "id": "F-R5-04",
+      "observation": "A failed one-triad minority prepare left uncommitted conflicting entries that blocked a later valid proposal at the same log index.",
+      "effect": "Minority failure could poison liveness despite preserving committed-state safety.",
+      "rectification": "Replica append now permits supersession only for uncommitted entries from a strictly lower term and only when the new proposal extends the committed head. Same-term conflict remains fenced. Added regression test test_08b."
+    },
+    {
+      "id": "F-R5-05",
+      "observation": "Project-local deterministic JSON serializes 1e-7 as 1e-07 while ECMAScript JSON.stringify emits 1e-7.",
+      "effect": "Cross-language canonical hashes differ; RFC 8785/JCS compatibility is false for the observed input.",
+      "rectification": "Report forbids JCS conformance claim and specifies canonicalization replacement as missing architecture."
+    },
+    {
+      "id": "F-R5-06",
+      "observation": "A/B encoding is workload-dependent. Uniform zero bytes selected KEX_AB; alternating 0xAA bytes selected RAW_BINARY.",
+      "effect": "A/B cannot be promoted as universal compression.",
+      "rectification": "Adaptive boundary selects representation by payload size and keeps semantic identity independent from representation."
+    },
+    {
+      "id": "F-R5-07",
+      "observation": "Resident IL-LLM recovered adapter contains 1084 lexicon entries, but 2 are marked DEGRADED_SOURCE.",
+      "effect": "Semantic source completeness/cleanliness is not universal.",
+      "rectification": "require_clean=True fails closed for degraded entries; full corpus repair remains explicit."
+    },
+    {
+      "id": "F-R5-08",
+      "observation": "The HTML manifestation was externally replaced with visual drift.",
+      "effect": "Projection bytes changed while accepted semantic state did not.",
+      "rectification": "Layer-2 detected REPLACE and restored the exact accepted HTML hash without changing semantic_digest."
+    },
+    {
+      "id": "F-R5-09",
+      "observation": "Binary payload mutation changed packet bytes.",
+      "effect": "Readback integrity failed.",
+      "rectification": "SHA-256 payload digest check rejected the packet with BOUNDARY_PAYLOAD_DIGEST_MISMATCH."
+    },
+    {
+      "id": "F-R5-10",
+      "observation": "A valid packet was decoded under the wrong expected semantic digest.",
+      "effect": "Representation could otherwise be detached from its semantic authority.",
+      "rectification": "Semantic digest prefix binding rejected it with SEMANTIC_DIGEST_PREFIX_MISMATCH."
+    },
+    {
+      "id": "F-R5-11",
+      "observation": "Accepted directory metadata semantic_digest was maliciously patched to a different value.",
+      "effect": "The accepted object no longer matched the resident semantic concept.",
+      "rectification": "Binary lowering failed closed at verify_accepted before substrate materialization."
+    }
+  ]
+}
