@@ -1,0 +1,45 @@
+name: Report 03 Layer 1-9 R2
+
+on:
+  push:
+    paths:
+      - "runtime/publish/src/braink_runtime/layer1_9_reconciler.py"
+      - "runtime/publish/src/braink_runtime/full_suite_kernel.py"
+      - "runtime/publish/tests/test_layer1_9_full_suite.py"
+      - "runtime/publish/tests/test_resident_full_suite.py"
+      - "runtime/publish/scripts/run_layer1_9_fault_campaign.py"
+      - ".github/workflows/report03-layer1-9-r2.yml"
+  pull_request:
+    paths:
+      - "runtime/publish/src/braink_runtime/layer1_9_reconciler.py"
+      - "runtime/publish/src/braink_runtime/full_suite_kernel.py"
+      - "runtime/publish/tests/test_layer1_9_full_suite.py"
+      - "runtime/publish/tests/test_resident_full_suite.py"
+      - "runtime/publish/scripts/run_layer1_9_fault_campaign.py"
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: runtime/publish
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install test dependency
+        run: python -m pip install --disable-pip-version-check pytest
+      - name: Run Report 03 baseline and Layer 1-9 suites
+        env:
+          PYTHONPATH: src
+        run: |
+          pytest -q tests/test_report03_v2.py tests/test_layer1_9_full_suite.py tests/test_resident_full_suite.py
+      - name: Run existing Report 03 fault injection
+        env:
+          PYTHONPATH: src
+        run: python scripts/report03_fault_injection.py
+      - name: Run Layer 1-9 falsification campaign
+        env:
+          PYTHONPATH: src
+        run: python scripts/run_layer1_9_fault_campaign.py
