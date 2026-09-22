@@ -1,0 +1,9 @@
+{
+  "schema": "braink.r03.layer1-9.execution.v1",
+  "date": "2026-09-22",
+  "implementation_commit": "9965119a82bdd444db528b63428e905faed8124e",
+  "test_commit": "56ebcb2d5277f66c6f37492bdb517606a3af777c",
+  "observed": {"tests": 9, "passed": 9, "failed": 0, "errors": 0},
+  "covered": ["full nine-layer chain","deterministic root","payload sensitivity","skipped-layer rejection","wrong-upstream rejection","stale-generation rejection","downstream invalidation","incomplete-pipeline rejection","zero-generation rejection"],
+  "boundary": "Executed in Python as a deterministic causal reconciliation model. This receipt does not establish physical Layer 1-9 networking, multi-host consensus, hardware execution, or Wasm equivalence."
+}
