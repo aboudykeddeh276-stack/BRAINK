@@ -1,0 +1,28 @@
+{
+  "schema": "kex.requirement-binding.v1",
+  "authority": {
+    "repository": "aboudykeddeh276-stack/quantum-computer-by-keddeh-systems",
+    "canonical_transfer": "docs/KEX_BRAINK_CANONICAL_TRANSFER_DOCUMENT_v1.md",
+    "executable_wrapper": "src/kex-wrapper/index.ts",
+    "native_ab_dynamic": "src/kex-wrapper/ab-lineage-style.ts",
+    "evidence": "docs/evidence/KEX_SEED_DNA_AB_LINEAGE_R1.json"
+  },
+  "order": [
+    "KEX_SEED",
+    "KEX_DNA",
+    "LINEAGE",
+    "AUTHOR_NATIVE_COMPRESSION_STYLE",
+    "AB_DYNAMIC",
+    "PROJECTION_OR_BOUNDARY"
+  ],
+  "braink_role": "consumer/runtime projection of canonical KEX Seed/DNA/lineage requirements",
+  "constraints": [
+    "BRAINK A/B modules must not redefine Seed identity.",
+    "BRAINK A/B modules must not redefine KEX DNA.",
+    "Binary-run A/B is one dynamic only.",
+    "Positional A/B is one dynamic only.",
+    "Any BRAINK projection must preserve upstream seed and DNA lineage identifiers.",
+    "Foreign compression styles may remain structurally uncomprehended."
+  ],
+  "status": "BOUND_TO_CANONICAL_KEX_REQUIREMENTS"
+}
