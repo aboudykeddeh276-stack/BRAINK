@@ -1,0 +1,21 @@
+[package]
+name = "bos-recovery"
+description = "BOS no_std authenticated cold-recovery gate, capsule v3, quorum verification, and durable root protocol"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[features]
+default = []
+std = []
+
+[dependencies]
+bos-cap.workspace = true
+sha2.workspace = true
+ed25519-dalek.workspace = true
+
+[lib]
+path = "src/lib.rs"

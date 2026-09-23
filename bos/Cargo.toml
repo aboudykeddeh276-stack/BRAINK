@@ -1,0 +1,24 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/bos-cap",
+    "crates/bos-recovery",
+    "crates/bos-linux-hosted",
+    "crates/bos-recovery-demo",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+authors = ["A. Keddeh"]
+license = "LicenseRef-KEDDEH-IP"
+repository = "https://github.com/aboudykeddeh276-stack/BRAINK"
+
+[workspace.dependencies]
+bos-cap = { path = "crates/bos-cap" }
+bos-recovery = { path = "crates/bos-recovery", default-features = false }
+sha2 = { version = "=0.11.0", default-features = false }
+ed25519-dalek = { version = "=3.0.0", default-features = false }
+io-uring = { version = "=0.7.13" }
+libc = { version = "0.2" }

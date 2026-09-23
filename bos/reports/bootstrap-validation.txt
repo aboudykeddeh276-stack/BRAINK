@@ -1,0 +1,12 @@
+BOS_RECOVERY_BOOTSTRAP=PASS
+SOURCE_PAYLOAD_SHA256=a822faa1984caff4b952a4f4ca0e3836462725606dd96fd7b908899e8535bae3
+rustc 1.97.1 (8bab26f4f 2026-07-14)
+cargo 1.97.1 (c980f4866 2026-06-30)
+cargo_fmt=PASS
+cargo_test_workspace_all_targets=PASS
+cargo_clippy_D_warnings=PASS
+bos_cap_no_std_x86_64_unknown_none=PASS
+bos_recovery_no_std_x86_64_unknown_none=PASS
+physical_tpm_quote=NOT_EXECUTED
+physical_nvme_partition=NOT_ATTACHED
+power_cut_fault_injection=NOT_EXECUTED
