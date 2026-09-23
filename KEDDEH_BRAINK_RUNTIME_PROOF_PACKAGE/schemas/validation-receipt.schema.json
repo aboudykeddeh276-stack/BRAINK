@@ -1,0 +1,20 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://braink.local/schemas/validation-receipt.schema.json",
+  "title": "BrAInK Validation Receipt",
+  "description": "Evidence record binding a component identity to a validation status.",
+  "type": "object",
+  "required": ["receipt_type", "component_id", "status", "evidence", "generated_at"],
+  "additionalProperties": true,
+  "properties": {
+    "receipt_type": { "type": "string", "enum": ["VALIDATION_RECEIPT", "LEDGER_INTEGRITY", "RESTART_PROOF", "TEST_RESULTS", "PACKAGE_MANIFEST"] },
+    "component_id": { "type": "string", "minLength": 1 },
+    "status": {
+      "type": "string",
+      "enum": ["DEFINED", "IMPLEMENTED", "UNIT_TESTED", "INTEGRATION_TESTED", "RESTART_TESTED", "LOCALLY_EXECUTED", "LOCALLY_PROVEN"]
+    },
+    "evidence": { "type": "object" },
+    "generated_at": { "type": "string", "format": "date-time" },
+    "receipt_hash": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+  }
+}

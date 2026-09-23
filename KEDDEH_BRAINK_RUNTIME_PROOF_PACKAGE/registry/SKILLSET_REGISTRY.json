@@ -1,0 +1,57 @@
+{
+  "registry_type": "SKILLSET_REGISTRY",
+  "namespace": "braink",
+  "skillset_count": 5,
+  "skillsets": [
+    {
+      "skillset_id": "441fa9ef43a4690abba6ecddfc2c41da4aef512b3b70bde29ce01276e98a451d",
+      "skillset_name": "determinism-core",
+      "skills": [
+        "deterministic-serialization",
+        "deterministic-identity"
+      ],
+      "purpose": "Everything that guarantees the same inputs always produce the same bytes and the same names.",
+      "aggregate_status": "UNIT_TESTED"
+    },
+    {
+      "skillset_id": "6bc2836590c1ea83a5d1cf7250142733e60afa1906b924f33dc40a3f628680ae",
+      "skillset_name": "language-surface",
+      "skills": [
+        "deterministic-intent-mapping"
+      ],
+      "purpose": "The single controlled entry point for human language into the runtime.",
+      "aggregate_status": "UNIT_TESTED"
+    },
+    {
+      "skillset_id": "5934f2ecf0ae17f7bd3529bcf30bcee897bb817992ba767fe08adaf42f098011",
+      "skillset_name": "durability-and-proof",
+      "skills": [
+        "tamper-evident-logging",
+        "crash-recovery-proof",
+        "evidence-generation"
+      ],
+      "purpose": "Everything that makes past execution inspectable and survivable.",
+      "aggregate_status": "LOCALLY_PROVEN"
+    },
+    {
+      "skillset_id": "77bf210aa26d6b50d22946423cd6c00b9c7d4acb604bbbe48bfaf67654bd994f",
+      "skillset_name": "trust-boundary",
+      "skills": [
+        "payload-authentication",
+        "raw-protocol-transport"
+      ],
+      "purpose": "Everything that touches keys or the network; both are deliberately capped below production trust.",
+      "aggregate_status": "BOUNDED"
+    },
+    {
+      "skillset_id": "318a7f8f0f9bb189d9f89864b2424bb0c5d3c107edba927a9618c0061dc6c0a9",
+      "skillset_name": "orchestration",
+      "skills": [
+        "runtime-orchestration"
+      ],
+      "purpose": "The lifecycle glue that composes every other skillset.",
+      "aggregate_status": "INTEGRATION_TESTED"
+    }
+  ],
+  "note": "Aggregate status is the floor of member skill statuses; 'BOUNDED' marks a skillset whose ceiling is set by an explicit proof boundary rather than by test coverage."
+}
