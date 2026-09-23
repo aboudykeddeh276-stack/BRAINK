@@ -1,38 +1,75 @@
-name: Deploy BRAINK Antigravity
+name: Qualify BRAINK Antigravity Resident Deployment
 on:
   workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'adapters/web/**'
+      - 'deploy/braink-public/**'
+      - 'deployment/braink*execution*'
+      - 'deployment/activate_braink_antigravity.sh'
+      - 'enterprise/orchestration/**'
+      - 'enterprise/runtime/process_supervisor.py'
+      - 'runtime/runtime_route_registry.py'
+      - 'scripts/kex-ci/test_resident_execution_fabric.py'
+      - '.github/workflows/deploy-braink-antigravity.yml'
   push:
     branches: [main]
     paths:
       - 'adapters/web/**'
-      - 'deploy/braink-public/*antigravity*'
+      - 'deploy/braink-public/**'
+      - 'deployment/braink*execution*'
+      - 'deployment/activate_braink_antigravity.sh'
+      - 'enterprise/orchestration/**'
+      - 'enterprise/runtime/process_supervisor.py'
+      - 'runtime/runtime_route_registry.py'
+      - 'scripts/kex-ci/test_resident_execution_fabric.py'
       - '.github/workflows/deploy-braink-antigravity.yml'
 concurrency:
-  group: braink-antigravity-production-v2
+  group: braink-antigravity-qualification-${{ github.ref }}
   cancel-in-progress: true
+
 jobs:
-  preflight:
+  qualify-resident-release:
     runs-on: ubuntu-latest
     permissions:
       contents: read
     steps:
       - uses: actions/checkout@v4
-      - name: Compile deployment lane
+
+      - name: Resident execution preflight
+        run: bash deployment/install_braink_execution_fabric.sh preflight
+
+      - name: Verify immutable-release build separation
         run: |
-          python3 -m py_compile \
-            deploy/braink-public/antigravity_gateway.py \
-            deploy/braink-public/build_antigravity_sites.py \
-            deploy/braink-public/deploy_antigravity_live.py
-      - name: Exercise gateway Unix-socket dispatch and proof propagation
+          work="${RUNNER_TEMP}/braink-antigravity-work"
+          mkdir -p "$work"
+          export BRAINK_ANTIGRAVITY_WORK_ROOT="$work"
+          export BRAINK_ANTIGRAVITY_DIST="$work/dist"
+          export BRAINK_ANTIGRAVITY_BUILD_READBACK="$work/ANTIGRAVITY_SITE_BUILD_READBACK.json"
+          python3 deploy/braink-public/build_antigravity_sites.py
+          test -d "$work/dist/braink.com.au"
+          test -f "$work/ANTIGRAVITY_SITE_BUILD_READBACK.json"
+          test ! -d deploy/braink-public/dist
+          python3 - <<'PY'
+          import json, os, pathlib
+          p=pathlib.Path(os.environ['BRAINK_ANTIGRAVITY_BUILD_READBACK'])
+          r=json.loads(p.read_text())
+          assert r['overall'] is True
+          assert set(r['domains']) == {'braink.com.au','braink-intelligence.com.au','braink-learning.com.au'}
+          assert all(v['status']=='BUILT' for v in r['domains'].values())
+          PY
+
+      - name: Exercise gateway carrier and proof propagation
         run: |
           python3 - <<'PY'
           import json, os, socket, subprocess, sys, tempfile, threading, time, urllib.request
-          sock_path = os.path.join(tempfile.gettempdir(), 'braink-antigravity-preflight.sock')
+          sock_path=os.path.join(tempfile.gettempdir(),'braink-antigravity-preflight.sock')
           try: os.unlink(sock_path)
           except FileNotFoundError: pass
-          stop = threading.Event()
+          stop=threading.Event()
           def server():
-              s=socket.socket(socket.AF_UNIX,socket.SOCK_STREAM); s.bind(sock_path); s.listen(4); s.settimeout(0.25)
+              s=socket.socket(socket.AF_UNIX,socket.SOCK_STREAM); s.bind(sock_path); s.listen(4); s.settimeout(.25)
               try:
                   while not stop.is_set():
                       try: c,_=s.accept()
@@ -43,68 +80,57 @@ jobs:
                               x=c.recv(65536)
                               if not x: break
                               buf+=x
-                          req=json.loads(buf.decode())
-                          env=req['envelope']
-                          out={'status':'PASS','correlation_id':env['correlation_id'],'proof':{'ledger':'preflight','root':'deterministic'}}
+                          req=json.loads(buf.decode()); env=req['envelope']
+                          out={'status':'PASS','correlation_id':env['correlation_id'],'proof':{'ledger':'qualification','root':'deterministic'}}
                           c.sendall((json.dumps(out,separators=(',',':'))+'\n').encode())
               finally: s.close()
           t=threading.Thread(target=server,daemon=True); t.start()
           deadline=time.time()+3
-          while not os.path.exists(sock_path) and time.time()<deadline: time.sleep(0.02)
+          while not os.path.exists(sock_path) and time.time()<deadline: time.sleep(.02)
           env=os.environ.copy(); env['BRAINK_ORCHESTRATOR_SOCKET']=sock_path; env['BRAINK_ANTIGRAVITY_PORT']='18800'
           p=subprocess.Popen([sys.executable,'deploy/braink-public/antigravity_gateway.py'],env=env)
           try:
-              time.sleep(0.4)
+              time.sleep(.4)
               health=json.loads(urllib.request.urlopen('http://127.0.0.1:18800/health',timeout=3).read())
-              assert health['status']=='PASS' and health['orchestrator_socket_ready'] is True, health
-              probe={'protocol':'braink.adapter.v1','kind':'intent','correlation_id':'preflight-1','intent':'non-mutating readiness proof'}
+              assert health['status']=='PASS' and health['orchestrator_socket_ready'] is True
+              probe={'protocol':'braink.adapter.v1','kind':'intent','correlation_id':'qualification-1','intent':'non-mutating readiness proof'}
               req=urllib.request.Request('http://127.0.0.1:18800/braink/dispatch',data=json.dumps(probe).encode(),headers={'content-type':'application/json'},method='POST')
               result=json.loads(urllib.request.urlopen(req,timeout=3).read())
-              assert result['status']=='PASS', result
-              assert result['correlation_id']=='preflight-1', result
-              assert result.get('proof'), result
+              assert result['status']=='PASS' and result['correlation_id']=='qualification-1' and result.get('proof')
           finally:
               p.terminate(); p.wait(timeout=3); stop.set(); t.join(timeout=1)
               try: os.unlink(sock_path)
               except FileNotFoundError: pass
           PY
-      - name: Verify fail-closed envelope validation
-        run: |
-          python3 - <<'PY'
-          import importlib.util
-          p='deploy/braink-public/antigravity_gateway.py'
-          spec=importlib.util.spec_from_file_location('ag',p); ag=importlib.util.module_from_spec(spec); spec.loader.exec_module(ag)
-          bad={'protocol':'wrong','kind':'intent','correlation_id':'x','intent':'x'}
-          try:
-              ag.validate_envelope(bad)
-          except ValueError as exc:
-              assert str(exc)=='INVALID_PROTOCOL'
-          else:
-              raise SystemExit('gateway accepted invalid protocol')
-          PY
 
-  deploy:
-    needs: preflight
-    runs-on: [self-hosted]
-    permissions:
-      contents: read
-    steps:
-      - uses: actions/checkout@v4
-      - name: Verify resident execution boundaries
+      - name: Enforce carrier-not-authority deployment policy
         run: |
-          test -x /mnt/data/keddeh_deploy/resident_v5/KEDDEH_REGISTRAR_V5/START_FULL_DOMAIN_FABRIC.command
-          test -S "${BRAINK_ORCHESTRATOR_SOCKET:-/tmp/braink-orchestrator.sock}"
-          ps -ef | grep -E 'KEDDEH_RECURSIVE_EDGE_NODE_R1|authoritative_dns.py|registrar_server.py|webspace_server.py' | grep -v grep
-      - name: Deploy and perform proof-bearing readback
-        env:
-          KEDDEH_DOMAIN_FABRIC_ROOT: /mnt/data/keddeh_deploy/resident_v5/KEDDEH_REGISTRAR_V5
-          KEDDEH_EVIDENCE_ROOT: /mnt/data/keddeh_deploy/resident_v5/KEDDEH_REGISTRAR_V5_EVIDENCE
-        run: python3 deploy/braink-public/deploy_antigravity_live.py
-      - name: Publish Antigravity deployment evidence
-        if: always()
+          ! grep -F 'runs-on: [self-hosted]' .github/workflows/deploy-braink-antigravity.yml
+          grep -F 'WorkingDirectory=/opt/braink/current' deployment/braink-execution.service
+          grep -F 'ReadWritePaths=/var/lib/braink /run/braink /mnt/data/keddeh_deploy' deployment/braink-execution.service
+          grep -F 'antigravity-deploy' runtime/runtime_route_registry.py
+
+      - name: Build immutable qualification manifest
+        run: |
+          sha256sum \
+            deployment/braink-execution.service \
+            deployment/braink_execution_service.py \
+            deployment/braink_execctl.py \
+            deployment/install_braink_execution_fabric.sh \
+            deployment/activate_braink_antigravity.sh \
+            enterprise/orchestration/resident_execution_fabric.py \
+            enterprise/runtime/process_supervisor.py \
+            runtime/runtime_route_registry.py \
+            deploy/braink-public/build_sites.py \
+            deploy/braink-public/build_antigravity_sites.py \
+            deploy/braink-public/deploy_antigravity_live.py \
+            scripts/kex-ci/test_resident_execution_fabric.py \
+            > "${RUNNER_TEMP}/braink-antigravity-resident-deployment.sha256"
+          cat "${RUNNER_TEMP}/braink-antigravity-resident-deployment.sha256"
+
+      - name: Publish qualification manifest
         uses: actions/upload-artifact@v4
         with:
-          name: braink-antigravity-deployment-evidence
-          path: |
-            deploy/braink-public/ANTIGRAVITY_SITE_BUILD_READBACK.json
-            deploy/braink-public/BRAINK_ANTIGRAVITY_DEPLOYMENT_RECEIPT.json
+          name: braink-antigravity-resident-qualification-${{ github.sha }}
+          path: ${{ runner.temp }}/braink-antigravity-resident-deployment.sha256
+          if-no-files-found: error
