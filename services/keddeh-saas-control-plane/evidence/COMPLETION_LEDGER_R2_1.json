@@ -1,0 +1,95 @@
+{
+  "schema": "keddeh.saas-completion-ledger/v1",
+  "release": "KEDDEH_QUARANTINED_SAAS_INTEGRATION_R2_1",
+  "observed_date": "2026-09-12",
+  "authority_note": "Candidate service state only; does not redefine BRAINK or SERVERS-KEDDEHSYSTEMS authority.",
+  "properties": [
+    {
+      "property": "tenant_registry",
+      "state": "LOCALLY_EXECUTED",
+      "evidence": ["pytest test suite: PASS"]
+    },
+    {
+      "property": "identity_registry",
+      "state": "IMPLEMENTED",
+      "evidence": ["executable route and SQLite persistence present"]
+    },
+    {
+      "property": "billing_entitlement_ledger",
+      "state": "LOCALLY_EXECUTED",
+      "evidence": ["payment idempotency and entitlement test: PASS"]
+    },
+    {
+      "property": "job_queue_storage",
+      "state": "IMPLEMENTED",
+      "evidence": ["executable enqueue route and SQLite persistence present"]
+    },
+    {
+      "property": "local_receipt_chain",
+      "state": "LOCALLY_EXECUTED",
+      "evidence": ["chain verification exercised by tests: PASS"]
+    },
+    {
+      "property": "braink_illlm_evidence_bridge",
+      "state": "LOCALLY_EXECUTED",
+      "evidence": ["resident runtime/illlm_ledger.py imported and exercised", "evidence synchronization test: PASS"]
+    },
+    {
+      "property": "braink_runtime_registry_bridge",
+      "state": "LOCALLY_EXECUTED",
+      "evidence": ["resident runtime/runtime_registry.py imported and exercised", "pre-existing RUNNING runtime preservation test: PASS"]
+    },
+    {
+      "property": "casepath_adapter",
+      "state": "DESCRIPTOR_ONLY",
+      "evidence": ["endpoint explicitly reports DESCRIPTOR_ONLY"]
+    },
+    {
+      "property": "claimpath_adapter",
+      "state": "DESCRIPTOR_ONLY",
+      "evidence": ["endpoint explicitly reports DESCRIPTOR_ONLY"]
+    },
+    {
+      "property": "external_payment_provider_network",
+      "state": "DECLARED_UNBOUND",
+      "evidence": []
+    },
+    {
+      "property": "public_ingress",
+      "state": "DECLARED_UNBOUND",
+      "evidence": []
+    },
+    {
+      "property": "docker_linux_image",
+      "state": "SOURCE_PRESENT",
+      "evidence": ["Dockerfile/Compose definition present", "Docker CLI unavailable in local qualification environment; image build unobserved"]
+    },
+    {
+      "property": "canonical_linux_systemd_carrier",
+      "state": "SOURCE_PRESENT",
+      "evidence": ["SERVERS-KEDDEHSYSTEMS PR #3", "installer bash syntax PASS", "validator Python compile PASS", "host execution unobserved"]
+    },
+    {
+      "property": "github_actions_ci",
+      "state": "SOURCE_PRESENT",
+      "evidence": ["workflow definition present", "latest GitHub job runner_id=0 and zero steps; CI execution unobserved"]
+    },
+    {
+      "property": "production_deployment",
+      "state": "DECLARED_UNBOUND",
+      "evidence": []
+    }
+  ],
+  "local_qualification": {
+    "pytest": "5 passed in 0.32s",
+    "compileall": "PASS",
+    "docker_cli": "UNAVAILABLE"
+  },
+  "forbidden_summary_claims": [
+    "fully populated",
+    "production deployed",
+    "CasePath adapter implemented",
+    "ClaimPath adapter implemented",
+    "CI passed"
+  ]
+}
