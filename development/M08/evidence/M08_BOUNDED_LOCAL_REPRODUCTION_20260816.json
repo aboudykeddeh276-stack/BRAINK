@@ -1,0 +1,56 @@
+{
+  "schema": "braink.engineering-evidence.v1",
+  "evidence_id": "M08-EVIDENCE-LOCAL-20260816",
+  "classification": "LOCALLY_REPRODUCED_FUNCTION_MECHANICS",
+  "subject_scope": "BTC consensus construction, prepared-header nonce scan, chain-name mapping, and shared-volume work allocator mechanics",
+  "observed_at": "2026-08-16T20:47:00+09:30",
+  "results": {
+    "consensus_checks": {
+      "count": 7,
+      "result": "PASS",
+      "coverage": [
+        "known Bitcoin genesis header SHA256d/target answer",
+        "BIP34 height encoding",
+        "mainnet v0 Bech32 payout script",
+        "odd-leaf Merkle duplication",
+        "candidate/header/coinbase/block-body binding",
+        "extranonce changes coinbase/Merkle/header",
+        "wrong network HRP rejection"
+      ]
+    },
+    "miner_mechanic_checks": {
+      "count": 3,
+      "result": "PASS",
+      "coverage": [
+        "Bitcoin Core chain-name mapping including testnet->test",
+        "forced target hit assembles the full block once and only after the hit",
+        "exhausted nonce interval never assembles a full block"
+      ]
+    },
+    "hot_loop_benchmark": {
+      "iterations": 20000,
+      "prior_per_nonce_rebuild_seconds_approx": 0.1827,
+      "prepared_header_scan_seconds_approx": 0.0461,
+      "reproduced_speedup_approx": 3.97,
+      "claim_scope": "bounded local Python carrier only"
+    },
+    "allocator_mechanic_checks": {
+      "result": "PASS_BOUNDED",
+      "sequential_windows": [[0,0,3],[0,3,3]],
+      "uint32_rollover": [[0,0,4294967296],[1,0,1]],
+      "concurrent_allocations": 12,
+      "concurrent_window_size": 10,
+      "overlap_observed": false,
+      "uint64_storage_edge": "corrected by storing extranonce as decimal TEXT in SQLite"
+    }
+  },
+  "does_not_prove": [
+    "The exact current GitHub head passed repository CI.",
+    "A synchronized Bitcoin Core daemon accepted the current candidate.",
+    "A live getblocktemplate was processed by the current candidate.",
+    "A target-valid block was submitted or accepted.",
+    "Multi-host workers with independent allocator databases are disjoint.",
+    "Mainnet reward or profitability."
+  ],
+  "promotion_use": "Supports candidate engineering decisions and closes bounded local mechanic questions only; cannot independently authorize M08 promotion."
+}

@@ -1,0 +1,28 @@
+{
+  "schema": "braink.engineering-failure.v1",
+  "failure_id": "M08-FAIL-20260816-GITHUB-ACTIONS-BILLING",
+  "classification": "EXTERNAL_EXECUTION_ENVIRONMENT_ACCOUNT_BILLING_GATE",
+  "subject": "M08 proof-bearing BTC candidate CI execution",
+  "observed_at": "2026-08-16T20:46:00+09:30",
+  "affected_candidate": "engineering/m08-proof-bearing-runtime-20260816",
+  "observations": [
+    "GitHub created pull-request workflow runs for the candidate head.",
+    "The verify-consensus-miner job completed with conclusion=failure but had no executed steps and no assigned runner.",
+    "GitHub check annotation states that the job was not started because the account is locked due to a billing issue.",
+    "The failure occurred before repository code execution."
+  ],
+  "does_not_prove": [
+    "The candidate source failed to compile.",
+    "Any unit or falsification test failed.",
+    "The BTC runtime failed its negative RPC control.",
+    "The candidate is eligible for promotion."
+  ],
+  "engineering_effect": {
+    "runtime_candidate_invalidated": false,
+    "ci_evidence_available": false,
+    "promotion_blocked": true,
+    "merge_authorized": false
+  },
+  "recovery_condition": "Run the exact candidate head on an available execution carrier or restore GitHub Actions runner execution, then bind compile/test/negative-control receipts to that exact subject revision.",
+  "retention_rule": "Preserve this failure as environment evidence; do not rewrite it as a source-code failure or delete it after CI becomes available."
+}
