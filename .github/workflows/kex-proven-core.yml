@@ -1,0 +1,41 @@
+name: KEX Proven Core
+
+on:
+  pull_request:
+    paths:
+      - 'proven_core/**'
+      - '.github/workflows/kex-proven-core.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'proven_core/**'
+      - '.github/workflows/kex-proven-core.yml'
+
+jobs:
+  verify-local-minframe:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: proven_core
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run proof tests
+        env:
+          PYTHONPATH: src
+        run: python -m unittest discover -s tests -v
+      - name: Execute bounded local boot
+        env:
+          PYTHONPATH: src
+        run: python -m kex_proven_core.cli --state-dir .kex-proven-state
+      - name: Verify fail-closed promotion state
+        run: |
+          python - <<'PY'
+          import json
+          state = json.load(open('.kex-proven-state/runtime-state.json'))
+          assert state['ledger_valid'] is True
+          assert state['promotion_state'] == 'STAGED_NOT_PUBLIC_LIVE'
+          print(state['ledger_root'])
+          PY
