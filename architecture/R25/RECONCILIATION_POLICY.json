@@ -1,0 +1,44 @@
+{
+  "schema": "kex.braink.reconciliation-policy.v25",
+  "release": "R25",
+  "state_model": {
+    "source_state": "declared/canonical desired implementation state",
+    "observed_state": "readback from executing runtime, repository, VFS, carrier or public projection",
+    "delta": "canonical difference between source_state and observed_state",
+    "successor_state": "observed state after an applied repair transaction"
+  },
+  "algorithm": [
+    "capture source_state hash",
+    "capture observed_state hash",
+    "classify delta",
+    "checkpoint observed_state",
+    "acquire mutation authority",
+    "apply smallest deterministic repair",
+    "read back successor_state",
+    "compare successor_state to source_state",
+    "emit transaction receipt",
+    "promote only when equality/proof gate passes"
+  ],
+  "race_control": {
+    "optimistic_concurrency": true,
+    "required_precondition": "observed input hash must equal transaction input hash at commit time",
+    "on_mismatch": "ABORT_AND_REOBSERVE",
+    "parallelism_rule": "independent resources may reconcile concurrently; writes to the same logical identity serialize"
+  },
+  "checkpoint_policy": {
+    "before_every_external_mutation": true,
+    "checkpoint_identity": "sha256(canonical_state)",
+    "must_capture": ["logical_identity", "carrier", "runtime_state", "configuration", "proof_cursor", "rollback_action"],
+    "recovery_sequence": ["classify failure", "select checkpoint", "restore or rehydrate", "verify logical identity", "verify proof chain", "resume successor operation"]
+  },
+  "failure_classes": [
+    "SOURCE_DEFECT",
+    "TEST_DEFECT",
+    "RUNNER_PRE_STEP_FAILURE",
+    "AUTHORITY_BINDING_FAILURE",
+    "CARRIER_FAILURE",
+    "PROJECTION_READBACK_FAILURE",
+    "STATE_RACE",
+    "DEPENDENCY_UNRESOLVED"
+  ]
+}

@@ -1,0 +1,68 @@
+{
+  "schema": "braink.r26.recursive-computer-execution-receipt/v1",
+  "release": "R26",
+  "authority": "A.KEDDEH / KEDDEH_SYSTEMS / BRAINK / KEX",
+  "classification": "EXECUTED_LOCAL_LINUX_PROOF_VERIFIED_SELF_HOSTED_CI_QUEUED",
+  "mechanics_executed": [
+    "A instantiates B",
+    "B instantiates C",
+    "C warm-boots from persisted state",
+    "restored C instantiates D",
+    "A recursively rehydrates B -> C -> D",
+    "restored D instantiates E",
+    "state readback through SelfAddressingRuntime",
+    "transitive memory inheritance",
+    "constructor identity continuity",
+    "append-only proof-ledger verification",
+    "durable atomic file backing with file and directory fsync"
+  ],
+  "proof": {
+    "status": "VERIFIED",
+    "lineage_E": ["A", "B", "C", "D", "E"],
+    "memory_E": {"child": 88, "seed": 297},
+    "tree": {
+      "A": ["B"],
+      "B": ["C"],
+      "C": ["D"],
+      "D": ["E"],
+      "E": []
+    },
+    "constructor_id": "constructor://kex/recursive-computer/r26",
+    "all_ledgers_verified": true,
+    "state_roots_distinct": 5,
+    "local_test_result": "1 passed in 0.07s"
+  },
+  "durability": {
+    "adapter": "adapter://file/json",
+    "capabilities": ["READ", "WRITE", "PROBE", "ATOMIC", "DURABLE"],
+    "write_readback_verified": true,
+    "write_mode": "TEMP_WRITE -> FILE_FSYNC -> ATOMIC_REPLACE -> DIRECTORY_FSYNC"
+  },
+  "execution_receipts": {
+    "tree_rehydration_sha256": "76edb04550fd88080cd075a8121246ddb06493f02123256fad37aa20b8d05d8e",
+    "durable_adapter_sha256": "f7e3631f9eb3200daa313674a6cf7cec698ee8e1c8c10be4920685e105d0d5f7"
+  },
+  "ci": {
+    "workflow_run_id": 33591378610,
+    "job_id": 100125894551,
+    "labels": ["self-hosted", "kex", "cascade", "hyperk0", "warmboot"],
+    "status": "QUEUED",
+    "runner_assigned": false,
+    "real_dependency": "an online registered self-hosted runner matching all required labels"
+  },
+  "source_commits": {
+    "tree_rehydration": "f7730c41577fb3726b1ad8e5a5c567e7ccf978b6",
+    "test": "2c3f19e1f088854f6cd4649d5597e6d385b65165",
+    "durable_file_adapter": "ee8ddb9b3b60cf59fab3c1fc0fd0e0c2820432be",
+    "self_hosted_ci_binding": "690e774553a89109f5bd680fb829ebed0067faf1"
+  },
+  "claim_boundaries": {
+    "recursive_constructor_execution_observed": true,
+    "warm_boot_process_level_rehydration_observed": true,
+    "recursive_descendant_topology_rehydration_observed": true,
+    "durable_file_adapter_readback_observed": true,
+    "self_hosted_github_ci_execution_observed": false,
+    "physical_power_loss_test_observed": false,
+    "distributed_consensus_observed": false
+  }
+}
