@@ -12,6 +12,14 @@ from enterprise.orchestration.durable_execution_r5 import (
 from .sector_bridges import ServerRuntimeBridge, VirtualMemoryBridge
 from .capability_catalog import GovernedCapabilityService
 from .function_contracts import manifest as function_manifest_projection, validate_payload
+from enterprise.orchestration.committed_projection_bridge_r8 import (
+    CallableProjectionAdapter,
+    CommittedProjectionBridge,
+    ProjectionEnvelope,
+    ProjectionReceiptLedger,
+    ProjectionSigner,
+    Surface,
+)
 
 LEGAL_ENTITY = {
     "identity": "organisation://the-layna-company",
@@ -42,6 +50,10 @@ class BrainkProcessBackend:
         self.servers = ServerRuntimeBridge()
         self.vfs = VirtualMemoryBridge()
         self.capabilities = GovernedCapabilityService(self, self.state_dir / "capability_receipts.sqlite")
+        self.projection_bridge = CommittedProjectionBridge(
+            ProjectionSigner(self.key),
+            ProjectionReceiptLedger(self.state_dir / "projection_receipts.sqlite"),
+        )
 
     @staticmethod
     def _load_key() -> bytes:
@@ -139,6 +151,61 @@ class BrainkProcessBackend:
     def function_manifest(self) -> list[dict[str, Any]]:
         """Typed agent-function projection over the governed capability catalog."""
         return function_manifest_projection(self.capability_manifest())
+
+    def apply_committed_projection(self, envelope: dict[str, Any]) -> dict[str, Any]:
+        """Project one already-committed DomainState transition through MCP governance.
+
+        MCP is an execution surface, not a source of producer truth. The envelope
+        must already be signed and AUTHORITATIVELY_COMMITTED. The embedded
+        capability still passes through the existing lease/scope/approval/
+        idempotency runtime.
+        """
+        projection = ProjectionEnvelope.from_mapping(envelope)
+
+        def apply(item: ProjectionEnvelope) -> dict[str, Any]:
+            payload = dict(item.payload)
+            capability_id = str(payload.pop("capability_id"))
+            context = dict(payload.pop("context"))
+            capability_payload = dict(payload.pop("payload", {}))
+            idempotency_key = payload.pop("idempotency_key", None)
+            if payload:
+                raise ValueError(f"UNEXPECTED_PROJECTION_FIELDS:{sorted(payload)}")
+            result = self.invoke_capability(
+                capability_id,
+                context,
+                capability_payload,
+                idempotency_key,
+            )
+            if result.get("status") not in {"SUCCEEDED", "REPLAYED_SUCCESS"}:
+                raise RuntimeError(f"CAPABILITY_PROJECTION_FAILED:{result.get('status')}")
+            return {
+                "source_event_hash": item.event_hash,
+                "producer_truth_hash": item.producer_truth_hash,
+                "capability_id": capability_id,
+                "capability_result": result,
+            }
+
+        adapter = CallableProjectionAdapter(
+            adapter_id="BRAINK_MCP_CAPABILITY",
+            surface=Surface.MCP,
+            apply_fn=apply,
+            readback_fn=lambda item, result: {
+                "source_event_hash": item.event_hash,
+                "producer_truth_hash": item.producer_truth_hash,
+                "capability_id": result["capability_id"],
+                "status": result["capability_result"].get("status"),
+                "receipt_root": result["capability_result"].get("receipt_root"),
+            },
+            mutating=True,
+            readback_required=True,
+        )
+        return self.projection_bridge.project(projection, adapter)
+
+    def projection_reconciliation_debt(self) -> list[dict[str, Any]]:
+        return self.projection_bridge.ledger.debt()
+
+    def verify_projection_receipts(self) -> dict[str, Any]:
+        return self.projection_bridge.ledger.verify_chain()
 
     def invoke_capability(
         self,
