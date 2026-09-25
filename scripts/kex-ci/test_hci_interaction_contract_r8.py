@@ -17,6 +17,8 @@ def main() -> None:
         "ISO 9241-210:2019",
         "ISO 9241-11:2018",
         "ISO 9241-112:2025",
+        "ISO 9241-161:2025",
+        "ISO 9241-171:2025",
         "ISO/IEC 25010:2023",
         "ISO/IEC 25019:2023",
     }
@@ -24,6 +26,8 @@ def main() -> None:
 
     workflows = [row["id"] for row in contract["primary_user_workflows"]]
     assert workflows == ["AI", "TASKS", "FILES"]
+    assert contract["visual_interface_contract"]["standard_basis"] == "ISO 9241-161:2025"
+    assert contract["accessibility_contract"]["standard_basis"] == "ISO 9241-171:2025"
 
     forbidden = set(contract["home_contract"]["forbidden"])
     assert {
@@ -43,6 +47,9 @@ def main() -> None:
     assert 'Button("Audit Stack")' not in app
     assert 'Button("Learn Files")' not in app
     assert 'Button("Knowledge")' not in app
+
+    assert "accessibilityLabel" in shell
+    assert 'Button("Browse Files")' in shell
 
     for expected in [
         'title: "Ask BRAINK"',
