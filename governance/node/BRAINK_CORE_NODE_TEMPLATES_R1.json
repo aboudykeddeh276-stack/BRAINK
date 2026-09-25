@@ -1029,11 +1029,84 @@
         "authority": "A.KEDDEH",
         "organization": "Keddeh Systems"
       }
+    },
+    {
+      "template_id": "TPL_HCI_WORKSPACE_SHELL_R8",
+      "definition_id": "HCI_BRAINK_WORKSPACE_SHELL",
+      "type": "NODE_TEMPLATE",
+      "sector": "HCI",
+      "role": "USER_WORKFLOW_WORKSTATION_SHELL",
+      "version": "8.0.0",
+      "capability_class": "SYSTEM_NODE",
+      "typed_inputs": {
+        "user_intent": "UserIntent",
+        "active_work": "WorkContinuation",
+        "file_workspace": "WorkspaceReference"
+      },
+      "typed_outputs": {
+        "workspace_projection": "BRAINKWorkspaceProjection",
+        "user_action": "UserAction"
+      },
+      "attributes": [
+        {
+          "name": "primary_workflows",
+          "value_type": "array",
+          "value": [
+            "AI",
+            "TASKS",
+            "FILES"
+          ],
+          "source": "governance/hci/BRAINK_INTERACTION_CONTRACT_R8.json",
+          "source_version": "8"
+        },
+        {
+          "name": "system_detail_policy",
+          "value_type": "string",
+          "value": "PROGRESSIVE_DISCLOSURE_DIAGNOSTICS_ONLY",
+          "source": "governance/hci/BRAINK_INTERACTION_CONTRACT_R8.json",
+          "source_version": "8"
+        }
+      ],
+      "attribution_graph": [
+        {
+          "type": "AUTHORED_BY",
+          "target": "A.KEDDEH"
+        }
+      ],
+      "integration_contract": {
+        "interfaces": [
+          "workspace.home",
+          "workspace.ai",
+          "workspace.tasks",
+          "workspace.files",
+          "workspace.activity",
+          "workspace.admin",
+          "workspace.diagnostics"
+        ],
+        "implementation_refs": [
+          "NativeChatBot/Sources/BRAINKWorkspaceShell.swift",
+          "governance/hci/BRAINK_INTERACTION_CONTRACT_R8.json"
+        ]
+      },
+      "policy_bindings": [
+        "policy:hci.user-goal-first",
+        "policy:hci.progressive-disclosure",
+        "policy:hci.accessibility",
+        "policy:hci.no-unobserved-ready-state"
+      ],
+      "compatibility": {
+        "braink_control_plane": ">=11"
+      },
+      "lifecycle": "PERSISTENT",
+      "authorship": {
+        "authority": "A.KEDDEH",
+        "organization": "Keddeh Systems"
+      }
     }
   ],
   "catalog_law": "Every reusable core surface is represented by a governed template definition that references implementation artifacts without copying executable bodies or rendered markup.",
   "coverage": {
     "native_components": 15,
-    "total_templates": 20
+    "total_templates": 21
   }
 }
