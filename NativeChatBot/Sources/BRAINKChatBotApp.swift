@@ -35,9 +35,6 @@ struct MessageBubble: View {
                         RoundedRectangle(cornerRadius: 12)
                             .stroke(Color.white.opacity(0.12), lineWidth: 1)
                     )
-                Text("route: \(message.route)")
-                    .font(.caption.monospaced())
-                    .foregroundStyle(.secondary)
             }
             if message.role != .user { Spacer() }
         }
@@ -209,7 +206,7 @@ struct BrainkNativeChatbotView: View {
                 VStack(alignment: .leading, spacing: 3) {
                     Text("Ask BRAINK")
                         .font(.title2.bold())
-                    Text("Describe the outcome. Runtime, model and VFS resolution stay behind the task.")
+                    Text("Describe the outcome. BRAINK handles the supporting system work behind it.")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -222,14 +219,14 @@ struct BrainkNativeChatbotView: View {
             ScrollViewReader { proxy in
                 ScrollView {
                     VStack(spacing: 10) {
-                        ForEach(engine.messages) { message in
+                        ForEach(engine.messages.filter { $0.role != .system }) { message in
                             MessageBubble(message: message)
                                 .id(message.id)
                         }
                     }
                     .padding()
                 }
-                .onChange(of: engine.messages.count) { _, _ in
+                .onChange(of: engine.messages.count) { _ in
                     if let last = engine.messages.last {
                         withAnimation { proxy.scrollTo(last.id, anchor: .bottom) }
                     }
