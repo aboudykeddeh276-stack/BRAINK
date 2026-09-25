@@ -40,6 +40,16 @@
       "id": "ISO/IEC 25019:2023",
       "role": "quality_in_use_model",
       "status": "current"
+    },
+    {
+      "id": "ISO 9241-161:2025",
+      "role": "visual_user_interface_elements",
+      "status": "current"
+    },
+    {
+      "id": "ISO 9241-171:2025",
+      "role": "software_accessibility",
+      "status": "current"
     }
   ],
   "interaction_principles": [
@@ -192,5 +202,25 @@
     "RECOVERABLE_FAILURES_MUST_NOT_REQUIRE_MANUAL_MAINTENANCE",
     "NO_SUCCESS_STATE_WITHOUT_OBSERVED_RESULT"
   ],
-  "certification_claim": "NONE"
+  "certification_claim": "NONE",
+  "visual_interface_contract": {
+    "rules": [
+      "CONSISTENT_VISUAL_ELEMENT_ROLES_ACROSS_WORKSTATION_SURFACES",
+      "PRIMARY_ACTIONS_USE_RECOGNISABLE_TEXT_AND_PLATFORM_SYMBOLS",
+      "STATE_IS_NOT_CONVEYED_BY_COLOUR_ALONE",
+      "VISUAL_HIERARCHY_FOLLOWS_TASK_PRIORITY_NOT_RUNTIME_PRIORITY",
+      "ADVANCED_TECHNICAL_INFORMATION_USES_PROGRESSIVE_DISCLOSURE"
+    ],
+    "standard_basis": "ISO 9241-161:2025"
+  },
+  "accessibility_contract": {
+    "rules": [
+      "INTERACTIVE_ICON_ONLY_CONTROLS_REQUIRE_ACCESSIBLE_LABELS",
+      "TEXT_REMAINS_AVAILABLE_FOR_PRIMARY_WORKFLOW_ACTIONS",
+      "PLATFORM_KEYBOARD_AND_ACCESSIBILITY_SEMANTICS_ARE_PRESERVED",
+      "PRIMARY_WORKFLOWS_DO_NOT_REQUIRE_DRAG_AND_DROP",
+      "COLOUR_IS_SUPPLEMENTARY_NOT_SOLE_STATE_CARRIER"
+    ],
+    "standard_basis": "ISO 9241-171:2025"
+  }
 }
