@@ -120,6 +120,41 @@ class ProjectionSigner:
     def sign(self, body: Mapping[str, Any]) -> str:
         return hmac.new(self.key, canonical(body).encode("utf-8"), hashlib.sha256).hexdigest()
 
+    def create(
+        self,
+        *,
+        event_hash: str,
+        domain_root: str,
+        sequence: int,
+        projection_id: str,
+        surface: Surface,
+        target: str,
+        authority_class: AuthorityClass,
+        operation: str,
+        payload: Mapping[str, Any],
+        producer_truth_hash: str | None = None,
+        authority_evidence: Mapping[str, Any] | None = None,
+        source_receipt_hash: str | None = None,
+    ) -> ProjectionEnvelope:
+        payload_copy = copy.deepcopy(dict(payload))
+        body = {
+            "schema_version": SCHEMA,
+            "event_hash": event_hash,
+            "domain_root": domain_root,
+            "sequence": sequence,
+            "phase": COMMITTED_PHASE,
+            "projection_id": projection_id,
+            "surface": surface.value,
+            "target": target,
+            "authority_class": authority_class.value,
+            "operation": operation,
+            "producer_truth_hash": producer_truth_hash or digest(payload_copy),
+            "payload": payload_copy,
+            "authority_evidence": copy.deepcopy(dict(authority_evidence or {})),
+            "source_receipt_hash": source_receipt_hash or event_hash,
+        }
+        return ProjectionEnvelope(**body, signature=self.sign(body))
+
     def verify(self, envelope: ProjectionEnvelope) -> None:
         if envelope.schema_version != SCHEMA:
             raise EnvelopeRejected("SCHEMA_VERSION_UNSUPPORTED")
