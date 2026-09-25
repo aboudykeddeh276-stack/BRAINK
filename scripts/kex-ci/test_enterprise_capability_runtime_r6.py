@@ -48,8 +48,8 @@ def main():
         backend=Backend()
         svc=GovernedCapabilityService(backend,Path(td)/"receipts.sqlite")
         manifest=svc.manifest()
-        assert len(manifest)==14
-        assert len({x["capability_id"] for x in manifest})==14
+        assert len(manifest)==17
+        assert len({x["capability_id"] for x in manifest})==17
 
         observed=svc.invoke("domain.observe",ctx(["domain:read"]),{"domain":"braink.com.au"},"observe-1")
         assert observed["status"]=="SUCCEEDED"

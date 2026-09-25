@@ -10,6 +10,10 @@ on:
       - 'scripts/kex-ci/test_agent_authority_actual_process_r6.py'
       - 'scripts/kex-ci/test_agent_function_contracts_r7.py'
       - 'scripts/kex-ci/test_agent_function_actual_process_r7.py'
+      - 'scripts/kex-ci/test_mcp_system_surface_r8.py'
+      - 'scripts/kex-ci/test_hci_interaction_contract_r8.py'
+      - 'governance/hci/BRAINK_INTERACTION_CONTRACT_R8.json'
+      - 'NativeChatBot/Sources/**'
       - '.github/workflows/braink-enterprise-capability-r6.yml'
   pull_request:
     paths:
@@ -19,6 +23,10 @@ on:
       - 'scripts/kex-ci/test_agent_authority_actual_process_r6.py'
       - 'scripts/kex-ci/test_agent_function_contracts_r7.py'
       - 'scripts/kex-ci/test_agent_function_actual_process_r7.py'
+      - 'scripts/kex-ci/test_mcp_system_surface_r8.py'
+      - 'scripts/kex-ci/test_hci_interaction_contract_r8.py'
+      - 'governance/hci/BRAINK_INTERACTION_CONTRACT_R8.json'
+      - 'NativeChatBot/Sources/**'
       - '.github/workflows/braink-enterprise-capability-r6.yml'
 
 permissions:
@@ -40,6 +48,7 @@ jobs:
             mcp/braink_process_adapter/capability_catalog.py \
             mcp/braink_process_adapter/function_contracts.py \
             mcp/braink_process_adapter/agent_authority_client.py \
+            mcp/braink_process_adapter/system_surface.py \
             mcp/braink_process_adapter/backend.py \
             mcp/braink_process_adapter/sector_bridges.py \
             mcp/braink_process_adapter/main.py
@@ -53,3 +62,7 @@ jobs:
         run: python scripts/kex-ci/test_agent_function_contracts_r7.py
       - name: Typed agent functions against resident process
         run: python scripts/kex-ci/test_agent_function_actual_process_r7.py
+      - name: MCP system surface R8
+        run: python scripts/kex-ci/test_mcp_system_surface_r8.py
+      - name: Human-centred interaction contract R8
+        run: python scripts/kex-ci/test_hci_interaction_contract_r8.py
