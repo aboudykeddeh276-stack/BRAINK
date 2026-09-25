@@ -168,7 +168,7 @@ struct BRAINKStatusBar: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            Label("Ready", systemImage: "checkmark.circle")
+            Label("Workspace active", systemImage: "circle.fill")
                 .foregroundStyle(.secondary)
             if taskCount > 0 {
                 Text("\(taskCount) active task\(taskCount == 1 ? "" : "s")")
@@ -214,13 +214,13 @@ struct BRAINKHomeView: View {
 
                         BRAINKPrimaryActionCard(
                             title: "Tasks",
-                            subtitle: "Create, resume and complete work without exposing scheduler plumbing.",
+                            subtitle: "Create, resume and complete work in one place.",
                             systemImage: "checklist"
                         ) { selection = .tasks }
 
                         BRAINKPrimaryActionCard(
                             title: "Files",
-                            subtitle: "Browse the working filesystem and open the workspace you actually care about.",
+                            subtitle: "Browse your workspace and reopen the files you are working with.",
                             systemImage: "folder"
                         ) { selection = .files }
                     }
@@ -426,15 +426,15 @@ struct BRAINKAdminView: View {
 struct BRAINKDiagnosticsWorkspaceView: View {
     var body: some View {
         Form {
-            Section("Runtime diagnostics") {
+            Section("System contract") {
                 LabeledContent("MCP", value: "System superface")
                 LabeledContent("BRAINK authority", value: "braink://local/orchestrator")
                 LabeledContent("IL-LLM", value: "Resident dependency / traversal")
                 LabeledContent("VFS", value: "vfs://kex/root")
-                LabeledContent("Model residency", value: "Readiness-gated")
-                LabeledContent("Node state", value: "Observed before READY")
+                LabeledContent("Model residency", value: "Observed before node readiness")
+                LabeledContent("Node readiness", value: "Physical + VFS + IL-LLM + authority")
             }
-            Text("Low-level model, VFS, node, endpoint and ledger details belong here rather than on Home.")
+            Text("This surface holds system-level details and readback. Home remains reserved for user work.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }
@@ -450,18 +450,42 @@ struct BRAINKWorkspaceShell: View {
 
     var body: some View {
         NavigationSplitView {
-            List(selection: $selection) {
+            List {
                 Section("Work") {
                     ForEach(BRAINKWorkspaceRoute.allCases.filter(\.isPrimary)) { route in
-                        Label(route.rawValue, systemImage: route.systemImage)
-                            .tag(route)
+                        Button {
+                            selection = route
+                        } label: {
+                            HStack {
+                                Label(route.rawValue, systemImage: route.systemImage)
+                                Spacer()
+                                if selection == route {
+                                    Image(systemName: "checkmark")
+                                        .accessibilityHidden(true)
+                                }
+                            }
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel(route.rawValue)
                     }
                 }
 
                 Section("System") {
                     ForEach([BRAINKWorkspaceRoute.activity, .admin, .diagnostics]) { route in
-                        Label(route.rawValue, systemImage: route.systemImage)
-                            .tag(route)
+                        Button {
+                            selection = route
+                        } label: {
+                            HStack {
+                                Label(route.rawValue, systemImage: route.systemImage)
+                                Spacer()
+                                if selection == route {
+                                    Image(systemName: "checkmark")
+                                        .accessibilityHidden(true)
+                                }
+                            }
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel(route.rawValue)
                     }
                 }
             }
