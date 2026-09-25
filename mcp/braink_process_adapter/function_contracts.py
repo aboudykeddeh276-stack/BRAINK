@@ -148,7 +148,7 @@ FUNCTION_CONTRACTS: dict[str, AgentFunctionContract] = {
             "current_backing": _string("Current backing locator."),
             "new_backing": _string("Destination backing locator."),
         }, ["logical", "current_backing", "new_backing"]),
-    ),,
+    ),
     "model.register": AgentFunctionContract(
         "model.register", "braink_model_register",
         "Register physically present model artifacts for BRAINK node residency.",
