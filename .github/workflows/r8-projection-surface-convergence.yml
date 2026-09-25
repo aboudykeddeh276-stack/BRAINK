@@ -8,6 +8,7 @@ on:
       - 'enterprise/market/connector_service_registry_r25.py'
       - 'mcp/braink_process_adapter/**'
       - 'plugins/sites/server/mcp_server.py'
+      - 'owner-control/sites-runtime/app.py'
       - '.kex/runner-control-plane.json'
       - 'scripts/kex-ci/test_projection_surface_convergence_r8.py'
       - '.github/workflows/r8-projection-surface-convergence.yml'
