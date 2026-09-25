@@ -32,6 +32,7 @@
       "ISO 9241-210:2019",
       "ISO 9241-11:2018",
       "ISO 9241-112:2025",
+      "ISO 9241-115:2024",
       "ISO 9241-161:2025",
       "ISO 9241-171:2025",
       "ISO/IEC 25010:2023",
@@ -48,7 +49,8 @@
     "mcp/braink_process_adapter/main.py",
     "NativeChatBot/Sources/BRAINKWorkspaceShell.swift",
     "NativeChatBot/Sources/BRAINKChatBotApp.swift",
-    "governance/hci/BRAINK_INTERACTION_CONTRACT_R8.json"
+    "governance/hci/BRAINK_INTERACTION_CONTRACT_R8.json",
+    "governance/node/BRAINK_CORE_NODE_TEMPLATES_R1.json"
   ],
   "gates": [
     "scripts/kex-ci/test_mcp_system_surface_r8.py",
