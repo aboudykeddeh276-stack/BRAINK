@@ -1,0 +1,32 @@
+{
+  "schema": "braink.hci.mcp.evidence.v1",
+  "mcp_revision": "2026-07-28",
+  "local_tests": {"passed": 9, "failed": 0, "elapsed_seconds": 0.06},
+  "standards": {
+    "ISO_9241_210_2019": "human-centred design; reviewed and confirmed 2025",
+    "ISO_9241_110_2020": "interaction principles; reviewed and confirmed 2025",
+    "ISO_IEC_25010_2023": "product quality model"
+  },
+  "enforced": [
+    "maintenance cannot be primary",
+    "admin cannot be primary home action",
+    "destructive action requires confirmation",
+    "user MCP catalog excludes privileged controls",
+    "home exposes semantic user intents",
+    "system status is secondary",
+    "diagnostics are on-demand"
+  ],
+  "gateway_surfaces": [
+    "/home/summary",
+    "/mcp/workflows",
+    "/diagnostics/summary"
+  ],
+  "not_claimed": [
+    "persistent task backend",
+    "user file-resource backend",
+    "full MCP transport/server",
+    "authenticated diagnostics authorization",
+    "ISO certification",
+    "usability test completion"
+  ]
+}

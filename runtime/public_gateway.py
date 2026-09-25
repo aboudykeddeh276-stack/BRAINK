@@ -21,6 +21,8 @@ from runtime.host_control.braink_host_fabric import HostFabric
 from runtime.resident_root_projection_r28 import ResidentRootResolver, carrier_projection
 from runtime.node.braink_node_templates import NodeTemplateRegistry
 from runtime.runtime_registry import RuntimeRegistry
+from runtime.hci.interaction_model import home_dashboard
+from runtime.hci.mcp_router import MCPWorkflowRouter
 
 OAUTH_SOCKET = os.environ.get("BRAINK_OAUTH_SOCKET", "/tmp/braink-oauth.sock")
 STRIPE_SOCKET = os.environ.get("BRAINK_STRIPE_SOCKET", "/tmp/braink-stripe.sock")
@@ -155,6 +157,46 @@ def _dashboard_summary() -> dict:
     }
 
 
+
+def _home_summary() -> dict:
+    """User-facing home projection.
+
+    Infrastructure details stay behind diagnostics. Unbound user services remain
+    explicit instead of being synthesized as healthy.
+    """
+    diagnostics = _dashboard_summary()
+    mesh_status = str(diagnostics.get("mesh", {}).get("status", "UNOBSERVED"))
+    degraded = mesh_status not in {"UP", "UNOBSERVED"}
+    tasks = {
+        "status": "UNBOUND",
+        "open_count": None,
+        "attention_count": 0,
+        "source": "MCP_TASKS_NOT_BOUND",
+    }
+    home = home_dashboard(
+        ai_state="INTENT_READY",
+        task_summary=tasks,
+        recent_files=[],
+        system_summary={
+            "sync": mesh_status,
+            "degraded": degraded,
+            "diagnostics_available": True,
+        },
+    )
+    home["mcp"] = MCPWorkflowRouter().capability_catalog(actor_scope="USER")
+    home["files"]["state"] = "UNBOUND"
+    home["files"]["source"] = "MCP_FILES_NOT_BOUND"
+    return home
+
+
+def _diagnostics_summary() -> dict:
+    body = _dashboard_summary()
+    body["surface"] = "DIAGNOSTICS"
+    body["home_priority"] = "SECONDARY"
+    body["interaction_rule"] = "VISIBLE_ON_DEMAND_NOT_PRIMARY_WORKFLOW"
+    return body
+
+
 def _boot_state() -> tuple[int, dict]:
     control = REPO_ROOT / ".kex" / "runner-control-plane.json"
     if not control.is_file():
@@ -238,6 +280,12 @@ class Handler(http.server.BaseHTTPRequestHandler):
         if u.path == "/mesh/ping":
             observation = _backbone_observation()
             return self.json(200 if observation.get("status") == "UP" else 503, observation)
+        if u.path == "/home/summary":
+            return self.json(200, _home_summary())
+        if u.path == "/mcp/workflows":
+            return self.json(200, MCPWorkflowRouter().capability_catalog(actor_scope="USER"))
+        if u.path == "/diagnostics/summary":
+            return self.json(200, _diagnostics_summary())
         if u.path == "/dashboards/summary":
             return self.json(200, _dashboard_summary())
         if u.path == "/braink/resident-roots":
