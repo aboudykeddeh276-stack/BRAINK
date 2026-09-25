@@ -42,6 +42,11 @@
       "status": "current"
     },
     {
+      "id": "ISO 9241-115:2024",
+      "role": "conceptual_interaction_ui_and_navigation_design",
+      "status": "current"
+    },
+    {
       "id": "ISO 9241-161:2025",
       "role": "visual_user_interface_elements",
       "status": "current"
@@ -222,5 +227,30 @@
       "COLOUR_IS_SUPPLEMENTARY_NOT_SOLE_STATE_CARRIER"
     ],
     "standard_basis": "ISO 9241-171:2025"
+  },
+  "context_of_use": {
+    "actors": [
+      "end_user",
+      "administrator",
+      "diagnostic_operator"
+    ],
+    "primary_actor": "end_user",
+    "end_user_goal_classes": [
+      "AI_INTERACTION",
+      "TASK_MANAGEMENT",
+      "FILE_BROWSING"
+    ],
+    "design_rule": "PRIMARY_NAVIGATION_IS_ORGANISED_BY_USER_GOAL_NOT_SUBSYSTEM",
+    "role_separation": "ADMIN_AND_DIAGNOSTIC_ACTORS_RECEIVE_SECONDARY_SURFACES"
+  },
+  "navigation_contract": {
+    "standard_basis": "ISO 9241-115:2024",
+    "rules": [
+      "HOME_IS_TASK_ORIENTED",
+      "PRIMARY_DESTINATIONS_ARE_AI_TASKS_FILES",
+      "CONTINUE_WORK_PRESERVES_TASK_CONTINUITY",
+      "ADMIN_AND_DIAGNOSTICS_ARE_SECONDARY_DESTINATIONS",
+      "NAVIGATION_DOES_NOT_REQUIRE_KNOWLEDGE_OF_RUNTIME_TOPOLOGY"
+    ]
   }
 }
