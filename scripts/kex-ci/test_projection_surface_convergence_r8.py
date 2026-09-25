@@ -246,6 +246,15 @@ def test_sites_mcp_fences_direct_mutators() -> None:
     assert "ProjectionEnvelope.from_mapping" in apply_calls
 
 
+def test_sites_http_mutators_are_fenced() -> None:
+    path = ROOT / "owner-control/sites-runtime/app.py"
+    text = path.read_text(encoding="utf-8")
+    assert "GOVERNED_DOMAINSTATE_REQUIRED" in text
+    assert "sites_apply_committed_projection" in text
+    assert 'p[3] in {"domains","versions","deploy"}' in text
+    assert 'if p[3]=="readback": return self.sendj(200,S.readback(p[2],b))' in text
+
+
 def test_runner_control_plane_contains_projection_laws() -> None:
     data = json.loads((ROOT / ".kex/runner-control-plane.json").read_text())
     rules = set(data["acceptance_rule"])
@@ -266,6 +275,7 @@ def main() -> None:
         test_actual_mcp_backend_projection_path,
         test_connector_projection_path,
         test_sites_mcp_fences_direct_mutators,
+        test_sites_http_mutators_are_fenced,
         test_runner_control_plane_contains_projection_laws,
     ]
     for test in tests:
