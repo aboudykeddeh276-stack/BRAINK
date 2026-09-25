@@ -355,11 +355,17 @@ struct BRAINKFilesView: View {
             Divider()
 
             if store.entries.isEmpty {
-                ContentUnavailableView(
-                    "No files loaded",
-                    systemImage: "folder",
-                    description: Text("Choose a workspace folder to browse its contents.")
-                )
+                VStack(spacing: 10) {
+                    Image(systemName: "folder")
+                        .font(.largeTitle)
+                        .foregroundStyle(.secondary)
+                    Text("No files loaded")
+                        .font(.headline)
+                    Text("Choose a workspace folder to browse its contents.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 List(store.entries, id: \.path) { url in
                     HStack {
