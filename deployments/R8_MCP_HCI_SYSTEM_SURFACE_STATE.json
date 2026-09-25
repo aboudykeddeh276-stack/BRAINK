@@ -79,6 +79,20 @@
         "observed_state": "COMPLETED_FAILURE_WITH_ZERO_STEPS",
         "runner_id": 0,
         "interpretation": "RUNNER_NOT_ASSIGNED_TESTS_NOT_EXECUTED"
+      },
+      {
+        "run_id": 36119762670,
+        "workflow": "BRAINK Enterprise Capability R7",
+        "observed_state": "COMPLETED_FAILURE_WITH_ZERO_STEPS",
+        "runner_id": 0,
+        "interpretation": "RUNNER_NOT_ASSIGNED_TESTS_NOT_EXECUTED"
+      },
+      {
+        "run_id": 36119762652,
+        "workflow": "BRAINK Native HCI R8",
+        "observed_state": "COMPLETED_FAILURE_WITH_ZERO_STEPS",
+        "runner_id": 0,
+        "interpretation": "RUNNER_NOT_ASSIGNED_SWIFT_BUILD_NOT_EXECUTED"
       }
     ]
   },
