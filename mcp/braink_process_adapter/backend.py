@@ -9,9 +9,10 @@ from enterprise.orchestration.durable_execution_r5 import (
     DomainAuthorityAtomicCoordinator,
     SignedEnvelopeAuthority,
 )
-from .sector_bridges import ServerRuntimeBridge, VirtualMemoryBridge
+from .sector_bridges import ILLLMModelRegistryBridge, ServerRuntimeBridge, VirtualMemoryBridge
 from .capability_catalog import GovernedCapabilityService
 from .function_contracts import manifest as function_manifest_projection, validate_payload
+from .system_surface import ModelResidencyManager
 
 LEGAL_ENTITY = {
     "identity": "organisation://the-layna-company",
@@ -41,6 +42,8 @@ class BrainkProcessBackend:
         )
         self.servers = ServerRuntimeBridge()
         self.vfs = VirtualMemoryBridge()
+        self.illlm = ILLLMModelRegistryBridge()
+        self.model_residency = ModelResidencyManager(self.state_dir / "system_surface", self.vfs, self.illlm)
         self.capabilities = GovernedCapabilityService(self, self.state_dir / "capability_receipts.sqlite")
 
     @staticmethod
@@ -131,6 +134,36 @@ class BrainkProcessBackend:
 
     def vfs_migrate(self, logical: str, current_backing: str, new_backing: str) -> dict[str, Any]:
         return self.vfs.migrate(logical, current_backing, new_backing)
+
+    def register_model(
+        self,
+        model_id: str,
+        backing_path: str,
+        model_format: str = "safetensors",
+        expected_content_root: str | None = None,
+        capabilities: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        return self.model_residency.register_model(
+            model_id,
+            backing_path,
+            model_format=model_format,
+            expected_content_root=expected_content_root,
+            capabilities=capabilities,
+        )
+
+    def bootstrap_node(
+        self,
+        node_id: str,
+        models: dict[str, Any],
+        agent_authorities: dict[str, Any],
+    ) -> dict[str, Any]:
+        return self.model_residency.bootstrap_node(node_id, models, agent_authorities)
+
+    def node_readiness(self, node_id: str) -> dict[str, Any]:
+        return self.model_residency.readiness(node_id)
+
+    def system_surface_manifest(self) -> dict[str, Any]:
+        return self.model_residency.system_manifest()
 
     # Authoritative enterprise surfaces.
     def capability_manifest(self) -> list[dict[str, Any]]:
