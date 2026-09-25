@@ -148,7 +148,34 @@ FUNCTION_CONTRACTS: dict[str, AgentFunctionContract] = {
             "current_backing": _string("Current backing locator."),
             "new_backing": _string("Destination backing locator."),
         }, ["logical", "current_backing", "new_backing"]),
+    ),,
+    "model.register": AgentFunctionContract(
+        "model.register", "braink_model_register",
+        "Register physically present model artifacts for BRAINK node residency.",
+        _obj({
+            "model_id": _string("Stable model identity."),
+            "backing_path": _string("Local filesystem path containing the model artifact or sharded model directory."),
+            "model_format": _string("Artifact format.", default="safetensors"),
+            "expected_content_root": _string("Optional expected SHA-256 content root."),
+            "capabilities": {"type": "object", "description": "Declared model capability metadata."},
+        }, ["model_id", "backing_path"]),
     ),
+    "node.bootstrap": AgentFunctionContract(
+        "node.bootstrap", "braink_node_bootstrap",
+        "Resolve model artifacts through VFS and IL-LLM and bind them to node agent authorities.",
+        _obj({
+            "node_id": _string("Stable BRAINK node identity."),
+            "models": {"type": "object", "description": "Map whose keys are registered model IDs required by the node."},
+            "agent_authorities": {"type": "object", "description": "Map of agent IDs to arrays of model IDs they are permitted to use."},
+        }, ["node_id", "models", "agent_authorities"]),
+    ),
+    "node.readiness": AgentFunctionContract(
+        "node.readiness", "braink_node_readiness",
+        "Read observed node residency readiness without mutating node authority.",
+        _obj({
+            "node_id": _string("Stable BRAINK node identity."),
+        }, ["node_id"]),
+    )
 }
 
 
