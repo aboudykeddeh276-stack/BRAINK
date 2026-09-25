@@ -198,11 +198,23 @@ class API(BaseHTTPRequestHandler):
         if not self.auth(): return self.sendj(401,{"error":"unauthorized"})
         try:
             p=self.route(); b=self.body()
-            if p==["api","sites"]: return self.sendj(201,S.create_site(b))
+            # R8 authority law: HTTP/UI is a projection surface, not a second
+            # mutation authority. Mutating Site state must enter through the
+            # signed committed-DomainState MCP projection path.
+            if p==["api","sites"]:
+                return self.sendj(409,{
+                    "error":"GOVERNED_DOMAINSTATE_REQUIRED",
+                    "operation":"site.create",
+                    "use_tool":"sites_apply_committed_projection",
+                })
             if len(p)==4 and p[:2]==["api","sites"]:
-                if p[3]=="domains": return self.sendj(200,S.domain(p[2],b))
-                if p[3]=="versions": return self.sendj(200,S.version(p[2],b))
-                if p[3]=="deploy": return self.sendj(200,S.deploy(p[2],b))
+                if p[3] in {"domains","versions","deploy"}:
+                    op={"domains":"site.domain_bind","versions":"site.version_create","deploy":"site.deploy"}[p[3]]
+                    return self.sendj(409,{
+                        "error":"GOVERNED_DOMAINSTATE_REQUIRED",
+                        "operation":op,
+                        "use_tool":"sites_apply_committed_projection",
+                    })
                 if p[3]=="readback": return self.sendj(200,S.readback(p[2],b))
             return self.sendj(404,{"error":"route not found"})
         except KeyError as e:return self.sendj(404,{"error":str(e)})
