@@ -147,94 +147,56 @@ struct ChatInputBar: View {
 
     var body: some View {
         HStack(spacing: 10) {
-            TextField("Ask BRAINK native bot...", text: $input, axis: .vertical)
+            TextField("Ask BRAINK…", text: $input, axis: .vertical)
                 .textFieldStyle(.plain)
                 .padding(10)
                 .background(Color.black.opacity(0.2))
                 .cornerRadius(8)
                 .lineLimit(4)
+                .onSubmit(send)
 
-            Button("Send") {
-                Task {
-                    let copy = input
-                    input = ""
-                    await engine.send(userInput: copy)
-                }
-            }
-            .buttonStyle(.borderedProminent)
-            .disabled(engine.isBusy || input.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+            Button("Send", action: send)
+                .buttonStyle(.borderedProminent)
+                .disabled(engine.isBusy || input.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
 
             Button("Clear") {
                 engine.clear()
             }
             .buttonStyle(.bordered)
             .disabled(engine.messages.isEmpty)
-            
-            Button("Load My Data") {
-                engine.reloadILLLMBundle()
-            }
-            .buttonStyle(.borderedProminent)
-            .disabled(engine.isBusy)
-
-            Button("Audit Stack") {
-                Task {
-                    await engine.send(userInput: "stack audit line for line module alignment")
-                }
-            }
-            .buttonStyle(.bordered)
-            .disabled(engine.isBusy)
-
-            Button("Learn Files") {
-                Task {
-                    await engine.send(userInput: "learn every last file and code and skill")
-                }
-            }
-            .buttonStyle(.bordered)
-            .disabled(engine.isBusy)
-
-            Button("Knowledge") {
-                Task {
-                    await engine.send(userInput: "knowledge center status")
-                }
-            }
-            .buttonStyle(.bordered)
-            .disabled(engine.isBusy)
 
             if engine.isBusy {
                 ProgressView().scaleEffect(0.7)
             }
         }
     }
+
+    private func send() {
+        let copy = input.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !copy.isEmpty else { return }
+        input = ""
+        Task { await engine.send(userInput: copy) }
+    }
 }
 
 struct BrainkNativeChatbotView: View {
     @StateObject private var engine = BRAINKChatEngine()
-    @StateObject private var nodeTemplates = BRAINKNodeTemplateStore()
     @State private var input = ""
     @State private var isDraggingILLLMTarget = false
 
     private func handleILLLMDrop(_ providers: [NSItemProvider]) -> Bool {
         let fileProviders = providers.filter { $0.canLoadObject(ofClass: NSURL.self) }
-        guard !fileProviders.isEmpty else {
-            return false
-        }
+        guard !fileProviders.isEmpty else { return false }
 
         for provider in fileProviders {
             provider.loadItem(forTypeIdentifier: UTType.fileURL.identifier, options: nil) { item, _ in
                 if let urlData = item as? Data,
                    let url = URL(dataRepresentation: urlData, relativeTo: nil) {
-                    Task { @MainActor in
-                        engine.attachILLLMRuntimePath(url)
-                    }
+                    Task { @MainActor in engine.attachILLLMRuntimePath(url) }
                 } else if let nsurl = item as? NSURL, let url = nsurl as URL? {
-                    Task { @MainActor in
-                        engine.attachILLLMRuntimePath(url)
-                    }
+                    Task { @MainActor in engine.attachILLLMRuntimePath(url) }
                 } else if let rawPath = item as? String {
-                    let url = URL(fileURLWithPath: rawPath)
-                    Task { @MainActor in
-                        engine.attachILLLMRuntimePath(url)
-                    }
+                    Task { @MainActor in engine.attachILLLMRuntimePath(URL(fileURLWithPath: rawPath)) }
                 }
             }
         }
@@ -242,169 +204,59 @@ struct BrainkNativeChatbotView: View {
     }
 
     var body: some View {
-        ScreenContainer {
-            HStack(spacing: 0) {
-                VStack(spacing: 0) {
-                HStack {
-                    Text(BRAINKConstants.productSignature)
-                        .font(.title3.bold())
-                    Spacer()
-                    Text("Native deterministic path")
+        VStack(spacing: 0) {
+            HStack {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text("Ask BRAINK")
+                        .font(.title2.bold())
+                    Text("Describe the outcome. Runtime, model and VFS resolution stay behind the task.")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
-                .padding()
+                Spacer()
+            }
+            .padding()
 
-                HStack {
-                    Text(BRAINKConstants.authorshipSignature)
-                        .font(.caption2.monospaced())
-                        .foregroundStyle(.secondary)
-                    Spacer()
+            Divider()
+
+            ScrollViewReader { proxy in
+                ScrollView {
+                    VStack(spacing: 10) {
+                        ForEach(engine.messages) { message in
+                            MessageBubble(message: message)
+                                .id(message.id)
+                        }
+                    }
+                    .padding()
                 }
+                .onChange(of: engine.messages.count) { _, _ in
+                    if let last = engine.messages.last {
+                        withAnimation { proxy.scrollTo(last.id, anchor: .bottom) }
+                    }
+                }
+            }
+
+            Divider()
+
+            ChatInputBar(engine: engine, input: $input)
                 .padding(.horizontal)
-
-                Divider()
-
-                ScrollViewReader { proxy in
-                    ScrollView {
-                        VStack(spacing: 10) {
-                            ForEach(engine.messages) { message in
-                                MessageBubble(message: message)
-                                    .id(message.id)
-                            }
-                        }
-                        .padding()
-                    }
-                    .onChange(of: engine.messages.count) { _, _ in
-                        if let last = engine.messages.last {
-                            withAnimation {
-                                proxy.scrollTo(last.id, anchor: .bottom)
-                            }
-                        }
-                    }
-                }
-
-                Divider()
-
-                VStack(spacing: 8) {
-                ChatInputBar(engine: engine, input: $input)
-                        .padding(.horizontal)
-                        .padding(.vertical, 8)
-                        .onDrop(of: [UTType.fileURL], isTargeted: $isDraggingILLLMTarget, perform: handleILLLMDrop)
-                }
+                .padding(.vertical, 8)
                 .background(Color.black.opacity(0.12))
+                .onDrop(of: [UTType.fileURL], isTargeted: $isDraggingILLLMTarget, perform: handleILLLMDrop)
                 .overlay(
                     RoundedRectangle(cornerRadius: 0)
                         .stroke(isDraggingILLLMTarget ? Color.accentColor : Color.clear, lineWidth: 2)
                         .animation(.easeOut(duration: 0.2), value: isDraggingILLLMTarget)
                 )
+
+            if isDraggingILLLMTarget {
+                Text("Drop a file or folder to make it available to the current BRAINK context.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .padding(.bottom, 6)
             }
-            .frame(minWidth: 700)
-            .background(Color.black.opacity(0.03))
-
-            Divider()
-
-            GovernedTemplatePanel(node: nodeTemplates.nativeDashboard, unboundReason: nodeTemplates.nativeDashboardError) {
-                VStack(alignment: .leading, spacing: 8) {
-                    HStack {
-                        Text("Module Trace")
-                            .font(.headline)
-                        Spacer()
-                        Button("Clear traces") {
-                            engine.clearTraces()
-                        }
-                        .buttonStyle(.plain)
-                    }
-                    .padding([.horizontal, .top])
-
-                    List {
-                        ForEach(engine.traces) { trace in
-                            TraceRow(trace: trace)
-                        }
-                    }
-
-                    ScrollView {
-                        VStack(alignment: .leading, spacing: 10) {
-                            DashboardCard(title: "User Dashboard") {
-                                DashboardRow(label: "Product", value: BRAINKConstants.productSignature)
-                                DashboardRow(label: "Author", value: BRAINKConstants.architectName)
-                                DashboardRow(label: "Org", value: BRAINKConstants.organizationName)
-                                DashboardRow(label: "Session", value: engine.dashboardLastRoute)
-                            }
-
-                            DashboardCard(title: "Runtime") {
-                                DashboardRow(label: "Mode", value: engine.runtimeModeLabel)
-                                DashboardRow(label: "Endpoint", value: engine.runtimeEndpointLabel)
-                                DashboardRow(label: "Path", value: engine.ilLlmRuntimePath)
-                                DashboardRow(label: "Docs", value: "\(engine.ilLlmLoadedCount)")
-                                DashboardRow(label: "Load", value: engine.ilLlmLoadedStatus)
-                            }
-
-                            DashboardCard(title: "Audit Contract") {
-                                HStack {
-                                    DashboardRow(label: "Outcome", value: engine.dashboardAuditOutcome)
-                                    DashboardOutcomeBadge(outcome: engine.dashboardAuditOutcome)
-                                }
-                                DashboardRow(label: "Align", value: engine.dashboardAuditWeightedAlignment)
-                                ProgressView(value: engine.dashboardAuditAlignmentScore)
-                                    .tint(engine.dashboardAuditOutcome == "DONE" ? .green : .orange)
-                                DashboardRow(label: "Math", value: engine.dashboardAuditMathematicallyAligned ? "true" : "false")
-                                DashboardRow(label: "Counts", value: engine.dashboardAuditCounts)
-                                DashboardRow(label: "Report", value: BRAINKConstants.stackAuditReportPath)
-                                DashboardRow(label: "Next", value: engine.dashboardAuditNextMove)
-                                DashboardRow(label: "At", value: engine.dashboardAuditGeneratedAt)
-                            }
-
-                            DashboardCard(title: "Knowledge") {
-                                DashboardRow(label: "Growth", value: engine.ilLlmGrowthStatus)
-                                DashboardRow(label: "Memory", value: engine.ilLlmMemoryStatus)
-                                DashboardRow(label: "Concepts", value: engine.ilLlmTopConceptsText)
-                            }
-
-                            DashboardCard(title: "Activity") {
-                                DashboardRow(
-                                    label: "Messages",
-                                    value: "\(engine.messages.count) total | u:\(engine.dashboardUserMessageCount) a:\(engine.dashboardAssistantMessageCount) s:\(engine.dashboardSystemMessageCount)"
-                                )
-                                DashboardRow(label: "Traces", value: "\(engine.traces.count)")
-                                DashboardRow(label: "Next", value: engine.dashboardNextAction)
-                                HStack(spacing: 8) {
-                                    Button("Run Audit") {
-                                        Task { await engine.send(userInput: "stack audit line for line module alignment") }
-                                    }
-                                    .buttonStyle(.bordered)
-                                    .disabled(engine.isBusy)
-
-                                    Button("Run Proof") {
-                                        Task { await engine.send(userInput: "proof packet") }
-                                    }
-                                    .buttonStyle(.bordered)
-                                    .disabled(engine.isBusy)
-
-                                    Button("Run Compat") {
-                                        Task { await engine.send(userInput: "illlm compatibility") }
-                                    }
-                                    .buttonStyle(.bordered)
-                                    .disabled(engine.isBusy)
-                                }
-                            }
-
-                            if isDraggingILLLMTarget {
-                                Text("Drop IL-LLM folder or file to rebind runtime.")
-                                    .font(.caption)
-                                    .foregroundStyle(.yellow)
-                            }
-                        }
-                        .padding()
-                    }
-                }
-            }
-            .frame(minWidth: 320)
         }
-        }
-        .task {
-            nodeTemplates.reload()
-        }
+        .background(Color.black.opacity(0.03))
     }
 }
 
@@ -412,7 +264,7 @@ struct BrainkNativeChatbotView: View {
 struct BRAINKNativeChatBotApp: App {
     var body: some Scene {
         WindowGroup {
-            BrainkNativeChatbotView()
+            BRAINKWorkspaceShell()
                 .frame(minWidth: 1080, minHeight: 720)
                 .preferredColorScheme(.dark)
         }
