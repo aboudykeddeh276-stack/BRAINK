@@ -30,6 +30,9 @@ def main() -> None:
     assert all(row["invoke_via"] == "braink_invoke_capability" for row in projected)
     assert all("parameters" in row for row in projected)
     assert all(row["authority"]["capability_id"] == row["capability_id"] for row in projected)
+    assert FUNCTION_CONTRACTS["model.register"].function_name == "braink_model_register"
+    assert FUNCTION_CONTRACTS["node.bootstrap"].function_name == "braink_node_bootstrap"
+    assert FUNCTION_CONTRACTS["node.readiness"].function_name == "braink_node_readiness"
 
     normalized = validate_payload("domain.provision", {
         "tx_id": "TX-R7",
