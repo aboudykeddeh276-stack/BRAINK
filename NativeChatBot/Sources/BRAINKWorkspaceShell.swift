@@ -1,7 +1,7 @@
 import SwiftUI
 import AppKit
 
-enum BRAINKWorkspaceRoute: String, CaseIterable, Identifiable {
+enum BRAINKWorkspaceRoute: String, CaseIterable, Identifiable, Hashable {
     case home = "Home"
     case ai = "AI"
     case tasks = "Tasks"
@@ -89,7 +89,8 @@ final class BRAINKTaskStore: ObservableObject {
         do {
             try FileManager.default.createDirectory(
                 at: stateURL.deletingLastPathComponent(),
-                withIntermediateDirectories: true
+                withIntermediateDirectories: true,
+                attributes: nil
             )
             let data = try JSONEncoder().encode(items)
             try data.write(to: stateURL, options: .atomic)
@@ -200,7 +201,7 @@ struct BRAINKHomeView: View {
                     VStack(alignment: .leading, spacing: 6) {
                         Text("What do you want to do?")
                             .font(.largeTitle.bold())
-                        Text("BRAINK resolves models, VFS, agents and runtime state behind the task.")
+                        Text("Start with the outcome. BRAINK handles the supporting system work automatically.")
                             .foregroundStyle(.secondary)
                     }
 
