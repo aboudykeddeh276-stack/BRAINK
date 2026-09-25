@@ -157,7 +157,14 @@ class BrainkProcessBackend:
         models: dict[str, Any],
         agent_authorities: dict[str, Any],
     ) -> dict[str, Any]:
-        return self.model_residency.bootstrap_node(node_id, models, agent_authorities)
+        result = self.model_residency.bootstrap_node(node_id, models, agent_authorities)
+        if result.get("status") != "READY":
+            return {
+                "status": "FAILED_NODE_NOT_READY",
+                "node_id": node_id,
+                "node": result,
+            }
+        return result
 
     def node_readiness(self, node_id: str) -> dict[str, Any]:
         return self.model_residency.readiness(node_id)
