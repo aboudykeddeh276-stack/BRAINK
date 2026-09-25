@@ -1,0 +1,111 @@
+{
+  "schema": "braink.r8.mcp-hci-system-surface-state/v1",
+  "subject": "R8_MCP_SYSTEM_SUPERFACE_AND_HUMAN_CENTRED_WORKSTATION",
+  "branch": "agent/mcp-system-surface-r8",
+  "classification": "IMPLEMENTED_SOURCE_WIRED_EXECUTION_PARTIALLY_BLOCKED",
+  "architecture": {
+    "mcp_role": "SYSTEM_SUPERFACE",
+    "mcp_authority": "PROJECTION_AND_INVOCATION_ONLY",
+    "internal_authorities": {
+      "orchestrator": "braink://local/orchestrator",
+      "agent_authority": "braink://agent-control",
+      "semantic_traversal": "illlm://local/traversal",
+      "vfs": "vfs://kex/root",
+      "model_namespace": "vfs://braink/models"
+    },
+    "node_readiness_law": "PHYSICAL_AND_VFS_AND_ILLLM_AND_AGENT_AUTHORITY"
+  },
+  "hci": {
+    "primary_workflows": [
+      "AI",
+      "TASKS",
+      "FILES"
+    ],
+    "secondary_surfaces": [
+      "ACTIVITY",
+      "ADMIN",
+      "DIAGNOSTICS"
+    ],
+    "maintenance_default": "AUTOMATIC_UNLESS_INTERVENTION_REQUIRED",
+    "standards_basis": [
+      "ISO 9241-110:2020",
+      "ISO 9241-210:2019",
+      "ISO 9241-11:2018",
+      "ISO 9241-112:2025",
+      "ISO 9241-161:2025",
+      "ISO 9241-171:2025",
+      "ISO/IEC 25010:2023",
+      "ISO/IEC 25019:2023"
+    ],
+    "certification_claim": "NONE"
+  },
+  "implemented_refs": [
+    "mcp/braink_process_adapter/system_surface.py",
+    "mcp/braink_process_adapter/sector_bridges.py",
+    "mcp/braink_process_adapter/backend.py",
+    "mcp/braink_process_adapter/capability_catalog.py",
+    "mcp/braink_process_adapter/function_contracts.py",
+    "mcp/braink_process_adapter/main.py",
+    "NativeChatBot/Sources/BRAINKWorkspaceShell.swift",
+    "NativeChatBot/Sources/BRAINKChatBotApp.swift",
+    "governance/hci/BRAINK_INTERACTION_CONTRACT_R8.json"
+  ],
+  "gates": [
+    "scripts/kex-ci/test_mcp_system_surface_r8.py",
+    "scripts/kex-ci/test_hci_interaction_contract_r8.py",
+    "scripts/kex-ci/test_mcp_governance_surface_r6.py",
+    ".github/workflows/braink-enterprise-capability-r6.yml",
+    ".github/workflows/braink-native-hci-r8.yml"
+  ],
+  "observed_external_execution": {
+    "github_actions": [
+      {
+        "run_id": 36119162261,
+        "workflow": "BRAINK Enterprise Capability R7",
+        "observed_state": "COMPLETED_FAILURE_WITH_ZERO_STEPS",
+        "runner_id": 0,
+        "interpretation": "RUNNER_NOT_ASSIGNED_TESTS_NOT_EXECUTED"
+      },
+      {
+        "run_id": 36119162330,
+        "workflow": "BRAINK Native HCI R8",
+        "observed_state": "COMPLETED_FAILURE_WITH_ZERO_STEPS",
+        "runner_id": 0,
+        "interpretation": "RUNNER_NOT_ASSIGNED_SWIFT_BUILD_NOT_EXECUTED"
+      },
+      {
+        "run_id": 36119162414,
+        "workflow": "KEDDEH Enterprise Control Validation",
+        "observed_state": "COMPLETED_FAILURE_WITH_ZERO_STEPS",
+        "runner_id": 0,
+        "interpretation": "RUNNER_NOT_ASSIGNED_TESTS_NOT_EXECUTED"
+      }
+    ]
+  },
+  "blockers": [
+    {
+      "id": "R8-B1",
+      "state": "OPEN",
+      "description": "Canonical IL-LLM model-registry runtime is not available through the connected GitHub installation.",
+      "enforcement": "NODE_STAYS_NOT_READY_WHEN_BRAINK_ILLLM_MODEL_RUNTIME_PATH_IS_UNBOUND"
+    },
+    {
+      "id": "R8-B2",
+      "state": "OPEN",
+      "description": "GitHub-hosted Actions jobs were not assigned a runner and executed zero steps.",
+      "enforcement": "NO_CI_PASS_CLAIM"
+    },
+    {
+      "id": "R8-B3",
+      "state": "OPEN",
+      "description": "No physical LLM weight artifact is committed or otherwise observed in the BRAINK repository.",
+      "enforcement": "NO_MODEL_RESIDENCY_PASS_WITHOUT_PHYSICAL_ARTIFACT"
+    }
+  ],
+  "non_claims": [
+    "NO_ISO_CERTIFICATION_CLAIM",
+    "NO_MODEL_WEIGHT_RESIDENCY_CLAIM_WITHOUT_BYTES",
+    "NO_CI_PASS_CLAIM_WITHOUT_EXECUTED_STEPS",
+    "NO_ILLLM_AUTHORITY_SUBSTITUTION"
+  ]
+}
