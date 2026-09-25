@@ -1,0 +1,196 @@
+{
+  "schema": "braink.hci.interaction-contract.r8/v1",
+  "status": "IMPLEMENTED_POLICY_NOT_CERTIFIED",
+  "scope": [
+    "workstations",
+    "operating_system_surfaces",
+    "desktop_environments",
+    "BRAINK_native_console",
+    "IDE_surfaces",
+    "software_shells"
+  ],
+  "objective": "Expose user goals first; automate non-essential maintenance; keep advanced machine operations behind explicit diagnostics/admin surfaces.",
+  "standards_basis": [
+    {
+      "id": "ISO 9241-110:2020",
+      "role": "interaction_principles",
+      "status": "current_confirmed_2025"
+    },
+    {
+      "id": "ISO 9241-210:2019",
+      "role": "human_centred_design_process",
+      "status": "current_confirmed_2025"
+    },
+    {
+      "id": "ISO 9241-11:2018",
+      "role": "usability_context_effectiveness_efficiency_satisfaction",
+      "status": "current_confirmed_2023"
+    },
+    {
+      "id": "ISO 9241-112:2025",
+      "role": "presentation_of_information",
+      "status": "current"
+    },
+    {
+      "id": "ISO/IEC 25010:2023",
+      "role": "product_quality_model",
+      "status": "current"
+    },
+    {
+      "id": "ISO/IEC 25019:2023",
+      "role": "quality_in_use_model",
+      "status": "current"
+    }
+  ],
+  "interaction_principles": [
+    "SUITABILITY_FOR_USER_TASKS",
+    "SELF_DESCRIPTIVENESS",
+    "CONFORMITY_WITH_USER_EXPECTATIONS",
+    "LEARNABILITY",
+    "CONTROLLABILITY",
+    "USE_ERROR_ROBUSTNESS",
+    "USER_ENGAGEMENT"
+  ],
+  "primary_user_workflows": [
+    {
+      "id": "AI",
+      "label": "Ask BRAINK",
+      "intent_examples": [
+        "ask",
+        "research",
+        "plan",
+        "code",
+        "analyse",
+        "continue work"
+      ],
+      "surface": "workspace://braink/ai"
+    },
+    {
+      "id": "TASKS",
+      "label": "Tasks",
+      "intent_examples": [
+        "create task",
+        "resume task",
+        "review active work",
+        "complete task"
+      ],
+      "surface": "workspace://braink/tasks"
+    },
+    {
+      "id": "FILES",
+      "label": "Files",
+      "intent_examples": [
+        "browse files",
+        "open file",
+        "find project",
+        "inspect recent files"
+      ],
+      "surface": "workspace://braink/files"
+    }
+  ],
+  "secondary_surfaces": [
+    {
+      "id": "ACTIVITY",
+      "role": "task_history_and_outputs"
+    },
+    {
+      "id": "ADMIN",
+      "role": "agents_integrations_permissions_configuration"
+    },
+    {
+      "id": "DIAGNOSTICS",
+      "role": "runtime_models_vfs_nodes_network_logs_ledgers"
+    }
+  ],
+  "home_contract": {
+    "required": [
+      "three_primary_workflow_actions",
+      "continue_work_section",
+      "minimal_non_intrusive_status_bar",
+      "diagnostics_disclosure_control"
+    ],
+    "forbidden": [
+      "raw_rpc_controls_on_home",
+      "model_mount_controls_on_home",
+      "vfs_mount_controls_on_home",
+      "node_restart_controls_on_home",
+      "ledger_raw_view_on_home",
+      "maintenance_buttons_in_primary_action_row"
+    ]
+  },
+  "automation_contract": {
+    "default_automatic": [
+      "model_residency_resolution",
+      "vfs_reconciliation",
+      "registry_refresh",
+      "connection_recovery",
+      "node_health_check",
+      "context_checkpoint",
+      "index_refresh"
+    ],
+    "user_interrupt_only_when": [
+      "authorization_required",
+      "destructive_action_requires_approval",
+      "ambiguous_user_goal_blocks_safe_execution",
+      "unrecoverable_runtime_failure",
+      "external_credential_or_service_action_required"
+    ]
+  },
+  "button_classes": {
+    "USER_ACTION": {
+      "placement": "PRIMARY",
+      "examples": [
+        "Ask BRAINK",
+        "New Task",
+        "Browse Files",
+        "Continue"
+      ]
+    },
+    "ADMIN_ACTION": {
+      "placement": "ADMIN",
+      "examples": [
+        "Manage Agents",
+        "Integrations",
+        "Permissions",
+        "Configuration"
+      ]
+    },
+    "DIAGNOSTIC_ACTION": {
+      "placement": "DIAGNOSTICS",
+      "examples": [
+        "Runtime State",
+        "Model Residency",
+        "VFS",
+        "Nodes",
+        "Logs",
+        "Ledger"
+      ]
+    }
+  },
+  "status_bar": {
+    "visible_fields": [
+      "overall_state",
+      "active_task",
+      "warning_count"
+    ],
+    "hidden_until_details": [
+      "endpoint",
+      "model_id",
+      "model_path",
+      "vfs_backing",
+      "rpc",
+      "node_ids",
+      "ledger_roots",
+      "raw_logs"
+    ]
+  },
+  "interaction_law": [
+    "USER_GOAL_PRECEDES_IMPLEMENTATION_MECHANIC",
+    "SYSTEM_RESOLVES_SUBSTRATE_AUTOMATICALLY",
+    "TECHNICAL_STATE_IS_PROGRESSIVE_DISCLOSURE",
+    "USER_RETAINS_CONTROL_OF_TASK_SEQUENCE_AND_COMMIT",
+    "RECOVERABLE_FAILURES_MUST_NOT_REQUIRE_MANUAL_MAINTENANCE",
+    "NO_SUCCESS_STATE_WITHOUT_OBSERVED_RESULT"
+  ],
+  "certification_claim": "NONE"
+}
