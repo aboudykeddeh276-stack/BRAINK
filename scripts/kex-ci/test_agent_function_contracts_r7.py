@@ -9,8 +9,8 @@ from mcp.braink_process_adapter.function_contracts import (
 
 
 def main() -> None:
-    assert len(FUNCTION_CONTRACTS) == 14
-    assert len({c.function_name for c in FUNCTION_CONTRACTS.values()}) == 14
+    assert len(FUNCTION_CONTRACTS) == 17
+    assert len({c.function_name for c in FUNCTION_CONTRACTS.values()}) == 17
 
     authority = []
     for capability_id in FUNCTION_CONTRACTS:
@@ -26,7 +26,7 @@ def main() -> None:
         })
 
     projected = manifest(authority)
-    assert len(projected) == 14
+    assert len(projected) == 17
     assert all(row["invoke_via"] == "braink_invoke_capability" for row in projected)
     assert all("parameters" in row for row in projected)
     assert all(row["authority"]["capability_id"] == row["capability_id"] for row in projected)
