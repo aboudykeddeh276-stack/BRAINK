@@ -69,5 +69,5 @@ details are progressively disclosed through Diagnostics rather than competing wi
 task on Home.
 
 The interaction contract is based on ISO 9241-110:2020, ISO 9241-210:2019,
-ISO 9241-11:2018, ISO 9241-112:2025, ISO/IEC 25010:2023 and ISO/IEC 25019:2023.
+ISO 9241-11:2018, ISO 9241-112:2025, ISO 9241-161:2025, ISO 9241-171:2025, ISO/IEC 25010:2023 and ISO/IEC 25019:2023.
 This repository does not claim ISO certification or independent conformance assessment.
