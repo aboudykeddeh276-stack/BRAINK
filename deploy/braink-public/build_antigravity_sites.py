@@ -1,26 +1,21 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
-import hashlib
-import json
-import pathlib
-import shutil
-import subprocess
+import hashlib, json, os, pathlib, shutil, subprocess
 
 ROOT = pathlib.Path(__file__).resolve().parent
 REPO = ROOT.parents[1]
-DIST = ROOT / "dist"
-ADAPTER_ROOT = REPO / "adapters" / "web"
-ASSETS = [
-    "braink-web-adapter.js",
-    "braink-user-agent.js",
-    "braink-runtime-resolver.js",
-    "braink-fabric-manifest.json",
-]
+WORK = pathlib.Path(os.environ.get('BRAINK_ANTIGRAVITY_WORK_ROOT', str(ROOT)))
+DIST = pathlib.Path(os.environ.get('BRAINK_ANTIGRAVITY_DIST', str(WORK / 'dist')))
+READBACK = pathlib.Path(os.environ.get('BRAINK_ANTIGRAVITY_BUILD_READBACK', str(WORK / 'ANTIGRAVITY_SITE_BUILD_READBACK.json')))
+ADAPTER_ROOT = REPO / 'adapters' / 'web'
+ASSETS = ['braink-web-adapter.js','braink-user-agent.js','braink-runtime-resolver.js','braink-fabric-manifest.json']
 
-subprocess.run(["python3", str(ROOT / "build_sites.py")], check=True)
-manifest = json.loads((ROOT / "BRAINK_PUBLIC_CORPORATE_RELEASE.json").read_text())
-readback = {"schema": "kex.braink.antigravity-site-build.v1", "domains": {}, "overall": True}
+WORK.mkdir(parents=True, exist_ok=True)
+env=os.environ.copy(); env['BRAINK_ANTIGRAVITY_WORK_ROOT']=str(WORK); env['BRAINK_ANTIGRAVITY_DIST']=str(DIST)
+subprocess.run(['python3', str(ROOT / 'build_sites.py')], check=True, env=env)
+manifest = json.loads((ROOT / 'BRAINK_PUBLIC_CORPORATE_RELEASE.json').read_text())
+readback = {'schema':'kex.braink.antigravity-site-build.v1','domains':{},'overall':True,'dist':str(DIST)}
 
 panel = r'''
 <section id="braink-antigravity" style="margin-top:32px;border:1px solid #1d3445;padding:24px;border-radius:18px;background:#0b1721">
@@ -48,33 +43,21 @@ document.querySelector('#braink-run').addEventListener('click', async () => {
 </script>
 '''
 
-for domain, spec in manifest["domains"].items():
+for domain, spec in manifest['domains'].items():
     site = DIST / domain
-    asset_dir = site / "adapters" / "web"
+    asset_dir = site / 'adapters' / 'web'
     asset_dir.mkdir(parents=True, exist_ok=True)
     hashes = {}
     for name in ASSETS:
         src = ADAPTER_ROOT / name
-        if not src.is_file():
-            raise FileNotFoundError(src)
-        dst = asset_dir / name
-        shutil.copy2(src, dst)
-        hashes[name] = hashlib.sha256(dst.read_bytes()).hexdigest()
-    index = site / "index.html"
-    text = index.read_text()
-    if "id=\"braink-antigravity\"" not in text:
-        text = text.replace("</main>", panel + "</main>")
-        index.write_text(text)
-    hashes["index.html"] = hashlib.sha256(index.read_bytes()).hexdigest()
-    readback["domains"][domain] = {
-        "site": spec["site"],
-        "runtime": spec["runtime"],
-        "workspace": spec["workspace"],
-        "vfs": spec["vfs"],
-        "assets": hashes,
-        "dispatch_endpoint": "/braink/dispatch",
-        "status": "BUILT",
-    }
+        if not src.is_file(): raise FileNotFoundError(src)
+        dst = asset_dir / name; shutil.copy2(src, dst); hashes[name] = hashlib.sha256(dst.read_bytes()).hexdigest()
+    index = site / 'index.html'; text = index.read_text()
+    if 'id="braink-antigravity"' not in text:
+        text = text.replace('</main>', panel + '</main>'); index.write_text(text)
+    hashes['index.html'] = hashlib.sha256(index.read_bytes()).hexdigest()
+    readback['domains'][domain] = {'site':spec['site'],'runtime':spec['runtime'],'workspace':spec['workspace'],'vfs':spec['vfs'],'assets':hashes,'dispatch_endpoint':'/braink/dispatch','status':'BUILT'}
 
-(ROOT / "ANTIGRAVITY_SITE_BUILD_READBACK.json").write_text(json.dumps(readback, indent=2))
+READBACK.parent.mkdir(parents=True, exist_ok=True)
+READBACK.write_text(json.dumps(readback, indent=2))
 print(json.dumps(readback, indent=2))

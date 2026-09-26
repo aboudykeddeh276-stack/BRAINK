@@ -1,12 +1,22 @@
 from dataclasses import dataclass
+from typing import Mapping
 import subprocess,os,signal,time
+
 @dataclass
 class ManagedProcess:
-    name:str; argv:list[str]; proc:subprocess.Popen|None=None; generation:int=0; restart_count:int=0; last_failure:str|None=None
+    name:str
+    argv:list[str]
+    proc:subprocess.Popen|None=None
+    generation:int=0
+    restart_count:int=0
+    last_failure:str|None=None
+    cwd:str|None=None
+    env:Mapping[str,str]|None=None
     def start(self):
         if self.proc and self.proc.poll() is None:return self.proc.pid
         self.generation+=1
-        self.proc=subprocess.Popen(self.argv,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,start_new_session=True)
+        child_env=None if self.env is None else {**os.environ,**dict(self.env)}
+        self.proc=subprocess.Popen(self.argv,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,start_new_session=True,cwd=self.cwd,env=child_env)
         return self.proc.pid
     def alive(self): return bool(self.proc and self.proc.poll() is None)
     def exit_code(self): return None if not self.proc else self.proc.poll()
@@ -26,6 +36,7 @@ class ManagedProcess:
                 if probe(): return True
             except Exception: pass
             time.sleep(.05)
+        self.last_failure="READINESS_TIMEOUT"
         return False
     def snapshot(self):
         return {"pid":self.proc.pid if self.alive() else None,"alive":self.alive(),"exit_code":self.exit_code(),"generation":self.generation,

@@ -4,12 +4,14 @@ from __future__ import annotations
 import hashlib, json, os, pathlib, shutil, ssl, subprocess, sys, time, urllib.request
 
 ROOT = pathlib.Path(__file__).resolve().parent
-FABRIC = pathlib.Path(os.environ.get('KEDDEH_DOMAIN_FABRIC_ROOT','/mnt/data/keddeh_deploy/resident_v5/KEDDEH_REGISTRAR_V5'))
-EVIDENCE = pathlib.Path(os.environ.get('KEDDEH_EVIDENCE_ROOT','/mnt/data/keddeh_deploy/resident_v5/KEDDEH_REGISTRAR_V5_EVIDENCE'))
+WORK = pathlib.Path(os.environ.get('BRAINK_ANTIGRAVITY_WORK_ROOT','/var/lib/braink/antigravity')).resolve()
+FABRIC = pathlib.Path(os.environ.get('KEDDEH_DOMAIN_FABRIC_ROOT','/mnt/data/keddeh_deploy/resident_v5/KEDDEH_REGISTRAR_V5')).resolve()
+EVIDENCE = pathlib.Path(os.environ.get('KEDDEH_EVIDENCE_ROOT','/mnt/data/keddeh_deploy/resident_v5/KEDDEH_REGISTRAR_V5_EVIDENCE')).resolve()
 ORCH = pathlib.Path(os.environ.get('BRAINK_ORCHESTRATOR_SOCKET','/tmp/braink-orchestrator.sock'))
-DIST = ROOT / 'dist'
-ROLLBACK = ROOT / '.rollback' / 'antigravity-previous-dist'
-RECEIPT = ROOT / 'BRAINK_ANTIGRAVITY_DEPLOYMENT_RECEIPT.json'
+DIST = pathlib.Path(os.environ.get('BRAINK_ANTIGRAVITY_DIST', str(WORK/'dist'))).resolve()
+ROLLBACK = WORK / 'rollback' / 'antigravity-previous-dist'
+BUILD_READBACK = WORK / 'ANTIGRAVITY_SITE_BUILD_READBACK.json'
+RECEIPT = WORK / 'BRAINK_ANTIGRAVITY_DEPLOYMENT_RECEIPT.json'
 DOMAINS = ['braink.com.au','braink-intelligence.com.au','braink-learning.com.au']
 
 
@@ -45,9 +47,17 @@ def restore(snapshot, env):
 
 
 def main():
-    receipt={'schema':'kex.braink.antigravity-deployment.v1','at':time.time(),'overall':False,
+    WORK.mkdir(parents=True,exist_ok=True)
+    receipt={'schema':'kex.braink.antigravity-deployment.v2','at':time.time(),'overall':False,
+             'work_root':str(WORK),'dist':str(DIST),
              'claim_boundary':'PASS_REQUIRES_RESIDENT_ORCHESTRATOR_DIRECT_GATEWAY_AND_LAYER2_INGRESS_PROOF'}
-    env=os.environ.copy(); env['KEDDEH_EVIDENCE_ROOT']=str(EVIDENCE)
+    env=os.environ.copy()
+    env.update({
+        'KEDDEH_EVIDENCE_ROOT':str(EVIDENCE),
+        'BRAINK_ANTIGRAVITY_WORK_ROOT':str(WORK),
+        'BRAINK_ANTIGRAVITY_DIST':str(DIST),
+        'BRAINK_ANTIGRAVITY_BUILD_READBACK':str(BUILD_READBACK),
+    })
     snapshot={'existed':DIST.exists(),'root':tree_root(DIST)}
     ROLLBACK.parent.mkdir(parents=True,exist_ok=True)
     if ROLLBACK.exists(): shutil.rmtree(ROLLBACK)
@@ -56,8 +66,10 @@ def main():
     try:
         if not (FABRIC/'START_FULL_DOMAIN_FABRIC.command').is_file(): raise RuntimeError('RESIDENT_DOMAIN_FABRIC_NOT_MOUNTED')
         if not ORCH.exists() or not ORCH.is_socket(): raise RuntimeError('BRAINK_ORCHESTRATOR_SOCKET_NOT_READY:'+str(ORCH))
-        run([sys.executable,str(ROOT/'build_antigravity_sites.py')])
+        run([sys.executable,str(ROOT/'build_antigravity_sites.py')],env=env)
+        if not BUILD_READBACK.is_file(): raise RuntimeError('ANTIGRAVITY_BUILD_READBACK_MISSING')
         receipt['candidate_dist_root']=tree_root(DIST)
+        receipt['build_readback_root']=hashlib.sha256(BUILD_READBACK.read_bytes()).hexdigest()
         receipt['fabric_output']=run(['bash',str(FABRIC/'START_FULL_DOMAIN_FABRIC.command')],env=env)[-12000:]
         gateway=subprocess.Popen([sys.executable,str(ROOT/'antigravity_gateway.py')],env=env,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
         time.sleep(1)
