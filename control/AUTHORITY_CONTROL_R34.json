@@ -1,0 +1,53 @@
+{
+  "schema": "kex.control.authority.v1",
+  "owner": "A.KEDDEH / KEDDEH_SYSTEMS",
+  "local_source_authority": {
+    "id": "authority://source/local",
+    "purpose": "authoritative editable source used for engineering mutation before repository synchronization",
+    "actual_mechanics": ["local filesystem source tree", "deterministic path naming", "working-tree edits", "source hashing", "local execution"],
+    "observed_root": "/mnt/data/KEX_CONTROL_WORK"
+  },
+  "build_authority": {
+    "id": "authority://build/local",
+    "purpose": "produce versioned release artifacts only from qualified source",
+    "actual_mechanics": ["pyproject.toml", "setuptools", "wheel construction", "checksums", "release bundle"]
+  },
+  "test_authority": {
+    "id": "authority://test/local",
+    "purpose": "determine whether source/build state may be promoted",
+    "actual_mechanics": ["pytest", "OS-process contention", "corruption recovery", "service restart", "authenticated HTTP execution", "IL-LLM execution readback"]
+  },
+  "repository_authority": {
+    "id": "authority://repository/github/braink",
+    "purpose": "canonical shared source history and remote mutation authority",
+    "repository": "aboudykeddeh276-stack/BRAINK",
+    "actual_mechanics": ["GitHub connector fetch", "create/update file", "commit", "branch", "PR", "workflow readback"],
+    "law": "local container network failure does not revoke connector repository authority"
+  },
+  "illlm_authority": {
+    "id": "authority://illlm/keddeh",
+    "runtime_id": "illlm://keddeh/runtime",
+    "purpose": "normalize and index governed input, resolve it to allowed function/process bindings, dispatch it to KEX runtime authority, and persist a resolution receipt",
+    "actual_mechanics": ["normalization", "binding registry", "index URI resolution", "function URI resolution", "process URI resolution", "runtime dispatch", "fsync-backed receipt chain"],
+    "may": ["normalize", "index", "resolve", "bind", "dispatch", "record resolution receipts"],
+    "may_not": ["directly mutate persisted computer state", "bypass KEX runtime authority", "declare durability without runtime readback", "execute unresolved intents"],
+    "bindings": {
+      "state.write": "process://illlm/kex/state-write",
+      "memory.write": "process://illlm/kex/memory-write",
+      "computer.instantiate": "process://illlm/kex/instantiate",
+      "computer.read": "process://illlm/kex/read"
+    }
+  },
+  "runtime_authority": {
+    "id": "runtime://kex/runtime",
+    "purpose": "validate and commit permitted state transitions",
+    "actual_mechanics": ["CAS_WRITE", "flock", "fsync", "recursive constructor", "readback", "append-only ledger", "Observer2-governed mutation"]
+  },
+  "deployment_authority": {
+    "id": "authority://deployment/kex-runtime",
+    "purpose": "activate qualified source/build state on target infrastructure",
+    "actual_mechanics": ["package/container/system-service activation", "secret injection", "health/readiness", "TLS ingress", "target-host readback"]
+  },
+  "promotion_chain": ["LOCAL_SOURCE", "TEST", "BUILD", "REPOSITORY", "DEPLOYMENT", "PRODUCTION"],
+  "promotion_law": "ACTION -> EVIDENCE -> READBACK -> PROMOTION"
+}

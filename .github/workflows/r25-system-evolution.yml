@@ -1,0 +1,49 @@
+name: R25 System Evolution Qualification
+
+on:
+  push:
+    branches:
+      - kex/elite-system-evolution-r25
+  pull_request:
+    paths:
+      - 'architecture/R25/**'
+      - 'runtime/R25/**'
+      - 'tests/R25/**'
+      - '.github/workflows/r25-system-evolution.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: r25-system-evolution-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install test dependency
+        run: python -m pip install --disable-pip-version-check pytest
+      - name: Compile deterministic runtime
+        run: python -m py_compile runtime/R25/system_evolution_runtime.py
+      - name: Execute R25 qualification tests
+        run: python -m pytest -q tests/R25/test_system_evolution_runtime.py
+      - name: Validate evolution contract
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p = Path('architecture/R25/SYSTEM_EVOLUTION_CONTRACT.json')
+          data = json.loads(p.read_text())
+          assert data['invariants']['promotion_requires_readback'] is True
+          assert data['invariants']['artifacts_are_content_addressed'] is True
+          assert 'outside_in_readback' in data['quality_gates']
+          assert len(data['foundries']) >= 18
+          print('R25 contract validated:', data['release'])
+          PY
