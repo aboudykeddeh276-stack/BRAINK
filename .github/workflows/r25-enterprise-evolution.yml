@@ -1,0 +1,35 @@
+name: R25 Enterprise Superagent Qualification
+
+on:
+  push:
+    branches:
+      - kex/elite-system-evolution-r25
+    paths:
+      - 'enterprise/evolution_control_plane_r25.py'
+      - 'tests/R25/test_evolution_control_plane_r25.py'
+      - 'enterprise/engineering_control_plane_r24.py'
+      - '.github/workflows/r25-enterprise-evolution.yml'
+  pull_request:
+    paths:
+      - 'enterprise/evolution_control_plane_r25.py'
+      - 'tests/R25/test_evolution_control_plane_r25.py'
+      - 'enterprise/engineering_control_plane_r24.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install --disable-pip-version-check pytest
+      - name: Compile R24 and R25 control planes
+        run: python -m py_compile enterprise/engineering_control_plane_r24.py enterprise/evolution_control_plane_r25.py
+      - name: Execute superagent and reconciliation invariants
+        run: python -m pytest -q tests/R25/test_evolution_control_plane_r25.py

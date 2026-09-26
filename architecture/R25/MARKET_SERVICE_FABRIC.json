@@ -1,0 +1,71 @@
+{
+  "schema": "kex.braink.market-service-fabric.v25",
+  "release": "R25",
+  "services": [
+    {
+      "service_id": "service://casepath/preparation",
+      "foundry": "software",
+      "owner": "A.KEDDEH / KEDDEH_SYSTEMS",
+      "runtime": "app://casepath",
+      "supporting_surfaces": ["volume://casepath/v19", "os://casepath/v2", "app://casepath/analytical-matter-mesh/v18"],
+      "frontage": "https://casepath.com.au",
+      "customer_problem": "Convert an unstructured matter account into an organised, source-preserving preparation record",
+      "service_contract": "SOURCE -> SKILLS -> DERIVED_MODEL -> TEMPLATE -> DOCUMENT_MODEL -> RENDERER -> VFS -> RECEIPT -> USER_ARTIFACT",
+      "proof": ["casepath VFS receipts", "workflow execution receipts", "outside-in public readback"],
+      "rollback": "checkpoint://casepath/runtime",
+      "value_metric": "source-to-artifact preparation throughput with auditable provenance",
+      "promotion_state": "QUALIFICATION_REQUIRED"
+    },
+    {
+      "service_id": "service://braink/orchestration",
+      "foundry": "agentics",
+      "owner": "A.KEDDEH / KEDDEH_SYSTEMS",
+      "runtime": "runtime://braink/root",
+      "frontage": null,
+      "customer_problem": "Coordinate heterogeneous system primitives without losing lineage or deterministic state",
+      "service_contract": "OBSERVE -> DELTA -> ADAPT -> GENERATE_OR_REPAIR -> TEST -> PROVE -> PROMOTE",
+      "proof": ["append-only transaction ledger", "checkpoint receipts", "capability graph validation"],
+      "rollback": "checkpoint://braink/root",
+      "value_metric": "validated transitions per release with zero orphaned promoted services",
+      "promotion_state": "INTERNAL_FOUNDATION"
+    },
+    {
+      "service_id": "service://kex/virtual-memory",
+      "foundry": "memory",
+      "owner": "A.KEDDEH / KEDDEH_SYSTEMS",
+      "runtime": "runtime://kex/virtual-memory",
+      "frontage": null,
+      "customer_problem": "Preserve logical state identity independently of any single physical carrier",
+      "service_contract": "logical_identity -> virtual_address -> resident/generated/alias object -> checkpoint -> rehydrate",
+      "proof": ["VFS/virtual-object accounting", "identity-preserving rehydration receipts"],
+      "rollback": "checkpoint://kex/virtual-memory",
+      "value_metric": "continuation recovery with preserved logical identity",
+      "promotion_state": "INTERNAL_FOUNDATION"
+    },
+    {
+      "service_id": "service://kex/domain-fabric",
+      "foundry": "domain",
+      "owner": "A.KEDDEH / KEDDEH_SYSTEMS",
+      "runtime": "runtime://kex/domain-fabric",
+      "frontage": null,
+      "customer_problem": "Resolve logical service identity to replaceable public carriers with governed DNS/TLS/publication",
+      "service_contract": "identity -> registrar authority -> DNS -> TLS -> ingress -> projection -> outside-in readback",
+      "proof": ["domain authority receipts", "DNS/TLS readback", "projection verification"],
+      "rollback": "snapshot://domain-fabric/pre-mutation",
+      "value_metric": "successful governed publications with verified rollback",
+      "promotion_state": "CONTROLLED"
+    }
+  ],
+  "global_market_gate": {
+    "requires": [
+      "customer_problem",
+      "service_contract",
+      "proof",
+      "rollback",
+      "owner",
+      "runtime",
+      "value_metric"
+    ],
+    "public_services_also_require": ["frontage", "outside_in_readback"]
+  }
+}
