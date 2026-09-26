@@ -1,0 +1,142 @@
+name: BRAINK Dependency Graph Admission
+
+on:
+  push:
+    branches:
+      - main
+      - reconcile/current-main-unification-r1
+    paths:
+      - 'enterprise/**'
+      - 'runtime/**'
+      - 'dependency-graph/**'
+      - 'scripts/dependency_graph/**'
+      - 'tests/dependency_graph/**'
+      - '.github/workflows/braink-dependency-graph.yml'
+  pull_request:
+    paths:
+      - 'enterprise/**'
+      - 'runtime/**'
+      - 'dependency-graph/**'
+      - 'scripts/dependency_graph/**'
+      - 'tests/dependency_graph/**'
+      - '.github/workflows/braink-dependency-graph.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  dependency-graph:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout BRAINK exact source revision
+        uses: actions/checkout@v4
+        with:
+          path: BRAINK
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Checkout resident server authority dependency
+        uses: actions/checkout@v4
+        with:
+          repository: aboudykeddeh276-stack/SERVERS-KEDDEHSYSTEMS
+          path: BRAINK/dependencies/SERVERS-KEDDEHSYSTEMS
+
+      - name: Detect build-resolved architectural dependencies
+        working-directory: BRAINK
+        run: python3 scripts/dependency_graph/braink_dependency_detector.py
+
+      - name: Validate semantic graph and GitHub snapshot
+        working-directory: BRAINK
+        run: |
+          python3 - <<'PY'
+          import json
+          import subprocess
+          from pathlib import Path
+
+          semantic = json.loads(Path('build/braink-semantic-dependency-graph.json').read_text())
+          snapshot = json.loads(Path('build/github-dependency-snapshot.json').read_text())
+          checked_out = subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip()
+
+          assert semantic['sha'] == checked_out
+          assert snapshot['sha'] == checked_out
+          assert semantic['sha'] == snapshot['sha']
+          assert semantic['ref'] == snapshot['ref']
+          assert semantic['summary']['edges'] > 0
+          assert snapshot['version'] == 0
+          assert snapshot['manifests']
+
+          required_classes = {
+              'MODULE_DEPENDENCY',
+              'REPOSITORY_DEPENDENCY',
+              'RUNTIME_AUTHORITY_DEPENDENCY',
+          }
+          observed = set(semantic['summary']['by_class'])
+          missing = required_classes - observed
+          assert not missing, f'missing dependency edge classes: {sorted(missing)}'
+
+          required_targets = {
+              'enterprise/recursive_commit_coordinator_r31.py',
+              'enterprise/self_addressing_runtime.py',
+              'enterprise/substrate_adapters.py',
+              'repository://aboudykeddeh276-stack/SERVERS-KEDDEHSYSTEMS',
+              'dependencies/SERVERS-KEDDEHSYSTEMS/runtime/domain_authority/kex_registrar_service.py',
+              'runtime://python/socket/udp',
+              'runtime://python/socket/tcp',
+              'runtime://python/sqlite3',
+              'runtime://python/fcntl',
+              'runtime://filesystem/fsync-replace',
+          }
+          targets = {edge['target'] for edge in semantic['edges']}
+          absent = required_targets - targets
+          assert not absent, f'missing required graph targets: {sorted(absent)}'
+
+          for manifest in snapshot['manifests'].values():
+              for dep in manifest['resolved'].values():
+                  assert dep['package_url'].startswith('pkg:')
+                  assert dep['relationship'] in {'direct', 'indirect'}
+                  assert dep['scope'] in {'runtime', 'development'}
+          print('dependency-snapshot-validation: PASS')
+          PY
+
+      - name: Submit snapshot to GitHub Dependency Graph
+        if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+        working-directory: BRAINK
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          curl --fail-with-body --silent --show-error \
+            -X POST \
+            -H 'Accept: application/vnd.github+json' \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H 'X-GitHub-Api-Version: 2026-03-10' \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/dependency-graph/snapshots" \
+            --data-binary @build/github-dependency-snapshot.json \
+            | tee build/github-dependency-submission-response.json
+
+      - name: Preserve dependency proof artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: braink-dependency-graph-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            BRAINK/build/braink-semantic-dependency-graph.json
+            BRAINK/build/github-dependency-snapshot.json
+            BRAINK/build/github-dependency-submission-response.json
+          if-no-files-found: error
+
+  dependency-review:
+    if: github.event_name == 'pull_request'
+    needs: dependency-graph
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Review submitted and manifest dependencies
+        uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: high
+          retry-on-snapshot-warnings: true
+          retry-on-snapshot-warnings-timeout: 120
