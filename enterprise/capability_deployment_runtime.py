@@ -22,13 +22,13 @@ class CapabilityDeploymentRuntime:
                 self.capabilities[cap]=Capability(cap,gene,spec["server_family"],FAMILY_OWNER.get(spec["server_family"],"UNASSIGNED"))
         self.genomes=ServiceGenomeEngine(catalog);self.rooms=ServerRoomComposer(catalog)
         if resident_bindings:self.load_bindings(resident_bindings)
-    def bind(self,capability,implementation_ref,evidence_ref=None,state="VERIFIED"):
+    def bind(self,capability,implementation_ref,evidence_ref=None,state="IMPLEMENTED"):
         if capability not in self.capabilities:return None
         p=self.capabilities[capability];self.capabilities[capability]=Capability(p.name,p.gene,p.server_family,p.owner_sector,state,implementation_ref,evidence_ref);return self.capabilities[capability]
     def load_bindings(self,packet:Mapping[str,Any]):
         loaded=[]
         for capability,spec in packet.get("bindings",{}).items():
-            node=self.bind(capability,spec["implementation_ref"],spec.get("evidence_ref") or spec.get("evidence_class"),spec.get("state","VERIFIED"))
+            node=self.bind(capability,spec["implementation_ref"],spec.get("evidence_ref") or spec.get("evidence_class"),spec.get("state","IMPLEMENTED"))
             if node:loaded.append(capability)
         return tuple(sorted(loaded))
     def compile(self,undertaking:str,scale="SMALL"):
