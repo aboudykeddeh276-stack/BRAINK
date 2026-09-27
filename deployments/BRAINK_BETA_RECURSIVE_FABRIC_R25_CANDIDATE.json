@@ -1,0 +1,64 @@
+{
+  "schema": "braink.beta.recursive-fabric.candidate.r25/v1",
+  "task_id": "BRAINK-BETA-FULL-FABRIC-20260928-0758",
+  "work_ticket": "WT-BRAINK-BETA-20260928-001",
+  "lease_id": "80a31c53-7ac9-43f1-ac62-bef1ac5a6aef",
+  "actor": "owner-workbook / GPT-5.6 Sol",
+  "source_commits": [
+    "552dfee06475d21773288a8abc38ee2c7c394a6d",
+    "6d13284932f9a96b5a30e842363546fb2b6338e2",
+    "cbd3283e15e9debd392e42bd562881647552d7f1",
+    "87dd247ac54543221d537f7c62c7842306330b3b",
+    "0e90de65616e32176b3d8dec368597ebab73ca0c"
+  ],
+  "artifacts": [
+    "enterprise/recursive_operating_fabric.py",
+    "tests/test_recursive_operating_fabric.py",
+    "scripts/kex-ci/test_recursive_operating_fabric.py",
+    "scripts/kex-ci/test_enterprise_control.py",
+    "enterprise/capability_deployment_runtime.py"
+  ],
+  "lifecycle": [
+    "DECLARED",
+    "IMPLEMENTED",
+    "EXECUTED",
+    "DEPLOYED",
+    "ACTIVE",
+    "FUNCTIONING",
+    "INTEGRATED",
+    "VERIFIED",
+    "SUSTAINED"
+  ],
+  "invariants": [
+    "no state inference",
+    "derived authority cannot exceed parent",
+    "deployment requires target substrate realization plus readback",
+    "actor cannot independently verify own delivery",
+    "gate telemetry is not execution authority",
+    "invocation is not effect",
+    "receipt is not post-state evidence",
+    "failed actuator does not fail parent directive when another eligible actuator succeeds",
+    "optimisation requires demonstrated mechanics and invariant preservation"
+  ],
+  "existing_control_plane": {
+    "workbook": "1aPrN4doqCTHYf0X3-SdTsgq21Jo884MlRIr81S-1SR0",
+    "namespace": "braink://owner/workbook",
+    "claimed_version": 21,
+    "claim_command": "owner-workbook:braink-beta-full-fabric-claim-20260928-0806"
+  },
+  "observed_external": {
+    "enterprise_control_run": 36355783628,
+    "enterprise_validate_job": 108723114170,
+    "enterprise_validate_job_steps": 0,
+    "enterprise_validate_conclusion": "failure",
+    "interpretation": "execution plane failed before steps; invariant code not executed by GitHub-hosted validate job",
+    "specialist_job": "queued"
+  },
+  "assessment": {
+    "required": true,
+    "actor_can_assess": false,
+    "report_document_number": null
+  },
+  "status": "IMPLEMENTED_CANDIDATE_CLAIMED_AWAITING_EXECUTION_AND_INDEPENDENT_ASSESSMENT",
+  "artifact_sha256": "1d561ffbdfa79002096d6707cb5c06f488a8ae6d0c5a277c258213818e29e9a3"
+}
