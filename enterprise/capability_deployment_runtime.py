@@ -37,11 +37,11 @@ class CapabilityDeploymentRuntime:
         for cap in sorted(self.capabilities):
             n=self.capabilities[cap]
             if n.gene not in genes:continue
-            if n.implementation_ref and n.state in {"BOUND","EXECUTABLE","VERIFIED"}:decision="REUSE"
+            if n.implementation_ref and n.state in {"FUNCTIONING","INTEGRATED","VERIFIED","SUSTAINED"}:decision="REUSE"
             elif n.implementation_ref:decision="QUALIFY"
             else:decision="CREATE_OR_BIND"
             gap={"REUSE":"CAPABILITY_RESIDENT","QUALIFY":"QUALIFICATION_REQUIRED","CREATE_OR_BIND":"ADAPTER_OR_FUNCTION_REQUIRED"}[decision]
             group={"CAPABILITY_RESIDENT":"group://runtime-dispatch","QUALIFICATION_REQUIRED":"group://verification-qualification","ADAPTER_OR_FUNCTION_REQUIRED":"group://engineering-synthesis"}[gap]
             required.append({**asdict(n),"decision":decision,"gap_class":gap,"work_group":group,"work_module":f"WM://{n.owner_sector}/{n.name}"})
-        body={"schema":"braink.capability-deployment.r18/v3","undertaking":undertaking,"generated_ns":time.time_ns(),"genome":{"id":genome.genome_id,"genes":list(genome.genes),"capability_root":genome.capability_root},"room_root":room.room_root,"server_sets":[{"family":s.family,"replicas":s.replicas,"services":list(s.services),"dependencies":list(s.dependencies),"config_root":s.config_root} for s in room.servers],"requirements":required,"resident_count":sum(1 for r in required if r["gap_class"]=="CAPABILITY_RESIDENT"),"gap_count":sum(1 for r in required if r["gap_class"]!="CAPABILITY_RESIDENT")}
+        body={"schema":"braink.capability-deployment.r25/v4","lifecycle_policy":{"reuse_states":["FUNCTIONING","INTEGRATED","VERIFIED","SUSTAINED"],"non_inference":true,"recursive_fabric":"enterprise/recursive_operating_fabric.py"},"undertaking":undertaking,"generated_ns":time.time_ns(),"genome":{"id":genome.genome_id,"genes":list(genome.genes),"capability_root":genome.capability_root},"room_root":room.room_root,"server_sets":[{"family":s.family,"replicas":s.replicas,"services":list(s.services),"dependencies":list(s.dependencies),"config_root":s.config_root} for s in room.servers],"requirements":required,"resident_count":sum(1 for r in required if r["gap_class"]=="CAPABILITY_RESIDENT"),"gap_count":sum(1 for r in required if r["gap_class"]!="CAPABILITY_RESIDENT")}
         body["deployment_root"]=root(body);return body
