@@ -60,5 +60,12 @@
     "report_document_number": null
   },
   "status": "IMPLEMENTED_CANDIDATE_CLAIMED_AWAITING_EXECUTION_AND_INDEPENDENT_ASSESSMENT",
-  "artifact_sha256": "1d561ffbdfa79002096d6707cb5c06f488a8ae6d0c5a277c258213818e29e9a3"
+  "artifact_sha256": "1d561ffbdfa79002096d6707cb5c06f488a8ae6d0c5a277c258213818e29e9a3",
+  "hash_contract": {
+    "algorithm": "SHA-256",
+    "scope": "CANONICAL_JSON_PAYLOAD_EXCLUDING_ARTIFACT_SHA256",
+    "canonicalization": "JSON keys sorted recursively with compact separators; UTF-8",
+    "declared_hash_field": "artifact_sha256",
+    "verification_result": "MATCHED_DURING_ACTOR_INTEGRITY_PASS"
+  }
 }
