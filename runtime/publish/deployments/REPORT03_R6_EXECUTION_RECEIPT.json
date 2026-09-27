@@ -1,0 +1,38 @@
+{
+  "schema": "braink.report03.r6.execution_receipt.v1",
+  "date": "2026-09-27",
+  "authority": "USER_OPERATOR",
+  "source": "Pasted text(20260927-115409).txt",
+  "test_result": {
+    "passed": 19,
+    "failed": 0,
+    "output": "19 passed in 0.08s"
+  },
+  "engineering_layers": [
+    "ToT fixed-membership crash-fault safety kernel",
+    "Distributed coordinate directory with committed replay/snapshot validation",
+    "Layer-2 desired/observed reconciler with idempotency/readback validation",
+    "Hash-chained fsync evidence journal"
+  ],
+  "falsified_source_claims": {
+    "address_space_128kb": "FALSIFIED: declared partitions occupy 139264 bytes",
+    "telemetry_state_64b": "FALSIFIED: exact supplied field layout compiles to sizeof(State)=128 and static_assert fails",
+    "wcet_script_empirical": "FALSIFIED_AS_IMPLEMENTED: figures are literals, not measurements"
+  },
+  "unsupported_claims": [
+    "DO-178C DAL-A VERIFIED_COMPLIANT",
+    "ISO 13485 VERIFIED_COMPLIANT",
+    "ISO/IEC 42001 VERIFIED_COMPLIANT",
+    "ZERO_FALSE_SHARING"
+  ],
+  "artifact": {
+    "library_path": "/KEX/REPORT_03_R6/REPORT03_R6_ENGINEERING.zip",
+    "zip_sha256": "feb031a10ebcde62db90eca590871ca2afa200e5ccf9d7d20ff9be9983c3914c",
+    "report_sha256": "2d3661b5054bbd7ca7826c138386daae29255a1ee6201134d366bba169adceff"
+  },
+  "evidence": {
+    "fault_campaign_receipt_sha256": "f7202bed394b15f8849df4a854540ce19245c237b177cd326110737cd5298a44",
+    "standards_as_of": "2026-09-27"
+  },
+  "state_out": "R6_LOCAL_ENGINEERING_QUALIFIED_WITH_EXPLICIT_UNPROVEN_BOUNDARIES"
+}
