@@ -1,0 +1,40 @@
+name: BRAINK Native HCI R8
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'NativeChatBot/Sources/**'
+      - 'NativeChatBot/build-native-chatbot.command'
+      - 'governance/hci/BRAINK_INTERACTION_CONTRACT_R8.json'
+      - 'scripts/kex-ci/test_hci_interaction_contract_r8.py'
+      - '.github/workflows/braink-native-hci-r8.yml'
+  pull_request:
+    paths:
+      - 'NativeChatBot/Sources/**'
+      - 'NativeChatBot/build-native-chatbot.command'
+      - 'governance/hci/BRAINK_INTERACTION_CONTRACT_R8.json'
+      - 'scripts/kex-ci/test_hci_interaction_contract_r8.py'
+      - '.github/workflows/braink-native-hci-r8.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  native-hci:
+    runs-on: macos-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: HCI interaction contract
+        run: python3 scripts/kex-ci/test_hci_interaction_contract_r8.py
+      - name: Compile native workstation shell for macOS 13+
+        env:
+          MACOSX_DEPLOYMENT_TARGET: '13.0'
+        run: |
+          xcrun swiftc NativeChatBot/Sources/*.swift \
+            -o /tmp/BRAINKChatBot \
+            -framework SwiftUI \
+            -framework AppKit \
+            -parse-as-library
+          test -x /tmp/BRAINKChatBot

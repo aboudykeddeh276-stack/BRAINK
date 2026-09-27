@@ -41,6 +41,16 @@ def braink_invoke_capability(capability_id:str,context:dict[str,Any],payload:dic
 def braink_resolve_identity()->dict[str,Any]:
     return backend().resolve_identity()
 
+@mcp.tool(description="Read the enclosing BRAINK MCP system-surface manifest. MCP exposes the loadout but does not replace BRAINK, IL-LLM, VFS, model or node authority.",annotations=ToolAnnotations(readOnlyHint=True,destructiveHint=False,idempotentHint=True,openWorldHint=False))
+def braink_system_surface_manifest()->dict[str,Any]:
+    return backend().system_surface_manifest()
+
+
+@mcp.tool(description="Read observed model-residency readiness for a BRAINK node without mutating it.",annotations=ToolAnnotations(readOnlyHint=True,destructiveHint=False,idempotentHint=True,openWorldHint=False))
+def braink_node_readiness(node_id:str)->dict[str,Any]:
+    return backend().node_readiness(node_id)
+
+
 
 @mcp.tool(description="Create a signed durable BRAINK work envelope before governed capability execution.",annotations=ToolAnnotations(readOnlyHint=False,destructiveHint=False,idempotentHint=False,openWorldHint=False))
 def braink_create_work_envelope(work_id:str,intent:str,state:dict[str,Any]|None=None,epoch:int=1)->dict[str,Any]:

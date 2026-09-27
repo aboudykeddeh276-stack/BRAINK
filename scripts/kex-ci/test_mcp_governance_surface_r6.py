@@ -31,6 +31,8 @@ def main():
     required={
         "braink_capability_manifest",
         "braink_invoke_capability",
+        "braink_system_surface_manifest",
+        "braink_node_readiness",
         "braink_provision_domain_authority",
         "braink_write_checkpoint",
         "braink_server_apply",
@@ -63,6 +65,11 @@ def main():
 
     invoke_calls=function_calls(functions["braink_invoke_capability"])
     assert "backend.invoke_capability" in invoke_calls, "authoritative invocation tool does not call governed backend"
+
+    surface_calls=function_calls(functions["braink_system_surface_manifest"])
+    assert "backend.system_surface_manifest" in surface_calls
+    readiness_calls=function_calls(functions["braink_node_readiness"])
+    assert "backend.node_readiness" in readiness_calls
 
     backend_text=BACKEND.read_text()
     assert "GovernedCapabilityService" in backend_text

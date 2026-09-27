@@ -51,6 +51,16 @@ def build_registry(backend) -> CapabilityRegistry:
         ["vfs:migrate"],True,lambda p: backend.vfs_migrate(
             p["logical"],p["current_backing"],p["new_backing"]),approval=True)
 
+    add("model.register","AI_MODEL_RESIDENCY","BRAINK","REGISTER_MODEL",Risk.MUTATE,
+        ["model:write"],True,lambda p: backend.register_model(
+            p["model_id"],p["backing_path"],p.get("model_format","safetensors"),
+            p.get("expected_content_root"),p.get("capabilities",{})))
+    add("node.bootstrap","BRAINK","BRAINK","BOOTSTRAP_NODE_MODEL_RESIDENCY",Risk.MUTATE,
+        ["node:bootstrap"],True,lambda p: backend.bootstrap_node(
+            p["node_id"],p["models"],p["agent_authorities"]))
+    add("node.readiness","BRAINK","BRAINK","READ_NODE_MODEL_RESIDENCY",Risk.READ,
+        ["node:read"],True,lambda p: backend.node_readiness(p["node_id"]))
+
     return reg
 
 

@@ -94,3 +94,45 @@ class VirtualMemoryBridge:
         if bound.get("status") != "BOUND":
             return {"bind": bound, "migration": {"status": "NOT_EXECUTED"}}
         return {"bind": bound, "migration": rt.migrate(logical, new_backing)}
+
+
+class ILLLMModelRegistryBridge:
+    """Bridge to the canonical IL-LLM model-registry runtime.
+
+    The external module must expose ILLLMModelRegistryRuntime with
+    bind_model(node_id, descriptor) and read_model(node_id, model_id).
+    No local fallback is promoted to IL-LLM authority: if the canonical runtime is
+    not mounted, node readiness remains NOT_READY.
+    """
+
+    def __init__(self):
+        self.runtime_path = os.environ.get("BRAINK_ILLLM_MODEL_RUNTIME_PATH")
+
+    def _runtime(self):
+        mod, err = _load_module(self.runtime_path, "keddeh_illlm_model_registry_runtime")
+        if err:
+            return None, err
+        cls = getattr(mod, "ILLLMModelRegistryRuntime", None)
+        if cls is None:
+            return None, {
+                "status": "INCOMPATIBLE_RUNTIME",
+                "module": "keddeh_illlm_model_registry_runtime",
+                "required": "ILLLMModelRegistryRuntime",
+            }
+        runtime = cls()
+        for method in ("bind_model", "read_model"):
+            if not callable(getattr(runtime, method, None)):
+                return None, {
+                    "status": "INCOMPATIBLE_RUNTIME",
+                    "module": "keddeh_illlm_model_registry_runtime",
+                    "required": method,
+                }
+        return runtime, None
+
+    def bind_model(self, node_id: str, descriptor: dict[str, Any]) -> dict[str, Any]:
+        runtime, err = self._runtime()
+        return err or runtime.bind_model(node_id, descriptor)
+
+    def read_model(self, node_id: str, model_id: str) -> dict[str, Any]:
+        runtime, err = self._runtime()
+        return err or runtime.read_model(node_id, model_id)

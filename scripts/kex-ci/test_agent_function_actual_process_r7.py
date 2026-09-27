@@ -24,7 +24,7 @@ def main() -> None:
 
         client=BRAINKAgentAuthorityClient(backend)
         functions=client.function_manifest()
-        assert len(functions)==14
+        assert len(functions)==17
         by_cap={row["capability_id"]:row for row in functions}
         assert by_cap["domain.provision"]["invoke_via"]=="braink_invoke_capability"
         assert by_cap["server.release"]["authority"]["requires_approval"] is True

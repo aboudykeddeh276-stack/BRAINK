@@ -19,7 +19,7 @@ def main() -> None:
 
         client=BRAINKAgentAuthorityClient(backend)
         manifest=client.refresh_manifest()
-        assert len(manifest)==14
+        assert len(manifest)==17
         assert client.resolve("domain.provision").owner_repo=="BRAINK"
         assert client.resolve("server.release").requires_approval is True
 
