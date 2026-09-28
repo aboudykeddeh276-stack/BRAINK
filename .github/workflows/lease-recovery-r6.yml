@@ -1,0 +1,28 @@
+name: BRAINK Lease Recovery R6
+
+on:
+  push:
+    branches:
+      - braink/lease-recovery-r6
+    paths:
+      - 'enterprise/orchestration/lease_recovery_r6.py'
+      - 'mcp/braink_process_adapter/**'
+      - 'skills/braink-process-adapter/SKILL.md'
+      - 'scripts/kex-ci/test_lease_recovery_r6.py'
+      - '.github/workflows/lease-recovery-r6.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lease-recovery:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Execute BRAINK lease recovery regression
+        run: python3 scripts/kex-ci/test_lease_recovery_r6.py
