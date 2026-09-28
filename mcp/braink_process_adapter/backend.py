@@ -10,6 +10,7 @@ from enterprise.orchestration.durable_execution_r5 import (
     SignedEnvelopeAuthority,
 )
 from .sector_bridges import ServerRuntimeBridge, VirtualMemoryBridge
+from runtime.host_control.braink_host_fabric import HostFabric
 from .capability_catalog import GovernedCapabilityService
 from .function_contracts import manifest as function_manifest_projection, validate_payload
 
@@ -41,6 +42,7 @@ class BrainkProcessBackend:
         )
         self.servers = ServerRuntimeBridge()
         self.vfs = VirtualMemoryBridge()
+        self.host_fabric = HostFabric(state_dir=self.state_dir / "host_fabric")
         self.capabilities = GovernedCapabilityService(self, self.state_dir / "capability_receipts.sqlite")
 
     @staticmethod
@@ -131,6 +133,34 @@ class BrainkProcessBackend:
 
     def vfs_migrate(self, logical: str, current_backing: str, new_backing: str) -> dict[str, Any]:
         return self.vfs.migrate(logical, current_backing, new_backing)
+
+    def mesh_discover(self) -> dict[str, Any]:
+        hosts = self.host_fabric.list_hosts()
+        return {
+            "status": "OBSERVED" if hosts else "UNOBSERVED",
+            "host_count": len(hosts),
+            "hosts": hosts,
+        }
+
+    def mesh_health(self) -> dict[str, Any]:
+        hosts = self.host_fabric.list_hosts()
+        ready = [h for h in hosts if h.get("admission_state") == "HOST_READY" and h.get("observed_mode") in {"ONLINE", "OFFLINE_LOCAL"}]
+        stale = [h for h in hosts if h.get("admission_state") == "STALE" or h.get("observed_mode") == "STALE"]
+        unbound = [h for h in hosts if h.get("authority_root") == "UNBOUND"]
+        return {
+            "status": "OBSERVED" if hosts else "UNOBSERVED",
+            "host_count": len(hosts),
+            "ready_count": len(ready),
+            "stale_count": len(stale),
+            "authority_unbound_count": len(unbound),
+            "ready_host_ids": [h["host_id"] for h in ready],
+            "stale_host_ids": [h["host_id"] for h in stale],
+            "authority_unbound_host_ids": [h["host_id"] for h in unbound],
+        }
+
+    def mesh_readback(self, host_id: str) -> dict[str, Any]:
+        host = self.host_fabric.refresh_state(self.host_fabric.get_host(host_id))
+        return {"status": "OBSERVED", "host": host}
 
     # Authoritative enterprise surfaces.
     def capability_manifest(self) -> list[dict[str, Any]]:
