@@ -9,6 +9,7 @@ from enterprise.orchestration.durable_execution_r5 import (
     DomainAuthorityAtomicCoordinator,
     SignedEnvelopeAuthority,
 )
+from enterprise.orchestration.lease_recovery_r6 import RecoverableLeaseAuthority
 from .sector_bridges import ServerRuntimeBridge, VirtualMemoryBridge
 from runtime.host_control.braink_host_fabric import HostFabric
 from .capability_catalog import GovernedCapabilityService
@@ -36,6 +37,7 @@ class BrainkProcessBackend:
         self.state_dir.mkdir(parents=True, exist_ok=True)
         self.key = key or self._load_key()
         self.authority = SignedEnvelopeAuthority(self.state_dir / "authority_ledger.sqlite", self.key)
+        self.recoverable_leases = RecoverableLeaseAuthority(self.authority)
         self.domain = DomainAuthorityAtomicCoordinator(
             self.state_dir / "domain_control.sqlite",
             self.state_dir / "domain_authority.sqlite",
@@ -87,15 +89,44 @@ class BrainkProcessBackend:
             "nonce": envelope["nonce"],
         }
 
-    def acquire_lease(self, work_id: str, holder: str, requested_epoch: int | None = None) -> dict[str, Any]:
-        epoch = self.authority.acquire_lease(work_id, holder, requested_epoch=requested_epoch)
-        return {"work_id": work_id, "holder": holder, "epoch": epoch, "state": "LEASED"}
+    def acquire_lease(
+        self,
+        work_id: str,
+        holder: str,
+        requested_epoch: int | None = None,
+        ttl_ns: int | None = None,
+        max_retries: int | None = None,
+    ) -> dict[str, Any]:
+        return self.recoverable_leases.acquire_lease(
+            work_id,
+            holder,
+            requested_epoch=requested_epoch,
+            ttl_ns=ttl_ns,
+            max_retries=max_retries,
+        )
+
+    def heartbeat_lease(
+        self,
+        work_id: str,
+        holder: str,
+        epoch: int,
+        ttl_ns: int | None = None,
+    ) -> dict[str, Any]:
+        return self.recoverable_leases.heartbeat(
+            work_id,
+            holder,
+            epoch,
+            ttl_ns=ttl_ns,
+        )
+
+    def reconcile_leases(self, grace_ns: int = 0) -> dict[str, Any]:
+        return self.recoverable_leases.reconcile_expired_leases(grace_ns=grace_ns)
 
     def current_lease(self, work_id: str) -> dict[str, Any]:
-        row = self.authority.current_lease(work_id)
-        if not row:
-            return {"work_id": work_id, "state": "UNLEASED"}
-        return {"work_id": work_id, "epoch": row[0], "holder": row[1], "state": "LEASED"}
+        return self.recoverable_leases.current_lease(work_id)
+
+    def lease_failure_records(self, work_id: str | None = None) -> list[dict[str, Any]]:
+        return self.recoverable_leases.failure_records(work_id)
 
     # Raw resident mechanics. MCP mutation tools should not call these directly.
     def provision_domain_authority(self, tx_id: str, domain: str, ip: str, owner_scope: str = "KEDDEH_SYSTEMS") -> dict[str, Any]:
