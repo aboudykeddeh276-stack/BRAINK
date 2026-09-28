@@ -31,6 +31,9 @@ class Backend:
     def vfs_read(self,l,b): self.calls.append(("read",l,b)); return {"status":"READ"}
     def vfs_write(self,l,b,p): self.calls.append(("write",l,b)); return {"status":"COMMITTED"}
     def vfs_migrate(self,l,a,b): self.calls.append(("migrate",l,a,b)); return {"status":"COMMITTED"}
+    def mesh_discover(self): self.calls.append("mesh_discover"); return {"status":"OBSERVED","host_count":1,"hosts":[{"host_id":"host-A"}]}
+    def mesh_health(self): self.calls.append("mesh_health"); return {"status":"OBSERVED","host_count":1,"ready_count":1,"stale_count":0,"authority_unbound_count":0}
+    def mesh_readback(self,host_id): self.calls.append(("mesh_readback",host_id)); return {"status":"OBSERVED","host":{"host_id":host_id}}
 
 
 def ctx(scopes,approval=None,actor="agent-A",epoch=4):
@@ -48,8 +51,8 @@ def main():
         backend=Backend()
         svc=GovernedCapabilityService(backend,Path(td)/"receipts.sqlite")
         manifest=svc.manifest()
-        assert len(manifest)==14
-        assert len({x["capability_id"] for x in manifest})==14
+        assert len(manifest)==17
+        assert len({x["capability_id"] for x in manifest})==17
 
         observed=svc.invoke("domain.observe",ctx(["domain:read"]),{"domain":"braink.com.au"},"observe-1")
         assert observed["status"]=="SUCCEEDED"
@@ -102,6 +105,21 @@ def main():
             pass
         else:
             raise AssertionError("vfs.migrate bypassed approval")
+
+        mesh=svc.invoke("mesh.discover",ctx(["mesh:read"]),{},"mesh-discover-1")
+        assert mesh["status"]=="SUCCEEDED"
+        assert mesh["result"]["host_count"]==1
+
+        readback=svc.invoke("mesh.readback",ctx(["mesh:read"]),{"host_id":"host-A"},"mesh-readback-1")
+        assert readback["status"]=="SUCCEEDED"
+        assert readback["result"]["host"]["host_id"]=="host-A"
+
+        try:
+            svc.invoke("mesh.health",ctx(["server:read"]),{},"mesh-health-denied")
+        except AuthorizationError:
+            pass
+        else:
+            raise AssertionError("mesh.health bypassed mesh:read scope")
 
         backend.server_probe=lambda:{"status":"UNBOUND_RUNTIME_PATH","module":"server"}
         failed=svc.invoke("server.probe",ctx(["server:read"]),{},"probe-unbound")
