@@ -22,15 +22,81 @@
     "machine": "machine://kex/hardware-contract",
     "network": "adapter://host/p17/network"
   },
-  "publishing_team": ["BRAINK_OPERATOR","BRAINK_VERIFIER","BRAINK_COORDINATOR","BRAINK_MIRROR","Cognition Agent","Coding Agent","Architecture Agent","Research Falsifier","Verifier Agent","Provenance Agent","Workflow Agent","Supervisor Agent","Composition Agent","Adaptation Agent"],
+  "publishing_team": [
+    "BRAINK_OPERATOR",
+    "BRAINK_VERIFIER",
+    "BRAINK_COORDINATOR",
+    "BRAINK_MIRROR",
+    "Cognition Agent",
+    "Coding Agent",
+    "Architecture Agent",
+    "Research Falsifier",
+    "Verifier Agent",
+    "Provenance Agent",
+    "Workflow Agent",
+    "Supervisor Agent",
+    "Composition Agent",
+    "Adaptation Agent"
+  ],
   "domains": {
-    "braink.com.au": {"site":"site://braink/user","runtime":"runtime://braink/user","workspace":"workspace://keddeh/domain/braink-user","vfs":"vfs://keddeh/domain-environments/braink-user","purpose":"BRAINK public AI and user runtime"},
-    "braink-intelligence.com.au": {"site":"site://braink/intelligence","runtime":"runtime://braink/intelligence","workspace":"workspace://keddeh/domain/braink-intelligence","vfs":"vfs://keddeh/domain-environments/braink-intelligence","purpose":"BRAINK intelligence, enterprise and research surface"},
-    "braink-learning.com.au": {"site":"site://braink/learning","runtime":"runtime://braink/learning","workspace":"workspace://keddeh/domain/braink-learning","vfs":"vfs://keddeh/domain-environments/braink-learning","purpose":"BRAINK learning and education surface"}
+    "braink.com.au": {
+      "site": "site://braink/user",
+      "runtime": "runtime://braink/user",
+      "workspace": "workspace://keddeh/domain/braink-user",
+      "vfs": "vfs://keddeh/domain-environments/braink-user",
+      "purpose": "BRAINK public AI and user runtime"
+    },
+    "braink-intelligence.com.au": {
+      "site": "site://braink/intelligence",
+      "runtime": "runtime://braink/intelligence",
+      "workspace": "workspace://keddeh/domain/braink-intelligence",
+      "vfs": "vfs://keddeh/domain-environments/braink-intelligence",
+      "purpose": "BRAINK intelligence, enterprise and research surface"
+    },
+    "braink-learning.com.au": {
+      "site": "site://braink/learning",
+      "runtime": "runtime://braink/learning",
+      "workspace": "workspace://keddeh/domain/braink-learning",
+      "vfs": "vfs://keddeh/domain-environments/braink-learning",
+      "purpose": "BRAINK learning and education surface"
+    },
+    "keddeh.com": {
+      "site": "site://keddeh/root",
+      "runtime": "server://keddeh/global-presence",
+      "workspace": "workspace://keddeh/domain/keddeh-root",
+      "vfs": "vfs://keddeh/domain-environments/keddeh-root",
+      "purpose": "Keddeh Systems primary user-facing operating frontage"
+    }
   },
   "rails": {
-    "google_oauth": {"process":"server://braink/rails/google-oauth","transport":"unix://braink/oauth.sock","protocol":"kex.braink.oauth-rail.v1","secret_policy":"SECRETS_RESIDENT_IN_DEDICATED_RAIL_PROCESS_ONLY"},
-    "stripe": {"process":"server://braink/rails/stripe","transport":"unix://braink/stripe.sock","protocol":"kex.braink.payment-rail.v1","secret_policy":"SECRETS_RESIDENT_IN_DEDICATED_RAIL_PROCESS_ONLY"}
+    "google_oauth": {
+      "process": "server://braink/rails/google-oauth",
+      "transport": "unix://braink/oauth.sock",
+      "protocol": "kex.braink.oauth-rail.v1",
+      "secret_policy": "SECRETS_RESIDENT_IN_DEDICATED_RAIL_PROCESS_ONLY"
+    },
+    "stripe": {
+      "process": "server://braink/rails/stripe",
+      "transport": "unix://braink/stripe.sock",
+      "protocol": "kex.braink.payment-rail.v1",
+      "secret_policy": "SECRETS_RESIDENT_IN_DEDICATED_RAIL_PROCESS_ONLY"
+    }
   },
-  "publication_chain": ["CORPUS_BIND","DEFINITION_BIND","AUTHORITY_BIND","WORKSPACE_BIND","VFS_BIND","SERVER_ROOM_BIND","LINUX_CARRIER_BIND","AI_RUNTIME_BIND","GOOGLE_OAUTH_BIND","STRIPE_RAIL_BIND","DNS_ZONE_PRESERVE","TLS_IDENTITY","INGRESS_BIND","DOMAIN_PUBLICATION","OUTSIDE_IN_READBACK"]
+  "publication_chain": [
+    "CORPUS_BIND",
+    "DEFINITION_BIND",
+    "AUTHORITY_BIND",
+    "WORKSPACE_BIND",
+    "VFS_BIND",
+    "SERVER_ROOM_BIND",
+    "LINUX_CARRIER_BIND",
+    "AI_RUNTIME_BIND",
+    "GOOGLE_OAUTH_BIND",
+    "STRIPE_RAIL_BIND",
+    "DNS_ZONE_PRESERVE",
+    "TLS_IDENTITY",
+    "INGRESS_BIND",
+    "DOMAIN_PUBLICATION",
+    "OUTSIDE_IN_READBACK"
+  ]
 }
