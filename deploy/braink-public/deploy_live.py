@@ -5,7 +5,7 @@ import hashlib, json, os, pathlib, shutil, subprocess, sys, time, urllib.request
 ROOT=pathlib.Path(__file__).resolve().parent
 FABRIC=pathlib.Path(os.environ.get('KEDDEH_DOMAIN_FABRIC_ROOT','/mnt/data/keddeh_deploy/resident_v5/KEDDEH_REGISTRAR_V5'))
 EVIDENCE=pathlib.Path(os.environ.get('KEDDEH_EVIDENCE_ROOT','/mnt/data/keddeh_deploy/resident_v5/KEDDEH_REGISTRAR_V5_EVIDENCE'))
-DOMAINS=['braink.com.au','braink-intelligence.com.au','braink-learning.com.au']
+DOMAINS=['braink.com.au','braink-intelligence.com.au','braink-learning.com.au','keddeh.com']
 DIST=ROOT/'dist'
 ROLLBACK=ROOT/'.rollback'/'previous-dist'
 RECEIPT=ROOT/'BRAINK_LIVE_DEPLOYMENT_RECEIPT.json'
