@@ -1,0 +1,48 @@
+{
+  "schema": "braink.report03.r7.deployment/v1",
+  "date": "2026-09-29",
+  "package": "REPORT03_R7_DURABLE_ENGINEERING.zip",
+  "package_sha256": "64d93ba5e0304ba991fca297ffce874ccff551823f5d3e60079c7632fc8cbafd",
+  "package_manifest_root": "699a8a9ca15ccee285172a083cf9945a4798a0ae88768a2ac6d49f0942b99e52",
+  "library_path": "/KEX/REPORT03/R7/REPORT03_R7_DURABLE_ENGINEERING.zip",
+  "observed": {
+    "tests": "6/6 PASS",
+    "qualification_scenarios": "11/11 specified outcomes",
+    "peer_processes": 3,
+    "transport": "TCP_LOOPBACK_REAL_SOCKET",
+    "durable_store": "SQLITE_WAL_SYNCHRONOUS_FULL",
+    "peer_kill_restart": "PASS",
+    "quorum_with_one_peer_down": "PASS",
+    "directory_convergence": "PASS",
+    "zero_rule": "ZERO_COMPUTED_ASSESSMENT_ONLY; ADDRESS_STATE_ZERO_REJECTED",
+    "sigkill_before_commit": "PASS_ZERO_LEAKED_ROWS_INTEGRITY_OK",
+    "durable_tamper_detection": "PASS",
+    "filesystem_l2_drift_repair": "PASS",
+    "physical_linux_bridge": "BLOCKED_RTNETLINK_OPERATION_NOT_PERMITTED",
+    "benchmark_ms": {
+      "samples": 200,
+      "median": 1.8324025,
+      "p95": 6.257669,
+      "p99": 11.223574,
+      "max": 19.327237,
+      "scope": "single-host serial SQLite WAL FULL synchronous, no network round trip"
+    },
+    "clean_extract": {
+      "manifest_files": 38,
+      "hash_mismatches": 0,
+      "manifest_root_match": true,
+      "tests": "6/6 PASS"
+    }
+  },
+  "claim_boundary": [
+    "independent OS processes proven on one host",
+    "physical multi-host consensus unproven",
+    "dynamic membership absent",
+    "Byzantine safety not claimed",
+    "linearizable distributed client API unproven",
+    "physical Layer-2 actuation blocked in current host",
+    "IEEE 802.1Q bridge conformance absent",
+    "formal verification absent",
+    "production scale/SLO unproven"
+  ]
+}
