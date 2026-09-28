@@ -53,13 +53,28 @@ def braink_consume_work_envelope(envelope:dict[str,Any])->dict[str,Any]:
 
 
 @mcp.tool(description="Acquire or advance the fenced work lease epoch for an agent or worker.",annotations=ToolAnnotations(readOnlyHint=False,destructiveHint=False,idempotentHint=False,openWorldHint=False))
-def braink_acquire_work_lease(work_id:str,holder:str,requested_epoch:int|None=None)->dict[str,Any]:
-    return backend().acquire_lease(work_id,holder,requested_epoch)
+def braink_acquire_work_lease(work_id:str,holder:str,requested_epoch:int|None=None,ttl_ns:int|None=None,max_retries:int|None=None)->dict[str,Any]:
+    return backend().acquire_lease(work_id,holder,requested_epoch,ttl_ns,max_retries)
 
 
-@mcp.tool(description="Read the authoritative lease holder and epoch without changing state.",annotations=ToolAnnotations(readOnlyHint=True,destructiveHint=False,idempotentHint=True,openWorldHint=False))
+@mcp.tool(description="Refresh an active BRAINK work lease heartbeat and expiry.",annotations=ToolAnnotations(readOnlyHint=False,destructiveHint=False,idempotentHint=True,openWorldHint=False))
+def braink_heartbeat_work_lease(work_id:str,holder:str,epoch:int,ttl_ns:int|None=None)->dict[str,Any]:
+    return backend().heartbeat_lease(work_id,holder,epoch,ttl_ns)
+
+
+@mcp.tool(description="Reconcile expired BRAINK work leases: re-arm retryable work and poison retry-exhausted work for remediation.",annotations=ToolAnnotations(readOnlyHint=False,destructiveHint=False,idempotentHint=True,openWorldHint=False))
+def braink_reconcile_work_leases(grace_ns:int=0)->dict[str,Any]:
+    return backend().reconcile_leases(grace_ns)
+
+
+@mcp.tool(description="Read the authoritative lease holder, epoch, heartbeat, expiry and retry state without changing state.",annotations=ToolAnnotations(readOnlyHint=True,destructiveHint=False,idempotentHint=True,openWorldHint=False))
 def braink_get_work_lease(work_id:str)->dict[str,Any]:
     return backend().current_lease(work_id)
+
+
+@mcp.tool(description="Read poison-failure/remediation records emitted by lease recovery.",annotations=ToolAnnotations(readOnlyHint=True,destructiveHint=False,idempotentHint=True,openWorldHint=False))
+def braink_get_lease_failures(work_id:str|None=None)->list[dict[str,Any]]:
+    return backend().lease_failure_records(work_id)
 
 
 # Read-only convenience projections remain callable directly.
