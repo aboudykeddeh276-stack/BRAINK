@@ -140,6 +140,21 @@ FUNCTION_CONTRACTS: dict[str, AgentFunctionContract] = {
             "payload": {"type": "object", "description": "JSON payload to persist."},
         }, ["logical", "backing", "payload"]),
     ),
+    "mesh.discover": AgentFunctionContract(
+        "mesh.discover", "braink_mesh_discover",
+        "Discover hosts already admitted to the resident BRAINK host fabric. Registration is not promoted to readiness.",
+        _obj({}),
+    ),
+    "mesh.health": AgentFunctionContract(
+        "mesh.health", "braink_mesh_health",
+        "Summarize fresh resident host-fabric health without inferring public network deployment.",
+        _obj({}),
+    ),
+    "mesh.readback": AgentFunctionContract(
+        "mesh.readback", "braink_mesh_readback",
+        "Read back one resident host identity, authority and freshness state.",
+        _obj({"host_id": _string("Observed host fabric identifier.")}, ["host_id"]),
+    ),
     "vfs.migrate": AgentFunctionContract(
         "vfs.migrate", "braink_vfs_migrate",
         "Migrate a logical value between backings after write/readback verification. Approval is mandatory.",
