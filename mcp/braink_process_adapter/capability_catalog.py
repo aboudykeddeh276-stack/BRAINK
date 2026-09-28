@@ -51,6 +51,13 @@ def build_registry(backend) -> CapabilityRegistry:
         ["vfs:migrate"],True,lambda p: backend.vfs_migrate(
             p["logical"],p["current_backing"],p["new_backing"]),approval=True)
 
+    add("mesh.discover","GROWING_MESH","BRAINK","DISCOVER",Risk.READ,
+        ["mesh:read"],True,lambda p: backend.mesh_discover())
+    add("mesh.health","GROWING_MESH","BRAINK","HEALTH",Risk.READ,
+        ["mesh:read"],True,lambda p: backend.mesh_health())
+    add("mesh.readback","GROWING_MESH","BRAINK","READBACK",Risk.READ,
+        ["mesh:read"],True,lambda p: backend.mesh_readback(p["host_id"]))
+
     return reg
 
 
