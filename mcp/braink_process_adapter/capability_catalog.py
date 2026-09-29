@@ -73,6 +73,9 @@ def build_registry(backend) -> CapabilityRegistry:
     add("new_env.moebius_contract","KEX_MEMORY","NEW-ENV-APP","MOEBIUS_MEMORY_CONTRACT",Risk.READ,
         ["new-env:read"],True,lambda p: backend.new_env_invoke("moebius_memory_contract",{}))
 
+    add("linguistics.chemical_codec","IL_LLM_KEX_L","BRAINK","CHEMICAL_SEMANTIC_ROUNDTRIP",Risk.READ,
+        ["linguistics:read"],True,lambda p: backend.chemical_linguistic_execute(p))
+
     return reg
 
 
