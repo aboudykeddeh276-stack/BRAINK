@@ -10,6 +10,7 @@ from enterprise.orchestration.durable_execution_r5 import (
     SignedEnvelopeAuthority,
 )
 from .sector_bridges import ServerRuntimeBridge, VirtualMemoryBridge
+from .new_env_app_bridge import NewEnvAppBridge
 from runtime.host_control.braink_host_fabric import HostFabric
 from .capability_catalog import GovernedCapabilityService
 from .function_contracts import manifest as function_manifest_projection, validate_payload
@@ -43,6 +44,7 @@ class BrainkProcessBackend:
         self.servers = ServerRuntimeBridge()
         self.vfs = VirtualMemoryBridge()
         self.host_fabric = HostFabric(state_dir=self.state_dir / "host_fabric")
+        self.new_env_app = NewEnvAppBridge()
         self.capabilities = GovernedCapabilityService(self, self.state_dir / "capability_receipts.sqlite")
 
     @staticmethod
@@ -161,6 +163,12 @@ class BrainkProcessBackend:
     def mesh_readback(self, host_id: str) -> dict[str, Any]:
         host = self.host_fabric.refresh_state(self.host_fabric.get_host(host_id))
         return {"status": "OBSERVED", "host": host}
+
+    def new_env_manifest(self) -> dict[str, Any]:
+        return self.new_env_app.manifest()
+
+    def new_env_invoke(self, tool: str, payload: dict[str, Any] | None = None) -> dict[str, Any]:
+        return self.new_env_app.invoke(tool, payload or {})
 
     # Authoritative enterprise surfaces.
     def capability_manifest(self) -> list[dict[str, Any]]:
