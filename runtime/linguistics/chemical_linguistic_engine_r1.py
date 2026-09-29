@@ -152,11 +152,12 @@ class ControlledEnglishCodec:
             "source":f'element/{e["atomic_number"]}/name/iupac/en',
         }]
         for a in graph.get("scientific_assertions",[]):
-            unit=f' | unit={a["unit"]}' if a.get("unit") else ""
-            conditions=f' | conditions={a["conditions"]}' if a.get("conditions") else ""
             sentences.append(
-                f'{cls.display(e["canonical_name_en"])} has {a["property_id"]} = {a["value"]}'
-                f'{unit}{conditions} | source={a["source"]}.'
+                f'{cls.display(e["canonical_name_en"])} has {a["property_id"]}'
+                f' | value={canonical_json(a["value"])}'
+                f' | unit={canonical_json(a.get("unit"))}'
+                f' | conditions={canonical_json(a.get("conditions"))}'
+                f' | source={canonical_json(a["source"])}.'
             )
             provenance.append({
                 "sentence_index":len(sentences)-1,
@@ -214,13 +215,20 @@ class ControlledEnglishCodec:
             if pm:
                 if pm.group("name").casefold()!=expected["canonical_name_en"]:
                     raise ChemicalLinguisticError("PROPERTY_SUBJECT_MISMATCH")
+                try:
+                    value=json.loads(pm.group("value"))
+                    unit=json.loads(pm.group("unit"))
+                    conditions=json.loads(pm.group("conditions"))
+                    source=json.loads(pm.group("source"))
+                except json.JSONDecodeError as exc:
+                    raise ChemicalLinguisticError("PROPERTY_TYPED_FIELD_DECODE_FAILED") from exc
                 assertions.append({
                     "subject_atomic_number":atomic,
                     "property_id":pm.group("property"),
-                    "value":pm.group("value"),
-                    "unit":pm.group("unit"),
-                    "conditions":pm.group("conditions"),
-                    "source":pm.group("source"),
+                    "value":value,
+                    "unit":unit,
+                    "conditions":conditions,
+                    "source":source,
                     "observed_at":None,
                 })
                 continue
