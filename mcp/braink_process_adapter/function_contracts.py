@@ -43,6 +43,14 @@ def _integer(description: str, *, default: int | None = None, minimum: int | Non
     return out
 
 
+def _number(description: str) -> dict[str, Any]:
+    return {"type": "number", "description": description}
+
+
+def _array(description: str, items: dict[str, Any]) -> dict[str, Any]:
+    return {"type": "array", "description": description, "items": items}
+
+
 FUNCTION_CONTRACTS: dict[str, AgentFunctionContract] = {
     "identity.resolve": AgentFunctionContract(
         "identity.resolve", "braink_identity_resolve",
@@ -212,6 +220,30 @@ FUNCTION_CONTRACTS: dict[str, AgentFunctionContract] = {
         "Execute the NEW-ENV 128KB Moebius memory-contract verifier.",
         _obj({}),
     ),
+    "linguistics.chemical_codec": AgentFunctionContract(
+        "linguistics.chemical_codec", "braink_chemical_linguistic_roundtrip",
+        "Resolve numeric state to element identity, construct provenance-bearing semantic state, project controlled English, independently parse it, and return semantic round-trip proof.",
+        _obj({
+            "raw_value": _number("Numeric state to address."),
+            "addressing_mode": _string(
+                "Explicit numeric addressing mode.",
+                default="atomic_number_direct",
+                enum=["atomic_number_direct", "bucket_zero_based"],
+            ),
+            "assertions": _array(
+                "Scientific assertions carrying property/value/unit/conditions/source.",
+                {"type": "object"},
+            ),
+            "memory_operators": _array(
+                "BRAINK memory operators such as +1, -1, .1, /1, +M1, -M1.",
+                {"type": "string"},
+            ),
+            "relations": _array(
+                "Typed semantic relations such as BONDS_WITH.",
+                {"type": "object"},
+            ),
+        }, ["raw_value"]),
+    ),
 }
 
 
@@ -265,8 +297,18 @@ def validate_payload(capability_id: str, payload: dict[str, Any]) -> dict[str, A
             raise FunctionContractError(f"{name} must be string")
         if typ == "integer" and (not isinstance(value, int) or isinstance(value, bool)):
             raise FunctionContractError(f"{name} must be integer")
+        if typ == "number" and (not isinstance(value, (int, float)) or isinstance(value, bool)):
+            raise FunctionContractError(f"{name} must be number")
         if typ == "object" and not isinstance(value, dict):
             raise FunctionContractError(f"{name} must be object")
+        if typ == "array":
+            if not isinstance(value, list):
+                raise FunctionContractError(f"{name} must be array")
+            item_type = spec.get("items", {}).get("type")
+            if item_type == "string" and any(not isinstance(item, str) for item in value):
+                raise FunctionContractError(f"{name} items must be string")
+            if item_type == "object" and any(not isinstance(item, dict) for item in value):
+                raise FunctionContractError(f"{name} items must be object")
         if "enum" in spec and value not in spec["enum"]:
             raise FunctionContractError(f"{name} must be one of {spec['enum']}")
         if "minimum" in spec and value < spec["minimum"]:
