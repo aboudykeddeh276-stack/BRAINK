@@ -1,0 +1,33 @@
+name: NEW-ENV MCP Runtime Ingestion
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'mcp/braink_process_adapter/new_env_app_bridge.py'
+      - 'mcp/braink_process_adapter/backend.py'
+      - 'mcp/braink_process_adapter/capability_catalog.py'
+      - 'mcp/braink_process_adapter/function_contracts.py'
+      - 'runtime/new_env_app_mcp_runtime.py'
+      - 'runtime/runtime_route_registry.py'
+      - 'scripts/kex-ci/test_new_env_ingestion.py'
+      - '.github/workflows/new-env-ingestion.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Execute BRAINK NEW-ENV ingestion regression
+        run: python3 scripts/kex-ci/test_new_env_ingestion.py
