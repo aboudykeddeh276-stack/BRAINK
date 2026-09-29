@@ -53,7 +53,7 @@ def main() -> int:
         }
 
         manifest = backend.invoke_capability("new_env.manifest", context, {}, "new-env-manifest")
-        require(manifest["status"] == "PASS", "manifest capability failed")
+        require(manifest["status"] == "SUCCEEDED", "manifest capability failed")
         require(manifest["result"]["runtime_id"] == "NEW_ENV_TEST", "manifest carrier mismatch")
 
         qualified = backend.invoke_capability(
@@ -61,7 +61,7 @@ def main() -> int:
             {"construct": "BRAINK", "claim": "entry-point reasoning"},
             "new-env-qualify",
         )
-        require(qualified["status"] == "PASS", "qualification capability failed")
+        require(qualified["status"] == "SUCCEEDED", "qualification capability failed")
         require(qualified["result"]["result"]["tool"] == "qualify_construct", "wrong MCP tool invoked")
 
         challenge = backend.invoke_capability(
@@ -69,7 +69,7 @@ def main() -> int:
             {"construct": "KEX"},
             "new-env-challenge",
         )
-        require(challenge["status"] == "PASS", "challenge capability failed")
+        require(challenge["status"] == "SUCCEEDED", "challenge capability failed")
 
         functions = {row["capability_id"]: row for row in backend.function_manifest()}
         for cid in (
