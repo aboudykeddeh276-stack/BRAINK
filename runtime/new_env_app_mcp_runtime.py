@@ -3,9 +3,12 @@ from __future__ import annotations
 
 import os
 import shutil
+import sys
 from pathlib import Path
 
-from mcp.braink_process_adapter.new_env_app_bridge import NewEnvAppBridge
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "mcp"))
+from braink_process_adapter.new_env_app_bridge import NewEnvAppBridge
 
 
 def main() -> int:
