@@ -8,8 +8,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 import sys
 sys.path.insert(0, str(ROOT))
+sys.path.insert(0, str(ROOT / "mcp"))
 
-from mcp.braink_process_adapter.backend import BrainkProcessBackend
+from braink_process_adapter.backend import BrainkProcessBackend
 from runtime.runtime_route_registry import RuntimeRouteRegistry
 
 
