@@ -12,6 +12,7 @@ from enterprise.orchestration.durable_execution_r5 import (
 from .sector_bridges import ServerRuntimeBridge, VirtualMemoryBridge
 from .new_env_app_bridge import NewEnvAppBridge
 from runtime.host_control.braink_host_fabric import HostFabric
+from runtime.linguistics.chemical_linguistic_engine_r1 import ChemicalLinguisticEngine
 from .capability_catalog import GovernedCapabilityService
 from .function_contracts import manifest as function_manifest_projection, validate_payload
 
@@ -45,6 +46,7 @@ class BrainkProcessBackend:
         self.vfs = VirtualMemoryBridge()
         self.host_fabric = HostFabric(state_dir=self.state_dir / "host_fabric")
         self.new_env_app = NewEnvAppBridge()
+        self.chemical_linguistics = ChemicalLinguisticEngine()
         self.capabilities = GovernedCapabilityService(self, self.state_dir / "capability_receipts.sqlite")
 
     @staticmethod
@@ -169,6 +171,15 @@ class BrainkProcessBackend:
 
     def new_env_invoke(self, tool: str, payload: dict[str, Any] | None = None) -> dict[str, Any]:
         return self.new_env_app.invoke(tool, payload or {})
+
+    def chemical_linguistic_execute(self, payload: dict[str, Any]) -> dict[str, Any]:
+        return self.chemical_linguistics.execute(
+            raw_value=payload["raw_value"],
+            addressing_mode=payload.get("addressing_mode", "atomic_number_direct"),
+            assertions=payload.get("assertions"),
+            memory_operators=payload.get("memory_operators"),
+            relations=payload.get("relations"),
+        )
 
     # Authoritative enterprise surfaces.
     def capability_manifest(self) -> list[dict[str, Any]]:
