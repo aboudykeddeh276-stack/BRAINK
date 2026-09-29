@@ -164,6 +164,54 @@ FUNCTION_CONTRACTS: dict[str, AgentFunctionContract] = {
             "new_backing": _string("Destination backing locator."),
         }, ["logical", "current_backing", "new_backing"]),
     ),
+    "new_env.manifest": AgentFunctionContract(
+        "new_env.manifest", "braink_new_env_manifest",
+        "Read the NEW-ENV-APP MCP/runtime manifest through the BRAINK carrier.",
+        _obj({}),
+    ),
+    "new_env.qualify": AgentFunctionContract(
+        "new_env.qualify", "braink_new_env_qualify",
+        "Qualify a BRAINK/KEX/KEDDEH construct against the NEW-ENV engineering truth-boundary registry.",
+        _obj({
+            "construct": _string("Construct to qualify."),
+            "claim": _string("Optional concrete claim being tested."),
+        }, ["construct"]),
+    ),
+    "new_env.challenge": AgentFunctionContract(
+        "new_env.challenge", "braink_new_env_challenge",
+        "Return falsification obligations for a construct from NEW-ENV-APP.",
+        _obj({
+            "construct": _string("Construct to challenge."),
+            "claim": _string("Optional concrete claim being challenged."),
+        }, ["construct"]),
+    ),
+    "new_env.self_test": AgentFunctionContract(
+        "new_env.self_test", "braink_new_env_self_test",
+        "Execute the NEW-ENV-APP MCP/runtime self-test and return raw readback.",
+        _obj({}),
+    ),
+    "new_env.tl2_probe": AgentFunctionContract(
+        "new_env.tl2_probe", "braink_new_env_tl2_probe",
+        "Run the NEW-ENV TL2 DNS/TCP Stratum subscribe probe.",
+        _obj({
+            "host": _string("Pool host.", default="bitcoin.viabtc.io"),
+            "port": _integer("Pool TCP port.", default=3333, minimum=1),
+            "timeout": {"type": "integer", "description": "Probe timeout seconds.", "default": 7, "minimum": 1},
+        }),
+    ),
+    "new_env.tl2_guest_lane": AgentFunctionContract(
+        "new_env.tl2_guest_lane", "braink_new_env_tl2_guest_lane",
+        "Execute one local Unix-domain guest-lane validation cycle.",
+        _obj({
+            "sock": _string("Optional Unix-domain socket path."),
+            "payload": {"type": "object", "description": "Stratum-like payload to validate through the guest lane."},
+        }),
+    ),
+    "new_env.moebius_contract": AgentFunctionContract(
+        "new_env.moebius_contract", "braink_new_env_moebius_contract",
+        "Execute the NEW-ENV 128KB Moebius memory-contract verifier.",
+        _obj({}),
+    ),
 }
 
 
