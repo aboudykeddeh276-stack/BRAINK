@@ -1,0 +1,28 @@
+name: BRAINK Chemical Linguistic Engine R1
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'runtime/linguistics/chemical_linguistic_engine_r1.py'
+      - 'mcp/braink_process_adapter/backend.py'
+      - 'mcp/braink_process_adapter/capability_catalog.py'
+      - 'mcp/braink_process_adapter/function_contracts.py'
+      - 'scripts/kex-ci/test_chemical_linguistic_engine_r1.py'
+      - '.github/workflows/chemical-linguistic-engine-r1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Execute BRAINK chemical linguistic falsification suite
+        run: python3 scripts/kex-ci/test_chemical_linguistic_engine_r1.py
