@@ -27,3 +27,18 @@ Never treat an unexposed process as impossible. Classify it as `UNBOUND_TOOL_SUR
 Preserve `work_id`, legal and operating identities, lease epoch, sector mutation ownership, observed result, and receipt/checkpoint lineage.
 
 Do not expose signing keys, database paths, or internal secrets as tool arguments.
+
+
+## NEW-ENV-APP engineering qualification runtime
+
+`repo://aboudykeddeh276-stack/NEW-ENV-APP` is ingested through runtime route `new-env-app-mcp` and the governed capability family:
+
+- `new_env.manifest`
+- `new_env.qualify`
+- `new_env.challenge`
+- `new_env.self_test`
+- `new_env.tl2_probe`
+- `new_env.tl2_guest_lane`
+- `new_env.moebius_contract`
+
+These execute through `braink_invoke_capability` after normal signed-envelope consumption and lease fencing. The carrier discovers the repository from `NEW_ENV_APP_ROOT` or a resident sibling checkout. If that traversal fails, report `NEW_ENV_APP_ROUTE_UNBOUND` as a carrier binding/readback failure; do not reinterpret it as absence of the NEW-ENV technology or its declared capability.
