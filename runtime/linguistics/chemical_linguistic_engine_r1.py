@@ -180,6 +180,7 @@ class ControlledEnglishCodec:
                 f' | value={canonical_json(a["value"])}'
                 f' | unit={canonical_json(a.get("unit"))}'
                 f' | conditions={canonical_json(a.get("conditions"))}'
+                f' | observed_at={canonical_json(a.get("observed_at"))}'
                 f' | source={canonical_json(a["source"])}.'
             )
             provenance.append({
@@ -198,7 +199,7 @@ class ControlledEnglishCodec:
             if not source:
                 raise ChemicalLinguisticError("RELATION_SOURCE_REQUIRED")
             sentences.append(
-                f'{cls.display(e["canonical_name_en"])} bonds with {obj["canonical_name_en"]} | source={source}.'
+                f'{cls.display(e["canonical_name_en"])} bonds with {obj["canonical_name_en"]} | source={canonical_json(source)}.'
             )
             provenance.append({
                 "sentence_index":len(sentences)-1,
@@ -274,6 +275,7 @@ class ControlledEnglishCodec:
                     value=json.loads(pm.group("value"))
                     unit=json.loads(pm.group("unit"))
                     conditions=json.loads(pm.group("conditions"))
+                    observed_at=json.loads(pm.group("observed_at"))
                     source=json.loads(pm.group("source"))
                 except json.JSONDecodeError as exc:
                     raise ChemicalLinguisticError("PROPERTY_TYPED_FIELD_DECODE_FAILED") from exc
@@ -284,7 +286,7 @@ class ControlledEnglishCodec:
                     "unit":unit,
                     "conditions":conditions,
                     "source":source,
-                    "observed_at":None,
+                    "observed_at":observed_at,
                 })
                 continue
             rm=cls.RELATION_RE.fullmatch(sentence)
@@ -296,7 +298,7 @@ class ControlledEnglishCodec:
                     "type":"BONDS_WITH",
                     "subject_atomic_number":atomic,
                     "object_atomic_number":obj["atomic_number"],
-                    "source":rm.group("source"),
+                    "source":json.loads(rm.group("source")),
                 })
                 continue
             raise ChemicalLinguisticError(f"UNSUPPORTED_CONTROLLED_SENTENCE:{sentence}")
