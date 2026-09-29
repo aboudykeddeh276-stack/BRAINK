@@ -58,6 +58,21 @@ def build_registry(backend) -> CapabilityRegistry:
     add("mesh.readback","GROWING_MESH","BRAINK","READBACK",Risk.READ,
         ["mesh:read"],True,lambda p: backend.mesh_readback(p["host_id"]))
 
+    add("new_env.manifest","ENGINEERING_QUALIFICATION","NEW-ENV-APP","MANIFEST",Risk.READ,
+        ["new-env:read"],True,lambda p: backend.new_env_manifest())
+    add("new_env.qualify","ENGINEERING_QUALIFICATION","NEW-ENV-APP","QUALIFY_CONSTRUCT",Risk.READ,
+        ["new-env:read"],True,lambda p: backend.new_env_invoke("qualify_construct",p))
+    add("new_env.challenge","ENGINEERING_QUALIFICATION","NEW-ENV-APP","CHALLENGE_CONSTRUCT",Risk.READ,
+        ["new-env:read"],True,lambda p: backend.new_env_invoke("challenge_construct",p))
+    add("new_env.self_test","ENGINEERING_QUALIFICATION","NEW-ENV-APP","RUNTIME_SELF_TEST",Risk.READ,
+        ["new-env:read"],True,lambda p: backend.new_env_invoke("runtime_self_test",{}))
+    add("new_env.tl2_probe","MINING_RUNTIME","NEW-ENV-APP","TL2_PROBE_POOL",Risk.READ,
+        ["new-env:network-read"],True,lambda p: backend.new_env_invoke("tl2_probe_pool",p))
+    add("new_env.tl2_guest_lane","MINING_RUNTIME","NEW-ENV-APP","TL2_GUEST_LANE_ONCE",Risk.MUTATE,
+        ["new-env:execute"],False,lambda p: backend.new_env_invoke("tl2_guest_lane_once",p))
+    add("new_env.moebius_contract","KEX_MEMORY","NEW-ENV-APP","MOEBIUS_MEMORY_CONTRACT",Risk.READ,
+        ["new-env:read"],True,lambda p: backend.new_env_invoke("moebius_memory_contract",{}))
+
     return reg
 
 
