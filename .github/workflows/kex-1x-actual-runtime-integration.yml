@@ -1,0 +1,34 @@
+name: KEX 1x Actual Runtime Integration Attack
+
+on:
+  push:
+    branches:
+      - integration/kex-1x-real-attack
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  actual-runtime-integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Python compile
+        run: |
+          python -m py_compile             modules/kex_wbos/action_server.py             modules/kex_wbos/runtime_dispatcher.py             runtime/public_gateway.py             runtime/runtime_registry.py             node-fabric/node_fabric.py             enterprise/tot_orc_dispatcher.py             scripts/kex-ci/test_kex_1x_actual_runtime_integration.py
+
+      - name: Execute actual runtime attack
+        run: |
+          python scripts/kex-ci/test_kex_1x_actual_runtime_integration.py
+
+      - name: Upload runtime receipt
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kex-1x-actual-runtime-integration
+          path: reports/kex-1x-actual-runtime-integration.json
+          if-no-files-found: warn
