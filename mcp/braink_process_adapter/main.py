@@ -37,6 +37,21 @@ def braink_invoke_capability(capability_id:str,context:dict[str,Any],payload:dic
     return backend().invoke_capability(capability_id,context,payload,idempotency_key)
 
 
+@mcp.tool(description="Apply one signed AUTHORITATIVELY_COMMITTED DomainState projection through the governed BRAINK capability runtime. MCP transports the projection but cannot redefine producer truth or authority.",annotations=ToolAnnotations(readOnlyHint=False,destructiveHint=True,idempotentHint=True,openWorldHint=True))
+def braink_apply_committed_projection(envelope:dict[str,Any])->dict[str,Any]:
+    return backend().apply_committed_projection(envelope)
+
+
+@mcp.tool(description="Read pending post-commit projection reconciliation debt. This is observed adapter debt, not permission to roll back committed DomainState.",annotations=ToolAnnotations(readOnlyHint=True,destructiveHint=False,idempotentHint=True,openWorldHint=False))
+def braink_projection_reconciliation_debt()->list[dict[str,Any]]:
+    return backend().projection_reconciliation_debt()
+
+
+@mcp.tool(description="Verify the hash-chained committed-projection receipt ledger.",annotations=ToolAnnotations(readOnlyHint=True,destructiveHint=False,idempotentHint=True,openWorldHint=False))
+def braink_verify_projection_receipts()->dict[str,Any]:
+    return backend().verify_projection_receipts()
+
+
 @mcp.tool(description="Resolve the canonical legal and operating identity binding for Keddeh Systems.",annotations=ToolAnnotations(readOnlyHint=True,destructiveHint=False,idempotentHint=True,openWorldHint=False))
 def braink_resolve_identity()->dict[str,Any]:
     return backend().resolve_identity()

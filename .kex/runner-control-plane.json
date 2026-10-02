@@ -96,7 +96,13 @@
     "INSTANCE_IDENTITY_CANNOT_DERIVE_FROM_TIME_OR_RANDOMNESS",
     "INSTANCE_MUTATION_REQUIRES_EXPECTED_PROOF_ROOT",
     "NATIVE_HCI_IDENTITY_MUST_REFERENCE_NODE_TEMPLATE_INSTANCE",
-    "CORE_NODE_TEMPLATE_CATALOG_MUST_BOOTSTRAP_BEFORE_INSTANCE_CREATION"
+    "CORE_NODE_TEMPLATE_CATALOG_MUST_BOOTSTRAP_BEFORE_INSTANCE_CREATION",
+    "MUTATING_MCP_PLUGIN_ADAPTER_CONNECTOR_REQUIRES_COMMITTED_DOMAINSTATE",
+    "MCP_PLUGIN_ADAPTER_CONNECTOR_CANNOT_REDEFINE_PRODUCER_TRUTH_OR_AUTHORITY",
+    "EXTERNALLY_DELEGATED_PROJECTION_REQUIRES_OBSERVED_DELEGATION_AND_READBACK",
+    "UNPROVEN_PROJECTION_AUTHORITY_CANNOT_MUTATE",
+    "POSTCOMMIT_PROJECTION_FAILURE_ENTERS_RECONCILIATION_DEBT",
+    "PROJECTION_REPLAY_IDEMPOTENT_BY_EVENT_AND_PROJECTION_ID"
   ],
   "file_governance": {
     "manifest": "governance/file/BRAINK_FILE_GOVERNANCE_R1.json",
@@ -340,5 +346,21 @@
     "catalog": "governance/node/BRAINK_CORE_NODE_TEMPLATES_R1.json",
     "bootstrap": "deploy/bootstrap_node_templates.py",
     "bootstrap_law": "core definitions are registered by reference metadata and implementation refs; executable bodies and rendered markup are not copied into template identity"
+  },
+  "projection_surfaces": {
+    "committed_projection_bridge": "enterprise/orchestration/committed_projection_bridge_r8.py",
+    "mcp_surface": "mcp/braink_process_adapter/main.py",
+    "sites_plugin": "plugins/sites/server/mcp_server.py",
+    "connector_adapter": "enterprise/market/connector_projection_adapter_r8.py",
+    "connector_registry": "enterprise/market/connector_service_registry_r25.py",
+    "authority_classes": [
+      "INTERNAL",
+      "HOST_CONTROLLED",
+      "EXTERNALLY_DELEGATED",
+      "UNPROVEN"
+    ],
+    "mutation_law": "only signed AUTHORITATIVELY_COMMITTED DomainState projections may mutate through MCP/plugin/adapter/connector surfaces",
+    "failure_law": "post-commit projection failure records reconciliation debt and may not roll authoritative DomainState back",
+    "truth_law": "surface receipts may reference producer truth/event identity but may not redefine them"
   }
 }

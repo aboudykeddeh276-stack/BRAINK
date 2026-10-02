@@ -1,0 +1,39 @@
+name: R8 DomainState Projection Convergence
+
+on:
+  push:
+    paths:
+      - 'enterprise/orchestration/committed_projection_bridge_r8.py'
+      - 'enterprise/market/connector_projection_adapter_r8.py'
+      - 'enterprise/market/connector_service_registry_r25.py'
+      - 'mcp/braink_process_adapter/**'
+      - 'plugins/sites/server/mcp_server.py'
+      - 'owner-control/sites-runtime/app.py'
+      - '.kex/runner-control-plane.json'
+      - 'scripts/kex-ci/test_projection_surface_convergence_r8.py'
+      - '.github/workflows/r8-projection-surface-convergence.yml'
+  pull_request:
+    paths:
+      - 'enterprise/orchestration/committed_projection_bridge_r8.py'
+      - 'enterprise/market/connector_projection_adapter_r8.py'
+      - 'enterprise/market/connector_service_registry_r25.py'
+      - 'mcp/braink_process_adapter/**'
+      - 'plugins/sites/server/mcp_server.py'
+      - '.kex/runner-control-plane.json'
+      - 'scripts/kex-ci/test_projection_surface_convergence_r8.py'
+      - '.github/workflows/r8-projection-surface-convergence.yml'
+  workflow_dispatch:
+
+jobs:
+  projection-convergence:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile projection surfaces
+        run: |
+          python -m py_compile             enterprise/orchestration/committed_projection_bridge_r8.py             enterprise/market/connector_projection_adapter_r8.py             enterprise/market/connector_service_registry_r25.py             mcp/braink_process_adapter/backend.py             plugins/sites/server/mcp_server.py             scripts/kex-ci/test_projection_surface_convergence_r8.py
+      - name: Run R8 projection convergence
+        run: python scripts/kex-ci/test_projection_surface_convergence_r8.py
