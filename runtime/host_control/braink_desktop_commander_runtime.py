@@ -25,6 +25,7 @@ STATE_DIR = Path(os.getenv("BRAINK_HOST_CONTROL_STATE", Path.home() / ".braink" 
 STATE_FILE = STATE_DIR / "desktop-commander-state.json"
 RECEIPT_FILE = STATE_DIR / "desktop-commander-receipts.jsonl"
 DEFAULT_PACKAGE = "@wonderwhy-er/desktop-commander"
+WINDOW_CONTROL = Path(__file__).resolve().parents[2] / "NativeChatBot" / "bin" / "braink-windowctl.command"
 STATE_HEARTBEAT_SEC = float(os.getenv("BRAINK_DC_STATE_HEARTBEAT_SEC", "10"))
 RECEIPT_HEARTBEAT_SEC = float(os.getenv("BRAINK_DC_RECEIPT_HEARTBEAT_SEC", "60"))
 MAX_RECEIPT_BYTES = int(os.getenv("BRAINK_DC_MAX_RECEIPT_BYTES", str(8 * 1024 * 1024)))
@@ -78,6 +79,19 @@ def package_spec() -> str:
     if os.getenv("BRAINK_DC_ALLOW_LATEST", "0") == "1":
         return f"{DEFAULT_PACKAGE}@latest"
     raise RuntimeError("DESKTOP_COMMANDER_PACKAGE_UNPINNED: set BRAINK_DC_PACKAGE to an exact version or BRAINK_DC_ALLOW_LATEST=1")
+
+
+def window_command(action: str, args: list[str]) -> list[str]:
+    """Bounded host operation for the addressable BRAINK native window runtime.
+
+    This is an allowlisted operation, not a general shell gateway.
+    """
+    allowed = {"open", "project", "readdress", "focus", "close", "readback"}
+    if action not in allowed:
+        raise ValueError(f"WINDOW_ACTION_NOT_ALLOWED:{action}")
+    if not WINDOW_CONTROL.exists():
+        raise RuntimeError(f"WINDOW_CONTROL_MISSING:{WINDOW_CONTROL}")
+    return ["/usr/bin/env", "python3", str(WINDOW_CONTROL), action, *args]
 
 
 def command_for(mode: str) -> list[str]:
@@ -206,6 +220,11 @@ def self_test() -> tuple[int, dict]:
         prereq = check_prerequisites(cmd)
         checks["command"] = cmd
         checks["prerequisites"] = prereq
+        checks["window_control"] = {
+            "path": str(WINDOW_CONTROL),
+            "present": WINDOW_CONTROL.exists(),
+            "allowlisted_actions": ["open","project","readdress","focus","close","readback"],
+        }
         status_value = "PASS" if prereq["ready"] else "BLOCKED"
         return (0 if prereq["ready"] else 2), {"self_test": status_value, "checks": checks}
     except Exception as exc:
@@ -220,12 +239,26 @@ def main() -> int:
     run.add_argument("--mode", choices=["remote", "mcp"], default="remote")
     sub.add_parser("status")
     sub.add_parser("self-test")
+    window = sub.add_parser("window")
+    window.add_argument("action", choices=["open", "project", "readdress", "focus", "close", "readback"])
+    window.add_argument("args", nargs="*")
     args = parser.parse_args()
 
     if args.command == "run":
         return supervise(args.mode)
     if args.command == "status":
         return status()
+    if args.command == "window":
+        try:
+            cmd = window_command(args.action, args.args)
+            result = subprocess.run(cmd, capture_output=True, text=True, check=False)
+            print(result.stdout, end="")
+            if result.stderr:
+                print(result.stderr, file=sys.stderr, end="")
+            return result.returncode
+        except Exception as exc:
+            print(json.dumps({"status":"BLOCKED","operation":"WINDOW_CONTROL","error":str(exc)}))
+            return 2
     code, body = self_test()
     print(json.dumps(body, indent=2))
     return code
