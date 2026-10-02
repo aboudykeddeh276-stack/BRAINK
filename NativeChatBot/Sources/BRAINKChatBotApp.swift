@@ -402,6 +402,39 @@ struct BrainkNativeChatbotView: View {
             .frame(minWidth: 320)
         }
         }
+        .toolbar {
+            ToolbarItemGroup(placement: .automatic) {
+                Button("Open Visual") {
+                    BRAINKWindowRegistry.shared.open(
+                        logicalAddress: "window://braink/visual/001",
+                        title: "BRAINK Addressable Visual",
+                        state: "ACTIVE"
+                    )
+                }
+                Button("Project") {
+                    BRAINKWindowRegistry.shared.project(
+                        logicalAddress: "window://braink/visual/001",
+                        title: "BRAINK Addressable Visual",
+                        state: "PROJECTED_FROM_BRAINK"
+                    )
+                }
+                Button("Readdress") {
+                    BRAINKWindowRegistry.shared.readdress(
+                        from: "window://braink/visual/001",
+                        to: "window://braink/visual/current"
+                    )
+                }
+                Button("Focus") {
+                    BRAINKWindowRegistry.shared.focus(logicalAddress: "window://braink/visual/current")
+                }
+                Button("Close") {
+                    BRAINKWindowRegistry.shared.close(logicalAddress: "window://braink/visual/current")
+                }
+            }
+        }
+        .onAppear {
+            _ = BRAINKWindowRegistry.shared
+        }
         .task {
             nodeTemplates.reload()
         }
