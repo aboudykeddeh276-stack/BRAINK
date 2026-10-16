@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - integration/kex-1x-real-attack
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
