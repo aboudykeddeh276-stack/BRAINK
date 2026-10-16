@@ -277,6 +277,25 @@ class Handler(http.server.BaseHTTPRequestHandler):
         q = urllib.parse.parse_qs(u.query)
         if u.path == "/health":
             return self.json(200, {"status": "PASS", "runtime": "runtime://braink/public-gateway/3", "carrier_role": "PROJECTION_ONLY"})
+        if u.path == "/network/ingress":
+            # Observe the actual accepted HTTP socket. This is not external
+            # reachability proof and must not promote the ingress dependency.
+            local_address = getattr(self.connection, "getsockname", lambda: None)()
+            remote_address = getattr(self.connection, "getpeername", lambda: None)()
+            return self.json(200, {
+                "status": "PASS",
+                "logical_requirement": "required://network/ingress",
+                "binding_state": "BOUND_LOCAL_OBSERVATION",
+                "runtime": "runtime://braink/public-gateway/3",
+                "carrier_role": "PROJECTION_ONLY",
+                "socket": {
+                    "local": list(local_address) if isinstance(local_address, tuple) else local_address,
+                    "remote": list(remote_address) if isinstance(remote_address, tuple) else remote_address,
+                },
+                "external_proof": "UNPROVEN",
+                "public_dns": "UNPROVEN",
+                "public_tls": "UNPROVEN",
+            })
         if u.path == "/mesh/ping":
             observation = _backbone_observation()
             return self.json(200 if observation.get("status") == "UP" else 503, observation)
