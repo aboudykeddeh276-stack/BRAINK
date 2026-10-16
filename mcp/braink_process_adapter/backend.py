@@ -15,6 +15,7 @@ from runtime.host_control.braink_host_fabric import HostFabric
 from runtime.linguistics.chemical_linguistic_engine_r1 import ChemicalLinguisticEngine
 from .capability_catalog import GovernedCapabilityService
 from .function_contracts import manifest as function_manifest_projection, validate_payload
+from runtime.publish.src.braink_runtime.v101_seed_registry import TruthBackedVFSSeedRegistry
 
 LEGAL_ENTITY = {
     "identity": "organisation://the-layna-company",
@@ -44,6 +45,7 @@ class BrainkProcessBackend:
         )
         self.servers = ServerRuntimeBridge()
         self.vfs = VirtualMemoryBridge()
+        self.vfs_seeds = TruthBackedVFSSeedRegistry(self.state_dir / "vfs_seeds.sqlite")
         self.host_fabric = HostFabric(state_dir=self.state_dir / "host_fabric")
         self.new_env_app = NewEnvAppBridge()
         self.chemical_linguistics = ChemicalLinguisticEngine()
@@ -137,6 +139,48 @@ class BrainkProcessBackend:
 
     def vfs_migrate(self, logical: str, current_backing: str, new_backing: str) -> dict[str, Any]:
         return self.vfs.migrate(logical, current_backing, new_backing)
+
+    def vfs_seed_record(
+        self,
+        logical: str,
+        source_kind: str,
+        source_uri: str,
+        source: bytes,
+        seed: dict[str, Any],
+        regeneration_contract: str,
+        dependencies: list[str] | None = None,
+    ) -> dict[str, Any]:
+        record = self.vfs_seeds.record(
+            logical=logical,
+            source_kind=source_kind,
+            source_uri=source_uri,
+            source=source,
+            seed=seed,
+            regeneration_contract=regeneration_contract,
+            dependencies=dependencies or [],
+        )
+        return {
+            "state": "SEED_RECORDED",
+            "logical": record.logical,
+            "source_sha256": record.source_sha256,
+            "seed_sha256": record.seed_sha256,
+            "dependencies": list(record.dependencies),
+        }
+
+    def vfs_seed_read(self, logical: str, current_source: bytes | None = None) -> dict[str, Any]:
+        record = self.vfs_seeds.read(logical, current_source=current_source)
+        return {
+            "state": "SEED_READ_BACK",
+            "logical": record.logical,
+            "source_kind": record.source_kind,
+            "source_uri": record.source_uri,
+            "source_sha256": record.source_sha256,
+            "seed_sha256": record.seed_sha256,
+            "seed": dict(record.seed),
+            "regeneration_contract": record.regeneration_contract,
+            "dependencies": list(record.dependencies),
+        }
+
 
     def mesh_discover(self) -> dict[str, Any]:
         hosts = self.host_fabric.list_hosts()
