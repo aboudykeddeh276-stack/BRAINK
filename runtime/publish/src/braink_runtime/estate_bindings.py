@@ -64,7 +64,10 @@ class EstateBindings:
                 "state": "BOUND_SOURCE",
                 "gateway": self._file(self.public_gateway),
                 "domain_broadcaster": self._file(self.domain_broadcaster),
+                "logical_requirement": "required://network/ingress",
+                "observation_route": "/network/ingress",
                 "promotion_rule": "public projection cannot promote resident runtime state",
+                "external_proof": "UNPROVEN",
             },
             "metering": {
                 "state": "BOUND_OBSERVATION_BASE",
