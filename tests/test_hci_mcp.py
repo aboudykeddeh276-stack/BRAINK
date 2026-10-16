@@ -5,7 +5,7 @@ from runtime.hci.mcp_router import MCPWorkflowRouter
 def test_home_is_user_goal_first():
     home=home_dashboard(ai_state='READY',task_summary={'status':'READY','open_count':3,'attention_count':0},recent_files=[{'name':'a.txt'}],system_summary={'sync':'SYNCED','degraded':False,'diagnostics_available':True})
     labels=[x['label'] for x in home['primary_actions']]
-    assert labels==['Ask BRAINK','Browse files','New task','Open tasks']
+    assert labels==['Ask BRAINK','Browse files','Documents','Legal work','New task','Open tasks']
     assert 'Host diagnostics' not in labels and home['diagnostics']['expanded'] is False
 
 def test_maintenance_cannot_be_primary():
