@@ -363,22 +363,8 @@ struct HomeWorkspaceView: View {
 struct AIWorkspaceView: View {
     @ObservedObject var engine: BRAINKChatEngine
     @Binding var input: String
-    @State private var isDragging = false
-
-    private func handleDrop(_ providers: [NSItemProvider]) -> Bool {
-        let fileProviders = providers.filter { $0.canLoadObject(ofClass: NSURL.self) }
-        guard !fileProviders.isEmpty else { return false }
-        for provider in fileProviders {
-            provider.loadItem(forTypeIdentifier: UTType.fileURL.identifier, options: nil) { item, _ in
-                if let data = item as? Data, let url = URL(dataRepresentation: data, relativeTo: nil) {
-                    Task { @MainActor in engine.attachILLLMRuntimePath(url) }
-                } else if let nsurl = item as? NSURL, let url = nsurl as URL? {
-                    Task { @MainActor in engine.attachILLLMRuntimePath(url) }
-                }
-            }
-        }
-        return true
-    }
+    @State private var showImporter = false
+    @State private var selectedFiles: [URL] = []
 
     var body: some View {
         VStack(spacing: 0) {
@@ -389,12 +375,39 @@ struct AIWorkspaceView: View {
                             VStack(alignment: .leading, spacing: 10) {
                                 Text("Ask BRAINK")
                                     .font(.system(size: 30, weight: .bold))
-                                Text("Describe the result you need. You do not need to know which runtime, service or tool performs it.")
+                                Text("Describe the result you need. The system handles the underlying workflow.")
                                     .foregroundStyle(.secondary)
+
+                                HStack {
+                                    Button("Add files") { showImporter = true }
+                                        .buttonStyle(.bordered)
+                                    if !selectedFiles.isEmpty {
+                                        Text("\(selectedFiles.count) source file(s) selected")
+                                            .font(.caption)
+                                            .foregroundStyle(.secondary)
+                                    }
+                                }
                             }
                             .frame(maxWidth: 820, alignment: .leading)
                             .padding(.top, 50)
                         }
+
+                        if !selectedFiles.isEmpty {
+                            HStack {
+                                Image(systemName: "paperclip")
+                                Text(selectedFiles.map { $0.lastPathComponent }.joined(separator: ", "))
+                                    .lineLimit(2)
+                                Spacer()
+                                Button("Clear files") { selectedFiles.removeAll() }
+                                    .buttonStyle(.borderless)
+                            }
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .padding(10)
+                            .background(Color.white.opacity(0.04))
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                        }
+
                         ForEach(engine.messages) { message in
                             MessageBubble(message: message)
                                 .id(message.id)
@@ -414,14 +427,17 @@ struct AIWorkspaceView: View {
 
             ChatInputBar(engine: engine, input: $input)
                 .padding(16)
-                .onDrop(of: [UTType.fileURL], isTargeted: $isDragging, perform: handleDrop)
-                .overlay {
-                    if isDragging {
-                        RoundedRectangle(cornerRadius: 12)
-                            .stroke(Color.accentColor, lineWidth: 2)
-                            .padding(8)
-                    }
-                }
+        }
+        .fileImporter(
+            isPresented: $showImporter,
+            allowedContentTypes: [.item],
+            allowsMultipleSelection: true
+        ) { result in
+            if case .success(let urls) = result {
+                selectedFiles = urls
+                let names = urls.map { $0.path }.joined(separator: "\n")
+                input = "Work with these selected files:\n\(names)"
+            }
         }
     }
 }
