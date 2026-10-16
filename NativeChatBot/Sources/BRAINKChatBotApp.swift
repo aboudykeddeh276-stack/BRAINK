@@ -251,7 +251,7 @@ struct StatusBar: View {
                 .font(.caption)
             Text("•")
                 .foregroundStyle(.tertiary)
-            Text("Your work is saved automatically")
+            Text("Background maintenance handled automatically")
                 .font(.caption)
                 .foregroundStyle(.secondary)
             Spacer()
@@ -429,6 +429,7 @@ struct AIWorkspaceView: View {
 struct DocumentsWorkspaceView: View {
     @ObservedObject var engine: BRAINKChatEngine
     @Binding var input: String
+    @Binding var selection: WorkspaceSection
     @State private var showImporter = false
     @State private var selectedFiles: [URL] = []
 
@@ -471,8 +472,18 @@ struct DocumentsWorkspaceView: View {
                                 }
                             }
                         }
-                        Button("Add source files") { showImporter = true }
-                            .buttonStyle(.bordered)
+                        HStack {
+                            Button("Add source files") { showImporter = true }
+                                .buttonStyle(.bordered)
+                            if !selectedFiles.isEmpty {
+                                Button("Ask BRAINK about these files") {
+                                    let names = selectedFiles.map { $0.path }.joined(separator: "\n")
+                                    input = "Work with these selected files:\n\(names)"
+                                    selection = .ai
+                                }
+                                .buttonStyle(.borderedProminent)
+                            }
+                        }
                     }
                 }
 
@@ -500,7 +511,6 @@ struct DocumentsWorkspaceView: View {
             switch result {
             case .success(let urls):
                 selectedFiles = urls
-                for url in urls { engine.attachILLLMRuntimePath(url) }
             case .failure(let error):
                 input = "I could not open the selected files: \(error.localizedDescription)"
             }
@@ -510,6 +520,8 @@ struct DocumentsWorkspaceView: View {
 
 struct FilesWorkspaceView: View {
     @ObservedObject var engine: BRAINKChatEngine
+    @Binding var input: String
+    @Binding var selection: WorkspaceSection
     @State private var showImporter = false
     @State private var selectedFiles: [URL] = []
 
@@ -548,6 +560,16 @@ struct FilesWorkspaceView: View {
                                 }
                             }
                         }
+                        HStack {
+                            Button("Add more files") { showImporter = true }
+                                .buttonStyle(.bordered)
+                            Button("Ask BRAINK about these files") {
+                                let names = selectedFiles.map { $0.path }.joined(separator: "\n")
+                                input = "Work with these selected files:\n\(names)"
+                                selection = .ai
+                            }
+                            .buttonStyle(.borderedProminent)
+                        }
                     }
                 }
             }
@@ -561,7 +583,6 @@ struct FilesWorkspaceView: View {
         ) { result in
             if case .success(let urls) = result {
                 selectedFiles = urls
-                for url in urls { engine.attachILLLMRuntimePath(url) }
             }
         }
     }
@@ -746,9 +767,9 @@ struct BrainkNativeChatbotView: View {
                     case .ai:
                         AIWorkspaceView(engine: engine, input: $input)
                     case .documents:
-                        DocumentsWorkspaceView(engine: engine, input: $input)
+                        DocumentsWorkspaceView(engine: engine, input: $input, selection: $selection)
                     case .files:
-                        FilesWorkspaceView(engine: engine)
+                        FilesWorkspaceView(engine: engine, input: $input, selection: $selection)
                     case .legal:
                         LegalWorkspaceView(input: $input)
                     }
