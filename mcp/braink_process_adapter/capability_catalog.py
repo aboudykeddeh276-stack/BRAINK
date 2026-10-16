@@ -51,6 +51,16 @@ def build_registry(backend) -> CapabilityRegistry:
         ["vfs:migrate"],True,lambda p: backend.vfs_migrate(
             p["logical"],p["current_backing"],p["new_backing"]),approval=True)
 
+    add("vfs.seed.read","K_DRIVE_VFS","BRAINK","READ_SEED",Risk.READ,
+        ["vfs:read"],True,lambda p: backend.vfs_seed_read(
+            p["logical"],
+            bytes.fromhex(p["current_source_hex"]) if p.get("current_source_hex") else None))
+    add("vfs.seed.write","K_DRIVE_VFS","BRAINK","WRITE_SEED",Risk.MUTATE,
+        ["vfs:write"],True,lambda p: backend.vfs_seed_record(
+            p["logical"],p["source_kind"],p["source_uri"],
+            bytes.fromhex(p["source_hex"]),p["seed"],
+            p["regeneration_contract"],p.get("dependencies",[])))
+
     add("mesh.discover","GROWING_MESH","BRAINK","DISCOVER",Risk.READ,
         ["mesh:read"],True,lambda p: backend.mesh_discover())
     add("mesh.health","GROWING_MESH","BRAINK","HEALTH",Risk.READ,
