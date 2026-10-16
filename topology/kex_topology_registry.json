@@ -1,0 +1,317 @@
+{
+  "schema": "keddeh.kex.topology.registry.v1",
+  "source_basis": {
+    "p11_logical_objects": 76,
+    "p11_unique_carriers": 95,
+    "p11_multi_carrier_logical_objects": 19,
+    "r5_high_level_named_identities": 33,
+    "r5_p11_overlap": 23,
+    "distinction": "R5 is a curated high-level surface manifest; P11 is the broader logical-object/carrier registry."
+  },
+  "logical_objects": {
+    "app://braink/workbook": {
+      "surface_class": "APPLICATION_SURFACE",
+      "carriers": []
+    },
+    "app://casepath": {
+      "surface_class": "APPLICATION_SURFACE",
+      "carriers": []
+    },
+    "app://claimpath": {
+      "surface_class": "APPLICATION_SURFACE",
+      "carriers": []
+    },
+    "app://kex-one": {
+      "surface_class": "APPLICATION_SURFACE",
+      "carriers": []
+    },
+    "app://kex/active-state": {
+      "surface_class": "APPLICATION_SURFACE",
+      "carriers": []
+    },
+    "app://kex/computer": {
+      "surface_class": "APPLICATION_SURFACE",
+      "carriers": []
+    },
+    "app://kos-bos": {
+      "surface_class": "APPLICATION_SURFACE",
+      "carriers": []
+    },
+    "artifact://fabric": {
+      "surface_class": "ARTIFACT_OR_EVIDENCE_SURFACE",
+      "carriers": []
+    },
+    "artifact://machine-requirements": {
+      "surface_class": "ARTIFACT_OR_EVIDENCE_SURFACE",
+      "carriers": []
+    },
+    "artifact://p00-action-plan": {
+      "surface_class": "ARTIFACT_OR_EVIDENCE_SURFACE",
+      "carriers": []
+    },
+    "artifact://p00-direct-proof": {
+      "surface_class": "ARTIFACT_OR_EVIDENCE_SURFACE",
+      "carriers": []
+    },
+    "artifact://p01-action-plan": {
+      "surface_class": "ARTIFACT_OR_EVIDENCE_SURFACE",
+      "carriers": []
+    },
+    "artifact://p01-direct-proof": {
+      "surface_class": "ARTIFACT_OR_EVIDENCE_SURFACE",
+      "carriers": []
+    },
+    "artifact://p01-state-model": {
+      "surface_class": "ARTIFACT_OR_EVIDENCE_SURFACE",
+      "carriers": []
+    },
+    "artifact://p01-transition-table": {
+      "surface_class": "ARTIFACT_OR_EVIDENCE_SURFACE",
+      "carriers": []
+    },
+    "artifact://p02-action-plan": {
+      "surface_class": "ARTIFACT_OR_EVIDENCE_SURFACE",
+      "carriers": []
+    },
+    "artifact://p02-address-model": {
+      "surface_class": "ARTIFACT_OR_EVIDENCE_SURFACE",
+      "carriers": []
+    },
+    "artifact://p02-continuation-schema": {
+      "surface_class": "ARTIFACT_OR_EVIDENCE_SURFACE",
+      "carriers": []
+    },
+    "artifact://p02-direct-proof": {
+      "surface_class": "ARTIFACT_OR_EVIDENCE_SURFACE",
+      "carriers": []
+    },
+    "artifact://p02-graph": {
+      "surface_class": "ARTIFACT_OR_EVIDENCE_SURFACE",
+      "carriers": []
+    },
+    "artifact://p02-relation-registry": {
+      "surface_class": "ARTIFACT_OR_EVIDENCE_SURFACE",
+      "carriers": []
+    },
+    "artifact://p03-action-plan": {
+      "surface_class": "ARTIFACT_OR_EVIDENCE_SURFACE",
+      "carriers": []
+    },
+    "artifact://p03-compiler-chain": {
+      "surface_class": "ARTIFACT_OR_EVIDENCE_SURFACE",
+      "carriers": []
+    },
+    "artifact://p03-direct-proof": {
+      "surface_class": "ARTIFACT_OR_EVIDENCE_SURFACE",
+      "carriers": []
+    },
+    "artifact://p04-action-plan": {
+      "surface_class": "ARTIFACT_OR_EVIDENCE_SURFACE",
+      "carriers": []
+    },
+    "artifact://p04-boot-model": {
+      "surface_class": "ARTIFACT_OR_EVIDENCE_SURFACE",
+      "carriers": []
+    },
+    "artifact://p04-direct-proof": {
+      "surface_class": "ARTIFACT_OR_EVIDENCE_SURFACE",
+      "carriers": []
+    },
+    "artifact://p05-action-plan": {
+      "surface_class": "ARTIFACT_OR_EVIDENCE_SURFACE",
+      "carriers": []
+    },
+    "artifact://p05-direct-proof": {
+      "surface_class": "ARTIFACT_OR_EVIDENCE_SURFACE",
+      "carriers": []
+    },
+    "artifact://p05-kernel-model": {
+      "surface_class": "ARTIFACT_OR_EVIDENCE_SURFACE",
+      "carriers": []
+    },
+    "artifact://p06-action-plan": {
+      "surface_class": "ARTIFACT_OR_EVIDENCE_SURFACE",
+      "carriers": []
+    },
+    "artifact://p06-direct-proof": {
+      "surface_class": "ARTIFACT_OR_EVIDENCE_SURFACE",
+      "carriers": []
+    },
+    "artifact://p06-hardware-model": {
+      "surface_class": "ARTIFACT_OR_EVIDENCE_SURFACE",
+      "carriers": []
+    },
+    "artifact://p07-action-plan": {
+      "surface_class": "ARTIFACT_OR_EVIDENCE_SURFACE",
+      "carriers": []
+    },
+    "artifact://p07-direct-proof": {
+      "surface_class": "ARTIFACT_OR_EVIDENCE_SURFACE",
+      "carriers": []
+    },
+    "artifact://p07-storage-model": {
+      "surface_class": "ARTIFACT_OR_EVIDENCE_SURFACE",
+      "carriers": []
+    },
+    "artifact://p08-action-plan": {
+      "surface_class": "ARTIFACT_OR_EVIDENCE_SURFACE",
+      "carriers": []
+    },
+    "artifact://p08-direct-proof": {
+      "surface_class": "ARTIFACT_OR_EVIDENCE_SURFACE",
+      "carriers": []
+    },
+    "artifact://p08-network-model": {
+      "surface_class": "ARTIFACT_OR_EVIDENCE_SURFACE",
+      "carriers": []
+    },
+    "artifact://p09-action-plan": {
+      "surface_class": "ARTIFACT_OR_EVIDENCE_SURFACE",
+      "carriers": []
+    },
+    "artifact://p09-compute-model": {
+      "surface_class": "ARTIFACT_OR_EVIDENCE_SURFACE",
+      "carriers": []
+    },
+    "artifact://p09-direct-proof": {
+      "surface_class": "ARTIFACT_OR_EVIDENCE_SURFACE",
+      "carriers": []
+    },
+    "artifact://p10-action-plan": {
+      "surface_class": "ARTIFACT_OR_EVIDENCE_SURFACE",
+      "carriers": []
+    },
+    "artifact://p10-direct-proof": {
+      "surface_class": "ARTIFACT_OR_EVIDENCE_SURFACE",
+      "carriers": []
+    },
+    "artifact://p10-projection-model": {
+      "surface_class": "ARTIFACT_OR_EVIDENCE_SURFACE",
+      "carriers": []
+    },
+    "artifact://registry": {
+      "surface_class": "ARTIFACT_OR_EVIDENCE_SURFACE",
+      "carriers": []
+    },
+    "executable://p03/demo": {
+      "surface_class": "EXECUTABLE_IMAGE",
+      "carriers": []
+    },
+    "mesh://braink/infrastructure": {
+      "surface_class": "MESH_RUNTIME_RESOURCE",
+      "carriers": []
+    },
+    "os://casepath/v2": {
+      "surface_class": "OS_APPLIANCE",
+      "carriers": []
+    },
+    "os://keddeh/hybrid": {
+      "surface_class": "OS_APPLIANCE",
+      "carriers": []
+    },
+    "runtime://abi/v4": {
+      "surface_class": "RUNTIME_RESOURCE",
+      "carriers": []
+    },
+    "runtime://contract/v2": {
+      "surface_class": "RUNTIME_RESOURCE",
+      "carriers": []
+    },
+    "runtime://embedded/kex-v5-runtime": {
+      "surface_class": "EMBEDDED_RUNTIME",
+      "carriers": []
+    },
+    "runtime://embedded/p00-root-runtime": {
+      "surface_class": "EMBEDDED_RUNTIME",
+      "carriers": []
+    },
+    "runtime://embedded/p01-zeroless-runtime": {
+      "surface_class": "EMBEDDED_RUNTIME",
+      "carriers": []
+    },
+    "runtime://embedded/p02-illlm-runtime": {
+      "surface_class": "EMBEDDED_RUNTIME",
+      "carriers": []
+    },
+    "runtime://embedded/p03-compiler-runtime": {
+      "surface_class": "EMBEDDED_RUNTIME",
+      "carriers": []
+    },
+    "runtime://embedded/p04-boot-runtime": {
+      "surface_class": "EMBEDDED_RUNTIME",
+      "carriers": []
+    },
+    "runtime://embedded/p05-kernel-runtime": {
+      "surface_class": "EMBEDDED_RUNTIME",
+      "carriers": []
+    },
+    "runtime://embedded/p06-hardware-runtime": {
+      "surface_class": "EMBEDDED_RUNTIME",
+      "carriers": []
+    },
+    "runtime://embedded/p07-volume-runtime": {
+      "surface_class": "EMBEDDED_RUNTIME",
+      "carriers": []
+    },
+    "runtime://embedded/p08-network-runtime": {
+      "surface_class": "EMBEDDED_RUNTIME",
+      "carriers": []
+    },
+    "runtime://embedded/p09-compute-runtime": {
+      "surface_class": "EMBEDDED_RUNTIME",
+      "carriers": []
+    },
+    "runtime://embedded/p10-projection-runtime": {
+      "surface_class": "EMBEDDED_RUNTIME",
+      "carriers": []
+    },
+    "runtime://kex/virtual-infrastructure": {
+      "surface_class": "RUNTIME_RESOURCE",
+      "carriers": []
+    },
+    "runtime://registry/v4": {
+      "surface_class": "RUNTIME_RESOURCE",
+      "carriers": []
+    },
+    "server://braink/sdos/systemd": {
+      "surface_class": "SERVER_RUNTIME_RESOURCE",
+      "carriers": []
+    },
+    "server://keddeh/global-presence": {
+      "surface_class": "SERVER_RUNTIME_RESOURCE",
+      "carriers": []
+    },
+    "volume://braink/il-llm/sovereign-v1": {
+      "surface_class": "EXECUTABLE_VOLUME_OR_ROOT_VOLUME",
+      "carriers": []
+    },
+    "volume://braink/workbook-hci/v3": {
+      "surface_class": "EXECUTABLE_VOLUME_OR_ROOT_VOLUME",
+      "carriers": []
+    },
+    "volume://casepath/v19": {
+      "surface_class": "EXECUTABLE_VOLUME_OR_ROOT_VOLUME",
+      "carriers": []
+    },
+    "volume://keddeh/braink/root": {
+      "surface_class": "EXECUTABLE_VOLUME_OR_ROOT_VOLUME",
+      "carriers": []
+    },
+    "volume://services/claim-prep": {
+      "surface_class": "EXECUTABLE_VOLUME_OR_ROOT_VOLUME",
+      "carriers": []
+    },
+    "workbook://boolean_graph_v7": {
+      "surface_class": "WORKBOOK_SURFACE",
+      "carriers": []
+    },
+    "workbook://supercomputer_env_v4": {
+      "surface_class": "WORKBOOK_SURFACE",
+      "carriers": []
+    },
+    "workbook://workbook_os_v7_4": {
+      "surface_class": "WORKBOOK_SURFACE",
+      "carriers": []
+    }
+  }
+}

@@ -1,0 +1,28 @@
+name: KEX Deterministic Reconstruction R1
+
+on:
+  push:
+    branches:
+      - integration/kex-1x-real-attack
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deterministic-reconstruction:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run reconstruction experiment
+        run: |
+          python -m py_compile observer2_runtime/kex_symbolic_bridge.py experiments/deterministic_reconstruction_r1.py
+          python experiments/deterministic_reconstruction_r1.py | tee reconstruction-result.json
+      - name: Run regression tests
+        run: python -m unittest -v tests/test_deterministic_reconstruction_r1.py
+      - name: Upload result
+        uses: actions/upload-artifact@v4
+        with:
+          name: kex-deterministic-reconstruction-r1
+          path: reconstruction-result.json

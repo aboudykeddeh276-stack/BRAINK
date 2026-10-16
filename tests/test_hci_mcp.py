@@ -5,7 +5,7 @@ from runtime.hci.mcp_router import MCPWorkflowRouter
 def test_home_is_user_goal_first():
     home=home_dashboard(ai_state='READY',task_summary={'status':'READY','open_count':3,'attention_count':0},recent_files=[{'name':'a.txt'}],system_summary={'sync':'SYNCED','degraded':False,'diagnostics_available':True})
     labels=[x['label'] for x in home['primary_actions']]
-    assert labels==['Ask BRAINK','Browse files','New task','Open tasks']
+    assert labels==['Ask BRAINK','Documents','Browse files','Legal work','New task','Open tasks']
     assert 'Host diagnostics' not in labels and home['diagnostics']['expanded'] is False
 
 def test_maintenance_cannot_be_primary():
@@ -38,3 +38,16 @@ def test_user_action_dispatch_is_semantic_not_plumbing():
 
 def test_health_is_secondary_not_primary():
     r=default_registry(); assert r.actions['system.health'].visibility==Visibility.SECONDARY and r.actions['diag.open'].surface==Surface.DIAGNOSTICS
+
+
+def test_home_exposes_documents_and_legal_workflows():
+    r=default_registry()
+    assert r.actions['document.open'].action_class==ActionClass.USER
+    assert r.actions['legal.open'].action_class==ActionClass.USER
+    assert r.actions['document.open'].visibility==Visibility.PRIMARY
+    assert r.actions['legal.open'].visibility==Visibility.PRIMARY
+
+def test_user_catalog_contains_work_not_internals():
+    ids={x['action_id'] for x in MCPWorkflowRouter().capability_catalog(actor_scope='USER')['entries']}
+    assert {'ai.ask','document.open','file.open','legal.open'}<=ids
+    assert 'admin.runtime' not in ids and 'diag.hosts' not in ids

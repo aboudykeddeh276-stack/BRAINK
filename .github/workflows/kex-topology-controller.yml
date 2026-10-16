@@ -1,0 +1,21 @@
+name: KEX Topology Controller Tests
+
+on:
+  push:
+    branches:
+      - integration/kex-1x-real-attack
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  topology-controller:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile
+        run: python -m py_compile topology/kex_topology_controller.py tests/test_kex_topology_controller.py
+      - name: Test
+        run: python -m unittest -v tests/test_kex_topology_controller.py

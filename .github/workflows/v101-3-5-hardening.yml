@@ -1,0 +1,29 @@
+name: V101.3-5 Hardening
+
+on:
+  push:
+    branches:
+      - integration/kex-1x-real-attack
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  v101_hardening:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Python compile
+        run: |
+          python -m py_compile             runtime/publish/src/braink_runtime/v101_seed_registry.py             runtime/publish/src/braink_runtime/v101_auth.py             runtime/publish/tests/test_v101_persistence_auth.py
+      - name: Persistence and authentication tests
+        run: python -m unittest -v runtime/publish/tests/test_v101_persistence_auth.py
+      - name: Docker hardening static verification
+        run: python runtime/publish/scripts/verify_v101_hardening.py
+      - name: Compose syntax verification
+        run: docker compose -f runtime/publish/docker-compose.hardened.yml config

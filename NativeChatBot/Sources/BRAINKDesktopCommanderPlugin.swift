@@ -29,6 +29,37 @@ enum BRAINKDesktopCommanderPlugin {
         }
     }
 
+    static func windowControl(repoRoot: String, action: String, arguments: [String] = []) -> String {
+        let script = URL(fileURLWithPath: repoRoot)
+            .appendingPathComponent("runtime/host_control/braink_desktop_commander_runtime.py")
+            .path
+        guard FileManager.default.fileExists(atPath: script) else {
+            return "Window runtime control error: host-control runtime missing at \(script)"
+        }
+
+        let allowed = ["open", "project", "readdress", "focus", "close", "readback"]
+        guard allowed.contains(action) else {
+            return "Window runtime control blocked: action not allowlisted: \(action)"
+        }
+
+        let process = Process()
+        let out = Pipe()
+        process.executableURL = URL(fileURLWithPath: "/usr/bin/env")
+        process.arguments = ["python3", script, "window", action] + arguments
+        process.standardOutput = out
+        process.standardError = out
+
+        do {
+            try process.run()
+            process.waitUntilExit()
+            let data = out.fileHandleForReading.readDataToEndOfFile()
+            let text = String(data: data, encoding: .utf8) ?? ""
+            return "Window runtime action=\(action) exit=\(process.terminationStatus):\n\(text)"
+        } catch {
+            return "Window runtime action failed: \(error.localizedDescription)"
+        }
+    }
+
     static func selfTest(repoRoot: String) -> String {
         let script = URL(fileURLWithPath: repoRoot).appendingPathComponent(runtimePath).path
         let process = Process()

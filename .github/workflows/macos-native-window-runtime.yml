@@ -1,0 +1,39 @@
+name: macOS Native Window Runtime Build
+
+on:
+  push:
+    branches:
+      - integration/kex-1x-real-attack
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  macos-native-window-runtime:
+    runs-on: macos-14
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compile BRAINK NativeChatBot
+        run: |
+          chmod +x NativeChatBot/build-native-chatbot.command
+          NativeChatBot/build-native-chatbot.command
+
+      - name: Verify window runtime symbols
+        run: |
+          test -f NativeChatBot/Sources/BRAINKWindowRuntime.swift
+          grep -q 'class BRAINKWindowRegistry' NativeChatBot/Sources/BRAINKWindowRuntime.swift
+          grep -q 'func readdress' NativeChatBot/Sources/BRAINKWindowRuntime.swift
+          grep -q 'func project' NativeChatBot/Sources/BRAINKWindowRuntime.swift
+          grep -q 'func focus' NativeChatBot/Sources/BRAINKWindowRuntime.swift
+          test -x NativeChatBot/bin/braink-windowctl.command
+
+      - name: Upload build log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: braink-native-window-runtime-build
+          path: NativeChatBot/BRAINKChatBot.app.build.log
+          if-no-files-found: warn

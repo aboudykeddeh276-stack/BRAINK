@@ -172,6 +172,27 @@ FUNCTION_CONTRACTS: dict[str, AgentFunctionContract] = {
             "new_backing": _string("Destination backing locator."),
         }, ["logical", "current_backing", "new_backing"]),
     ),
+    "vfs.seed.read": AgentFunctionContract(
+        "vfs.seed.read", "braink_vfs_seed_read",
+        "Read a compact VFS seed and optionally verify it against the exact current source bytes.",
+        _obj({
+            "logical": _string("Logical VFS seed address."),
+            "current_source_hex": _string("Optional exact current source bytes encoded as hexadecimal."),
+        }, ["logical"]),
+    ),
+    "vfs.seed.write": AgentFunctionContract(
+        "vfs.seed.write", "braink_vfs_seed_write",
+        "Record a provenance-bound compact VFS seed with exact source hash, regeneration contract and dependencies.",
+        _obj({
+            "logical": _string("Logical VFS seed address."),
+            "source_kind": _string("Observed source kind."),
+            "source_uri": _string("Observed source URI or identity."),
+            "source_hex": _string("Exact observed source bytes encoded as hexadecimal."),
+            "seed": {"type": "object", "description": "Compact retained seed."},
+            "regeneration_contract": _string("Explicit rule describing how the seed is rehydrated."),
+            "dependencies": _array("Logical dependencies required for regeneration.", {"type": "string"}),
+        }, ["logical", "source_kind", "source_uri", "source_hex", "seed", "regeneration_contract"]),
+    ),
     "new_env.manifest": AgentFunctionContract(
         "new_env.manifest", "braink_new_env_manifest",
         "Read the NEW-ENV-APP MCP/runtime manifest through the BRAINK carrier.",
