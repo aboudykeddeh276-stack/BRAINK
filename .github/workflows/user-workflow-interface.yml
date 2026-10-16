@@ -1,0 +1,24 @@
+name: User Workflow Interface Tests
+
+on:
+  push:
+    branches:
+      - integration/kex-1x-real-attack
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  user-workflow-interface:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Python syntax
+        run: python -m py_compile runtime/hci/interaction_model.py runtime/hci/mcp_router.py tests/test_hci_mcp.py tests/test_user_workflow_interface.py
+      - name: HCI contract tests
+        run: python -m pytest -q tests/test_hci_mcp.py tests/test_user_workflow_interface.py
