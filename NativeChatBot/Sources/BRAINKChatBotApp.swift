@@ -464,6 +464,7 @@ struct DocumentsWorkspaceView: View {
                         .buttonStyle(.borderedProminent)
                     Button("New document") {
                         input = "Create a new document"
+                        selection = .ai
                     }
                     .buttonStyle(.bordered)
                 }
@@ -509,9 +510,18 @@ struct DocumentsWorkspaceView: View {
                     icon: "wand.and.stars"
                 ) {
                     HStack(spacing: 10) {
-                        Button("Summarise a document") { input = "Summarise the selected document" }
-                        Button("Prepare a draft") { input = "Prepare a draft from the selected material" }
-                        Button("Review for gaps") { input = "Review the selected material for missing information" }
+                        Button("Summarise a document") {
+                            input = "Summarise the selected document"
+                            selection = .ai
+                        }
+                        Button("Prepare a draft") {
+                            input = "Prepare a draft from the selected material"
+                            selection = .ai
+                        }
+                        Button("Review for gaps") {
+                            input = "Review the selected material for missing information"
+                            selection = .ai
+                        }
                     }
                     .buttonStyle(.bordered)
                 }
@@ -606,6 +616,7 @@ struct FilesWorkspaceView: View {
 
 struct LegalWorkspaceView: View {
     @Binding var input: String
+    @Binding var selection: WorkspaceSection
 
     var body: some View {
         ScrollView {
@@ -624,6 +635,7 @@ struct LegalWorkspaceView: View {
                 ) {
                     Button("Start a matter") {
                         input = "Start a new legal matter. Begin with the facts and source material I provide."
+                        selection = .ai
                     }
                     .buttonStyle(.borderedProminent)
                 }
@@ -636,6 +648,7 @@ struct LegalWorkspaceView: View {
                     ) {
                         Button("Review evidence") {
                             input = "Review the evidence for this matter, organise it chronologically, and identify source gaps."
+                            selection = .ai
                         }
                     }
 
@@ -646,6 +659,7 @@ struct LegalWorkspaceView: View {
                     ) {
                         Button("Prepare package") {
                             input = "Prepare a structured document package for this legal matter from the available source material."
+                            selection = .ai
                         }
                     }
                 }
@@ -787,7 +801,7 @@ struct BrainkNativeChatbotView: View {
                     case .files:
                         FilesWorkspaceView(engine: engine, input: $input, selection: $selection)
                     case .legal:
-                        LegalWorkspaceView(input: $input)
+                        LegalWorkspaceView(input: $input, selection: $selection)
                     }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
