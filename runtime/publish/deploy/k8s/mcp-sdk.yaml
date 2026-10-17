@@ -1,0 +1,155 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: keddeh-runtime
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: braink-mcp-secret
+  namespace: keddeh-runtime
+type: Opaque
+stringData:
+  BRAINK_MCP_HMAC_KEY_HEX: REPLACE_AT_DEPLOYMENT
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: braink-mcp-state
+  namespace: keddeh-runtime
+spec:
+  accessModes: ["ReadWriteOnce"]
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: braink-mcp-sdk
+  namespace: keddeh-runtime
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: braink-mcp-sdk
+  template:
+    metadata:
+      labels:
+        app: braink-mcp-sdk
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: runtime
+          image: ghcr.io/aboudykeddeh276-stack/braink-mcp-sdk:REPLACE_WITH_RELEASE
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8810
+          env:
+            - name: BRAINK_MCP_HMAC_KEY_HEX
+              valueFrom:
+                secretKeyRef:
+                  name: braink-mcp-secret
+                  key: BRAINK_MCP_HMAC_KEY_HEX
+            - name: BRAINK_MCP_STATE_DIR
+              value: /data/braink_mcp
+          securityContext:
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 3
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 15
+          startupProbe:
+            httpGet:
+              path: /health
+              port: http
+            failureThreshold: 30
+            periodSeconds: 2
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 1
+              memory: 1Gi
+          volumeMounts:
+            - name: state
+              mountPath: /data
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: state
+          persistentVolumeClaim:
+            claimName: braink-mcp-state
+        - name: tmp
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: braink-mcp-sdk
+  namespace: keddeh-runtime
+spec:
+  type: ClusterIP
+  selector:
+    app: braink-mcp-sdk
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: braink-mcp-sdk
+  namespace: keddeh-runtime
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: braink-mcp-sdk
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: braink-mcp-sdk-default-deny
+  namespace: keddeh-runtime
+spec:
+  podSelector:
+    matchLabels:
+      app: braink-mcp-sdk
+  policyTypes: ["Ingress", "Egress"]
+  ingress:
+    - from:
+        - namespaceSelector: {}
+      ports:
+        - protocol: TCP
+          port: 8810
+  egress:
+    - to:
+        - namespaceSelector: {}
+      ports:
+        - protocol: TCP
+          port: 53
+        - protocol: UDP
+          port: 53
