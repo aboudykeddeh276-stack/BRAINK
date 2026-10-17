@@ -59,3 +59,26 @@ If `origin` already exists, the script updates its URL instead of failing. The p
 - Local governance artifact status: `MODEL-LOCAL`
 - External repository adoption status: `PENDING`
 - External GitHub remote creation/push status: `PENDING`
+
+## KEXWrapper (Swift) — virtualized seed/cascade kernel
+
+This repository now includes a Foundation-only Swift package at `Sources/KEXWrapper` with a sandbox-safe virtualized BRAINK kernel wrapper and tests in `Tests/KEXWrapperTests`.
+
+- **Seed = State**: `bootSeed(_:)` returns live state directly (no hydrate/warm-boot phase).
+- **Active-state corridor**: supports only `{ -3, -2, 1, +2, +3 }` (ranked 1...5), with no live zero axis.
+- **Typed-zero algebra**: non-erasing cancellation returns balanced projections carrying both source operands and typed projections.
+- **Lineage-only frames**: `LineageFrame` carries compressed lineage and genesis anchor only.
+- **Kin-gated compression seam**: `CompressionStyle` is intentionally author-native; absent/foreign styles structurally non-comprehend.
+- **Recursive hosting**: `BRAINKNode.spawnChild()` and `cascade(fanOut:depth:)` build self-hosted kin trees with shared deterministic lookup ledger reuse.
+
+Grounding artifacts in this repository:
+- `docs/KEX_COMPLETE_CONSTRAINT_DOCUMENT.md`
+- `docs/KEX_HYPERDRIVE_CALIBRATION_ANALYSIS.md`
+- `NativeChatBot/Sources/KEXHyperdriveConceptEngine.swift`
+- `tools/kex_self_sustain.py`
+
+Run:
+
+```bash
+swift test
+```
