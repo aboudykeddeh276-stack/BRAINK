@@ -1,0 +1,30 @@
+{
+  "config_type": "SIGNER_CONFIG_EXAMPLE",
+  "description": "Placeholder signer configuration. NO REAL KEY MATERIAL IS PRESENT OR PERMITTED IN THIS FILE.",
+  "active_signer": "test",
+  "signers": {
+    "test": {
+      "class": "braink_runtime.signer.TestSigner",
+      "algorithm": "HMAC-SHA256",
+      "key_id": "test-key-local-0001",
+      "key_source": "hardcoded published test constant",
+      "secret": null,
+      "trust_level": "LOCALLY_PROVEN",
+      "note": "The test key is published on purpose. It proves the code path, not authenticity."
+    },
+    "production": {
+      "class": "braink_runtime.signer.ProductionSignerPlaceholder",
+      "algorithm": "ED25519-OR-KMS-BACKED",
+      "key_id": "production-key-unconfigured",
+      "key_source": "environment variable BRAINK_SIGNER_KEY or an external KMS/HSM reference",
+      "secret": null,
+      "trust_level": "DEFINED",
+      "note": "Raises NotImplementedError until real key infrastructure is wired in. Cannot be PRODUCTION_VALIDATED from this package."
+    }
+  },
+  "rules": [
+    "Never commit private keys, HMAC secrets or KMS credentials to this repository.",
+    "Production key material must be supplied at runtime via environment or a secrets manager.",
+    "A signer whose key cannot be independently attested must not claim a status above DEFINED."
+  ]
+}

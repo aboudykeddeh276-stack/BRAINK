@@ -1,0 +1,10 @@
+component,status,unit_tested,integration_tested,restart_tested,locally_proven,externally_observed
+canonical,UNIT_TESTED,yes,yes,no,no,no
+linguistic_core,UNIT_TESTED,yes,yes,no,no,no
+identity,UNIT_TESTED,yes,yes,no,no,no
+ledger,LOCALLY_PROVEN,yes,yes,yes,yes,no
+signer,LOCALLY_PROVEN,yes,yes,no,yes,no
+dns_transport,LOCALLY_EXECUTED,yes,no,no,no,no
+restart,RESTART_TESTED,yes,yes,yes,yes,no
+runtime,INTEGRATION_TESTED,yes,yes,yes,no,no
+receipts,UNIT_TESTED,yes,yes,no,no,no

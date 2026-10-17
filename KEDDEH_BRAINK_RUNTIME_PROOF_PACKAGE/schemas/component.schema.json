@@ -1,0 +1,35 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://braink.local/schemas/component.schema.json",
+  "title": "BrAInK Component Registry Entry",
+  "description": "A single runtime component together with its Rule 2 descriptive fields and its honest Rule 3 validation status.",
+  "type": "object",
+  "required": ["id", "name", "namespace", "version", "status", "purpose", "inputs", "outputs", "dependencies"],
+  "additionalProperties": true,
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$",
+      "description": "SHA-256 of canonical_serialize({namespace,name,version})."
+    },
+    "name": { "type": "string", "minLength": 1 },
+    "namespace": { "type": "string", "minLength": 1 },
+    "version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
+    "status": {
+      "type": "string",
+      "enum": ["DEFINED", "IMPLEMENTED", "UNIT_TESTED", "INTEGRATION_TESTED", "RESTART_TESTED", "LOCALLY_EXECUTED", "LOCALLY_PROVEN", "EXTERNALLY_OBSERVED", "PUBLICLY_DEPLOYED", "PRODUCTION_VALIDATED"]
+    },
+    "purpose": { "type": "string", "minLength": 1 },
+    "inputs": { "type": "array", "items": { "type": "string" } },
+    "outputs": { "type": "array", "items": { "type": "string" } },
+    "dependencies": { "type": "array", "items": { "type": "string" } },
+    "interfaces": { "type": "array", "items": { "type": "string" } },
+    "required_skill": { "type": "string" },
+    "conceptual_validation": { "type": "string" },
+    "practical_validation": { "type": "string" },
+    "evidence": { "type": "array", "items": { "type": "string" } },
+    "saved_representations": { "type": "array", "items": { "type": "string" } },
+    "limitations": { "type": "array", "items": { "type": "string" } },
+    "module_path": { "type": "string" }
+  }
+}

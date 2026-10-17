@@ -1,0 +1,46 @@
+{
+  "config_type": "DNS_RECORDS",
+  "description": "Example DNS record configuration for a BRAINK deployment. These values are illustrative only; nothing here has been published or externally observed.",
+  "zone": "braink.example",
+  "default_resolver": "8.8.8.8",
+  "default_resolver_port": 53,
+  "fallback_resolvers": ["1.1.1.1", "9.9.9.9"],
+  "query_timeout_seconds": 3.0,
+  "verification_targets": [
+    { "name": "braink.example", "record_type": "A" },
+    { "name": "_braink-proof.braink.example", "record_type": "TXT" },
+    { "name": "braink.example", "record_type": "NS" }
+  ],
+  "records": [
+    {
+      "name": "braink.example",
+      "record_type": "A",
+      "ttl": 300,
+      "value": "203.0.113.10",
+      "note": "203.0.113.0/24 is TEST-NET-3 and is deliberately non-routable."
+    },
+    {
+      "name": "www.braink.example",
+      "record_type": "CNAME",
+      "ttl": 300,
+      "value": "braink.example"
+    },
+    {
+      "name": "_braink-proof.braink.example",
+      "record_type": "TXT",
+      "ttl": 60,
+      "value": "braink-proof=v1; status=LOCALLY_EXECUTED"
+    },
+    {
+      "name": "braink.example",
+      "record_type": "NS",
+      "ttl": 86400,
+      "value": "ns1.braink.example"
+    }
+  ],
+  "proof_boundary": {
+    "status_cap": "LOCALLY_EXECUTED",
+    "authoritative_external_confirmed": false,
+    "note": "Authoritative DNS not confirmed from sandbox - capped at LOCALLY_EXECUTED per Rule 3."
+  }
+}

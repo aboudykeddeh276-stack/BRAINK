@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://braink.local/schemas/identity.schema.json",
+  "title": "BrAInK Identity Record",
+  "description": "A registered deterministic identity and the exact inputs it was derived from.",
+  "type": "object",
+  "required": ["identity", "kind", "namespace", "inputs"],
+  "additionalProperties": false,
+  "properties": {
+    "identity": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "kind": { "type": "string", "enum": ["component", "skill", "service"] },
+    "namespace": { "type": "string", "minLength": 1 },
+    "inputs": {
+      "type": "object",
+      "description": "Canonicalised input tuple. Two different input tuples may never share one identity.",
+      "minProperties": 1
+    },
+    "fingerprint": { "type": "string", "description": "canonical_serialize(inputs)" },
+    "registered_at": { "type": "string", "format": "date-time" }
+  }
+}
