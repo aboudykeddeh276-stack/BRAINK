@@ -1,0 +1,104 @@
+{
+  "dominantCause" : "invalidData",
+  "dominantSector" : "externalApi",
+  "errors" : [
+    {
+      "cause" : "forbidden403",
+      "deadRoute" : "external.claude.api",
+      "isRecoverable" : true,
+      "message" : "External Claude\/Anthropic endpoint denied authentication (403 Forbidden).",
+      "occurrenceRate" : 100,
+      "recoveryPath" : "self_sustained_coder",
+      "sector" : "authentication",
+      "severity" : 9,
+      "timestamp" : "2026-07-01T13:37:44Z"
+    },
+    {
+      "cause" : "missingEndpoint",
+      "deadRoute" : "external.runtime-tools.mcp",
+      "isRecoverable" : true,
+      "message" : "MCP server dependency failed or became unreliable after external route failure.",
+      "occurrenceRate" : 100,
+      "recoveryPath" : "local_proof_generation",
+      "sector" : "externalApi",
+      "severity" : 8,
+      "timestamp" : "2026-07-01T13:37:44Z"
+    },
+    {
+      "cause" : "processExit",
+      "deadRoute" : "external.claude.process",
+      "isRecoverable" : true,
+      "message" : "Process terminated with exit code 1 due to upstream ClaudeError escalation.",
+      "occurrenceRate" : 100,
+      "recoveryPath" : "deterministic_local_mode",
+      "sector" : "execution",
+      "severity" : 8,
+      "timestamp" : "2026-07-01T13:37:44Z"
+    },
+    {
+      "cause" : "cartesianZero",
+      "deadRoute" : "storage.cell_alignment",
+      "isRecoverable" : true,
+      "message" : "Storage\/alignment layer signaled cartesian zero in cell alignment.",
+      "occurrenceRate" : 100,
+      "recoveryPath" : "stack_audit",
+      "sector" : "storage",
+      "severity" : 7,
+      "timestamp" : "2026-07-01T13:37:44Z"
+    },
+    {
+      "cause" : "noFallback",
+      "deadRoute" : "claude.primary.route",
+      "isRecoverable" : true,
+      "message" : "No fallback routing was activated after authentication\/process failure.",
+      "occurrenceRate" : 100,
+      "recoveryPath" : "illlm_bundle",
+      "sector" : "routing",
+      "severity" : 10,
+      "timestamp" : "2026-07-01T13:37:44Z"
+    },
+    {
+      "cause" : "invalidData",
+      "deadRoute" : "proof.artifact.pipeline",
+      "isRecoverable" : true,
+      "message" : "Proof packet artifacts were not generated on failure.",
+      "occurrenceRate" : 100,
+      "recoveryPath" : "proof_packet",
+      "sector" : "proof",
+      "severity" : 7,
+      "timestamp" : "2026-07-01T13:37:44Z"
+    },
+    {
+      "cause" : "invalidData",
+      "deadRoute" : "error.context.pipeline",
+      "isRecoverable" : true,
+      "message" : "Error context propagation missing (sector\/cause analysis absent in failure stream).",
+      "occurrenceRate" : 100,
+      "recoveryPath" : "braink_error_context_engine",
+      "sector" : "processing",
+      "severity" : 8,
+      "timestamp" : "2026-07-01T13:37:44Z"
+    }
+  ],
+  "jobId" : "84541143511",
+  "occurrenceHistory" : [
+    "2026-07-01T13:37:44Z",
+    "2026-07-01T13:37:44Z",
+    "2026-07-01T13:37:44Z",
+    "2026-07-01T13:37:44Z",
+    "2026-07-01T13:37:44Z",
+    "2026-07-01T13:37:44Z",
+    "2026-07-01T13:37:44Z"
+  ],
+  "occurrenceRate" : 100,
+  "recommendedActions" : [
+    "Disable external Claude\/Anthropic route for CI and force BRAINK local orchestration.",
+    "Treat runtime-tools MCP as optional; continue with local deterministic proof generation.",
+    "Capture process-exit context and route to self_sustained_coder + kex_hyperdrive fallback.",
+    "Run stack_audit and rebuild relational index mapping before next attempt.",
+    "Enforce multi-level fallback policy (self_sustained_coder -> illlm_bundle -> proof_packet).",
+    "Always emit error-context and proof artifacts even on controlled failure."
+  ],
+  "timestamp" : "2026-07-01T13:37:44Z",
+  "workflowName" : "Running Claude"
+}
