@@ -669,14 +669,16 @@ class SymmetricInversionTheorem_NegativePositiveBijection:
     
     def visual_representation(self) -> Dict[str, str]:
         return {
-            "number_line": "... -3 | -2 | [OBSERVER_BOUNDARY] | 1 | 2 | 3 ...",
+            "number_line": "| [OBSERVER_BOUNDARY] | 1 | 2 | 3 ...",
             "bijection_mapping": [
-                "-1 ↔ 1",
-                "-2 ↔ 2",
-                "-3 ↔ 3",
+                "reflection(1) ↔ 1",
+                "reflection(2) ↔ 2",
+                "reflection(3) ↔ 3",
                 "etc.",
             ],
-            "key_property": "Symmetric mapping across observer boundary (not through zero)",
+            "key_property": "Symmetric reflection across observer boundary (boundary is frame-dependent, external to spectrum)",
+            "spectrum_domain": "[1, 2, 3, ...] — positive integers only; observer boundary is not a discrete spectrum index",
+            "kex_principle": "ObserverBoundaryInversionTheorem: boundary crossing is instantaneous reflection, not traversal through zero (Cartesian problem avoided)",
         }
 
 

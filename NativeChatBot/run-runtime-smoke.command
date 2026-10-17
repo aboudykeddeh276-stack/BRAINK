@@ -57,6 +57,7 @@ swiftc \
   "$ROOT/Sources/BRAINKILLLMKnowledgeCenter.swift" \
   "$ROOT/Sources/BRAINKILLLMWorkflow.swift" \
   "$ROOT/Sources/BRAINKInnerRuntime.swift" \
+  "$ROOT/Sources/BRAINKZeroLessSpectrum.swift" \
   "$ROOT/Sources/KEXHyperdriveConceptEngine.swift" \
   "$ROOT/Sources/KEXSelfSustainedCodingEngine.swift" \
   "$ROOT/Sources/BRAINKOAuth.swift" \
