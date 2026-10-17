@@ -1,0 +1,27 @@
+name: KEDDEH Theorem Graph TDD
+
+on:
+  push:
+    paths:
+      - "KEDDEH_RUNTIME/**"
+      - ".github/workflows/keddeh-theorem-graph-tdd.yml"
+  pull_request:
+    paths:
+      - "KEDDEH_RUNTIME/**"
+      - ".github/workflows/keddeh-theorem-graph-tdd.yml"
+
+jobs:
+  theorem-graph:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Run strict theorem graph tests
+        run: python -m unittest discover -s KEDDEH_RUNTIME -p 'test_*.py' -v
