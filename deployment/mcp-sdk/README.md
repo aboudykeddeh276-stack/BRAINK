@@ -1,18 +1,34 @@
-# KEDDEH MCP + SDK public server
+# KEDDEH MCP + SDK deployment surface
 
-This deployment target runs the existing BRAINK MCP capability adapter behind the KEDDEH MCP + SDK environment server.
+This package is a deployment surface of the resident KEDDEH/BRAINK fabric. It is not a separate hosted product and does not introduce an external deployment authority.
 
-Runtime:
+Canonical runtime:
 - runtime://keddeh/mcp-sdk-environment
 - environment://keddeh/mcp-sdk
 - sdk://keddeh/braink
 
-Public routes:
+HTTP surfaces:
 - /health
 - /environment
 - /sdk/manifest
 - /sdk/docs
 - /mcp
+
+Deployment authority:
+- KEDDEH Fabric / resident owner-host runtime
+- GitHub self-hosted deployment runner
+- Kubernetes deployment surface where the target host is the KEDDEH CloudWorkspace/Fabric cluster
+- resident KEDDEH domain/publication fabric for external ingress
+
+Promotion remains receipt-gated:
+
+IMPLEMENTED
+→ LOCAL_PASS
+→ CI_PASS
+→ TARGET_HOST_PASS
+→ PROVIDER_PASS
+→ DEPLOYED
+→ EXTERNALLY_PROVEN
 
 Required production secret:
 - BRAINK_MCP_HMAC_KEY_HEX
@@ -20,4 +36,4 @@ Required production secret:
 Persistent state:
 - BRAINK_MCP_STATE_DIR=/data/braink_mcp
 
-The deployment image is built from the repository root so the existing enterprise, MCP and runtime modules remain available. No alternate capability authority is introduced.
+No deployment claim is made until target-host start/readback and external ingress evidence are present.
