@@ -1,0 +1,63 @@
+name: BOS Authenticated Recovery Capsule v3
+
+on:
+  push:
+    branches:
+      - codex/bos-recovery-capsule-v3-20260806
+    paths:
+      - bos/**
+      - .github/workflows/bos-recovery.yml
+  pull_request:
+    branches:
+      - main
+    paths:
+      - bos/**
+      - .github/workflows/bos-recovery.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: bos
+    steps:
+      - name: Checkout BRAINK revision
+        uses: actions/checkout@v5
+
+      - name: Install pinned Rust toolchain
+        run: |
+          rustup toolchain install 1.97.1 --profile minimal --component rustfmt --component clippy
+          rustup target add x86_64-unknown-none --toolchain 1.97.1
+
+      - name: Canonical formatting gate
+        run: cargo +1.97.1 fmt --all -- --check
+
+      - name: Workspace tests
+        run: cargo +1.97.1 test --workspace --all-targets
+
+      - name: Clippy safety gate
+        run: cargo +1.97.1 clippy --workspace --all-targets -- -D warnings
+
+      - name: no_std capability check
+        run: cargo +1.97.1 check -p bos-cap --target x86_64-unknown-none
+
+      - name: no_std recovery-core check
+        run: cargo +1.97.1 check -p bos-recovery --no-default-features --target x86_64-unknown-none
+
+      - name: Execute deterministic recovery receipt
+        run: cargo +1.97.1 run -p bos-recovery-demo
+
+      - name: Publish verified source artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: bos-recovery-capsule-v3-source
+          path: |
+            bos/**
+            !bos/target/**
+            .github/workflows/bos-recovery.yml
+          if-no-files-found: error
+          retention-days: 30

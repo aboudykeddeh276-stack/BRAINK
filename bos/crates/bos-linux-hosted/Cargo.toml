@@ -1,0 +1,21 @@
+[package]
+name = "bos-linux-hosted"
+description = "Linux-hosted BOS recovery adapters: restricted io_uring reads and durable A/B file root store"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+bos-cap.workspace = true
+bos-recovery = { workspace = true, features = ["std"] }
+sha2.workspace = true
+
+[target.'cfg(target_os = "linux")'.dependencies]
+io-uring.workspace = true
+libc.workspace = true
+
+[lib]
+path = "src/lib.rs"
