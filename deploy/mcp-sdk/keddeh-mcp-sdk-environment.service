@@ -1,0 +1,16 @@
+[Unit]
+Description=KEDDEH MCP + SDK Environment Server
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/braink
+ExecStart=/usr/bin/python3 -m uvicorn runtime.mcp_sdk_environment_server:app --host 0.0.0.0 --port 8810
+Restart=on-failure
+RestartSec=2
+Environment=BRAINK_MCP_STATE_DIR=/var/lib/braink/mcp-sdk
+EnvironmentFile=-/etc/keddeh/braink-mcp-sdk.env
+
+[Install]
+WantedBy=multi-user.target
