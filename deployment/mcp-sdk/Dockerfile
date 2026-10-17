@@ -2,7 +2,7 @@ FROM python:3.13-slim
 WORKDIR /app
 
 COPY mcp/braink_process_adapter/requirements.txt /tmp/mcp-requirements.txt
-RUN pip install --no-cache-dir -r /tmp/mcp-requirements.txt fastapi>=0.115
+RUN pip install --no-cache-dir -r /tmp/mcp-requirements.txt "fastapi>=0.115"
 
 COPY enterprise ./enterprise
 COPY mcp ./mcp
