@@ -5,7 +5,8 @@ DEFAULT_ROUTES={
  "qualification-http":{"runtime_id":"runtime://qualification-http","runtime_class":"HTTP_SERVICE","argv":[SYSTEM_PYTHON,"-m","http.server","18991","--bind","127.0.0.1"],"dependencies":[],"health_endpoint":"http://127.0.0.1:18991/"},
  "public-gateway":{"runtime_id":"runtime://public-gateway","runtime_class":"HTTP_SERVICE","argv":[SYSTEM_PYTHON,"runtime/public_gateway.py"],"dependencies":[],"health_endpoint":"http://127.0.0.1:8799/health"},
  "r23-closure":{"runtime_id":"runtime://r23-closure","runtime_class":"HTTP_SERVICE","argv":[SYSTEM_PYTHON,"deployment/r23_foundry_closure_service.py","--state","runtime/r23-closure.sqlite3"],"dependencies":[],"health_endpoint":"http://127.0.0.1:8800/closure/health"},
- "new-env-app-mcp":{"runtime_id":"runtime://new-env-app/mcp","runtime_class":"MCP_STDIO","argv":[SYSTEM_PYTHON,"runtime/new_env_app_mcp_runtime.py"],"dependencies":["node","python3","repo://aboudykeddeh276-stack/NEW-ENV-APP"],"health_endpoint":None}
+ "new-env-app-mcp":{"runtime_id":"runtime://new-env-app/mcp","runtime_class":"MCP_STDIO","argv":[SYSTEM_PYTHON,"runtime/new_env_app_mcp_runtime.py"],"dependencies":["node","python3","repo://aboudykeddeh276-stack/NEW-ENV-APP"],"health_endpoint":None},
+ "mcp-sdk-environment":{"runtime_id":"runtime://keddeh/mcp-sdk-environment","runtime_class":"HTTP_SERVICE","argv":[SYSTEM_PYTHON,"-m","uvicorn","runtime.mcp_sdk_environment_server:app","--host","0.0.0.0","--port","8810"],"dependencies":["python3","mcp[cli]>=1.27.2","uvicorn>=0.30","fastapi"],"health_endpoint":"http://127.0.0.1:8810/health"}
 }
 class RuntimeRouteRegistry:
  def __init__(self,root="."):self.root=Path(root)
