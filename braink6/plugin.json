@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.0",
+  "plugin_id": "braink6.engineering.runtime",
+  "name": "BRAINK^6 Engineering Runtime",
+  "entrypoint": "runtime/braink6_tool.py",
+  "skill": "braink6/SKILL.md",
+  "contract": "braink6/tool.schema.json",
+  "capabilities": [
+    "task.init",
+    "task.status",
+    "capability.define",
+    "capability.unlock",
+    "runtime.execute",
+    "workspace.inspect",
+    "workspace.test"
+  ],
+  "admission_rule": "capability.state == UNLOCKED",
+  "evidence_rule": "execution must emit a receipt bound to task_hash and capability_seed",
+  "task_rule": "subordinate work must return to the authoritative task"
+}
