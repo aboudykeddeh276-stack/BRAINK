@@ -1,0 +1,42 @@
+{
+  "schema": "braink.engineering-failure.v1",
+  "failure_id": "F-M08-007",
+  "classification": "WORK_PARTITIONING",
+  "subject": "Repeated or concurrent btc_miner_runtime work allocation",
+  "detected_at": "2026-08-16T20:44:00+09:30",
+  "original_condition": {
+    "default_extranonce": 0,
+    "default_nonce_start": 0,
+    "persistence": "none in btc_miner_runtime",
+    "failure_mode": "Repeated invocation against an unchanged template can rescan the same header coordinates."
+  },
+  "candidate_correction": {
+    "state": "CORRECTED_IN_CANDIDATE_PENDING_HEAD_BOUND_EXECUTION",
+    "mechanic": "AUTO_PERSISTENT_SQLITE",
+    "properties": [
+      "Canonical template descriptor retained with a compact lookup key.",
+      "BEGIN IMMEDIATE serializes allocator updates across callers sharing the same SQLite ledger.",
+      "Nonce intervals advance monotonically for an exact template.",
+      "At the end of the uint32 nonce domain, allocation rolls to the next uint64 extranonce.",
+      "Every allocation is appended to work_allocation history.",
+      "Changed template coordinates receive an independent allocation cursor.",
+      "Explicit KEX_EXTRANONCE/KEX_NONCE_START overrides are classified as EXPLICIT_OPERATOR_MANAGED rather than silently treated as safe automatic allocation."
+    ]
+  },
+  "bounded_reproduction": {
+    "sequential_windows": [[0,0,3],[0,3,3]],
+    "uint32_rollover": [[0,0,4294967296],[1,0,1]],
+    "concurrent_calls": 12,
+    "concurrent_window_size": 10,
+    "overlap_observed": false,
+    "execution_scope": "direct local allocator-mechanic exercise; not GitHub Actions and not multi-host"
+  },
+  "remaining_boundaries": [
+    "Exact candidate-head repository test execution is blocked by the GitHub Actions account billing gate.",
+    "SQLite allocation is authoritative only for workers sharing the same allocator database/state volume.",
+    "Multi-host allocation with independent local state is not proven and must not be inferred from single-volume results.",
+    "Live Bitcoin Core execution remains a separate proof obligation."
+  ],
+  "promotion_effect": "The original silent-repeat defect is corrected at the shared-volume candidate design level, but M08 remains unpromoted until head-bound tests and required live-node evidence are obtained.",
+  "retention_rule": "Keep this failure and correction lineage even after acceptance so duplicate-work regressions can be tested explicitly."
+}
