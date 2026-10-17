@@ -1,0 +1,10 @@
+{
+  "nodes": [
+    {"node_id":"ALPHA_LINUX","priority":10,"upstream":"http://127.0.0.1:8799"},
+    {"node_id":"BETA_LINUX","priority":20,"upstream":"http://127.0.0.1:8799"},
+    {"node_id":"GAMMA_LINUX","priority":30,"upstream":"http://127.0.0.1:8799"},
+    {"node_id":"DELTA_LINUX","priority":40,"upstream":"http://127.0.0.1:8799"},
+    {"node_id":"EPSILON_LINUX","priority":50,"upstream":"http://127.0.0.1:8799"},
+    {"node_id":"ZETA_LINUX","priority":60,"upstream":"http://127.0.0.1:8799"}
+  ]
+}

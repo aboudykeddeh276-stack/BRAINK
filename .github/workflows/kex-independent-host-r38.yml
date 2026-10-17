@@ -1,0 +1,248 @@
+name: KEX Independent Host R38
+
+on:
+  push:
+    branches: [kex/recursive-computer-r26]
+    paths:
+      - "deployment/independent_fabric_node_r38.py"
+      - "enterprise/resident_root_projection_r39.py"
+      - ".github/workflows/kex-independent-host-r38.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy-independent-node:
+    runs-on: [self-hosted, kex, deploy, docker, release]
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Resolve resident authority and boot BRAINK node
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$HOME/.local/share/keddeh/braink-r38" "$RUNNER_TEMP/braink-r38"
+          HOST_ID="$(cat /etc/machine-id 2>/dev/null || hostname)"
+          HOST_ID_HASH="$(printf '%s' "$HOST_ID" | sha256sum | awk '{print $1}')"
+          RUNNER_HOST="$(hostname -f 2>/dev/null || hostname)"
+          TOKEN="$(python3 - <<'PY'
+          import secrets
+          print(secrets.token_urlsafe(32))
+          PY
+          )"
+          PORT=29700
+          STATE_ROOT="$HOME/.local/share/keddeh/braink-r38/state"
+          LOG="$HOME/.local/share/keddeh/braink-r38/node.log"
+          PIDFILE="$HOME/.local/share/keddeh/braink-r38/node.pid"
+
+          if [ -s "$PIDFILE" ] && kill -0 "$(cat "$PIDFILE")" 2>/dev/null; then
+            kill "$(cat "$PIDFILE")" || true
+            sleep 1
+          fi
+
+          export PYTHONPATH="$GITHUB_WORKSPACE"
+          export BRAINK_TOKEN="$TOKEN"
+          export BRAINK_NODE_ID="BRAINK_INDEPENDENT_R39"
+          export BRAINK_STATE_ROOT="$STATE_ROOT"
+          export BRAINK_BIND="0.0.0.0"
+          export BRAINK_PORT="$PORT"
+
+          nohup python3 deployment/independent_fabric_node_r38.py >"$LOG" 2>&1 </dev/null &
+          NODE_PID=$!
+          echo "$NODE_PID" > "$PIDFILE"
+
+          for i in $(seq 1 40); do
+            if curl -fsS -H "Authorization: Bearer $TOKEN" "http://127.0.0.1:$PORT/readyz" > "$RUNNER_TEMP/braink-r38/ready.json"; then
+              break
+            fi
+            sleep 0.25
+          done
+          test -s "$RUNNER_TEMP/braink-r38/ready.json"
+          curl -fsS -H "Authorization: Bearer $TOKEN" "http://127.0.0.1:$PORT/v1/fabric/resident-roots" > "$RUNNER_TEMP/braink-r38/resident-roots.json"
+
+          python3 - "$RUNNER_TEMP/braink-r38/resident-roots.json" <<'PY'
+          import json, sys
+          from enterprise.resident_root_projection_r39 import ResidentRootProjection
+          payload=json.load(open(sys.argv[1]))
+          if not ResidentRootProjection.verify_snapshot(payload):
+              raise SystemExit('DEPLOY_RESIDENT_ROOT_VERIFICATION_FAILED')
+          if payload['roots']['TLS_ROOT']['adapter_binding'] != 'UNRESOLVED_ADAPTER':
+              raise SystemExit('TLS_ROOT_OVERCLAIMED')
+          print(payload['root_set_digest'])
+          PY
+
+          python3 - <<'PY' > "$RUNNER_TEMP/braink-r38/ips.txt"
+          import socket
+          vals=set()
+          try:
+              for info in socket.getaddrinfo(socket.gethostname(), None, socket.AF_INET):
+                  ip=info[4][0]
+                  if not ip.startswith('127.'):
+                      vals.add(ip)
+          except Exception:
+              pass
+          print('\n'.join(sorted(vals)))
+          PY
+          hostname -I 2>/dev/null | tr ' ' '\n' | grep -Ev '^$|^127\.' >> "$RUNNER_TEMP/braink-r38/ips.txt" || true
+          sort -u "$RUNNER_TEMP/braink-r38/ips.txt" -o "$RUNNER_TEMP/braink-r38/ips.txt"
+
+          PUBLIC_IP="$(curl -fsS --max-time 3 https://api.ipify.org 2>/dev/null || true)"
+          python3 - "$RUNNER_TEMP/braink-r38/host.json" "$HOST_ID_HASH" "$RUNNER_HOST" "$RUNNER_NAME" "$PORT" "$TOKEN" "$PUBLIC_IP" "$PIDFILE" "$RUNNER_TEMP/braink-r38/resident-roots.json" <<'PY'
+          import json, pathlib, sys
+          out, host_id, hostname, runner, port, token, public_ip, pidfile, roots_file = sys.argv[1:]
+          ips=[x.strip() for x in pathlib.Path(pathlib.Path(out).with_name('ips.txt')).read_text().splitlines() if x.strip()]
+          roots=json.loads(pathlib.Path(roots_file).read_text())
+          payload={
+            'schema':'braink.independent-host-r39/v1',
+            'host_id_hash':host_id,
+            'hostname':hostname,
+            'runner_name':runner,
+            'port':int(port),
+            'token':token,
+            'candidate_ips':ips,
+            'public_ip_diagnostic':public_ip or None,
+            'pidfile':pidfile,
+            'resident_root_set_digest':roots['root_set_digest'],
+            'carrier_classification':'PROJECTION_AFTER_RESIDENT_AUTHORITY',
+          }
+          pathlib.Path(out).write_text(json.dumps(payload, sort_keys=True))
+          PY
+          cat "$RUNNER_TEMP/braink-r38/ready.json"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: braink-independent-host-r38
+          path: |
+            ${{ runner.temp }}/braink-r38/host.json
+            ${{ runner.temp }}/braink-r38/ready.json
+            ${{ runner.temp }}/braink-r38/resident-roots.json
+
+  connect-existing-fabric:
+    needs: deploy-independent-node
+    runs-on: [self-hosted, kex, cascade, hyperk0, warmboot]
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: braink-independent-host-r38
+          path: ${{ runner.temp }}/braink-r38
+      - name: Verify resident roots, prove independence, then admit carrier
+        shell: bash
+        run: |
+          set -euo pipefail
+          export PYTHONPATH="$GITHUB_WORKSPACE"
+          python3 - <<'PY'
+          import hashlib, json, os, pathlib, socket, urllib.request
+          from enterprise.recursive_computer_runtime_r26 import RecursiveComputer
+          from enterprise.resident_root_projection_r39 import ResidentRootProjection
+
+          temp=pathlib.Path(os.environ['RUNNER_TEMP'])/'braink-r38'
+          remote=json.loads((temp/'host.json').read_text())
+          artifact_remote_roots=json.loads((temp/'resident-roots.json').read_text())
+          if not ResidentRootProjection.verify_snapshot(artifact_remote_roots):
+              raise SystemExit('REMOTE_RESIDENT_ROOT_ARTIFACT_INVALID')
+          if artifact_remote_roots['root_set_digest'] != remote['resident_root_set_digest']:
+              raise SystemExit('REMOTE_RESIDENT_ROOT_ARTIFACT_MISMATCH')
+
+          local_roots=ResidentRootProjection().snapshot()
+          if not ResidentRootProjection.verify_snapshot(local_roots):
+              raise SystemExit('LOCAL_RESIDENT_ROOT_SNAPSHOT_INVALID')
+          if local_roots['root_set_digest'] != artifact_remote_roots['root_set_digest']:
+              raise SystemExit('RESIDENT_ROOT_SET_DIVERGENCE')
+
+          local_machine=(pathlib.Path('/etc/machine-id').read_text().strip() if pathlib.Path('/etc/machine-id').exists() else socket.gethostname())
+          local_hash=hashlib.sha256(local_machine.encode()).hexdigest()
+          if local_hash == remote['host_id_hash']:
+              raise SystemExit('NOT_INDEPENDENT_HOST: deploy and cascade jobs resolved to the same machine identity')
+
+          state_root=pathlib.Path.home()/'.local/share/keddeh/fabric-anchor-r39'
+          if (state_root/'computer.json').exists():
+              anchor=RecursiveComputer.restore_tree(state_root)
+          else:
+              anchor=RecursiveComputer(computer_id='BRAINK_FABRIC_ANCHOR_R39', state_root=state_root)
+              anchor.write_state('role','EXISTING_MACHINE_FABRIC_ANCHOR')
+          anchor.write_state('resident_root_set_digest', local_roots['root_set_digest'])
+          anchor_state=anchor.inspect_committed()
+
+          candidates=list(dict.fromkeys(remote.get('candidate_ips',[]) + ([remote['public_ip_diagnostic']] if remote.get('public_ip_diagnostic') else [])))
+          token=remote['token']
+          port=remote['port']
+          endpoint=None
+          identity=None
+          live_remote_roots=None
+          for ip in candidates:
+              base=f'http://{ip}:{port}'
+              try:
+                  req=urllib.request.Request(base+'/v1/fabric/identity', headers={'Authorization':f'Bearer {token}'})
+                  with urllib.request.urlopen(req, timeout=2) as r:
+                      candidate_identity=json.load(r)
+                  req=urllib.request.Request(base+'/v1/fabric/resident-roots', headers={'Authorization':f'Bearer {token}'})
+                  with urllib.request.urlopen(req, timeout=2) as r:
+                      candidate_roots=json.load(r)
+                  if not ResidentRootProjection.verify_snapshot(candidate_roots):
+                      continue
+                  if candidate_identity.get('resident_root_set_digest') != candidate_roots['root_set_digest']:
+                      continue
+                  if candidate_roots['root_set_digest'] != local_roots['root_set_digest']:
+                      continue
+                  endpoint=base
+                  identity=candidate_identity
+                  live_remote_roots=candidate_roots
+                  break
+              except Exception:
+                  continue
+          if endpoint is None:
+              raise SystemExit('NOT_ROUTABLE_TO_EXISTING_FABRIC_WITH_VALID_RESIDENT_AUTHORITY')
+
+          join_body={
+              'node_id':anchor.identity.computer_id,
+              'endpoint':f'fabric://{socket.gethostname()}/{anchor.identity.computer_id}',
+              'state_root':anchor_state['value_hash'],
+              'resident_root_snapshot':local_roots,
+              'authority':'runtime://kex/existing-machine-fabric',
+          }
+          data=json.dumps(join_body).encode()
+          req=urllib.request.Request(endpoint+'/v1/fabric/join', data=data, method='POST', headers={'Authorization':f'Bearer {token}','Content-Type':'application/json'})
+          with urllib.request.urlopen(req, timeout=3) as r:
+              joined=json.load(r)
+          if joined.get('status') != 'JOINED':
+              raise SystemExit(f'FABRIC_JOIN_FAILED:{joined}')
+          if joined.get('carrier_classification') != 'PROJECTION_AFTER_RESIDENT_AUTHORITY':
+              raise SystemExit('CARRIER_AUTHORITY_ORDER_VIOLATION')
+
+          challenge=hashlib.sha256((remote['host_id_hash']+local_hash+anchor_state['value_hash']+local_roots['root_set_digest']).encode()).hexdigest()
+          req=urllib.request.Request(endpoint+f'/v1/fabric/proof?challenge={challenge}', headers={'Authorization':f'Bearer {token}'})
+          with urllib.request.urlopen(req, timeout=3) as r:
+              proof=json.load(r)
+          if proof.get('status') != 'PROVED':
+              raise SystemExit(f'FABRIC_PROOF_FAILED:{proof}')
+          if proof.get('body',{}).get('resident_root_set_digest') != local_roots['root_set_digest']:
+              raise SystemExit('FABRIC_PROOF_ROOT_DIGEST_MISMATCH')
+
+          receipt={
+              'schema':'braink.cross-host-fabric-admission-r39/v1',
+              'status':'VERIFIED_CROSS_HOST_RESIDENT_AUTHORITY',
+              'authority_order':['BRAINK_RESIDENT_STATE','KEX_TYPED_ROOT_PROJECTION','ADAPTER','CARRIER'],
+              'deploy_host_id_hash':remote['host_id_hash'],
+              'fabric_host_id_hash':local_hash,
+              'hosts_independent':True,
+              'resident_root_set_digest':local_roots['root_set_digest'],
+              'resident_roots_verified':True,
+              'tls_adapter_binding':local_roots['roots']['TLS_ROOT']['adapter_binding'],
+              'remote_endpoint':endpoint,
+              'carrier_classification':'PROJECTION_AFTER_RESIDENT_AUTHORITY',
+              'remote_identity':identity,
+              'remote_resident_roots':live_remote_roots,
+              'fabric_anchor':{k:v for k,v in join_body.items() if k != 'resident_root_snapshot'},
+              'join':joined,
+              'proof':proof,
+          }
+          out=temp/'cross-host-receipt.json'
+          out.write_text(json.dumps(receipt, indent=2, sort_keys=True))
+          print(json.dumps(receipt, sort_keys=True))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: braink-cross-host-fabric-r38
+          path: ${{ runner.temp }}/braink-r38/cross-host-receipt.json
