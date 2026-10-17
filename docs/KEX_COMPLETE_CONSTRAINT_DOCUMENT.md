@@ -22,6 +22,10 @@ CLAIM -> ARTIFACT -> EXECUTABLE/DERIVATION -> RESULT -> EVIDENCE -> STATUS
 - `KEX_LOCAL_MEMORY_LANE`: files, artifacts, notes, prior state.
 - `KEX_IO_REFLECTION_LANE`: reports, website text, catalogues, explanations.
 - `KEX_DECAY_SHUNT_LANE`: unsafe, unproved, failed, stale, or external claims.
+- `KEX_THOUGHT_LANE`: per-interaction thought log; `BRAINKInnerRuntime.evolve()` fires on every route, recording user input and response quality into `BRAINKInnerRuntimeState.thoughts`.
+- `KEX_THINKING_LANE`: active reasoning state (logic, highIq, kexTheorem, cosmology); updated per wrapper domain via `updateReasoningState` and per specialised route via `updateRouteReasoningState`.
+- `KEX_LEARNING_LANE`: file learning snapshots (`BRAINKRuntimeLearning.buildSnapshot`), IL-LLM knowledge growth, skill/action accumulation; `reasoningState.learning` is boosted each time the `learn_all_files` route runs.
+- `KEX_UPDATE_LANE`: runtime path mutations (`illlm_update`), line registry changes (`line_registry_add`/`line_registry_list`), inner state write-back; all update operations evolve the THOUGHT lane so mutations are recorded as thoughts.
 
 ## Status set
 
