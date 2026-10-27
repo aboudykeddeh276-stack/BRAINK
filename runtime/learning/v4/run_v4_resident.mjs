@@ -33,7 +33,8 @@ const context=vm.createContext({document,localStorage:storage,crypto,location:{p
 const marked=js.replace(/\}\)\(\);\s*$/,`globalThis.__V4_NATIVE={run100GrowthPasses,state:()=>S};\n})();`);
 if(marked===js)throw Error('V4_ENTRY_BINDING_NOT_FOUND');
 vm.runInContext(marked,context,{filename:'source-bound-V4-V5-control.js',timeout:10000});
-const result=await vm.runInContext('globalThis.__V4_NATIVE.run100GrowthPasses()',context,{timeout:10000});
+// Preserve a bounded 60-second VM budget for the real 100-pass routine and its growing synchronous disk-backed state; the Python parent retains its independent 70-second process deadline.
+const result=await vm.runInContext('globalThis.__V4_NATIVE.run100GrowthPasses()',context,{timeout:60000});
 const state=JSON.parse(vm.runInContext('JSON.stringify(globalThis.__V4_NATIVE.state())',context));
 if(!result?.admitted||result?.receipt?.mirrorResult!=='MATCH'||result?.result?.passes!==100)throw Error('POLYGON_R22_ADMISSION_OR_EXECUTION_FAILED');
 if(state.polygonState?.iteration!==100||state.polygonState.history.length!==100)throw Error('POLYGON_SUCCESSOR_COUNT_MISMATCH');
