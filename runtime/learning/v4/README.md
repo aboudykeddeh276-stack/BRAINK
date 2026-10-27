@@ -65,3 +65,11 @@ python -m pytest -q tests/test_illlm_ledger_concurrency.py tests/test_v4_host_br
 ```
 
 **Deployment invariant:** All writers targeting a particular legacy IL-LLM ledger must use this admission lock contract. Unpatched writers bypassing it can still damage the chain. The separate lock inode (``.jsonl.lock``) must not be removed while services run. A local hash chain does not protect against a privileged actor replacing both events and hashes; independent checkpoint/authority readbacks remain required.
+
+## OS process admission and restart readback
+
+A separate test drives the actual CLI process (with an independent PID) over a real loopback TCP connection and sends 100 source-shaped, explicitly TEST_FIXTURE-only transport events. After fsync and health/readback, it kills the original process, starts a fresh process with a distinct PID, and verifies all 100 retained events and the same SHA-256 ledger head. This tests durable transport and process lifecycle, **not** an actual 100-pass V4 browser polygon execution. Browser-navigation attempts in the available execution environment were blocked by administrator policy, so do not promote a V4 end-to-end browser claim.
+
+```bash
+python -m pytest -q tests/test_v4_host_process_lifecycle.py
+```
