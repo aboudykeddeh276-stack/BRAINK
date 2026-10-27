@@ -5,11 +5,14 @@ Import the existing runtime.illlm_ledger and observer2_runtime.kernel from BRAIN
 from __future__ import annotations
 import asyncio
 import json
+import multiprocessing
+import time
 from pathlib import Path
 import pytest
 from aiohttp import ClientSession, WSServerHandshakeError
 from aiohttp.test_utils import TestClient, TestServer
-from runtime.learning.v4.host_bridge import V4HostBridge, TRANSPORT_SCHEMA
+from runtime.learning.v4.host_bridge import V4HostBridge, BrowserSession, TRANSPORT_SCHEMA
+from runtime.illlm_ledger import ILLLMImmutableLedger
 
 TOKEN = "kstest_" + "a" * 52
 SOURCE = Path(__file__).resolve().parents[1] / "runtime/learning/v4/KEX_BRAINK_CHAT_AI_CONTROL_WRAPPER_V4.html"
@@ -137,3 +140,56 @@ def test_derived_carrier_matches_original_and_contains_real_v4_growth():
     assert "function hostMirrorOnReceipt(r)" in derivative
     assert "EXTERNAL EXECUTOR ATTACHED" not in derivative
     assert "OBSERVER_SOURCE_FORMULA_MISMATCH" not in derivative  # Python-only gate
+
+
+def _mirror_duplicate_process_worker(path, barrier, output):
+    """Force two independent processes to read the same empty predecessor."""
+    try:
+        bridge = V4HostBridge(token=TOKEN, ledger_path=path, source_path=SOURCE, allowed_origins={ORIGIN})
+        session = BrowserSession("test-session", "same-browser-instance", time.monotonic())
+        original_read = bridge.ledger.read_by_correlation
+        def read_before_both_append(correlation):
+            existing = original_read(correlation)
+            barrier.wait(timeout=15)
+            return existing
+        bridge.ledger.read_by_correlation = read_before_both_append
+        output.put(("ok", bridge._record(sample(bridge, receipt="V4-REPLAY-SHARED"), session)))
+    except BaseException as exc:
+        output.put(("error", repr(exc)))
+
+
+def test_duplicate_cross_process_mirror_receipt_is_exactly_once(tmp_path):
+    path = tmp_path / "illlm-v4.jsonl"
+    ctx = multiprocessing.get_context("spawn")
+    barrier, output = ctx.Barrier(2), ctx.Queue()
+    processes = [ctx.Process(target=_mirror_duplicate_process_worker,
+                             args=(str(path), barrier, output)) for _ in range(2)]
+    for process in processes: process.start()
+    for process in processes: process.join(25)
+    for process in processes:
+        if process.is_alive(): process.terminate(); process.join(5)
+    assert [process.exitcode for process in processes] == [0, 0]
+    results = [output.get(timeout=3) for _ in processes]
+    assert all(status == "ok" for status, _ in results), results
+    verification = ILLLMImmutableLedger(path).verify()
+    assert verification["status"] == "PASS", verification
+    assert verification["events"] == 1, verification
+    assert results[0][1]["event_root"] == results[1][1]["event_root"]
+
+
+def test_idempotency_conflict_fails_closed_without_extra_event(tmp_path):
+    ledger = ILLLMImmutableLedger(tmp_path / "illlm-v4.jsonl")
+    args = dict(source_uri="braink://learning/v4/browser/same-browser-instance",
+                source_level="OBSERVER_MIRROR_ONLY", semantic_type="POLYGON_MIRROR_CANDIDATE",
+                correlation_id="same-source-receipt",
+                payload={"candidate_hash": "a" * 64, "sequence": 1},
+                lexical_state={"polygon": "stable"},
+                illlm_state={"candidate": "a" * 64},
+                idempotency_payload_field="candidate_hash")
+    first = ledger.append(**args)
+    second = ledger.append(**{**args, "payload": {"candidate_hash": "a" * 64, "sequence": 2}})
+    assert second.event_root == first.event_root
+    with pytest.raises(ValueError, match="CORRELATION_REPLAY_CONFLICT"):
+        ledger.append(**{**args, "payload": {"candidate_hash": "b" * 64, "sequence": 3}})
+    assert ledger.verify()["events"] == 1
+    assert ledger.head() == first.event_root
