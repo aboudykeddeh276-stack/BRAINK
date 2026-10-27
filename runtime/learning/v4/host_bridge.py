@@ -184,6 +184,8 @@ class V4HostBridge:
                               "source_sha256": self.source_sha256})
         prior = self.ledger.read_by_correlation(correlation)
         if prior:
+            if len(prior) != 1:
+                raise ValueError("DUPLICATE_CORRELATION_REQUIRES_RECONCILIATION")
             if prior[0].get("payload", {}).get("candidate_hash") != candidate_hash:
                 raise ValueError("CANDIDATE_REPLAY_CONFLICT")
             event = prior[0]
@@ -200,6 +202,7 @@ class V4HostBridge:
                                "polygon_lexical_context": state["polygon"]},
                 illlm_state={"candidate": candidate_hash, "observer": state["observer"],
                              "source": self.source_sha256, "authority": "MIRROR_ONLY"},
+                idempotency_payload_field="candidate_hash",
             )
             event = asdict(appended)
         session.sequence = sequence
