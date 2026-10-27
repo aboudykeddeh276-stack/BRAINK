@@ -53,3 +53,15 @@ The tests use real local TCP WebSocket connections, the actual BRAINK IL-LLM led
 * No existing branch, canonical naming law, ToT replica/mesh, original V4 or site project is overwritten by this patch.
 * Once reviewed, launch on a provisioned KEDDEH host and verify `pid → WebSocket AUTH → V4 mirror → ledger fsync → process restart → readback → target host admission → external served-page proof` before claiming production integration.
 * ToT convergence requires native voting, independent members, leader coordination and replicated readback beyond this local observer mirror.
+
+## Shared-process persistence admission (concurrent writer closure)
+
+The original ``ILLLMImmutableLedger.append`` could calculate an identical predecessor head in parallel workers and append incompatible records. An actual six-process adversarial run wrote 60 rows but failed chain verification at index 1. This integration includes the same-schema native remedy in ``runtime/illlm_ledger.py``: an OS-backed interprocess lock serializes full-chain verification, predecessor selection, single append/fsync and immediate readback. Shared-lock readbacks reject corrupt/truncated files. The existing SHA-256 event format, canonical architectural identity and strict ``verify_head`` signature remain unchanged.
+
+Actual re-run:
+
+```bash
+python -m pytest -q tests/test_illlm_ledger_concurrency.py tests/test_v4_host_bridge.py tests/test_auditable_generation.py
+```
+
+**Deployment invariant:** All writers targeting a particular legacy IL-LLM ledger must use this admission lock contract. Unpatched writers bypassing it can still damage the chain. The separate lock inode (``.jsonl.lock``) must not be removed while services run. A local hash chain does not protect against a privileged actor replacing both events and hashes; independent checkpoint/authority readbacks remain required.
