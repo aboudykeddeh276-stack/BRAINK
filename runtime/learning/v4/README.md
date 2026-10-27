@@ -2,7 +2,7 @@
 
 **Architecture and research:** A. Keddeh, KEDDEH Systems.
 
-This directory preserves `KEX_BRAINK_CHAT_AI_CONTROL_WRAPPER_V4.html` **byte-for-byte** and adds a minimally instrumented derivative built by `build_v4_host_link.py`. Original V4 executes its own lexicon, observer formula, bilateral-polygon successor learning, 100-pass routine, R22 wrapper and mirrored receipts. This bridge is a separate transport and local persistence lane, not a replacement algorithm, agent, consensus implementation or independent server executor.
+This directory preserves `KEX_BRAINK_CHAT_AI_CONTROL_WRAPPER_V4.html` **byte-for-byte** and adds a minimally instrumented derivative built by `build_v4_host_link.py`. Original V4 contains lexicon, observer formula, bilateral-polygon successor learning and 100-pass routines, but its raw HTML references missing R22 control-wrapper functions. The exact pre-existing V5 Skill Apex supplies those functions in the derivative; the historical V4 is left byte-for-byte unchanged. This bridge is a separate transport and local persistence lane, not a replacement algorithm, agent, consensus implementation or independent server executor.
 
 ## Native BRAINK dependencies
 
@@ -73,3 +73,13 @@ A separate test drives the actual CLI process (with an independent PID) over a r
 ```bash
 python -m pytest -q tests/test_v4_host_process_lifecycle.py
 ```
+
+## 28 October: real V4 algorithm and V5 R22 source-relink verification
+
+The unchanged V4 references six missing R22 functions. The exact existing V5 Skill Apex source (SHA-256 `ccbaf267a40b3f55b56da6b7f97c77279bdd583d29d1aa27139d085f5acd117b`) supplies the source-exact implementations to `build_v4_host_link.py`. The generator also initializes the mirror observer binding before V5 bootstrap (preventing a JavaScript temporal-dead-zone crash). No new R22 admission law is synthesized.
+
+`node runtime/learning/v4/run_v4_resident.mjs OUTPUT.json STATE.json` runs the **actual original V4 JavaScript polygon and observer functions** together with the V5 R22 wrapper in a native Node process. A minimal document/storage adapter provides the UI-independent execution context and disk-backed local state, **not an actual Chromium DOM**. It executes the native 100-pass routine, produces 100 true V4 `POLYGON_100_ITERATION` receipts plus one `POLYGON_100_COMMIT`, and leaves them as mirror candidates. This does not assert autonomous neural learning or global promotion.
+
+`python runtime/learning/v4/verify_native_v4_100.py /tmp/v4-proof` boots a real aiohttp server on loopback, sends those 101 original-algorithm candidates over an authenticated TCP WebSocket, independently reads them back from the native IL-LLM JSONL file, shuts the listener, constructs a fresh resident bridge object and re-verifies the persisted chain and all 100 successors. Proof is written to `/tmp/v4-proof/v4_100_to_illlm_verification.json`. Only temporary, local execution.
+
+Remaining: actual Chromium UI execution (blocked by browser administrator in this environment), production KEDDEH host pairing (0 registered nodes), GitHub Actions pre-runner failure, and independent physical ToT/mesh quorum. A local Node VM is not a substitute for those boundaries.

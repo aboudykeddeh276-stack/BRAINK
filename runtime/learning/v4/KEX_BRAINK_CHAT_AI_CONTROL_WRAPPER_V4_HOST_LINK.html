@@ -122,6 +122,7 @@ const seedCorpus=[
 ];
 const defaultState=()=>({version:VERSION,createdAt:new Date().toISOString(),provider:{endpoint:'http://127.0.0.1:11434',model:'',bound:false,lastReceipt:null},lexicon:{...seedLexicon},corpus:[...seedCorpus],turns:[],receipts:[],feedback:[],polygonState:{iteration:0,lastApex:null,lastSuccessor:null,history:[]},settings:{agentDepth:'standard',learnTurns:true}});
 let S=load();let busy=false;let currentTrace=[],currentEvidence=[],currentRoute=[];
+let latestV4Observer=null;
 function load(){try{const x=JSON.parse(localStorage.getItem(STORE));return x&&x.version?Object.assign(defaultState(),x,{lexicon:{...seedLexicon,...(x.lexicon||{})},corpus:[...seedCorpus,...(x.corpus||[]).filter(z=>!seedCorpus.some(s=>s.id===z.id))]}):defaultState()}catch{return defaultState()}}
 function save(){localStorage.setItem(STORE,JSON.stringify(S));renderStats()}
 const $=q=>document.querySelector(q);const esc=s=>String(s??'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
@@ -246,6 +247,74 @@ async function recursiveLearningCycle(q,intentObj,initialLex,initialEv,initialAg
  return {lex,ev,agents,answer,cycles};
 }
 
+/* BEGIN SOURCE-EXACT V5 WRAPPER FUNCTIONS (not virtualized replacements) */
+function ensureWrapperState(){
+ S.wrapper=S.wrapper||{authority:'USER_AUTHORIZED_LIVE',admission:'R22_ACTIVE',virtualObjects:[],failureLedger:[],learningRules:{},auditLog:[]};
+ S.wrapper.virtualObjects=S.wrapper.virtualObjects||[];S.wrapper.failureLedger=S.wrapper.failureLedger||[];S.wrapper.learningRules=S.wrapper.learningRules||{};S.wrapper.auditLog=S.wrapper.auditLog||[];
+ return S.wrapper;
+}
+function manifestVirtual(kind,address,meta={}){
+ const W=ensureWrapperState();
+ const skillMap={
+  vm:['compute','memory','storage','scheduling','io','proof'],
+  vcpu:['compute','scheduling','execution','proof'],
+  virtualram:['memory','storage','addressing','proof'],
+  storage:['storage','memory','provenance','proof'],
+  agent:['agents','memory','scheduling','learning','provenance'],
+  projection:['projection','io','provenance'],
+  lane:['execution','scheduling','agents','proof']
+ };
+ let obj=W.virtualObjects.find(x=>x.address===address);
+ if(!obj){obj={id:`V-${hash(kind+address)}`,kind,address,authority:'BRAINK_CONTROL_WRAPPER',skills:[...(skillMap[kind]||['execution','proof'])],state:'MANIFESTED',meta,createdAt:new Date().toISOString()};W.virtualObjects.push(obj);receipt('VIRTUAL_MANIFEST','PASS',{kind,address,skills:obj.skills});save()}
+ return obj;
+}
+function bootstrapVirtualiser(){
+ ensureWrapperState();
+ manifestVirtual('virtualram','vram://braink/main',{role:'active-state'});
+ manifestVirtual('storage','storage://braink/learning',{role:'learning-corpus'});
+ manifestVirtual('lane','lane://braink/chat',{role:'chat-execution'});
+ manifestVirtual('agent','agent://braink/team',{role:'specialist-team'});
+ manifestVirtual('projection','projection://braink/chat-html',{role:'chat-ui'});
+ renderWrapper();return S.wrapper;
+}
+function wrapperSignature(packet){return `${packet.capabilityRoute}:${JSON.stringify(packet.assertedProperties||[])}`}
+function makePreflight(operationId,o={}){
+ return {operationId,intentId:o.intentId||`INT-${hash(operationId)}`,processId:o.processId||'BRAINK',lineageId:o.lineageId||VERSION,storyRef:o.storyRef||'',rehydrationEpoch:new Date().toISOString(),capabilityIdentity:o.capabilityIdentity||'BRAINK-Control-Wrapper',capabilityRoute:o.capabilityRoute||'braink://control/default',requiredDefinitions:o.requiredDefinitions||['BRAINK CONTROL WRAPPER','R22 ADMISSION'],assertedProperties:o.assertedProperties||['bounded_execution'],propertyAuthorities:o.propertyAuthorities||{bounded_execution:'BRAINK-Control-Wrapper'},evidenceRequirements:o.evidenceRequirements||[],currentEvidenceRefs:o.currentEvidenceRefs||[],mirrorRoute:o.mirrorRoute||'braink://mirror/default',governanceResult:o.governanceResult||'PASSED',qualificationCeiling:o.qualificationCeiling||'USER_AUTHORIZED_LIVE',continuationId:o.continuationId||'DEFAULT',admissionResult:0,admissionFailures:[],allowedNextRoutes:[],kexIdentity:o.kexIdentity||`KEX-${hash(operationId)}`};
+}
+function evaluateAdmission(packet){
+ const W=ensureWrapperState(),fail=[];const sig=wrapperSignature(packet);
+ if(W.learningRules[sig])fail.push(`LEARNING_COMMIT_FAILURE:${W.learningRules[sig]}`);
+ if(!packet.requiredDefinitions?.length)fail.push('MISSING_REQUIRED_DEFINITIONS');
+ if(packet.governanceResult!=='PASSED')fail.push('GOVERNANCE_CHECK_FAILED');
+ if(!packet.capabilityRoute)fail.push('MISSING_CAPABILITY_ROUTE');
+ if(!packet.capabilityIdentity)fail.push('MISSING_CAPABILITY_IDENTITY');
+ if((packet.qualificationCeiling||'').toLowerCase().includes('enterprise')&&!packet.mirrorRoute)fail.push('MISSING_INDEPENDENT_MIRROR_ROUTE');
+ packet.admissionResult=fail.length?0:1;packet.admissionFailures=fail;packet.allowedNextRoutes=fail.length?['WAIT','ROUTE','RESOLVE','TEST','RETAIN']:['EXECUTE','BILATERAL_VERIFY','COMMIT'];
+ W.auditLog.push({at:new Date().toISOString(),operationId:packet.operationId,admissionResult:packet.admissionResult,failures:[...fail]});
+ return packet;
+}
+function retainFailure(packet,observedResult,classification='EXECUTION_FAILURE'){
+ const W=ensureWrapperState();const rec={failureId:`FAIL-${packet.operationId}-${hash(String(observedResult))}`,operationId:packet.operationId,processId:packet.processId,propertyScope:packet.assertedProperties||[],route:packet.capabilityRoute,expectedProperty:'admitted verified execution',observedResult,evidence:classification==='ADMISSION_FAILURE'?'PREACTION_GATE':'RUNTIME_OBSERVATION',falsifier:'R22/independent mirror',classification,retainedNegativeKnowledge:`Route ${packet.capabilityRoute} failed under this packet and must not be silently promoted.`,nextAdmissibleRoutes:['ROUTE','RESOLVE','WAIT','TEST'],at:new Date().toISOString()};W.failureLedger.push(rec);receipt('FAILURE_RETAINED','PASS',{failureId:rec.failureId,classification});save();renderWrapper();return rec;
+}
+function commitWrapperLearning(signature,lesson){const W=ensureWrapperState();W.learningRules[signature]=lesson;receipt('WRAPPER_LEARNING_COMMIT','PASS',{signature,lesson});save();return lesson}
+async function wrapperExecute(packet,executionFn,mirrorFn){
+ const gate=evaluateAdmission({...packet});receipt('R22_ADMISSION',gate.admissionResult?'PASS':'BLOCKED',{operationId:gate.operationId,failures:gate.admissionFailures});
+ if(!gate.admissionResult){retainFailure(gate,gate.admissionFailures.join(','),'ADMISSION_FAILURE');return {admitted:false,packet:gate,result:null,receipt:null}}
+ const start=new Date().toISOString();
+ try{
+  const raw=await executionFn();const mirror=mirrorFn?await mirrorFn(raw):JSON.parse(JSON.stringify(raw));const match=JSON.stringify(mirror)===JSON.stringify(raw);const r=receipt('WRAPPER_EXECUTION',match?'PASS':'CONTRADICTION',{operationId:gate.operationId,producer:gate.capabilityIdentity,actualRoute:gate.capabilityRoute,startEpoch:start,endEpoch:new Date().toISOString(),inputsDigest:hash(JSON.stringify(gate.assertedProperties||[])),observedResult:raw,producerReadback:raw,mirrorResult:match?'MATCH':'CONTRADICTION',contradictions:match?[]:['Mirror diff discrepancy detected'],actualDeltaClass:match?'BEHAVIOR_VERIFIED':'VERIFY_REQUIRED',nextContinuation:match?'COMMIT':'REPAIR'});
+  if(!match)retainFailure(gate,{raw,mirror},'MIRROR_CONTRADICTION');save();renderWrapper();return {admitted:true,packet:gate,result:raw,receipt:r};
+ }catch(e){retainFailure(gate,e?.message||String(e),'EXECUTION_FAILURE');return {admitted:true,packet:gate,result:null,receipt:null,error:e?.message||String(e)}}
+}
+function renderWrapper(){
+ const W=ensureWrapperState();
+ const a=$('#admissionState'),v=$('#virtualObjectCount'),f=$('#failureCount'),p=$('#polygonEpoch'),box=$('#virtualState');
+ if(a)a.textContent='R22 ACTIVE';if(v)v.textContent=W.virtualObjects.length;if(f)f.textContent=W.failureLedger.length;if(p)p.textContent=S.polygonState?.iteration||0;
+ if(box)box.innerHTML=W.virtualObjects.map(x=>`<div class="evi"><b>${esc(x.kind)} · ${esc(x.address)}</b><div class="muted">${esc(x.skills.join(', '))}</div><div class="mono small">authority=${esc(x.authority)} · state=${esc(x.state)}</div></div>`).join('')||'<div class="muted small">No virtual objects manifested.</div>';
+}
+
+
+/* END SOURCE-EXACT V5 WRAPPER FUNCTIONS */
 async function run100GrowthPasses(){
  const p=makePreflight(`OP-POLY100-${Date.now()}`,{processId:'BRAINK-POLYGON-GROWTH',capabilityIdentity:'BRAINK-Recursive-Learning',
   capabilityRoute:'braink://learning/directional-bilateral-polygon-100',requiredDefinitions:['Polygon Bias Learning','Observer-State Learning','Recursive Learning','BRAINK CONTROL WRAPPER'],
@@ -326,7 +395,7 @@ $('#send').onclick=ask;$('#run100').onclick=run100GrowthPasses;$('#wrapperTest')
 // Additive host-mirror binding: preserves original V4 learning and wrapper admissions.
 const HOST_MIRROR_SCHEMA='KS-BRAINK-IL-LLM/observer-v4-mirror-transport/1';
 const HOST_MIRROR_SOURCE_SHA256='3cf4c7713e2fa4e38cfba840336854b3e488c899c35fd27e7a21e376b910b1d3';
-let hostMirrorSocket=null,hostMirrorAuthorised=false,hostMirrorInFlight=null,latestV4Observer=null,hostMirrorHeartbeat=null;
+let hostMirrorSocket=null,hostMirrorAuthorised=false,hostMirrorInFlight=null,hostMirrorHeartbeat=null;
 function hostMirrorEnsureState(){
  if(!S.hostLink || typeof S.hostLink!=='object')S.hostLink={instanceId:'',sequence:0,pending:[],lastAck:null};
  if(!S.hostLink.instanceId)S.hostLink.instanceId='v4-'+crypto.randomUUID();

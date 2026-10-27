@@ -9,6 +9,12 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent
 SOURCE = ROOT / "KEX_BRAINK_CHAT_AI_CONTROL_WRAPPER_V4.html"
 DEST = ROOT / "KEX_BRAINK_CHAT_AI_CONTROL_WRAPPER_V4_HOST_LINK.html"
+# V4 references, but does not define, its R22 control-wrapper functions.
+# The exact existing V5 source supplies those functions, without rewriting
+# the V4 polygon/observer/lexical algorithms or inventing a gate.
+CONTROL_SOURCE = ROOT / "KEX_BRAINK_CHAT_AI_CONTROL_WRAPPER_V5_SKILL_APEX.html"
+CONTROL_SOURCE_SHA256 = "ccbaf267a40b3f55b56da6b7f97c77279bdd583d29d1aa27139d085f5acd117b"
+
 
 PANEL = '''
 <section class="panel" id="hostBridgePanel"><h2>BRAINK resident learning mirror</h2>
@@ -24,7 +30,7 @@ BRIDGE_JS = r'''
 // Additive host-mirror binding: preserves original V4 learning and wrapper admissions.
 const HOST_MIRROR_SCHEMA='KS-BRAINK-IL-LLM/observer-v4-mirror-transport/1';
 const HOST_MIRROR_SOURCE_SHA256='__SOURCE_SHA256__';
-let hostMirrorSocket=null,hostMirrorAuthorised=false,hostMirrorInFlight=null,latestV4Observer=null,hostMirrorHeartbeat=null;
+let hostMirrorSocket=null,hostMirrorAuthorised=false,hostMirrorInFlight=null,hostMirrorHeartbeat=null;
 function hostMirrorEnsureState(){
  if(!S.hostLink || typeof S.hostLink!=='object')S.hostLink={instanceId:'',sequence:0,pending:[],lastAck:null};
  if(!S.hostLink.instanceId)S.hostLink.instanceId='v4-'+crypto.randomUUID();
@@ -109,10 +115,37 @@ hostMirrorAck('Queued mirror records: '+S.hostLink.pending.length+' · no global
 def main() -> None:
     source = SOURCE.read_text(encoding="utf-8")
     sha = hashlib.sha256(SOURCE.read_bytes()).hexdigest()
+    control = CONTROL_SOURCE.read_text(encoding="utf-8")
+    if hashlib.sha256(CONTROL_SOURCE.read_bytes()).hexdigest() != CONTROL_SOURCE_SHA256:
+        raise ValueError("V5_WRAPPER_SOURCE_HASH_MISMATCH")
+    # Extract the *existing V5 source* precisely between its known
+    # function-boundary markers; no hand-authored substitute admissions.
+    first = "function ensureWrapperState(){"
+    last = "async function run100GrowthPasses(){"
+    if control.count(first) != 1 or control.count(last) != 1:
+        raise ValueError("V5_WRAPPER_BOUNDARY_MISSING")
+    helpers = control[control.index(first):control.index(last)]
+    for name in ("function manifestVirtual(", "function bootstrapVirtualiser(",
+                 "function makePreflight(", "function evaluateAdmission(",
+                 "async function wrapperExecute(", "function renderWrapper("):
+        if name not in helpers:
+            raise ValueError("V5_WRAPPER_REQUIRED_FUNCTION_MISSING:" + name)
+    if "function ensureWrapperState(){" in source:
+        raise ValueError("V4_WRAPPER_ALREADY_BOUND")
+    if source.count(last) != 1:
+        raise ValueError("V4_GROWTH_ENTRY_MISSING")
+    source = source.replace(last, "/* BEGIN SOURCE-EXACT V5 WRAPPER FUNCTIONS (not virtualized replacements) */\n"
+                            + helpers + "\n/* END SOURCE-EXACT V5 WRAPPER FUNCTIONS */\n" + last)
     assert source.count('})();\n</script>') == 1
     assert source.count('</aside>') == 2
     assert source.count('function receipt(type,status,detail={})') == 1
     assert source.count('function observerState(q,intentObj,lex,ev,cycle=0)') == 1
+    # The transport callback is invoked by the original V5 bootstrap BEFORE the
+    # tail-injected host-mirror declaration executes. Initialize the observer
+    # binding early to avoid a real JavaScript temporal-dead-zone failure.
+    anchor = "let S=load();let busy=false;let currentTrace=[],currentEvidence=[],currentRoute=[];"
+    assert source.count(anchor) == 1
+    source = source.replace(anchor, anchor + "\nlet latestV4Observer=null;")
     # Observer capture references the V4 formula directly; no replacement formula.
     old = "return {observer:`BRAINK:${VERSION}`,wholeIdentity:`1_BRAINK`,epoch:"
     new = "const frame={observer:`BRAINK:${VERSION}`,wholeIdentity:`1_BRAINK`,epoch:"
