@@ -8,9 +8,12 @@ The package follows the current Agent Plugins structure: `plugin.json`, `mcp.jso
 `sites_list`, `site_get`, `site_create`, `domain_bind`, `version_create`, `deploy`, `public_readback`, `ledger_verify`, `estate_import`.
 
 ## Local MCP
+Run from the repository root.
 ```
-pip install -r server/requirements.txt
-python server/mcp_server.py
+python -m venv .venv
+source .venv/bin/activate
+pip install -r plugins/sites/server/requirements.txt
+python plugins/sites/server/mcp_server.py
 ```
 
 The checked-in `mcp.json` points at `http://127.0.0.1:8000/mcp` for local/desktop development. ChatGPT web requires a registered reachable HTTPS MCP endpoint (or supported secure tunnel) before @Sites can become an installed callable plugin in that web environment. Do not replace the URL with a guessed public endpoint.
