@@ -133,13 +133,34 @@ class ILLLMImmutableLedger:
 
     def append(self, *, source_uri: str, source_level: str, semantic_type: str,
                correlation_id: str, payload: Mapping[str, Any],
-               lexical_state: Mapping[str, Any], illlm_state: Mapping[str, Any]) -> LedgerEvent:
+               lexical_state: Mapping[str, Any], illlm_state: Mapping[str, Any],
+               idempotency_payload_field: str | None = None) -> LedgerEvent:
         if not source_uri or not source_level or not semantic_type or not correlation_id:
             raise ValueError("ledger identity fields are required")
         with self._locked():
             before = self._verify_unlocked()
             if before["status"] != "PASS":
                 raise RuntimeError("ILLLM_LEDGER_UNVERIFIED_BEFORE_APPEND")
+            # Exactly-once admission for callers with a stable correlation ID.
+            # This check MUST share the exclusive predecessor/append lock; a
+            # preflight read alone cannot exclude simultaneous host workers.
+            if idempotency_payload_field is not None:
+                if (not isinstance(idempotency_payload_field, str)
+                        or idempotency_payload_field not in payload):
+                    raise ValueError("INVALID_IDEMPOTENCY_FIELD")
+                matches = [event for event in self._events_unlocked()
+                           if event.get("correlation_id") == correlation_id]
+                if matches:
+                    if (len(matches) != 1
+                            or matches[0].get("source_uri") != source_uri
+                            or matches[0].get("source_level") != source_level
+                            or matches[0].get("semantic_type") != semantic_type
+                            or matches[0].get("payload", {}).get(idempotency_payload_field)
+                            != payload[idempotency_payload_field]
+                            or matches[0].get("lexical_root") != root(lexical_state)
+                            or matches[0].get("illlm_root") != root(illlm_state)):
+                        raise ValueError("CORRELATION_REPLAY_CONFLICT")
+                    return LedgerEvent(**matches[0])
             body = {
                 "schema": SCHEMA,
                 "timestamp_ns": time.time_ns(),
