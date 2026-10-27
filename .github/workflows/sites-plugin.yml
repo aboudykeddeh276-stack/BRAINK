@@ -1,7 +1,13 @@
-name: @Sites Plugin Validation
+name: "@Sites Plugin Validation"
 on:
   push:
     paths:
+      - '.github/workflows/sites-plugin.yml'
+      - 'plugins/sites/**'
+      - 'owner-control/sites-runtime/**'
+  pull_request:
+    paths:
+      - '.github/workflows/sites-plugin.yml'
       - 'plugins/sites/**'
       - 'owner-control/sites-runtime/**'
   workflow_dispatch:
@@ -17,4 +23,5 @@ jobs:
       - run: python -m json.tool plugins/sites/mcp.json >/dev/null
       - run: pip install -r plugins/sites/server/requirements.txt
       - run: python -m py_compile plugins/sites/server/mcp_server.py owner-control/sites-runtime/app.py
+      - run: python -m unittest discover -s plugins/sites/tests -p 'test_mcp_startup.py'
       - run: python owner-control/sites-runtime/selftest.py
