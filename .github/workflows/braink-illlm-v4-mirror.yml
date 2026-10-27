@@ -1,0 +1,48 @@
+name: KS BRAINK IL-LLM V4 host mirror and generation contracts
+on:
+  push:
+    paths:
+      - 'runtime/learning/v4/**'
+      - 'runtime/generation/**'
+      - 'tests/test_v4_host_bridge.py'
+      - 'tests/test_auditable_generation.py'
+      - '.github/workflows/braink-illlm-v4-mirror.yml'
+  pull_request:
+    paths:
+      - 'runtime/learning/v4/**'
+      - 'runtime/generation/**'
+      - 'tests/test_v4_host_bridge.py'
+      - 'tests/test_auditable_generation.py'
+      - '.github/workflows/braink-illlm-v4-mirror.yml'
+jobs:
+  verify-bridge:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install source-bound dependencies
+        run: python -m pip install 'aiohttp>=3.9,<4' 'pytest>=8,<10' 'pytest-asyncio>=0.23'
+      - name: Verify generated V4 mirror projection without altering source
+        run: |
+          cp runtime/learning/v4/KEX_BRAINK_CHAT_AI_CONTROL_WRAPPER_V4_HOST_LINK.html /tmp/expected-v4.html
+          python runtime/learning/v4/build_v4_host_link.py
+          cmp /tmp/expected-v4.html runtime/learning/v4/KEX_BRAINK_CHAT_AI_CONTROL_WRAPPER_V4_HOST_LINK.html
+      - name: Verify real WebSocket and IL-LLM ledger tests
+        run: python -m pytest -q tests/test_v4_host_bridge.py
+  verify-generation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install CPU Torch for protocol verification
+        run: |
+          python -m pip install 'pytest>=8,<10'
+          python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+      - name: Verify registered weights and disk ledger contracts
+        run: python -m pytest -q tests/test_auditable_generation.py
