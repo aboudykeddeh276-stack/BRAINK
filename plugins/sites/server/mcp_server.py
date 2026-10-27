@@ -4,9 +4,11 @@ from __future__ import annotations
 import json, os, sys
 from pathlib import Path
 HERE=Path(__file__).resolve().parent
-RUNTIME=HERE.parent.parent/"owner-control"/"sites-runtime"
+RUNTIME=HERE.parents[2]/"owner-control"/"sites-runtime"
 sys.path.insert(0,str(RUNTIME))
-from app import S\nNATIVE=HERE.parent/"native"\nCAPS=HERE.parent/"CAPABILITY_REGISTRY.json"
+from app import S
+NATIVE=HERE.parent/"native"
+CAPS=HERE.parent/"CAPABILITY_REGISTRY.json"
 try:
     from mcp.server.fastmcp import FastMCP
 except ImportError as e:

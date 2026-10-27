@@ -26,7 +26,7 @@ source .venv/bin/activate
 pip install -r mcp/braink_process_adapter/requirements.txt
 export BRAINK_MCP_HMAC_KEY_HEX="$(python -c 'import secrets; print(secrets.token_hex(32))')"
 export BRAINK_MCP_STATE_DIR="$PWD/runtime/braink_mcp"
-uvicorn mcp.braink_process_adapter.main:app --host 0.0.0.0 --port 8000
+PYTHONPATH="$PWD/mcp:$PWD" uvicorn braink_process_adapter.main:app --host 127.0.0.1 --port 8000
 ```
 
 The MCP endpoint is `/mcp`.
