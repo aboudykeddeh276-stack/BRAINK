@@ -40,9 +40,16 @@ def semantic_violation(event: Mapping[str, Any], digest: Callable[[Any], str]) -
         if event.get("event_id") != expected_event_id:
             return "EVENT_ID"
 
+        payload = _object(event.get("payload"))
+        state = _object(payload.get("state")) if payload else None
+        # A V4-shaped receipt remains V4 even when its identity labels are
+        # rewritten and the hash chain is recomputed. This is a narrow marker:
+        # unrelated ledger event families keep their original schema.
+        v4_payload = state is not None and "v4_receipt" in state
         v4 = (event.get("source_level") == V4_LEVEL
               or event.get("semantic_type") == V4_TYPE
-              or str(event.get("source_uri", "")).startswith(V4_URI_PREFIX))
+              or str(event.get("source_uri", "")).startswith(V4_URI_PREFIX)
+              or v4_payload)
         if not v4:
             return None
         if event.get("source_level") != V4_LEVEL:
@@ -50,8 +57,6 @@ def semantic_violation(event: Mapping[str, Any], digest: Callable[[Any], str]) -
         if event.get("semantic_type") != V4_TYPE:
             return "V4_SEMANTIC_TYPE"
 
-        payload = _object(event.get("payload"))
-        state = _object(payload.get("state")) if payload else None
         if not state:
             return "V4_STATE"
         observer = _object(state.get("observer"))
