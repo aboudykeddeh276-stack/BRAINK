@@ -16,6 +16,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Mapping
 
+from runtime.illlm_semantic_validation import semantic_violation
+
 SCHEMA = "illlm.immutable-ledger.v1"
 GENESIS = "GENESIS"
 
@@ -121,6 +123,9 @@ class ILLLMImmutableLedger:
             expected = root(body)
             if event.get("event_root") != expected:
                 return {"status": "FAILED", "reason": "ROOT", "index": count}
+            violation = semantic_violation(event, root)
+            if violation is not None:
+                return {"status": "FAILED", "reason": "SEMANTIC_" + violation, "index": count}
             previous = expected
             count += 1
         return {"status": "PASS", "events": count, "head": previous}
