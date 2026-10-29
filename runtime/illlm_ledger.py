@@ -160,8 +160,10 @@ class ILLLMImmutableLedger:
                             or matches[0].get("source_uri") != source_uri
                             or matches[0].get("source_level") != source_level
                             or matches[0].get("semantic_type") != semantic_type
-                            or matches[0].get("payload", {}).get(idempotency_payload_field)
-                            != payload[idempotency_payload_field]
+                            # The declared idempotency field is the stable replay
+                            # identity, not permission to alter other payload fields.
+                            # A replay must be byte-equivalent in canonical payload.
+                            or root(matches[0].get("payload")) != root(dict(payload))
                             or matches[0].get("lexical_root") != root(lexical_state)
                             or matches[0].get("illlm_root") != root(illlm_state)):
                         raise ValueError("CORRELATION_REPLAY_CONFLICT")
@@ -182,6 +184,11 @@ class ILLLMImmutableLedger:
                                      "source_uri": source_uri,
                                      "semantic_type": semantic_type,
                                      "illlm_root": body["illlm_root"]})
+            # Admission must reject invalid semantics BEFORE the first disk
+            # write. Post-append verification alone leaves a poisoned ledger.
+            violation = semantic_violation(body, root)
+            if violation is not None:
+                raise ValueError("SEMANTIC_" + violation)
             body["event_root"] = root(body)
             record = json.dumps(body, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8") + b"\n"
             fd = os.open(self.path, os.O_WRONLY | os.O_CREAT | os.O_APPEND, 0o600)
