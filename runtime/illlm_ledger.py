@@ -22,6 +22,10 @@ SCHEMA = "illlm.immutable-ledger.v1"
 GENESIS = "GENESIS"
 
 
+class NonCanonicalLedgerRecord(ValueError):
+    """A JSONL record has ambiguous or empty physical framing."""
+
+
 def canonical(value: Any) -> bytes:
     return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False, default=str).encode("utf-8")
 
@@ -94,11 +98,22 @@ class ILLLMImmutableLedger:
         if not self.path.exists():
             return []
         events: list[dict[str, Any]] = []
-        # Strict decode: corrupt, truncated, or unparseable rows fail closed.
-        with self.path.open("r", encoding="utf-8") as handle:
+        # Empty physical records and duplicate JSON keys must not be silently
+        # ignored. Preserve legacy valid JSON serialization (including Unicode
+        # escapes) so earlier verified semantic receipts remain readable.
+        def unique_pairs(pairs):
+            result = {}
+            for key, value in pairs:
+                if key in result:
+                    raise NonCanonicalLedgerRecord("DUPLICATE_JSON_KEY")
+                result[key] = value
+            return result
+
+        with self.path.open("rb") as handle:
             for line in handle:
-                if line.strip():
-                    events.append(json.loads(line))
+                if not line.endswith(b"\n") or not line.strip():
+                    raise NonCanonicalLedgerRecord("EMPTY_OR_UNTERMINATED_RECORD")
+                events.append(json.loads(line.decode("utf-8"), object_pairs_hook=unique_pairs))
         return events
 
     def _events(self) -> list[dict[str, Any]]:
@@ -122,6 +137,8 @@ class ILLLMImmutableLedger:
                         return {"status": "FAILED", "reason": "UNTERMINATED_LEDGER_RECORD", "index": count}
         try:
             events = self._events_unlocked()
+        except NonCanonicalLedgerRecord:
+            return {"status": "FAILED", "reason": "NONCANONICAL_LEDGER_RECORD", "index": count}
         except (ValueError, UnicodeError) as exc:
             return {"status": "FAILED", "reason": "UNPARSEABLE_LEDGER", "index": count, "detail": type(exc).__name__}
         for event in events:
