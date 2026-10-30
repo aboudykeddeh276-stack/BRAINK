@@ -108,6 +108,18 @@ class ILLLMImmutableLedger:
     def _verify_unlocked(self) -> dict[str, Any]:
         previous = GENESIS
         count = 0
+        # Appends use O_APPEND with newline-delimited records. A valid JSON
+        # object without its final delimiter parses successfully, but the next
+        # append concatenates two objects and poisons the ledger. Reject the
+        # unterminated tail before admitting another writer; never silently
+        # rewrite or repair historical evidence.
+        if self.path.exists():
+            with self.path.open("rb") as framing:
+                framing.seek(0, os.SEEK_END)
+                if framing.tell():
+                    framing.seek(-1, os.SEEK_END)
+                    if framing.read(1) != b"\n":
+                        return {"status": "FAILED", "reason": "UNTERMINATED_LEDGER_RECORD", "index": count}
         try:
             events = self._events_unlocked()
         except (ValueError, UnicodeError) as exc:
