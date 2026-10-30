@@ -45,7 +45,19 @@ def semantic_violation(event: Mapping[str, Any], digest: Callable[[Any], str]) -
         # A V4-shaped receipt remains V4 even when its identity labels are
         # rewritten and the hash chain is recomputed. This is a narrow marker:
         # unrelated ledger event families keep their original schema.
-        v4_payload = state is not None and "v4_receipt" in state
+        # A damaged or deliberately stripped V4 receipt must not make a
+        # still-recognisable observer/polygon candidate into a generic event.
+        # Use multiple independent V4-specific structural markers; do not
+        # classify unrelated generic events from a single common field.
+        v4_payload = (
+            (state is not None and (
+                "v4_receipt" in state
+                or all(key in state for key in ("observer", "polygon", "source_sha256"))
+            ))
+            or (payload is not None and all(
+                key in payload for key in ("candidate_hash", "observer_policy_digest")
+            ))
+        )
         v4 = (event.get("source_level") == V4_LEVEL
               or event.get("semantic_type") == V4_TYPE
               or str(event.get("source_uri", "")).startswith(V4_URI_PREFIX)
