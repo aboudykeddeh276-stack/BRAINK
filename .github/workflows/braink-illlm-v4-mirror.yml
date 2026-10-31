@@ -13,6 +13,7 @@ on:
       - 'tests/test_illlm_semantic_*.py'
       - 'tests/test_illlm_record_framing.py'
       - 'tests/test_illlm_canonical_framing.py'
+      - 'tests/test_illlm_nonfinite_json.py'
       - 'tests/test_illlm_v4_receipt_stripping.py'
       - 'tests/test_auditable_generation.py'
       - '.github/workflows/braink-illlm-v4-mirror.yml'
@@ -29,6 +30,7 @@ on:
       - 'tests/test_illlm_semantic_*.py'
       - 'tests/test_illlm_record_framing.py'
       - 'tests/test_illlm_canonical_framing.py'
+      - 'tests/test_illlm_nonfinite_json.py'
       - 'tests/test_illlm_v4_receipt_stripping.py'
       - 'tests/test_auditable_generation.py'
       - '.github/workflows/braink-illlm-v4-mirror.yml'
@@ -52,7 +54,7 @@ jobs:
           python runtime/learning/v4/build_v4_host_link.py
           cmp /tmp/expected-v4.html runtime/learning/v4/KEX_BRAINK_CHAT_AI_CONTROL_WRAPPER_V4_HOST_LINK.html
       - name: Verify real WebSocket and IL-LLM ledger tests
-        run: python -m pytest -q tests/test_v4_host_bridge.py tests/test_illlm_ledger_concurrency.py tests/test_v4_host_process_lifecycle.py tests/test_v4_source_native_100.py tests/test_illlm_semantic_verification.py tests/test_illlm_semantic_interprocess.py tests/test_illlm_semantic_preappend.py tests/test_illlm_v4_identity_downgrade.py tests/test_illlm_record_framing.py tests/test_illlm_canonical_framing.py tests/test_illlm_v4_receipt_stripping.py
+        run: python -m pytest -q tests/test_v4_host_bridge.py tests/test_illlm_ledger_concurrency.py tests/test_v4_host_process_lifecycle.py tests/test_v4_source_native_100.py tests/test_illlm_semantic_verification.py tests/test_illlm_semantic_interprocess.py tests/test_illlm_semantic_preappend.py tests/test_illlm_v4_identity_downgrade.py tests/test_illlm_record_framing.py tests/test_illlm_canonical_framing.py tests/test_illlm_v4_receipt_stripping.py tests/test_illlm_nonfinite_json.py
   verify-generation:
     runs-on: ubuntu-latest
     timeout-minutes: 25

@@ -27,7 +27,7 @@ class NonCanonicalLedgerRecord(ValueError):
 
 
 def canonical(value: Any) -> bytes:
-    return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False, default=str).encode("utf-8")
+    return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False, default=str, allow_nan=False).encode("utf-8")
 
 
 def root(value: Any) -> str:
@@ -109,11 +109,15 @@ class ILLLMImmutableLedger:
                 result[key] = value
             return result
 
+        def reject_nonfinite(value):
+            raise NonCanonicalLedgerRecord("NONFINITE_JSON_NUMBER:" + value)
+
         with self.path.open("rb") as handle:
             for line in handle:
                 if not line.endswith(b"\n") or not line.strip():
                     raise NonCanonicalLedgerRecord("EMPTY_OR_UNTERMINATED_RECORD")
-                events.append(json.loads(line.decode("utf-8"), object_pairs_hook=unique_pairs))
+                events.append(json.loads(line.decode("utf-8"), object_pairs_hook=unique_pairs,
+                                         parse_constant=reject_nonfinite))
         return events
 
     def _events(self) -> list[dict[str, Any]]:
@@ -219,7 +223,7 @@ class ILLLMImmutableLedger:
             if violation is not None:
                 raise ValueError("SEMANTIC_" + violation)
             body["event_root"] = root(body)
-            record = json.dumps(body, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8") + b"\n"
+            record = json.dumps(body, sort_keys=True, separators=(",", ":"), ensure_ascii=False, allow_nan=False).encode("utf-8") + b"\n"
             fd = os.open(self.path, os.O_WRONLY | os.O_CREAT | os.O_APPEND, 0o600)
             try:
                 written = os.write(fd, record)
