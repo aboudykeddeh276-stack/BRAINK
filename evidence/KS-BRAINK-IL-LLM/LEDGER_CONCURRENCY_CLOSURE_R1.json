@@ -1,0 +1,47 @@
+{
+  "schema": "KS-BRAINK-IL-LLM/interprocess-ledger-closure-evidence/1",
+  "architect": "A. Keddeh",
+  "scope": "Native IL-LLM ledger readback and multi-process append, not host deployment/ToT consensus",
+  "baseline": {
+    "repository": "aboudykeddeh276-stack/BRAINK",
+    "commit": "f6917a7ef5061993d6205784c42d998d69c86575",
+    "source_path": "runtime/illlm_ledger.py",
+    "adversarial_probe": "6 independent POSIX processes x 10 real append calls = 60 rows",
+    "written_rows": 60,
+    "readback": {
+      "status": "FAILED",
+      "reason": "CHAIN",
+      "index": 1
+    },
+    "writer_exceptions": "ILLLM_LEDGER_READBACK_FAILED during independent append"
+  },
+  "remedy": {
+    "transaction": "fcntl/msvcrt file lock -> verify predecessor -> single OS append -> fsync -> readback, plus shared-lock verification",
+    "preserved_schema": "illlm.immutable-ledger.v1",
+    "preserved_event_root_semantics": true,
+    "legacy_parallel_writer_caveat": "Non-conforming writers bypass lock"
+  },
+  "recheck": {
+    "command": "python -m pytest -q tests/test_v4_host_bridge.py tests/test_illlm_ledger_concurrency.py tests/test_auditable_generation.py",
+    "exit_code": 0,
+    "stdout": "...........                                                              [100%]\n11 passed in 4.12s\n",
+    "checks_passed": 11,
+    "checks_failed": 0,
+    "true_physical_server_deployed": false
+  },
+  "toolchain": {
+    "python": "3.13.5",
+    "platform": "Linux-6.18.55-x86_64-with-glibc2.41"
+  },
+  "file_sha256": {
+    "runtime/illlm_ledger.py": "0b57ab6bb0b236307157b68275f7cc28f5ff8587d9dacb369ce7894831d6b187",
+    "tests/test_illlm_ledger_concurrency.py": "6d778626cfcdcbd614bcf512d3e0416d8385a3482526fc26db8fe91dfb8fc5db",
+    ".github/workflows/braink-illlm-v4-mirror.yml": "d4b955f588930b64f2fc9385f7ca4c18d31de38f61af3dea8026b9eea0c3de6e"
+  },
+  "caveats": [
+    "Full-prefix verification on each append is O(n) and may need separately qualified acceleration at large scale.",
+    "A privileged actor capable of rewriting the entire ledger can forge a fresh hash chain; independent externally held checkpoints are required.",
+    "GitHub Actions unassigned runner failure is a separate blocker from these local passes.",
+    "No browser UI end-to-end 100-pass readback: Chromium local navigation blocked by execution environment administrator."
+  ]
+}

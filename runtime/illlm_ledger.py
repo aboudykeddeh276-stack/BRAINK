@@ -1,21 +1,34 @@
 #!/usr/bin/env python3
+"""Native IL-LLM immutable learning ledger with interprocess atomic admission.
+
+Preserves the existing event schema, canonical SHA-256 format, public API,
+source/lexical roots and the A. Keddeh KS-BRAINK-IL-LLM identity.
+Native append-only files are evidence only when the whole chain verifies.
+"""
 from __future__ import annotations
 
 import hashlib
 import json
+import math
 import os
 import time
-from dataclasses import dataclass, asdict
+from contextlib import contextmanager
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Mapping
 
+from runtime.illlm_semantic_validation import semantic_violation
 
 SCHEMA = "illlm.immutable-ledger.v1"
 GENESIS = "GENESIS"
 
 
+class NonCanonicalLedgerRecord(ValueError):
+    """A JSONL record has ambiguous or empty physical framing."""
+
+
 def canonical(value: Any) -> bytes:
-    return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False, default=str).encode("utf-8")
+    return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False, default=str, allow_nan=False).encode("utf-8")
 
 
 def root(value: Any) -> str:
@@ -39,73 +52,113 @@ class LedgerEvent:
 
 
 class ILLLMImmutableLedger:
-    """Canonical append-only learning ledger.
+    """Hash-chained, process-serialized IL-LLM candidate and learning ledger.
 
-    Any BRAINK, VFS, tool, peer, node, domain runtime or other local learner may
-    emit a candidate at its own level. The event becomes canonical only after
-    IL-LLM-normalized semantics are appended here and the hash-chain readback
-    verifies. Local mirrors may project this ledger; they do not supersede it.
+    All cooperating readers/writers acquire the same dedicated OS-backed lock.
+    This guarantees a single predecessor observation per append across distinct
+    host workers, without altering the historical event schema or event hashes.
+    It does not protect the ledger from privileged out-of-band filesystem edits.
     """
 
     def __init__(self, path: str | Path | None = None) -> None:
         default = Path(os.environ.get("BRAINK_DATA_DIR", ".kex/state")) / "illlm-immutable-ledger.jsonl"
         self.path = Path(path or os.environ.get("ILLLM_IMMUTABLE_LEDGER", default)).expanduser().resolve()
         self.path.parent.mkdir(parents=True, exist_ok=True)
+        self._lock_path = self.path.with_name(self.path.name + ".lock")
 
-    def _events(self) -> list[dict[str, Any]]:
+    @contextmanager
+    def _locked(self, *, shared: bool = False):
+        # A distinct stable lock inode remains in place; never unlink the lock
+        # file when releasing it, since queued processes retain that inode.
+        with self._lock_path.open("a+b") as gate:
+            if os.name == "posix":
+                import fcntl
+                fcntl.flock(gate.fileno(), fcntl.LOCK_SH if shared else fcntl.LOCK_EX)
+                try:
+                    yield
+                finally:
+                    fcntl.flock(gate.fileno(), fcntl.LOCK_UN)
+            elif os.name == "nt":
+                import msvcrt
+                # Windows byte-range locks are exclusive, including reads.
+                gate.seek(0, os.SEEK_END)
+                if gate.tell() == 0:
+                    gate.write(b'!')
+                    gate.flush()
+                gate.seek(0)
+                msvcrt.locking(gate.fileno(), msvcrt.LK_LOCK, 1)
+                try:
+                    yield
+                finally:
+                    gate.seek(0)
+                    msvcrt.locking(gate.fileno(), msvcrt.LK_UNLCK, 1)
+            else:
+                raise OSError("UNSUPPORTED_PLATFORM_NO_SAFE_LEDGER_LOCK")
+
+    def _events_unlocked(self) -> list[dict[str, Any]]:
         if not self.path.exists():
             return []
-        out: list[dict[str, Any]] = []
-        for line in self.path.read_text(encoding="utf-8").splitlines():
-            if line.strip():
-                out.append(json.loads(line))
-        return out
+        events: list[dict[str, Any]] = []
+        # Empty physical records and duplicate JSON keys must not be silently
+        # ignored. Preserve legacy valid JSON serialization (including Unicode
+        # escapes) so earlier verified semantic receipts remain readable.
+        def unique_pairs(pairs):
+            result = {}
+            for key, value in pairs:
+                if key in result:
+                    raise NonCanonicalLedgerRecord("DUPLICATE_JSON_KEY")
+                result[key] = value
+            return result
 
-    def head(self) -> str:
-        events = self._events()
-        return str(events[-1]["event_root"]) if events else GENESIS
+        def reject_nonfinite(value):
+            raise NonCanonicalLedgerRecord("NONFINITE_JSON_NUMBER:" + value)
 
-    def append(
-        self,
-        *,
-        source_uri: str,
-        source_level: str,
-        semantic_type: str,
-        correlation_id: str,
-        payload: Mapping[str, Any],
-        lexical_state: Mapping[str, Any],
-        illlm_state: Mapping[str, Any],
-    ) -> LedgerEvent:
-        if not source_uri or not source_level or not semantic_type or not correlation_id:
-            raise ValueError("ledger identity fields are required")
-        previous = self.head()
-        body = {
-            "schema": SCHEMA,
-            "timestamp_ns": time.time_ns(),
-            "source_uri": source_uri,
-            "source_level": source_level,
-            "semantic_type": semantic_type,
-            "correlation_id": correlation_id,
-            "payload": dict(payload),
-            "lexical_root": root(lexical_state),
-            "illlm_root": root(illlm_state),
-            "previous_event_root": previous,
-        }
-        event_id = root({"correlation_id": correlation_id, "source_uri": source_uri, "semantic_type": semantic_type, "illlm_root": body["illlm_root"]})
-        body["event_id"] = event_id
-        body["event_root"] = root(body)
-        with self.path.open("a", encoding="utf-8") as handle:
-            handle.write(json.dumps(body, sort_keys=True, separators=(",", ":"), ensure_ascii=False) + "\n")
-            handle.flush()
-            os.fsync(handle.fileno())
-        event = LedgerEvent(**body)
-        self.verify_head(event.event_root)
-        return event
+        def parse_finite_float(value):
+            # JSON exponent notation can overflow Python float to infinity
+            # without invoking parse_constant (e.g. 1e400). Fail before
+            # hashing rather than raising from the canonical serializer.
+            parsed = float(value)
+            if not math.isfinite(parsed):
+                raise NonCanonicalLedgerRecord("NONFINITE_JSON_NUMBER:" + value)
+            return parsed
 
-    def verify(self) -> dict[str, Any]:
+        with self.path.open("rb") as handle:
+            for line in handle:
+                if not line.endswith(b"\n") or not line.strip():
+                    raise NonCanonicalLedgerRecord("EMPTY_OR_UNTERMINATED_RECORD")
+                events.append(json.loads(line.decode("utf-8"), object_pairs_hook=unique_pairs,
+                                         parse_constant=reject_nonfinite,
+                                         parse_float=parse_finite_float))
+        return events
+
+    def _events(self) -> list[dict[str, Any]]:
+        with self._locked(shared=True):
+            return self._events_unlocked()
+
+    def _verify_unlocked(self) -> dict[str, Any]:
         previous = GENESIS
         count = 0
-        for event in self._events():
+        # Appends use O_APPEND with newline-delimited records. A valid JSON
+        # object without its final delimiter parses successfully, but the next
+        # append concatenates two objects and poisons the ledger. Reject the
+        # unterminated tail before admitting another writer; never silently
+        # rewrite or repair historical evidence.
+        if self.path.exists():
+            with self.path.open("rb") as framing:
+                framing.seek(0, os.SEEK_END)
+                if framing.tell():
+                    framing.seek(-1, os.SEEK_END)
+                    if framing.read(1) != b"\n":
+                        return {"status": "FAILED", "reason": "UNTERMINATED_LEDGER_RECORD", "index": count}
+        try:
+            events = self._events_unlocked()
+        except NonCanonicalLedgerRecord:
+            return {"status": "FAILED", "reason": "NONCANONICAL_LEDGER_RECORD", "index": count}
+        except (ValueError, UnicodeError) as exc:
+            return {"status": "FAILED", "reason": "UNPARSEABLE_LEDGER", "index": count, "detail": type(exc).__name__}
+        for event in events:
+            if not isinstance(event, dict):
+                return {"status": "FAILED", "reason": "NON_OBJECT_EVENT", "index": count}
             if event.get("schema") != SCHEMA:
                 return {"status": "FAILED", "reason": "SCHEMA", "index": count}
             if event.get("previous_event_root") != previous:
@@ -114,14 +167,102 @@ class ILLLMImmutableLedger:
             expected = root(body)
             if event.get("event_root") != expected:
                 return {"status": "FAILED", "reason": "ROOT", "index": count}
+            violation = semantic_violation(event, root)
+            if violation is not None:
+                return {"status": "FAILED", "reason": "SEMANTIC_" + violation, "index": count}
             previous = expected
             count += 1
         return {"status": "PASS", "events": count, "head": previous}
 
+    def head(self) -> str:
+        verified = self.verify()
+        if verified["status"] != "PASS":
+            raise RuntimeError("ILLLM_LEDGER_UNVERIFIED")
+        return verified["head"]
+
+    def append(self, *, source_uri: str, source_level: str, semantic_type: str,
+               correlation_id: str, payload: Mapping[str, Any],
+               lexical_state: Mapping[str, Any], illlm_state: Mapping[str, Any],
+               idempotency_payload_field: str | None = None) -> LedgerEvent:
+        if not source_uri or not source_level or not semantic_type or not correlation_id:
+            raise ValueError("ledger identity fields are required")
+        with self._locked():
+            before = self._verify_unlocked()
+            if before["status"] != "PASS":
+                raise RuntimeError("ILLLM_LEDGER_UNVERIFIED_BEFORE_APPEND")
+            # Exactly-once admission for callers with a stable correlation ID.
+            # This check MUST share the exclusive predecessor/append lock; a
+            # preflight read alone cannot exclude simultaneous host workers.
+            if idempotency_payload_field is not None:
+                if (not isinstance(idempotency_payload_field, str)
+                        or idempotency_payload_field not in payload):
+                    raise ValueError("INVALID_IDEMPOTENCY_FIELD")
+                matches = [event for event in self._events_unlocked()
+                           if event.get("correlation_id") == correlation_id]
+                if matches:
+                    if (len(matches) != 1
+                            or matches[0].get("source_uri") != source_uri
+                            or matches[0].get("source_level") != source_level
+                            or matches[0].get("semantic_type") != semantic_type
+                            # The declared idempotency field is the stable replay
+                            # identity, not permission to alter other payload fields.
+                            # A replay must be byte-equivalent in canonical payload.
+                            or root(matches[0].get("payload")) != root(dict(payload))
+                            or matches[0].get("lexical_root") != root(lexical_state)
+                            or matches[0].get("illlm_root") != root(illlm_state)):
+                        raise ValueError("CORRELATION_REPLAY_CONFLICT")
+                    return LedgerEvent(**matches[0])
+            body = {
+                "schema": SCHEMA,
+                "timestamp_ns": time.time_ns(),
+                "source_uri": source_uri,
+                "source_level": source_level,
+                "semantic_type": semantic_type,
+                "correlation_id": correlation_id,
+                "payload": dict(payload),
+                "lexical_root": root(lexical_state),
+                "illlm_root": root(illlm_state),
+                "previous_event_root": before["head"],
+            }
+            body["event_id"] = root({"correlation_id": correlation_id,
+                                     "source_uri": source_uri,
+                                     "semantic_type": semantic_type,
+                                     "illlm_root": body["illlm_root"]})
+            # Admission must reject invalid semantics BEFORE the first disk
+            # write. Post-append verification alone leaves a poisoned ledger.
+            violation = semantic_violation(body, root)
+            if violation is not None:
+                raise ValueError("SEMANTIC_" + violation)
+            body["event_root"] = root(body)
+            record = json.dumps(body, sort_keys=True, separators=(",", ":"), ensure_ascii=False, allow_nan=False).encode("utf-8") + b"\n"
+            fd = os.open(self.path, os.O_WRONLY | os.O_CREAT | os.O_APPEND, 0o600)
+            try:
+                written = os.write(fd, record)
+                if written != len(record):
+                    raise OSError("PARTIAL_LEDGER_APPEND")
+                os.fsync(fd)
+            finally:
+                os.close(fd)
+            after = self._verify_unlocked()
+            if after.get("status") != "PASS" or after.get("events") != before["events"] + 1 or after.get("head") != body["event_root"]:
+                raise RuntimeError("ILLLM_LEDGER_READBACK_FAILED")
+        return LedgerEvent(**body)
+
+    def verify(self) -> dict[str, Any]:
+        with self._locked(shared=True):
+            return self._verify_unlocked()
+
     def verify_head(self, expected: str) -> None:
-        result = self.verify()
-        if result.get("status") != "PASS" or result.get("head") != expected:
-            raise RuntimeError("ILLLM_LEDGER_READBACK_FAILED")
+        # Preserve the pre-existing strict API: callers requiring a fixed head
+        # must fail if a different writer advanced the ledger.
+        with self._locked(shared=True):
+            result = self._verify_unlocked()
+            if result.get("status") != "PASS" or result.get("head") != expected:
+                raise RuntimeError("ILLLM_LEDGER_READBACK_FAILED")
 
     def read_by_correlation(self, correlation_id: str) -> list[dict[str, Any]]:
-        return [event for event in self._events() if event.get("correlation_id") == correlation_id]
+        with self._locked(shared=True):
+            status = self._verify_unlocked()
+            if status.get("status") != "PASS":
+                raise RuntimeError("ILLLM_LEDGER_UNVERIFIED")
+            return [event for event in self._events_unlocked() if event.get("correlation_id") == correlation_id]
