@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 import os
 import time
 from contextlib import contextmanager
@@ -112,12 +113,22 @@ class ILLLMImmutableLedger:
         def reject_nonfinite(value):
             raise NonCanonicalLedgerRecord("NONFINITE_JSON_NUMBER:" + value)
 
+        def parse_finite_float(value):
+            # JSON exponent notation can overflow Python float to infinity
+            # without invoking parse_constant (e.g. 1e400). Fail before
+            # hashing rather than raising from the canonical serializer.
+            parsed = float(value)
+            if not math.isfinite(parsed):
+                raise NonCanonicalLedgerRecord("NONFINITE_JSON_NUMBER:" + value)
+            return parsed
+
         with self.path.open("rb") as handle:
             for line in handle:
                 if not line.endswith(b"\n") or not line.strip():
                     raise NonCanonicalLedgerRecord("EMPTY_OR_UNTERMINATED_RECORD")
                 events.append(json.loads(line.decode("utf-8"), object_pairs_hook=unique_pairs,
-                                         parse_constant=reject_nonfinite))
+                                         parse_constant=reject_nonfinite,
+                                         parse_float=parse_finite_float))
         return events
 
     def _events(self) -> list[dict[str, Any]]:
