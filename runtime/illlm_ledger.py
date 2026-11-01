@@ -164,7 +164,13 @@ class ILLLMImmutableLedger:
             if event.get("previous_event_root") != previous:
                 return {"status": "FAILED", "reason": "CHAIN", "index": count}
             body = {k: v for k, v in event.items() if k != "event_root"}
-            expected = root(body)
+            try:
+                expected = root(body)
+            except (UnicodeError, ValueError, TypeError, OverflowError):
+                # JSON accepts escaped unpaired surrogates, but the canonical
+                # UTF-8 event digest cannot encode them. Reject the record
+                # rather than leaking an exception or admitting another append.
+                return {"status": "FAILED", "reason": "UNENCODABLE_LEDGER_RECORD", "index": count}
             if event.get("event_root") != expected:
                 return {"status": "FAILED", "reason": "ROOT", "index": count}
             violation = semantic_violation(event, root)
