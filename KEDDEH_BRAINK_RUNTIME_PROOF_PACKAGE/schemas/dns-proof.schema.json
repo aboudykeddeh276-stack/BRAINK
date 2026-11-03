@@ -1,0 +1,39 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://braink.local/schemas/dns-proof.schema.json",
+  "title": "BrAInK DNS Proof Receipt",
+  "description": "Receipt for a locally executed DNS query. Status is hard-capped at LOCALLY_EXECUTED because authoritative external observation is impossible from the sandbox.",
+  "type": "object",
+  "required": ["query_name", "record_type", "resolver", "authoritative", "records", "timestamp", "status"],
+  "additionalProperties": true,
+  "properties": {
+    "query_name": { "type": "string", "minLength": 1 },
+    "record_type": { "type": "string", "enum": ["A", "AAAA", "NS", "CNAME", "SOA", "PTR", "MX", "TXT"] },
+    "resolver": { "type": "string", "minLength": 1 },
+    "authoritative": {
+      "const": false,
+      "description": "Must be false. The sandbox cannot prove an authoritative answer."
+    },
+    "records": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "record_type", "ttl", "value"],
+        "properties": {
+          "name": { "type": "string" },
+          "record_type": { "type": "string" },
+          "ttl": { "type": "integer", "minimum": 0 },
+          "value": { "type": "string" }
+        }
+      }
+    },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "status": {
+      "type": "string",
+      "enum": ["NOT_ATTEMPTED", "LOCAL_EXECUTION_FAILED", "LOCALLY_EXECUTED"],
+      "description": "EXTERNALLY_OBSERVED and PUBLICLY_DEPLOYED are deliberately not permitted."
+    },
+    "authoritative_external_confirmed": { "const": false },
+    "note": { "type": "string" }
+  }
+}
