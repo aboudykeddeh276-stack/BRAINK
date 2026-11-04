@@ -1,9 +1,15 @@
-name: @Sites Plugin Validation
+name: "@Sites Plugin Validation"
 on:
   push:
     paths:
       - 'plugins/sites/**'
       - 'owner-control/sites-runtime/**'
+      - '.github/workflows/sites-plugin.yml'
+  pull_request:
+    paths:
+      - 'plugins/sites/**'
+      - 'owner-control/sites-runtime/**'
+      - '.github/workflows/sites-plugin.yml'
   workflow_dispatch:
 jobs:
   validate:
