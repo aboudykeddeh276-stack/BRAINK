@@ -1,0 +1,16 @@
+services:
+  keddeh-saas:
+    build:
+      context: ../..
+      dockerfile: services/keddeh-saas-control-plane/Dockerfile
+    restart: unless-stopped
+    environment:
+      KEDDEH_SAAS_DB: /data/keddeh_saas.sqlite3
+      BRAINK_SAAS_STATE_DIR: /data/braink
+      KEDDEH_CONTROL_API_KEY: ${KEDDEH_CONTROL_API_KEY:?set KEDDEH_CONTROL_API_KEY}
+    volumes:
+      - keddeh_saas_data:/data
+    ports:
+      - "127.0.0.1:8000:8000"
+volumes:
+  keddeh_saas_data:
