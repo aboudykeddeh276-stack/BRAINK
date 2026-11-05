@@ -12,6 +12,18 @@ if [[ "${EUID}" -ne 0 ]]; then
   echo "ERROR: run as root (sudo)." >&2
   exit 2
 fi
+if [[ "${INSTALL_ROOT}" != "/opt/braink" || "${STATE_ROOT}" != "/var/lib/braink" ]]; then
+  echo "ERROR: the installed systemd unit uses /opt/braink and /var/lib/braink; custom roots are not supported by this installer." >&2
+  exit 12
+fi
+if [[ -e "${UNIT_DST}" ]] || [[ -d "${INSTALL_ROOT}" && -n "$(ls -A "${INSTALL_ROOT}")" ]]; then
+  echo "ERROR: existing installation or unit detected; preserve it and use a separately reviewed upgrade procedure." >&2
+  exit 13
+fi
+if [[ ! -f /etc/braink/desktop-commander.env ]]; then
+  echo "ERROR: configure /etc/braink/desktop-commander.env with BRAINK_DC_PACKAGE or BRAINK_DC_COMMAND before installation." >&2
+  exit 14
+fi
 if [[ -z "${RUN_USER}" ]]; then
   echo "ERROR: supply the Linux user that owns the Desktop Commander session." >&2
   exit 3
@@ -25,7 +37,7 @@ command -v systemctl >/dev/null || { echo "ERROR: systemd missing" >&2; exit 9; 
 command -v rsync >/dev/null || { echo "ERROR: rsync missing" >&2; exit 10; }
 
 mkdir -p "${INSTALL_ROOT}" "${STATE_ROOT}/host-control/${RUN_USER}" "${STATE_ROOT}/host-activation"
-rsync -a --delete --exclude '.git' "${REPO_SRC}/" "${INSTALL_ROOT}/"
+rsync -a --exclude '.git' "${REPO_SRC}/" "${INSTALL_ROOT}/"
 install -m 0644 "${UNIT_SRC}" "${UNIT_DST}"
 chown -R "${RUN_USER}:${RUN_USER}" "${STATE_ROOT}/host-control/${RUN_USER}" "${STATE_ROOT}/host-activation"
 
