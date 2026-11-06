@@ -1,0 +1,28 @@
+{
+  "schema": "KS-BRAINK-IL-LLM/actual-v4-node-algorithm-to-native-ledger/1",
+  "architect": "A. Keddeh",
+  "original_source_sha256": "3cf4c7713e2fa4e38cfba840336854b3e488c899c35fd27e7a21e376b910b1d3",
+  "v5_wrapper_source_sha256": "ccbaf267a40b3f55b56da6b7f97c77279bdd583d29d1aa27139d085f5acd117b",
+  "execution_plane": "NODE_VM_EXECUTED_ORIGINAL_V4_SOURCE_EXACT_POLYGON_ALGORITHM_PLUS_V5_WRAPPER",
+  "host_plane": "REAL_AIOHTTP_TCP_WEBSOCKET_NATIVE_ILLM_LEDGER_LOCAL_CONTAINER",
+  "original_v4_algorithm_passes": 100,
+  "source_successors": 100,
+  "source_generated_mirror_candidates": 101,
+  "native_ledger_events": 101,
+  "first_event_root": "d08a3b20bd1dd79568986687d9abece7d49de6d2fd18fa0ca33ba747037e9b3b",
+  "final_event_root": "685d2ea5663cc77250a026ad5cdb9b3b44299bd540abcc52c25ac5340d7dc1c6",
+  "ledger_file_sha256": "8178db953acc7db70cee5d5f84833e3833394e06125916c00855167dcc4be3fe",
+  "after_service_restart_readback": {
+    "status": "PASS",
+    "events": 101,
+    "head": "685d2ea5663cc77250a026ad5cdb9b3b44299bd540abcc52c25ac5340d7dc1c6"
+  },
+  "source_native_result": "{\"status\":\"PASS\",\"source_hash\":\"3cf4c7713e2fa4e38cfba840336854b3e488c899c35fd27e7a21e376b910b1d3\",\"passes\":100,\"mirror\":\"MATCH\",\"iteration\":100,\"candidates\":101,\"last_successor\":\"\u2460_100\",\"output\":\"/mnt/data/braink_resident_upgrade/proof/v4_native_original_candidates.json\"}",
+  "event_sequence_verified": true,
+  "v4_receipt_type_lineage_verified": true,
+  "learning_promotion": "NOT_PROMOTED",
+  "has_real_browser": false,
+  "external_keddeh_node_admitted": false,
+  "independent_quorum": false,
+  "verification": "EXECUTED_LOCAL_SOURCE_ALGORITHM_AND_DISK_TRANSPORT_NOT_HOSTED_PRODUCTION"
+}

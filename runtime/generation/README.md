@@ -1,0 +1,13 @@
+# KS-BRAINK-IL-LLM | Model-bound generation transaction
+
+**Research and architecture:** Architect A. Keddeh / KEDDEH Systems.
+
+`auditable_engine.py` replaces per-call random neural layers and process-specific `hash()` with separately supplied **existing trained backbone and decoder** modules, stable SHA-256 checkpoint weight fingerprints, recorded scheduler steps, deterministic seed under a given device/software configuration, independent input/output digests, and append + fsync + verified readback using the resident `runtime.illlm_ledger.ILLLMImmutableLedger`.
+
+The engine accepts a separately authenticated/loaded `nn.Module` backbone implementing `(latents, timestep, conditioning, structural_control) -> predicted_latents` and a separately loaded decoder implementing `(latents) -> output`. No weights are downloaded, invented or trained by this module. No arbitrary Python pickle checkpoints are imported here. A calling BRAINK owner runtime must load safe, version-bound checkpoints, keep provenance and license, perform policy admission and bind its current device through normal controls.
+
+Use `AuditableGenerationEngine(backbone=<loaded model>, decoder=<loaded decoder>, ledger=<resident ledger>, device="cpu", prediction_type="epsilon"|"v_prediction", latent_scale=<model-specific scale>)`. Call `execute_transaction(conditioning_sequence=..., spatial_dimensions=(B,C,H,W), seed=..., scheduler_steps=..., guidance_scale=1.0, correlation_id=<original transaction identity>)`. Guidance not equal to 1 requires a real negative conditioning tensor. Controls are passed only to the registered backbone; the backbone defines their meaning. Model/decoder state must be nonempty, finite, and unchanged before and after execution.
+
+The proof records exact weight hashes, environment, latent and output hashes, every deterministic step hash, conditioning digests, and the native IL-LLM event root. Repeating with the same CPU math path and identical environment should yield identical output hashes; deterministic equivalence across GPU kernels, Torch versions and hardware is not claimed. This is **inference with registered weights**, not a learning-promotion lane, model quality assessment, sentience assertion or proof of site/server deployment.
+
+The tests in `tests/test_auditable_generation.py` exercise real CPU Torch math and hash/ledger controls with small explicitly registered test operators; they test the transaction contract rather than a production trained diffusion model. Actual image-quality admission requires a supplied checkpoint, its exact architecture and independent visual/benchmark evaluation.
