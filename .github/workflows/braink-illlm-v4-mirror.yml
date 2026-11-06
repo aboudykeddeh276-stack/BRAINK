@@ -1,6 +1,8 @@
 name: KS BRAINK IL-LLM V4 host mirror and generation contracts
 on:
   push:
+    branches:
+      - main
     paths:
       - 'runtime/learning/v4/**'
       - 'runtime/generation/**'
@@ -20,6 +22,8 @@ on:
       - 'tests/test_auditable_generation.py'
       - '.github/workflows/braink-illlm-v4-mirror.yml'
   pull_request:
+    branches:
+      - main
     paths:
       - 'runtime/learning/v4/**'
       - 'runtime/generation/**'
