@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "braink-runtime"
+version = "1.0.0"
+description = "BrAInK runtime proof package: deterministic linguistic core, canonical identity, hash-chained ledger, bounded signer, raw DNS transport and restart recovery."
+readme = "README.md"
+requires-python = ">=3.9"
+authors = [{ name = "KEDDEH / BRAINK" }]
+keywords = ["braink", "ledger", "provenance", "dns", "runtime", "determinism"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Operating System :: OS Independent",
+    "Intended Audience :: Developers",
+    "Topic :: Security",
+]
+dependencies = []
+
+[project.optional-dependencies]
+test = ["pytest>=7.0"]
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "-ra"
