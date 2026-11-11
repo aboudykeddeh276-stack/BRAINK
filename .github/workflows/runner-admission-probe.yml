@@ -1,0 +1,23 @@
+name: KEDDEH Actions runner admission probe
+
+on:
+  push:
+    branches:
+      - diagnostics/gha-runner-probe-20261111
+
+permissions:
+  contents: read
+
+jobs:
+  runner-probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Confirm hosted runner allocation
+        shell: bash
+        run: |
+          echo "RUNNER_ADMISSION_PROBE=PASS"
+          echo "RUNNER_NAME=${RUNNER_NAME}"
+          echo "RUNNER_OS=${RUNNER_OS}"
+          echo "RUNNER_ARCH=${RUNNER_ARCH}"
+          date -u +"%Y-%m-%dT%H:%M:%SZ"
