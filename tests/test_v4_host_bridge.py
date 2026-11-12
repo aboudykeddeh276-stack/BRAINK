@@ -196,3 +196,24 @@ def test_idempotency_conflict_fails_closed_without_extra_event(tmp_path):
         ledger.append(**{**args, "payload": {"candidate_hash": "b" * 64, "sequence": 1}})
     assert ledger.verify()["events"] == 1
     assert ledger.head() == first.event_root
+
+
+
+def test_idempotency_replay_survives_ledger_reopen(tmp_path):
+    path = tmp_path / "illlm-v4.jsonl"
+    args = dict(source_uri="worker://mirror",
+                source_level="CONCURRENT_REAL_PROCESS", semantic_type="LEARNING_CANDIDATE",
+                correlation_id="same-source-receipt",
+                payload={"candidate_hash": "a" * 64, "sequence": 1},
+                lexical_state={"polygon": "stable"},
+                illlm_state={"candidate": "a" * 64},
+                idempotency_payload_field="candidate_hash")
+    first = ILLLMImmutableLedger(path).append(**args)
+    reopened = ILLLMImmutableLedger(path)
+    replay = reopened.append(**args)
+    assert replay.event_root == first.event_root
+    assert reopened.verify()["events"] == 1
+    with pytest.raises(ValueError, match="CORRELATION_REPLAY_CONFLICT"):
+        reopened.append(**{**args, "payload": {"candidate_hash": "b" * 64, "sequence": 1}})
+    assert reopened.verify()["events"] == 1
+    assert reopened.head() == first.event_root
