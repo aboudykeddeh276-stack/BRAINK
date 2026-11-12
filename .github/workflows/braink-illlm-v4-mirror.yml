@@ -24,6 +24,7 @@ on:
   pull_request:
     branches:
       - main
+      - integration/ks-braink-illlm-v4-observer-mirror-20261027
     paths:
       - 'runtime/learning/v4/**'
       - 'runtime/generation/**'
