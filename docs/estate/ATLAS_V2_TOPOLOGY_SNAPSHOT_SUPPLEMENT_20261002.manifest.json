@@ -1,0 +1,60 @@
+{
+  "schema": "KS-BRAINK-IL-LLM/topology-snapshot-supplement-manifest/1",
+  "architect": "A. Keddeh",
+  "canonicalArchitecture": "KS-BRAINK-IL-LLM",
+  "snapshotDate": "2026-10-02",
+  "source": {
+    "name": "KEDDEH_FULL_TOPOLOGY_TRAVERSAL_2026-10-02.xlsx",
+    "bytes": 40535,
+    "sha256": "1d0873c355ff764ea896fb69d0ad39d0eb93bccf41ccb464078cd9b49496b050"
+  },
+  "crossCheckedSources": [
+    {
+      "name": "KEDDEH_AGENT_USABLE_ESTATE_INDEX_FULL.xlsx",
+      "bytes": 70247,
+      "sha256": "bb62aaec30ed0a1dd659ed670e5dafed0005723032ea64a401fd2fa001e99c3a"
+    },
+    {
+      "name": "KEX_CARRIER_REGISTRY_76x95_RECONCILIATION.xlsx",
+      "bytes": 54588,
+      "sha256": "edc774fa78d9d8f7039b6aa440a5dc98414a91593be4eb72551233407c803076"
+    }
+  ],
+  "supplement": {
+    "uncompressedBytes": 125521,
+    "uncompressedSha256": "1e61f1441e07365dbc978807e43479e8d5ba1cd63590e0795d7b08e8fc0e1fd4",
+    "compressedBytes": 16537,
+    "compressedSha256": "84d91189add82b73babdce68fd9a1b71bd4a875fea394b981a1ccd434206de82"
+  },
+  "counts": {
+    "r5Identities": 33,
+    "p11LogicalObjects": 76,
+    "p11UniqueCarriers": 95,
+    "multiCarrierObjects": 19,
+    "relations": 32,
+    "mechanicsRecords": 14,
+    "mechanicsSheetRowsIncludingHeader": 15,
+    "evidenceBoundaries": 10,
+    "defects": 2,
+    "r5CurrentSnapshotIdentities": 33
+  },
+  "carrierInventoryCanonicalRowSha256": "69578e7e1eafe489534f6b8802d740aeb673446cc3f9fa42dd70ca730b1bc159",
+  "crossSnapshotCarrierRowsIdentical": 95,
+  "identityVersionDivergence": {
+    "current": "braink://volume/r5/system-orchestrator",
+    "snapshot20261002": "braink://volume/r5/system-orchestrator/cross-work-r1",
+    "equivalenceOrAliasInferred": false
+  },
+  "rootCarrierAccounting": {
+    "htmlCarrierBytes": 3741393,
+    "jsonArchitectureRootCarrierBytes": 7039,
+    "logicalObjectTotalBytes": 3748432
+  },
+  "claimBoundaries": [
+    "Source snapshot only; not a current runtime receipt.",
+    "Registry agreement is not proof that every carrier byte was opened in this run.",
+    "R5 and P11 are distinct registry layers.",
+    "The R5 spelling divergence is preserved without inferred equivalence.",
+    "Mechanics and evidence-boundary rows are source declarations/qualifications, not proof of current external execution."
+  ]
+}
