@@ -1,0 +1,130 @@
+{
+  "schema": "ks-braink.r5-source-rehydration.r58",
+  "architect": "A. Keddeh",
+  "architecture": "KS-BRAINK-IL-LLM",
+  "date": "2026-11-15",
+  "r5_manifest": {
+    "file": "BRAINK_R5_SYSTEM_MANIFEST.json",
+    "bytes": 32546,
+    "sha256": "a7b98529f3356b260ed9fa31834598a54fff171d2db069ade88c22931be3effc",
+    "library_file_id": "file_0000000079a081faa6a60273ee5d1c61"
+  },
+  "cross_work_manifest": {
+    "file": "BRAINK_R5_SYSTEM_MANIFEST_CROSS_WORK_R1.json",
+    "bytes": 39430,
+    "sha256": "5d867ae7d7f517d6cdde14c138e67e90571062521e5d912fd8812165da1ce985",
+    "library_file_id": "file_00000000d7ac81fa92a196ce5a814202"
+  },
+  "v28_carrier": {
+    "file": "KEDDEH_UNIFIED_REFERENTIAL_VOLUME_v28_MACHINE_CONSTRUCTOR_V8.html",
+    "identity": "volume://keddeh/braink/root",
+    "bytes": 6444645,
+    "sha256": "abe6bd9647ec79cb5b820ec7be945a8d01ffa327cec3c1575f336c92672271ba",
+    "library_file_id": "file_00000000aba081faafce6a3793c961f3",
+    "boundary": "Separate root-machine constructor carrier; not the R5 system-orchestrator parent."
+  },
+  "recovered_surfaces": [
+    {
+      "file": "ClaimPath_Shippable_Contents_v1.html",
+      "identity": "app://claimpath",
+      "bytes": 18614,
+      "sha256": "6dbbee10334838c85d0f56ad10a0ff859fd5a35fce433cbb42cc4af0eda86a45",
+      "recovery": "Decoded payloads.claimpath from v28 carrier; exact byte/hash match to R5 manifest."
+    },
+    {
+      "file": "BRAINK_IL_LLM_SOVEREIGN_VOLUME.html",
+      "identity": "volume://braink/il-llm/sovereign-v1",
+      "bytes": 31873,
+      "sha256": "8630d974d8705729107ea5cd232e243fe4b6d990088ea2e7440fa6a223d511a8",
+      "library_file_id": "file_00000000dad081faa5d7f292e3343198"
+    },
+    {
+      "file": "index(1).html",
+      "identity": "os://keddeh/hybrid",
+      "bytes": 5410,
+      "sha256": "5bcda013f14a47330e963b232167e1a3fc237e8668e17aa1e379d33e645b7c9d",
+      "recovery": "Decoded payloads.hybrid_os_shell from v28 carrier; exact byte/hash match to R5 manifest. Manifest records DEPENDENCY_INCOMPLETE; companion styles.css/app.js are not resident in this artifact."
+    },
+    {
+      "file": "KEX_SELF_HOSTED_WORKBOOK_OS_V7_4_NETWORK_WIRED_FULL_POPULATION_PATCH.xlsx",
+      "identity": "workbook://workbook_os_v7_4",
+      "bytes": 444892,
+      "sha256": "190feb0c5fdca49120a711ad3b77aa7eaf96ffcf9c9ab41dbe048c1aeacbd387",
+      "library_file_id": "file_000000004d2871fa95187572b2ddb544",
+      "sheet_count": 134
+    },
+    {
+      "file": "KEX_V7_BOOLEAN_GRAPH_ENGINE_WORKBOOK.xlsx",
+      "identity": "workbook://boolean_graph_v7",
+      "bytes": 271865,
+      "sha256": "2b7ef7e659dfd7fd416a060fe840c5a1cae8223add66e610a8e951507730f28e",
+      "library_file_id": "file_00000000ca60820ba6eef5eb37f09888",
+      "sheet_count": 76
+    },
+    {
+      "file": "BRAINK_IL_LLM_KEX_V11_ENGINEERING_CONTROL_PLANE.html",
+      "identity": "control://braink/illlm-kex/v11",
+      "bytes": 6337343,
+      "sha256": "484f05f39c487b7573404c21a7f024c764e41812781e80c2929304e76deb2965",
+      "library_file_id": "file_0000000072a881fa9540c358fe6d151a"
+    },
+    {
+      "file": "KEDDEH_RESIDENT_ENGINEERING_CORPUS_PROJECTION_v3_SERVICE_LAYERS.html",
+      "identity": "projection://keddeh/resident-engineering-corpus/v3",
+      "bytes": 4023659,
+      "sha256": "254f466c559c29b8814bb434724abbebd20bfcdf54c7af143ee74fe9c098a09b",
+      "library_file_id": "file_000000004584820bacd09aea17d2a75b"
+    }
+  ],
+  "verification": {
+    "command": "python3 -m unittest -v test_r58_source_rehydration",
+    "local": {
+      "passed": 9,
+      "failed": 0,
+      "exit_code": 0,
+      "pid": 650,
+      "heartbeat": null
+    },
+    "portable_bundle": {
+      "passed": 9,
+      "failed": 0,
+      "exit_code": 0,
+      "pid": 718,
+      "heartbeat": null
+    },
+    "test_sha256": "0cc051c1a79e22672fb0109274e0ef1758d5b2b0d7ef9f838e6a40f0c63710b0",
+    "portable_test_output_sha256": "7363c6f3613cde57eca5c3f77202e75b67fc3a5ef25b26033f878c7a81f0d8b4"
+  },
+  "cumulative": {
+    "r56_prior_verified": 15,
+    "r57_verified": 8,
+    "r58_newly_verified": 7,
+    "verified_file_backed_surfaces": 30,
+    "declared_file_backed_surfaces": 30,
+    "remaining_unlocated_declared_surfaces": 0
+  },
+  "unresolved": {
+    "identity": "braink://volume/r5/system-orchestrator",
+    "expected_sha256": "9eb1eb8cead2b5f4d941dde024b5f7bbad46f1bdc2ff2e948fb190b841f16ede",
+    "source_materialized": false,
+    "status": "PARENT_SOURCE_NOT_MATERIALIZED"
+  },
+  "retained_failure": {
+    "command": "python3 -m unittest -v test_r57_source_rehydration",
+    "exit_code": 5,
+    "tests_run": 0,
+    "cause": "FileNotFoundError: /mnt/data/ks-braink-source-recovery/BRAINK_R5_SYSTEM_MANIFEST.json",
+    "disposition": "Manifest subsequently materialized. This was a missing local fixture path; the remaining R57 fixture set was not fully restored, so the historical 15/15 result is not claimed as freshly reproduced."
+  },
+  "bundle": {
+    "file": "R58_SOURCE_REHYDRATION_BUNDLE.zip",
+    "bytes": 6873378,
+    "sha256": "5866eee9f0cbb02b0e6ce9c801a0bcdc962631ee2e9748960ab77e56621751c0"
+  },
+  "boundaries": [
+    "30/30 counts only the R5 manifest's 30 file-backed implementation surfaces; it does not mean all logical roots or runtime mechanics are executed.",
+    "The two extracted payloads were byte-matched against the R5 manifest; the v28 root-machine carrier is not the R5 parent.",
+    "No Chromium/v86 boot, external node, independent quorum, trained-weight generation or production deployment is established.",
+    "The v6.0 base archive and direct Google Drive source read remain unavailable in this connector session."
+  ]
+}
