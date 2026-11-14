@@ -1,0 +1,102 @@
+{
+  "schema": "KS-BRAINK-IL-LLM/estate-atlas-v2-source-manifest/1",
+  "architect": "A. Keddeh",
+  "canonicalArchitecture": "KS-BRAINK-IL-LLM",
+  "version": "2.0.0-derived-inventory",
+  "status": "REVIEWABLE_DERIVED_INVENTORY_NOT_DEPLOYMENT",
+  "sourceInputs": [
+    {
+      "name": "KEDDEH_AGENT_USABLE_ESTATE_INDEX_FULL.xlsx",
+      "bytes": 70247,
+      "sha256": "bb62aaec30ed0a1dd659ed670e5dafed0005723032ea64a401fd2fa001e99c3a"
+    },
+    {
+      "name": "KEDDEH_Estate_Implementation_Surface_Atlas_FULL.html",
+      "bytes": 22245,
+      "sha256": "cc19f4794e0899993fef3ed35b4f244b6e1a6a87d127cb7acddbbedae53e1b6d"
+    }
+  ],
+  "generatedArtifacts": [
+    {
+      "path": "docs/estate/KEDDEH_Estate_Implementation_Surface_Atlas_FULL_v2.html",
+      "bytes": 228563,
+      "sha256": "8c7e719c1a6845cd1087c01126089b628d33bdf59f92f9cc384c37b1da77f6cd"
+    },
+    {
+      "path": "docs/estate/KEDDEH_Estate_Implementation_Surface_Atlas_FULL_v2.json",
+      "bytes": 327215,
+      "sha256": "ee772d6e4ab8625ec238c60e6bad4c23bd19ee4ab180efd07747cb17d50a3edf"
+    },
+    {
+      "path": "docs/estate/README.md",
+      "bytes": 1962,
+      "sha256": "b97c293fecd6b5f473a2902b9cff6558b847a39d3cd4d9925a59f688032b7084"
+    },
+    {
+      "path": "tests/test_estate_atlas_v2.py",
+      "bytes": 3999,
+      "sha256": "aaf8fbb479d3941430e05798b43b813b6f244cfffe69be74f6500c2fca0a9df6"
+    },
+    {
+      "path": "docs/estate/ATLAS_V2_RECONCILIATION.md",
+      "bytes": 1570,
+      "sha256": "17a5a80b707f01e44cc5f04b94714b62f9d0b02a6192027f1e80d80bf4c35c49"
+    },
+    {
+      "path": "tests/test_estate_atlas_v2_manifest.py",
+      "bytes": 2622,
+      "sha256": "974db5bca6db38a55eab00caa832631126c23c114b775434758bd2d32583ed09"
+    }
+  ],
+  "counts": {
+    "r5Identities": 33,
+    "p11LogicalObjects": 76,
+    "r5P11Overlap": 23,
+    "r5OnlyLogicalIdentities": 10,
+    "unionLogicalIdentities": 86,
+    "uniqueCarriers": 95,
+    "rawCarrierRows": 98,
+    "duplicateCarrierRows": 3,
+    "multiCarrierLogicalObjects": 19,
+    "carrierBytesRepresented": 6630073,
+    "priorEnrichedEntriesPreserved": 12
+  },
+  "r5OnlyIdentities": [
+    "app://casepath/analytical-matter-mesh/v18",
+    "braink://volume/r4",
+    "braink://volume/r5/system-orchestrator",
+    "candidate://app/kos-bos/json-manifest-fixed",
+    "control://braink/illlm-kex/v11",
+    "projection://keddeh/resident-engineering-corpus/v3",
+    "tool://IL-LLM-HCI",
+    "tool://library-dna-governance",
+    "tool://research-fabric",
+    "tool://server-runtime"
+  ],
+  "integrityField": {
+    "sourceColumn": "Integrity",
+    "algorithm": "UNSPECIFIED",
+    "rule": "Values retained verbatim as integrityValue; no SHA-256 algorithm is inferred."
+  },
+  "verification": {
+    "atlasTestCommand": "python3 tests/test_estate_atlas_v2.py",
+    "atlasTests": 8,
+    "atlasPassed": 8,
+    "atlasFailed": 0,
+    "atlasExitCode": 0,
+    "manifestTestCommand": "python3 tests/test_estate_atlas_v2_manifest.py",
+    "manifestTests": 6,
+    "manifestPassed": 6,
+    "manifestFailed": 0,
+    "manifestExitCode": 0,
+    "javascriptCommand": "node --check <extracted-inline-script>",
+    "javascriptExitCode": 0
+  },
+  "claimBoundaries": [
+    "R5 and P11 are distinct registry layers; their union is 86 identities.",
+    "Ten R5-only identities remain logical-only and have no fabricated P11 carriers.",
+    "Carrier inventory values are metadata; this build did not materialize or execute every carrier.",
+    "Declared invocation routes are not promoted to observed mechanics.",
+    "No production host, independent quorum, live deployment, trained production weights or subjective consciousness is established."
+  ]
+}
