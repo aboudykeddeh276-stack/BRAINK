@@ -1,0 +1,14 @@
+{
+  "representation": "derived_excerpt_not_full_source",
+  "source_file": "BRAINK_R5_SYSTEM_MANIFEST_CROSS_WORK_R1.json",
+  "source_bytes": 39430,
+  "source_sha256": "5d867ae7d7f517d6cdde14c138e67e90571062521e5d912fd8812165da1ce985",
+  "identity": "braink://volume/r5/system-orchestrator/cross-work-r1",
+  "parent_system_orchestrator": {
+    "identity": "braink://volume/r5/system-orchestrator",
+    "sha256": "9eb1eb8cead2b5f4d941dde024b5f7bbad46f1bdc2ff2e948fb190b841f16ede",
+    "manifest_file": "BRAINK_R5_SYSTEM_MANIFEST.json",
+    "manifest_bytes": 32546,
+    "manifest_sha256": "a7b98529f3356b260ed9fa31834598a54fff171d2db069ade88c22931be3effc"
+  }
+}
