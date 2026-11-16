@@ -1,0 +1,11 @@
+python_pid=619
+test_bundle_contains_only_the_two_canonical_source_copies (test_r63_r5_manifest_binding.R5ManifestBindingTests.test_bundle_contains_only_the_two_canonical_source_copies) ... ok
+test_cross_work_manifest_binds_standalone_manifest_hash (test_r63_r5_manifest_binding.R5ManifestBindingTests.test_cross_work_manifest_binds_standalone_manifest_hash) ... ok
+test_manifest_surface_counts_and_descendant_identity (test_r63_r5_manifest_binding.R5ManifestBindingTests.test_manifest_surface_counts_and_descendant_identity) ... ok
+test_standalone_manifest_exact_bytes_and_identity (test_r63_r5_manifest_binding.R5ManifestBindingTests.test_standalone_manifest_exact_bytes_and_identity) ... ok
+test_standalone_manifest_preserves_r4_parent_identity (test_r63_r5_manifest_binding.R5ManifestBindingTests.test_standalone_manifest_preserves_r4_parent_identity) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.004s
+
+OK
