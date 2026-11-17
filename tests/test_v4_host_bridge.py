@@ -179,16 +179,18 @@ def test_duplicate_cross_process_mirror_receipt_is_exactly_once(tmp_path):
 
 def test_idempotency_conflict_fails_closed_without_extra_event(tmp_path):
     ledger = ILLLMImmutableLedger(tmp_path / "illlm-v4.jsonl")
-    args = dict(source_uri="braink://learning/v4/browser/same-browser-instance",
-                source_level="OBSERVER_MIRROR_ONLY", semantic_type="POLYGON_MIRROR_CANDIDATE",
+    args = dict(source_uri="test://idempotency/same-browser-instance",
+                source_level="TEST", semantic_type="IDEMPOTENCY_CONFLICT_TEST",
                 correlation_id="same-source-receipt",
                 payload={"candidate_hash": "a" * 64, "sequence": 1},
                 lexical_state={"polygon": "stable"},
                 illlm_state={"candidate": "a" * 64},
                 idempotency_payload_field="candidate_hash")
     first = ledger.append(**args)
-    second = ledger.append(**{**args, "payload": {"candidate_hash": "a" * 64, "sequence": 2}})
-    assert second.event_root == first.event_root
+    identical_replay = ledger.append(**args)
+    assert identical_replay.event_root == first.event_root
+    with pytest.raises(ValueError, match="CORRELATION_REPLAY_CONFLICT"):
+        ledger.append(**{**args, "payload": {"candidate_hash": "a" * 64, "sequence": 2}})
     with pytest.raises(ValueError, match="CORRELATION_REPLAY_CONFLICT"):
         ledger.append(**{**args, "payload": {"candidate_hash": "b" * 64, "sequence": 3}})
     assert ledger.verify()["events"] == 1
