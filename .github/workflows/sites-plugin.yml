@@ -10,6 +10,12 @@ on:
       - '.github/workflows/sites-plugin.yml'
       - 'plugins/sites/**'
       - 'owner-control/sites-runtime/**'
+      - '.github/workflows/sites-plugin.yml'
+  pull_request:
+    paths:
+      - 'plugins/sites/**'
+      - 'owner-control/sites-runtime/**'
+      - '.github/workflows/sites-plugin.yml'
   workflow_dispatch:
 jobs:
   validate:

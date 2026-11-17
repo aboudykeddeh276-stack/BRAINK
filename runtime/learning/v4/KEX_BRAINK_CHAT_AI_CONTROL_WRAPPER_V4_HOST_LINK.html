@@ -1,0 +1,481 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BRAINK Chat AI — Control Wrapper / Agentic Learning Runtime V4</title>
+<style>
+:root{color-scheme:dark;--bg:#071018;--panel:#0d1722;--panel2:#111f2d;--line:#24384c;--text:#eaf1f7;--muted:#94a8ba;--accent:#6ea8ff;--ok:#55d98b;--warn:#efbd59;--bad:#ff7683;--cyan:#55d4d0;--r:14px}
+*{box-sizing:border-box}html,body{height:100%;margin:0}body{background:radial-gradient(circle at 20% 0,#11263a 0,transparent 30%),var(--bg);color:var(--text);font:14px/1.45 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}.app{height:100%;display:grid;grid-template-rows:auto 1fr}.top{display:flex;align-items:center;gap:10px;padding:11px 16px;border-bottom:1px solid var(--line);background:rgba(7,16,24,.95);backdrop-filter:blur(14px);z-index:3}.brand{font-weight:820;letter-spacing:.05em}.badge{font:12px ui-monospace,SFMono-Regular,Menlo,monospace;border:1px solid var(--line);border-radius:999px;padding:4px 8px;color:var(--muted)}.badge.ok{color:var(--ok)}.badge.warn{color:var(--warn)}.top .actions{margin-left:auto;display:flex;gap:7px}.btn{border:1px solid var(--line);background:#122335;color:var(--text);border-radius:9px;padding:8px 11px;font-weight:650;cursor:pointer}.btn:hover{border-color:#426482}.btn.primary{background:#245f9c;border-color:#3575bd}.shell{min-height:0;display:grid;grid-template-columns:280px minmax(0,1fr) 330px}.left,.right{padding:14px;background:rgba(9,18,27,.7);overflow:auto}.left{border-right:1px solid var(--line)}.right{border-left:1px solid var(--line)}.main{min-width:0;display:grid;grid-template-rows:1fr auto;min-height:0}.chat{overflow:auto;padding:22px max(16px,5vw)}.msg{max-width:900px;margin:0 auto 18px}.msg .meta{font:11px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--muted);margin-bottom:6px}.bubble{border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;background:linear-gradient(180deg,#101e2c,#0b1721);white-space:pre-wrap}.msg.user .bubble{background:#14263a;border-color:#33506d}.msg.assistant .bubble{background:#0c1924}.msg.system .bubble{border-style:dashed;color:var(--muted)}.composer{border-top:1px solid var(--line);padding:12px max(14px,4vw);background:rgba(7,16,24,.98)}.compose{max-width:1000px;margin:auto;display:grid;grid-template-columns:1fr auto;gap:9px}.input{width:100%;min-height:50px;max-height:180px;resize:vertical;border:1px solid var(--line);background:#08131d;color:var(--text);border-radius:12px;padding:12px;font:inherit}.panel{border:1px solid var(--line);background:#0b1722;border-radius:12px;padding:12px;margin-bottom:12px}.panel h2{font-size:12px;text-transform:uppercase;letter-spacing:.1em;color:var(--cyan);margin:0 0 9px}.kv{display:grid;grid-template-columns:1fr auto;gap:6px;font-size:12px}.muted{color:var(--muted)}.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}.field{margin:8px 0}.field label{display:block;color:var(--muted);font-size:11px;margin-bottom:4px}.field input,.field select{width:100%;border:1px solid var(--line);background:#08131d;color:var(--text);border-radius:8px;padding:8px}.trace{display:grid;gap:7px}.trace-item{border-left:3px solid #345774;background:#08131d;padding:8px 9px;border-radius:6px;font-size:12px}.trace-item.pass{border-left-color:var(--ok)}.trace-item.warn{border-left-color:var(--warn)}.evidence{display:grid;gap:7px}.evi{border:1px solid var(--line);border-radius:8px;padding:8px;background:#08131d;font-size:12px}.row{display:flex;gap:7px;flex-wrap:wrap}.small{font-size:11px}.hr{height:1px;background:var(--line);margin:10px 0}.hidden{display:none!important}.status{font-weight:750}.status.ok{color:var(--ok)}.status.warn{color:var(--warn)}.status.bad{color:var(--bad)}.chips{display:flex;gap:6px;flex-wrap:wrap}.chip{border:1px solid var(--line);border-radius:999px;padding:3px 7px;font:11px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--muted)}details{border:1px solid var(--line);border-radius:9px;margin-top:8px;background:#08131d}summary{cursor:pointer;padding:8px 10px;font-weight:700}details>div{padding:0 10px 10px}.drop{border:1px dashed #36526a;padding:10px;border-radius:10px;text-align:center;color:var(--muted)}@media(max-width:1150px){.shell{grid-template-columns:230px 1fr}.right{grid-column:1/-1;border-left:0;border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.right .panel{margin:0}}@media(max-width:760px){.shell{display:block;overflow:auto}.left{display:none}.right{display:block}.main{min-height:75vh}.top{flex-wrap:wrap}.top .actions{width:100%;margin-left:0}.compose{grid-template-columns:1fr}.chat{padding:14px}.right{padding:10px}}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="top">
+  <div class="brand">BRAINK CHAT AI · CONTROL WRAPPER V4</div>
+  <span id="providerBadge" class="badge warn">MODEL: UNBOUND</span>
+  <span id="learnBadge" class="badge ok">LEARNING: ACTIVE</span>
+  <span id="corpusBadge" class="badge">CORPUS: 0</span>
+  <span id="wrapperBadge" class="badge ok">WRAPPER: LIVE</span>
+  <div class="actions"><button class="btn" id="newChat">New chat</button><button class="btn" id="exportState">Export state</button></div>
+</header>
+<div class="shell">
+<aside class="left">
+  <section class="panel">
+    <h2>Runtime</h2>
+    <div class="field"><label>Ollama endpoint</label><input id="endpoint" value="http://127.0.0.1:11434"></div>
+    <div class="field"><label>Model</label><select id="model"><option value="">Detect models</option></select></div>
+    <div class="row"><button class="btn primary" id="bindProvider">Bind Ollama</button><button class="btn" id="testProvider">Test</button></div>
+    <p class="small muted">If no model is reachable, BRAINK remains usable in deterministic corpus/retrieval mode. No model execution is claimed unless a provider receipt exists.</p>
+  </section>
+  <section class="panel">
+    <h2>Learning lane</h2>
+    <div class="drop"><input id="files" type="file" multiple accept=".txt,.md,.json,.csv,.html,.js,.py,.sh,.yaml,.yml,.xml"><div>Ingest text/code/HTML/JSON files into the local BRAINK corpus.</div></div>
+    <div class="field"><label>Teach lexicon</label><input id="lexTerm" placeholder="term"></div>
+    <div class="field"><input id="lexDef" placeholder="definition / semantic role"></div>
+    <button class="btn" id="teach">Teach</button>
+  </section>
+
+  <section class="panel">
+    <h2>BRAINK Control Wrapper</h2>
+    <div class="kv">
+      <span>Authority</span><b class="status ok">USER_AUTHORIZED_LIVE</b>
+      <span>Admission</span><b id="admissionState">R22 ACTIVE</b>
+      <span>Virtual objects</span><b id="virtualObjectCount">0</b>
+      <span>Failure ledger</span><b id="failureCount">0</b>
+      <span>Polygon epoch</span><b id="polygonEpoch">0</b>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <button class="btn" id="run100">Run 100 BRAINK growth passes</button>
+      <button class="btn" id="wrapperTest">Wrapper self-test</button>
+    </div>
+    <p class="small muted">Shared BRAINK skills are manifested through typed VM/vCPU/VirtualRAM/storage/agent/projection/execution abstractions. The wrapper owns admission, lifecycle, proof and learning state.</p>
+  </section>
+  <section class="panel">
+    <h2>Conversation controls</h2>
+    <div class="field"><label>Agent depth</label><select id="agentDepth"><option value="fast">Fast</option><option value="standard" selected>Standard</option><option value="deep">Deep</option></select></div>
+    <label class="small"><input id="learnTurns" type="checkbox" checked> Learn from completed turns</label><br>
+    <label class="small"><input id="showTrace" type="checkbox"> Show agent trace inline</label>
+  </section>
+</aside>
+<main class="main">
+  <div class="chat" id="chat"></div>
+  <div class="composer">
+    <div class="compose"><textarea id="prompt" class="input" placeholder="Ask BRAINK…  Shift+Enter for newline"></textarea><button class="btn primary" id="send">Send</button></div>
+    <div class="small muted" style="max-width:1000px;margin:6px auto 0">Query → BRAINK control wrapper → R22 admission → Story/intent → Observer state → Lexicon → Corpus retrieval → specialist agents → directional Polygon apex → bilateral return → recursive learning interrupt/re-evaluation → mirror/provenance → answer → successor state.</div>
+  </div>
+</main>
+<aside class="right">
+  <section class="panel"><h2>Current route</h2><div id="route" class="chips"></div></section>
+  <section class="panel"><h2>Agent team</h2><div id="agents" class="trace"></div></section>
+  <section class="panel"><h2>Evidence</h2><div id="evidence" class="evidence"><div class="muted small">No query evidence yet.</div></div></section>
+
+  <section class="panel"><h2>Virtualiser state</h2><div id="virtualState" class="evidence"><div class="muted small">Control wrapper initializing.</div></div></section>
+  <section class="panel"><h2>Growth</h2><div class="kv"><span>Lexicon identities</span><b id="lexCount">0</b><span>Corpus chunks</span><b id="chunkCount">0</b><span>Learned turns</span><b id="turnCount">0</b><span>Agent receipts</span><b id="receiptCount">0</b></div></section>
+
+<section class="panel" id="hostBridgePanel"><h2>BRAINK resident learning mirror</h2>
+<div class="muted small" id="host-state" role="status">OFFLINE · Browser mirror, not an external host executor</div>
+<label for="hostBrokerUrl">Resident broker address</label><input id="hostBrokerUrl" type="url" value="http://127.0.0.1:8080" autocomplete="off" spellcheck="false">
+<label for="hostAuthToken">Session access token (not saved)</label><input id="hostAuthToken" type="password" autocomplete="off" spellcheck="false" placeholder="Read from BRAINK_V4_BRIDGE_TOKEN">
+<button type="button" id="connectHostBtn">Connect authenticated mirror</button>
+<div class="muted small" id="hostBridgeReceipt">Receipts stay local until authenticated host readback.</div>
+</section>
+</aside>
+</div>
+</div>
+<script>
+(()=>{'use strict';
+const VERSION='BRAINK_CHAT_AI_AGENTIC_PLATFORM_V4_CONTROL_WRAPPER';
+const STORE='braink.chat.ai.v4';
+const seedLexicon={
+ 'BRAINK':'Regenerative augmented intelligence whose identity is carried across semantic state, lineage, runtime manifestations, proofs and successor state.',
+ 'IL-LLM':'BRAINK semantic learning architecture in which identity, definitions, relations, context, lineage and runtime use remain traversable.',
+ 'Observer-State Learning':'Recursive learning begins with observer identity O^1, observation-bearing state O^2, evaluation O^3, validation, then learned-state commit.',
+ 'Polygon Bias Learning':'A query/refinement pass across concept boundary, maths boundary, subject context and observer-state with falsifier-governed YES, TRACE or REPAIR promotion.',
+ 'Recursive Learning':'Discovery becomes learning only when it mutates active state, interrupts stale reasoning, recomputes affected branches and changes subsequent behaviour.',
+ 'LEXICON':'Identity-bearing semantic register used to resolve terms, definitions, relationships and routing state.',
+ 'LEARNING LANE':'Observation to delta to framework update to retained successor-state writeback.',
+ 'AGENT':'Bounded work identity with role, memory, task input, result output and evidence obligations.',
+ 'TEAM':'Coordinated bounded agents retaining specialist identity while sharing mission and state lineage.',
+ 'PROVENANCE':'Source, lineage and evidence relationship required to attribute a learned or executed state.',
+ 'RELEASE':'Promotion gate separating declared/learned state from operationally evidenced state.',
+ 'QUERY':'A user-authored request that becomes a story/intent object, lexical resolution target, retrieval problem and agentic work packet.',
+ 'BRAINK CONTROL WRAPPER':'Authoritative control plane that maps the shared BRAINK skill fabric into typed virtual manifestations and owns admission, lifecycle, evidence, proof, learning and successor-state routing.',
+ 'VIRTUALISER':'BRAINK capability manifestation layer that reuses shared skills through VM, vCPU, VirtualRAM, sparse-storage, agent-workspace, projection and execution-lane abstractions under the BRAINK control wrapper.',
+ 'VIRT-MANAGER':'Virtual execution/control-management abstraction under the BRAINK control wrapper; it does not define the underlying BRAINK skill fabric.',
+ 'VIRT MEMORY':'Virtual address-space or mapped-memory extent. It must remain distinct from resident physical memory and from BRAINK VirtualRAM backing.',
+ 'VIRTUALRAM':'BRAINK sparse addressable virtual-memory backing mechanism with configured, allocated and physical-materialisation accounting.',
+ 'R22 ADMISSION':'Mandatory pre-action admissibility gate. No wrapper-controlled operation executes until definitions, authority, evidence, governance and required mirror conditions are satisfied.',
+ 'TO':'Directional relation expressing movement or mapping from an origin/start identity toward a destination/target identity.',
+ 'FROM':'Directional relation identifying the source/origin of a transition or mapping.',
+ 'IS':'Identity/assertion relation connecting a subject to a definition, class or state.',
+ 'FOR':'Purpose/beneficiary relation connecting an object/action to its intended use, recipient or governing function.',
+ 'OLLAMA':'Local model runtime/provider interface that can expose model manifests and inference through an HTTP API; model execution remains distinct from semantic ingestion.'
+};
+const seedCorpus=[
+ {id:'L1-agentic',title:'Agentic service architecture',text:'BRAINK uses persistent specialist Agent(1) identities with separate memory, task queue and result channels. Requirements, architecture, coding, debugging, testing, lexicon, composition, cognition, provenance, workflow, network and release are bounded services coordinated through shared mission lineage.'},
+ {id:'L1-regenerative',title:'Regenerative learning',text:'Regeneration is retained state transformation: Observe -> Delta -> Adapt -> Generate or Repair -> Prove -> Successor State. Learning writes back classified deltas instead of treating responses as transient output.'},
+ {id:'L1-story',title:'Story-First agentic path',text:'Story -> Lineage -> Capability -> Agent lanes -> Experiment -> Evidence -> Promotion. Existing capability should be resolved and reused or adapted before deriving replacement implementations.'},
+ {id:'L1-team',title:'Asset-bound workforce',text:'Per-asset teams may bind operator, verifier, reporter, scope manager, evidence manager, integration super-agent and adversarial super-agent roles. Logical bindings do not by themselves prove live independent processes.'},
+ {id:'L1-kex',title:'KEX recovery',text:'KEX decode failure is not automatically state corruption. Historical packets should be classified by topology, recursion depth, seed class, source pointer and proof-critical reconstructability before corruption is assigned.'},
+ {id:'L1-runtime',title:'Runtime authority',text:'Projection, runtime execution and external authority are distinct. A UI or local state cannot promote an external operational claim without a corresponding execution/readback receipt.'}
+];
+const defaultState=()=>({version:VERSION,createdAt:new Date().toISOString(),provider:{endpoint:'http://127.0.0.1:11434',model:'',bound:false,lastReceipt:null},lexicon:{...seedLexicon},corpus:[...seedCorpus],turns:[],receipts:[],feedback:[],polygonState:{iteration:0,lastApex:null,lastSuccessor:null,history:[]},settings:{agentDepth:'standard',learnTurns:true}});
+let S=load();let busy=false;let currentTrace=[],currentEvidence=[],currentRoute=[];
+let latestV4Observer=null;
+function load(){try{const x=JSON.parse(localStorage.getItem(STORE));return x&&x.version?Object.assign(defaultState(),x,{lexicon:{...seedLexicon,...(x.lexicon||{})},corpus:[...seedCorpus,...(x.corpus||[]).filter(z=>!seedCorpus.some(s=>s.id===z.id))]}):defaultState()}catch{return defaultState()}}
+function save(){localStorage.setItem(STORE,JSON.stringify(S));renderStats()}
+const $=q=>document.querySelector(q);const esc=s=>String(s??'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+function hash(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return ('00000000'+(h>>>0).toString(16)).slice(-8).toUpperCase()}
+function receipt(type,status,detail={}){const r={id:`R-${Date.now()}-${hash(type+JSON.stringify(detail))}`,type,status,at:new Date().toISOString(),...detail};S.receipts.push(r);save();hostMirrorOnReceipt(r);return r}
+function addMsg(role,text,extra={}){const el=document.createElement('div');el.className=`msg ${role}`;el.innerHTML=`<div class="meta">${esc(role.toUpperCase())}${extra.label?' · '+esc(extra.label):''}</div><div class="bubble">${esc(text)}</div>`;if(extra.trace&&$('#showTrace').checked){const d=document.createElement('details');d.innerHTML=`<summary>Agent trace</summary><div class="mono small">${esc(JSON.stringify(extra.trace,null,2))}</div>`;el.appendChild(d)}$('#chat').appendChild(el);$('#chat').scrollTop=$('#chat').scrollHeight;return el}
+function renderStats(){$('#lexCount').textContent=Object.keys(S.lexicon).length;$('#chunkCount').textContent=S.corpus.length;$('#turnCount').textContent=S.turns.length;$('#receiptCount').textContent=S.receipts.length;$('#corpusBadge').textContent=`CORPUS: ${S.corpus.length}`;$('#providerBadge').textContent=S.provider.bound?`MODEL: ${S.provider.model||'BOUND'}`:'MODEL: UNBOUND';$('#providerBadge').className='badge '+(S.provider.bound?'ok':'warn')}
+function renderSide(){ $('#route').innerHTML=currentRoute.map(x=>`<span class="chip">${esc(x)}</span>`).join('')||'<span class="muted small">No active query.</span>';$('#agents').innerHTML=currentTrace.map(x=>`<div class="trace-item ${x.status==='PASS'?'pass':x.status==='WARN'?'warn':''}"><b>${esc(x.agent)}</b><br>${esc(x.summary||x.status)}</div>`).join('')||'<div class="muted small">No agent activity yet.</div>';$('#evidence').innerHTML=currentEvidence.map((x,i)=>`<div class="evi"><b>${i+1}. ${esc(x.title)}</b><div class="muted">${esc(x.text.slice(0,420))}${x.text.length>420?'…':''}</div><div class="mono small">score=${Number(x.score||0).toFixed(3)} · ${esc(x.id)}</div></div>`).join('')||'<div class="muted small">No query evidence yet.</div>' }
+function words(s){return String(s).toLowerCase().match(/[a-z0-9_\-]+/g)||[]}
+function intent(q){const w=new Set(words(q));let kind='general';if([...w].some(x=>['code','coding','debug','build','implement','function','javascript','python','html'].includes(x)))kind='coding';else if([...w].some(x=>['research','analyse','analyze','compare','why','explain','evidence'].includes(x)))kind='research';else if([...w].some(x=>['ingest','learn','teach','lexicon','definition'].includes(x)))kind='learning';else if([...w].some(x=>['agent','team','workflow','service'].includes(x)))kind='agentic';return {kind,query:q,hash:hash(q),at:new Date().toISOString()}}
+function lexResolve(q){const uq=q.toUpperCase();const hits=[];for(const [term,def] of Object.entries(S.lexicon)){if(uq.includes(term.toUpperCase())||words(term).some(t=>words(q).includes(t)))hits.push({term,def})}return hits.slice(0,20)}
+function scoreChunk(q,c,lex){const qw=words(q);const tw=words(c.title+' '+c.text);const tf=new Map();tw.forEach(x=>tf.set(x,(tf.get(x)||0)+1));let s=0;for(const w of qw)s+=(tf.get(w)||0)/(1+Math.log(1+tw.length));for(const h of lex){const ts=words(h.term);if(ts.some(t=>tw.includes(t)))s+=.35}if(c.text.toLowerCase().includes(q.toLowerCase()))s+=4;return s}
+function retrieve(q,lex,k=6){return S.corpus.map(c=>({...c,score:scoreChunk(q,c,lex)})).filter(x=>x.score>0).sort((a,b)=>b.score-a.score).slice(0,k)}
+function selectedAgents(i){const base=['Lexicon Agent','Retrieval Agent','Cognition Agent','Provenance Agent'];if(i.kind==='coding')base.splice(2,0,'Architecture Agent','Coding Agent','Testing Agent');if(i.kind==='agentic')base.splice(2,0,'Supervisor Agent','Workflow Agent');if(i.kind==='research')base.splice(2,0,'Research Falsifier','Independent Verifier');if(i.kind==='learning')base.splice(2,0,'Composition Agent','Adaptation Agent');if($('#agentDepth').value==='deep')base.push('Adversarial Super-Agent','Release Agent');else if($('#agentDepth').value==='standard')base.push('Verifier Agent');return [...new Set(base)]}
+function deterministicAgent(agent,ctx){if(agent==='Lexicon Agent')return `Resolved ${ctx.lex.length} lexical identities: ${ctx.lex.slice(0,8).map(x=>x.term).join(', ')||'none'}.`;if(agent==='Retrieval Agent')return `Retrieved ${ctx.ev.length} source-bound corpus chunks ranked against the query.`;if(agent.includes('Coding'))return `Coding lane: preserve existing architecture; derive the smallest implementation consistent with the retrieved contracts; separate executable proof from source declaration.`;if(agent.includes('Architecture'))return `Architecture lane: map the query onto existing BRAINK services and preserve semantic/state continuity across boundaries.`;if(agent.includes('Provenance'))return `Provenance lane: retain query hash ${ctx.intent.hash}, source chunk identities and provider receipt state.`;if(agent.includes('Verifier')||agent.includes('Falsifier')||agent.includes('Adversarial'))return `Verification lane: reject unsupported promotion, contradictory authority claims and conclusions not attributable to retrieved state.`;if(agent.includes('Workflow')||agent.includes('Supervisor'))return `Team lane: dispatch bounded specialists under one shared query lineage and reconcile their results without merging specialist ancestry.`;if(agent.includes('Composition'))return `Composition lane: preserve relation semantics and connect resolved identities into query-specific structure.`;if(agent.includes('Adaptation'))return `Adaptation lane: classify new observations as learning deltas before writeback.`;return `Cognition lane: reason across lexical definitions, retrieved state and agent outputs while preserving query intent.`}
+async function ollamaChat(messages,opts={}){const ep=(S.provider.endpoint||'').replace(/\/$/,'');if(!ep||!S.provider.model)throw new Error('provider unbound');const res=await fetch(ep+'/api/chat',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({model:S.provider.model,messages,stream:false,options:{temperature:opts.temperature??0.2}})});if(!res.ok)throw new Error(`Ollama HTTP ${res.status}`);const j=await res.json();const r=receipt('OLLAMA_CHAT','PASS',{model:S.provider.model,queryRoot:opts.queryRoot,responseBytes:JSON.stringify(j).length});S.provider.lastReceipt=r;S.provider.bound=true;save();return j.message?.content||''}
+async function runAgents(q,intentObj,lex,ev){const agents=selectedAgents(intentObj);const ctx={q,intent:intentObj,lex,ev};currentTrace=[];renderSide();const useModel=S.provider.bound&&S.provider.model;const maxModel=$('#agentDepth').value==='deep'?5:$('#agentDepth').value==='standard'?3:1;let used=0;const outputs=[];for(const agent of agents){let out;try{if(useModel&&used<maxModel&&['Cognition Agent','Coding Agent','Architecture Agent','Research Falsifier','Verifier Agent','Adversarial Super-Agent'].includes(agent)){used++;const context=ev.map((x,i)=>`[${i+1}] ${x.title}: ${x.text}`).join('\n');const defs=lex.map(x=>`${x.term}: ${x.def}`).join('\n');out=await ollamaChat([{role:'system',content:`You are the ${agent} service inside BRAINK. Preserve source identity, relation semantics, evidence boundaries and the user query. Do not claim external execution without receipt. Return a concise specialist result only.`},{role:'user',content:`QUERY:\n${q}\n\nLEXICON:\n${defs}\n\nRETRIEVED STATE:\n${context}`}],{queryRoot:intentObj.hash,temperature:0.1});}else out=deterministicAgent(agent,ctx);currentTrace.push({agent,status:'PASS',summary:out.slice(0,190)});outputs.push({agent,out});receipt('AGENT_RESULT','PASS',{agent,queryRoot:intentObj.hash,modelBacked:useModel&&used<=maxModel});renderSide()}catch(e){out=deterministicAgent(agent,ctx);currentTrace.push({agent,status:'WARN',summary:`Provider path failed; deterministic lane used. ${e.message}`});outputs.push({agent,out});receipt('AGENT_RESULT','FALLBACK',{agent,queryRoot:intentObj.hash,error:e.message});S.provider.bound=false;renderStats();renderSide()}}return outputs}
+function evidenceContext(ev){return ev.map((x,i)=>`[${i+1}] ${x.title}\n${x.text}`).join('\n\n')}
+async function synthesize(q,intentObj,lex,ev,agentOutputs){const agentText=agentOutputs.map(x=>`${x.agent}: ${x.out}`).join('\n');if(S.provider.bound&&S.provider.model){try{return await ollamaChat([{role:'system',content:`You are BRAINK Chat AI. Answer the user directly. Use the IL-LLM lexical definitions, retrieved corpus state and bounded specialist outputs below. Preserve end-to-end semantic continuity. Treat evidence as property-scoped. Do not expose internal machinery unless useful. Do not claim external actions without receipts. If evidence is incomplete, state the exact boundary. This is a chat answer, not an architecture report.`},{role:'user',content:`USER QUERY:\n${q}\n\nLEXICON RESOLUTION:\n${lex.map(x=>x.term+': '+x.def).join('\n')}\n\nCORPUS EVIDENCE:\n${evidenceContext(ev)}\n\nSPECIALIST RESULTS:\n${agentText}`}],{queryRoot:intentObj.hash,temperature:0.2})}catch(e){S.provider.bound=false;receipt('FINAL_SYNTHESIS','FALLBACK',{queryRoot:intentObj.hash,error:e.message});renderStats()}}
+ const top=ev.slice(0,4);if(!top.length)return `I do not yet have source-bound corpus material for that query. I resolved ${lex.length} lexicon identities and retained the query as learning state, but I will not fabricate an answer from an empty evidence set.`;
+ let ans=`BRAINK resolved this as a ${intentObj.kind} query. `;ans+=top.map(x=>x.text).join('\n\n');ans+=`\n\nEvidence boundary: this answer is generated from the local BRAINK lexicon/corpus lane because no model-provider receipt was available.`;return ans}
+function observerState(q,intentObj,lex,ev,cycle=0){
+ const accessible=S.corpus.map(x=>x.id);const observed=ev.map(x=>x.id);const unobserved=accessible.filter(x=>!observed.includes(x));
+ const frame={observer:`BRAINK:${VERSION}`,wholeIdentity:`1_BRAINK`,epoch:S.turns.length+cycle+1,queryRoot:intentObj.hash,environment:{accessibleCount:accessible.length,observed,unobservedCount:unobserved.length,inferred:[]},observation:{query:q,intent:intentObj.kind,lexicon:lex.map(x=>x.term)},stateFormula:'O_AS_OBS=1_O⊗S_O(E)',at:new Date().toISOString()};latestV4Observer=frame;return frame;
+}
+function polygonSectorCandidates(q,answer,lex,ev){
+ const text=(q+' '+answer+' '+lex.map(x=>x.term+' '+x.def).join(' ')+' '+ev.map(x=>x.title+' '+x.text).join(' ')).toLowerCase();
+ const sectors=[
+  ['triangle seed',/(three|triangle|triang|minimum|primitive|atom)/,'YES','anchor must be declared'],
+  ['angle growth',/(angle|growth|increase|recurr|iterate|cycle)/,'YES','growth rule must be stated'],
+  ['boundary return',/(return|closure|closed|complete|finish|backlink)/,'YES','path must actually close'],
+  ['source/projection',/(source|projection|manifest|copy|view|output)/,'TRACE','source and projection must remain distinct'],
+  ['mirror transform',/(mirror|dual|inverse|reverse|bilateral)/,'TRACE','provenance must survive transformation'],
+  ['field fill',/(mesh|field|coverage|environment|space)/,'YES','gaps cannot be silently classified as nothing'],
+  ['circle bridge',/(circle|curve|boundary refinement|approx)/,'TRACE','derived route must not be promoted as root-only'],
+  ['topology',/(topolog|node|edge|graph|relation|route|chain)/,'TRACE','surface/environment context is required'],
+  ['factor signature',/(factor|square|pythag|ratio|scale|unit)/,'YES','units/scales must remain typed'],
+  ['pentagon bias',/(golden|phi|recursive proportion|proportion|bias)/,'TRACE','ratio requires constructive route'],
+  ['cyclic boundary',/(mod|cycle|period|loop|repeat|recursive|iteration)/,'REPAIR','cycle label must not collapse to absence'],
+  ['network polygon',/(network|agent|team|service|workflow|link|sector)/,'TRACE','edge/relation meaning must be retained']
+ ];
+ let hits=sectors.filter(x=>x[1].test(text)).map(([sector,_,promote,falsifier])=>({sector,promote,falsifier}));
+ if(!hits.length)hits=[{sector:'subject-context',promote:ev.length?'TRACE':'REPAIR',falsifier:ev.length?'context must remain source-bound':'no source-bound observation available'}];
+ return hits;
+}
+function choosePolygonApex(hits,q,cycle=0){
+ if(!hits.length)return null;
+ const prior=S.polygonState?.lastApex;
+ const ql=q.toLowerCase();
+ const explicit=hits.find(h=>ql.includes(h.sector));
+ if(explicit&&cycle===0)return explicit.sector;
+ let idx=prior?hits.findIndex(h=>h.sector===prior):-1;
+ idx=(idx+1+cycle)%hits.length;
+ return hits[idx].sector;
+}
+function bilateralPolygonGrowth(hits,apex,obs,cycle=0){
+ const source=hits.find(h=>h.sector===apex)||hits[0];
+ const targets=hits.filter(h=>h.sector!==source.sector);
+ const interactions=targets.map((target,i)=>{
+  const promote=source.promote==='REPAIR'||target.promote==='REPAIR'?'REPAIR':(source.promote==='TRACE'||target.promote==='TRACE'?'TRACE':'YES');
+  return {
+   edge:`${source.sector}↔${target.sector}`,
+   bias_source:source.sector,
+   target:target.sector,
+   forward:`${source.sector} → ${target.sector}: apply source-sector constraints to the target without replacing target identity`,
+   return:`${target.sector} → ${source.sector}: return target-derived constraints/evidence to the source while preserving both ancestries`,
+   promote,
+   falsifier:`forward fails if ${source.falsifier}; return fails if ${target.falsifier}`,
+   observer_state:obs.stateFormula,
+   ordinal:i+1
+  };
+ });
+ const successor=`①_${(S.polygonState?.iteration||0)+1}`;
+ const compounded={
+  successor,
+  apex:source.sector,
+  relation_count:interactions.length,
+  retained_sides:hits.map(h=>h.sector),
+  rule:'apex one sector against every other side; preserve directional forward and bilateral return; feed compounded state back as the next observed object'
+ };
+ return {source,interactions,compounded};
+}
+function polygonBiasPass(q,answer,obs,lex,ev,cycle=0){
+ const hits=polygonSectorCandidates(q,answer,lex,ev);
+ const apex=choosePolygonApex(hits,q,cycle);
+ const growth=bilateralPolygonGrowth(hits,apex,obs,cycle);
+ return {
+  dimensions:{concept_boundary:lex.map(x=>x.term),maths_boundary:hits.map(x=>x.sector),subject_context:intent(q).kind,observer_state:obs.stateFormula},
+  hits,apex,growth,evidenceCount:ev.length,
+  method:'DIRECTIONAL_BILATERAL_APEX_POLYGON_GROWTH'
+ };
+}
+function classifyDelta(prev,next){
+ const deltas=[];
+ if(next.lexicon.length>prev.lexicon.length)deltas.push({type:'LEXICON_EXPANSION',material:true});
+ if(next.evidence.length>prev.evidence.length)deltas.push({type:'EVIDENCE_EXPANSION',material:true});
+ const repair=next.polygon.hits.some(x=>x.promote==='REPAIR');if(repair)deltas.push({type:'POLYGON_REPAIR_REQUIRED',material:true});
+ if(next.providerReceipt&&next.providerReceipt!==prev.providerReceipt)deltas.push({type:'PROVIDER_OBSERVATION',material:true});
+ if(next.polygon?.growth?.compounded?.successor&&next.polygon.growth.compounded.successor!==prev.polygon?.growth?.compounded?.successor)deltas.push({type:'BILATERAL_POLYGON_SUCCESSOR',material:true});
+ if(!deltas.length)deltas.push({type:'NO_MATERIAL_DELTA',material:false});return deltas;
+}
+async function recursiveLearningCycle(q,intentObj,initialLex,initialEv,initialAgents,initialAnswer){
+ let lex=initialLex,ev=initialEv,agents=initialAgents,answer=initialAnswer;const cycles=[];let prior={lexicon:[],evidence:[],providerReceipt:null,polygon:{hits:[],growth:{compounded:{successor:null}}}};
+ const maxCycles=$('#agentDepth').value==='deep'?4:3;
+ for(let n=0;n<maxCycles;n++){
+  const obs=observerState(q,intentObj,lex,ev,n);const poly=polygonBiasPass(q,answer,obs,lex,ev,n);
+  const now={lexicon:lex.map(x=>x.term),evidence:ev.map(x=>x.id),providerReceipt:S.provider.lastReceipt?.id||null,polygon:poly};
+  const delta=classifyDelta(prior,now);const material=delta.some(x=>x.material);
+  const cycle={cycle:n+1,O1:{identity:obs.wholeIdentity,observer:obs.observer},O2:obs.observation,O3:{environment:obs.environment,polygon:poly},delta,material,at:new Date().toISOString()};cycles.push(cycle);
+  receipt('RECURSIVE_LEARNING_CYCLE',material?'PASS':'STABLE',{queryRoot:intentObj.hash,cycle:n+1,delta:delta.map(x=>x.type),observerState:obs.stateFormula,polygon:poly.hits.map(x=>x.sector+':'+x.promote),apex:poly.apex,successor:poly.growth.compounded.successor,bilateralEdges:poly.growth.interactions.map(x=>x.edge)});
+  if(!material||n===maxCycles-1)break;
+  // Epistemic interrupt: commit directional bilateral polygon successor, then re-evaluate affected branches before response is final.
+  S.polygonState=S.polygonState||{iteration:0,lastApex:null,lastSuccessor:null,history:[]};
+  S.polygonState.iteration+=1;S.polygonState.lastApex=poly.apex;S.polygonState.lastSuccessor=poly.growth.compounded.successor;S.polygonState.history.push({queryRoot:intentObj.hash,cycle:n+1,apex:poly.apex,successor:poly.growth.compounded.successor,edges:poly.growth.interactions.map(x=>x.edge),at:new Date().toISOString()});
+  receipt('BILATERAL_POLYGON_GROWTH','PASS',{queryRoot:intentObj.hash,cycle:n+1,apex:poly.apex,successor:poly.growth.compounded.successor,edges:poly.growth.interactions.map(x=>x.edge)});
+  const learnedTerms=[];for(const hit of poly.hits){const term=`Polygon:${hit.sector}`;if(!S.lexicon[term]){S.lexicon[term]=`BRAINK polygon-bias learning sector. Promotion=${hit.promote}; falsifier=${hit.falsifier}.`;learnedTerms.push(term)}}
+  for(const edge of poly.growth.interactions){const term=`PolygonEdge:${edge.edge}`;if(!S.lexicon[term]){S.lexicon[term]=`Directional bilateral polygon relation. Bias source=${edge.bias_source}; target=${edge.target}; promotion=${edge.promote}; falsifier=${edge.falsifier}.`;learnedTerms.push(term)}}
+  if(learnedTerms.length)receipt('LEXICON_RECURSIVE_ADAPT','PASS',{queryRoot:intentObj.hash,cycle:n+1,terms:learnedTerms,apex:poly.apex,successor:poly.growth.compounded.successor});
+  lex=lexResolve(q+' '+learnedTerms.join(' '));ev=retrieve(q,lex,$('#agentDepth').value==='deep'?12:8);currentEvidence=ev;
+  agents=await runAgents(q,intentObj,lex,ev);answer=await synthesize(q,intentObj,lex,ev,agents);prior=now;
+ }
+ return {lex,ev,agents,answer,cycles};
+}
+
+/* BEGIN SOURCE-EXACT V5 WRAPPER FUNCTIONS (not virtualized replacements) */
+function ensureWrapperState(){
+ S.wrapper=S.wrapper||{authority:'USER_AUTHORIZED_LIVE',admission:'R22_ACTIVE',virtualObjects:[],failureLedger:[],learningRules:{},auditLog:[]};
+ S.wrapper.virtualObjects=S.wrapper.virtualObjects||[];S.wrapper.failureLedger=S.wrapper.failureLedger||[];S.wrapper.learningRules=S.wrapper.learningRules||{};S.wrapper.auditLog=S.wrapper.auditLog||[];
+ return S.wrapper;
+}
+function manifestVirtual(kind,address,meta={}){
+ const W=ensureWrapperState();
+ const skillMap={
+  vm:['compute','memory','storage','scheduling','io','proof'],
+  vcpu:['compute','scheduling','execution','proof'],
+  virtualram:['memory','storage','addressing','proof'],
+  storage:['storage','memory','provenance','proof'],
+  agent:['agents','memory','scheduling','learning','provenance'],
+  projection:['projection','io','provenance'],
+  lane:['execution','scheduling','agents','proof']
+ };
+ let obj=W.virtualObjects.find(x=>x.address===address);
+ if(!obj){obj={id:`V-${hash(kind+address)}`,kind,address,authority:'BRAINK_CONTROL_WRAPPER',skills:[...(skillMap[kind]||['execution','proof'])],state:'MANIFESTED',meta,createdAt:new Date().toISOString()};W.virtualObjects.push(obj);receipt('VIRTUAL_MANIFEST','PASS',{kind,address,skills:obj.skills});save()}
+ return obj;
+}
+function bootstrapVirtualiser(){
+ ensureWrapperState();
+ manifestVirtual('virtualram','vram://braink/main',{role:'active-state'});
+ manifestVirtual('storage','storage://braink/learning',{role:'learning-corpus'});
+ manifestVirtual('lane','lane://braink/chat',{role:'chat-execution'});
+ manifestVirtual('agent','agent://braink/team',{role:'specialist-team'});
+ manifestVirtual('projection','projection://braink/chat-html',{role:'chat-ui'});
+ renderWrapper();return S.wrapper;
+}
+function wrapperSignature(packet){return `${packet.capabilityRoute}:${JSON.stringify(packet.assertedProperties||[])}`}
+function makePreflight(operationId,o={}){
+ return {operationId,intentId:o.intentId||`INT-${hash(operationId)}`,processId:o.processId||'BRAINK',lineageId:o.lineageId||VERSION,storyRef:o.storyRef||'',rehydrationEpoch:new Date().toISOString(),capabilityIdentity:o.capabilityIdentity||'BRAINK-Control-Wrapper',capabilityRoute:o.capabilityRoute||'braink://control/default',requiredDefinitions:o.requiredDefinitions||['BRAINK CONTROL WRAPPER','R22 ADMISSION'],assertedProperties:o.assertedProperties||['bounded_execution'],propertyAuthorities:o.propertyAuthorities||{bounded_execution:'BRAINK-Control-Wrapper'},evidenceRequirements:o.evidenceRequirements||[],currentEvidenceRefs:o.currentEvidenceRefs||[],mirrorRoute:o.mirrorRoute||'braink://mirror/default',governanceResult:o.governanceResult||'PASSED',qualificationCeiling:o.qualificationCeiling||'USER_AUTHORIZED_LIVE',continuationId:o.continuationId||'DEFAULT',admissionResult:0,admissionFailures:[],allowedNextRoutes:[],kexIdentity:o.kexIdentity||`KEX-${hash(operationId)}`};
+}
+function evaluateAdmission(packet){
+ const W=ensureWrapperState(),fail=[];const sig=wrapperSignature(packet);
+ if(W.learningRules[sig])fail.push(`LEARNING_COMMIT_FAILURE:${W.learningRules[sig]}`);
+ if(!packet.requiredDefinitions?.length)fail.push('MISSING_REQUIRED_DEFINITIONS');
+ if(packet.governanceResult!=='PASSED')fail.push('GOVERNANCE_CHECK_FAILED');
+ if(!packet.capabilityRoute)fail.push('MISSING_CAPABILITY_ROUTE');
+ if(!packet.capabilityIdentity)fail.push('MISSING_CAPABILITY_IDENTITY');
+ if((packet.qualificationCeiling||'').toLowerCase().includes('enterprise')&&!packet.mirrorRoute)fail.push('MISSING_INDEPENDENT_MIRROR_ROUTE');
+ packet.admissionResult=fail.length?0:1;packet.admissionFailures=fail;packet.allowedNextRoutes=fail.length?['WAIT','ROUTE','RESOLVE','TEST','RETAIN']:['EXECUTE','BILATERAL_VERIFY','COMMIT'];
+ W.auditLog.push({at:new Date().toISOString(),operationId:packet.operationId,admissionResult:packet.admissionResult,failures:[...fail]});
+ return packet;
+}
+function retainFailure(packet,observedResult,classification='EXECUTION_FAILURE'){
+ const W=ensureWrapperState();const rec={failureId:`FAIL-${packet.operationId}-${hash(String(observedResult))}`,operationId:packet.operationId,processId:packet.processId,propertyScope:packet.assertedProperties||[],route:packet.capabilityRoute,expectedProperty:'admitted verified execution',observedResult,evidence:classification==='ADMISSION_FAILURE'?'PREACTION_GATE':'RUNTIME_OBSERVATION',falsifier:'R22/independent mirror',classification,retainedNegativeKnowledge:`Route ${packet.capabilityRoute} failed under this packet and must not be silently promoted.`,nextAdmissibleRoutes:['ROUTE','RESOLVE','WAIT','TEST'],at:new Date().toISOString()};W.failureLedger.push(rec);receipt('FAILURE_RETAINED','PASS',{failureId:rec.failureId,classification});save();renderWrapper();return rec;
+}
+function commitWrapperLearning(signature,lesson){const W=ensureWrapperState();W.learningRules[signature]=lesson;receipt('WRAPPER_LEARNING_COMMIT','PASS',{signature,lesson});save();return lesson}
+async function wrapperExecute(packet,executionFn,mirrorFn){
+ const gate=evaluateAdmission({...packet});receipt('R22_ADMISSION',gate.admissionResult?'PASS':'BLOCKED',{operationId:gate.operationId,failures:gate.admissionFailures});
+ if(!gate.admissionResult){retainFailure(gate,gate.admissionFailures.join(','),'ADMISSION_FAILURE');return {admitted:false,packet:gate,result:null,receipt:null}}
+ const start=new Date().toISOString();
+ try{
+  const raw=await executionFn();const mirror=mirrorFn?await mirrorFn(raw):JSON.parse(JSON.stringify(raw));const match=JSON.stringify(mirror)===JSON.stringify(raw);const r=receipt('WRAPPER_EXECUTION',match?'PASS':'CONTRADICTION',{operationId:gate.operationId,producer:gate.capabilityIdentity,actualRoute:gate.capabilityRoute,startEpoch:start,endEpoch:new Date().toISOString(),inputsDigest:hash(JSON.stringify(gate.assertedProperties||[])),observedResult:raw,producerReadback:raw,mirrorResult:match?'MATCH':'CONTRADICTION',contradictions:match?[]:['Mirror diff discrepancy detected'],actualDeltaClass:match?'BEHAVIOR_VERIFIED':'VERIFY_REQUIRED',nextContinuation:match?'COMMIT':'REPAIR'});
+  if(!match)retainFailure(gate,{raw,mirror},'MIRROR_CONTRADICTION');save();renderWrapper();return {admitted:true,packet:gate,result:raw,receipt:r};
+ }catch(e){retainFailure(gate,e?.message||String(e),'EXECUTION_FAILURE');return {admitted:true,packet:gate,result:null,receipt:null,error:e?.message||String(e)}}
+}
+function renderWrapper(){
+ const W=ensureWrapperState();
+ const a=$('#admissionState'),v=$('#virtualObjectCount'),f=$('#failureCount'),p=$('#polygonEpoch'),box=$('#virtualState');
+ if(a)a.textContent='R22 ACTIVE';if(v)v.textContent=W.virtualObjects.length;if(f)f.textContent=W.failureLedger.length;if(p)p.textContent=S.polygonState?.iteration||0;
+ if(box)box.innerHTML=W.virtualObjects.map(x=>`<div class="evi"><b>${esc(x.kind)} · ${esc(x.address)}</b><div class="muted">${esc(x.skills.join(', '))}</div><div class="mono small">authority=${esc(x.authority)} · state=${esc(x.state)}</div></div>`).join('')||'<div class="muted small">No virtual objects manifested.</div>';
+}
+
+
+/* END SOURCE-EXACT V5 WRAPPER FUNCTIONS */
+async function run100GrowthPasses(){
+ const p=makePreflight(`OP-POLY100-${Date.now()}`,{processId:'BRAINK-POLYGON-GROWTH',capabilityIdentity:'BRAINK-Recursive-Learning',
+  capabilityRoute:'braink://learning/directional-bilateral-polygon-100',requiredDefinitions:['Polygon Bias Learning','Observer-State Learning','Recursive Learning','BRAINK CONTROL WRAPPER'],
+  assertedProperties:['100_successor_iterations','apex_rotation','bilateral_return','failure_retention'],propertyAuthorities:{'100_successor_iterations':'BRAINK-Recursive-Learning','apex_rotation':'BRAINK-Control-Wrapper'},
+  currentEvidenceRefs:['corpus://braink/active','lexicon://braink/active','state://braink/polygon'],mirrorRoute:'braink://learning/polygon-mirror'});
+ const result=await wrapperExecute(p,async()=>{
+   const baseQuery='BRAINK cross-domain growth over active corpus, lexicon, runtime, virtualiser, maths, science, engineering and physics evidence';
+   const summaries=[];let prev=null;
+   for(let k=0;k<100;k++){
+    const i=intent(baseQuery);const lex=lexResolve(baseQuery);const ev=retrieve(baseQuery,lex,12);
+    const obs=observerState(baseQuery,i,lex,ev,k);
+    const poly=polygonBiasPass(baseQuery,prev?.successor||'',obs,lex,ev,k);
+    const sig=`${poly.apex}->${poly.growth.interactions.map(x=>x.target).join(',')}`;
+    S.polygonState.iteration+=1;S.polygonState.lastApex=poly.apex;S.polygonState.lastSuccessor=poly.growth.compounded.successor;
+    const rec={iteration:S.polygonState.iteration,localPass:k+1,apex:poly.apex,successor:poly.growth.compounded.successor,
+      edges:poly.growth.interactions.map(x=>({forward:x.forward,return:x.return,promote:x.promote,falsifier:x.falsifier})),
+      observer:obs.stateFormula,evidenceIds:ev.map(x=>x.id),signature:sig,at:new Date().toISOString()};
+    S.polygonState.history.push(rec);summaries.push(rec);prev=rec;
+    receipt('POLYGON_100_ITERATION','PASS',{iteration:rec.iteration,apex:rec.apex,successor:rec.successor,edgeCount:rec.edges.length});
+   }
+   return {passes:100,start:summaries[0]?.iteration,end:summaries.at(-1)?.iteration,firstApex:summaries[0]?.apex,lastApex:summaries.at(-1)?.apex,
+    lastSuccessor:summaries.at(-1)?.successor,historyDigest:hash(JSON.stringify(summaries)),history:summaries};
+ },async raw=>JSON.parse(JSON.stringify(raw)));
+ if(result.receipt?.mirrorResult==='MATCH'){
+   S.corpus.push({id:`poly100-${Date.now()}`,title:'BRAINK 100-pass directional bilateral Polygon growth',
+    text:`BRAINK executed 100 wrapper-admitted successor iterations. Start=${result.result.start}; End=${result.result.end}; first apex=${result.result.firstApex}; last apex=${result.result.lastApex}; successor=${result.result.lastSuccessor}; digest=${result.result.historyDigest}.`,
+    source:'BRAINK-Control-Wrapper',learned:true});
+   receipt('POLYGON_100_COMMIT','PASS',{historyDigest:result.result.historyDigest,lastSuccessor:result.result.lastSuccessor});
+   save();renderStats();renderWrapper();addMsg('system',`BRAINK completed 100 directional bilateral Polygon passes. Epoch ${result.result.start} → ${result.result.end}; final successor ${result.result.lastSuccessor}.`);
+ }
+ return result;
+}
+async function wrapperSelfTest(){
+ const tests=[];
+ const ok=(id,pass,detail)=>tests.push({id,pass:!!pass,detail});
+ const v=manifestVirtual('vcpu',`vcpu://selftest/${Date.now()}`,{logicalCapacity:'1_LANE'});
+ ok('W01',v.authority==='BRAINK_CONTROL_WRAPPER','wrapper owns manifestation authority');
+ ok('W02',v.skills.includes('compute')&&v.skills.includes('scheduling'),'shared skills reused');
+ const good=makePreflight('SELFTEST-GOOD',{capabilityRoute:'braink://selftest/good',assertedProperties:['selftest'],propertyAuthorities:{selftest:'BRAINK-Control-Wrapper'},currentEvidenceRefs:['selftest://evidence']});
+ const g=await wrapperExecute(good,async()=>({status:'PASS',value:1}),async()=>({status:'PASS',value:1}));
+ ok('W03',g.receipt?.mirrorResult==='MATCH','admitted execution mirrored');
+ const bad=makePreflight('SELFTEST-BAD',{capabilityRoute:'braink://selftest/bad',requiredDefinitions:[],assertedProperties:['invalid'],propertyAuthorities:{invalid:'BRAINK-Control-Wrapper'},currentEvidenceRefs:['selftest://evidence']});
+ const b=await wrapperExecute(bad,async()=>({shouldNotRun:true}),async x=>x);
+ ok('W04',b.admitted===false,'inadmissible operation blocked');
+ const sig=wrapperSignature(bad);commitWrapperLearning(sig,'self-test invalid route retained');
+ const again=evaluateAdmission({...bad,operationId:'SELFTEST-BAD-REPEAT',requiredDefinitions:['R22 ADMISSION']});
+ ok('W05',again.admissionFailures.some(x=>x.startsWith('LEARNING_COMMIT_FAILURE')),'learning changes future admission');
+ const status=tests.every(t=>t.pass)?'PASS':'FAIL';receipt('WRAPPER_SELFTEST',status,{tests});
+ addMsg('system',`Wrapper self-test ${status}: ${tests.map(t=>`${t.id}=${t.pass?'PASS':'FAIL'}`).join(', ')}`);save();renderWrapper();return {status,tests};
+}
+function learnTurn(q,a,intentObj,lex,ev,agents,cycles=[]){if(!$('#learnTurns').checked)return;const turn={id:`T-${Date.now()}-${intentObj.hash}`,query:q,answer:a,intent:intentObj,lexicon:lex.map(x=>x.term),evidence:ev.map(x=>x.id),agents:agents.map(x=>x.agent),providerReceipt:S.provider.lastReceipt?.id||null,learningCycles:cycles,observerState:cycles.at(-1)?.O3||null,at:new Date().toISOString()};S.turns.push(turn);S.corpus.push({id:`learned-${turn.id}`,title:`Learned conversation: ${q.slice(0,90)}`,text:`User query: ${q}\nBRAINK answer: ${a}\nIntent: ${intentObj.kind}. Evidence: ${turn.evidence.join(', ')}. Recursive cycles: ${cycles.length}.`,source:'conversation-learning',learned:true});receipt('LEARNING_DELTA','PASS',{turnId:turn.id,deltaClass:'RECURSIVE_OBSERVER_SUCCESSOR_STATE',cycles:cycles.length,queryRoot:intentObj.hash});save()}
+async function ask(){if(busy)return;const q=$('#prompt').value.trim();if(!q)return;busy=true;$('#send').disabled=true;$('#prompt').value='';addMsg('user',q);
+ const admission=makePreflight(`OP-CHAT-${Date.now()}`,{intentId:`INT-${hash(q)}`,processId:'BRAINK-CHAT',storyRef:q.slice(0,160),capabilityIdentity:'BRAINK-Chat-AI',
+  capabilityRoute:'braink://chat/query',requiredDefinitions:['QUERY','BRAINK CONTROL WRAPPER','R22 ADMISSION','Observer-State Learning','Polygon Bias Learning'],
+  assertedProperties:['query_resolution','agent_dispatch','recursive_learning','provenance'],propertyAuthorities:{query_resolution:'BRAINK-Chat-AI',agent_dispatch:'BRAINK-Control-Wrapper',recursive_learning:'BRAINK-Recursive-Learning',provenance:'BRAINK-Provenance'},
+  currentEvidenceRefs:['lexicon://braink/active','corpus://braink/active','agents://braink/team'],mirrorRoute:'braink://chat/readback'});
+ const gate=evaluateAdmission(admission);receipt('R22_ADMISSION',gate.admissionResult?'PASS':'BLOCKED',{operationId:gate.operationId,failures:gate.admissionFailures});
+ if(!gate.admissionResult){retainFailure(gate,gate.admissionFailures.join(','),'ADMISSION_FAILURE');addMsg('assistant',`BRAINK did not execute this query because the control wrapper denied admission: ${gate.admissionFailures.join('; ')}`);busy=false;$('#send').disabled=false;save();renderWrapper();return}
+ const i=intent(q);let lex=lexResolve(q);let ev=retrieve(q,lex,$('#agentDepth').value==='deep'?10:6);currentEvidence=ev;
+ currentRoute=['CONTROL WRAPPER','R22 ADMISSION','STORY',`INTENT:${i.kind.toUpperCase()}`,'OBSERVER O1','LEXICON','RETRIEVAL','AGENTS','OBSERVER O2/O3','DIRECTIONAL POLYGON APEX','BILATERAL RETURN','RECURSIVE LEARNING','MIRROR/VERIFY','ANSWER','SUCCESSOR STATE'];renderSide();
+ receipt('QUERY_INGRESS','PASS',{queryRoot:i.hash,intent:i.kind,lexicalHits:lex.length,evidenceHits:ev.length});
+ let agents=await runAgents(q,i,lex,ev);let answer=await synthesize(q,i,lex,ev,agents);const learned=await recursiveLearningCycle(q,i,lex,ev,agents,answer);
+ lex=learned.lex;ev=learned.ev;agents=learned.agents;answer=learned.answer;currentEvidence=ev;
+ currentTrace.push({agent:'Recursive Learning',status:'PASS',summary:`${learned.cycles.length} observer-state cycle(s); apex ${learned.cycles.at(-1)?.O3?.polygon?.apex||'none'}; successor ${learned.cycles.at(-1)?.O3?.polygon?.growth?.compounded?.successor||'none'}; polygon sectors ${learned.cycles.at(-1)?.O3?.polygon?.hits?.map(x=>x.sector+':'+x.promote).join(', ')||'none'}.`});renderSide();
+ const exec=await wrapperExecute(admission,async()=>({queryRoot:i.hash,answerHash:hash(answer),successor:learned.cycles.at(-1)?.O3?.polygon?.growth?.compounded?.successor||null,cycles:learned.cycles.length}),
+  async raw=>JSON.parse(JSON.stringify(raw)));
+ if(exec.receipt?.mirrorResult!=='MATCH'){answer=`BRAINK generated a response but the wrapper mirror did not validate the response state. Promotion withheld.\n\n${answer}`}
+ addMsg('assistant',answer,{label:S.provider.bound?S.provider.model:'BRAINK recursive deterministic mode',trace:currentTrace});learnTurn(q,answer,i,lex,ev,agents,learned.cycles);
+ busy=false;$('#send').disabled=false;$('#prompt').focus();renderWrapper()}
+async function bind(){const ep=$('#endpoint').value.trim().replace(/\/$/,'');S.provider.endpoint=ep;try{const r=await fetch(ep+'/api/tags');if(!r.ok)throw new Error(`HTTP ${r.status}`);const j=await r.json();const models=(j.models||[]).map(x=>x.name).filter(Boolean);$('#model').innerHTML=models.length?models.map(x=>`<option>${esc(x)}</option>`).join(''):'<option value="">No models returned</option>';if(models.length){S.provider.model=models[0];S.provider.bound=true;$('#model').value=models[0];receipt('OLLAMA_BIND','PASS',{endpoint:ep,models});addMsg('system',`Ollama bound. ${models.length} model(s) discovered; active model: ${models[0]}.`)}else throw new Error('No installed models returned')}catch(e){S.provider.bound=false;receipt('OLLAMA_BIND','BLOCKED',{endpoint:ep,error:e.message});addMsg('system',`Ollama not bound: ${e.message}. BRAINK remains active in deterministic corpus mode.`)}save();renderStats()}
+async function test(){if(!S.provider.bound)return bind();try{const out=await ollamaChat([{role:'user',content:'Reply exactly: BRAINK_PROVIDER_OK'}],{queryRoot:'provider-test',temperature:0});addMsg('system',`Provider test result: ${out.slice(0,200)}`)}catch(e){S.provider.bound=false;addMsg('system',`Provider test failed: ${e.message}`);save();renderStats()}}
+async function ingestFiles(files){for(const f of files){try{const raw=await f.text();let text=raw;if(f.name.toLowerCase().endsWith('.html')){const d=new DOMParser().parseFromString(raw,'text/html');text=d.body?.innerText||raw}if(f.name.toLowerCase().endsWith('.json')){try{text=JSON.stringify(JSON.parse(raw),null,2)}catch{}}const blocks=text.split(/\n\s*\n|(?<=[.!?])\s+(?=[A-Z0-9])/).map(x=>x.trim()).filter(x=>x.length>40);const limit=1200;for(let n=0;n<blocks.length&&n<limit;n++)S.corpus.push({id:`file-${hash(f.name)}-${n}`,title:`${f.name} · ${n+1}`,text:blocks[n],source:f.name});receipt('FILE_INGEST','PASS',{file:f.name,bytes:f.size,chunks:Math.min(blocks.length,limit)});addMsg('system',`Ingested ${f.name}: ${Math.min(blocks.length,limit)} corpus chunks.`)}catch(e){receipt('FILE_INGEST','FAIL',{file:f.name,error:e.message});addMsg('system',`Could not ingest ${f.name}: ${e.message}`)}}save();renderStats()}
+function teach(){const t=$('#lexTerm').value.trim(),d=$('#lexDef').value.trim();if(!t||!d)return;S.lexicon[t.toUpperCase()]=d;receipt('LEXICON_TEACH','PASS',{term:t.toUpperCase()});S.corpus.push({id:`lex-${hash(t+d)}`,title:`Lexicon: ${t}`,text:`${t}: ${d}`,source:'manual-lexicon'});$('#lexTerm').value='';$('#lexDef').value='';save();addMsg('system',`Lexicon identity taught: ${t}.`)}
+function exportState(){const blob=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`BRAINK_CHAT_STATE_${new Date().toISOString().replace(/[:.]/g,'-')}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
+function newChat(){$('#chat').innerHTML='';currentEvidence=[];currentTrace=[];currentRoute=[];renderSide();addMsg('assistant','BRAINK Chat AI control wrapper is live. User queries are R22-admitted, mapped onto shared virtualised capabilities, routed through lexicon/retrieval/agents, recursively learned through observer-state and directional bilateral Polygon growth, mirrored, receipted and committed as successor state.')}
+$('#send').onclick=ask;$('#run100').onclick=run100GrowthPasses;$('#wrapperTest').onclick=wrapperSelfTest;$('#prompt').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();ask()}});$('#bindProvider').onclick=bind;$('#testProvider').onclick=test;$('#files').onchange=e=>ingestFiles([...e.target.files]);$('#teach').onclick=teach;$('#newChat').onclick=newChat;$('#exportState').onclick=exportState;$('#endpoint').value=S.provider.endpoint||'http://127.0.0.1:11434';$('#agentDepth').value=S.settings?.agentDepth||'standard';$('#learnTurns').checked=S.settings?.learnTurns!==false;$('#agentDepth').onchange=()=>{S.settings.agentDepth=$('#agentDepth').value;save()};$('#learnTurns').onchange=()=>{S.settings.learnTurns=$('#learnTurns').checked;save()};$('#model').onchange=()=>{S.provider.model=$('#model').value;S.provider.bound=!!S.provider.model;save();renderStats()};bootstrapVirtualiser();renderStats();renderSide();renderWrapper();newChat();
+
+// Additive host-mirror binding: preserves original V4 learning and wrapper admissions.
+const HOST_MIRROR_SCHEMA='KS-BRAINK-IL-LLM/observer-v4-mirror-transport/1';
+const HOST_MIRROR_SOURCE_SHA256='3cf4c7713e2fa4e38cfba840336854b3e488c899c35fd27e7a21e376b910b1d3';
+let hostMirrorSocket=null,hostMirrorAuthorised=false,hostMirrorInFlight=null,hostMirrorHeartbeat=null;
+function hostMirrorEnsureState(){
+ if(!S.hostLink || typeof S.hostLink!=='object')S.hostLink={instanceId:'',sequence:0,pending:[],lastAck:null};
+ if(!S.hostLink.instanceId)S.hostLink.instanceId='v4-'+crypto.randomUUID();
+ if(!Array.isArray(S.hostLink.pending))S.hostLink.pending=[];
+ if(!Number.isSafeInteger(S.hostLink.sequence))S.hostLink.sequence=0;
+}
+function hostMirrorStatus(s){const el=$('#host-state');if(el)el.textContent=s}
+function hostMirrorAck(s){const el=$('#hostBridgeReceipt');if(el)el.textContent=s}
+function hostMirrorOnReceipt(r){
+ // Only mirror source-observed learning candidates; leave other V4 receipts untouched.
+ if(!latestV4Observer||!/POLYGON|LEARNING_DELTA|LEXICON_RECURSIVE_ADAPT/.test(r.type))return;
+ hostMirrorEnsureState();
+ const p=S.polygonState||{};
+ const snapshot={observer:JSON.parse(JSON.stringify(latestV4Observer)),
+  polygon:{iteration:p.iteration||0,lastApex:p.lastApex??null,lastSuccessor:p.lastSuccessor??null,
+   history_tail:(p.history||[]).slice(-10).map(z=>JSON.parse(JSON.stringify(z)))},
+  v4_receipt:JSON.parse(JSON.stringify(r))};
+ if(S.hostLink.pending.some(z=>z.v4_receipt.id===r.id))return;
+ if(S.hostLink.pending.length>=1000){hostMirrorStatus('BACKLOG_FULL: local source retained; no silent deletion');return;}
+ S.hostLink.pending.push(snapshot);save();hostMirrorFlush();
+}
+function hostMirrorFlush(){
+ if(!hostMirrorAuthorised||!hostMirrorSocket||hostMirrorSocket.readyState!==WebSocket.OPEN||hostMirrorInFlight)return;
+ hostMirrorEnsureState();const current=S.hostLink.pending[0];if(!current)return;
+ if(hostMirrorSocket.bufferedAmount>65536){hostMirrorAck('Backpressure: retaining queued candidates');return;}
+ S.hostLink.sequence+=1;
+ const seq=S.hostLink.sequence;hostMirrorInFlight={sequence:seq,receiptId:current.v4_receipt.id};save();
+ hostMirrorSocket.send(JSON.stringify({action:'STATE_TELEMETRY',schema:HOST_MIRROR_SCHEMA,
+  source_sha256:HOST_MIRROR_SOURCE_SHA256,sequence:seq,...current}));
+}
+function hostMirrorDisconnect(){
+ hostMirrorAuthorised=false;hostMirrorInFlight=null;
+ if(hostMirrorHeartbeat){clearInterval(hostMirrorHeartbeat);hostMirrorHeartbeat=null}
+ if(hostMirrorSocket){hostMirrorSocket.close();hostMirrorSocket=null}
+ hostMirrorStatus('OFFLINE · Local V4 learning preserved');
+ const b=$('#connectHostBtn');if(b)b.textContent='Connect authenticated mirror';
+}
+function toggleHostConnection(){
+ if(hostMirrorSocket){hostMirrorDisconnect();return}
+ hostMirrorEnsureState();const base=$('#hostBrokerUrl').value.trim().replace(/\/$/,'');
+ let address;try{address=new URL(base);if(!['http:','https:'].includes(address.protocol)||!address.host)throw Error('Invalid broker URL')}catch(e){hostMirrorStatus('REJECTED: '+e.message);return}
+ const secret=$('#hostAuthToken').value;
+ if(secret.length<32){hostMirrorStatus('REJECTED: token length below 32');return}
+ const target=new URL('/api/ws/state',address);
+ target.protocol=address.protocol==='https:'?'wss:':'ws:';
+ hostMirrorStatus('CONNECTING · awaiting authenticated admission');
+ const ws=new WebSocket(target.href);hostMirrorSocket=ws;
+ ws.onopen=()=>{ws.send(JSON.stringify({action:'AUTH',instance_id:S.hostLink.instanceId,token:secret}));$('#hostAuthToken').value=''};
+ ws.onmessage=(e)=>{
+  let data;try{data=JSON.parse(e.data)}catch{hostMirrorAck('Invalid server response');return}
+  if(data.action==='AUTH_ACCEPTED'){
+   if(data.source_sha256!==HOST_MIRROR_SOURCE_SHA256){hostMirrorStatus('SOURCE_MISMATCH; disconnecting');hostMirrorDisconnect();return}
+   hostMirrorAuthorised=true;hostMirrorStatus('AUTHENTICATED · Browser learning mirror only');
+   $('#connectHostBtn').textContent='Disconnect mirror';
+   hostMirrorHeartbeat=setInterval(()=>{if(ws.readyState===WebSocket.OPEN)ws.send(JSON.stringify({action:'HEARTBEAT'}))},5000);
+   hostMirrorFlush();return;
+  }
+  if(data.action==='MIRROR_COMMITTED'){
+   if(!hostMirrorInFlight||data.sequence!==hostMirrorInFlight.sequence){hostMirrorStatus('Receipt sequence mismatch; disconnecting');hostMirrorDisconnect();return}
+   const head=S.hostLink.pending[0];
+   if(!head||head.v4_receipt.id!==hostMirrorInFlight.receiptId){hostMirrorStatus('Local queue mismatch; disconnecting');hostMirrorDisconnect();return}
+   S.hostLink.pending.shift();S.hostLink.lastAck={event_id:data.event_id,event_root:data.event_root,
+    correlation_id:data.correlation_id,sequence:data.sequence,source_receipt_id:head.v4_receipt.id};
+   hostMirrorInFlight=null;save();hostMirrorAck('Ledger readback: '+data.event_root+' · queued: '+S.hostLink.pending.length);
+   hostMirrorFlush();return;
+  }
+  if(data.action==='REJECTED'){
+   hostMirrorAck('NOT ADMITTED: '+String(data.reason||'unknown'));
+   hostMirrorInFlight=null;hostMirrorDisconnect();
+  }
+ };
+ ws.onerror=()=>hostMirrorStatus('TRANSPORT_ERROR · No host execution proof');
+ ws.onclose=()=>{if(hostMirrorSocket===ws)hostMirrorDisconnect()};
+}
+function syncStateToHostBroker(){hostMirrorFlush()}
+$('#connectHostBtn').onclick=toggleHostConnection;
+if(location.protocol==='http:'||location.protocol==='https:')$('#hostBrokerUrl').value=location.origin;
+hostMirrorEnsureState();save();
+hostMirrorAck('Queued mirror records: '+S.hostLink.pending.length+' · no global promotion');
+
+})();
+</script>
+</body></html>

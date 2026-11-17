@@ -1,0 +1,39 @@
+{
+  "schema": "KS-BRAINK-IL-LLM/source-lineage/1",
+  "origin_architect": "A. Keddeh",
+  "canonical_address": "KS-BRAINK-IL-LLM",
+  "historical_source_filename": "KEX_BRAINK_CHAT_AI_CONTROL_WRAPPER_V4.html",
+  "policy": "Original V4 immutable; V4_HOST_LINK is a derived browser mirror bound to the exact V5_SKILL_APEX R22 control-wrapper dependency; commit != deployment; mirrored candidate != global truth",
+  "files": [
+    {
+      "filename": "KEX_BRAINK_CHAT_AI_CONTROL_WRAPPER_V4.html",
+      "sha256": "3cf4c7713e2fa4e38cfba840336854b3e488c899c35fd27e7a21e376b910b1d3",
+      "bytes": 46818
+    },
+    {
+      "filename": "KEX_BRAINK_CHAT_AI_CONTROL_WRAPPER_V5_SKILL_APEX.html",
+      "sha256": "ccbaf267a40b3f55b56da6b7f97c77279bdd583d29d1aa27139d085f5acd117b",
+      "bytes": 61024
+    },
+    {
+      "filename": "KEX_BRAINK_CHAT_AI_CONTROL_WRAPPER_V4_HOST_LINK.html",
+      "sha256": "30025f234931b5ff7bc7aa3ec740e9ee64a50bf32c51fc4ef1bb32cc69fcda88",
+      "bytes": 60421
+    },
+    {
+      "filename": "host_bridge.py",
+      "sha256": "771922fdf165b96fb11f6ad649ebf8dfbffc62044ad3d86d2663f9891b456607",
+      "bytes": 14045
+    },
+    {
+      "filename": "build_v4_host_link.py",
+      "sha256": "55973d573879cbc818293cdf4596df50e1c4f5b9a2dbd72e28d53d2bdbd4fd1d",
+      "bytes": 10551
+    },
+    {
+      "filename": "README.md",
+      "sha256": "e803761ff40d12484ed813c1faf865c4b5a1a0a92852f4a66e835480a28e6e0c",
+      "bytes": 8858
+    }
+  ]
+}

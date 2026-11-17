@@ -1,0 +1,14 @@
+{
+  "schema": "KS-BRAINK-IL-LLM/local-host-process-100-transport-receipts/1",
+  "initial_pid": 2837,
+  "restart_pid": 2847,
+  "events": 100,
+  "ledger_head_sha256": "d4c19f37923eace0e572475471b36d9bb1a0bc42865f151ceaa3162e97c68ad8",
+  "source_sha256": "3cf4c7713e2fa4e38cfba840336854b3e488c899c35fd27e7a21e376b910b1d3",
+  "verified_restart": true,
+  "local_os_process": true,
+  "host_scope": "TEST_CONTAINER_NOT_KEDDEH_OWNER_EXTERNAL_HOST",
+  "source_algorithms_executed": false,
+  "input_classification": "SOURCE_SHAPED_TEST_FIXTURES_NOT_100_V4_POLYGON_PASSES",
+  "external_executor_admitted": false
+}
