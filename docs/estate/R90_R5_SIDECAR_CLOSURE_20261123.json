@@ -1,0 +1,173 @@
+{
+  "schema": "KS-BRAINK-IL-LLM/r5-sidecar-closure-r90/1",
+  "architect": "A. Keddeh",
+  "architecture": "KS-BRAINK-IL-LLM",
+  "version": "R90",
+  "disposition": "READ_ONLY_MATERIALIZATION; NO_SOURCE_OVERWRITE; NO_PROMOTION; NO_DEPLOYMENT",
+  "sourceScope": {
+    "system": "ChatGPT Files Library materialization",
+    "googleDriveRead": false,
+    "googleDriveConnectorAvailable": false
+  },
+  "r5Parent": {
+    "identity": "braink://volume/r5/system-orchestrator",
+    "file": "KEDDEH_BRAINK_EXECUTABLE_RESIDENT_VOLUME_R5_SYSTEM_ORCHESTRATOR.html",
+    "bytes": 13086990,
+    "sha256": "9eb1eb8cead2b5f4d941dde024b5f7bbad46f1bdc2ff2e948fb190b841f16ede"
+  },
+  "r5StandaloneManifest": {
+    "file": "BRAINK_R5_SYSTEM_MANIFEST.json",
+    "bytes": 32546,
+    "sha256": "a7b98529f3356b260ed9fa31834598a54fff171d2db069ade88c22931be3effc",
+    "surfaceCounts": {
+      "systemVolumes": 15,
+      "toolVolumes": 4,
+      "runtimeResources": 5,
+      "workbooks": 3,
+      "unifiedSurfaces": 2
+    },
+    "baseRelations": 23
+  },
+  "r5EmbeddedManifest": {
+    "scriptId": "r5-system-manifest",
+    "bytes": 25831,
+    "sha256": "b64565d56f7172bb4db1206ca4cc8857f42dbcb1f76ae99635c629f16791ceb2",
+    "distinctFromStandalone": true
+  },
+  "r5CrossWorkManifest": {
+    "file": "BRAINK_R5_SYSTEM_MANIFEST_CROSS_WORK_R1.json",
+    "bytes": 39430,
+    "sha256": "5d867ae7d7f517d6cdde14c138e67e90571062521e5d912fd8812165da1ce985",
+    "relations": 32,
+    "parentIdentity": "braink://volume/r5/system-orchestrator",
+    "parentSha256": "9eb1eb8cead2b5f4d941dde024b5f7bbad46f1bdc2ff2e948fb190b841f16ede",
+    "parentManifestSha256": "a7b98529f3356b260ed9fa31834598a54fff171d2db069ade88c22931be3effc"
+  },
+  "surfaceClosure": {
+    "declared": 29,
+    "historicalR69Matched": 18,
+    "newlyMaterialized": [
+      {
+        "group": "tool_volumes",
+        "identity": "tool://server-runtime",
+        "manifestTitle": "KEDDEH v71 Autostart Linux Servers",
+        "file": "KEDDEH_LINUX_COMPUTER_v71_AUTOSTART_LINUX_SERVERS.html",
+        "bytes": 5093904,
+        "sha256": "a9b8cba41499dd95a4a8bb0c735e408c592517eccd1514b683d372b52325e3e4",
+        "actualTitle": "KEX Linux Computer v71",
+        "titleMatch": false
+      },
+      {
+        "group": "tool_volumes",
+        "identity": "tool://research-fabric",
+        "manifestTitle": "KEDDEH v71 Research Sector Fabric S26-S29",
+        "file": "KEDDEH_LINUX_COMPUTER_v71_RESEARCH_SECTOR_FABRIC_S26_S29.html",
+        "bytes": 5103217,
+        "sha256": "9aaf61466c123acc0554ce0a1514b40bd57b824b9bfeea0ac2b3313e150d294b",
+        "actualTitle": "KEX Linux Computer v70",
+        "titleMatch": false
+      },
+      {
+        "group": "tool_volumes",
+        "identity": "tool://il-llm-hci",
+        "manifestTitle": "BRAINK IL-LLM Unified HCI v2",
+        "file": "BRAINK_IL_LLM_UNIFIED_HCI_v2.html",
+        "bytes": 54952,
+        "sha256": "9aeece2e7ee166420a2da45337c952beee7d1b2c1811bf52c36afb6e76d39bad",
+        "actualTitle": "BRAINK / IL-LLM — Unified Sovereign HCI",
+        "titleMatch": false
+      },
+      {
+        "group": "tool_volumes",
+        "identity": "tool://library-dna-governance",
+        "manifestTitle": "BRAINK Library DNA Evolution R1",
+        "file": "KEDDEH_BRAINK_LIBRARY_DNA_EVOLUTION_R1.html",
+        "bytes": 766963,
+        "sha256": "3dbd9009b34c41f88e1349e9faec3d786f93f6ce79e974da07f3c2036b4c650e",
+        "actualTitle": "KEDDEH BRAINK Library DNA Evolution R1",
+        "titleMatch": false
+      },
+      {
+        "group": "runtime_resources",
+        "identity": "runtime://abi",
+        "file": "runtime-abi.json",
+        "bytes": 772,
+        "sha256": "358dc830620480130f3a421bd01ff006d9ce8247923eed5ee036b0a85686ad2f"
+      },
+      {
+        "group": "runtime_resources",
+        "identity": "runtime://registry",
+        "file": "runtime-registry.json",
+        "bytes": 1441,
+        "sha256": "7dbd586e68475449a435b62c0eeb0362aaa7b8d102557ffafce6dbc6799ccd96"
+      },
+      {
+        "group": "runtime_resources",
+        "identity": "runtime://contract",
+        "file": "runtime-contract.v2.json",
+        "bytes": 1917,
+        "sha256": "ae2108098838e97416174d48099b8e329f660bc273ccb59892c846eca1abd0fa"
+      },
+      {
+        "group": "runtime_resources",
+        "identity": "service://braink-sdos",
+        "file": "braink-sdos.service",
+        "bytes": 309,
+        "sha256": "a6118a759afefab1dbb0795117116a5b02991cdafee55df432c4a01ae7b935da"
+      },
+      {
+        "group": "runtime_resources",
+        "identity": "runtime://mesh-ignition",
+        "file": "braink-infrastructure-mesh-ignition.mjs",
+        "bytes": 12890,
+        "sha256": "4e02d1e09fd484844387a12c699a8d564f0cc86c301b6e334f59f64051670af7"
+      },
+      {
+        "group": "unified_surfaces",
+        "identity": "projection://keddeh/resident-engineering-corpus/v3",
+        "manifestTitle": "KEDDEH Resident Engineering Corpus Projection v3",
+        "file": "KEDDEH_RESIDENT_ENGINEERING_CORPUS_PROJECTION_v3_SERVICE_LAYERS.html",
+        "bytes": 4023659,
+        "sha256": "254f466c559c29b8814bb434724abbebd20bfcdf54c7af143ee74fe9c098a09b",
+        "actualTitle": "KEDDEH — Recursive Self-Hosting Referential Volume v24 · P18 + A18 Integration / Closure Gate",
+        "titleMatch": false
+      },
+      {
+        "group": "unified_surfaces",
+        "identity": "control://braink/illlm-kex/v11",
+        "manifestTitle": "BRAINK IL-LLM KEX V11 Engineering Control Plane",
+        "file": "BRAINK_IL_LLM_KEX_V11_ENGINEERING_CONTROL_PLANE.html",
+        "bytes": 6337343,
+        "sha256": "484f05f39c487b7573404c21a7f024c764e41812781e80c2929304e76deb2965",
+        "actualTitle": "BRAINK / KEX User Space v9",
+        "titleMatch": false
+      }
+    ],
+    "newlyMaterializedVerified": 11,
+    "cumulativeByteHashMatches": 29,
+    "remainingByteHashUnresolved": 0,
+    "semanticIdentityReviewRequired": 6,
+    "toolTitleReviewRequired": 4,
+    "unifiedTitleReviewRequired": 2
+  },
+  "runtimeQualification": {
+    "runtimeJsonParse": "3/3 PASS",
+    "serverRuntimeEmbeddedJson": "24/24 PASS",
+    "serverRuntimeInlineJavascript": "21/21 PASS",
+    "meshIgnitionNodeCheck": "PASS",
+    "systemdUnitLaunched": false,
+    "runtimeRegistryImplementationsMaterialized": false,
+    "externalHostPid": null,
+    "externalHeartbeat": null,
+    "independentQuorum": false,
+    "trainedWeightsGenerated": false,
+    "subjectiveConsciousnessProven": false
+  },
+  "unresolved": {
+    "htmlTitleIdentityReview": 6,
+    "rootV16": "UNRECOVERED_AND_NOT_SUBSTITUTED",
+    "googleDrive": "NOT_READ",
+    "hostDeployment": "NOT_ESTABLISHED"
+  },
+  "note": "The R5 embedded manifest and standalone manifest are distinct objects. The R5 cross-work manifest binds to the standalone manifest. The 11 previously unavailable tool/runtime/unified surfaces now match declared byte lengths and SHA-256 values. Six HTML document titles differ from the manifest title; these remain review items and are not silently renamed or promoted."
+}
