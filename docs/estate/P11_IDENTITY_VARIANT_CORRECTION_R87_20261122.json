@@ -1,0 +1,308 @@
+{
+  "schema": "keddeh.p11.carrier-identity-correction.r87.v1",
+  "architect": "A. Keddeh",
+  "canonical_architecture": "KS-BRAINK-IL-LLM",
+  "disposition": "PROPOSED_ADDITIVE_CORRECTION_NOT_PROMOTED",
+  "source": {
+    "document": "KEDDEH_BRAINK_S29_QUANTUM_FULL_CHAIN_LEARNING_RUNTIME_R4(2).html",
+    "bytes": 21492468,
+    "sha256": "e797bc65e71150c300d838616aa39dea7258f53bcd0b77d6c1aa1aad2cc160d9",
+    "registry_extract": "R86_OUTPUT/R86_P11_RAW_ROWS_98.csv",
+    "raw_registry_rows": 98,
+    "unique_legacy_carrier_ids": 95,
+    "logical_objects": 76,
+    "registry_workbook": "KEX_CARRIER_REGISTRY_76x95_RECONCILIATION(1).xlsx",
+    "registry_workbook_bytes": 54588,
+    "registry_workbook_sha256": "edc774fa78d9d8f7039b6aa440a5dc98414a91593be4eb72551233407c803076",
+    "raw_registry_snapshot": {
+      "bytes": 27431,
+      "sha256": "ad60c1908cd252bec9f53bd41fed37ae46b7b3c391f80014feca5b2e340bb7f0",
+      "rows": 98,
+      "provenance": "R86 read-only source traversal derivative; original source workbook and R4 HTML remain separate",
+      "artifact": "R86 evidence bundle / R86_OUTPUT/R86_P11_RAW_ROWS_98.csv",
+      "in_repository": false
+    }
+  },
+  "identity_policy": {
+    "original_rows_preserved": true,
+    "original_carrier_ids_preserved_as_ambiguous_aliases": true,
+    "logical_identities_preserved": true,
+    "variant_locator": "<legacy-carrier-id>/sha256/<full-lowercase-sha256>",
+    "legacy_alias_resolution": "MUST_FAIL_AMBIGUOUS_WHEN_MULTIPLE_VARIANTS_EXIST",
+    "no_source_rewrite": true,
+    "no_historical_row_deletion": true,
+    "promotion_authorized": false
+  },
+  "collisions": [
+    {
+      "legacy_carrier_id": "carrier://json/p03-action-plan",
+      "logical_identity": "artifact://p03-action-plan",
+      "classification": "DUPLICATE_CARRIER_ID_CONTENT_COLLISION",
+      "original_rows": [
+        59,
+        60
+      ],
+      "variant_ids": [
+        "carrier://json/p03-action-plan/sha256/6cc90b04de0fa57655a3ed98346e03a68f8739055a85a145af6da7933ebf821e",
+        "carrier://json/p03-action-plan/sha256/011947a2d38262751cd65d41bef5a731570aa8a5793c8e7c35622f3b52cf6b98"
+      ],
+      "distinct_sha256": true,
+      "resolution": "legacy alias is ambiguous; resolve only by variant_id or exact SHA-256"
+    },
+    {
+      "legacy_carrier_id": "carrier://json/p04-action-plan",
+      "logical_identity": "artifact://p04-action-plan",
+      "classification": "DUPLICATE_CARRIER_ID_CONTENT_COLLISION",
+      "original_rows": [
+        63,
+        64
+      ],
+      "variant_ids": [
+        "carrier://json/p04-action-plan/sha256/fbed1d92b6839db0442c88281917d387c7455168b9ab630204a8fdf05105c319",
+        "carrier://json/p04-action-plan/sha256/6da9fdf660d6d0f02b149a4c2138c7b8ecb3bd178fedc919f0ea0f2a1f9e1c8c"
+      ],
+      "distinct_sha256": true,
+      "resolution": "legacy alias is ambiguous; resolve only by variant_id or exact SHA-256"
+    },
+    {
+      "legacy_carrier_id": "carrier://json/p05-action-plan",
+      "logical_identity": "artifact://p05-action-plan",
+      "classification": "DUPLICATE_CARRIER_ID_CONTENT_COLLISION",
+      "original_rows": [
+        67,
+        68
+      ],
+      "variant_ids": [
+        "carrier://json/p05-action-plan/sha256/bae9bffe078871099eda0c54dd4df46d7f4f1ddec2af4cf17a89195be11809f8",
+        "carrier://json/p05-action-plan/sha256/cd3c5613975165144c593f46a1f82a74d1f0ff063e571aed36b2ec8f343f0aa2"
+      ],
+      "distinct_sha256": true,
+      "resolution": "legacy alias is ambiguous; resolve only by variant_id or exact SHA-256"
+    }
+  ],
+  "variants": [
+    {
+      "variant_id": "carrier://json/p03-action-plan/sha256/6cc90b04de0fa57655a3ed98346e03a68f8739055a85a145af6da7933ebf821e",
+      "legacy_carrier_id_alias": "carrier://json/p03-action-plan",
+      "logical_identity": "artifact://p03-action-plan",
+      "plan": "P03",
+      "status": "READY_NEXT",
+      "source_ref": "script#p03-action-plan",
+      "source_occurrence": 1,
+      "original_registry_row": 59,
+      "kind": "JSON",
+      "roles": [
+        "MANIFEST",
+        "PROOF",
+        "MODEL"
+      ],
+      "state": "RESIDENT",
+      "format": null,
+      "bytes": 1803,
+      "sha256": "6cc90b04de0fa57655a3ed98346e03a68f8739055a85a145af6da7933ebf821e",
+      "source_resolution": "exact script element innerText, UTF-8 encoded without normalization"
+    },
+    {
+      "variant_id": "carrier://json/p03-action-plan/sha256/011947a2d38262751cd65d41bef5a731570aa8a5793c8e7c35622f3b52cf6b98",
+      "legacy_carrier_id_alias": "carrier://json/p03-action-plan",
+      "logical_identity": "artifact://p03-action-plan",
+      "plan": "P03",
+      "status": "COMPLETED",
+      "source_ref": "script#p03-action-plan",
+      "source_occurrence": 2,
+      "original_registry_row": 60,
+      "kind": "JSON",
+      "roles": [
+        "MANIFEST",
+        "PROOF",
+        "MODEL"
+      ],
+      "state": "RESIDENT",
+      "format": null,
+      "bytes": 1546,
+      "sha256": "011947a2d38262751cd65d41bef5a731570aa8a5793c8e7c35622f3b52cf6b98",
+      "source_resolution": "exact script element innerText, UTF-8 encoded without normalization"
+    },
+    {
+      "variant_id": "carrier://json/p04-action-plan/sha256/fbed1d92b6839db0442c88281917d387c7455168b9ab630204a8fdf05105c319",
+      "legacy_carrier_id_alias": "carrier://json/p04-action-plan",
+      "logical_identity": "artifact://p04-action-plan",
+      "plan": "P04",
+      "status": "READY_NEXT",
+      "source_ref": "script#p04-action-plan",
+      "source_occurrence": 1,
+      "original_registry_row": 63,
+      "kind": "JSON",
+      "roles": [
+        "MANIFEST",
+        "PROOF",
+        "MODEL"
+      ],
+      "state": "RESIDENT",
+      "format": null,
+      "bytes": 1559,
+      "sha256": "fbed1d92b6839db0442c88281917d387c7455168b9ab630204a8fdf05105c319",
+      "source_resolution": "exact script element innerText, UTF-8 encoded without normalization"
+    },
+    {
+      "variant_id": "carrier://json/p04-action-plan/sha256/6da9fdf660d6d0f02b149a4c2138c7b8ecb3bd178fedc919f0ea0f2a1f9e1c8c",
+      "legacy_carrier_id_alias": "carrier://json/p04-action-plan",
+      "logical_identity": "artifact://p04-action-plan",
+      "plan": "P04",
+      "status": "COMPLETED",
+      "source_ref": "script#p04-action-plan",
+      "source_occurrence": 2,
+      "original_registry_row": 64,
+      "kind": "JSON",
+      "roles": [
+        "MANIFEST",
+        "PROOF",
+        "MODEL"
+      ],
+      "state": "RESIDENT",
+      "format": null,
+      "bytes": 1576,
+      "sha256": "6da9fdf660d6d0f02b149a4c2138c7b8ecb3bd178fedc919f0ea0f2a1f9e1c8c",
+      "source_resolution": "exact script element innerText, UTF-8 encoded without normalization"
+    },
+    {
+      "variant_id": "carrier://json/p05-action-plan/sha256/bae9bffe078871099eda0c54dd4df46d7f4f1ddec2af4cf17a89195be11809f8",
+      "legacy_carrier_id_alias": "carrier://json/p05-action-plan",
+      "logical_identity": "artifact://p05-action-plan",
+      "plan": "P05",
+      "status": "READY_NEXT",
+      "source_ref": "script#p05-action-plan",
+      "source_occurrence": 1,
+      "original_registry_row": 67,
+      "kind": "JSON",
+      "roles": [
+        "MANIFEST",
+        "PROOF",
+        "MODEL"
+      ],
+      "state": "RESIDENT",
+      "format": null,
+      "bytes": 1723,
+      "sha256": "bae9bffe078871099eda0c54dd4df46d7f4f1ddec2af4cf17a89195be11809f8",
+      "source_resolution": "exact script element innerText, UTF-8 encoded without normalization"
+    },
+    {
+      "variant_id": "carrier://json/p05-action-plan/sha256/cd3c5613975165144c593f46a1f82a74d1f0ff063e571aed36b2ec8f343f0aa2",
+      "legacy_carrier_id_alias": "carrier://json/p05-action-plan",
+      "logical_identity": "artifact://p05-action-plan",
+      "plan": "P05",
+      "status": "COMPLETED",
+      "source_ref": "script#p05-action-plan",
+      "source_occurrence": 2,
+      "original_registry_row": 68,
+      "kind": "JSON",
+      "roles": [
+        "MANIFEST",
+        "PROOF",
+        "MODEL"
+      ],
+      "state": "RESIDENT",
+      "format": null,
+      "bytes": 1754,
+      "sha256": "cd3c5613975165144c593f46a1f82a74d1f0ff063e571aed36b2ec8f343f0aa2",
+      "source_resolution": "exact script element innerText, UTF-8 encoded without normalization"
+    }
+  ],
+  "verification": {
+    "source_sha256_recomputed": true,
+    "source_byte_length_recomputed": true,
+    "variants_extracted_from_original_r4": 6,
+    "variant_payload_bytes_recomputed": true,
+    "variant_sha256_recomputed": true,
+    "statuses_observed_in_payload": [
+      "READY_NEXT",
+      "COMPLETED"
+    ],
+    "all_variant_ids_unique": true,
+    "all_variant_sha256_unique": true,
+    "all_original_registry_rows_preserved": true,
+    "original_registry_row_numbers": [
+      59,
+      60,
+      63,
+      64,
+      67,
+      68
+    ]
+  },
+  "limitations": [
+    "This is an additive candidate identity map, not a mutation of the original P11 register or workbook.",
+    "The logical identity remains the same within each pair; the two content variants are different lifecycle snapshots, not asserted to be separate business artifacts.",
+    "The full R4 source and six payload bodies are not duplicated in this patch; the local verifier re-extracts and hashes all six payloads from the exact source.",
+    "CI tests validate the additive manifest invariants. Source-byte re-verification requires the original R4 HTML as an explicit local input.",
+    "Promotion requires architect review and a separately authorized registry-consumer migration."
+  ],
+  "source_rows": [
+    {
+      "row_no": "59",
+      "carrier_id": "carrier://json/p03-action-plan",
+      "logical_identity": "artifact://p03-action-plan",
+      "kind": "JSON",
+      "source_ref": "script#p03-action-plan",
+      "declared_bytes": "1803",
+      "actual_bytes": "1803",
+      "actual_sha256": "6cc90b04de0fa57655a3ed98346e03a68f8739055a85a145af6da7933ebf821e",
+      "resolution": "script innerText occurrence 1/2"
+    },
+    {
+      "row_no": "60",
+      "carrier_id": "carrier://json/p03-action-plan",
+      "logical_identity": "artifact://p03-action-plan",
+      "kind": "JSON",
+      "source_ref": "script#p03-action-plan",
+      "declared_bytes": "1546",
+      "actual_bytes": "1546",
+      "actual_sha256": "011947a2d38262751cd65d41bef5a731570aa8a5793c8e7c35622f3b52cf6b98",
+      "resolution": "script innerText occurrence 2/2"
+    },
+    {
+      "row_no": "63",
+      "carrier_id": "carrier://json/p04-action-plan",
+      "logical_identity": "artifact://p04-action-plan",
+      "kind": "JSON",
+      "source_ref": "script#p04-action-plan",
+      "declared_bytes": "1559",
+      "actual_bytes": "1559",
+      "actual_sha256": "fbed1d92b6839db0442c88281917d387c7455168b9ab630204a8fdf05105c319",
+      "resolution": "script innerText occurrence 1/2"
+    },
+    {
+      "row_no": "64",
+      "carrier_id": "carrier://json/p04-action-plan",
+      "logical_identity": "artifact://p04-action-plan",
+      "kind": "JSON",
+      "source_ref": "script#p04-action-plan",
+      "declared_bytes": "1576",
+      "actual_bytes": "1576",
+      "actual_sha256": "6da9fdf660d6d0f02b149a4c2138c7b8ecb3bd178fedc919f0ea0f2a1f9e1c8c",
+      "resolution": "script innerText occurrence 2/2"
+    },
+    {
+      "row_no": "67",
+      "carrier_id": "carrier://json/p05-action-plan",
+      "logical_identity": "artifact://p05-action-plan",
+      "kind": "JSON",
+      "source_ref": "script#p05-action-plan",
+      "declared_bytes": "1723",
+      "actual_bytes": "1723",
+      "actual_sha256": "bae9bffe078871099eda0c54dd4df46d7f4f1ddec2af4cf17a89195be11809f8",
+      "resolution": "script innerText occurrence 1/2"
+    },
+    {
+      "row_no": "68",
+      "carrier_id": "carrier://json/p05-action-plan",
+      "logical_identity": "artifact://p05-action-plan",
+      "kind": "JSON",
+      "source_ref": "script#p05-action-plan",
+      "declared_bytes": "1754",
+      "actual_bytes": "1754",
+      "actual_sha256": "cd3c5613975165144c593f46a1f82a74d1f0ff063e571aed36b2ec8f343f0aa2",
+      "resolution": "script innerText occurrence 2/2"
+    }
+  ]
+}

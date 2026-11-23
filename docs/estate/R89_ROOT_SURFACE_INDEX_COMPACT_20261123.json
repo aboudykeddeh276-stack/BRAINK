@@ -1,0 +1,101 @@
+{
+  "schema": "KS-BRAINK-IL-LLM/root-surface-and-carrier-lineage-r89/1",
+  "architect": "A. Keddeh",
+  "canonicalArchitecture": "KS-BRAINK-IL-LLM",
+  "version": "R89",
+  "disposition": "ADDITIVE_READ_ONLY_SOURCE_AND_REGISTER_RECONCILIATION_NOT_DEPLOYMENT",
+  "sourceFiles": {
+    "v27": {"name":"KEDDEH_UNIFIED_REFERENTIAL_VOLUME_v27_DEPLOYMENT_READY.html","bytes":3958905,"sha256":"df2a492661b9207154d3cbb1db648dd3aeca8d617578c2b5edd74745058d5a1b"},
+    "v28": {"name":"KEDDEH_UNIFIED_REFERENTIAL_VOLUME_v28_2026-08-15_LOCAL_HOSTED_CONVERGENCE.html","bytes":4014151,"sha256":"404bb0942743518476a90f05e6109a5593678f6119211f45ed1bb6ed49ace585"},
+    "r4S29Container": {"name":"KEDDEH_BRAINK_S29_QUANTUM_FULL_CHAIN_LEARNING_RUNTIME_R4(2).html","bytes":21492468,"sha256":"e797bc65e71150c300d838616aa39dea7258f53bcd0b77d6c1aa1aad2cc160d9"},
+    "r4ExecutablePayload": {"name":"KEDDEH_BRAINK_EXECUTABLE_RESIDENT_VOLUME_R4.html (decoded from s29q-r4payload)","bytes":13050075,"sha256":"5e55b7c3179d2afd246929bd5793186af65c8025ca4b65a32a06b10dbfe6c592"},
+    "v45RootPayloadRegister": {"file":"05_V45_EMBEDDED_KEX_STRUCTURES(1).json","bytes":2389780,"sha256":"5f6725c513497e8e1dc62c615af7b99778d92bd4b1765b604e44dd3af71859a2","declared_sha256":"5f6725c513497e8e1dc62c615af7b99778d92bd4b1765b604e44dd3af71859a2","sha256_match":true},
+    "r80Audit": {"name":"R80_ROOT_SURFACE_AUDIT.json","bytes":117330,"sha256":"4a115f7658841a9f32a9563310bd511fa5b1faa9febe2ef00796fe919e913f3e"},
+    "r80Report": {"name":"R80_ROOT_SURFACE_AUDIT.md","bytes":19633,"sha256":"df8cdac15a5f1d3f4e67fe3772b8602f94e0ff64f18952798ab51d619d60f95b"},
+    "r80Replay": {"pid":1798,"command":"python run_r80_root_surface_audit.py","exitCode":0,"stdoutSha256":"0b25176140a4210fdf52f471972626bf363d851bc7fb915fc5efc54232b94197","stderrSha256":"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"},
+    "r5Parent": {"name":"KEDDEH_BRAINK_EXECUTABLE_RESIDENT_VOLUME_R5_SYSTEM_ORCHESTRATOR.html","bytes":13086990,"sha256":"9eb1eb8cead2b5f4d941dde024b5f7bbad46f1bdc2ff2e948fb190b841f16ede"},
+    "r5CrossWorkManifest": {"name":"BRAINK_R5_SYSTEM_MANIFEST_CROSS_WORK_R1.json","bytes":39430,"sha256":"5d867ae7d7f517d6cdde14c138e67e90571062521e5d912fd8812165da1ce985"},
+    "r5TopologyWorkbook": {"name":"KEDDEH_FULL_TOPOLOGY_TRAVERSAL_2026-10-02.xlsx","bytes":40535,"sha256":"1d0873c355ff764ea896fb69d0ad39d0eb93bccf41ccb464078cd9b49496b050"}
+  },
+  "embeddedContracts": {
+    "p11CarrierModel": {"scriptId":"p11-carrier-model","bytes":36154,"sha256":"81961d6df7458f46882f676fb5f4d3161847ad2af40d7694b2b7f27f48889fc2","identicalAcross":["v27","v28","r4S29Container"]},
+    "architectureRoot": {
+      "scriptId":"architecture-root","bytes":7618,"sha256":"fcae9e23dd75bc203fdebc01c4028808a9b6903ba4b36093d16e0c7c7a5ae44c","identicalAcross":["v27","v28","r4S29Container"],
+      "schema":"kex.braink.architecture.root.v1","status":"ARCHITECTURAL_CLOSURE_PASS","logicalIdentity":"volume://keddeh/braink/root",
+      "identityDimensions":{"logical_identity":"volume://keddeh/braink/root","carrier_identity":"carrier://html/keddeh-unified-v11","projection_identity":"projection://volume/root-hci","materialisation_identity":"materialisation://browser/current"},
+      "identityLaw":"logical_identity != carrier_identity != projection_identity != materialisation_identity",
+      "architectureLaw":"No carrier is the architecture root. Carriers preserve and project logical objects; the root is the recursive referential Volume.",
+      "namespaceCount":39,"relationTypeCount":12,"carrierClassCount":6,"planResolutionCount":19,
+      "planStates":{"P00":"CLOSED","P01":"CLOSED","P02":"CLOSED","P03":"CLOSED","P04":"CLOSED","P05":"CLOSED","P06":"CLOSED","P07":"CLOSED","P08":"CLOSED","P09":"CLOSED","P10":"CLOSED","P11":"CLOSED","P12":"CLOSED","P13":"CLOSED","P14":"CLOSED","P15":"CLOSED","P16":"CLOSED","P17":"IMPLEMENTED_TARGET_COVERAGE_PARTIAL","P18":"ARCHITECTURAL_CLOSURE_PASS_DEPLOYMENT_CONTINUATION_OPEN"},
+      "recursiveLaw":{"expression":"machine://M_n --HOSTS(machine definition + admitted carriers + machine contracts)--> machine://M_(n+1)","trigger":"EXPLICIT_SIGNAL_OR_TYPED_EVENT","automatic_unbounded_recursion":false,"child_inherits_machine_contract":true,"physical_host_copied_into_lineage":false,"lineage_rule":"child receives parent relation, continuation and admitted contract; physical carrier remains an external materialisation boundary"},
+      "currentCarrier":{"address":"carrier://html/keddeh-unified-v11","mime":"text/html","role":"resident projection + bootstrap carrier","architecture_root":false},
+      "currentProjection":"projection://volume/root-hci","currentMaterialisation":"materialisation://browser/current","nextPlan":"P17_TARGET_DEPLOYMENT_CONTINUATION","deploymentBoundary":"P17 target execution remains property-scoped and explicit; it does not negate P18 architectural closure."
+    },
+    "v28LineageManifest":{"scriptId":"ks-20260815-convergence-manifest","bytes":975,"sha256":"849a136ae51cfdf6079afb075464395688b3cd3c426f6f01dd4988bb07821bdf","parentArtifact":"KEDDEH_UNIFIED_REFERENTIAL_VOLUME_v27_DEPLOYMENT_READY.html","parentSha256":"df2a492661b9207154d3cbb1db648dd3aeca8d617578c2b5edd74745058d5a1b","parentSha256MatchesV27":true,"lineagePolicy":"COPY_PARENT_PRESERVE_EXISTING_DOM_CSS_JS_ADD_DELTA_ONLY","deploymentDomains":["LOCAL","HOSTED","SHARED","BRIDGE","EXTERNAL_ACQUISITION","RESEARCH_ONLY"],"evidenceRule":"Evidence is domain-scoped; no domain auto-promotes another."}
+  },
+  "rootMachine": {
+    "logicalIdentity":"volume://keddeh/braink/root","registerClass":"ATLAS_ONLY_LOGICAL_ROOT_MACHINE","isOneOf15ResidentHtmlRoots":false,
+    "implementationSurfaces":["machine contract","kernel","compute envelope","projection manager","carrier registry","VFS","runtime ABI","runtime registry","runtime contract"],
+    "carrierIdentity":"carrier://html/keddeh-unified-v11","projectionIdentity":"projection://volume/root-hci","materialisationIdentity":"materialisation://browser/current",
+    "carrierIndependentLaw":"No carrier is the architecture root. Carriers preserve and project logical objects; the root is the recursive referential Volume.",
+    "identityDimensionsAreDistinct":true,"currentCarrierByteBindingEstablished":false,
+    "currentCarrierBindingBoundary":"The architecture-root declares carrier://html/keddeh-unified-v11, but the P11 carrier model does not provide a version-qualified byte binding for that current carrier."
+  },
+  "historicalRootV16Carrier": {
+    "carrierId":"carrier://html/root-v16","logicalIdentity":"volume://keddeh/braink/root","sourceRef":"document:documentElement","declaredBytes":3741393,
+    "declaredSha256":"50a894e92fe06be3b19168d741b84bf6f6169fbc7130bbf0c2332649d8371c53","roles":["PARENT_VOLUME","EXECUTABLE_CONTAINER"],"state":"RESIDENT",
+    "exactSourceRecovered":false,"classification":"HISTORICAL_UNBOUND_DOCUMENT_ELEMENT_REFERENCE","sameDeclarationRepeatedAcross":["v27","v28","r4S29Container"],"p11ModelCopiedForwardUnchanged":true,
+    "candidateSubstitutionsRejected":[
+      {"identity":"v27 outer HTML","bytes":3958905,"sha256":"df2a492661b9207154d3cbb1db648dd3aeca8d617578c2b5edd74745058d5a1b"},
+      {"identity":"v28 outer HTML","bytes":4014151,"sha256":"404bb0942743518476a90f05e6109a5593678f6119211f45ed1bb6ed49ace585"},
+      {"identity":"R4 S29 outer HTML","bytes":21492468,"sha256":"e797bc65e71150c300d838616aa39dea7258f53bcd0b77d6c1aa1aad2cc160d9"},
+      {"identity":"R4 S29 lexical html element","bytes":21492451,"sha256":"6b78edff97f4fc406f9d03cc0cce67a5cb0ff9b4be3debcc2b52f7ea978f8fc1"},
+      {"identity":"R4 executable volume payload","bytes":13050075,"sha256":"5e55b7c3179d2afd246929bd5793186af65c8025ca4b65a32a06b10dbfe6c592"}
+    ],
+    "sourceSearchBoundary":"Not found in accessible Library title/content search and the materialized inputs for this run; this does not prove absence from Google Drive or every Library location."
+  },
+  "r4ExecutableVolume": {
+    "logicalIdentity":"braink://volume/r4","sourceName":"KEDDEH_BRAINK_EXECUTABLE_RESIDENT_VOLUME_R4.html","bytes":13050075,"sha256":"5e55b7c3179d2afd246929bd5793186af65c8025ca4b65a32a06b10dbfe6c592","distinctFromRootMachine":true,
+    "historicalVfsAndGenomeSummary":{"vfsEntriesDeclared":21,"vfsEntriesVerified":21,"vfsTotalEntryBytes":987623,"vfsRootHashRecomputed":false,"genomeSkillRecords":170,"uniqueCanonicalKeys":170,"stateFamilies":22,"toolVolumes":4},
+    "runtimeBoundary":{"selfTestsPassed":12,"selfTestsTotal":12,"exitCode":0,"mode":"LOCAL_NODE_HARNESS_MINIMAL_DOM_STUB","chromiumBrowser":false,"v86Boot":false,"productionHostProcess":false,"heartbeat":null}
+  },
+  "r5ParentAndWorkbookReconciliation": {
+    "parentSource":{"name":"KEDDEH_BRAINK_EXECUTABLE_RESIDENT_VOLUME_R5_SYSTEM_ORCHESTRATOR.html","bytes":13086990,"sha256":"9eb1eb8cead2b5f4d941dde024b5f7bbad46f1bdc2ff2e948fb190b841f16ede"},
+    "parentIdentity":"braink://volume/r5/system-orchestrator","parentOf":{"identity":"braink://volume/r4","file":"KEDDEH_BRAINK_EXECUTABLE_RESIDENT_VOLUME_R4.html","bytes":13050075,"sha256":"5e55b7c3179d2afd246929bd5793186af65c8025ca4b65a32a06b10dbfe6c592"},
+    "embeddedManifest":{"scriptId":"r5-system-manifest","bytes":25831,"sha256":"b64565d56f7172bb4db1206ca4cc8857f42dbcb1f76ae99635c629f16791ceb2","relations":23,"toolVolumes":4,"systemVolumes":15,"runtimeResources":5,"workbooks":3,"unifiedSurfaces":2,"candidates":1,"specializations":1},
+    "canonicalIdentityCount":33,
+    "canonicalIdentities":["braink://volume/r5/system-orchestrator","braink://volume/r4","tool://server-runtime","tool://research-fabric","tool://IL-LLM-HCI","tool://library-dna-governance","app://claimpath","app://casepath","app://braink/workbook","app://kos-bos","app://kex/computer","app://kex/active-state","app://kex-one","volume://casepath/v19","volume://braink/workbook-hci/v3","volume://services/claim-prep","volume://braink/il-llm/sovereign-v1","os://keddeh/hybrid","os://casepath/v2","runtime://kex/virtual-infrastructure","server://keddeh/global-presence","runtime://abi/v4","runtime://registry/v4","runtime://contract/v2","server://braink/sdos/systemd","mesh://braink/infrastructure","workbook://workbook_os_v7_4","workbook://boolean_graph_v7","workbook://supercomputer_env_v4","control://braink/illlm-kex/v11","projection://keddeh/resident-engineering-corpus/v3","candidate://app/kos-bos/json-manifest-fixed","app://casepath/analytical-matter-mesh/v18"],
+    "crossWorkChild":{"identity":"braink://volume/r5/system-orchestrator/cross-work-r1","bytes":39430,"sha256":"5d867ae7d7f517d6cdde14c138e67e90571062521e5d912fd8812165da1ce985","relations":32,"parentBinding":{"identity":"braink://volume/r5/system-orchestrator","sha256":"9eb1eb8cead2b5f4d941dde024b5f7bbad46f1bdc2ff2e948fb190b841f16ede","manifest_sha256":"a7b98529f3356b260ed9fa31834598a54fff171d2db069ade88c22931be3effc"}},
+    "standaloneManifest":{"declaredBytes":32546,"declaredSha256":"a7b98529f3356b260ed9fa31834598a54fff171d2db069ade88c22931be3effc","exactFileMaterialized":false,"embeddedParentManifestIsDifferent":true,"embeddedParentManifestBytes":25831,"embeddedParentManifestSha256":"b64565d56f7172bb4db1206ca4cc8857f42dbcb1f76ae99635c629f16791ceb2"},
+    "topologyWorkbook":{"name":"KEDDEH_FULL_TOPOLOGY_TRAVERSAL_2026-10-02.xlsx","bytes":40535,"sha256":"1d0873c355ff764ea896fb69d0ad39d0eb93bccf41ccb464078cd9b49496b050"},
+    "r5_33Sheet":{"rows":33,"unique":33,"matchesCanonical":false,"missing":["braink://volume/r5/system-orchestrator"],"extra":["braink://volume/r5/system-orchestrator/cross-work-r1"]},
+    "r5_ReconciliationSheet":{"rows":33,"unique":33,"matchesCanonical":true},
+    "classification":"DERIVED_VIEW_IDENTITY_SUBSTITUTION; original workbook and manifests preserved"
+  },
+  "estateCounts": {
+    "residentHtmlRoots":15,"rootIdentityLedgerRows":15,"rootBehavioralRows":15,"rootBrowserReceipts":15,"rootFabricObjects":15,
+    "residentRootPayloadsPassed":15,"residentRootPayloadsTotal":15,"residentRootBrowserPass":12,"residentRootBrowserPartialOrFail":3,
+    "atlasRecords":12,"atlasOnlyIdentities":4,"rootOnlyNotInAtlas":7,
+    "p11LogicalObjects":76,"p11RawCarrierRowsDeclared":98,"p11UniqueCarrierIdsDeclared":95,"p11DuplicateRawRowsUnmappedInR80Detail":3,"p11MultiCarrierLogicalObjects":19,
+    "r5LogicalIdentities":33,"r5P11Overlap":23,"r5OnlyIdentities":10,"p11OnlyIdentities":53,"r5P11Union":86,
+    "resolverGraphObjects":49,"resolverGraphAliases":107,"resolverGraphRelations":20,"p11R5RelationNodesDeclared":64,"p11CrossWorkRelationsDeclared":32,"r5StandaloneManifestRelationsDeclared":23
+  },
+  "crossRegister": {
+    "root_map_vs_identity_ledger_equal":true,"root_map_vs_fabric_equal":true,
+    "atlas_only_identities":["braink://volume/r5/system-orchestrator","mesh://braink/infrastructure","tool://server-runtime","volume://keddeh/braink/root"],
+    "root_only_not_in_atlas":["app://kex-one","os://casepath/v2","os://keddeh/hybrid","server://keddeh/global-presence","volume://braink/workbook-hci/v3","volume://casepath/v19","volume://services/claim-prep"]
+  },
+  "qualificationBoundaries":[
+    "15 resident HTML roots are distinct from the carrier-independent logical root machine volume://keddeh/braink/root.",
+    "The 12-record implementation-surface atlas and 15-root identity ledger are separate registers; four atlas-only and seven root-only identities remain explicit.",
+    "The 76 P11 logical objects, 95 detailed carrier IDs and 98 raw carrier rows are not merged into the 15-root count.",
+    "The P11 root-v16 carrier declaration is copied unchanged across v27, v28 and the R4 S29 container; it is not a verified byte binding to any of those current files.",
+    "The root machine declares current carrier, projection and browser materialisation as distinct identities; no carrier is the architecture root.",
+    "The R4 executable volume braink://volume/r4 is a separate logical identity from the root machine.",
+    "Browser set-content probes are not named-origin or external-network proof; local Node syntax checks are not browser execution or host boot.",
+    "No external host PID, heartbeat, restart receipt, independent quorum or trained weights are established by this audit. Subjective consciousness is not proven or claimed."
+  ],
+  "residentRootIdentities":["app://claimpath","app://casepath","app://braink/workbook","app://kos-bos","app://kex/computer","app://kex/active-state","app://kex-one","volume://casepath/v19","volume://braink/workbook-hci/v3","volume://services/claim-prep","volume://braink/il-llm/sovereign-v1","os://keddeh/hybrid","os://casepath/v2","runtime://kex/virtual-infrastructure","server://keddeh/global-presence"],
+  "atlasIdentities":["volume://keddeh/braink/root","app://claimpath","app://casepath","braink://volume/r5/system-orchestrator","app://braink/workbook","app://kex/computer","app://kex/active-state","app://kos-bos","runtime://kex/virtual-infrastructure","volume://braink/il-llm/sovereign-v1","tool://server-runtime","mesh://braink/infrastructure"],
+  "evidenceBundle":{"fullManifestSha256":"0ee1b220ad5902fbe73c67696b1623acc0390577b775c2f0af705907e536704e","r80AuditSha256":"4a115f7658841a9f32a9563310bd511fa5b1faa9febe2ef00796fe919e913f3e","r80AuditBytes":117330}
+}

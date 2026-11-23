@@ -1,0 +1,146 @@
+{
+  "schema": "ks-braink.r5-surface-readback.r57",
+  "date": "2026-11-15",
+  "cumulative": {
+    "r56_prior_verified": 15,
+    "r57_new_verified": 8,
+    "verified_total": 23,
+    "file_backed_total": 30,
+    "remaining_unlocated": 7
+  },
+  "r5_manifest": {
+    "sha256": "a7b98529f3356b260ed9fa31834598a54fff171d2db069ade88c22931be3effc",
+    "declared_sha256": "a7b98529f3356b260ed9fa31834598a54fff171d2db069ade88c22931be3effc",
+    "match": true
+  },
+  "parent": {
+    "identity": "braink://volume/r5/system-orchestrator",
+    "expected_source_sha256": "9eb1eb8cead2b5f4d941dde024b5f7bbad46f1bdc2ff2e948fb190b841f16ede",
+    "source_bytes_materialized": false
+  },
+  "descendant": {
+    "identity": "braink://volume/r5/system-orchestrator/cross-work-r1",
+    "bytes": 13154527,
+    "sha256": "d9d23b25da8c39d8694e661520c41ce8dcbd3cf070d68eac69407ed60d3d22ac"
+  },
+  "sources": [
+    {
+      "identity": "tool://server-runtime",
+      "file": "KEDDEH_LINUX_COMPUTER_v71_AUTOSTART_LINUX_SERVERS.html",
+      "bytes": 5093904,
+      "sha256": "a9b8cba41499dd95a4a8bb0c735e408c592517eccd1514b683d372b52325e3e4",
+      "verified": true
+    },
+    {
+      "identity": "tool://research-fabric",
+      "file": "KEDDEH_LINUX_COMPUTER_v71_RESEARCH_SECTOR_FABRIC_S26_S29.html",
+      "bytes": 5103217,
+      "sha256": "9aaf61466c123acc0554ce0a1514b40bd57b824b9bfeea0ac2b3313e150d294b",
+      "verified": true
+    },
+    {
+      "identity": "tool://IL-LLM-HCI",
+      "file": "BRAINK_IL_LLM_UNIFIED_HCI_v2.html",
+      "bytes": 54952,
+      "sha256": "9aeece2e7ee166420a2da45337c952beee7d1b2c1811bf52c36afb6e76d39bad",
+      "verified": true
+    },
+    {
+      "identity": "tool://library-dna-governance",
+      "file": "KEDDEH_BRAINK_LIBRARY_DNA_EVOLUTION_R1.html",
+      "bytes": 766963,
+      "sha256": "3dbd9009b34c41f88e1349e9faec3d786f93f6ce79e974da07f3c2036b4c650e",
+      "verified": true
+    },
+    {
+      "identity": "volume://services/claim-prep",
+      "file": "claim-prep.html",
+      "bytes": 2910,
+      "sha256": "d0a61156c0f0e845557cacd0885cf1e51f1f1363eb7417a14781bc14fbe778dc",
+      "verified": true
+    },
+    {
+      "identity": "app://casepath",
+      "file": "CasePath_Public_Projection_Hardened_v19_1.html",
+      "bytes": 259234,
+      "sha256": "33741f68b10e3f8ffee014237d151bc956dd35cc5265f16244fc9ae194356208",
+      "verified": true,
+      "classification": "projection"
+    },
+    {
+      "identity": "workbook://supercomputer_env_v4",
+      "file": "AK_SUPER_COMPUTER_RESEARCHED_ENVIRONMENT_V4.xlsx",
+      "bytes": 101298,
+      "sha256": "b87f33f26103bd2edca846b55c450abac03a28e16e60e9e9eaa1163e12bd6e84",
+      "verified": true,
+      "sheet_count": 40
+    },
+    {
+      "identity": "volume://casepath/v19",
+      "file": "CasePath_Executable_Volume_Master_v19.html",
+      "bytes": 258269,
+      "sha256": "a41cc0b40c950bd424f8f7f37b76fe2d92e2eeece51bf703ccc153f4d6a7d3b3",
+      "verified": true,
+      "classification": "executable-volume"
+    }
+  ],
+  "verification": {
+    "inline_js_syntax": {
+      "passed": 60,
+      "total": 60
+    },
+    "python_tests": {
+      "passed": 15,
+      "total": 15,
+      "exit_code": 0,
+      "test_sha256": "3ec18122f11726c623abeaaef5d1977b6d8a8a33eec1bd3185e70cd560ad13f9"
+    },
+    "crosswork_runtime": {
+      "node": "v22.16.0",
+      "pid": 627,
+      "exit_code": 0,
+      "passed": 11,
+      "total": 11,
+      "route_state": "ROUTED_NOT_EXECUTED",
+      "target_execution": "NOT_INFERRED",
+      "return_state": "RETURNED_TO_ORIGIN",
+      "return_target_execution": "NOT_OBSERVED",
+      "readback_count": 0
+    },
+    "stored_integration_readback": {
+      "passed": 16,
+      "total": 16,
+      "target_execution": "NOT_RUN"
+    }
+  },
+  "v71_external_dependencies": [
+    "https://copy.sh/v86/build/libv86.js",
+    "https://copy.sh/v86/build/v86.wasm",
+    "https://copy.sh/v86/bios/seabios.bin",
+    "https://copy.sh/v86/bios/vgabios.bin",
+    "https://i.copy.sh/linux.iso"
+  ],
+  "keddeh_ingestion": {
+    "session": "KEX-INGEST-E6A62326101749649C53",
+    "items": 9,
+    "state": "COMPLETE",
+    "canonical_manifest_hash": "2e7a1993fce92bce15f8832972e9d9c12ccec6c2f40069ea5b274359fad11d29",
+    "metadata_only": true
+  },
+  "remaining_unlocated": [
+    "ClaimPath_Shippable_Contents_v1.html",
+    "BRAINK_IL_LLM_SOVEREIGN_VOLUME.html",
+    "index(1).html",
+    "KEX_SELF_HOSTED_WORKBOOK_OS_V7_4_NETWORK_WIRED_FULL_POPULATION_PATCH.xlsx",
+    "KEX_V7_BOOLEAN_GRAPH_ENGINE_WORKBOOK.xlsx",
+    "BRAINK_IL_LLM_KEX_V11_ENGINEERING_CONTROL_PLANE.html",
+    "KEDDEH_RESIDENT_ENGINEERING_CORPUS_PROJECTION_v3_SERVICE_LAYERS.html"
+  ],
+  "boundaries": [
+    "No direct Google Drive connector was exposed; Files Library is not a live Drive read.",
+    "No Chromium/v86 boot, external node, production server loop or independent quorum was established.",
+    "The exact R5 parent source remains unmaterialized.",
+    "Cross-work route admission does not execute target sectors.",
+    "No subjective consciousness claim."
+  ]
+}

@@ -1,0 +1,141 @@
+{
+  "schema": "KS-BRAINK-IL-LLM/r91-cross-work-relation-traversal/1",
+  "architect": "A. Keddeh",
+  "canonicalArchitecture": "KS-BRAINK-IL-LLM",
+  "version": "R91",
+  "disposition": "LOCAL_SOURCE_AND_RELATION_VERIFICATION_PASS_NOT_TARGET_EXECUTION",
+  "sourceScope": "ChatGPT Files Library materialization; not Google Drive readback",
+  "sources": {
+    "r5Parent": {
+      "file": "KEDDEH_BRAINK_EXECUTABLE_RESIDENT_VOLUME_R5_SYSTEM_ORCHESTRATOR.html",
+      "bytes": 13086990,
+      "sha256": "9eb1eb8cead2b5f4d941dde024b5f7bbad46f1bdc2ff2e948fb190b841f16ede"
+    },
+    "standaloneManifest": {
+      "file": "BRAINK_R5_SYSTEM_MANIFEST.json",
+      "bytes": 32546,
+      "sha256": "a7b98529f3356b260ed9fa31834598a54fff171d2db069ade88c22931be3effc"
+    },
+    "crossWorkManifest": {
+      "file": "BRAINK_R5_SYSTEM_MANIFEST_CROSS_WORK_R1.json",
+      "bytes": 39430,
+      "sha256": "5d867ae7d7f517d6cdde14c138e67e90571062521e5d912fd8812165da1ce985"
+    },
+    "r3Source": {
+      "file": "KEDDEH_QUANTUM_COMPUTATIONAL_FORMALISM_TECHNICAL_PUBLICATION_R3(2).html",
+      "bytes": 35040,
+      "sha256": "20dfd28194dd928aa55e181ac2a04f6ffe807175641da16930a4387f96357956"
+    },
+    "researchFabric": {
+      "file": "KEDDEH_LINUX_COMPUTER_v71_RESEARCH_SECTOR_FABRIC_S26_S29.html",
+      "bytes": 5103217,
+      "sha256": "9aaf61466c123acc0554ce0a1514b40bd57b824b9bfeea0ac2b3313e150d294b"
+    }
+  },
+  "parentBinding": {
+    "identity": "braink://volume/r5/system-orchestrator",
+    "parentSha256": "9eb1eb8cead2b5f4d941dde024b5f7bbad46f1bdc2ff2e948fb190b841f16ede",
+    "standaloneManifestSha256": "a7b98529f3356b260ed9fa31834598a54fff171d2db069ade88c22931be3effc",
+    "match": true
+  },
+  "relationClosure": {
+    "standaloneRelations": 23,
+    "crossWorkRelations": 32,
+    "additionalCrossWorkRelations": 9,
+    "uniqueDirectedEdges": 32,
+    "basePrefixExact": true,
+    "allEndpointsClassified": true,
+    "endpointClassCounts": {
+      "file_backed": 17,
+      "relation_sector": 1,
+      "external_source": 1,
+      "research_sector_targets": 4,
+      "orchestrator_reference": 1
+    },
+    "edgeTypes": {
+      "EXPOSES_TOOL": 4,
+      "MAY_REQUIRE": 1,
+      "MAY_PROVIDE_EVIDENCE_TO": 1,
+      "PROVIDES_TRAVERSAL_SURFACE_FOR": 2,
+      "GOVERNS_ENTRY_AND_DELTA_POLICY_FOR": 2,
+      "INHERITS_FROM": 13,
+      "EXPOSES_RELATION_SECTOR": 1,
+      "ROUTES_WORK_TO": 4,
+      "RETURNS_WORK_TO": 4
+    }
+  },
+  "crossWorkBinding": {
+    "id": "CONNECT-QUANTUM-R3-TO-RESEARCH-EVOLUTION",
+    "state": "ADMITTED_RELATION_ROUTE_NOT_TARGET_EXECUTION",
+    "sourceIdentity": "research://keddeh/recursive-line-origin-matrix-formalism/r3",
+    "targets": [
+      "il-llm://braink/research/sector/s26",
+      "il-llm://braink/research/sector/s27",
+      "il-llm://braink/research/sector/s28",
+      "il-llm://braink/research/sector/s29"
+    ],
+    "returnRoute": "research://keddeh/recursive-line-origin-matrix-formalism/r3",
+    "relationSector": "il-llm://sector/engineering-translation-ledger/v2-cross-work",
+    "routeEdges": 4,
+    "returnEdges": 4
+  },
+  "researchSectors": [
+    {
+      "sector_id": "S26",
+      "address": "il-llm://braink/research/sector/s26",
+      "state": "RESEARCH_SECTOR_INSTANTIATED",
+      "promotionNext": "MULTI_DOMAIN_SUBSTRATE_REPRODUCED"
+    },
+    {
+      "sector_id": "S27",
+      "address": "il-llm://braink/research/sector/s27",
+      "state": "RESEARCH_SECTOR_INSTANTIATED",
+      "promotionNext": "MACHINE_DESCRIPTION_CLOSURE_REPRODUCED"
+    },
+    {
+      "sector_id": "S28",
+      "address": "il-llm://braink/research/sector/s28",
+      "state": "RESEARCH_SECTOR_INSTANTIATED",
+      "promotionNext": "SELF_REPRESENTATION_REPRODUCED"
+    },
+    {
+      "sector_id": "S29",
+      "address": "il-llm://braink/research/sector/s29",
+      "state": "UNIVERSALITY_OPEN",
+      "promotionNext": "FORMAL_UNIVERSALITY_CANDIDATE"
+    }
+  ],
+  "surfaceMetadataReview": {
+    "identity": "tool://research-fabric",
+    "manifestTitle": "KEDDEH v71 Research Sector Fabric S26-S29",
+    "actualHtmlTitle": "KEX Linux Computer v70",
+    "titleMatch": false,
+    "disposition": "RETAINED_UNCHANGED_REVIEW_REQUIRED"
+  },
+  "claimBoundary": {
+    "relationAdmissionIsNotExecution": true,
+    "formalUniversality": "OPEN",
+    "quantumEquivalence": "NOT_PROVEN",
+    "subjectiveConsciousnessProven": false,
+    "externalHostAdmission": "NOT_ESTABLISHED"
+  },
+  "relationGraphProjection": {
+    "file": "R91_RELATION_GRAPH_PROJECTION.json",
+    "bytes": 12406,
+    "sha256": "e62ec08675ded539327bb3c9030df29b1dbe09e66190e357d28d99e6f2ff9ef3",
+    "sourceFile": "BRAINK_R5_SYSTEM_MANIFEST_CROSS_WORK_R1.json",
+    "sourceBytes": 39430,
+    "sourceSha256": "5d867ae7d7f517d6cdde14c138e67e90571062521e5d912fd8812165da1ce985",
+    "derivedReadOnlyProjection": true
+  },
+  "execution": {
+    "verifierPid": 601,
+    "verifierExitCode": 0,
+    "verifierStdoutSha256": "c86d09ec482d5b56868e03de05c18d62f9fc25ac40517803a8e77e2433984afd",
+    "testPid": 981,
+    "testExitCode": 0,
+    "testsPassed": 9,
+    "testSourceSha256": "ae7e3ff02f91bc7ad93622be296013808c06af4402f4031c7770e453a3e44345",
+    "testStdoutSha256": "edea1fe2e925f38d64cba1ee0f8ba3f25b2723ff28e7e65063c9b7b3e2414e63"
+  }
+}

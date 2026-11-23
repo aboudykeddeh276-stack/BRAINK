@@ -1,0 +1,71 @@
+{
+  "schema": "KS-BRAINK-IL-LLM/R59-source-recovery/1",
+  "architect": "A. Keddeh",
+  "canonicalArchitecture": "KS-BRAINK-IL-LLM",
+  "date": "2026-11-15",
+  "disposition": "SOURCE_PRESERVING_LOCAL_VERIFICATION_NOT_DEPLOYMENT",
+  "sources": [
+    {
+      "identity": "braink://volume/r5/system-orchestrator",
+      "bytes": 13086990,
+      "sha256": "9eb1eb8cead2b5f4d941dde024b5f7bbad46f1bdc2ff2e948fb190b841f16ede"
+    },
+    {
+      "identity": "braink://volume/r4",
+      "bytes": 13050075,
+      "sha256": "5e55b7c3179d2afd246929bd5793186af65c8025ca4b65a32a06b10dbfe6c592"
+    },
+    {
+      "identity": "app://casepath/analytical-matter-mesh/v18",
+      "bytes": 252033,
+      "sha256": "d57cfd37e45e05357a061cc9b3d8e0c9fdb57e6921a06a8627bdc2c2682978e7",
+      "relation": "ADJACENT_SPECIALISATION",
+      "relation_to": "app://casepath"
+    }
+  ],
+  "manifests": {
+    "standaloneR5": "a7b98529f3356b260ed9fa31834598a54fff171d2db069ade88c22931be3effc",
+    "crossWork": "5d867ae7d7f517d6cdde14c138e67e90571062521e5d912fd8812165da1ce985",
+    "historicalR5Receipt": {
+      "sha256": "b9bb03ffd1775b574d4ef373653b41e8af7d46d67ea92eeac899db8944fe243e",
+      "passed": 24,
+      "total": 24,
+      "freshRerun": false
+    }
+  },
+  "test": {
+    "command": "python3 -m unittest -v test_r59_parent_recovery",
+    "passed": 28,
+    "failed": 0,
+    "exitCode": 0,
+    "durationSeconds": 2.161,
+    "pid": 1406,
+    "python": "3.13.5",
+    "node": "v22.16.0",
+    "heartbeat": null,
+    "testSourceSha256": "ae765e2fd152734bbe921086fee4ffa3792483d0205c6170f607425c6adf1214",
+    "stdoutSha256": "acfb96de4b08d3d8f3e53d59981dc29fdced54b58e57d4e698d999b5aeecd4fa"
+  },
+  "unresolved": {
+    "kosCandidate": {
+      "identity": "candidate://app/kos-bos/json-manifest-fixed",
+      "state": "CANDIDATE_UNPROMOTED",
+      "sha256": "05a8ff7abb6f9300c080ef943c1d24435dd0df7e6703ac8a648da0358d70fbaf"
+    },
+    "v60Base": {
+      "state": "NOT_LOCATED_IN_ACCESSIBLE_LIBRARY",
+      "sha256": "12cc18e7d8d438926614613c704e7a0122b21c3a52935acb795b738d412dfbfd"
+    },
+    "googleDrive": {
+      "state": "CONNECTOR_NOT_EXPOSED"
+    }
+  },
+  "claimBoundaries": {
+    "browserBoot": false,
+    "chromium100Pass": false,
+    "externalHost": false,
+    "independentQuorum": false,
+    "trainedWeights": false,
+    "subjectiveConsciousness": false
+  }
+}

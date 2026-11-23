@@ -1,0 +1,61 @@
+{
+  "schema": "KS-BRAINK-IL-LLM/r4-source-verification-summary/1",
+  "architect": "A. Keddeh",
+  "logicalIdentity": "braink://volume/r4",
+  "sourceFile": "KEDDEH_BRAINK_EXECUTABLE_RESIDENT_VOLUME_R4.html",
+  "sourceTitle": "KEX Linux Computer v70",
+  "sourceBytes": 13050075,
+  "sourceSha256": "5e55b7c3179d2afd246929bd5793186af65c8025ca4b65a32a06b10dbfe6c592",
+  "twoLibraryCopiesByteIdentical": true,
+  "fullManifest": {
+    "path": "local:/mnt/data/ks-braink-r11-atlas-v2/repo/docs/estate/ROOT_R4_VFS_SOURCE_MANIFEST.json",
+    "bytes": 10289,
+    "sha256": "2ac09d2d52eddd2cf9f508cb1074526d3dc9608aa0dab13bb36dc0910878c5fa"
+  },
+  "embeddedScripts": {
+    "r4ModelSha256": "0dd08d4b7f1ebe39e0b08c8e5c5e5d6303067f9d21a7a847aa5d808adc8b2a0a",
+    "r4VfsSha256": "a9dab3be87ba641db243a35757070ba00120cc7ac363fb72fcad735a09ebae1a",
+    "r4RuntimeSha256": "12cb5db44577a905c390cd381d2ac000e580c17bafe545a8694f7485a2a02f69"
+  },
+  "vfs": {
+    "declaredEntries": 21,
+    "verifiedEntries": 21,
+    "totalEntryBytes": 987623,
+    "declaredRootHash": "09c2288548f47d1038a95ea409f1c4af40e9c309e7d4714edd882e76a3363f3a",
+    "rootHashRecomputed": false
+  },
+  "genomeDna": {
+    "skillRecords": 170,
+    "uniqueCanonicalKeys": 170,
+    "stateFamilies": 22,
+    "toolVolumes": 4,
+    "workerDnaSha256": "22d011518b4277ae8b2782aadc5bc46e6ac1a85415fc534e802cafbff47a9b12",
+    "skillSetDnaSha256": "508423c73268babda7c3cc9b07438b44129884f1f813ebc5c8bc2b5f4d1c1032",
+    "branchConvergenceSha256": "bfb051b57cbe1ba4dcd78a2f6b823563fa8e2ce755e222851e53556ec5c649c7"
+  },
+  "runtimeExecution": {
+    "selfTestPassed": 12,
+    "selfTestTotal": 12,
+    "exitCode": 0,
+    "processPid": 972,
+    "mode": "LOCAL_NODE_HARNESS_MINIMAL_DOM_STUB",
+    "readContinuation": "PASS",
+    "readLedger": "PASS",
+    "enterToolVolume": "PASS",
+    "returnState": "PASS",
+    "kexDelta": "PASS",
+    "predecessorPreserved": true,
+    "chromiumBrowser": false,
+    "v86Boot": false,
+    "externalScriptCount": 1,
+    "externalScript": "https://copy.sh/v86/build/libv86.js",
+    "productionHostProcess": false,
+    "heartbeat": null
+  },
+  "claimBoundaries": [
+    "R4 is not the separate canonical root machine identity volume://keddeh/braink/root.",
+    "VFS entry hashes and byte lengths were recomputed; the declared VFS root hash was not.",
+    "The Node harness is not a Chromium browser or v86 boot.",
+    "No production host process or heartbeat was observed."
+  ]
+}
