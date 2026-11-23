@@ -1,0 +1,322 @@
+{
+  "schema": "KS-BRAINK-IL-LLM/r91-relation-graph-projection/1",
+  "projectionOf": "BRAINK_R5_SYSTEM_MANIFEST_CROSS_WORK_R1.json",
+  "sourceBytes": 39430,
+  "sourceSha256": "5d867ae7d7f517d6cdde14c138e67e90571062521e5d912fd8812165da1ce985",
+  "sourceScope": "Derived read-only projection from exact ChatGPT Files Library materialization; original source retained separately",
+  "identity": "braink://volume/r5/system-orchestrator/cross-work-r1",
+  "parent_system_orchestrator": {
+    "identity": "braink://volume/r5/system-orchestrator",
+    "sha256": "9eb1eb8cead2b5f4d941dde024b5f7bbad46f1bdc2ff2e948fb190b841f16ede",
+    "manifest_sha256": "a7b98529f3356b260ed9fa31834598a54fff171d2db069ade88c22931be3effc"
+  },
+  "relations": [
+    {
+      "source": "braink://local/orchestrator",
+      "relation": "EXPOSES_TOOL",
+      "target": "tool://server-runtime"
+    },
+    {
+      "source": "braink://local/orchestrator",
+      "relation": "EXPOSES_TOOL",
+      "target": "tool://research-fabric"
+    },
+    {
+      "source": "braink://local/orchestrator",
+      "relation": "EXPOSES_TOOL",
+      "target": "tool://IL-LLM-HCI"
+    },
+    {
+      "source": "braink://local/orchestrator",
+      "relation": "EXPOSES_TOOL",
+      "target": "tool://library-dna-governance"
+    },
+    {
+      "source": "tool://research-fabric",
+      "relation": "MAY_REQUIRE",
+      "target": "tool://server-runtime",
+      "condition": "research objective requires runtime/replicability evidence",
+      "parent_relation": false
+    },
+    {
+      "source": "tool://server-runtime",
+      "relation": "MAY_PROVIDE_EVIDENCE_TO",
+      "target": "tool://research-fabric",
+      "condition": "runtime evidence is relevant to active research claim",
+      "parent_relation": false
+    },
+    {
+      "source": "tool://IL-LLM-HCI",
+      "relation": "PROVIDES_TRAVERSAL_SURFACE_FOR",
+      "target": "tool://research-fabric",
+      "parent_relation": false
+    },
+    {
+      "source": "tool://IL-LLM-HCI",
+      "relation": "PROVIDES_TRAVERSAL_SURFACE_FOR",
+      "target": "tool://server-runtime",
+      "parent_relation": false
+    },
+    {
+      "source": "tool://library-dna-governance",
+      "relation": "GOVERNS_ENTRY_AND_DELTA_POLICY_FOR",
+      "target": "tool://research-fabric",
+      "parent_relation": false
+    },
+    {
+      "source": "tool://library-dna-governance",
+      "relation": "GOVERNS_ENTRY_AND_DELTA_POLICY_FOR",
+      "target": "tool://server-runtime",
+      "parent_relation": false
+    },
+    {
+      "source": "app://claimpath",
+      "relation": "INHERITS_FROM",
+      "target": "app://casepath",
+      "source_registry": "V11_CONTROL_PLANE"
+    },
+    {
+      "source": "app://claimpath",
+      "relation": "INHERITS_FROM",
+      "target": "app://braink/workbook",
+      "source_registry": "V11_CONTROL_PLANE"
+    },
+    {
+      "source": "app://claimpath",
+      "relation": "INHERITS_FROM",
+      "target": "app://kex-one",
+      "source_registry": "V11_CONTROL_PLANE"
+    },
+    {
+      "source": "app://claimpath",
+      "relation": "INHERITS_FROM",
+      "target": "volume://braink/il-llm/sovereign-v1",
+      "source_registry": "V11_CONTROL_PLANE"
+    },
+    {
+      "source": "app://casepath",
+      "relation": "INHERITS_FROM",
+      "target": "volume://casepath/v19",
+      "source_registry": "V11_CONTROL_PLANE"
+    },
+    {
+      "source": "app://braink/workbook",
+      "relation": "INHERITS_FROM",
+      "target": "volume://braink/workbook-hci/v3",
+      "source_registry": "V11_CONTROL_PLANE"
+    },
+    {
+      "source": "app://kex/computer",
+      "relation": "INHERITS_FROM",
+      "target": "app://kex/active-state",
+      "source_registry": "V11_CONTROL_PLANE"
+    },
+    {
+      "source": "os://keddeh/hybrid",
+      "relation": "INHERITS_FROM",
+      "target": "app://kex/computer",
+      "source_registry": "V11_CONTROL_PLANE"
+    },
+    {
+      "source": "os://keddeh/hybrid",
+      "relation": "INHERITS_FROM",
+      "target": "app://kex/active-state",
+      "source_registry": "V11_CONTROL_PLANE"
+    },
+    {
+      "source": "os://casepath/v2",
+      "relation": "INHERITS_FROM",
+      "target": "app://casepath",
+      "source_registry": "V11_CONTROL_PLANE"
+    },
+    {
+      "source": "os://casepath/v2",
+      "relation": "INHERITS_FROM",
+      "target": "volume://casepath/v19",
+      "source_registry": "V11_CONTROL_PLANE"
+    },
+    {
+      "source": "runtime://kex/virtual-infrastructure",
+      "relation": "INHERITS_FROM",
+      "target": "app://kex/computer",
+      "source_registry": "V11_CONTROL_PLANE"
+    },
+    {
+      "source": "runtime://kex/virtual-infrastructure",
+      "relation": "INHERITS_FROM",
+      "target": "app://kos-bos",
+      "source_registry": "V11_CONTROL_PLANE"
+    },
+    {
+      "source": "braink://local/orchestrator",
+      "relation": "EXPOSES_RELATION_SECTOR",
+      "target": "il-llm://sector/engineering-translation-ledger/v2-cross-work",
+      "parent_relation": false,
+      "source_registry": "CROSS_WORK_CONNECTOR_V3"
+    },
+    {
+      "source": "research://keddeh/recursive-line-origin-matrix-formalism/r3",
+      "relation": "ROUTES_WORK_TO",
+      "target": "il-llm://braink/research/sector/s26",
+      "via": "il-llm://sector/engineering-translation-ledger/v2-cross-work",
+      "reason": "Substrate generality / multi-domain realisation is implicated by the formalism treating literal line-addresses and recursive matrices as computational substrate.",
+      "work_id": "CONNECT-QUANTUM-R3-TO-RESEARCH-EVOLUTION",
+      "parent_relation": false,
+      "source_registry": "CROSS_WORK_CONNECTOR_V3"
+    },
+    {
+      "source": "il-llm://braink/research/sector/s26",
+      "relation": "RETURNS_WORK_TO",
+      "target": "research://keddeh/recursive-line-origin-matrix-formalism/r3",
+      "via": "il-llm://sector/engineering-translation-ledger/v2-cross-work",
+      "work_id": "CONNECT-QUANTUM-R3-TO-RESEARCH-EVOLUTION",
+      "parent_relation": false,
+      "source_registry": "CROSS_WORK_CONNECTOR_V3"
+    },
+    {
+      "source": "research://keddeh/recursive-line-origin-matrix-formalism/r3",
+      "relation": "ROUTES_WORK_TO",
+      "target": "il-llm://braink/research/sector/s27",
+      "via": "il-llm://sector/engineering-translation-ledger/v2-cross-work",
+      "reason": "Recurrent mathematics / machine-description closure is implicated by line-origin recursion, relational frames and IL-LLM traversal.",
+      "work_id": "CONNECT-QUANTUM-R3-TO-RESEARCH-EVOLUTION",
+      "parent_relation": false,
+      "source_registry": "CROSS_WORK_CONNECTOR_V3"
+    },
+    {
+      "source": "il-llm://braink/research/sector/s27",
+      "relation": "RETURNS_WORK_TO",
+      "target": "research://keddeh/recursive-line-origin-matrix-formalism/r3",
+      "via": "il-llm://sector/engineering-translation-ledger/v2-cross-work",
+      "work_id": "CONNECT-QUANTUM-R3-TO-RESEARCH-EVOLUTION",
+      "parent_relation": false,
+      "source_registry": "CROSS_WORK_CONNECTOR_V3"
+    },
+    {
+      "source": "research://keddeh/recursive-line-origin-matrix-formalism/r3",
+      "relation": "ROUTES_WORK_TO",
+      "target": "il-llm://braink/research/sector/s28",
+      "via": "il-llm://sector/engineering-translation-ledger/v2-cross-work",
+      "reason": "KEX data/definition evolution and lineage are explicit operators in the candidate machine.",
+      "work_id": "CONNECT-QUANTUM-R3-TO-RESEARCH-EVOLUTION",
+      "parent_relation": false,
+      "source_registry": "CROSS_WORK_CONNECTOR_V3"
+    },
+    {
+      "source": "il-llm://braink/research/sector/s28",
+      "relation": "RETURNS_WORK_TO",
+      "target": "research://keddeh/recursive-line-origin-matrix-formalism/r3",
+      "via": "il-llm://sector/engineering-translation-ledger/v2-cross-work",
+      "work_id": "CONNECT-QUANTUM-R3-TO-RESEARCH-EVOLUTION",
+      "parent_relation": false,
+      "source_registry": "CROSS_WORK_CONNECTOR_V3"
+    },
+    {
+      "source": "research://keddeh/recursive-line-origin-matrix-formalism/r3",
+      "relation": "ROUTES_WORK_TO",
+      "target": "il-llm://braink/research/sector/s29",
+      "via": "il-llm://sector/engineering-translation-ledger/v2-cross-work",
+      "reason": "Quantum equivalence, reversible/norm-preserving transition, measurement equivalence, phase/interference and universality remain formal proof/falsification obligations.",
+      "work_id": "CONNECT-QUANTUM-R3-TO-RESEARCH-EVOLUTION",
+      "parent_relation": false,
+      "source_registry": "CROSS_WORK_CONNECTOR_V3"
+    },
+    {
+      "source": "il-llm://braink/research/sector/s29",
+      "relation": "RETURNS_WORK_TO",
+      "target": "research://keddeh/recursive-line-origin-matrix-formalism/r3",
+      "via": "il-llm://sector/engineering-translation-ledger/v2-cross-work",
+      "work_id": "CONNECT-QUANTUM-R3-TO-RESEARCH-EVOLUTION",
+      "parent_relation": false,
+      "source_registry": "CROSS_WORK_CONNECTOR_V3"
+    }
+  ],
+  "relation_sectors": [
+    {
+      "identity": "il-llm://sector/engineering-translation-ledger/v2-cross-work",
+      "title": "Engineering Translation Cross-Work Connector",
+      "role": "CROSS_WORK_RELATION_AND_TRANSLATION_SECTOR",
+      "state_owner": "braink://local/orchestrator",
+      "state_family": "braink://state-family/orchestrator-relation-space",
+      "tool_family": "braink://state-family/tool-volume-space",
+      "classification": "RELATION_SECTOR_NOT_TOOL_VOLUME",
+      "work_classes": [
+        "SECTOR",
+        "RESEARCH_SECTOR",
+        "PLAN",
+        "SKILL",
+        "APPLICATION",
+        "VOLUME",
+        "RUNTIME",
+        "SERVER",
+        "MESH",
+        "WORKBOOK",
+        "EVIDENCE",
+        "CONTINUATION"
+      ],
+      "routing_invariants": [
+        "NO_MERGE_OF_INDEPENDENT_ANCESTRY",
+        "RETURN_ROUTE_REQUIRED",
+        "EXPLICIT_USER_EVENT_OUTRANKS_STALE_CONTINUATION",
+        "NO_ARTIFACT_OR_STAGE_AMBIENT_AUTHORITY",
+        "EVIDENCE_BOUNDS_CLAIM_NOT_OBJECTIVE",
+        "EXISTING_MECHANIC_PRECEDES_REIMPLEMENTATION"
+      ],
+      "interfaces": [
+        "cross-work://resolve",
+        "cross-work://route",
+        "cross-work://return",
+        "cross-work://self-test"
+      ],
+      "claim_boundary": "Routing admission/readback does not imply execution or validation of target-sector work."
+    }
+  ],
+  "cross_work_bindings": [
+    {
+      "id": "CONNECT-QUANTUM-R3-TO-RESEARCH-EVOLUTION",
+      "source": {
+        "identity": "research://keddeh/recursive-line-origin-matrix-formalism/r3",
+        "file": "KEDDEH_QUANTUM_COMPUTATIONAL_FORMALISM_TECHNICAL_PUBLICATION_R3(2).html",
+        "sha256": "20dfd28194dd928aa55e181ac2a04f6ffe807175641da16930a4387f96357956"
+      },
+      "objective": "Route the supplied KEDDEH quantum-computational formalism into the existing research evolution fabric without claiming open properties as proven.",
+      "targets": [
+        "il-llm://braink/research/sector/s26",
+        "il-llm://braink/research/sector/s27",
+        "il-llm://braink/research/sector/s28",
+        "il-llm://braink/research/sector/s29"
+      ],
+      "return_route": "research://keddeh/recursive-line-origin-matrix-formalism/r3",
+      "claim_boundary": "DEFINED KEDDEH architecture may be connected as source work; quantum equivalence and physical implementation remain OPEN/CANDIDATE and must not be promoted by routing alone.",
+      "state": "ADMITTED_RELATION_ROUTE_NOT_TARGET_EXECUTION"
+    }
+  ],
+  "researchFabricToolVolume": {
+    "tool_identity": "tool://research-fabric",
+    "title": "KEDDEH v71 Research Sector Fabric S26-S29",
+    "source_name": "KEDDEH_LINUX_COMPUTER_v71_RESEARCH_SECTOR_FABRIC_S26_S29.html",
+    "sha256": "9aaf61466c123acc0554ce0a1514b40bd57b824b9bfeea0ac2b3313e150d294b",
+    "bytes": 5103217,
+    "role": "RESEARCH_ONTOLOGY_AND_SECTOR_TOOL_VOLUME",
+    "lineage_relation_to_other_v71": "NONE_ESTABLISHED",
+    "interfaces": [
+      "research://ontology",
+      "research://sector/S26",
+      "research://sector/S27",
+      "research://sector/S28",
+      "research://sector/S29",
+      "research://runtime"
+    ],
+    "internal_markers": [
+      "v71-governing-research-ontology",
+      "v71-research-sector-manifest",
+      "v71-research-sector-runtime"
+    ],
+    "claim_boundary": {
+      "research_fabric": "PRESENT_IN_TOOL_VOLUME",
+      "formal_universality": "OPEN"
+    },
+    "local_path": "tools/KEDDEH_LINUX_COMPUTER_v71_RESEARCH_SECTOR_FABRIC_S26_S29.html",
+    "integrity_state": "VERIFIED_LOCAL_BYTES"
+  }
+}
