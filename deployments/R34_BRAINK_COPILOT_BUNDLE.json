@@ -1,0 +1,36 @@
+{
+  "release": "R34_BRAINK_COPILOT_HTML5_RUNTIME",
+  "branch": "evolution/window-signal-fabric-r33",
+  "source_surface": "user-supplied BRAINK Copilot HTML5 build attempt 1",
+  "status": "IMPLEMENTED_ON_BRANCH_AWAITING_EXTERNAL_RUNNER_QUALIFICATION",
+  "front_surface": "web/braink-copilot/index.html",
+  "api_runtime": "runtime/copilot_api.py",
+  "service_unit": "deployment/braink-copilot.service",
+  "host_installer": "deployment/install-kex-signal-fabric.sh",
+  "tests": [
+    "scripts/kex-ci/test_copilot_api_r34.py",
+    ".github/workflows/r33-window-signal-fabric.yml"
+  ],
+  "endpoint_bindings": {
+    "POST /braink/boot": "authenticated client of R33 signal service; commits STATE_PATCH to app://braink/os and returns machine receipt",
+    "GET /mesh/ping": "reads resident RuntimeRegistry only; does not invent remote reachability",
+    "GET /dashboards/summary": "projects runtime registry, repository skills/modules, workbook datasets and R33 target state",
+    "POST /chat/execute": "deterministic process router; unmatched generative semantics return UNBOUND_CHAT_SEMANTICS instead of synthetic AI output"
+  },
+  "runtime_boundary": {
+    "single_writer": "copilot_api never writes R33 journals directly; mutation traverses authenticated HTTP /v1/propagate",
+    "authority": "KEX_SIGNAL_AUTH_TOKEN plus configured KEX_SIGNAL_AUTHORITY",
+    "target": "app://braink/os",
+    "projection_port": 8080,
+    "signal_port": 18033
+  },
+  "claim_boundary": {
+    "repository_mutation": true,
+    "front_surface_resident": true,
+    "backend_routes_resident": true,
+    "host_installer_updated": true,
+    "physical_owner_host_started": false,
+    "public_network_exposed": false,
+    "generative_llm_bound": false
+  }
+}

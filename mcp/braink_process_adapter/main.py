@@ -1,10 +1,12 @@
 from __future__ import annotations
 
+from dataclasses import asdict
 from typing import Any
 
 from mcp.server.fastmcp import FastMCP
 from mcp.types import ToolAnnotations
 
+from runtime.signal_fabric import GENESIS, SignalRequest
 from .backend import BrainkProcessBackend
 
 mcp = FastMCP("BRAINK Enterprise Capability Adapter")
@@ -30,6 +32,32 @@ def braink_capability_manifest()->list[dict[str,Any]]:
 @mcp.tool(description="Return the typed agent function-call manifest for governed BRAINK capabilities. Each function has an explicit parameter schema/defaults but still executes only through braink_invoke_capability.",annotations=ToolAnnotations(readOnlyHint=True,destructiveHint=False,idempotentHint=True,openWorldHint=False))
 def braink_function_manifest()->list[dict[str,Any]]:
     return backend().function_manifest()
+
+
+@mcp.tool(description="Compile bounded window state and domain intent into one canonical kex.signal/1 propagation request. This tool compiles only; it does not execute or mutate the target.",annotations=ToolAnnotations(readOnlyHint=True,destructiveHint=False,idempotentHint=True,openWorldHint=False))
+def braink_compile_window_signal(source_identity:str,target_identity:str,authority:str,operation:str,authoritative_state:dict[str,Any],payload:dict[str,Any],sequence:int,previous_receipt:str=GENESIS,invariants:list[str]|None=None)->dict[str,Any]:
+    request=SignalRequest.compile(
+        source=source_identity,
+        target=target_identity,
+        operation=operation,
+        state=authoritative_state,
+        payload=payload,
+        invariants=tuple(invariants or ["state_must_be_object","no_null_state"]),
+        authority=authority,
+        sequence=sequence,
+        previous_receipt=previous_receipt,
+    )
+    return asdict(request)
+
+
+@mcp.tool(description="Return the canonical machine-side operation classes currently bound by the R33 signal fabric.",annotations=ToolAnnotations(readOnlyHint=True,destructiveHint=False,idempotentHint=True,openWorldHint=False))
+def braink_signal_operation_manifest()->dict[str,Any]:
+    return {
+        "abi":"kex.signal/1",
+        "grammar":["VERIFY","ADDRESS","PROPAGATE","EXECUTE","COMMIT","RECEIPT"],
+        "operations":["STATE_PATCH","KEX_ACTION","CASEPATH_DISPATCH","WORKBOOK_READ","RUNTIME_REGISTER","RUNTIME_DESIRED_STATE"],
+        "rule":"domain semantics remain inside their bounded window; only the compiled propagation request crosses the machine boundary",
+    }
 
 
 @mcp.tool(description="Authoritative enterprise invocation path. Payload is validated against the selected typed function contract, then scope, lease, approval, idempotency, circuit, durable invocation and resident-mechanic controls are enforced.",annotations=ToolAnnotations(readOnlyHint=False,destructiveHint=True,idempotentHint=False,openWorldHint=True))
@@ -62,7 +90,6 @@ def braink_get_work_lease(work_id:str)->dict[str,Any]:
     return backend().current_lease(work_id)
 
 
-# Read-only convenience projections remain callable directly.
 @mcp.tool(description="Read DOMAIN_AUTHORITY state. For the governed contract use capability domain.observe.",annotations=ToolAnnotations(readOnlyHint=True,destructiveHint=False,idempotentHint=True,openWorldHint=False))
 def braink_observe_domain_authority(domain:str)->dict[str,Any]:
     return backend().observe_domain_authority(domain)
@@ -83,7 +110,6 @@ def braink_vfs_read(logical:str,backing:str)->dict[str,Any]:
     return backend().vfs_read(logical,backing)
 
 
-# Legacy mutating entry points are fenced instead of bypassing enterprise governance.
 @mcp.tool(description="Legacy domain mutation entry point. Direct mutation is disabled; use braink_invoke_capability with domain.provision.",annotations=ToolAnnotations(readOnlyHint=False,destructiveHint=False,idempotentHint=True,openWorldHint=False))
 def braink_provision_domain_authority(tx_id:str,domain:str,ip:str,owner_scope:str="KEDDEH_SYSTEMS")->dict[str,Any]:
     return governed_required("domain.provision")
